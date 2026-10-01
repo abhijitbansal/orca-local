@@ -160,13 +160,10 @@ describe('ready-for-review required check reuse', () => {
     expect(workflow.jobs.verify.needs).toEqual(['code_paths', ...PR_CHECK_JOBS])
   })
 
-  it.each(['pr-test-loc.yml', 'mobile.yml'])(
-    'does not rerun draft-independent %s on readiness changes',
-    (file) => {
-      const source = readFileSync(`.github/workflows/${file}`, 'utf8')
-      const independent = parse(source)
-      expect(independent.on.pull_request.types).toEqual(['opened', 'synchronize', 'reopened'])
-      expect(source).not.toContain('pull_request.draft')
-    }
-  )
+  it('does not rerun draft-independent pr-test-loc.yml on readiness changes', () => {
+    const source = readFileSync('.github/workflows/pr-test-loc.yml', 'utf8')
+    const independent = parse(source)
+    expect(independent.on.pull_request.types).toEqual(['opened', 'synchronize', 'reopened'])
+    expect(source).not.toContain('pull_request.draft')
+  })
 })

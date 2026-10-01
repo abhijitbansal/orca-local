@@ -25,7 +25,7 @@ Before writing new logic at any scale — a function, component, IPC channel, st
 
 ## Lint Rules: Do Not Disable Max Lines
 
-NEVER add a `max-lines` disable (`eslint-disable max-lines`, `oxlint-disable max-lines`, or line-specific variants), and never add a per-file `max-lines` bump in `mobile/.oxlintrc.json`.
+NEVER add a `max-lines` disable (`eslint-disable max-lines`, `oxlint-disable max-lines`, or line-specific variants).
 
 ## File and Module Naming
 

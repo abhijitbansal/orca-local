@@ -48,8 +48,7 @@ describe('changed-code quality line matching', () => {
     ).toBe(true)
   })
 
-  // Why: pinning --config disables nested-config discovery, so root rules that
-  // mobile/.oxlintrc.json turns off would fail the gate on mobile files.
+  // Why: pinning --config disables nested-config discovery.
   it('lets the untyped scan discover nested configs instead of pinning the root config', () => {
     const scan = OXLINT_SCANS.find((candidate) => candidate.label === 'code quality')
 
@@ -58,7 +57,7 @@ describe('changed-code quality line matching', () => {
   })
 
   // Why: import/no-duplicates was reachable only through the repo-wide CI audit, so it first
-  // surfaced after push. The cycle rule stays out because CI's audit runs before the mobile install.
+  // surfaced after push. The cycle rule stays out of the changed-code gate.
   it('runs the focused plugin config the repo-wide audit enforces, minus the cycle rule', () => {
     const scan = OXLINT_SCANS.find((candidate) => candidate.label === 'focused plugins')
 

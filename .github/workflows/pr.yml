@@ -35,8 +35,6 @@ jobs:
       should_run: ${{ steps.filter.outputs.should_run }}
       reused_run_id: ${{ steps.readiness.outputs.run_id }}
       # A proven success masks required work only; advisory routing still uses the full diff.
-      mobile_dependencies: ${{ steps.filter.outputs.mobile_dependencies }}
-      mobile_web_app: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.mobile_web_app }}
       static_analysis: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.static_analysis }}
       typecheck: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.typecheck }}
       git_compatibility: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.git_compatibility }}
@@ -172,24 +170,10 @@ jobs:
           fetch-depth: 50
           persist-credentials: false
 
-      # Why two guarded installs: the mixed root+mobile store entry is 537 MB against
-      # 321 MB for root alone, and restoring it costs 8.6s against 4.6s. Most PRs skip the
-      # mobile install below, so they were paying 216 MB for packages they never link. The
-      # root-only key is also the one the hourly warmer reseeds. Only one of these runs.
       - uses: ./.github/actions/install-node-dependencies
-        if: needs.code_paths.outputs.mobile_dependencies != 'true'
         with:
           native-runtime: node
           node-version: '24'
-
-      - uses: ./.github/actions/install-node-dependencies
-        if: needs.code_paths.outputs.mobile_dependencies == 'true'
-        with:
-          native-runtime: node
-          node-version: '24'
-          cache-dependency-path: |
-            pnpm-lock.yaml
-            mobile/pnpm-lock.yaml
 
       # Keep each check in its own log while sharing this runner.
       - name: Lint
@@ -210,14 +194,7 @@ jobs:
       - name: Enforce type-aware code-quality baseline
         run: pnpm run audit:code-quality:type-aware
 
-      # Mobile installation changes import resolution for the native cycle check.
       - wait: native-code-quality
-
-      # Why here: the changed-code gate lints mobile files too, and its type-aware pass
-      # resolves types from mobile/node_modules. Without the install every mobile type
-      # degrades to an `error` type — reported as phantom findings against the changed lines.
-      - uses: ./.github/actions/install-mobile-dependencies
-        if: needs.code_paths.outputs.mobile_dependencies == 'true'
 
       - name: Enforce changed-code quality
         id: changed-code-quality
@@ -738,84 +715,6 @@ jobs:
           pnpm exec vitest run --config config/vitest.config.ts \
             src/main/orcad/external-chromium-browser-process.integration.test.ts
 
-  # Why its own job: it needs mobile/node_modules and a real browser, and the sharded `test`
-  # matrix would pay for both on every shard to run two files. It builds the same bundle the
-  # package job ships, and adds the render and census checks packaging does not run.
-  mobile_web_app:
-    name: mobile web app bundle
-    needs: [code_paths]
-    if: needs.code_paths.outputs.mobile_web_app == 'true'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-
-      # Why no native-runtime: the builder is esbuild and the render check is a browser. Nothing
-      # in this job loads node-pty.
-      - uses: ./.github/actions/install-node-dependencies
-        with:
-          native-runtime: node
-          cache-dependency-path: |
-            pnpm-lock.yaml
-            mobile/pnpm-lock.yaml
-
-      # The drawer check runs on WebKit as well as Chrome, because the shell's iOS WebView is
-      # WebKit and the Chrome above cannot stand in for it. Downloaded rather than resolved from
-      # the runner: Ubuntu ships no WebKit build to point at.
-      - name: Install WebKit for the drawer check
-        id: webkit
-        background: true
-        run: pnpm exec playwright install --with-deps webkit
-
-      # The entry lives in mobile/ so one React resolves; without this every RN import is nothing.
-      - uses: ./.github/actions/install-mobile-dependencies
-
-      - name: Prepare mobile route snapshot
-        id: mobile-routes
-        background: true
-        run: node config/scripts/run-mobile-web-app-checks.mjs --prepare-route-snapshot "$RUNNER_TEMP/mobile-routes.json"
-
-      # Why the runner's Google Chrome and not a downloaded chromium: same reason as the orcad
-      # browser job -- Ubuntu 24.04 only ships an AppArmor userns profile for the Chrome .deb.
-      # Why fail instead of skip: a silently skipped render check is the failure this job exists
-      # to prevent.
-      - name: Resolve Chrome for the render check
-        run: |
-          set -euo pipefail
-          chrome="$(command -v google-chrome || command -v google-chrome-stable || true)"
-          if [ -z "$chrome" ]; then
-            echo "::error::No Google Chrome on the runner; the render check would silently skip."
-            exit 1
-          fi
-          "$chrome" --version
-          echo "ORCA_MOBILE_WEB_RENDER_BROWSER=$chrome" >> "$GITHUB_ENV"
-
-      - name: Build and verify the app bundle
-        run: pnpm run build:mobile-web
-
-      # Browser checks must observe both a finished install and the built bundle.
-      - wait: [webkit, mobile-routes]
-
-      # The bundling tests skip themselves where mobile dependencies are absent, which is how they
-      # stay green in the sharded `test` job. This is the job that installs them, so here a missing
-      # install has to fail rather than skip everything the job exists to run.
-      # Why a prefix and not a file list: the list this replaces had gone stale twice without
-      # anyone noticing, because a census whose closure block skips without the env flag below is
-      # green in the sharded `test` job whether or not it ever runs here. The prefix is the same
-      # one `pr-code-change-scope.mjs` fires this job on, so naming a test into the family is all
-      # it takes to have it run. Quoted because these are vitest filename filters, matched as
-      # substrings against the discovered files, and the shell must not touch them.
-      # Route censuses share fresh dependency lists for this invocation; scratch builds stay independent.
-      - name: Builder, override census and render checks
-        env:
-          ORCA_MOBILE_WEB_APP_DEPS_REQUIRED: '1'
-          ORCA_MOBILE_WEB_PREPARED_ROUTE_SNAPSHOT: ${{ runner.temp }}/mobile-routes.json
-        run: |
-          node config/scripts/run-mobile-web-app-checks.mjs
-
   cross-version-wire:
     name: cross-version wire compatibility
     needs: [code_paths]
@@ -921,13 +820,6 @@ jobs:
       - uses: ./.github/actions/install-node-dependencies
         with:
           native-runtime: electron
-          cache-dependency-path: |
-            pnpm-lock.yaml
-            mobile/pnpm-lock.yaml
-
-      # Why here: electron-builder's beforePack requires out/mobile-web, and the bundle
-      # build resolves React Native and Expo from mobile/node_modules.
-      - uses: ./.github/actions/install-mobile-dependencies
 
       # The checkout must pass without depending on a historical baseline that leaks.
       - name: Verify Linux daemon shutdown descendant cleanup
@@ -982,12 +874,6 @@ jobs:
             wait "$pid" || status=1
           done
           exit "$status"
-
-      # Why here and not inside "Build package inputs": this job assembles packaging inputs step by
-      # step instead of calling build:release, and electron-builder's beforePack guard hard-fails
-      # without out/mobile-web. This is the real page, ~8 MB, not a bootstrap document.
-      - name: Build mobile web bundle
-        run: pnpm run build:mobile-web
 
       - name: Build native components
         run: pnpm run build:native
@@ -1070,13 +956,6 @@ jobs:
         with:
           native-runtime: node
           persist-native-cache: 'false'
-          cache-dependency-path: |
-            pnpm-lock.yaml
-            mobile/pnpm-lock.yaml
-
-      # Why here: electron-builder's beforePack requires out/mobile-web, and the bundle
-      # build resolves React Native and Expo from mobile/node_modules.
-      - uses: ./.github/actions/install-mobile-dependencies
 
       - name: Save compiled Node native modules
         if: steps.deps.outputs.native-cache-hit != 'true'
@@ -1261,7 +1140,6 @@ jobs:
       - shell_contracts
       - test
       - orcad_browser
-      - mobile_web_app
       - cross-version-wire
       - managed_hook_node18
       - package
@@ -1299,8 +1177,6 @@ jobs:
           TEST_SHOULD_RUN: ${{ needs.code_paths.outputs.test }}
           ORCAD_BROWSER: ${{ needs.orcad_browser.result }}
           ORCAD_BROWSER_SHOULD_RUN: ${{ needs.code_paths.outputs.orcad_browser }}
-          MOBILE_WEB_APP: ${{ needs.mobile_web_app.result }}
-          MOBILE_WEB_APP_SHOULD_RUN: ${{ needs.code_paths.outputs.mobile_web_app }}
           CROSS_VERSION_WIRE: ${{ needs.cross-version-wire.result }}
           CROSS_VERSION_WIRE_SHOULD_RUN: ${{ needs.code_paths.outputs.cross-version-wire }}
           MANAGED_HOOK_NODE18: ${{ needs.managed_hook_node18.result }}
@@ -1340,7 +1216,6 @@ jobs:
           check_job shell_contracts "$SHELL_CONTRACTS" "$SHELL_CONTRACTS_SHOULD_RUN"
           check_job test "$TEST" "$TEST_SHOULD_RUN"
           check_job orcad_browser "$ORCAD_BROWSER" "$ORCAD_BROWSER_SHOULD_RUN"
-          check_job mobile_web_app "$MOBILE_WEB_APP" "$MOBILE_WEB_APP_SHOULD_RUN"
           check_job cross-version-wire "$CROSS_VERSION_WIRE" "$CROSS_VERSION_WIRE_SHOULD_RUN"
           check_job managed_hook_node18 "$MANAGED_HOOK_NODE18" "$MANAGED_HOOK_NODE18_SHOULD_RUN"
           check_job package "$PACKAGE" "$PACKAGE_SHOULD_RUN"

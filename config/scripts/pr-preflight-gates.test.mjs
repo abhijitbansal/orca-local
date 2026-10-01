@@ -26,7 +26,7 @@ it('shares planning setup while keeping the heavy checks on separate runners', (
   const installs = workflow.jobs.static_analysis.steps.filter(
     (step) => step.uses === './.github/actions/install-node-dependencies'
   )
-  expect(installs).toHaveLength(2)
+  expect(installs).toHaveLength(1)
   for (const install of installs) {
     expect(install.with['native-runtime']).toBe('node')
     expect(install.with['node-version']).toBe('24')

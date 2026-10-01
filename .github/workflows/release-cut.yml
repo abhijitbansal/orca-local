@@ -1264,8 +1264,6 @@ jobs:
       # ref, so cutting from an older/off-main ref whose tree predates a composite
       # action would fail the step with "Can't find 'action.yml'". Restore the
       # actions directory from the commit this workflow file itself came from.
-      # Not Windows-only: every platform now consumes install-mobile-dependencies, so
-      # any of them can be the one whose cut ref predates the action.
       - name: Restore draft-publish scripts from the workflow ref
         # Why: this job checks out the release tag, so a cut from an older SHA
         # still has electron-builder releaseType:release and no re-draft helper.
@@ -1279,16 +1277,13 @@ jobs:
           git checkout "$WORKFLOW_SHA" -- config/scripts/assert-github-release-is-draft.mjs
 
       - name: Restore composite actions from the workflow ref
+        if: matrix.platform == 'win' && github.run_attempt == 1
         shell: bash
         env:
           WORKFLOW_SHA: ${{ github.workflow_sha }}
-          PLATFORM: ${{ matrix.platform }}
         run: |
           set -euo pipefail
-          required=(.github/actions/install-mobile-dependencies/action.yml)
-          if [ "$PLATFORM" = win ] && [ "$GITHUB_RUN_ATTEMPT" = 1 ]; then
-            required+=(.github/actions/install-signpath-module/action.yml)
-          fi
+          required=(.github/actions/install-signpath-module/action.yml)
           missing=()
           for action_path in "${required[@]}"; do
             [ -f "$action_path" ] || missing+=("$action_path")
@@ -1317,7 +1312,6 @@ jobs:
           cache: pnpm
           cache-dependency-path: |
             pnpm-lock.yaml
-            mobile/pnpm-lock.yaml
 
       # Why: release builds hit the same native-module postinstall path as
       # PR CI, so keep the pinned node-gyp override here too instead of
@@ -1367,10 +1361,6 @@ jobs:
           max_attempts: 3
           retry_wait_seconds: 30
           command: pnpm install --frozen-lockfile
-
-      # Why here: electron-builder's beforePack requires out/mobile-web, and the bundle
-      # build resolves React Native and Expo from mobile/node_modules.
-      - uses: ./.github/actions/install-mobile-dependencies
 
       # Why: `pnpm build:release` verifies the Linux computer-use provider by
       # importing AT-SPI bindings, which are runtime package deps but are not

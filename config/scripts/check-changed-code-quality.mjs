@@ -15,8 +15,7 @@ const ANTI_SLOP_DISABLE_PATTERN =
   /\/[/*]\s*(?:oxlint|eslint)-disable(?:-next-line|-line)?\s[^\n]*\banti-slop\//
 export const OXLINT_SCANS = [
   {
-    // Why: no --config, so Oxlint keeps discovering nested configs. Pinning the root
-    // config would apply root rules to mobile/, whose .oxlintrc.json turns them off.
+    // Why: no --config, so Oxlint keeps discovering nested configs.
     label: 'code quality',
     args: ['--report-unused-disable-directives-severity', 'warn']
   },
@@ -25,8 +24,6 @@ export const OXLINT_SCANS = [
     args: ['--config', 'config/oxlint-code-quality-casting.json']
   },
   {
-    // Why the allow: CI's `audit:code-quality:native` runs before the mobile install, so it can
-    // never see a cycle inside mobile/ — locally, where mobile/node_modules exists, it would.
     label: 'focused plugins',
     args: [
       '--config',
@@ -64,16 +61,6 @@ const SUPPRESSED_REACT_DOCTOR_DIAGNOSTICS = new Map([
     new Set([
       'src/renderer/src/components/editor/combined-diff/review-controls/use-combined-diff-view-preferences.ts'
     ])
-  ],
-  [
-    // The rule wants one named handle cleared by name. Both startup effects arm a variable number
-    // of refresh timers, every one of them through addTimer into `timers`, which their cleanups
-    // clear -- a shape the rule reports whether the handles live in an array, a Set, or a nested
-    // helper. The finding predates this list; it surfaced when the effect body changed. This map
-    // keys on file, not line, so the entry covers both effects in it; nothing else in the file
-    // arms a timer, so widening it further is the only alternative, not a narrower option.
-    'react-doctor(effect-needs-cleanup)',
-    new Set(['mobile/src/session/use-mobile-session-startup.ts'])
   ]
 ])
 
