@@ -320,9 +320,7 @@ improvise them.
 
 ```bash
 orca serve \
-  --port "$PORT" \
   --project-root "$ABS_REPO_PATH_ON_REMOTE" \
-  --pairing-address "$EXTERNAL_WSS_URL" \
   --recipe-json
 ```
 
