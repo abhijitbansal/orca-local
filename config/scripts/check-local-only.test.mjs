@@ -93,6 +93,39 @@ describe('scanLocalOnly', () => {
     expect(v.map((x) => x.rule)).toEqual(['wildcard-bind'])
   })
 
+  it('does not treat a :: id separator as a bind', () => {
+    const root = base({
+      'src/shared/id.ts': "const SEPARATOR = '::'\nconst key = [a, b].join('::')\n"
+    })
+    expect(scanLocalOnly({ rootDir: root, allowlist: new Set() })).toEqual([])
+  })
+
+  it('flags a wildcard host option', () => {
+    const v = scanLocalOnly({
+      rootDir: base({ 'src/main/s.ts': "new Server({ port, host: '::' })\n" }),
+      allowlist: new Set()
+    })
+    expect(v.map((x) => x.rule)).toEqual(['wildcard-bind'])
+  })
+
+  it('checks every module specifier on a line', () => {
+    const root = base({
+      'src/main/u.ts': "const a = require('x'), b = require('electron-updater')\n"
+    })
+    expect(scanLocalOnly({ rootDir: root, allowlist: new Set() }).map((x) => x.match)).toEqual([
+      'electron-updater'
+    ])
+  })
+
+  it('scans every electron-builder config', () => {
+    const root = base({
+      'config/electron-builder-pr-linux.config.cjs': 'module.exports = {\n  publish: null\n}\n'
+    })
+    expect(scanLocalOnly({ rootDir: root, allowlist: new Set() }).map((x) => x.file)).toEqual([
+      'config/electron-builder-pr-linux.config.cjs'
+    ])
+  })
+
   it('honours path:rule allowlist entries', () => {
     const root = base({ 'src/main/a.ts': 'https://onorca.dev' })
     expect(

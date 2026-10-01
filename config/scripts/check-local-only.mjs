@@ -2,7 +2,7 @@
 // Local-only fork gate: fails when cloud egress, cloud SDKs, publish/deep-link config, or wildcard binds reappear (e.g. after an upstream merge).
 import { readdirSync, readFileSync } from 'node:fs'
 import path from 'node:path'
-import { pathToFileURL } from 'node:url'
+import { isDirectInvocation } from './script-entry-detection.mjs'
 
 export const FORBIDDEN_HOSTS = [
   'onorca.dev',
@@ -28,7 +28,7 @@ export const FORBIDDEN_MODULES = [
 ]
 const SCANNED_ROOTS = ['src']
 const SCANNED_EXTENSIONS = /\.(?:ts|tsx|mts|cts|js|mjs|cjs)$/
-const SKIPPED_FILE = /\.(?:test|spec)\.[cm]?[jt]sx?$/
+const SKIPPED_FILE = /(?:\.(?:test|spec)\.[cm]?[jt]sx?|-test-harness\.tsx?)$/
 const SKIPPED_DIRS = new Set([
   'node_modules',
   'out',
@@ -36,9 +36,13 @@ const SKIPPED_DIRS = new Set([
   'build',
   '__fixtures__',
   '__mocks__',
+  '__tests__',
   '.git'
 ])
-const WILDCARD_BIND = /['"](?:0\.0\.0\.0|::)['"]/
+// Bind contexts only: '::' alone is a common id separator in this codebase.
+const WILDCARD_BIND =
+  /(?:\b(?:host|hostname|bindHost|address)\s*[:=]\s*|\.(?:listen|bind)\([^)]*,\s*)['"](?:0\.0\.0\.0|::)['"]/
+const MODULE_SPECIFIER = /(?:from\s*|import\(\s*|require\(\s*)['"]([^'"]+)['"]/g
 
 function collect(dir, found) {
   let entries
@@ -73,14 +77,13 @@ function scanSource(rootDir, file) {
           violations.push({ file: rel, line, rule: 'forbidden-host', match: host })
         }
       }
-      const specifier = /(?:from\s*|import\(\s*|require\(\s*)['"]([^'"]+)['"]/.exec(text)?.[1]
-      const forbidden =
-        specifier &&
-        FORBIDDEN_MODULES.find(
+      for (const [, specifier] of text.matchAll(MODULE_SPECIFIER)) {
+        const forbidden = FORBIDDEN_MODULES.find(
           (m) => specifier === m || specifier.startsWith(m.endsWith('/') ? m : `${m}/`)
         )
-      if (forbidden) {
-        violations.push({ file: rel, line, rule: 'forbidden-import', match: specifier })
+        if (forbidden) {
+          violations.push({ file: rel, line, rule: 'forbidden-import', match: specifier })
+        }
       }
       const wildcard = WILDCARD_BIND.exec(text)
       if (wildcard) {
@@ -104,8 +107,13 @@ function scanPackage(rootDir) {
     .map((name) => ({ file: 'package.json', line: 0, rule: 'forbidden-dependency', match: name }))
 }
 
-function scanBuilder(rootDir) {
-  const rel = 'config/electron-builder.config.cjs'
+function scanBuilders(rootDir) {
+  return readdirSync(path.join(rootDir, 'config'))
+    .filter((name) => /^electron-builder.*\.config\.cjs$/.test(name))
+    .flatMap((name) => scanBuilder(rootDir, `config/${name}`))
+}
+
+function scanBuilder(rootDir, rel) {
   const violations = []
   readFileSync(path.join(rootDir, rel), 'utf8')
     .split('\n')
@@ -145,7 +153,7 @@ export function scanLocalOnly({ rootDir, allowlist }) {
   return [
     ...sources.flatMap((file) => scanSource(rootDir, file)),
     ...scanPackage(rootDir),
-    ...scanBuilder(rootDir)
+    ...scanBuilders(rootDir)
   ].filter((v) => !allowlist.has(`${v.file}:${v.rule}`))
 }
 
@@ -164,6 +172,6 @@ export function main(rootDir = process.cwd()) {
   }
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
+if (isDirectInvocation(import.meta.url, process.argv[1])) {
   main()
 }
