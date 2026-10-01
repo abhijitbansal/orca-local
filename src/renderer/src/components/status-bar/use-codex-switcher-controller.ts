@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { CodexRateLimitAccountsState } from '../../../../shared/managed-account-types'
-import type { ProviderRateLimits } from '../../../../shared/rate-limit-types'
 import { useAppStore } from '../../store'
 import { getActiveRuntimeTarget } from '@/runtime/runtime-rpc-client'
 import {
@@ -16,7 +15,7 @@ import {
   getWindowsTerminalCapabilityOwnerKey,
   useWindowsTerminalCapabilities
 } from '@/lib/windows-terminal-capabilities'
-import { getCodexAccountSyncKey, getCodexResetProjection } from './codex-switcher-projection'
+import { getCodexAccountSyncKey } from './provider-account-sync-key'
 import {
   getCodexStatusRuntimeKey,
   getStatusBarPreferredWslDistro,
@@ -33,17 +32,14 @@ import {
 } from './status-bar-codex-accounts'
 import { signInCodexAccount } from './codex-sign-in-action'
 
-export function useCodexSwitcherController(codex: ProviderRateLimits) {
+export function useCodexSwitcherController() {
   const [open, setOpen] = useState(false)
   const [accountsExpanded, setAccountsExpanded] = useState(false)
-  const [resetConfirmOpen, setResetConfirmOpen] = useState(false)
-  const [skipFutureResetConfirm, setSkipFutureResetConfirm] = useState(false)
   const [accounts, setAccounts] = useState<CodexRateLimitAccountsState>({
     accounts: [],
     activeAccountId: null
   })
   const [isSwitching, setIsSwitching] = useState(false)
-  const [isRedeemingReset, setIsRedeemingReset] = useState(false)
   const [reauthenticatingAccountId, setReauthenticatingAccountId] = useState<string | null>(null)
   const mountedRef = useRef(true)
   const accountsExpandedRef = useRef(accountsExpanded)
@@ -58,10 +54,8 @@ export function useCodexSwitcherController(codex: ProviderRateLimits) {
   const openSettingsPage = useAppStore((s) => s.openSettingsPage)
   const openSettingsTarget = useAppStore((s) => s.openSettingsTarget)
   const fetchSettings = useAppStore((s) => s.fetchSettings)
-  const updateSettings = useAppStore((s) => s.updateSettings)
   const recordFeatureInteraction = useAppStore((s) => s.recordFeatureInteraction)
   const refreshCodexRateLimitsForTarget = useAppStore((s) => s.refreshCodexRateLimitsForTarget)
-  const consumeCodexRateLimitResetCredit = useAppStore((s) => s.consumeCodexRateLimitResetCredit)
   const fetchInactiveCodexAccountUsage = useAppStore((s) => s.fetchInactiveCodexAccountUsage)
   const inactiveCodexAccounts = useAppStore((s) => s.rateLimits.inactiveCodexAccounts)
   const codexTarget = useAppStore((s) => s.rateLimits.codexTarget)
@@ -208,49 +202,6 @@ export function useCodexSwitcherController(codex: ProviderRateLimits) {
     }
   }
 
-  const handleRedeemReset = async (): Promise<void> => {
-    if (isRedeemingReset) {
-      return
-    }
-    setIsRedeemingReset(true)
-    try {
-      await consumeCodexRateLimitResetCredit()
-    } catch (error) {
-      console.error('Failed to redeem Codex rate-limit reset from status bar:', error)
-    } finally {
-      if (mountedRef.current) {
-        setIsRedeemingReset(false)
-      }
-    }
-  }
-
-  const handleResetMenuSelect = (): void => {
-    if (settings?.skipCodexRateLimitResetConfirm) {
-      void handleRedeemReset()
-      return
-    }
-    setSkipFutureResetConfirm(false)
-    setResetConfirmOpen(true)
-  }
-
-  const handleConfirmReset = async (): Promise<void> => {
-    if (isRedeemingReset) {
-      return
-    }
-    if (skipFutureResetConfirm) {
-      try {
-        await updateSettings({ skipCodexRateLimitResetConfirm: true })
-      } catch (error) {
-        console.error('Failed to save Codex reset confirmation preference:', error)
-      }
-    }
-    await handleRedeemReset()
-    if (mountedRef.current) {
-      setResetConfirmOpen(false)
-      setSkipFutureResetConfirm(false)
-    }
-  }
-
   const handleOpenChange = useCallback((nextOpen: boolean): void => {
     setOpen(nextOpen)
     if (!nextOpen) {
@@ -286,33 +237,24 @@ export function useCodexSwitcherController(codex: ProviderRateLimits) {
   const selectedGroup =
     switchGroups.find((group) => group.key === selectedRuntimeKey) ?? switchGroups[0]
   const activeTarget = selectedGroup?.targets.find((target) => target.active)
-  const resetProjection = getCodexResetProjection(codex, hasActiveRuntimeEnvironment)
 
   return {
     accountsExpanded,
     activeTarget,
     handleAccountsExpandedToggle,
-    handleConfirmReset,
     handleOpenChange,
-    handleResetMenuSelect,
     handleSelectAccount,
     handleSelectRuntime,
     handleSignInAccount,
     hasActiveRuntimeEnvironment,
     inactiveCodexAccounts,
-    isRedeemingReset,
     isSwitching,
     open,
     openSettingsPage,
     openSettingsTarget,
     reauthenticatingAccountId,
-    resetConfirmOpen,
-    ...resetProjection,
     selectedGroup,
     selectedRuntimeKey,
-    setResetConfirmOpen,
-    setSkipFutureResetConfirm,
-    skipFutureResetConfirm,
     suppressNextAccountSelect,
     suppressNextAccountSelectRef,
     switchGroups

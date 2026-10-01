@@ -154,7 +154,6 @@ vi.mock('../../store', () => {
     updateSettings: vi.fn(),
     recordFeatureInteraction: vi.fn(),
     refreshCodexRateLimitsForTarget: vi.fn(),
-    consumeCodexRateLimitResetCredit: vi.fn(),
     fetchInactiveCodexAccountUsage,
     rateLimits: {
       inactiveCodexAccounts: [

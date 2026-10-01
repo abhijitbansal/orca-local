@@ -1,11 +1,5 @@
 import { z } from 'zod'
 
-export const CodexResetTarget = z.discriminatedUnion('runtime', [
-  z.object({ runtime: z.literal('host'), wslDistro: z.null() }).strict(),
-  // Why: reset scope must identify one exact WSL distro; null means all slots only for selection.
-  z.object({ runtime: z.literal('wsl'), wslDistro: z.string().trim().min(1).max(255) }).strict()
-])
-
 export const CodexSelectionTarget = z.discriminatedUnion('runtime', [
   z.object({ runtime: z.literal('host'), wslDistro: z.null() }).strict(),
   z
@@ -30,24 +24,6 @@ export const SelectCodexAccountForTargetParams = SelectAccountParams.extend({
 export const RemoveAccountParams = z.object({
   accountId: z.string().min(1, 'Missing accountId')
 })
-
-export const CodexResetExpectedScope = z
-  .object({
-    target: CodexResetTarget,
-    accountId: z.string().min(1, 'Missing accountId').max(512),
-    accountRevision: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
-    offerRevision: z.string().startsWith('v1:', 'Invalid offerRevision').max(4_096)
-  })
-  .strict()
-
-export const ConsumeCodexResetCreditParams = z
-  .object({
-    // Why: the phone owns the logical attempt key so a lost response can be
-    // retried without spending a finite earned credit twice.
-    idempotencyKey: z.uuid('Invalid idempotencyKey'),
-    expectedScope: CodexResetExpectedScope
-  })
-  .strict()
 
 export const AddClaudeFromConfigDirParams = z.object({
   configDir: z.string().min(1, 'Missing configDir'),

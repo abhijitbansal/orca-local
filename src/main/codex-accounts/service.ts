@@ -1,13 +1,9 @@
 import { execFileSync, spawn } from 'node:child_process'
 import type { WindowsHostInteractiveLoginSpawn } from '../../shared/windows-interactive-login-spawn'
 import type {
-  CodexManagedAccount,
-  CodexManagedAccountSummary,
   CodexRateLimitAccountsState,
   CodexSystemDefaultIdentity
 } from '../../shared/managed-account-types'
-import type { CodexRateLimitResetResult } from '../../shared/rate-limit-types'
-import type { CodexResetCreditExpectedScope } from '../../shared/codex-reset-credit-scope'
 import type { CodexRuntimeHomeService } from './runtime-home-service'
 import type { Store } from '../persistence'
 import type { RateLimitService } from '../rate-limits/service'
@@ -19,24 +15,17 @@ import { CodexConfigMirror } from './codex-config-mirror'
 import { runCodexLoginSession, type CodexLoginChild } from './codex-login-session'
 import { CodexManagedHomePath } from './codex-managed-home-path'
 import { CodexManagedHomeLifecycle } from './codex-managed-home-lifecycle'
-import { CodexResetCreditCoordinator } from './codex-reset-credit-coordinator'
 import { CodexAccountSelection } from './codex-account-selection'
 import { CodexAccountRegistration } from './codex-account-registration'
 import type {
   CodexAccountAddTarget,
   CodexAccountReauthenticateOptions,
-  CodexAccountServiceLifecycle,
-  CodexResetCreditConsumeResult
+  CodexAccountServiceLifecycle
 } from './codex-account-service-types'
-import { toCodexManagedAccountSummary } from './codex-account-service-types'
 export type {
   CodexAccountAddTarget,
   CodexAccountReauthenticateOptions,
-  CodexAccountServiceLifecycle,
-  CodexResetCreditConsumeResult,
-  CodexResetCreditConsumedResult,
-  CodexResetCreditRejectedBeforeProviderReason,
-  CodexResetCreditRejectedBeforeProviderResult
+  CodexAccountServiceLifecycle
 } from './codex-account-service-types'
 
 const WINDOWS_LOGIN_TREE_KILL_TIMEOUT_MS = 5_000
@@ -87,7 +76,6 @@ export class CodexAccountService {
   private readonly configMirror: CodexConfigMirror
   private readonly managedHomePaths: CodexManagedHomePath
   private readonly managedHomes: CodexManagedHomeLifecycle
-  private readonly resetCredits: CodexResetCreditCoordinator
   private readonly selection: CodexAccountSelection
   private readonly registration: CodexAccountRegistration
 
@@ -111,15 +99,6 @@ export class CodexAccountService {
     this.configMirror = new CodexConfigMirror(store, (path, accountId) =>
       this.managedHomePaths.assert(path, accountId)
     )
-    this.resetCredits = new CodexResetCreditCoordinator({
-      store,
-      rateLimits,
-      runtimeHome,
-      managedHomePaths: this.managedHomePaths,
-      serializeMutation: (operation) => this.serializeMutation(operation),
-      getSnapshot: () => this.getSnapshot(),
-      toSummary: (account) => this.toSummary(account)
-    })
     this.selection = new CodexAccountSelection({
       store,
       rateLimits,
@@ -127,8 +106,7 @@ export class CodexAccountService {
       configMirror: this.configMirror,
       lifecycle,
       resolveSystemDefault: () => this.resolveSystemDefaultIdentity(),
-      removeManagedHome: (path, accountId) => this.safeRemoveManagedHome(path, accountId),
-      discardResetAttempts: (accountId) => this.resetCredits.discardForRemovedAccount(accountId)
+      removeManagedHome: (path, accountId) => this.safeRemoveManagedHome(path, accountId)
     })
     this.registration = new CodexAccountRegistration({
       store,
@@ -197,7 +175,7 @@ export class CodexAccountService {
 
   // Why before the queue, not inside it: the abandoned login owns the queue slot
   // every later account action waits for. Called from the four the user drives,
-  // never from serializeMutation, which background reset-credit work also uses.
+  // never from serializeMutation.
   private supersedePendingLogin(): void {
     if (this.cancelPendingLogin()) {
       console.info('[codex-accounts] Cancelled a pending Codex login superseded by a new request.')
@@ -243,21 +221,6 @@ export class CodexAccountService {
     return this.serializeMutation(() => this.selection.select(accountId, target))
   }
 
-  consumeRateLimitResetCredit(
-    idempotencyKey: string,
-    expectedScope: CodexResetCreditExpectedScope
-  ): Promise<CodexResetCreditConsumeResult> {
-    return this.resetCredits.consume(idempotencyKey, expectedScope)
-  }
-
-  async consumeCurrentRateLimitResetCredit(): Promise<CodexRateLimitResetResult> {
-    return this.resetCredits.consumeCurrent()
-  }
-
-  private getSnapshot(): CodexRateLimitAccountsState {
-    return this.selection.snapshot()
-  }
-
   private resolveSystemDefaultIdentity(): CodexSystemDefaultIdentity {
     return this.identity.resolveSystemDefault()
   }
@@ -267,10 +230,6 @@ export class CodexAccountService {
     expectedAccountId: string
   ): ResolvedCodexIdentity {
     return this.identity.readFromHome(managedHomePath, expectedAccountId)
-  }
-
-  private toSummary(account: CodexManagedAccount): CodexManagedAccountSummary {
-    return toCodexManagedAccountSummary(account)
   }
 
   private safeRemoveManagedHome(candidatePath: string, expectedAccountId: string): void {

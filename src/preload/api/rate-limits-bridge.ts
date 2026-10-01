@@ -1,9 +1,5 @@
 import { ipcRenderer } from 'electron'
-import type {
-  CodexRateLimitResetResult,
-  RateLimitRuntimeTarget,
-  RateLimitState
-} from '../../shared/rate-limit-types'
+import type { RateLimitRuntimeTarget, RateLimitState } from '../../shared/rate-limit-types'
 import type { PreloadApi } from '../api-types'
 
 export const rateLimitsApi = {
@@ -11,8 +7,6 @@ export const rateLimitsApi = {
   refresh: (): Promise<RateLimitState> => ipcRenderer.invoke('rateLimits:refresh'),
   refreshCodexForTarget: (target: RateLimitRuntimeTarget): Promise<RateLimitState> =>
     ipcRenderer.invoke('rateLimits:refreshCodexForTarget', target),
-  consumeCodexResetCredit: (): Promise<CodexRateLimitResetResult> =>
-    ipcRenderer.invoke('rateLimits:consumeCodexResetCredit'),
   refreshClaudeForTarget: (target: RateLimitRuntimeTarget): Promise<RateLimitState> =>
     ipcRenderer.invoke('rateLimits:refreshClaudeForTarget', target),
   setPollingInterval: (ms: number): Promise<void> =>

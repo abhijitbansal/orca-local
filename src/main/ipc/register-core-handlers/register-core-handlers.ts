@@ -151,7 +151,7 @@ export function registerCoreHandlers(
   registerMiniMaxCredentialsHandlers(rateLimits)
   registerGrokAccountHandlers()
   registerCursorAccountHandlers()
-  registerRateLimitHandlers(rateLimits, codexAccounts)
+  registerRateLimitHandlers(rateLimits)
   registerGitHubHandlers(store, stats)
   registerGitLabHandlers(store)
   registerHostedReviewHandlers(store, stats)
