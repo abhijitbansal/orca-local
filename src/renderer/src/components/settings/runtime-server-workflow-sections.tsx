@@ -1,19 +1,14 @@
-import { ChevronDown, Share2 } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { translate } from '@/i18n/i18n'
 import { cn } from '@/lib/utils'
-import { Button } from '../ui/button'
-import { RuntimePairingUrlGenerator } from './RuntimePairingUrlGenerator'
-import { MachineNameField } from './MachineNameField'
 
-export type RemoteServerWorkflow = 'connect' | 'cloud-vm' | 'share'
+export type RemoteServerWorkflow = 'connect' | 'cloud-vm'
 
 export function RuntimeServerWorkflowPicker({
-  canGeneratePairingUrl,
   visibleWorkflow,
   onCloseAddServerForm,
   onWorkflowChange
 }: {
-  canGeneratePairingUrl: boolean
   visibleWorkflow: RemoteServerWorkflow
   onCloseAddServerForm: () => void
   onWorkflowChange: (workflow: RemoteServerWorkflow) => void
@@ -25,7 +20,7 @@ export function RuntimeServerWorkflowPicker({
         'auto.components.settings.RuntimeEnvironmentsPane.workflow',
         'Remote server workflow'
       )}
-      className={cn('grid gap-2 sm:grid-cols-2', canGeneratePairingUrl && 'sm:grid-cols-3')}
+      className="grid gap-2 sm:grid-cols-2"
     >
       {(
         [
@@ -41,17 +36,6 @@ export function RuntimeServerWorkflowPicker({
             )
           ],
           [
-            'share',
-            translate(
-              'auto.components.settings.RuntimeEnvironmentsPane.shareWorkflow',
-              'Share this host'
-            ),
-            translate(
-              'auto.components.settings.RuntimeEnvironmentsPane.shareWorkflowHelp',
-              'Other devices join this machine'
-            )
-          ],
-          [
             'cloud-vm',
             translate(
               'auto.components.settings.RuntimeEnvironmentsPane.cloudVmWorkflow',
@@ -63,108 +47,35 @@ export function RuntimeServerWorkflowPicker({
             )
           ]
         ] as const
-      )
-        .filter(([value]) => value !== 'share' || canGeneratePairingUrl)
-        .map(([value, label, description]) => (
-          <button
-            key={value}
-            type="button"
-            aria-pressed={visibleWorkflow === value}
-            onClick={() => {
-              if (value !== 'connect') {
-                onCloseAddServerForm()
-              }
-              onWorkflowChange(value)
-            }}
+      ).map(([value, label, description]) => (
+        <button
+          key={value}
+          type="button"
+          aria-pressed={visibleWorkflow === value}
+          onClick={() => {
+            if (value !== 'connect') {
+              onCloseAddServerForm()
+            }
+            onWorkflowChange(value)
+          }}
+          className={cn(
+            'rounded-lg border p-3 text-left transition-colors',
+            visibleWorkflow === value
+              ? 'border-ring bg-accent text-accent-foreground'
+              : 'border-border hover:bg-accent'
+          )}
+        >
+          <span className="block text-sm font-medium">{label}</span>
+          <span
             className={cn(
-              'rounded-lg border p-3 text-left transition-colors',
-              visibleWorkflow === value
-                ? 'border-ring bg-accent text-accent-foreground'
-                : 'border-border hover:bg-accent'
+              'mt-1 block text-xs',
+              visibleWorkflow === value ? 'text-accent-foreground' : 'text-muted-foreground'
             )}
           >
-            <span className="block text-sm font-medium">{label}</span>
-            <span
-              className={cn(
-                'mt-1 block text-xs',
-                visibleWorkflow === value ? 'text-accent-foreground' : 'text-muted-foreground'
-              )}
-            >
-              {description}
-            </span>
-          </button>
-        ))}
-    </div>
-  )
-}
-
-export function RuntimeServerShareSection({
-  shareServerFormOpen,
-  onToggleShareServerForm
-}: {
-  shareServerFormOpen: boolean
-  onToggleShareServerForm: () => void
-}): React.JSX.Element {
-  return (
-    <div className="space-y-3 pt-2">
-      <div className="space-y-0.5">
-        <div className="text-sm font-medium">
-          {translate(
-            'auto.components.settings.RuntimeEnvironmentsPane.advertiseThisApp',
-            'Advertise this app as a server'
-          )}
-        </div>
-        <p className="text-xs text-muted-foreground">
-          {translate(
-            'auto.components.settings.RuntimeEnvironmentsPane.advertiseThisAppHelp',
-            'Create access links for browsers, mobile clients, or another Orca client to connect back to this running app.'
-          )}
-        </p>
-      </div>
-      <MachineNameField id="runtime-share-machine-name" />
-      <div className="overflow-hidden rounded-lg border border-border/50 bg-card/30">
-        <div className="flex flex-wrap items-center justify-between gap-3 px-3 py-2.5">
-          <div className="min-w-0 space-y-0.5">
-            <div className="text-sm font-medium">
-              {translate(
-                'auto.components.settings.RuntimeEnvironmentsPane.6e1280ca55',
-                'Share this Orca server'
-              )}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {translate(
-                'auto.components.settings.RuntimeEnvironmentsPane.84b9b2be05',
-                'Create a revocable access grant so a browser or another Orca client can connect.'
-              )}
-            </p>
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="gap-1.5"
-            onClick={onToggleShareServerForm}
-          >
-            <Share2 />
-            {shareServerFormOpen
-              ? translate(
-                  'auto.components.settings.RuntimeEnvironmentsPane.54dee18f5c',
-                  'Hide Form'
-                )
-              : translate(
-                  'auto.components.settings.RuntimeEnvironmentsPane.3595fd1948',
-                  'New Link'
-                )}
-          </Button>
-        </div>
-        <div className="border-t border-border/40 px-3 py-3">
-          <RuntimePairingUrlGenerator
-            framed={false}
-            showHeader={false}
-            showGeneratorForm={shareServerFormOpen}
-          />
-        </div>
-      </div>
+            {description}
+          </span>
+        </button>
+      ))}
     </div>
   )
 }

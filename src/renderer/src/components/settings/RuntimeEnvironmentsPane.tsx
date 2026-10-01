@@ -18,7 +18,6 @@ import {
   RuntimeEnvironmentSwitchDialog
 } from './runtime-environment-dialogs'
 import {
-  RuntimeServerShareSection,
   RuntimeServerTroubleshooting,
   RuntimeServerWorkflowPicker,
   type RemoteServerWorkflow
@@ -59,7 +58,6 @@ export function RuntimeEnvironmentsPane({
   const [pendingSwitchValue, setPendingSwitchValue] = useState<string | null>(null)
   const [pendingRemove, setPendingRemove] = useState<PublicKnownRuntimeEnvironment | null>(null)
   const [addServerFormOpen, setAddServerFormOpen] = useState(false)
-  const [shareServerFormOpen, setShareServerFormOpen] = useState(true)
   const [advancedOpen, setAdvancedOpen] = useState(false)
   const [workflow, setWorkflow] = useState<RemoteServerWorkflow>('connect')
   const remoteServerUpdates = useAppStore((state) => state.remoteServerUpdates)
@@ -197,7 +195,6 @@ export function RuntimeEnvironmentsPane({
       className="space-y-4 py-2"
     >
       <RuntimeServerWorkflowPicker
-        canGeneratePairingUrl={canGeneratePairingUrl}
         visibleWorkflow={visibleWorkflow}
         onCloseAddServerForm={closeAddServerForm}
         onWorkflowChange={setWorkflow}
@@ -258,13 +255,6 @@ export function RuntimeEnvironmentsPane({
         }}
         onRefresh={() => void loadEnvironments()}
       />
-
-      {visibleWorkflow === 'share' && canGeneratePairingUrl ? (
-        <RuntimeServerShareSection
-          shareServerFormOpen={shareServerFormOpen}
-          onToggleShareServerForm={() => setShareServerFormOpen((open) => !open)}
-        />
-      ) : null}
 
       {visibleWorkflow === 'connect' ? <RuntimeServerTroubleshooting /> : null}
 

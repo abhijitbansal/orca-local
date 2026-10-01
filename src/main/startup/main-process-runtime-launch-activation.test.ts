@@ -28,10 +28,8 @@ vi.mock('../persistence', () => ({
 vi.mock('../runtime/runtime-rpc', () => ({
   OrcaRuntimeRpcServer: class {
     start = vi.fn(async () => {})
-    setOnUnpairedDeviceAuthFailure = vi.fn()
   }
 }))
-vi.mock('../ipc/mobile', () => ({ registerMobileHandlers: vi.fn() }))
 vi.mock('../ipc/pty', () => ({
   getLocalPtyProvider: vi.fn(),
   registerHeadlessPtyRuntime: vi.fn()

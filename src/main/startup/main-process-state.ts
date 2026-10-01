@@ -90,7 +90,6 @@ export const mainProcessState = {
   desktopPushService: null as DesktopPushService | null,
   desktopRelayStatus: 'offline' as RelayBrokerStatus,
   desktopRelayCellUrl: undefined as string | undefined,
-  pendingUnpairedDeviceAuthFailure: false,
   // Why: gates whether headless serve installs the offscreen browser backend (and advertises browser pane support).
   headlessBrowserDisplayAvailable: false,
   starNag: null as StarNagService | null,

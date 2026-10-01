@@ -116,7 +116,6 @@ const EXPECTED_CALLBACK_REGISTRATION_SEQUENCE = [
   'ui.onOpenSettings',
   'ui.onOpenSkillShare',
   'ui.onOpenSetupGuide',
-  'mobile.onUnpairedDeviceAuthFailure',
   'ui.onOpenFeatureTour',
   'settings.onChanged',
   'ui.onStateChanged',
@@ -358,10 +357,7 @@ describe('useIpcEvents App-lifetime lifecycle', () => {
     await Promise.resolve()
     await Promise.resolve()
     const directCallbackMethods = [...listeners.keys()]
-      .filter(
-        (method) =>
-          method !== 'mobile.onUnpairedDeviceAuthFailure' && method !== 'ui.onMobileMarkdownRequest'
-      )
+      .filter((method) => method !== 'ui.onMobileMarkdownRequest')
       .sort()
     expect(directCallbackMethods).toEqual(EXPECTED_DIRECT_CALLBACK_METHODS)
     expect([...listeners.keys()].sort()).toEqual(

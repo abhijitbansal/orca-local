@@ -7,13 +7,12 @@ import {
   migrateMobilePairingDataToCanonicalUserDataPath
 } from '../persistence'
 import { OrcaRuntimeRpcServer } from '../runtime/runtime-rpc'
-import { registerMobileHandlers } from '../ipc/mobile'
 import { getLocalPtyProvider, registerHeadlessPtyRuntime } from '../ipc/pty'
 import { LocalPtyProvider } from '../providers/local-pty-provider'
 import { HEADLESS_RUNTIME_WINDOW_ID } from '../../shared/runtime-types'
 import { OffscreenBrowserBackend } from '../browser/offscreen-browser-backend'
 import { browserManager } from '../browser/browser-manager'
-import { getDesktopRelayStatus, publishDesktopRelayStatus } from './main-process-relay-status'
+import { publishDesktopRelayStatus } from './main-process-relay-status'
 import { DesktopRelayService } from '../runtime/relay/desktop-relay-service'
 import { getServeOptions, getBundledWebClientRoot, printServeReady } from './main-process-serve'
 import {
@@ -94,29 +93,6 @@ function installRuntimeRpc(
     webClientRoot: getBundledWebClientRoot()
   })
   state.runtimeRpc = runtimeRpc
-  registerMobileHandlers(runtimeRpc, {
-    getRelayStatus: getDesktopRelayStatus,
-    consumePendingUnpairedDeviceAuthFailure: (webContentsId) => {
-      if (
-        !state.mainWindow ||
-        state.mainWindow.isDestroyed() ||
-        state.mainWindow.webContents.id !== webContentsId ||
-        !state.pendingUnpairedDeviceAuthFailure
-      ) {
-        return false
-      }
-      state.pendingUnpairedDeviceAuthFailure = false
-      return true
-    }
-  })
-  // Why: repeated direct auth failures otherwise look like a client that never connects; point users to re-pairing.
-  runtimeRpc.setOnUnpairedDeviceAuthFailure(() => {
-    // Why: runtime startup races renderer mount; retain the one-shot until the listener consumes it.
-    state.pendingUnpairedDeviceAuthFailure = true
-    if (state.mainWindow && !state.mainWindow.isDestroyed()) {
-      state.mainWindow.webContents.send('mobile:unpairedDeviceAuthFailure')
-    }
-  })
   return runtimeRpc
 }
 
