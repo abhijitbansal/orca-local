@@ -2,9 +2,7 @@
   "app": {
     "recoverableError": {
       "rootTitle": "Orca에 렌더러 오류가 발생했습니다.",
-      "rootDescription": "앱 셸에서 렌더링을 완료할 수 없습니다. 다시 마운트해 보거나 오류가 지속되면 Orca를 다시 시작하세요.",
-      "webTitle": "Orca 웹에 렌더러 오류가 발생했습니다.",
-      "webDescription": "웹 클라이언트를 다시 시도하거나 페어링된 런타임에 다시 연결하세요."
+      "rootDescription": "앱 셸에서 렌더링을 완료할 수 없습니다. 다시 마운트해 보거나 오류가 지속되면 Orca를 다시 시작하세요."
     }
   },
   "githubChecks": {
@@ -232,54 +230,6 @@
       "ce37cf5279": "사이드바 표시/숨기기({{value0}})",
       "e4b9e7dff7": "사이드바 표시/숨기기",
       "pluginCommandFailed": "플러그인 명령을 실행할 수 없습니다."
-    },
-    "web": {
-      "WebConnect": {
-        "b411ec0069": "연결",
-        "2cf9e5a294": "저장된 서버 지우기",
-        "4a4c017be1": "엔드포인트:",
-        "27393856e4": "orca://pair?code=...",
-        "7a566540de": "페어링 URL 또는 코드",
-        "cb4d287238": "서버 이름",
-        "3affe7de3a": "이 브라우저가 연결할 수 있는 Orca 서버의 페어링 URL을 붙여넣습니다.",
-        "e3bcd082ac": "Orca에 연결",
-        "mobileScopeRejected": "이 QR 코드는 제한된(모바일) 액세스 권한만 제공합니다. 전체 웹 앱을 사용하려면 설정 → 원격 Orca 서버 → 이 Orca 서버 공유 → 새 링크에서 브라우저 액세스 링크를 여세요."
-      },
-      "webPreloadApi": {
-        "aiVaultUnavailableForHost": "이 실행 호스트에서는 Agent 세션 기록을 사용할 수 없습니다.",
-        "runtimeEnvironmentManuallyDisconnected": "런타임 환경이 수동으로 연결 해제되었습니다.",
-        "loopbackPairingBlocked": "이 액세스 링크는 이 기기 자체를 가리킵니다.",
-        "remotePairingUnreachable": "{{endpoint}}의 Orca에 연결할 수 없습니다.",
-        "remotePairingInvalidDetails": "이 액세스 링크에 잘못된 연결 정보가 포함되어 있습니다.",
-        "remotePairingSaveFailed": "Orca가 호스트를 확인했지만 저장할 수 없습니다. 브라우저 저장 공간을 확인하고 다시 시도하세요."
-      },
-      "web": {
-        "preload": {
-          "api": {
-            "31bfe8ae1a": "웹 클라이언트에서는 사용할 수 없습니다.",
-            "67ec964791": "웹 클라이언트에서는 쿠키 가져오기를 사용할 수 없습니다.",
-            "275a776357": "웹 클라이언트에서는 호버 추출을 사용할 수 없습니다.",
-            "8dfcb7a351": "웹 클라이언트에서는 선택 스크린샷을 사용할 수 없습니다.",
-            "31bea294d5": "웹 클라이언트에서는 그랩 모드를 사용할 수 없습니다.",
-            "b8a1618172": "웹 클라이언트에서는 PR 세부 정보 생성을 사용할 수 없습니다.",
-            "e57c82d276": "웹 클라이언트에서는 Commit 메시지 모델 검색을 사용할 수 없습니다.",
-            "9fc90740b6": "웹 클라이언트에서는 Commit 메시지 생성을 사용할 수 없습니다.",
-            "52bee9d8a0": "충돌하는 맞춤 단축키가 무시되었습니다: {{value0}}.",
-            "32f15bdb0f": "알 수 없는 플랫폼 \"{{value0}}\"이(가) 무시되었습니다.",
-            "0a69fcd8bc": "플랫폼은 darwin, linux 또는 win32 섹션이 있는 객체여야 합니다.",
-            "10898045f3": "\"{{value0}}\"에 대한 단축키가 무시되었습니다. 문자열 배열을 사용하세요.",
-            "36761d9604": "알 수 없는 키 바인딩 작업 \"{{value0}}\"이(가) 무시되었습니다.",
-            "d2e43e426a": "{{value0}}은(는) 객체여야 합니다.",
-            "fb290366b2": "웹에서는 사용할 수 없습니다.",
-            "76122208ca": "\"{{value0}}\"에 대한 단축키가 무시되었습니다: {{value1}}"
-          }
-        },
-        "runtime": {
-          "environment": {
-            "07f788de83": "웹소켓"
-          }
-        }
-      }
     },
     "store": {
       "slices": {
@@ -17094,13 +17044,6 @@
         "dispatchRejected": "에이전트가 “continue” 메시지를 거부했습니다. 채팅을 열어 직접 보내세요.",
         "unsupported": "이 채팅은 Orca에서 재개할 수 없습니다. 열어서 중단된 위치를 확인하세요.",
         "fallback": "Orca가 이 채팅을 재개하지 못했습니다. 열어서 수동으로 계속하세요."
-      },
-      "web": {
-        "preloadApi": {
-          "cursorAccounts": {
-            "hostOnly": "Cursor 로그인 정보는 Orca가 실행 중인 컴퓨터에서만 읽을 수 있습니다."
-          }
-        }
       }
     },
     "i18n": {

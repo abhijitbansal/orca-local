@@ -2,9 +2,7 @@
   "app": {
     "recoverableError": {
       "rootTitle": "Orca 遇到渲染器错误。",
-      "rootDescription": "应用 shell 无法完成渲染。重试以重新挂载，如果错误仍然存在，请重新启动 Orca。",
-      "webTitle": "Orca Web 遇到渲染器错误。",
-      "webDescription": "重试 Web 客户端或重新连接到配对的运行时。"
+      "rootDescription": "应用 shell 无法完成渲染。重试以重新挂载，如果错误仍然存在，请重新启动 Orca。"
     }
   },
   "githubChecks": {
@@ -232,54 +230,6 @@
       "ce37cf5279": "切换侧边栏 ({{value0}})",
       "e4b9e7dff7": "切换侧边栏",
       "pluginCommandFailed": "无法运行插件命令。"
-    },
-    "web": {
-      "WebConnect": {
-        "b411ec0069": "连接",
-        "2cf9e5a294": "清除已保存的服务器",
-        "4a4c017be1": "端点：",
-        "27393856e4": "orca://pair?code=...",
-        "7a566540de": "配对 URL 或代码",
-        "cb4d287238": "服务器名称",
-        "3affe7de3a": "粘贴来自该浏览器可以访问的 Orca 服务器的配对 URL。",
-        "e3bcd082ac": "连接到 Orca",
-        "mobileScopeRejected": "此二维码仅授予受限（移动端）访问权限。若要使用完整 Web 应用，请从设置 → 远程 Orca 服务器 → 分享此 Orca 服务器 → 新链接打开浏览器访问链接。"
-      },
-      "webPreloadApi": {
-        "aiVaultUnavailableForHost": "此执行主机不支持 Agent 会话历史记录。",
-        "runtimeEnvironmentManuallyDisconnected": "运行时环境已手动断开连接。",
-        "loopbackPairingBlocked": "此访问链接会指回此设备。",
-        "remotePairingUnreachable": "无法连接 {{endpoint}} 上的 Orca。",
-        "remotePairingInvalidDetails": "此访问链接包含无效的连接信息。",
-        "remotePairingSaveFailed": "Orca 验证了主机但无法保存它。检查浏览器存储并重试。"
-      },
-      "web": {
-        "preload": {
-          "api": {
-            "31bfe8ae1a": "在网络客户端中不可用。",
-            "67ec964791": "Web 客户端不支持 Cookie 导入。",
-            "275a776357": "悬停提取在 Web 客户端中不可用。",
-            "8dfcb7a351": "选择屏幕截图在 Web 客户端中不可用。",
-            "31bea294d5": "抓取模式在 Web 客户端中不可用。",
-            "b8a1618172": "PR详细信息生成在 Web 客户端中不可用。",
-            "e57c82d276": "Commit 消息模型发现在 Web 客户端中不可用。",
-            "9fc90740b6": "Commit 消息生成在 Web 客户端中不可用。",
-            "52bee9d8a0": "冲突的自定义快捷键被忽略：{{value0}}。",
-            "32f15bdb0f": "未知平台“{{value0}}”被忽略。",
-            "0a69fcd8bc": "platform 必须是具有 darwin、linux 或 win32 部分的对象。",
-            "10898045f3": "“{{value0}}”的快捷方式被忽略：使用字符串数组。",
-            "36761d9604": "未知的键绑定操作“{{value0}}”被忽略。",
-            "d2e43e426a": "{{value0}} 必须是一个对象。",
-            "fb290366b2": "无法在网络上使用。",
-            "76122208ca": "“{{value0}}”的快捷方式被忽略：{{value1}}"
-          }
-        },
-        "runtime": {
-          "environment": {
-            "07f788de83": "WebSocket"
-          }
-        }
-      }
     },
     "store": {
       "slices": {
@@ -17094,13 +17044,6 @@
         "dispatchRejected": "代理拒绝了“continue”消息。请打开聊天并自行发送一条。",
         "unsupported": "此聊天无法由 Orca 恢复。请将其打开以查看停止位置。",
         "fallback": "Orca 无法恢复此聊天。请将其打开以手动继续。"
-      },
-      "web": {
-        "preloadApi": {
-          "cursorAccounts": {
-            "hostOnly": "Cursor 登录详情仅可在运行 Orca 的电脑上读取。"
-          }
-        }
       }
     },
     "i18n": {

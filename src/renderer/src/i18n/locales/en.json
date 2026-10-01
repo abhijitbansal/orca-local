@@ -10,9 +10,7 @@
   "app": {
     "recoverableError": {
       "rootTitle": "Orca hit a renderer error.",
-      "rootDescription": "The app shell could not finish rendering. Retry to remount it, or relaunch Orca if the error persists.",
-      "webTitle": "Orca web hit a renderer error.",
-      "webDescription": "Retry the web client or reconnect to the paired runtime."
+      "rootDescription": "The app shell could not finish rendering. Retry to remount it, or relaunch Orca if the error persists."
     }
   },
   "browser": {
@@ -355,54 +353,6 @@
       "ce37cf5279": "Toggle sidebar ({{value0}})",
       "e4b9e7dff7": "Toggle sidebar",
       "pluginCommandFailed": "Could not run the plugin command."
-    },
-    "web": {
-      "WebConnect": {
-        "b411ec0069": "Connect",
-        "2cf9e5a294": "Clear saved server",
-        "4a4c017be1": "Endpoint:",
-        "27393856e4": "orca://pair?code=...",
-        "7a566540de": "Pairing URL or code",
-        "cb4d287238": "Server name",
-        "3affe7de3a": "Paste a pairing URL from an Orca server that this browser can reach.",
-        "e3bcd082ac": "Connect to Orca",
-        "mobileScopeRejected": "This QR code grants limited (mobile) access. To use the full web app, open the browser access link from Settings → Runtime Environments → Share this Orca server → New Link."
-      },
-      "webPreloadApi": {
-        "aiVaultUnavailableForHost": "Agent Session History is not available for this execution host.",
-        "runtimeEnvironmentManuallyDisconnected": "Runtime environment is manually disconnected.",
-        "loopbackPairingBlocked": "This access link points back to this device.",
-        "remotePairingUnreachable": "Cannot reach Orca at {{endpoint}}.",
-        "remotePairingInvalidDetails": "This access link contains invalid connection details.",
-        "remotePairingSaveFailed": "Orca verified the host but could not save it. Check browser storage and try again."
-      },
-      "web": {
-        "preload": {
-          "api": {
-            "31bfe8ae1a": "Unavailable in the web client.",
-            "67ec964791": "Cookie import is unavailable in the web client.",
-            "275a776357": "Hover extraction is unavailable in the web client.",
-            "8dfcb7a351": "Selection screenshots are unavailable in the web client.",
-            "31bea294d5": "Grab mode is unavailable in the web client.",
-            "b8a1618172": "Pull request detail generation is unavailable in the web client.",
-            "e57c82d276": "Commit message model discovery is unavailable in the web client.",
-            "9fc90740b6": "Commit message generation is unavailable in the web client.",
-            "52bee9d8a0": "Conflicting custom shortcuts were ignored: {{value0}}.",
-            "32f15bdb0f": "Unknown platform \"{{value0}}\" was ignored.",
-            "0a69fcd8bc": "platforms must be an object with darwin, linux, or win32 sections.",
-            "10898045f3": "Shortcut for \"{{value0}}\" was ignored: Use a string array.",
-            "36761d9604": "Unknown keybinding action \"{{value0}}\" was ignored.",
-            "d2e43e426a": "{{value0}} must be an object.",
-            "fb290366b2": "Unavailable on web.",
-            "76122208ca": "Shortcut for \"{{value0}}\" was ignored: {{value1}}"
-          }
-        },
-        "runtime": {
-          "environment": {
-            "07f788de83": "WebSocket"
-          }
-        }
-      }
     },
     "store": {
       "slices": {
@@ -17246,13 +17196,6 @@
         "dispatchRejected": "The agent refused the “continue” message. Open the chat and send one yourself.",
         "unsupported": "This chat can’t be resumed by Orca. Open it to see where it stopped.",
         "fallback": "Orca couldn’t resume this chat. Open it to continue manually."
-      },
-      "web": {
-        "preloadApi": {
-          "cursorAccounts": {
-            "hostOnly": "Cursor sign-in details are only readable on the computer running Orca."
-          }
-        }
       }
     },
     "i18n": {

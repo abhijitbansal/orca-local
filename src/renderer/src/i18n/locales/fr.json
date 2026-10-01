@@ -2,9 +2,7 @@
   "app": {
     "recoverableError": {
       "rootTitle": "Orca a rencontré une erreur de rendu.",
-      "rootDescription": "Le shell de l'application n'a pas pu terminer son rendu. Réessayez pour le remonter, ou relancez Orca si l'erreur persiste.",
-      "webTitle": "Orca web a rencontré une erreur de rendu.",
-      "webDescription": "Réessayez le client web ou reconnectez-vous au runtime appairé."
+      "rootDescription": "Le shell de l'application n'a pas pu terminer son rendu. Réessayez pour le remonter, ou relancez Orca si l'erreur persiste."
     }
   },
   "browser": {
@@ -331,54 +329,6 @@
       "ce37cf5279": "Basculer la barre latérale ({{value0}})",
       "e4b9e7dff7": "Basculer la barre latérale",
       "pluginCommandFailed": "Impossible d'exécuter la commande du plugin."
-    },
-    "web": {
-      "WebConnect": {
-        "b411ec0069": "Se connecter",
-        "2cf9e5a294": "Effacer le serveur enregistré",
-        "4a4c017be1": "Point de terminaison :",
-        "27393856e4": "orca://pair?code=...",
-        "7a566540de": "URL ou code d'appairage",
-        "cb4d287238": "Nom du serveur",
-        "3affe7de3a": "Collez une URL d'appairage provenant d'un serveur Orca accessible depuis ce navigateur.",
-        "e3bcd082ac": "Se connecter à Orca",
-        "mobileScopeRejected": "Ce code QR accorde un accès limité (mobile). Pour utiliser l'application web complète, ouvrez le lien d'accès navigateur depuis Paramètres → Environnements d'exécution → Partager ce serveur Orca → Nouveau lien."
-      },
-      "webPreloadApi": {
-        "aiVaultUnavailableForHost": "L'historique des sessions d'agent n'est pas disponible pour cet hôte d'exécution.",
-        "runtimeEnvironmentManuallyDisconnected": "L'environnement d'exécution est déconnecté manuellement.",
-        "loopbackPairingBlocked": "Ce lien d'accès pointe vers cet appareil lui-même.",
-        "remotePairingUnreachable": "Impossible de joindre Orca à l'adresse {{endpoint}}.",
-        "remotePairingInvalidDetails": "Ce lien d'accès contient des détails de connexion invalides.",
-        "remotePairingSaveFailed": "Orca a vérifié l'hôte mais n'a pas pu l'enregistrer. Vérifiez le stockage du navigateur et réessayez."
-      },
-      "web": {
-        "preload": {
-          "api": {
-            "31bfe8ae1a": "Indisponible dans le client web.",
-            "67ec964791": "L'import de cookies est indisponible dans le client web.",
-            "275a776357": "L'extraction au survol est indisponible dans le client web.",
-            "8dfcb7a351": "Les captures de sélection sont indisponibles dans le client web.",
-            "31bea294d5": "Le mode capture est indisponible dans le client web.",
-            "b8a1618172": "La génération du détail de pull request est indisponible dans le client web.",
-            "e57c82d276": "La découverte des modèles de messages de commit est indisponible dans le client web.",
-            "9fc90740b6": "La génération des messages de commit est indisponible dans le client web.",
-            "52bee9d8a0": "Des raccourcis personnalisés en conflit ont été ignorés : {{value0}}.",
-            "32f15bdb0f": "Plateforme inconnue « {{value0}} » ignorée.",
-            "0a69fcd8bc": "« platforms » doit être un objet avec des sections darwin, linux ou win32.",
-            "10898045f3": "Raccourci pour « {{value0}} » ignoré : utilisez un tableau de chaînes.",
-            "36761d9604": "Action de raccourci inconnue « {{value0}} » ignorée.",
-            "d2e43e426a": "{{value0}} doit être un objet.",
-            "fb290366b2": "Indisponible sur le web.",
-            "76122208ca": "Raccourci pour « {{value0}} » ignoré : {{value1}}"
-          }
-        },
-        "runtime": {
-          "environment": {
-            "07f788de83": "WebSocket"
-          }
-        }
-      }
     },
     "store": {
       "slices": {
@@ -17193,13 +17143,6 @@
         "dispatchRejected": "L'agent a refusé le message “continue”. Ouvrez le chat et envoyez-en un vous-même.",
         "unsupported": "Orca ne peut pas reprendre ce chat. Ouvrez-le pour voir où il s'est arrêté.",
         "fallback": "Orca n'a pas pu reprendre ce chat. Ouvrez-le pour continuer manuellement."
-      },
-      "web": {
-        "preloadApi": {
-          "cursorAccounts": {
-            "hostOnly": "Les détails de connexion Cursor ne sont lisibles que sur l'ordinateur qui exécute Orca."
-          }
-        }
       }
     },
     "i18n": {

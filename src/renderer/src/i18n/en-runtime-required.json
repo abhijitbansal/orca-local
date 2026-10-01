@@ -2780,7 +2780,8 @@
         "notAgent": {
           "subtitle": "This terminal is not running a recognized coding agent.",
           "title": "No conversation here"
-        }
+        },
+        "pairHost": "Pair a host to view agent chat history."
       },
       "status": {
         "failedAfter": "Failed after {{value0}}",
