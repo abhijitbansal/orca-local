@@ -6,15 +6,7 @@ const CHECKOUT_MAX_OUTPUT_BYTES = 1024 * 1024
 
 // Why: the wire endpoints only need the runtime RPC host, the renderer client, and
 // the shared codec. Skipping cli/relay keeps a cold CI extraction a few seconds.
-// The phone's `worktree ps` row reader is one self-contained file, so it rides along alone.
-const ARCHIVE_PATHS = [
-  'src/main',
-  'src/shared',
-  'src/preload',
-  'src/renderer',
-  'src/types',
-  'mobile/src/worktree/agent-row-display.ts'
-]
+const ARCHIVE_PATHS = ['src/main', 'src/shared', 'src/preload', 'src/renderer', 'src/types']
 
 const ALIAS_SPECIFIER =
   /(\bfrom\s*|\bimport\s*\(\s*|\brequire\s*\(\s*)(['"])@(renderer)?\/([^'"]+)\2/g
