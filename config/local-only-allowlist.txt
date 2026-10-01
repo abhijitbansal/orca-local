@@ -1,0 +1,2 @@
+# path:rule entries exempt from config/scripts/check-local-only.mjs.
+# Every entry needs a one-line justification comment above it. Keep this list short.
