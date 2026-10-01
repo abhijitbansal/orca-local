@@ -129,7 +129,7 @@ export const commonPropsSchema = z
     // `.min(1)`: an empty install_id/session_id would collapse unrelated events into one synthetic user/session, corrupting analytics.
     install_id: z.string().min(1).max(64),
     session_id: z.string().min(1).max(64),
-    orca_channel: z.enum(['stable', 'rc'])
+    orca_channel: z.enum(['stable', 'rc', 'local'])
   })
   .strict()
 export type CommonProps = z.infer<typeof commonPropsSchema>

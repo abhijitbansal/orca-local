@@ -235,7 +235,7 @@ describe('bundle — collection', () => {
       makeNDJSON([
         makeSpan({
           attributes: {
-            install_id: 'posthog-install-id',
+            install_id: 'telemetry-install-id',
             request: {
               headers: {
                 authorization: 'Bearer plain-secret',
@@ -256,7 +256,7 @@ describe('bundle — collection', () => {
       osRelease: '24',
       orcaChannel: 'dev'
     })
-    expect(bundle.payload).not.toContain('posthog-install-id')
+    expect(bundle.payload).not.toContain('telemetry-install-id')
     expect(bundle.payload).not.toContain('plain-secret')
     expect(bundle.payload).not.toContain('authorization')
     expect(bundle.payload).not.toContain('cookie')

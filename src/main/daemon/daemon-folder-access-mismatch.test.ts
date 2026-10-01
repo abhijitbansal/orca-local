@@ -423,7 +423,7 @@ describe('restart outcome', () => {
   it('still records the replacement denial when the telemetry client throws', () => {
     recordDaemonFolderAccessMismatch(DAEMON, DOCUMENTS)
     trackMock.mockImplementationOnce(() => {
-      throw new Error('posthog exploded')
+      throw new Error('telemetry sink exploded')
     })
 
     recordDaemonFolderAccessMismatch(RESTARTED, DOCUMENTS)

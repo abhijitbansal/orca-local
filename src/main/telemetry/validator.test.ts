@@ -3,7 +3,7 @@
 // event names, extra properties (via `.strict()`), missing required keys,
 // wrong enum values, and overlength free-form strings. Every rejected case
 // returns `{ ok: false, reason }` — the client.ts wrapper then drops the
-// event instead of calling posthog.capture.
+// event instead of writing to the local sink.
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { _resetValidatorWarnCacheForTests, validate } from './validator'

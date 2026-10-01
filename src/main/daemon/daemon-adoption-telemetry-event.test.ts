@@ -128,7 +128,7 @@ describe('trackDaemonAdopted', () => {
 
   it('swallows a throwing telemetry client', async () => {
     trackMock.mockImplementationOnce(() => {
-      throw new Error('posthog exploded')
+      throw new Error('telemetry sink exploded')
     })
     await expect(trackDaemonAdopted(null, 'unknown', null)).resolves.toBeUndefined()
   })
@@ -294,7 +294,7 @@ describe('reportDaemonPtyCwdVerdict', () => {
 
   it('swallows a throwing telemetry client instead of failing the spawn', async () => {
     trackMock.mockImplementationOnce(() => {
-      throw new Error('posthog exploded')
+      throw new Error('telemetry sink exploded')
     })
     await expect(
       reportDaemonPtyCwdVerdict({
