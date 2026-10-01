@@ -23,14 +23,6 @@ import {
   installUnhandledRejectionLogging
 } from './main-process-error-guards'
 import { hydrateShellPath, mergePathSegments } from './hydrate-shell-path'
-import { configureRemoteServerUpdater } from '../runtime/remote-server-updater'
-import {
-  getRemoteServerUpdaterSnapshot,
-  checkForRemoteServerUpdate,
-  downloadRemoteServerUpdate,
-  installRemoteServerUpdate,
-  isQuittingForUpdate
-} from '../updater'
 import { getDevInstanceIdentity, shouldApplyPreReadyAppName } from './dev-instance-identity'
 import { enableRendererHeapHeadroom } from './renderer-heap-headroom'
 import { isStartupDiagnosticsEnabled, logStartupDiagnostic } from './startup-diagnostics'
@@ -156,12 +148,7 @@ function initializeMainProcessPreflight(options: MainProcessPreflightOptions): b
     // Why held for desktop too: an activation before the startup window exists would open a
     // second main window and abort launch; runtime launch releases it once that window exists.
     initialState: 'initializing',
-    activateWindow: () => {
-      // Why: an updater replacement must not resurrect the old app bundle.
-      if (!isQuittingForUpdate()) {
-        options.focusExistingWindow()
-      }
-    },
+    activateWindow: () => options.focusExistingWindow(),
     onBlocked: (reason) => console.error(`[serve] Desktop activation blocked: ${reason}`)
   })
   installUncaughtPipeErrorGuard()
@@ -169,12 +156,6 @@ function initializeMainProcessPreflight(options: MainProcessPreflightOptions): b
   installUnhandledRejectionLogging()
   // Why: expose the app version via process.env so main and the forked daemon can set TERM_PROGRAM_VERSION without importing electron.
   process.env.ORCA_APP_VERSION = app.getVersion()
-  configureRemoteServerUpdater({
-    getSnapshot: getRemoteServerUpdaterSnapshot,
-    check: checkForRemoteServerUpdate,
-    download: downloadRemoteServerUpdate,
-    install: installRemoteServerUpdate
-  })
   patchPackagedProcessPath()
   // Why: the sync seed above covers early IPC (homebrew/nix); the async login-shell probe below (packaged only) then adds the user's rc PATH.
   if (app.isPackaged && process.platform !== 'win32') {

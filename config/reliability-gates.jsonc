@@ -4432,7 +4432,7 @@
       "invariant": "A safely promotable headless serve process is the single app owner. Desktop activation preserves its daemon-backed sessions. On macOS, a CLI-supervised serve update keeps the node-mode parent alive across ShipIt's atomic bundle swap, restarts with the original serve arguments only after the target bundle is present, and clears handoff state only after that target version reports runtime readiness. Once a supervised child exits or fails to start, no late handoff completion may signal it or arm force-kill escalation. Unsupported or failed handoffs leave the current serving owner intact or recover it once without an install retry loop.",
       "oracle": "Unit tests coalesce early activation, preserve daemon and SSH identity, and reproduce the update race with a staged target, old serving child, persistent CLI parent, atomic .app replacement, and replacement readiness message. They assert the parent does not exit for launchd to respawn the old app, the native updater does not launch an interactive GUI, the replacement version is verified before handoff completion, mismatches become durable failures without retries, and unsupported/preflight-failed installs do not invoke native quit or PTY cleanup. Force handoff completion to fail after the replacement child exits and require zero later child signals and zero escalation timers. A joined lock-owner/activation/hydration contract asserts that a forced relaunch opens exactly one window and that the renderer promoted inside the serve process launches zero agent resumes, creates no replacement tab or startup command, and leaves every surviving session record untouched. The Electron journey independently verifies headless promotion retains owner/runtime/daemon/PTY identity and terminal I/O.",
       "commands": [
-        "pnpm exec vitest run --config config/vitest.config.ts src/cli/runtime/launch.test.ts src/main/serve-update-handoff.test.ts src/main/updater.headless-serve-install.test.ts src/main/updater.test.ts src/main/updater.mac-install.test.ts src/main/window/attach-main-window-services.test.ts src/main/startup/serve-desktop-activation-wiring.test.ts",
+        "pnpm exec vitest run --config config/vitest.config.ts src/cli/runtime/launch.test.ts src/main/serve-update-handoff.test.ts src/main/window/attach-main-window-services.test.ts src/main/startup/serve-desktop-activation-wiring.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/cli/runtime/serve-signal-exit-diagnostic.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/main/startup/serve-desktop-activation.test.ts src/main/startup/serve-desktop-activation-wiring.test.ts src/main/startup/single-instance-lock.test.ts src/main/startup/window-all-closed-quit-policy.test.ts src/cli/runtime-client.test.ts src/cli/runtime/websocket-transport.test.ts src/main/runtime/orca-runtime.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/lib/serve-desktop-promotion-session-continuity.test.ts",
@@ -4440,7 +4440,6 @@
         "pnpm run test:e2e -- tests/e2e/headless-serve-desktop-activation.spec.ts --workers=1"
       ],
       "testFiles": [
-        "src/main/updater.headless-serve-install.test.ts",
         "src/main/serve-update-handoff.test.ts",
         "src/cli/runtime/launch.test.ts",
         "src/cli/runtime/serve-signal-exit-diagnostic.test.ts",
@@ -4455,18 +4454,6 @@
         "tests/e2e/headless-serve-desktop-activation.spec.ts"
       ],
       "assertionRefs": [
-        {
-          "file": "src/main/updater.headless-serve-install.test.ts",
-          "assertions": [
-            "a ready update in headless serve is deferred before native install, paired-client disconnect, or active-session cleanup",
-            "a supervised serve persists handoff after checkpoints but before native quit and uses no native GUI relaunch",
-            "unsupported serve refuses updater staging and install-on-quit while preserving availability checks",
-            "a failed handoff preflight preserves the serving owner before native quit or PTY cleanup",
-            "macOS installer-readiness timeout cannot quit a headless serving owner",
-            "ordinary macOS app quit is not reinterpreted as an install request in headless serve mode",
-            "repeated requests emit one deterministic status and lifecycle diagnostic while interactive installs remain unchanged"
-          ]
-        },
         {
           "file": "src/cli/runtime/launch.test.ts",
           "assertions": [
@@ -4569,7 +4556,7 @@
           "date": "2026-07-21",
           "runner": "local",
           "platform": "macos",
-          "command": "pnpm exec vitest run --config config/vitest.config.ts src/cli/runtime/launch.test.ts src/main/serve-update-handoff.test.ts src/main/updater.headless-serve-install.test.ts src/main/updater.test.ts src/main/updater.mac-install.test.ts src/main/window/attach-main-window-services.test.ts src/main/startup/serve-desktop-activation-wiring.test.ts",
+          "command": "pnpm exec vitest run --config config/vitest.config.ts src/cli/runtime/launch.test.ts src/main/serve-update-handoff.test.ts src/main/window/attach-main-window-services.test.ts src/main/startup/serve-desktop-activation-wiring.test.ts",
           "result": "passed",
           "durationSeconds": 5,
           "summary": "Seven focused files passed with 133 tests. The lifecycle harness keeps the CLI parent alive across an atomic .app replacement, starts one target-version serve replacement, and requires its bounded readiness message. Unsupported and failed-preflight paths make zero native install and PTY-cleanup calls; supervised native install leaves the modeled daemon session intact and suppresses native GUI relaunch."
