@@ -20,9 +20,6 @@ vi.mock('@/components/settings/GeneralWorkspaceSettingsSection', () => ({
   GeneralWorkspaceSettingsSection: () => null
 }))
 vi.mock('@/components/settings/CliSection', () => ({ CliSection: () => null }))
-vi.mock('@/components/settings/GeneralSupportSection', () => ({
-  GeneralSupportSection: () => null
-}))
 vi.mock('@/components/settings/DefaultWindowsProjectRuntimeSetting', () => ({
   DefaultWindowsProjectRuntimeSetting: () => null
 }))

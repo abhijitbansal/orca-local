@@ -1464,7 +1464,6 @@
         "6ca6ff404e": "ORCA",
         "520304a067": "Logo Orca",
         "ce44fad849": "Dépendances manquantes",
-        "c1cf168479": "Masquer",
         "00cee697c1": "Exécutez \"gh auth login\" dans un terminal pour connecter votre compte GitHub.",
         "9f96d018b7": "GitHub CLI n'est pas authentifiée",
         "73e1ad4282": "Orca utilise la GitHub CLI (gh) pour afficher les pull requests, les tickets et les vérifications.",
@@ -1474,9 +1473,6 @@
         "cd21242762": "Ajoutez un projet pour commencer.",
         "9c00bd4adf": "Sélectionnez un espace de travail dans la barre latérale pour commencer.",
         "16e9e3df89": "favori",
-        "0d0ace8861": "Mettre une étoile sur GitHub",
-        "ec43b38ba7": "Étoile ajoutée sur GitHub",
-        "157bb5ecbb": "Ouvrir GitHub",
         "preflightDismiss": "Ignorer"
       },
       "LinearIssueMarkdownDescriptionEditor": {
@@ -1880,22 +1876,6 @@
       },
       "SelectedTextCopyMenu": {
         "9b40d7b018": "Copier"
-      },
-      "StarNagCard": {
-        "92b0f9d921": "soit authentifiée et réessayez.",
-        "cd8c34aac1": "gh",
-        "cf82170065": "Impossible de mettre une étoile au dépôt. Vérifiez que",
-        "30c36231c1": "Orca est open source. Si ça vous a aidé aujourd'hui, une étoile GitHub aide d'autres développeurs à le découvrir.",
-        "b5e685e4d9": "Ignorer",
-        "5f6df21046": "Vous appréciez Orca ?",
-        "2d67b6c849": "Mettre une étoile sur GitHub",
-        "af3c9bbb37": "Ajout de l'étoile…",
-        "68a41bc3aa": "Impossible de mettre une étoile avec",
-        "996bf76e46": "Ouvrez GitHub pour terminer dans votre navigateur.",
-        "d32015fec7": "Ouverture...",
-        "157bb5ecbb": "Ouvrir GitHub",
-        "8c967b4d15": "Plus tard",
-        "73dfd4eb8d": "Ne plus demander"
       },
       "TaskPage": {
         "513cddfa7a": "Vérification…",
@@ -7143,22 +7123,6 @@
           "confirm_running_terminal_close": "Confirmer avant de fermer les terminaux en cours d'exécution",
           "confirm_running_terminal_close_description": "Demandez avant d'arrêter un agent ou une commande en cours d'exécution lors de la fermeture d'un terminal."
         },
-        "GeneralSupportSection": {
-          "af7d9f4396": "Merci pour votre soutien !",
-          "6922c1fa2b": "Ajouter une étoile à Orca sur GitHub",
-          "511782265b": "Soutenez le projet avec une étoile GitHub via la CLI gh.",
-          "55a87e5fd1": "Soutenir Orca",
-          "964acc6bb4": "Ajouter une étoile",
-          "73b327e793": "Réessayer",
-          "c9f96d4234": "error",
-          "397719bee5": "Ajout de l'étoile...",
-          "1e29570462": "ajout de l'étoile",
-          "9d181300e3": "favori",
-          "5c49f02662": "masqué",
-          "b3f0584f5d": "chargement",
-          "cb65c75b11": "Ouverture...",
-          "f2d4f877b2": "Ouvrir GitHub"
-        },
         "GeneralWorkspaceSettingsSection": {
           "3d538a98f7": "Choisissez les applications proposées dans le menu « Ouvrir dans » d'un espace de travail.",
           "008f92085f": "Applications « Ouvrir dans »",
@@ -9376,8 +9340,6 @@
             "b65665703a": "assistance",
             "06ea5a69a6": "github",
             "e4fb4516d0": "étoile",
-            "e0b8c8bc25": "Soutenez le projet avec une étoile GitHub via la CLI gh.",
-            "36a72f0d9e": "Ajouter une étoile à Orca sur GitHub",
             "c61b14be7c": "grok",
             "5d9ba08673": "copilot",
             "f472e97440": "aider",
@@ -16308,22 +16270,6 @@
       },
       "ShortcutKeyCombo": {
         "07eb4985a1": "Appuyez deux fois sur {{value0}}"
-      },
-      "star": {
-        "nag": {
-          "StarNagToastHost": {
-            "starredThanks": "Étoile ajoutée — merci !",
-            "githubOpened": "GitHub ouvert",
-            "opening": "Ouverture…",
-            "starring": "Ajout de l'étoile…",
-            "openGithub": "Ouvrir GitHub",
-            "starOnGithub": "Mettre une étoile sur GitHub",
-            "onboardingCompleted": "Prise en main terminée !",
-            "body": "Si Orca vous plaît jusqu'ici, une étoile GitHub aide d'autres développeurs à le découvrir.",
-            "dismiss": "Ignorer",
-            "later": "Plus tard"
-          }
-        }
       },
       "nativeChat": {
         "contextMenu": {

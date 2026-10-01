@@ -128,14 +128,6 @@
         "e6996f4024": "· updated",
         "ff84e1f54c": "{{value0}} {{value1}} as viewed"
       },
-      "StarNagCard": {
-        "68a41bc3aa": "Could not star with",
-        "73dfd4eb8d": "Don't ask again",
-        "92b0f9d921": "is authenticated and try again.",
-        "996bf76e46": "Open GitHub to finish in your browser.",
-        "cd8c34aac1": "gh",
-        "cf82170065": "Could not star the repo. Make sure"
-      },
       "TaskPage": {
         "163df31e0e": "https://example.atlassian.net",
         "171b7739d8": "mrs",
@@ -1220,15 +1212,6 @@
           "reviewUpdateOne": "1 update available",
           "reviewUpdates": "{{value0}} updates available"
         },
-        "GeneralSupportSection": {
-          "1e29570462": "starring",
-          "511782265b": "Support the project with a GitHub star via the gh CLI.",
-          "5c49f02662": "hidden",
-          "73b327e793": "Try Again",
-          "9d181300e3": "starred",
-          "b3f0584f5d": "loading",
-          "c9f96d4234": "error"
-        },
         "GeneralWorkspaceSettingsSection": {
           "externalWorktreesDescription": "Choose whether worktrees created outside Orca appear by default.",
           "hide": "Hide",
@@ -1700,6 +1683,7 @@
         },
         "general": {
           "search": {
+            "06ea5a69a6": "github",
             "27d9b996ba": "codex",
             "3c30fe2d51": "gemini",
             "41c2f9a025": "default",
@@ -1712,12 +1696,16 @@
             "9b0bc30160": "pi",
             "9da6c875e5": "dock",
             "aea7d2cccb": "openclaude",
+            "b65665703a": "support",
+            "bdfb6dc21b": "like",
             "c29f23ab57": "HTTP Proxy",
             "c61b14be7c": "grok",
             "db11502270": "Default Agent",
             "e2da948f59": "Pre-select an AI coding agent in the new-workspace composer.",
             "e3b1d42f95": "Proxy URL for Orca network requests and local terminal children.",
+            "e4fb4516d0": "star",
             "e55d62dfa4": "launchpad",
+            "e6b01c8e30": "feedback",
             "eb8946b2c9": "Hosts that should bypass the configured HTTP proxy.",
             "f472e97440": "aider"
           }

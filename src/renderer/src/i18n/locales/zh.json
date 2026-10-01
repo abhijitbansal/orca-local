@@ -1361,7 +1361,6 @@
         "6ca6ff404e": "ORCA",
         "520304a067": "Orca 标志",
         "ce44fad849": "缺少依赖项",
-        "c1cf168479": "隐藏",
         "00cee697c1": "在终端中运行“gh auth login”以连接您的 GitHub 账户。",
         "9f96d018b7": "GitHub CLI 未经过身份验证",
         "73e1ad4282": "Orca 使用 GitHub CLI (gh) 来显示PR、议题和检查。",
@@ -1371,9 +1370,6 @@
         "cd21242762": "添加一个项目即可开始。",
         "9c00bd4adf": "从侧边栏中选择一个工作区开始。",
         "16e9e3df89": "已加星标",
-        "0d0ace8861": "在 GitHub 上加星标",
-        "ec43b38ba7": "已在 GitHub 上加星标",
-        "157bb5ecbb": "打开 GitHub",
         "preflightDismiss": "关闭"
       },
       "LinearIssueMarkdownDescriptionEditor": {
@@ -1777,22 +1773,6 @@
       },
       "SelectedTextCopyMenu": {
         "9b40d7b018": "复制"
-      },
-      "StarNagCard": {
-        "92b0f9d921": "已通过身份验证并重试。",
-        "cd8c34aac1": "gh",
-        "cf82170065": "无法为该仓库加注星标。确保",
-        "30c36231c1": "Orca 是开源项目。如果它今天帮到了你，GitHub 星标会帮助其他开发者找到它。",
-        "b5e685e4d9": "关闭",
-        "5f6df21046": "喜欢 Orca 吗？",
-        "2d67b6c849": "在 GitHub 上加星标",
-        "af3c9bbb37": "正在加星标...",
-        "68a41bc3aa": "无法使用以下方式加星:",
-        "996bf76e46": "在浏览器中打开 GitHub 以完成操作。",
-        "d32015fec7": "正在打开...",
-        "157bb5ecbb": "打开 GitHub",
-        "8c967b4d15": "稍后",
-        "73dfd4eb8d": "不再询问"
       },
       "TaskPage": {
         "513cddfa7a": "正在验证...",
@@ -7025,22 +7005,6 @@
           "confirm_running_terminal_close": "关闭运行终端前确认",
           "confirm_running_terminal_close_description": "关闭终端时，在停止正在运行的代理或命令之前询问。"
         },
-        "GeneralSupportSection": {
-          "af7d9f4396": "感谢您的支持！",
-          "6922c1fa2b": "GitHub 上的 Star Orca",
-          "511782265b": "通过 gh CLI 通过 GitHub star 支持该项目。",
-          "55a87e5fd1": "支持 Orca",
-          "964acc6bb4": "加星标",
-          "73b327e793": "重试",
-          "c9f96d4234": "错误",
-          "397719bee5": "正在加星标...",
-          "1e29570462": "正在加星标",
-          "9d181300e3": "已加星标",
-          "5c49f02662": "隐",
-          "b3f0584f5d": "加载中",
-          "cb65c75b11": "正在打开...",
-          "f2d4f877b2": "打开 GitHub"
-        },
         "GeneralWorkspaceSettingsSection": {
           "3d538a98f7": "从工作区的“打开方式”菜单中选择可用的应用程序。",
           "008f92085f": "在应用程序中打开",
@@ -9216,8 +9180,6 @@
             "b65665703a": "支持",
             "06ea5a69a6": "GitHub",
             "e4fb4516d0": "星星",
-            "e0b8c8bc25": "点赞 GitHub star 支持该项目（通过 gh CLI ",
-            "36a72f0d9e": "GitHub 上的 Star Orca",
             "c61b14be7c": "grok",
             "5d9ba08673": "copilot",
             "f472e97440": "助手",
@@ -16205,22 +16167,6 @@
       },
       "ShortcutKeyCombo": {
         "07eb4985a1": "双击 {{value0}}"
-      },
-      "star": {
-        "nag": {
-          "StarNagToastHost": {
-            "starredThanks": "已加星，谢谢！",
-            "githubOpened": "已打开 GitHub",
-            "opening": "正在打开…",
-            "starring": "正在加星…",
-            "openGithub": "打开 GitHub",
-            "starOnGithub": "在 GitHub 上加星",
-            "onboardingCompleted": "入门流程已完成！",
-            "body": "如果你目前喜欢 Orca，在 GitHub 上加星可以帮助其他开发者发现它。",
-            "dismiss": "关闭",
-            "later": "稍后"
-          }
-        }
       },
       "nativeChat": {
         "contextMenu": {

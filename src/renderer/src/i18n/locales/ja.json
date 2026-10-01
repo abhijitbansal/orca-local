@@ -1361,7 +1361,6 @@
         "6ca6ff404e": "ORCA",
         "520304a067": "Orca のロゴ",
         "ce44fad849": "依存関係が欠落している",
-        "c1cf168479": "非表示",
         "00cee697c1": "ターミナルで「gh auth login」を実行して、GitHub アカウントに接続します。",
         "9f96d018b7": "GitHub CLI が認証されていません",
         "73e1ad4282": "Orca は、GitHub CLI (gh) を使用して、PR、Issue、チェックを表示します。",
@@ -1371,9 +1370,6 @@
         "cd21242762": "プロジェクトを追加して開始します。",
         "9c00bd4adf": "開始するには、サイドバーからワークスペースを選択します。",
         "16e9e3df89": "星付き",
-        "0d0ace8861": "GitHub でスターを付ける",
-        "ec43b38ba7": "GitHub でスター済み",
-        "157bb5ecbb": "GitHub を開く",
         "preflightDismiss": "閉じる"
       },
       "LinearIssueMarkdownDescriptionEditor": {
@@ -1777,22 +1773,6 @@
       },
       "SelectedTextCopyMenu": {
         "9b40d7b018": "コピー"
-      },
-      "StarNagCard": {
-        "92b0f9d921": "認証されているので、再試行してください。",
-        "cd8c34aac1": "gh",
-        "cf82170065": "リポジトリにスターを付けることができませんでした。確認する",
-        "30c36231c1": "Orca はオープンソースです。今日役に立ったなら、GitHub のスターが他の開発者の発見につながります。",
-        "b5e685e4d9": "閉じる",
-        "5f6df21046": "Orca を楽しんでいますか？",
-        "2d67b6c849": "GitHub でスターを付ける",
-        "af3c9bbb37": "スターを付けています…",
-        "68a41bc3aa": "スターを付けられませんでした:",
-        "996bf76e46": "ブラウザで GitHub を開いて完了してください。",
-        "d32015fec7": "開いています…",
-        "157bb5ecbb": "GitHub を開く",
-        "8c967b4d15": "後で",
-        "73dfd4eb8d": "今後表示しない"
       },
       "TaskPage": {
         "513cddfa7a": "確認中…",
@@ -7025,22 +7005,6 @@
           "confirm_running_terminal_close": "実行中のターミナルを閉じる前に確認してください",
           "confirm_running_terminal_close_description": "ターミナルを閉じるときに、実行中の Agent またはコマンドを停止する前に確認してください。"
         },
-        "GeneralSupportSection": {
-          "af7d9f4396": "サポートありがとうございます!",
-          "6922c1fa2b": "GitHub 上のスター Orca",
-          "511782265b": "gh CLI を介して GitHub スターでプロジェクトをサポートします。",
-          "55a87e5fd1": "Orca をサポートする",
-          "964acc6bb4": "スター",
-          "73b327e793": "再試行",
-          "c9f96d4234": "エラー",
-          "397719bee5": "スターを付けています…",
-          "1e29570462": "スター付け中",
-          "9d181300e3": "星付き",
-          "5c49f02662": "隠れた",
-          "b3f0584f5d": "読み込み中",
-          "cb65c75b11": "開いています…",
-          "f2d4f877b2": "GitHub を開く"
-        },
         "GeneralWorkspaceSettingsSection": {
           "3d538a98f7": "ワークスペースの「開く」メニューから利用可能なアプリを選択します。",
           "008f92085f": "アプリで開く",
@@ -9253,8 +9217,6 @@
             "b65665703a": "サポート",
             "06ea5a69a6": "GitHub",
             "e4fb4516d0": "星",
-            "e0b8c8bc25": "gh CLI を介して GitHub スターでプロジェクトをサポートします。",
-            "36a72f0d9e": "GitHub 上のスター Orca",
             "c61b14be7c": "grok",
             "5d9ba08673": "copilot",
             "f472e97440": "aider",
@@ -16205,22 +16167,6 @@
       },
       "ShortcutKeyCombo": {
         "07eb4985a1": "{{value0}} を 2 回押す"
-      },
-      "star": {
-        "nag": {
-          "StarNagToastHost": {
-            "starredThanks": "スターを付けました。ありがとうございます！",
-            "githubOpened": "GitHub を開きました",
-            "opening": "開いています…",
-            "starring": "スターを付けています…",
-            "openGithub": "GitHub を開く",
-            "starOnGithub": "GitHub でスターを付ける",
-            "onboardingCompleted": "初期設定が完了しました！",
-            "body": "ここまでの Orca を気に入っていただけたら、GitHub でスターを付けると他の開発者が見つけやすくなります。",
-            "dismiss": "閉じる",
-            "later": "後で"
-          }
-        }
       },
       "nativeChat": {
         "contextMenu": {

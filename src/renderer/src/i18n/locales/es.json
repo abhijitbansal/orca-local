@@ -1144,7 +1144,6 @@
         "6ca6ff404e": "ORCA",
         "520304a067": "logotipo de Orca",
         "ce44fad849": "Dependencias faltantes",
-        "c1cf168479": "Ocultar",
         "00cee697c1": "Ejecuta \"gh auth login\" en una terminal para conectar tu cuenta de GitHub.",
         "9f96d018b7": "La CLI de GitHub no está autenticada",
         "73e1ad4282": "Orca usa GitHub CLI (gh) para mostrar pull requests, issues y checks.",
@@ -1154,9 +1153,6 @@
         "cd21242762": "Agrega un proyecto para comenzar.",
         "9c00bd4adf": "Selecciona un espacio de trabajo en la barra lateral para comenzar.",
         "16e9e3df89": "con estrella",
-        "0d0ace8861": "Dar estrella en GitHub",
-        "ec43b38ba7": "Con estrella en GitHub",
-        "157bb5ecbb": "Abrir GitHub",
         "preflightDismiss": "Descartar"
       },
       "LinearIssueMarkdownDescriptionEditor": {
@@ -1553,22 +1549,6 @@
       },
       "SelectedTextCopyMenu": {
         "9b40d7b018": "Copiar"
-      },
-      "StarNagCard": {
-        "92b0f9d921": "está autenticado y vuelve a intentarlo.",
-        "cd8c34aac1": "gh",
-        "cf82170065": "No se pudo dar estrella al repositorio. Asegúrate de que",
-        "30c36231c1": "Orca es de código abierto. Si te ayudó hoy, una estrella en GitHub ayuda a otros desarrolladores a encontrarlo.",
-        "b5e685e4d9": "Descartar",
-        "5f6df21046": "¿Disfrutando de Orca?",
-        "2d67b6c849": "Dar estrella en GitHub",
-        "af3c9bbb37": "Dando estrella...",
-        "68a41bc3aa": "No se pudo dar estrella con",
-        "996bf76e46": "Abre GitHub para terminar en tu navegador.",
-        "d32015fec7": "Abriendo...",
-        "157bb5ecbb": "Abrir GitHub",
-        "8c967b4d15": "Más tarde",
-        "73dfd4eb8d": "No volver a preguntar"
       },
       "TaskPage": {
         "513cddfa7a": "Verificando…",
@@ -6024,22 +6004,6 @@
           "projectRuntime": "Runtime del proyecto",
           "projectRuntimeDescription": "Runtime predeterminado para proyectos locales de Windows que no lo sobrescriben."
         },
-        "GeneralSupportSection": {
-          "af7d9f4396": "¡Gracias por el apoyo!",
-          "6922c1fa2b": "Dale una estrella a Orca en GitHub",
-          "511782265b": "Apoya el proyecto con una estrella de GitHub mediante la CLI gh.",
-          "55a87e5fd1": "Apoya a Orca",
-          "964acc6bb4": "Dar una estrella",
-          "73b327e793": "Intentar otra vez",
-          "c9f96d4234": "error",
-          "397719bee5": "Dando una estrella...",
-          "1e29570462": "dando estrella",
-          "9d181300e3": "con estrella",
-          "5c49f02662": "oculto",
-          "b3f0584f5d": "cargando",
-          "cb65c75b11": "Abriendo...",
-          "f2d4f877b2": "Abrir GitHub"
-        },
         "GeneralWorkspaceSettingsSection": {
           "3d538a98f7": "Elige las apps disponibles en el menú Abrir en de un espacio de trabajo.",
           "008f92085f": "Abrir en aplicaciones",
@@ -8102,8 +8066,6 @@
             "b65665703a": "soporte",
             "06ea5a69a6": "github",
             "e4fb4516d0": "estrella",
-            "e0b8c8bc25": "Apoya el proyecto con una estrella de GitHub mediante la CLI gh.",
-            "36a72f0d9e": "Dar una estrella a Orca en GitHub",
             "c61b14be7c": "grok",
             "5d9ba08673": "copiloto",
             "f472e97440": "aider",
@@ -14071,22 +14033,6 @@
       },
       "ShortcutKeyCombo": {
         "07eb4985a1": "Doble toque en {{value0}}"
-      },
-      "star": {
-        "nag": {
-          "StarNagToastHost": {
-            "starredThanks": "Star enviada — ¡gracias!",
-            "githubOpened": "GitHub abierto",
-            "opening": "Abriendo…",
-            "starring": "Enviando star…",
-            "openGithub": "Abrir GitHub",
-            "starOnGithub": "Dar star en GitHub",
-            "onboardingCompleted": "¡Onboarding completado!",
-            "body": "Si Orca te está gustando, una star en GitHub ayuda a que otros desarrolladores lo descubran.",
-            "dismiss": "Descartar",
-            "later": "Más tarde"
-          }
-        }
       },
       "nativeChat": {
         "contextMenu": {

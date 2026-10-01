@@ -1493,7 +1493,6 @@
         "6ca6ff404e": "ORCA",
         "520304a067": "Orca logo",
         "ce44fad849": "Missing dependencies",
-        "c1cf168479": "Hide",
         "00cee697c1": "Run \"gh auth login\" in a terminal to connect your GitHub account.",
         "9f96d018b7": "GitHub CLI is not authenticated",
         "73e1ad4282": "Orca uses the GitHub CLI (gh) to show pull requests, issues, and checks.",
@@ -1503,9 +1502,6 @@
         "cd21242762": "Add a project to get started.",
         "9c00bd4adf": "Select a workspace from the sidebar to begin.",
         "16e9e3df89": "starred",
-        "0d0ace8861": "Star on GitHub",
-        "ec43b38ba7": "Starred on GitHub",
-        "157bb5ecbb": "Open GitHub",
         "preflightDismiss": "Dismiss"
       },
       "LinearIssueMarkdownDescriptionEditor": {
@@ -1945,22 +1941,6 @@
         "activitySubagentMany": "{{value0}} subagents running",
         "activityMonitorOne": "Monitoring: {{value0}}",
         "activityMonitorMany": "Monitoring {{value0}} background tasks"
-      },
-      "StarNagCard": {
-        "92b0f9d921": "is authenticated and try again.",
-        "cd8c34aac1": "gh",
-        "cf82170065": "Could not star the repo. Make sure",
-        "30c36231c1": "Orca is open source. If it helped today, a GitHub star helps other developers find it.",
-        "b5e685e4d9": "Dismiss",
-        "5f6df21046": "Enjoying Orca?",
-        "2d67b6c849": "Star on GitHub",
-        "af3c9bbb37": "Starring…",
-        "68a41bc3aa": "Could not star with",
-        "996bf76e46": "Open GitHub to finish in your browser.",
-        "d32015fec7": "Opening...",
-        "157bb5ecbb": "Open GitHub",
-        "8c967b4d15": "Later",
-        "73dfd4eb8d": "Don't ask again"
       },
       "TaskPage": {
         "513cddfa7a": "Verifying…",
@@ -7212,22 +7192,6 @@
           "projectRuntime": "Project Runtime",
           "projectRuntimeDescription": "Default runtime for local Windows projects that do not override it."
         },
-        "GeneralSupportSection": {
-          "af7d9f4396": "Thanks for the support!",
-          "6922c1fa2b": "Star Orca on GitHub",
-          "511782265b": "Support the project with a GitHub star via the gh CLI.",
-          "55a87e5fd1": "Support Orca",
-          "964acc6bb4": "Star",
-          "73b327e793": "Try Again",
-          "c9f96d4234": "error",
-          "397719bee5": "Starring...",
-          "1e29570462": "starring",
-          "9d181300e3": "starred",
-          "5c49f02662": "hidden",
-          "b3f0584f5d": "loading",
-          "cb65c75b11": "Opening...",
-          "f2d4f877b2": "Open GitHub"
-        },
         "GeneralWorkspaceSettingsSection": {
           "3d538a98f7": "Choose apps available from a workspace's Open in menu.",
           "008f92085f": "Open In Apps",
@@ -9472,8 +9436,6 @@
             "b65665703a": "support",
             "06ea5a69a6": "github",
             "e4fb4516d0": "star",
-            "e0b8c8bc25": "Support the project with a GitHub star via the gh CLI.",
-            "36a72f0d9e": "Star Orca on GitHub",
             "c61b14be7c": "grok",
             "5d9ba08673": "copilot",
             "f472e97440": "aider",
@@ -16410,22 +16372,6 @@
       },
       "ShortcutKeyCombo": {
         "07eb4985a1": "Double-tap {{value0}}"
-      },
-      "star": {
-        "nag": {
-          "StarNagToastHost": {
-            "starredThanks": "Starred — thank you!",
-            "githubOpened": "GitHub opened",
-            "opening": "Opening…",
-            "starring": "Starring…",
-            "openGithub": "Open GitHub",
-            "starOnGithub": "Star on GitHub",
-            "onboardingCompleted": "Onboarding completed!",
-            "body": "If you’re enjoying Orca so far, a GitHub star helps other developers discover it.",
-            "dismiss": "Dismiss",
-            "later": "Later"
-          }
-        }
       },
       "nativeChat": {
         "contextMenu": {

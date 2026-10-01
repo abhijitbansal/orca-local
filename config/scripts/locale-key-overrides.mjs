@@ -267,11 +267,6 @@ const BASE_LOCALE_KEY_OVERRIDES = {
     zh: '启用',
     ja: '有効化'
   },
-  'auto.components.settings.GeneralSupportSection.73b327e793': {
-    ko: '다시 시도',
-    zh: '重试',
-    ja: '再試行'
-  },
   'auto.components.settings.PrivacyDiagnosticBundleControls.2801d4ce22': {
     ko: '참조 ID 복사',
     zh: '复制参考 ID',
