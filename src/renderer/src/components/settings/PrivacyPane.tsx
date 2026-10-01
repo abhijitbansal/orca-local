@@ -5,7 +5,7 @@ import type { GlobalSettings } from '../../../../shared/global-settings-types'
 import type { TelemetryConsentState } from '../../../../shared/telemetry-consent-types'
 import { Label } from '../ui/label'
 import { Switch } from '../ui/switch'
-import { PRIVACY_URL, getConsentState, setOptIn as telemetrySetOptIn } from '../../lib/telemetry'
+import { getConsentState, setOptIn as telemetrySetOptIn } from '../../lib/telemetry'
 import { useAppStore } from '../../store'
 import { PrivacyDiagnosticsSection } from './PrivacyDiagnosticsSection'
 import { translate } from '@/i18n/i18n'
@@ -92,31 +92,23 @@ export function PrivacyPane({ settings }: PrivacyPaneProps): React.JSX.Element {
             <ShieldCheck className="size-4" />
             <Label>
               {translate(
-                'auto.components.settings.PrivacyPane.fe904ac984',
-                'Share anonymous usage data'
+                'auto.components.settings.PrivacyPane.04130ab3ce',
+                'Keep a local usage record'
               )}
             </Label>
           </div>
           <p className="text-xs text-muted-foreground">
             {translate(
-              'auto.components.settings.PrivacyPane.8bfdd23a88',
-              'Help us figure out what to build next. Orca sends anonymous counts of which features you use and where things break.'
-            )}{' '}
-            <button
-              type="button"
-              className="underline underline-offset-2 hover:text-foreground"
-              onClick={() => void window.api.shell.openUrl(PRIVACY_URL)}
-            >
-              {translate('auto.components.settings.PrivacyPane.77410e0566', 'Privacy policy')}
-            </button>
-            .
+              'auto.components.settings.PrivacyPane.eef5407183',
+              'Orca writes anonymous counts of which features you use and where things break to a file under its data folder. Nothing is sent anywhere.'
+            )}
           </p>
         </div>
         <Switch
           checked={toggleChecked}
           aria-label={translate(
-            'auto.components.settings.PrivacyPane.fe904ac984',
-            'Share anonymous usage data'
+            'auto.components.settings.PrivacyPane.04130ab3ce',
+            'Keep a local usage record'
           )}
           aria-describedby={blocked ? PRIVACY_PANE_BLOCKED_HELPER_ID : undefined}
           disabled={blocked !== null || inFlight}

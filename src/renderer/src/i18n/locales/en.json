@@ -1189,10 +1189,9 @@
         "b9e1b966c7": "Dismiss notice",
         "94cc673726": "Got it",
         "fc5cc29955": "Opt out",
-        "d1deebb050": "Privacy policy",
-        "958d2cc31b": "Anonymous counts of which features you use help us prioritize what to build. No file contents, prompts, terminal output, or anything that identifies you. Change anytime in Settings -> Privacy & Telemetry.",
-        "9784b4d7bc": "Help us decide what to build next",
-        "fcbee32f08": "Telemetry notice"
+        "fcbee32f08": "Telemetry notice",
+        "3f77c016b4": "Orca keeps a local usage record",
+        "75a70df50b": "Anonymous counts of which features you use are written to a file on this machine and never uploaded. Change anytime in Settings -> Privacy & Telemetry."
       },
       "GitHubItemDialog": {
         "3ab6ac0fc8": "Preview and edit the selected GitHub issue or pull request.",
@@ -7742,10 +7741,9 @@
           "36e0e2e63b": "environment variable. Unset it and restart to re-enable.",
           "79a0f3c16c": "Telemetry is disabled by the",
           "e3970bbbf5": "Telemetry is disabled because a CI environment variable is set. Unset it and restart.",
-          "fe904ac984": "Share anonymous usage data",
-          "77410e0566": "Privacy policy",
-          "8bfdd23a88": "Help us figure out what to build next. Orca sends anonymous counts of which features you use and where things break.",
-          "afec8b03be": "ci"
+          "afec8b03be": "ci",
+          "04130ab3ce": "Keep a local usage record",
+          "eef5407183": "Orca writes anonymous counts of which features you use and where things break to a file under its data folder. Nothing is sent anywhere."
         },
         "QuickCommandsList": {
           "noSearchMatches": "No commands match this search."
@@ -9991,13 +9989,12 @@
             "b021b9cb81": "anonymous",
             "79c319948b": "usage",
             "77d3180def": "telemetry",
-            "b707cc3981": "Help improve Orca by sending anonymous feature-usage events.",
-            "57b283461a": "Share Anonymous Usage Data",
-            "2b5a5c312f": "posthog",
             "4104f6f0f3": "analytics",
             "10124159f1": "privacy",
-            "aa3b794c17": "Anonymous product usage data, diagnostics, and telemetry controls.",
-            "5c508bad41": "Privacy & Telemetry"
+            "5c508bad41": "Privacy & Telemetry",
+            "ceafd36bbd": "Local product usage record, diagnostics, and telemetry controls.",
+            "e993d6ac14": "Keep a Local Usage Record",
+            "465e8e5545": "Orca records anonymous feature-usage events to a local file."
           }
         },
         "quick": {

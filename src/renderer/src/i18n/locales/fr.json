@@ -1162,9 +1162,6 @@
         "b9e1b966c7": "Masquer l'avis",
         "94cc673726": "Compris",
         "fc5cc29955": "Refuser",
-        "d1deebb050": "Politique de confidentialité",
-        "958d2cc31b": "Des comptages anonymes des fonctionnalités que vous utilisez nous aident à prioriser ce qu'il faut construire. Aucun contenu de fichier, prompt, sortie de terminal ni rien qui vous identifie. Modifiable à tout moment dans Paramètres -> Confidentialité & télémétrie.",
-        "9784b4d7bc": "Aidez-nous à décider quoi construire ensuite",
         "fcbee32f08": "Avis de télémétrie"
       },
       "GitHubItemDialog": {
@@ -7670,9 +7667,6 @@
           "36e0e2e63b": "variable d'environnement. Supprimez-la et redémarrez pour réactiver.",
           "79a0f3c16c": "La télémétrie est désactivée par la",
           "e3970bbbf5": "La télémétrie est désactivée car une variable d'environnement CI est définie. Supprimez-la et redémarrez.",
-          "fe904ac984": "Partager les données d'utilisation anonymes",
-          "77410e0566": "Politique de confidentialité",
-          "8bfdd23a88": "Aidez-nous à décider quoi développer ensuite. Orca envoie anonymement des comptages des fonctionnalités que vous utilisez et des endroits où ça casse.",
           "afec8b03be": "ci"
         },
         "QuickCommandsList": {
@@ -9902,12 +9896,8 @@
             "b021b9cb81": "anonyme",
             "79c319948b": "utilisation",
             "77d3180def": "télémétrie",
-            "b707cc3981": "Aidez à améliorer Orca en envoyant des événements anonymes d'utilisation des fonctionnalités.",
-            "57b283461a": "Partager les données d'utilisation anonymes",
-            "2b5a5c312f": "posthog",
             "4104f6f0f3": "analytique",
             "10124159f1": "confidentialité",
-            "aa3b794c17": "Données d'utilisation anonymes du produit, diagnostics et contrôles de télémétrie.",
             "5c508bad41": "Confidentialité & télémétrie"
           }
         },
