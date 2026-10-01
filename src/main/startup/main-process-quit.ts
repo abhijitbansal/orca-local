@@ -105,8 +105,6 @@ function installWillQuitHandler(): void {
     stopTccPromptNotice()
     // Why: before-quit can still be aborted by renderer beforeunload; only remove the Windows tray icon on the committed quit path.
     destroySystemTray()
-    // Why: an agent still working at quit gets no terminating hook, so stats.flushAsync() closes those sessions out synchronously (only the write is deferred) — otherwise their duration is lost.
-    state.starNag?.stop()
     state.automations?.stop()
     // Why: plugin hosts are forked children; dispose sends shutdown and
     // escalates to SIGKILL so they cannot outlive the app. The promise joins
@@ -164,6 +162,7 @@ function installWillQuitHandler(): void {
         : Promise.resolve()
     // Why: cancels relay restart/reinstall timers and kills wsl.exe children deterministically, not via stdio-pipe teardown.
     wslHookRelayManager.disposeAll()
+    // Why: an agent still working at quit gets no terminating hook, so stats.flushAsync() closes those sessions out synchronously (only the write is deferred) — otherwise their duration is lost.
     const statsFlush = state.stats?.flushAsync() ?? Promise.resolve()
     // Why: agent-browser daemon processes would otherwise linger after quit, holding ports and stale session state on disk.
     // Why the barrier below: each session's close is its own agent-browser child taking hundreds of ms,

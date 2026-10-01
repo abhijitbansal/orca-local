@@ -13,7 +13,6 @@ import type { ClaudeRuntimeAuthService } from '../claude-accounts/runtime-auth-s
 import type { OrcaRuntimeService } from '../runtime/orca-runtime'
 import type { RateLimitService } from '../rate-limits/service'
 import type { OrcaRuntimeRpcServer } from '../runtime/runtime-rpc'
-import type { StarNagService } from '../star-nag/service'
 import type { AgentAwakeService } from '../agent-awake-service'
 import type { CrashReportStore } from '../crash-reporting/crash-report-store'
 import type { AutomationService } from '../automations/service'
@@ -85,7 +84,6 @@ export const mainProcessState = {
   serveReadinessPublisher: new ServeReadinessPublisher(),
   // Why: gates whether headless serve installs the offscreen browser backend (and advertises browser pane support).
   headlessBrowserDisplayAvailable: false,
-  starNag: null as StarNagService | null,
   agentAwakeService: null as AgentAwakeService | null,
   uninstallRepoMaintenanceIdleGate: null as (() => Promise<void>) | null,
   repoMaintenanceShutdown: Promise.resolve() as Promise<void>,
