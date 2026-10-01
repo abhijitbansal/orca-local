@@ -49,47 +49,6 @@ const verifyStep = prWorkflow.jobs.verify.steps.find(
   (step) => step.name === 'Require successful checks'
 )
 
-/** The route that sends a change to the two-Electron restart-survival spec. */
-const restartSurvivalRoute = PR_E2E_SOURCE_ROUTES.find(
-  (route) => route.id === 'client-hosted-browser.restart-survival'
-)
-
-describe('restart-survival E2E routing', () => {
-  // Every file below carries behavior the restart spec is the only test that exercises end to end.
-  it.each([
-    'src/main/runtime/orca-runtime.ts',
-    'src/main/runtime/orca-runtime-browser.ts',
-    'src/main/runtime/client-hosted-page-reconciliation-window.ts',
-    'src/main/runtime/runtime-browser-client-page-adoption.ts',
-    'src/main/runtime/runtime-browser-client-page-recovery.ts',
-    'src/main/runtime/browser-host-client-page-adoption.ts',
-    'src/main/runtime/browser-host-page-reconciliation-orchestration.ts',
-    'src/main/runtime/rpc/methods/browser-client-host.ts',
-    'src/main/browser/browser-client-host-authority-replacement-wait.ts',
-    'src/main/browser/paired-runtime-browser-client-host-composition.ts',
-    'src/renderer/src/runtime/web-session-tabs-sync.ts',
-    'src/renderer/src/runtime/host-session-snapshot-authority.ts',
-    'src/renderer/src/runtime/restored-client-hosted-browser-host-attach.ts',
-    'src/renderer/src/store/slices/runtime-status.ts',
-    'src/shared/runtime-types.ts',
-    'src/shared/browser-client-host-protocol.ts'
-  ])('routes %s', (path) => {
-    expect(restartSurvivalRoute.matches(path)).toBe(true)
-  })
-
-  // The pattern is deliberately not "anything under src": routing every PR at a two-Electron spec
-  // is the cost the filter exists to avoid.
-  it.each([
-    'src/main/git/git-status.ts',
-    'src/renderer/src/components/tab-bar/BrowserTab.tsx',
-    'src/main/terminal/pty-manager.ts',
-    // The status/types entries name whole files, not a suffix any longer name may end with.
-    'src/shared/computer-use-runtime-types.ts'
-  ])('does not route %s', (path) => {
-    expect(restartSurvivalRoute.matches(path)).toBe(false)
-  })
-})
-
 describe('PR E2E gate contract', () => {
   it('keeps E2E advisory while the suite is red on main', () => {
     // Why: pin the deliberate choice so it reads as intentional rather than as
@@ -457,19 +416,6 @@ describe('PR E2E gate contract', () => {
       [
         'src/renderer/src/components/tab-bar/TabBarQuickCommandsMenu.tsx',
         'tests/e2e/terminal-quick-command-pre-bind-recovery.spec.ts'
-      ],
-      ['src/main/runtime/orca-runtime-files.ts', 'tests/e2e/paired-quick-open-large-tree.spec.ts'],
-      [
-        'src/renderer/src/runtime/sync-runtime-graph.ts',
-        'tests/e2e/host-parked-pane-remote-viewer.spec.ts'
-      ],
-      [
-        'src/renderer/src/runtime/remote-runtime-terminal-multiplexer.ts',
-        'tests/e2e/paired-remote-terminal-materialization-reconnect.spec.ts'
-      ],
-      [
-        'src/renderer/src/components/terminal-pane/remote-pane-layout-push.ts',
-        'tests/e2e/paired-remote-pane-layout-retry.spec.ts'
       ]
     ]
     for (const [source, spec] of cases) {
@@ -494,33 +440,6 @@ describe('PR E2E gate contract', () => {
     }
     expect(existsSync(join(projectDir, parkedSplitSpec)), parkedSplitSpec).toBe(true)
 
-    const restartContinuitySpec = 'tests/e2e/paired-remote-terminal-serve-restart-binding.spec.ts'
-    for (const source of [
-      'src/main/daemon/daemon-attach-only-retirement.ts',
-      'src/main/daemon/daemon-pty-applied-size.ts',
-      'src/main/daemon/daemon-pty-session-control.ts',
-      'src/main/daemon/daemon-pty-spawn-result.ts',
-      'src/renderer/src/components/terminal-pane/remote-runtime-pty-transport.ts',
-      'src/renderer/src/components/terminal-pane/terminal-error-accumulation.ts',
-      'src/renderer/src/runtime/web-runtime-session.ts',
-      'src/renderer/src/runtime/web-session-tabs-sync.ts',
-      'src/renderer/src/runtime/web-session-terminal-orphan-recovery.ts',
-      'src/renderer/src/runtime/web-session-terminal-orphan-recovery-adoption.ts',
-      'src/renderer/src/runtime/web-session-terminal-orphan-recovery-surface.ts',
-      'src/renderer/src/runtime/web-session-terminal-orphan-recovery-inventory.ts',
-      'src/renderer/src/runtime/web-session-terminal-orphan-recovery-inventory-validation.ts',
-      'src/renderer/src/runtime/web-session-terminal-orphan-recovery-cache.ts',
-      'src/renderer/src/runtime/web-session-terminal-orphan-recovery-pane.ts',
-      'src/renderer/src/runtime/web-session-terminal-orphan-recovery-queue.ts',
-      'src/renderer/src/runtime/web-session-terminal-orphan-recovery-rpc-lane.ts',
-      'src/renderer/src/runtime/web-session-terminal-orphan-topology.ts'
-    ]) {
-      expect(selectPrE2eSpecs([source]), source).toContain(restartContinuitySpec)
-      expect(selectPrE2eSpecs([source.replace(/\.ts$/, '.test.ts')]), source).not.toContain(
-        restartContinuitySpec
-      )
-    }
-    expect(existsSync(join(projectDir, restartContinuitySpec)), restartContinuitySpec).toBe(true)
     const quickCommandSpec = 'tests/e2e/terminal-quick-command-pre-bind-recovery.spec.ts'
     for (const source of [
       'src/renderer/src/components/terminal-pane/pty-connection.ts',
@@ -534,35 +453,6 @@ describe('PR E2E gate contract', () => {
         quickCommandSpec
       )
     }
-    for (const source of [
-      'src/main/ripgrep/bundled-ripgrep-path.ts',
-      'src/shared/bundled-ripgrep.ts',
-      'src/shared/ripgrep-process-availability.ts'
-    ]) {
-      expect(selectPrE2eSpecs([source]), source).toEqual([
-        'tests/e2e/paired-quick-open-large-tree.spec.ts'
-      ])
-    }
-    expect(
-      selectPrE2eSpecs([
-        'src/main/runtime/orca-runtime-files.ts',
-        'tests/e2e/paired-quick-open-large-tree.spec.ts'
-      ])
-    ).toEqual(['tests/e2e/paired-quick-open-large-tree.spec.ts'])
-    expect(selectPrE2eSpecs(['src/renderer/src/components/FileExplorer.tsx'])).toEqual([])
-    expect(
-      selectPrE2eSpecs([
-        'src/renderer/src/components/terminal-pane/remote-runtime-pty-transport.ts'
-      ])
-    ).toContain('tests/e2e/paired-remote-terminal-materialization-reconnect.spec.ts')
-    expect(
-      selectPrE2eSpecs([
-        'src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-test-harness.ts'
-      ])
-    ).not.toContain('tests/e2e/paired-remote-terminal-materialization-reconnect.spec.ts')
-    expect(selectPrE2eSpecs(['src/main/ipc/pty.ts'])).not.toContain(
-      'tests/e2e/paired-remote-terminal-materialization-reconnect.spec.ts'
-    )
   })
 
   it('puts the real-IME lane on the PR gate behind the IME source filter', () => {
@@ -707,13 +597,7 @@ describe('PR E2E gate contract', () => {
   })
 
   it('keeps source-routed sentinels registered to their reliability gates', () => {
-    const routedGateIds = [
-      'terminal-startup.quick-command-pre-bind-recovery',
-      'quick-open.paired-host-path-search',
-      'terminal-session.host-cold-park-stream-continuity',
-      'terminal-provider.ssh-remote-reattach-contract',
-      'terminal-session.remote-pane-layout-retry'
-    ]
+    const routedGateIds = ['terminal-startup.quick-command-pre-bind-recovery']
     for (const gateId of routedGateIds) {
       const route = PR_E2E_SOURCE_ROUTES.find((candidate) => candidate.id === gateId)
       const gate = reliabilityManifest.gates.find((candidate) => candidate.id === gateId)

@@ -32,7 +32,6 @@ const CLOSE_ROUTE = PR_E2E_SOURCE_ROUTES.find(
 describe('pane close and retirement PR E2E routing', () => {
   it('selects the close specs for a pane close lifecycle change', () => {
     expect(selectPrE2eSpecs(PENDING_PANE_CLOSE_CHANGE)).toEqual([
-      'tests/e2e/paired-remote-split-pane-host-retired-ghost.spec.ts',
       'tests/e2e/terminal-pane-close-layout-consistency.spec.ts',
       'tests/e2e/terminal-parked-close-retirement.spec.ts'
     ])

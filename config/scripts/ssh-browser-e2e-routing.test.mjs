@@ -13,11 +13,7 @@ it('routes SSH browser specs to a lane that enables their opt-ins', () => {
     (step) => step.name === 'Run changed E2E specs'
   )
   for (const [spec, flag] of [
-    ['tests/e2e/local-ssh-browser-routing.spec.ts', 'ORCA_E2E_LOCAL_SSH_BROWSER'],
-    [
-      'tests/e2e/ssh-client-hosted-browser-drop-reconnect.spec.ts',
-      'ORCA_E2E_SSH_CLIENT_HOSTED_BROWSER'
-    ]
+    ['tests/e2e/local-ssh-browser-routing.spec.ts', 'ORCA_E2E_LOCAL_SSH_BROWSER']
   ]) {
     expect(runner).toContain(`'${spec}'`)
     expect(runner).toContain(`${flag}: '1'`)

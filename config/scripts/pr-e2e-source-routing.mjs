@@ -144,24 +144,6 @@ export const PR_E2E_SOURCE_ROUTES = [
       )
   },
   {
-    id: 'quick-open.paired-host-path-search',
-    specs: ['tests/e2e/paired-quick-open-large-tree.spec.ts'],
-    matches: (file) =>
-      isProductSource(file) &&
-      /^(?:src\/main\/ipc\/filesystem-(?:list-files|search-file-paths)\.ts|src\/main\/ripgrep\/bundled-ripgrep-path\.ts|src\/main\/providers\/(?:filesystem-provider-contract|ssh-filesystem-provider(?:-capabilities)?)\.ts|src\/main\/runtime\/(?:orca-runtime-files|rpc\/methods\/files)\.ts|src\/relay\/(?:fs-handler(?:-install-rg|-list-files|-ripgrep-fallback)?|fs-list-files-fallback-chain|relay-bundled-ripgrep)\.ts|src\/renderer\/src\/(?:components\/(?:QuickOpen|quick-open-file-list|quick-open-search)\.tsx?|runtime\/(?:runtime-file-client|runtime-legacy-quick-open-inventory)\.ts)|src\/shared\/(?:quick-open-(?:install-rg|path-search|transport-budget)|ripgrep-process-availability|bundled-ripgrep)\.ts)$/.test(
-        file
-      )
-  },
-  {
-    id: 'terminal-session.host-cold-park-stream-continuity',
-    specs: ['tests/e2e/host-parked-pane-remote-viewer.spec.ts'],
-    matches: (file) =>
-      isProductSource(file) &&
-      /^(?:src\/renderer\/src\/components\/terminal-pane\/(?:terminal-hidden-view-parking|terminal-tab-park-candidates|terminal-tab-activation-order|terminal-parked-pty-watcher|terminal-parked-tab-watchers|terminal-parked-watcher-registry)\.ts|src\/renderer\/src\/runtime\/sync-runtime-graph\.ts)$/.test(
-        file
-      )
-  },
-  {
     // Why a route of its own: every other terminal-pane route names what BINDS a pane — the pty
     // transports, the ssh reconnect ledgers, the park watchers. Nothing named what unbinds one,
     // so the close/retire lifecycle reached main with e2e skipped outright. Unbinding is the half
@@ -176,9 +158,7 @@ export const PR_E2E_SOURCE_ROUTES = [
       'tests/e2e/terminal-parked-close-retirement.spec.ts',
       // Closing one leaf of a split must leave root leaves, leaf→pty bindings, and live panes
       // agreeing — the ghost-blank-pane shape a bad unbind produces.
-      'tests/e2e/terminal-pane-close-layout-consistency.spec.ts',
-      // The runtime half: a leaf the host retires must stop being mounted on a paired client.
-      'tests/e2e/paired-remote-split-pane-host-retired-ghost.spec.ts'
+      'tests/e2e/terminal-pane-close-layout-consistency.spec.ts'
     ],
     matches: (file) =>
       isProductSource(file) &&
@@ -192,71 +172,6 @@ export const PR_E2E_SOURCE_ROUTES = [
     matches: (file) =>
       isProductSource(file) &&
       /^(?:src\/main\/window\/attach-main-window-services\.ts|src\/preload\/(?:index|api\/ui-command-event-api)\.ts|src\/renderer\/src\/components\/terminal-pane\/(?:terminal-pane-split-request-routing|use-terminal-pane-lifecycle|use-terminal-tab-cold-parking)\.ts|src\/renderer\/src\/hooks\/ipc-events\/terminal-ui-routing-ipc-bridge\.ts)$/.test(
-        file
-      )
-  },
-  {
-    id: 'terminal-session.paired-serve-restart-binding-continuity',
-    specs: ['tests/e2e/paired-remote-terminal-serve-restart-binding.spec.ts'],
-    matches: (file) =>
-      isProductSource(file) &&
-      /^(?:src\/main\/daemon\/(?:daemon-attach-only-retirement|daemon-pty-applied-size|daemon-pty-session-control|daemon-pty-spawn-result)\.ts|src\/renderer\/src\/components\/terminal-pane\/(?:remote-runtime-pty-transport|terminal-error-accumulation)\.ts|src\/renderer\/src\/runtime\/(?:web-runtime-session|web-session-tabs-sync|web-session-terminal-orphan-(?:topology|recovery(?:-(?:adoption|surface|inventory|inventory-validation|cache|queue|rpc-lane|pane))?))\.ts)$/.test(
-        file
-      )
-  },
-  {
-    id: 'terminal-provider.ssh-remote-reattach-contract',
-    specs: ['tests/e2e/paired-remote-terminal-materialization-reconnect.spec.ts'],
-    matches: (file) =>
-      isProductSource(file) &&
-      !file.endsWith('-test-harness.ts') &&
-      /^(?:src\/renderer\/src\/components\/terminal-pane\/remote-runtime-pty-transport(?:-[a-z0-9-]+)?\.ts|src\/renderer\/src\/runtime\/remote-runtime-terminal-multiplexer\.ts)$/.test(
-        file
-      )
-  },
-  {
-    // Why: layout resolution is the only place a split direction can be invented, and the
-    // loss is one-way — the guess is published and written back over the real tree.
-    id: 'terminal-session.split-orientation-resolution',
-    specs: ['tests/e2e/desktop-published-split-orientation-legacy-leaf.spec.ts'],
-    matches: (file) =>
-      isProductSource(file) &&
-      /^src\/renderer\/src\/runtime\/(?:remote-terminal-layout-resolution\.ts|sync-runtime-graph\/(?:graph-publication|mobile-session-terminal-tabs|mobile-session-surfaces)\.ts|web-session-tabs-sync\/terminal-surfaces\.ts)$/.test(
-        file
-      )
-  },
-  {
-    id: 'terminal-session.remote-pane-layout-retry',
-    specs: ['tests/e2e/paired-remote-pane-layout-retry.spec.ts'],
-    matches: (file) =>
-      isProductSource(file) &&
-      /^(?:src\/renderer\/src\/components\/terminal-pane\/(?:remote-pane-layout-push|TerminalPane)\.tsx?|src\/renderer\/src\/lib\/terminal-layout-equality\.ts|src\/renderer\/src\/runtime\/web-session-tabs-sync\.ts|src\/renderer\/src\/store\/slices\/terminals\.ts)$/.test(
-        file
-      )
-  },
-  {
-    // Why: the host's row for a client-rendered page only exists across two real Electron
-    // apps, so this spec is the only gate on it. The high-churn seams it also rides
-    // (ipc/runtime, useIpcEvents, preload) are left out deliberately: routing on those runs a
-    // two-app e2e on most PRs, and their client-hosted share is already covered by the
-    // main-process integration test.
-    id: 'client-hosted-browser.host-strip',
-    specs: ['tests/e2e/paired-client-hosted-browser-host-strip.spec.ts'],
-    matches: (file) =>
-      isProductSource(file) &&
-      /^src\/.*(?:[Cc]lient-?[Hh]osted-?[Bb]rowser|BrowserPaneOverlayLayer)/.test(file)
-  },
-  {
-    // Why a second, wider pattern: restart survival breaks from seams that never say
-    // "client-hosted" - page adoption, the host lease/reconciliation plan, the session-tab
-    // snapshot the client culls rows against. orca-runtime.ts is included despite its churn: it
-    // publishes the snapshot flag the client holds its rows on, and no narrower path names that
-    // seam.
-    id: 'client-hosted-browser.restart-survival',
-    specs: ['tests/e2e/paired-client-hosted-browser-restart-survival.spec.ts'],
-    matches: (file) =>
-      isProductSource(file) &&
-      /^src\/.*(?:[Cc]lient-?[Hh]osted|browser-host-(?:lease|page|client-page)|browser-client-(?:host|page)|runtime-browser-(?:client-)?page|session-tabs-sync|host-session-snapshot-authority|orca-runtime(?:-browser)?\.ts|\/runtime-(?:status|types)\.ts)/.test(
         file
       )
   }

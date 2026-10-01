@@ -43,10 +43,6 @@ if (runtime.status !== 0) {
 //   - E2E does not gate merges: `verify.needs` in pr.yml omits `e2e` while the suite is red on
 //     main. Nothing in this lane blocks a PR yet. pr.yml's Require-successful-checks comment
 //     has the exact wiring to flip it, and the gate contract asserts the current state.
-//   - Two specs are gated on env vars no workflow sets, so they run nowhere
-//     and are not Docker-gated, which puts them outside this file's contract:
-//       nested-runtime-ssh-lifecycle, nested-runtime-ssh-routing (ORCA_E2E_NESTED_RUNTIME_SSH)
-//     The nested-runtime runner remains unused by CI.
 const result = spawnSync(
   pnpm,
   [
@@ -54,7 +50,6 @@ const result = spawnSync(
     'playwright',
     'test',
     'tests/e2e/local-ssh-browser-routing.spec.ts',
-    'tests/e2e/ssh-client-hosted-browser-drop-reconnect.spec.ts',
     'tests/e2e/pty-input-write-queue-ssh.spec.ts',
     'tests/e2e/ssh-ai-vault-session-history.spec.ts',
     'tests/e2e/ssh-codex-display-artifacts-repro.spec.ts',

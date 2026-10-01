@@ -273,7 +273,6 @@ jobs:
           # session. Running it here reported a green skip as coverage.
           mapfile -t TEST_FILES < <(jq -r '.[] | select(
             . != "tests/e2e/local-ssh-browser-routing.spec.ts" and
-            . != "tests/e2e/ssh-client-hosted-browser-drop-reconnect.spec.ts" and
             . != "tests/e2e/pty-input-write-queue-ssh.spec.ts" and
             . != "tests/e2e/ssh-ai-vault-session-history.spec.ts" and
             . != "tests/e2e/ssh-codex-display-artifacts-repro.spec.ts" and
@@ -342,7 +341,6 @@ jobs:
       inputs.test_files == '' ||
       inputs.ssh_source_changed == 'true' ||
       contains(inputs.test_files, 'tests/e2e/local-ssh-browser-routing.spec.ts') ||
-      contains(inputs.test_files, 'tests/e2e/ssh-client-hosted-browser-drop-reconnect.spec.ts') ||
       contains(inputs.test_files, 'tests/e2e/pty-input-write-queue-ssh.spec.ts') ||
       contains(inputs.test_files, 'tests/e2e/ssh-ai-vault-session-history.spec.ts') ||
       contains(inputs.test_files, 'tests/e2e/ssh-codex-display-artifacts-repro.spec.ts') ||

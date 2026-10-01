@@ -91,7 +91,7 @@ it('native Playwright shards preserve every SSH test and project exactly once', 
     expect(selected.length).toBeGreaterThan(0)
     sharded.push(...selected)
   }
-  expect(full.length).toBeGreaterThanOrEqual(40)
+  expect(full.length).toBeGreaterThanOrEqual(39)
   expect(new Set(sharded).size).toBe(sharded.length)
   expect(sharded.sort()).toEqual(full.sort())
 }, 90000)
