@@ -189,7 +189,6 @@
       "config/scripts/ssh-localhost-e2e-routing.test.mjs": 163,
       "config/scripts/static-appimage-package-contract.test.mjs": 83,
       "config/scripts/summarize-terminal-perf-report.test.mjs": 74,
-      "config/scripts/telemetry-bundle-constant-patterns.test.mjs": 45,
       "config/scripts/terminal-ime-e2e-workflow.test.mjs": 79,
       "config/scripts/terminal-ime-engagement-receipt.test.mjs": 37,
       "config/scripts/terminal-perf-report-annotations.test.mjs": 60,

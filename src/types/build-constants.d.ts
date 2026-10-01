@@ -10,7 +10,6 @@
 // spoof transmission with a shell export.
 //
 declare const ORCA_BUILD_IDENTITY: 'stable' | 'rc' | null
-declare const ORCA_POSTHOG_WRITE_KEY: string | null
 
 // Diagnostic-bundle upload endpoint for Mode 3 (telemetry-error-tracking.md
 // §Endpoint contract). Substituted by CI; `null` in contributor builds, at
