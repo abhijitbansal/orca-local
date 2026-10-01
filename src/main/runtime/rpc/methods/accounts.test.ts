@@ -71,10 +71,9 @@ describe('account RPC methods', () => {
     expect(runtime.addCodexAccountFromHome).not.toHaveBeenCalled()
   })
 
-  it('keeps explicit account-list refreshes on the forced refresh lane', async () => {
+  it('returns the local snapshot from accounts.list regardless of refreshUsage', async () => {
     const snapshot = { claude: null, codex: null }
     const runtime = {
-      refreshAccountsForMobile: vi.fn().mockResolvedValue(undefined),
       getAccountsSnapshot: vi.fn(() => snapshot)
     } as unknown as OrcaRuntimeService
     const list = method('accounts.list')
@@ -82,26 +81,10 @@ describe('account RPC methods', () => {
       throw new Error('accounts.list must be a request method')
     }
 
-    // Why: clients that send no params (mobile, web) must keep the forced lane.
     await expect(list.handler(list.params?.parse({}), { runtime })).resolves.toBe(snapshot)
-    expect(runtime.refreshAccountsForMobile).toHaveBeenCalledOnce()
-  })
-
-  it('skips the forced provider refresh when the caller opts out', async () => {
-    const snapshot = { claude: null, codex: null }
-    const runtime = {
-      refreshAccountsForMobile: vi.fn().mockResolvedValue(undefined),
-      getAccountsSnapshot: vi.fn(() => snapshot)
-    } as unknown as OrcaRuntimeService
-    const list = method('accounts.list')
-    if (isStreamingMethod(list)) {
-      throw new Error('accounts.list must be a request method')
-    }
-
     await expect(
       list.handler(list.params?.parse({ refreshUsage: false }), { runtime })
     ).resolves.toBe(snapshot)
-    expect(runtime.refreshAccountsForMobile).not.toHaveBeenCalled()
   })
 
   it('forwards the exact WSL target when selecting a Codex account', async () => {
@@ -144,17 +127,16 @@ describe('account RPC methods', () => {
     expect(selectCodexAccountForTarget).toHaveBeenCalledWith(null, params.target)
   })
 
-  it('uses a stale-aware refresh when a connection replays the subscription', async () => {
+  it('emits the current snapshot when a subscription starts', async () => {
     const snapshot = { claude: null, codex: null }
     let cleanup: (() => void) | undefined
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the stub carries the three runtime members accounts.subscribe calls; the rest is unreached.
     const runtime = {
       getAccountsSnapshot: vi.fn(() => snapshot),
       onAccountsChanged: vi.fn(() => vi.fn()),
       registerSubscriptionCleanup: vi.fn((_id: string, nextCleanup: () => void) => {
         cleanup = nextCleanup
-      }),
-      refreshAccountsForMobile: vi.fn().mockResolvedValue(undefined),
-      refreshAccountsForMobileSubscriber: vi.fn().mockResolvedValue(undefined)
+      })
     } as unknown as OrcaRuntimeService
     const subscribe = method('accounts.subscribe')
     if (!isStreamingMethod(subscribe)) {
@@ -164,11 +146,8 @@ describe('account RPC methods', () => {
 
     const running = subscribe.handler(undefined, { runtime, connectionId: 'connection-1' }, emit)
     await vi.waitFor(() => {
-      expect(runtime.refreshAccountsForMobileSubscriber).toHaveBeenCalledOnce()
+      expect(emit).toHaveBeenCalledWith(expect.objectContaining({ type: 'ready', snapshot }))
     })
-
-    expect(runtime.refreshAccountsForMobile).not.toHaveBeenCalled()
-    expect(emit).toHaveBeenCalledWith(expect.objectContaining({ type: 'ready', snapshot }))
     cleanup?.()
     await running
   })

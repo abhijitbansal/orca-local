@@ -12,12 +12,7 @@ import { startCodexStateDbBackfillRecoveryInBackground } from '../codex/codex-st
 import { getOrcaManagedCodexHomePath } from '../codex/codex-home-paths'
 import { getInitialCodexRateLimitTarget } from '../rate-limits/codex-rate-limit-target'
 import { getInitialClaudeRateLimitTarget } from '../rate-limits/claude-rate-limit-target'
-import { getKimiRuntimeTarget, resolveKimiHome } from '../kimi/kimi-runtime-home'
-import { readMiniMaxSessionCookie } from '../minimax/minimax-cookie-store'
-import { readMiniMaxApiKey } from '../minimax/minimax-api-key-store'
 import { createAccountRuntimeTargetSettingsSync } from '../rate-limits/account-runtime-target-sync'
-import { normalizeCodexRuntimeSelection } from '../codex-accounts/runtime-selection'
-import { normalizeClaudeRuntimeSelection } from '../claude-accounts/runtime-selection'
 import { agentHookServer } from '../agent-hooks/server'
 import {
   isRealHomeCodexHookLaneUsable,
@@ -68,15 +63,7 @@ export function initializeMainProcessAccountServices(): void {
   state.codexSessionMigration.scheduleInitialRun()
   state.claudeRuntimeAuth = new ClaudeRuntimeAuthService(store)
   state.claudeAccounts = new ClaudeAccountService(store, state.rateLimits, state.claudeRuntimeAuth)
-  state.rateLimits.setCodexHomePathResolver((target) =>
-    state.codexRuntimeHome!.prepareForRateLimitFetch(target)
-  )
   state.rateLimits.setCodexFetchTarget(getInitialCodexRateLimitTarget(store.getSettings()))
-  // Why: Kimi's CLI refreshes its OAuth token in whichever runtime it runs in, so the
-  // usage fetch must read the WSL-side credentials when that's the configured runtime (#12370).
-  state.rateLimits.setKimiHomeResolver(() =>
-    resolveKimiHome(getKimiRuntimeTarget(store.getSettings()))
-  )
   state.rateLimits.setClaudeFetchTarget(getInitialClaudeRateLimitTarget(store.getSettings()))
   const syncAccountRuntimeTargets = createAccountRuntimeTargetSettingsSync(
     state.rateLimits,
@@ -87,21 +74,6 @@ export function initializeMainProcessAccountServices(): void {
     void syncAccountRuntimeTargets(updates, settings).catch((error) =>
       console.warn('[rate-limits] Failed to apply account runtime target:', error)
     )
-    // Why: these three pick the MiniMax host and quota bucket, so a stale snapshot from the
-    // previous endpoint would otherwise sit in the status bar until the next poll.
-    if (
-      'minimaxEndpoint' in updates ||
-      'minimaxGroupId' in updates ||
-      'minimaxUsageModels' in updates
-    ) {
-      state.rateLimits?.invalidateMiniMaxCredentialState()
-      void state.rateLimits?.refresh().catch((error: unknown) => {
-        console.warn(
-          '[rate-limits] Failed to refresh MiniMax usage after a settings change:',
-          error
-        )
-      })
-    }
   })
   state.rateLimits.setClaudeAuthPreparationResolver((target) =>
     state.claudeRuntimeAuth!.prepareForRateLimitFetch(target)
@@ -110,27 +82,6 @@ export function initializeMainProcessAccountServices(): void {
   agentHookServer.setClaudeStatusLineListener((event) => {
     state.rateLimits!.ingestLiveClaudeRateLimits(event)
   })
-  state.rateLimits.setOpenCodeGoConfigResolver(() => {
-    const settings = store.getSettings()
-    return {
-      sessionCookie: settings.opencodeSessionCookie,
-      workspaceIdOverride: settings.opencodeWorkspaceId,
-      apiKey: settings.opencodeGoApiKey
-    }
-  })
-  state.rateLimits.setMiniMaxConfigResolver(() => {
-    const settings = store.getSettings()
-    const apiKey = readMiniMaxApiKey() ?? ''
-    return {
-      sessionCookie: apiKey ? '' : (readMiniMaxSessionCookie() ?? ''),
-      groupId: settings.minimaxGroupId,
-      models: settings.minimaxUsageModels,
-      endpoint: settings.minimaxEndpoint,
-      apiKey
-    }
-  })
-  state.rateLimits.setGeminiCliOAuthEnabledResolver(() => store.getSettings().geminiCliOAuthEnabled)
-  state.rateLimits.setNetworkProxySettingsResolver(() => store.getSettings())
   state.keybindings = new KeybindingService({
     homePath: app.getPath('home'),
     getLegacyOverrides: () => store.getSettings().keybindings,
@@ -140,43 +91,4 @@ export function initializeMainProcessAccountServices(): void {
     }
   })
   browserManager.setSettingsResolver(() => ({ keybindings: state.keybindings?.getOverrides() }))
-  state.rateLimits.setInactiveClaudeAccountsResolver(() => {
-    const settings = store.getSettings()
-    const activeIds = new Set(
-      [
-        normalizeClaudeRuntimeSelection(settings).host,
-        ...Object.values(normalizeClaudeRuntimeSelection(settings).wsl)
-      ].filter(Boolean)
-    )
-    return settings.claudeManagedAccounts
-      .filter((account) => !activeIds.has(account.id))
-      .map((account) => ({
-        id: account.id,
-        managedAuthPath: account.managedAuthPath,
-        managedAuthRuntime: account.managedAuthRuntime,
-        wslDistro: account.wslDistro,
-        wslLinuxAuthPath: account.wslLinuxAuthPath
-      }))
-  })
-  state.rateLimits.setInactiveCodexAccountsResolver(() => {
-    const settings = store.getSettings()
-    const activeIds = new Set(
-      [
-        normalizeCodexRuntimeSelection(settings).host,
-        ...Object.values(normalizeCodexRuntimeSelection(settings).wsl)
-      ].filter(Boolean)
-    )
-    return settings.codexManagedAccounts
-      .filter((account) => !activeIds.has(account.id))
-      .map((account) => ({
-        id: account.id,
-        resolveHome: () => {
-          const resolved =
-            state.codexRuntimeHome!.resolveCodexManagedAccountHomeForInactiveFetch(account)
-          return resolved.kind === 'ready'
-            ? { kind: 'ready' as const, managedHomePath: resolved.homePath }
-            : { kind: 'skip' as const }
-        }
-      }))
-  })
 }

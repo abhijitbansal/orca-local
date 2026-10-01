@@ -124,6 +124,4 @@ export function attachMainWindowCoreServices(
   // Why: attach the durable renderer pull now, but launch the diagnostic process after first paint.
   initTccPromptNotice(window, { deferWatchUntilReadyToShow: true })
   rateLimits.attach(window)
-  // Why: quota probes spawn CLIs and hit network, so don't fetch immediately and compete with first paint; show/focus listeners refresh later.
-  rateLimits.start({ fetchImmediately: false })
 }

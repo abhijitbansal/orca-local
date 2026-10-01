@@ -51,24 +51,6 @@ export class RuntimeAccountController {
     }
   }
 
-  async refreshForMobile(): Promise<void> {
-    const { rateLimits } = this.requireServices()
-    await Promise.allSettled([
-      rateLimits.refresh(),
-      rateLimits.fetchInactiveClaudeAccountsOnOpen(),
-      rateLimits.fetchInactiveCodexAccountsOnOpen()
-    ])
-  }
-
-  async refreshForMobileSubscriber(): Promise<void> {
-    const { rateLimits } = this.requireServices()
-    await Promise.allSettled([
-      rateLimits.refreshIfStale(),
-      rateLimits.fetchInactiveClaudeAccountsOnOpen(),
-      rateLimits.fetchInactiveCodexAccountsOnOpen()
-    ])
-  }
-
   selectClaude(accountId: string | null): Promise<ClaudeRateLimitAccountsState> {
     return this.requireServices().claudeAccounts.selectAccount(accountId)
   }

@@ -12,11 +12,6 @@ import { describe, expect, it } from 'vitest'
 // Rule 2 entries map a file to its expected number of non-`net` `.fetch(` calls. A count change
 // means a call site was added, removed, or moved: re-audit the file and update the count.
 const AUDITED_NON_NET_FETCH_CALLS = new Map<string, number>([
-  // Isolated cookie-jar session, proxied by createOpenCodeRequestSession before any request.
-  ['main/rate-limits/opencode-go-usage-fetcher.ts', 2],
-  // Isolated cookie-jar session that does NOT apply the proxy — a pre-existing gap, not a
-  // regression: no proxy has ever reached this partition. Keep it listed so it stays visible.
-  ['main/rate-limits/minimax/minimax-request-context.ts', 2],
   // Injected HttpClient, not a session: resolves to net.fetch on defaultSession
   // (main/host/electron-http-client.ts) or to the global-fetch-audited Node fallback.
   ['main/jira/authenticated-request.ts', 1]
@@ -102,7 +97,7 @@ describe('proxy-guarded fetch call-site audit (main)', () => {
       'This request names its own session/partition, so it is not covered by ' +
         'installElectronProxyRequestGuard(session.defaultSession) and startup never applies the ' +
         'persisted proxy to it. Either drop the option, or apply the proxy to that session ' +
-        'yourself (see main/rate-limits/opencode-go-request-session.ts) and allowlist it here.'
+        'yourself and allowlist it here.'
     ).toEqual([])
   })
 
@@ -129,7 +124,7 @@ describe('proxy-guarded fetch call-site audit (main)', () => {
       'A session.fromPartition(...) session is not covered by ' +
         'installElectronProxyRequestGuard(session.defaultSession), so nothing holds its requests ' +
         'until the proxy lands and startup never applies the proxy to it. Apply the proxy to that ' +
-        'session yourself (see main/rate-limits/opencode-go-request-session.ts), then update ' +
+        'session yourself, then update ' +
         'AUDITED_NON_NET_FETCH_CALLS.'
     ).toEqual([])
 
