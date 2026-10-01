@@ -936,19 +936,7 @@
         "group": "Plugins"
       },
       "feedback": {
-        "image": {
-          "attachments": {
-            "fallbackName": "Image attachment",
-            "unsupportedType": "{{fileName}} is not a supported image type.",
-            "empty": "{{fileName}} is empty.",
-            "tooLarge": "{{fileName}} is larger than {{maxSize}}.",
-            "tooMany": "You can attach up to {{maxCount}} images.",
-            "totalTooLarge": "{{fileName}} would bring the attachments over {{maxSize}} in total.",
-            "dimensionsTooLarge": "{{fileName}} has dimensions that are too large to preview safely.",
-            "invalidImage": "{{fileName}} is not a valid supported image.",
-            "additionalErrors": "{{count}} additional images could not be attached."
-          }
-        }
+        "image": {}
       },
       "activateAiVaultStructuredSession": {
         "unavailable": "The structured agent session is not available yet. Retry in a moment.",
@@ -5309,30 +5297,6 @@
           "822ff300ad": "Dismiss",
           "5bfd5c8779": "Dismiss setup scripts"
         },
-        "SidebarFeedbackDialog": {
-          "8bf619e4cf": "Cancel",
-          "8de03e23c5": "Submit with your typed feedback only, or connect `gh` to include GitHub identity.",
-          "d20439c560": "Checking GitHub identity…",
-          "5b120b9634": "Submit anonymously",
-          "c9e5ea0791": "GitHub:",
-          "d46ddd66fc": "What could we improve?",
-          "3460258a54": "Follow on X",
-          "26108d3699": "Join Discord",
-          "d245c4ef6c": "GitHub issues",
-          "9b33530b3d": "Other ways to reach us",
-          "a828fa4aee": "Share what's working, what's broken, or what Orca should do next.",
-          "0eb643f07f": "Send Feedback",
-          "60b721e857": "Failed to submit feedback. Please try again.",
-          "7a46c228b8": "Thanks for the feedback.",
-          "a2fd890d9e": "Please enter feedback before submitting.",
-          "f2e42e1307": "Send",
-          "69969ba364": "Sending…",
-          "imageReadFailed": "Could not read the attached images. Try attaching them again.",
-          "attachWhileSending": "Wait for the current feedback to finish sending before attaching more images.",
-          "imagesNotDelivered": "Feedback sent, but image delivery could not be confirmed.",
-          "imagesRejected": "Feedback sent. Your screenshots were too large to upload and were not included.",
-          "imagesNotIncluded": "Feedback sent. Your screenshots could not be uploaded and were not included."
-        },
         "SidebarFilter": {
           "e3b3898218": "Add project",
           "92a23e6d07": "Reset filters",
@@ -5396,7 +5360,6 @@
           "5f83d86d92": "Changelog",
           "cdc87f897e": "Docs",
           "e565171a7c": "Keyboard Shortcuts",
-          "4cf5b868d7": "Send Feedback",
           "a428c25998": "Settings",
           "2991a0106c": "Help",
           "4e8f5710d3": "Couldn't restart Orca.",
@@ -6219,11 +6182,6 @@
         "WorktreeDeveloperMenu": {
           "developer": "Developer",
           "parkTerminal": "Park terminal"
-        },
-        "SidebarFeedbackImageAttachments": {
-          "screenshotsHint": "Attach up to {{count}} screenshots, {{maxSize}} total",
-          "attachImages": "Attach",
-          "removeImage": "Remove {{fileName}}"
         },
         "WorkspaceKanbanSearchField": {
           "bdb753c78d": "No workspaces match",
@@ -7716,26 +7674,16 @@
         "PrivacyDiagnosticBundleControls": {
           "dc8404a930": "Create diagnostic file",
           "a5acaffdb6": "Discard",
-          "aca2c8a367": "Send to support",
           "798b6f0be5": "Open review file",
-          "2ae9a6b63e": "Done",
-          "7f14a1733c": "Delete sent file",
-          "2801d4ce22": "Copy reference ID",
-          "d8be621237": "Open the review file first.",
-          "61676df223": "Diagnostics sent. Share this reference ID with support: {{value0}}.",
-          "fd7b3891af": "You opened the review file ({{value0}}). Send that file to support, or discard it.",
-          "62340d4439": "Your review file is ready ({{value0}}). Open it to see what would be sent, then choose whether to send it to support.",
-          "19ec5e29b3": "Collects recent app activity and errors into a redacted file you can review before sending. Nothing is uploaded until you choose to send it."
+          "acc0367609": "You opened the review file ({{value0}}). Keep it, or discard it.",
+          "f843e0e41a": "Your review file is ready ({{value0}}). Open it to see what was collected.",
+          "1605b02b28": "Collects recent app activity and errors into a redacted file you can review. It stays on this machine."
         },
         "PrivacyDiagnosticsSection": {
-          "af2fc82cde": "Send app diagnostics to support",
-          "c18cbe45df": "Sent diagnostics deleted",
-          "7a4944595b": "Could not copy reference ID",
-          "13eb2c65a1": "Reference ID copied",
           "860bca9ec9": "Review file discarded",
-          "49fc6c80e8": "Diagnostics sent",
           "db3228e01a": "Review file opened",
-          "a2b3505c77": "Review file created"
+          "a2b3505c77": "Review file created",
+          "7a64459e4e": "Create a local diagnostic file"
         },
         "PrivacyPane": {
           "36e0e2e63b": "environment variable. Unset it and restart to re-enable.",
@@ -15168,32 +15116,16 @@
       "crash": {
         "report": {
           "CrashReportDialog": {
-            "b4951cd27c": "Send Report",
-            "88fea8e84e": "Don't Send",
             "50b00dc327": "Copy Details",
             "6d3ebe216a": "Diagnostic text",
             "835037edc9": "· Orca",
             "56a3dfa283": "Failed to send crash report.",
-            "8e24fe4f75": "Crash report sent.",
             "8b8473c544": "Crash report copied.",
             "b175e90213": "No crash report is available.",
             "765591798d": "Checking for crash reports...",
             "b2e36f53a1": "Failed to send crash report. Diagnostic ticket {{value0}} was uploaded but not linked.",
-            "ead6fc0510": "No automatic crash report was captured. You can still send details and include recent diagnostic logs when available.",
-            "b082f27490": "Attach recent diagnostic logs",
-            "e59f0b9427": "Sends a capped redacted log bundle with the report."
-          },
-          "submit": {
-            "notice": {
-              "unknownError": "The crash report request failed before it returned a reason.",
-              "ticketUploaded": "Diagnostic ticket {{value0}} was uploaded but not linked.",
-              "uncheckDiagnostics": "Uncheck \"Attach recent diagnostic logs\" and try again, or copy the details.",
-              "checkConnection": "Check your connection and try again, or copy the details.",
-              "notSent": "Crash report wasn't sent",
-              "copyDetails": "Copy Details",
-              "sentWithoutDiagnostics": "Crash report sent without diagnostic logs",
-              "diagnosticsReason": "Diagnostic logs were not attached: {{value0}}"
-            }
+            "a666c7734a": "No automatic crash report was captured. You can still copy the details below.",
+            "27bf46d278": "Close"
           },
           "copy": {
             "copyFailed": "Crash report details could not be copied."

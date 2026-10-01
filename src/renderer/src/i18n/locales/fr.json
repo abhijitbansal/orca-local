@@ -909,19 +909,7 @@
         "group": "Plugins"
       },
       "feedback": {
-        "image": {
-          "attachments": {
-            "fallbackName": "Pièce jointe image",
-            "unsupportedType": "{{fileName}} n'est pas un type d'image pris en charge.",
-            "empty": "{{fileName}} est vide.",
-            "tooLarge": "{{fileName}} dépasse {{maxSize}}.",
-            "tooMany": "Vous pouvez joindre jusqu'à {{maxCount}} images.",
-            "dimensionsTooLarge": "{{fileName}} a des dimensions trop grandes pour un aperçu sans risque.",
-            "invalidImage": "{{fileName}} n'est pas une image valide prise en charge.",
-            "additionalErrors": "{{count}} images supplémentaires n'ont pas pu être jointes.",
-            "totalTooLarge": "{{fileName}} ferait dépasser {{maxSize}} au total pour les pièces jointes."
-          }
-        }
+        "image": {}
       },
       "ephemeralVmWorktreeCreation": {
         "sparseCheckoutUnsupported": "Les recettes à racine provisionnée ne prennent pas en charge le sparse checkout."
@@ -5240,30 +5228,6 @@
           "822ff300ad": "Ignorer",
           "5bfd5c8779": "Ignorer les scripts de setup"
         },
-        "SidebarFeedbackDialog": {
-          "8bf619e4cf": "Annuler",
-          "8de03e23c5": "Envoyez avec votre commentaire texte uniquement, ou connectez `gh` pour inclure votre identité GitHub.",
-          "d20439c560": "Vérification de l'identité GitHub…",
-          "5b120b9634": "Envoyer anonymement",
-          "c9e5ea0791": "GitHub :",
-          "d46ddd66fc": "Que pouvons-nous améliorer ?",
-          "3460258a54": "Suivre sur X",
-          "26108d3699": "Rejoindre Discord",
-          "d245c4ef6c": "Issues GitHub",
-          "9b33530b3d": "Autres moyens de nous contacter",
-          "a828fa4aee": "Partagez ce qui fonctionne, ce qui est cassé, ou ce qu'Orca devrait faire ensuite.",
-          "0eb643f07f": "Envoyer un commentaire",
-          "60b721e857": "Échec de l'envoi du commentaire. Réessayez.",
-          "7a46c228b8": "Merci pour votre commentaire.",
-          "a2fd890d9e": "Saisissez un commentaire avant d'envoyer.",
-          "f2e42e1307": "Envoyer",
-          "69969ba364": "Envoi…",
-          "imageReadFailed": "Impossible de lire les images jointes. Essayez de les joindre à nouveau.",
-          "attachWhileSending": "Attendez la fin de l'envoi du commentaire en cours avant de joindre d'autres images.",
-          "imagesNotDelivered": "Commentaire envoyé, mais la livraison des images n'a pas pu être confirmée.",
-          "imagesNotIncluded": "Commentaire envoyé. Vos captures d'écran n'ont pas pu être téléversées et n'ont pas été incluses.",
-          "imagesRejected": "Commentaire envoyé. Vos captures d'écran étaient trop volumineuses pour être téléversées et n'ont pas été incluses."
-        },
         "SidebarFilter": {
           "e3b3898218": "Ajouter un projet",
           "92a23e6d07": "Réinitialiser les filtres",
@@ -5327,7 +5291,6 @@
           "5f83d86d92": "Journal des modifications",
           "cdc87f897e": "Docs",
           "e565171a7c": "Raccourcis clavier",
-          "4cf5b868d7": "Envoyer un commentaire",
           "a428c25998": "Paramètres",
           "2991a0106c": "Aide",
           "4e8f5710d3": "Impossible de redémarrer Orca.",
@@ -6150,11 +6113,6 @@
         "WorktreeDeveloperMenu": {
           "developer": "Développeur",
           "parkTerminal": "Parquer le terminal"
-        },
-        "SidebarFeedbackImageAttachments": {
-          "attachImages": "Joindre",
-          "removeImage": "Supprimer {{fileName}}",
-          "screenshotsHint": "Joignez jusqu'à {{count}} captures d'écran, {{maxSize}} au total"
         },
         "WorkspaceKanbanSearchField": {
           "bdb753c78d": "Aucun espace de travail correspondant",
@@ -7642,24 +7600,10 @@
         "PrivacyDiagnosticBundleControls": {
           "dc8404a930": "Créer le fichier de diagnostic",
           "a5acaffdb6": "Abandonner",
-          "aca2c8a367": "Envoyer au support",
-          "798b6f0be5": "Ouvrir le fichier de révision",
-          "2ae9a6b63e": "Terminé",
-          "7f14a1733c": "Supprimer le fichier envoyé",
-          "2801d4ce22": "Copier l'ID de référence",
-          "d8be621237": "Ouvrez d'abord le fichier de révision.",
-          "61676df223": "Diagnostics envoyés. Communiquez cet ID de référence au support : {{value0}}.",
-          "fd7b3891af": "Vous avez ouvert le fichier de révision ({{value0}}). Envoyez ce fichier au support, ou abandonnez-le.",
-          "62340d4439": "Votre fichier de révision est prêt ({{value0}}). Ouvrez-le pour voir ce qui serait envoyé, puis choisissez de l'envoyer ou non au support.",
-          "19ec5e29b3": "Collecte l'activité récente de l'app et les erreurs dans un fichier expurgé que vous pouvez consulter avant l'envoi. Rien n'est téléversé tant que vous n'avez pas choisi de l'envoyer."
+          "798b6f0be5": "Ouvrir le fichier de révision"
         },
         "PrivacyDiagnosticsSection": {
-          "af2fc82cde": "Envoyer les diagnostics de l'app au support",
-          "c18cbe45df": "Diagnostics envoyés supprimés",
-          "7a4944595b": "Impossible de copier l'ID de référence",
-          "13eb2c65a1": "ID de référence copié",
           "860bca9ec9": "Fichier de révision abandonné",
-          "49fc6c80e8": "Diagnostics envoyés",
           "db3228e01a": "Fichier de révision ouvert",
           "a2b3505c77": "Fichier de révision créé"
         },
@@ -15072,32 +15016,14 @@
       "crash": {
         "report": {
           "CrashReportDialog": {
-            "b4951cd27c": "Envoyer le rapport",
-            "88fea8e84e": "Ne pas envoyer",
             "50b00dc327": "Copier les détails",
             "6d3ebe216a": "Texte de diagnostic",
             "835037edc9": "· Orca",
             "56a3dfa283": "Échec de l'envoi du rapport de plantage.",
-            "8e24fe4f75": "Rapport de plantage envoyé.",
             "8b8473c544": "Rapport de plantage copié.",
             "b175e90213": "Aucun rapport de plantage disponible.",
             "765591798d": "Recherche de rapports de plantage...",
-            "b2e36f53a1": "Échec de l'envoi du rapport de plantage. Le ticket de diagnostic {{value0}} a été téléversé, mais pas associé.",
-            "ead6fc0510": "Aucun rapport de plantage automatique n'a été capturé. Vous pouvez toujours envoyer des détails et inclure les journaux de diagnostic récents lorsqu'ils sont disponibles.",
-            "b082f27490": "Joindre les journaux de diagnostic récents",
-            "e59f0b9427": "Envoie avec le rapport un lot de journaux anonymisés et de taille limitée."
-          },
-          "submit": {
-            "notice": {
-              "unknownError": "La demande de rapport de plantage a échoué avant de renvoyer une raison.",
-              "ticketUploaded": "Le ticket de diagnostic {{value0}} a été téléversé, mais pas associé.",
-              "uncheckDiagnostics": "Décochez « Joindre les journaux de diagnostic récents » et réessayez, ou copiez les détails.",
-              "checkConnection": "Vérifiez votre connexion et réessayez, ou copiez les détails.",
-              "notSent": "Le rapport de plantage n'a pas été envoyé",
-              "copyDetails": "Copier les détails",
-              "sentWithoutDiagnostics": "Rapport de plantage envoyé sans journaux de diagnostic",
-              "diagnosticsReason": "Journaux de diagnostic non joints : {{value0}}"
-            }
+            "b2e36f53a1": "Échec de l'envoi du rapport de plantage. Le ticket de diagnostic {{value0}} a été téléversé, mais pas associé."
           },
           "copy": {
             "copyFailed": "Impossible de copier les détails du rapport de plantage."

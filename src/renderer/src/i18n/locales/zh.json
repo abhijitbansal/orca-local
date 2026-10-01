@@ -810,19 +810,7 @@
         "group": "Plugins"
       },
       "feedback": {
-        "image": {
-          "attachments": {
-            "fallbackName": "图片附件",
-            "unsupportedType": "{{fileName}} 不是受支持的图片类型。",
-            "empty": "{{fileName}} 为空。",
-            "tooLarge": "{{fileName}} 大于 {{maxSize}}。",
-            "tooMany": "最多可附加 {{maxCount}} 张图片。",
-            "dimensionsTooLarge": "{{fileName}} 的尺寸过大，无法安全预览。",
-            "invalidImage": "{{fileName}} 不是有效的受支持图片。",
-            "additionalErrors": "还有 {{count}} 张图片无法附加。",
-            "totalTooLarge": "{{fileName}} 将使附件总大小超过 {{maxSize}}。"
-          }
-        }
+        "image": {}
       },
       "activateAiVaultStructuredSession": {
         "unavailable": "结构化代理会话尚不可用。稍后重试。",
@@ -5103,30 +5091,6 @@
           "822ff300ad": "关闭",
           "5bfd5c8779": "关闭安装脚本"
         },
-        "SidebarFeedbackDialog": {
-          "8bf619e4cf": "取消",
-          "8de03e23c5": "仅提交您输入的反馈，或连接“gh”以包含 GitHub 身份。",
-          "d20439c560": "检查 GitHub 身份...",
-          "5b120b9634": "匿名提交",
-          "c9e5ea0791": "GitHub：",
-          "d46ddd66fc": "我们可以改进什么？",
-          "3460258a54": "关注 X",
-          "26108d3699": "加入 Discord",
-          "d245c4ef6c": "GitHub 议题",
-          "9b33530b3d": "其他联系我们的方式",
-          "a828fa4aee": "分享什么是有效的、什么是有问题的，或者 Orca 接下来应该做什么。",
-          "0eb643f07f": "发送反馈",
-          "60b721e857": "提交反馈失败。请再试一次。",
-          "7a46c228b8": "感谢您的反馈。",
-          "a2fd890d9e": "请在提交前输入反馈。",
-          "f2e42e1307": "发送",
-          "69969ba364": "正在发送...",
-          "imageReadFailed": "无法读取附加的图片。请重新附加。",
-          "attachWhileSending": "请等待当前反馈发送完成，再附加更多图片。",
-          "imagesNotDelivered": "反馈已发送，但无法确认图片已送达。",
-          "imagesNotIncluded": "反馈已发送。您的截图无法上传，未包含在内。",
-          "imagesRejected": "反馈已发送。您的截图过大，无法上传，未包含在内。"
-        },
         "SidebarFilter": {
           "e3b3898218": "添加项目",
           "92a23e6d07": "重置筛选条件",
@@ -5190,7 +5154,6 @@
           "5f83d86d92": "变更日志",
           "cdc87f897e": "文档",
           "e565171a7c": "键盘快捷键",
-          "4cf5b868d7": "发送反馈",
           "a428c25998": "设置",
           "2991a0106c": "帮助",
           "4e8f5710d3": "无法重新启动 Orca。",
@@ -6073,11 +6036,6 @@
         "WorktreeDeveloperMenu": {
           "developer": "Developer",
           "parkTerminal": "Park terminal"
-        },
-        "SidebarFeedbackImageAttachments": {
-          "attachImages": "Attach",
-          "removeImage": "Remove {{fileName}}",
-          "screenshotsHint": "最多附加 {{count}} 张截图，总计 {{maxSize}}"
         },
         "WorkspaceKanbanSearchField": {
           "bdb753c78d": "没有匹配的工作区",
@@ -7492,24 +7450,10 @@
         "PrivacyDiagnosticBundleControls": {
           "dc8404a930": "创建诊断文件",
           "a5acaffdb6": "放弃",
-          "aca2c8a367": "发送给支持团队",
-          "798b6f0be5": "打开查看文件",
-          "2ae9a6b63e": "完成",
-          "7f14a1733c": "删除已发送文件",
-          "2801d4ce22": "复制参考 ID",
-          "d8be621237": "请先打开查看文件。",
-          "61676df223": "诊断信息已发送。请将此参考 ID 分享给支持团队：{{value0}}。",
-          "fd7b3891af": "你已打开查看文件（{{value0}}）。可以将此文件发送给支持团队，或将其丢弃。",
-          "62340d4439": "查看文件已准备好（{{value0}}）。打开它查看将发送的内容，然后选择是否发送给支持团队。",
-          "19ec5e29b3": "将最近的应用活动和错误收集到一个已编辑的文件中，供你在发送前查看。只有在你选择发送后才会上传。"
+          "798b6f0be5": "打开查看文件"
         },
         "PrivacyDiagnosticsSection": {
-          "af2fc82cde": "将应用诊断信息发送给支持团队",
-          "c18cbe45df": "已删除发送的诊断信息",
-          "7a4944595b": "无法复制参考 ID",
-          "13eb2c65a1": "已复制参考 ID",
           "860bca9ec9": "已丢弃查看文件",
-          "49fc6c80e8": "诊断信息已发送",
           "db3228e01a": "已打开查看文件",
           "a2b3505c77": "已创建查看文件"
         },
@@ -14969,32 +14913,14 @@
       "crash": {
         "report": {
           "CrashReportDialog": {
-            "b4951cd27c": "发送报告",
-            "88fea8e84e": "不发送",
             "50b00dc327": "复制详情",
             "6d3ebe216a": "诊断文本",
             "835037edc9": "·Orca",
             "56a3dfa283": "无法发送错误报告。",
-            "8e24fe4f75": "已发送错误报告。",
             "8b8473c544": "已复制错误报告。",
             "b175e90213": "没有可用的错误报告。",
             "765591798d": "正在检查错误报告...",
-            "b2e36f53a1": "发送崩溃报告失败。诊断票据 {{value0}} 已上传，但未关联。",
-            "ead6fc0510": "没有捕获到自动崩溃报告。你仍然可以发送详情，并在可用时包含最近的诊断日志。",
-            "b082f27490": "附加最近的诊断日志",
-            "e59f0b9427": "随报告发送经过删减且有大小限制的日志包。"
-          },
-          "submit": {
-            "notice": {
-              "unknownError": "崩溃报告请求在返回原因之前失败。",
-              "ticketUploaded": "诊断工单 {{value0}} 已上传但未关联。",
-              "uncheckDiagnostics": "取消勾选\"附加最近的诊断日志\"并重试，或复制详细信息。",
-              "checkConnection": "请检查网络连接并重试，或复制详细信息。",
-              "notSent": "崩溃报告未发送",
-              "copyDetails": "Copy Details",
-              "sentWithoutDiagnostics": "崩溃报告已发送，但未附带诊断日志",
-              "diagnosticsReason": "诊断日志未附加：{{value0}}"
-            }
+            "b2e36f53a1": "发送崩溃报告失败。诊断票据 {{value0}} 已上传，但未关联。"
           },
           "copy": {
             "copyFailed": "无法复制崩溃报告详细信息。"

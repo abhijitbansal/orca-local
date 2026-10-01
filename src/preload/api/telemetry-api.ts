@@ -22,13 +22,6 @@ export type DiagnosticsBundlePayload = {
   readonly bytes: number
   readonly spanCount: number
 }
-export type DiagnosticsUploadPayload =
-  | {
-      readonly ticketId: string
-    }
-  | {
-      readonly canceled: true
-    }
 
 export type MemoryApi = {
   getSnapshot: () => Promise<MemorySnapshot>
@@ -39,8 +32,6 @@ export type DiagnosticsApi = {
   collectBundle: (lookbackMinutes?: number) => Promise<DiagnosticsBundlePayload>
   openBundlePreview: (bundleSubmissionId: string) => Promise<void>
   discardBundlePreview: (bundleSubmissionId: string) => Promise<void>
-  uploadBundle: (bundleSubmissionId: string) => Promise<DiagnosticsUploadPayload>
-  deleteBundle: (ticketId: string) => Promise<void>
 }
 
 export type TelemetryApi = {
