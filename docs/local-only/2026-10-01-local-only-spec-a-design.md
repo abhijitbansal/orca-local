@@ -48,7 +48,7 @@ All local functionality is preserved, and pulling future upstream releases must 
 
 ## Removal inventory
 
-Choke points come from the read-only inventory (`notes/local-only/inventory.json`, gitignored). Each unit below is one commit.
+Choke points come from the read-only inventory (`notes/local-only/inventory.json`, gitignored). Each unit below is one or more commits (one per plan task), each typecheck-green.
 
 | # | Unit | Primary sites |
 |---|---|---|
