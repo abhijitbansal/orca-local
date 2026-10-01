@@ -37,11 +37,6 @@ vi.mock('../ipc/pty', () => ({
 vi.mock('../providers/local-pty-provider', () => ({ LocalPtyProvider: class {} }))
 vi.mock('../browser/offscreen-browser-backend', () => ({ OffscreenBrowserBackend: class {} }))
 vi.mock('../browser/browser-manager', () => ({ browserManager: {} }))
-vi.mock('./main-process-relay-status', () => ({
-  getDesktopRelayStatus: vi.fn(),
-  publishDesktopRelayStatus: vi.fn()
-}))
-vi.mock('../runtime/relay/desktop-relay-service', () => ({ DesktopRelayService: class {} }))
 vi.mock('./main-process-serve', () => ({
   getServeOptions: vi.fn(() => null),
   getBundledWebClientRoot: vi.fn(() => null),
@@ -76,7 +71,6 @@ vi.mock('../terminal-history-deletion', () => ({ scheduleAllPendingHistoryTreeRe
 vi.mock('../ipc/startup-notification-registration', () => ({
   triggerStartupNotificationRegistration: vi.fn()
 }))
-vi.mock('./main-process-push-startup', () => ({ startDesktopPushService: vi.fn() }))
 vi.mock('./startup-diagnostics', () => ({ logStartupMilestone: vi.fn() }))
 vi.mock('../server/serve-stdout-boundary', () => ({ emitServeBrowserIdentityActionLine: vi.fn() }))
 vi.mock('../browser/browser-identity-mode-store', () => ({

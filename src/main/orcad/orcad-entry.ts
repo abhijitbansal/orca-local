@@ -166,8 +166,6 @@ async function startOrcadRuntime(
       }
     }
   })
-  const { DesktopPushService } = await import('../runtime/push/desktop-push-service')
-  const { resolvePushGatewayOrigin } = await import('../runtime/push/push-gateway-origin')
 
   const runtimeUserDataPath = getAppEnvironment().getPath('userData')
   const { store: profileStore, authority: profileStateAuthority } =
@@ -304,13 +302,6 @@ async function startOrcadRuntime(
     ...(options.port !== undefined ? { wsPort: options.port, preferPinnedWsPort: true } : {})
   })
   await rpc.start()
-  const pushService = DesktopPushService.create({
-    runtime,
-    runtimeRpc: rpc,
-    gatewayUrl: resolvePushGatewayOrigin(process.env, getAppEnvironment().isPackaged())
-  })
-  pushService?.start()
-  getAppEnvironment().onWillQuit(() => pushService?.stop())
   console.error(`[orcad] ${describeOrcadBindExposure(bindHost)}`)
 
   const boundEndpoint = rpc.getWebSocketEndpoint()

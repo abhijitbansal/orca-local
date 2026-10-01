@@ -13,7 +13,6 @@ export function nodeServerTestPaths({ artifact = false, crossRuntime = false } =
     'src/main/persistence/loading-store/profile-state',
     'src/main/sqlite',
     'src/main/orcad/orcad-entry.test.ts',
-    'src/main/orcad/orcad-push-startup.test.ts',
     // The directory, not a prefix: its siblings are POSIX-host unit tests pr.yml already runs.
     'src/main/daemon/pty-subprocess/',
     'src/main/daemon/pty-subprocess-spawn-file-foreground.test.ts',

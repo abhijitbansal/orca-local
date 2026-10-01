@@ -67,8 +67,6 @@ function shutdownWatchersOnce(): Promise<void> {
 function installBeforeQuitHandler(): void {
   app.on('before-quit', () => {
     state.isQuitting = true
-    state.desktopRelayService?.fenceAndCloseNow()
-    state.runtimeRpc?.setMobileRelayPairingProvider(null)
     state.unsubscribeAgentAwakeStatusChanges?.()
     state.unsubscribeAgentAwakeStatusChanges = null
     state.agentAwakeService?.dispose()
@@ -101,8 +99,6 @@ function installWillQuitHandler(): void {
     if (!quitTeardownStartGate.tryStart(event)) {
       return
     }
-    // A renderer can veto before-quit; push must survive until quit is committed.
-    state.desktopPushService?.stop()
     state.unsubscribeSystemResumeBroadcast?.()
     state.unsubscribeSystemResumeBroadcast = null
     // Why: renderer guards can still cancel before this committed phase; `log stream` must survive those vetoes.
