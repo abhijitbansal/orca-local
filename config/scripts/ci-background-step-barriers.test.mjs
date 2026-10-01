@@ -123,7 +123,6 @@ describe('CI background step barriers', () => {
     )
     for (const [id, consumer] of [
       ['linux-package-tools', 'Package unpacked app'],
-      ['web-client', 'Package unpacked app'],
       ['shutdown-fixture-cache', 'Verify headless serve signal shutdown'],
       ['cli-fixture-cache', 'Verify Linux CLI launch contract']
     ]) {

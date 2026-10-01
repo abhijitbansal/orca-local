@@ -337,8 +337,7 @@ export const electronViteConfig: UserConfig = {
         preserveEntrySignatures: 'strict',
         input: {
           index: resolve('src/renderer/index.html'),
-          popout: resolve('src/renderer/popout.html'),
-          web: resolve('src/renderer/web-index.html')
+          popout: resolve('src/renderer/popout.html')
         }
       }
     }

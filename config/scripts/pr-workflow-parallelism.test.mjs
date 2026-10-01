@@ -239,13 +239,6 @@ describe('PR workflow parallelism', () => {
 
     expect(buildStep.run).toContain('scripts=(build:relay build:electron-vite:parallel)')
     expect(buildStep.run).toContain('pnpm run "$script" &')
-    expect(
-      workflow.jobs.package.steps.find(
-        (step) => step.name === 'Project web client from renderer build'
-      ).run
-    ).toBe('pnpm run build:web-from-renderer')
-    expect(packageJson.scripts['build:desktop']).toContain('pnpm run build:web-from-renderer')
-    expect(packageJson.scripts['build:release']).toContain('pnpm run build:web-from-renderer')
   })
 
   it('smokes managed-hook companions under their supported Node 18 runtime', () => {
