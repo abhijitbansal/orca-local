@@ -82,7 +82,7 @@ describe('remote server updates mixed inventory', () => {
     })
     vi.stubGlobal('window', {
       api: {
-        updater: { getVersion: vi.fn(async () => '1.5.0') },
+        app: { getVersion: vi.fn(async () => '1.5.0') },
         runtimeEnvironments: {
           list: vi.fn(async () => environments),
           getStatus,

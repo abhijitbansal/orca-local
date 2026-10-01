@@ -90,7 +90,7 @@ export function UnexpectedSignoutCard(): React.JSX.Element | null {
 
   useEffect(() => {
     let cancelled = false
-    void window.api.updater
+    void window.api.app
       .getVersion()
       .then((version) => {
         if (!cancelled) {

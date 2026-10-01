@@ -18,6 +18,7 @@ export function createWebAppApi(): Partial<PreloadApi> {
           devRepoRoot: null,
           dockBadgeLabel: null
         }),
+      getVersion: () => Promise.resolve('web'),
       getFeatureWallAssetBaseUrl: () => Promise.resolve('/'),
       relaunch: () => Promise.resolve(window.location.reload()),
       restart: () => Promise.resolve(window.location.reload()),

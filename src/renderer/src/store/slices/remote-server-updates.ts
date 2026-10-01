@@ -110,7 +110,7 @@ export const createRemoteServerUpdatesSlice: StateCreator<
         })
       )
       set({ remoteServerUpdates: initial })
-      const clientVersion = await window.api.updater.getVersion()
+      const clientVersion = await window.api.app.getVersion()
       await Promise.allSettled(
         environments.map(async (environment) => {
           const entry = await inspectRemoteServerUpdate(

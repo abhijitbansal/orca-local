@@ -30,7 +30,7 @@ beforeEach(() => {
     configurable: true,
     value: {
       ui: { set: persist },
-      updater: { getVersion: vi.fn().mockResolvedValue('1.4.197') }
+      app: { getVersion: vi.fn().mockResolvedValue('1.4.197') }
     }
   })
   useAppStore.setState(useAppStore.getInitialState(), true)
@@ -65,7 +65,7 @@ describe('unexpected signout lifecycle', () => {
       dismissedUnexpectedSignoutVersion: '1.4.197',
       fetchOrcaProfileAuthStatus: vi.fn().mockResolvedValue(status)
     })
-    vi.mocked(window.api.updater.getVersion).mockResolvedValue('1.4.999')
+    vi.mocked(window.api.app.getVersion).mockResolvedValue('1.4.999')
     render(<UnexpectedSignoutCard />)
     await act(async () => {})
     expect(screen.queryByRole('complementary')).toBeNull()

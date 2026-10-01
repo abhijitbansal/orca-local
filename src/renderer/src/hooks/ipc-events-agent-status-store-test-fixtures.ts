@@ -136,7 +136,6 @@ export function buildStoreState(overrides: StoreLike): StoreLike {
   // mount so individual tests only need to override workspaceSessionReady,
   // tabsByWorktree, and setAgentStatus.
   const state: StoreLike = {
-    setUpdateStatus: vi.fn(),
     fetchRepos: vi.fn(),
     fetchWorktrees: vi.fn(),
     setActiveView: vi.fn(),

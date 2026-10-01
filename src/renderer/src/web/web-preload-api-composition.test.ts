@@ -63,7 +63,6 @@ describe('web preload API composition', () => {
       'codexConfigSync',
       'developerPermissions',
       'computerUsePermissions',
-      'updater',
       'shell',
       'skills',
       'pty',

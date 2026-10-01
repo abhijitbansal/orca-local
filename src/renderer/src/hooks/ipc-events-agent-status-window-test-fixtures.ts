@@ -90,11 +90,6 @@ export function buildWindowApi(args: {
         ...args.ui
       },
       settings: { onChanged: () => () => {} },
-      updater: {
-        getStatus: () => Promise.resolve({ state: 'idle' }),
-        onStatus: () => () => {},
-        onClearDismissal: () => () => {}
-      },
       browser: {
         onGuestLoadFailed: () => () => {},
         onPaneFocus: () => () => {},

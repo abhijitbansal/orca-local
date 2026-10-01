@@ -221,11 +221,6 @@ export async function loadIpcEventsHarness(
           onPortForwardsChanged: () => () => {},
           onDetectedPortsChanged: () => () => {}
         },
-        updater: {
-          getStatus: () => Promise.resolve({ state: 'idle' }),
-          onStatus: () => () => {},
-          onClearDismissal: () => () => {}
-        },
         browser: createApiNamespaceStub({
           onNavigationUpdate: (
             listener: (event: { browserPageId: string; url: string; title: string }) => void

@@ -151,11 +151,6 @@ export function buildTerminalCreateWindow(args: {
       settings: {
         onChanged: () => () => {}
       },
-      updater: {
-        getStatus: () => Promise.resolve({ state: 'idle' }),
-        onStatus: () => () => {},
-        onClearDismissal: () => () => {}
-      },
       browser: {
         onGuestLoadFailed: () => () => {},
         onOpenLinkInOrcaTab: () => () => {},

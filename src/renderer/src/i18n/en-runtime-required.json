@@ -186,11 +186,6 @@
       "Terminal": {
         "cdc9ac4b2d": "editor"
       },
-      "UpdateCard": {
-        "522df222b9": "spinner",
-        "7ffc08506e": "check",
-        "d5253b54af": "error"
-      },
       "WorktreeJumpPalette": {
         "c4afa68159": "Try a worktree, setting, action, tab title, agent prompt, URL, PR, or port.",
         "dabd819ca1": "Type to see all {{value0}} worktrees"
@@ -1213,15 +1208,6 @@
           "b3f0584f5d": "loading",
           "c9f96d4234": "error"
         },
-        "GeneralUpdateSettingsSection": {
-          "3394d1f663": "checking",
-          "4c1c001813": "downloading",
-          "6405510b92": "error",
-          "7173352632": "idle",
-          "82465b2444": "available",
-          "90eb7309d7": "not-available",
-          "a0832ccdb1": "downloaded"
-        },
         "GeneralWorkspaceSettingsSection": {
           "externalWorktreesDescription": "Choose whether worktrees created outside Orca appear by default.",
           "hide": "Hide",
@@ -1389,11 +1375,6 @@
           "44923dd982": "destructive",
           "7784912ed6": "repo",
           "f91b649324": "Saved Commands"
-        },
-        "ReleaseChannelSection": {
-          "adhocWarning": "Adhoc builds come from a branch that has not landed, and the Windows ones are unsigned. Whoever cut one may abandon it — keep a stable build handy.",
-          "dailyWarning": "Daily builds ship straight from main with no test gate, and the Windows ones are unsigned. Keep a stable build handy.",
-          "hourlyWarning": "Hourly builds ship straight from main with no test gate, and the Windows ones are unsigned. Keep a stable build handy."
         },
         "RemoteServerUpdateDialog": {
           "checkAgain": "Check for Server Updates",
@@ -2802,15 +2783,12 @@
         }
       },
       "status": {
+        "failedAfter": "Failed after {{value0}}",
+        "interruptedAfter": "Interrupted after {{value0}}",
         "responding": "Agent is responding",
         "toggleDetails": "Toggle turn details",
         "workedFor": "Worked for {{value0}}",
-        "interruptedAfter": "Interrupted after {{value0}}",
-        "failedAfter": "Failed after {{value0}}",
         "workingFor": "Working for {{value0}}"
-      },
-      "subagents": {
-        "unnamed": "Subagent"
       },
       "tool": {
         "countN": "{{value0}} tool calls",

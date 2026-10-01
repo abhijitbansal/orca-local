@@ -29,7 +29,6 @@ describe('useIpcEvents browser tab create routing', () => {
         | null
     } = { current: null }
     const state = {
-      setUpdateStatus: vi.fn(),
       fetchRepos: vi.fn(),
       fetchWorktrees: vi.fn(),
       setActiveView: vi.fn(),
@@ -206,11 +205,6 @@ describe('useIpcEvents browser tab create routing', () => {
           set: vi.fn()
         },
         settings: { onChanged: () => () => {} },
-        updater: {
-          getStatus: () => Promise.resolve({ state: 'idle' }),
-          onStatus: () => () => {},
-          onClearDismissal: () => () => {}
-        },
         browser: {
           onGuestLoadFailed: () => () => {},
           onOpenLinkInOrcaTab: () => () => {},
