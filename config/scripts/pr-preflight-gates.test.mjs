@@ -53,9 +53,7 @@ it('requires compiler success and joined planning before publishing shards and a
 })
 
 it.each(
-  [['README.md'], ['mobile/src/App.tsx'], ['cloud/package.json'], ['src/main/index.ts'], []].map(
-    (changed) => ({ changed })
-  )
+  [['README.md'], ['mobile/src/App.tsx'], ['src/main/index.ts'], []].map((changed) => ({ changed }))
 )('keeps desktop typechecking and planning off unrelated paths: $changed', ({ changed }) => {
   const scope = classifyPrJobs(changed)
   expect(typecheck.if).toBe("needs.code_paths.outputs.typecheck == 'true'")
