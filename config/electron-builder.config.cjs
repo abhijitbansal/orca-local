@@ -68,19 +68,6 @@ const devChannelBuildVersion = isHourlyChannel
     : isAdhocChannel
       ? process.env.ORCA_ADHOC_BUILD_VERSION
       : undefined
-// Why each dev channel gets its own repo rather than tagging into the main one:
-// the releases atom feed exposes only the 10 newest entries, so 24 hourly tags a
-// day would evict every stable/RC entry and strand users on a feed with nothing
-// to install. Keeping adhoc/daily separate from hourly too means a branch build
-// or a once-a-day cut cannot be picked up by someone who only meant to ride
-// main's hourlies.
-const devChannelRepo = isHourlyChannel
-  ? 'orca-hourly'
-  : isDailyChannel
-    ? 'orca-daily'
-    : isAdhocChannel
-      ? 'orca-adhoc'
-      : null
 const appId = 'com.stablyai.orca'
 const featureWallResources = {
   from: 'resources/onboarding/feature-wall',
@@ -228,7 +215,6 @@ module.exports = {
     // Why: local agent/tooling directories may contain worktree symlink loops;
     // they are never runtime inputs and must not be traversed by electron-builder.
     '!{.claude,.grok,.agents,.codex}{,/**/*}',
-    '!Casks{,/**/*}',
     '!{AGENTS.md,CLAUDE.md,DEVELOPING.md,bundle-size-progress.md,ORCHESTRATION_IMPLEMENTATION_CHECKLIST.md,ORCHESTRATION_STRUCTURED_OUTPUT_DESIGN.md}',
     '!out/**/*.test.js',
     // Why: main builds with sourcemap:'hidden' so release CI can publish maps
@@ -698,17 +684,7 @@ module.exports = {
   // packages arm64 binaries into the x64 DMG, causing "posix_spawnp failed"
   // on Intel Macs. The beforeBuild hook performs Orca's targeted rebuild and
   // returns false so electron-builder does not rebuild optional cpu-features.
-  npmRebuild: true,
-  publish: {
-    provider: 'github',
-    owner: 'stablyai',
-    repo: devChannelRepo ?? 'orca',
-    // Why draft on the main repo: `--publish always` otherwise creates a
-    // public GitHub release as soon as the first platform uploads, and
-    // /releases/latest serves a missing Windows exe. release-cut undrafts
-    // only after every required asset exists.
-    releaseType: devChannelRepo ? 'prerelease' : 'draft'
-  }
+  npmRebuild: true
 }
 
 // Stamp the effective channel version where node-mode CLI code can read it.

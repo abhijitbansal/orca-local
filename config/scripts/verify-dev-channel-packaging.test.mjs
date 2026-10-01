@@ -39,8 +39,7 @@ describe('electron-builder dev-channel identity', () => {
 
     expect(config.win.signtoolOptions.publisherName).toBe('SignPath Foundation')
     expect(config.win.verifyUpdateCodeSignature).toBeUndefined()
-    expect(config.publish.repo).toBe('orca')
-    expect(config.publish.releaseType).toBe('draft')
+    expect(config.publish).toBeUndefined()
   })
 
   // The whole point of the change: an unsigned build that advertised a
@@ -51,17 +50,6 @@ describe('electron-builder dev-channel identity', () => {
 
     expect(config.win.signtoolOptions?.publisherName).toBeUndefined()
     expect(config.win.verifyUpdateCodeSignature).toBe(false)
-  })
-
-  it.each([
-    ['hourly', { ORCA_WIN_HOURLY: '1' }, 'orca-hourly'],
-    ['daily', { ORCA_WIN_DAILY: '1' }, 'orca-daily'],
-    ['adhoc', { ORCA_WIN_ADHOC: '1' }, 'orca-adhoc']
-  ])('publishes %s Windows builds to its own repo as a prerelease', (_channel, env, repo) => {
-    const config = loadConfigWithEnv(env)
-
-    expect(config.publish.repo).toBe(repo)
-    expect(config.publish.releaseType).toBe('prerelease')
   })
 
   // Why: ORCA_MAC_* gates hardened runtime, notarization, and root-level
@@ -82,13 +70,11 @@ describe('electron-builder dev-channel identity', () => {
     })
 
     expect(config.mac.notarize).toBe(true)
-    expect(config.publish.repo).toBe('orca-adhoc')
   })
 })
 
 describe('collectDevChannelPackagingProblems', () => {
   const goodWinConfig = {
-    publish: { repo: 'orca-adhoc', releaseType: 'prerelease' },
     extraMetadata: { version: '1.4.178-adhoc.20260819010203' },
     win: { verifyUpdateCodeSignature: false }
   }
@@ -103,20 +89,6 @@ describe('collectDevChannelPackagingProblems', () => {
         env
       })
     ).toEqual([])
-  })
-
-  // The failure this script exists for: a branch predating Windows dev builds
-  // resolves publish.repo to the main repo.
-  it('rejects a config that resolved the main repo', () => {
-    const problems = collectDevChannelPackagingProblems({
-      channel: 'adhoc',
-      platform: 'win32',
-      config: { ...goodWinConfig, publish: { repo: 'orca', releaseType: 'release' } },
-      env
-    })
-
-    expect(problems.join('\n')).toContain('must publish to "orca-adhoc"')
-    expect(problems.join('\n')).toContain('rebase it onto a main that does')
   })
 
   it('rejects a Windows dev build that still advertises a publisherName', () => {
@@ -152,7 +124,6 @@ describe('collectDevChannelPackagingProblems', () => {
         channel: 'adhoc',
         platform: 'darwin',
         config: {
-          publish: { repo: 'orca-adhoc', releaseType: 'prerelease' },
           extraMetadata: { version: '1.4.178-adhoc.20260819010203' },
           win: { signtoolOptions: { publisherName: 'SignPath Foundation' } }
         },
