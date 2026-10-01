@@ -8,7 +8,6 @@ const {
   registerPreflightHandlersMock,
   registerUsageProviderHandlersMock,
   registerGitHubHandlersMock,
-  registerFeedbackHandlersMock,
   registerStatsHandlersMock,
   registerMemoryHandlersMock,
   registerNotebookHandlersMock,
@@ -74,7 +73,6 @@ const {
   registerPreflightHandlersMock: vi.fn(),
   registerUsageProviderHandlersMock: vi.fn(),
   registerGitHubHandlersMock: vi.fn(),
-  registerFeedbackHandlersMock: vi.fn(),
   registerStatsHandlersMock: vi.fn(),
   registerMemoryHandlersMock: vi.fn(),
   registerNotebookHandlersMock: vi.fn(),
@@ -187,10 +185,6 @@ vi.mock('../usage-provider-handlers', () => ({
 
 vi.mock('../github', () => ({
   registerGitHubHandlers: registerGitHubHandlersMock
-}))
-
-vi.mock('../feedback', () => ({
-  registerFeedbackHandlers: registerFeedbackHandlersMock
 }))
 
 vi.mock('../export', () => ({
@@ -408,7 +402,6 @@ describe('registerCoreHandlers', () => {
     registerPreflightHandlersMock.mockReset()
     registerUsageProviderHandlersMock.mockReset()
     registerGitHubHandlersMock.mockReset()
-    registerFeedbackHandlersMock.mockReset()
     registerStatsHandlersMock.mockReset()
     registerMemoryHandlersMock.mockReset()
     registerNotebookHandlersMock.mockReset()
@@ -542,7 +535,6 @@ describe('registerCoreHandlers', () => {
     expect(registerBitbucketHandlersMock).toHaveBeenCalled()
     expect(registerGitLabHandlersMock).toHaveBeenCalledWith(store)
     expect(registerHostedReviewHandlersMock).toHaveBeenCalledWith(store, stats)
-    expect(registerFeedbackHandlersMock).toHaveBeenCalled()
     expect(registerStatsHandlersMock).toHaveBeenCalledWith(stats)
     expect(registerMemoryHandlersMock).toHaveBeenCalledWith(store)
     expect(registerNotebookHandlersMock).toHaveBeenCalledWith(store)

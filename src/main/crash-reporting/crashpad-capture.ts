@@ -1,9 +1,8 @@
 // Starts Electron's Crashpad handler and pairs a written minidump with the
 // `render-process-gone` / `child-process-gone` event that reported the death.
 //
-// Upload stays off: dumps contain process memory, and the only transport we
-// have (observability/diagnostic-bundle-upload) is a user-initiated 4 MiB text
-// bundle. We keep dumps on disk and lift the *text* signature out of them, so
+// Upload stays off: dumps contain process memory and this build has no upload
+// transport. We keep dumps on disk and lift the *text* signature out of them, so
 // a CHECK failure becomes nameable without shipping raw memory anywhere.
 
 import { constants as fsConstants } from 'node:fs'
