@@ -99,11 +99,18 @@ if [[ "$entrypoint_kind" == appimage ]]; then
   registered_cli_verified=true
 fi
 
-bound_endpoint=$(jq -r '.boundEndpoint' <<<"$ready_line")
-bound_port=${bound_endpoint##*:}
-listener_before=$(ss -H -ltnp "sport = :$bound_port" || true)
+# The ready line carries no TCP endpoint (boundEndpoint is null); the serving
+# Electron owns the runtime Unix socket named o-<pid>-<id>.sock under userData.
+runtime_socket=''
+for _ in {0..50}; do
+  runtime_socket=$(find "$XDG_CONFIG_HOME" -maxdepth 3 -type s -name 'o-*.sock' 2>/dev/null | head -n1 || true)
+  [[ -n "$runtime_socket" ]] && break
+  sleep 0.1
+done
+listener_before=''
+[[ -n "$runtime_socket" ]] && listener_before=$(ss -H -lxp | grep -F -- "$runtime_socket" || true)
 if [[ -z "$listener_before" ]]; then
-  echo "FAIL: ready listener has no socket owner at $bound_endpoint" >&2
+  echo "FAIL: ready runtime socket has no listener owner at ${runtime_socket:-<none found>}" >&2
   exit 1
 fi
 listener_before_pids=$(grep -oE 'pid=[0-9]+' <<<"$listener_before" | cut -d= -f2 || true)
@@ -139,12 +146,12 @@ fi
 
 signal_target_pid=$app_pid
 if [[ "$signal_target_kind" == serving-electron ]]; then
-  # The ready socket identifies the serving Electron even when AppImage's
+  # The runtime socket identifies the serving Electron even when AppImage's
   # extraction wrapper rewrites the command line before it reaches Chromium.
   signal_target_pid=$(head -n1 <<<"$listener_before_pids")
   [[ -n "$signal_target_pid" ]] || { echo "FAIL: serving Electron process not found" >&2; exit 1; }
   if [[ -z "${tree_start_ticks[$signal_target_pid]+present}" ]]; then
-    echo "FAIL: ready listener PID $signal_target_pid is outside the entrypoint process tree" >&2
+    echo "FAIL: runtime socket listener PID $signal_target_pid is outside the entrypoint process tree" >&2
     echo "listener: $listener_before" >&2
     exit 1
   fi
@@ -182,7 +189,7 @@ wait "$watchdog_pid" 2>/dev/null || true
 
 # Crashpad can exit just after Electron; poll all owned shutdown state for up to 5s.
 for shutdown_poll in {0..50}; do
-  listener_after=$(ss -H -ltnp "sport = :$bound_port" || true)
+  listener_after=$(ss -H -lxp | grep -F -- "$runtime_socket" || true)
   survivors=()
   for pid in "${tree_pids[@]}"; do
     if [[ -r "/proc/$pid/stat" ]] \
@@ -218,7 +225,7 @@ jq -nc \
   --arg signalTargetKind "$signal_target_kind" \
   --argjson appPid "$app_pid" \
   --argjson signalTargetPid "$signal_target_pid" \
-  --arg endpoint "$bound_endpoint" \
+  --arg runtimeSocket "$runtime_socket" \
   --arg listenerBefore "$listener_before" \
   --arg listenerBeforePids "$listener_before_pids" \
   --arg listenerAfter "$listener_after" \
@@ -231,7 +238,7 @@ jq -nc \
   --arg survivors "${survivors[*]:-}" \
   --arg residue "$owned_residue" \
   --arg corePattern "$(cat /proc/sys/kernel/core_pattern)" \
-  '{signal:$signal,signalDelivery:$signalDelivery,entrypointKind:$entrypointKind,signalTargetKind:$signalTargetKind,appPid:$appPid,signalTargetPid:$signalTargetPid,boundEndpoint:$endpoint,listenerBefore:$listenerBefore,listenerBeforePids:$listenerBeforePids,listenerAfter:$listenerAfter,xvfbPids:$xvfbPids,treeBefore:$treeBefore,waitStatus:$waitStatus,fatalEvidence:$fatalEvidence,canaryAlive:$canaryAlive,registeredCliVerified:$registeredCliVerified,survivingTreePids:$survivors,ownedResidue:$residue,corePattern:$corePattern}'
+  '{signal:$signal,signalDelivery:$signalDelivery,entrypointKind:$entrypointKind,signalTargetKind:$signalTargetKind,appPid:$appPid,signalTargetPid:$signalTargetPid,runtimeSocket:$runtimeSocket,listenerBefore:$listenerBefore,listenerBeforePids:$listenerBeforePids,listenerAfter:$listenerAfter,xvfbPids:$xvfbPids,treeBefore:$treeBefore,waitStatus:$waitStatus,fatalEvidence:$fatalEvidence,canaryAlive:$canaryAlive,registeredCliVerified:$registeredCliVerified,survivingTreePids:$survivors,ownedResidue:$residue,corePattern:$corePattern}'
 
 if ((wait_status != 0)) || [[ -n "$listener_after" ]] || [[ "$fatal_evidence" != false ]] \
   || [[ "$canary_alive" != true ]] || ((${#survivors[@]})) || [[ -n "$owned_residue" ]]; then
