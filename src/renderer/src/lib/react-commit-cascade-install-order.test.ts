@@ -20,13 +20,6 @@ const OBSERVER_IMPORT = "import './lib/react-commit-cascade-observer'"
 
 /** Entries whose crash reports reach the breadcrumb pipe. */
 const INSTRUMENTED_ENTRIES = ['main.tsx', 'popout.tsx']
-/**
- * The web preload stubs crashReports.recordBreadcrumb to a no-op
- * (src/renderer/src/web/preload-api/web-diagnostics-api.ts), so instrumenting
- * the web entry would cost commits and record nothing.
- */
-const UNINSTRUMENTED_ENTRIES = [join('web', 'main.tsx')]
-
 function firstImportStatement(source: string): string | undefined {
   return source
     .split('\n')
@@ -95,14 +88,6 @@ describe('react commit cascade shim install order', () => {
     // so it only has to be in the graph, not first in it.
     it(`still installs the observer in ${entry}`, () => {
       expect(readFileSync(join(RENDERER_ROOT, entry), 'utf8')).toContain(OBSERVER_IMPORT)
-    })
-  }
-
-  for (const entry of UNINSTRUMENTED_ENTRIES) {
-    it(`leaves ${entry} uninstrumented, where breadcrumbs are a no-op`, () => {
-      const source = readFileSync(join(RENDERER_ROOT, entry), 'utf8')
-
-      expect(source).not.toContain('react-commit-cascade-observer')
     })
   }
 

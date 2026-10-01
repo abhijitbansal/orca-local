@@ -3265,7 +3265,6 @@
       "src/main/runtime/mobile-pairing-qr.test.ts": 973,
       "src/main/runtime/mobile-pairing-userdata-path.test.ts": 2117,
       "src/main/runtime/mobile-presence-lock.test.ts": 15604,
-      "src/main/runtime/mobile-rpc-allowlist.test.ts": 1726,
       "src/main/runtime/mobile-session-tab-close-refusal-message.test.ts": 54,
       "src/main/runtime/mobile-session-tabs-agent-status-heartbeat.test.ts": 44,
       "src/main/runtime/mobile-session-tabs-churn-coalescing.test.ts": 2760,
