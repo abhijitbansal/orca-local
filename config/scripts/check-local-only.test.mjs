@@ -85,6 +85,15 @@ describe('scanLocalOnly', () => {
     expect(rules).toEqual(['builder-protocols', 'builder-publish'])
   })
 
+  it('allows publish: null, which suppresses app-update.yml generation', () => {
+    const root = base({})
+    writeFileSync(
+      path.join(root, 'config/electron-builder.config.cjs'),
+      'module.exports = {\n  publish: null\n}\n'
+    )
+    expect(scanLocalOnly({ rootDir: root, allowlist: new Set() })).toEqual([])
+  })
+
   it('flags wildcard bind literals', () => {
     const v = scanLocalOnly({
       rootDir: base({ 'src/main/s.ts': "server.listen(0, '0.0.0.0')\n" }),
@@ -119,7 +128,7 @@ describe('scanLocalOnly', () => {
 
   it('scans every electron-builder config', () => {
     const root = base({
-      'config/electron-builder-pr-linux.config.cjs': 'module.exports = {\n  publish: null\n}\n'
+      'config/electron-builder-pr-linux.config.cjs': 'module.exports = {\n  publish: []\n}\n'
     })
     expect(scanLocalOnly({ rootDir: root, allowlist: new Set() }).map((x) => x.file)).toEqual([
       'config/electron-builder-pr-linux.config.cjs'

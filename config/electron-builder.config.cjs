@@ -684,7 +684,9 @@ module.exports = {
   // packages arm64 binaries into the x64 DMG, causing "posix_spawnp failed"
   // on Intel Macs. The beforeBuild hook performs Orca's targeted rebuild and
   // returns false so electron-builder does not rebuild optional cpu-features.
-  npmRebuild: true
+  npmRebuild: true,
+  // Why: explicit null stops electron-builder inferring a GitHub feed from the repo/GH_TOKEN and writing app-update.yml.
+  publish: null
 }
 
 // Stamp the effective channel version where node-mode CLI code can read it.

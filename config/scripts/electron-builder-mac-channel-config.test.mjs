@@ -71,18 +71,18 @@ describe('electron-builder mac channel config', () => {
     expect(electronBuilderConfig.mac.notarize).toBe(false)
   })
 
-  // Why: there is no release feed to publish to; electron-builder must not generate app-update.yml.
+  // Why: there is no release feed to publish to; publish: null stops electron-builder generating app-update.yml.
   it('has no publish block on any channel', () => {
     withHourlyEnv((config) => {
-      expect(config.publish).toBeUndefined()
+      expect(config.publish).toBeNull()
     })
     withDailyEnv((config) => {
-      expect(config.publish).toBeUndefined()
+      expect(config.publish).toBeNull()
     })
     withAdhocEnv((config) => {
-      expect(config.publish).toBeUndefined()
+      expect(config.publish).toBeNull()
     })
-    expect(electronBuilderConfig.publish).toBeUndefined()
+    expect(electronBuilderConfig.publish).toBeNull()
   })
 
   it('stamps hourly packages with the hourly version', () => {

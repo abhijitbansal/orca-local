@@ -118,7 +118,7 @@ function scanBuilder(rootDir, rel) {
   readFileSync(path.join(rootDir, rel), 'utf8')
     .split('\n')
     .forEach((text, index) => {
-      if (/^\s*publish\s*:/.test(text)) {
+      if (/^\s*publish\s*:(?!\s*null\b)/.test(text)) {
         violations.push({ file: rel, line: index + 1, rule: 'builder-publish', match: 'publish' })
       }
       if (/^\s*protocols\s*:/.test(text)) {

@@ -39,7 +39,7 @@ describe('electron-builder dev-channel identity', () => {
 
     expect(config.win.signtoolOptions.publisherName).toBe('SignPath Foundation')
     expect(config.win.verifyUpdateCodeSignature).toBeUndefined()
-    expect(config.publish).toBeUndefined()
+    expect(config.publish).toBeNull()
   })
 
   // The whole point of the change: an unsigned build that advertised a
