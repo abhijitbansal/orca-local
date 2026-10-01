@@ -284,10 +284,7 @@ async function startOrcadRuntime(
 
   rpc = new OrcaRuntimeRpcServer({
     runtime,
-    userDataPath: runtimeUserDataPath,
-    enableWebSocket: true,
-    // Pinned so a stale paired-device record can never widen the listener to all interfaces.
-    pinnedBindHost: '127.0.0.1'
+    userDataPath: runtimeUserDataPath
   })
   await rpc.start()
 

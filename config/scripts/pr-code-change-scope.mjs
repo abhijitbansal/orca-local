@@ -115,7 +115,6 @@ const ORCAD_BROWSER_PREFIXES = [
 ]
 
 const CROSS_VERSION_WIRE_PREFIXES = [
-  'tests/e2e/cross-version-wire/',
   'config/scripts/stable-release-tags',
   // The R1 daemon protocol crossing gate runs in this job.
   'config/scripts/daemon-protocol-facts',

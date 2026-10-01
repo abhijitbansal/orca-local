@@ -41,7 +41,6 @@ const WINDOWS_SHIM_SPAWN_ALLOWLIST = [
   'config/scripts/run-ai-vault-typing-bench.mjs',
   'config/scripts/run-ephemeral-vm-runtime-store-rollback-repro.mjs',
   'config/scripts/run-local-ssh-browser-routing-e2e.mjs',
-  'config/scripts/run-multi-client-navigation-e2e.mjs',
   'config/scripts/run-multi-workspace-typing-bench.mjs',
   'config/scripts/run-nested-runtime-ssh-e2e.mjs',
   'config/scripts/run-ssh-client-hosted-browser-drop-reconnect-e2e.mjs',

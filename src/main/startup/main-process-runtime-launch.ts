@@ -1,16 +1,12 @@
 import { app, type BrowserWindow } from 'electron'
-import { is } from '@electron-toolkit/utils'
-import {
-  getCanonicalUserDataPath,
-  migrateMobilePairingDataToCanonicalUserDataPath
-} from '../persistence'
+import { getCanonicalUserDataPath } from '../persistence'
 import { OrcaRuntimeRpcServer } from '../runtime/runtime-rpc'
 import { getLocalPtyProvider, registerHeadlessPtyRuntime } from '../ipc/pty'
 import { LocalPtyProvider } from '../providers/local-pty-provider'
 import { HEADLESS_RUNTIME_WINDOW_ID } from '../../shared/runtime-types'
 import { OffscreenBrowserBackend } from '../browser/offscreen-browser-backend'
 import { browserManager } from '../browser/browser-manager'
-import { getServeOptions, getBundledWebClientRoot, printServeReady } from './main-process-serve'
+import { getServeOptions, printServeReady } from './main-process-serve'
 import {
   bindTerminalRuntimeStartupServices,
   handleCodexHomePtySpawned,
@@ -53,32 +49,11 @@ function settleDesktopActivation(): void {
   })
 }
 
-function installRuntimeRpc(
-  runtime: RuntimeService,
-  serveOptions: ReturnType<typeof getServeOptions> | null
-): OrcaRuntimeRpcServer {
-  // Why: existing installs may have pairing creds under the late app.getPath('userData'); copy them forward before switching to the canonical path.
-  migrateMobilePairingDataToCanonicalUserDataPath(app.getPath('userData'))
-  // Why: parallel E2E Electron instances would race the fixed port (EADDRINUSE); port 0 gives each a random OS-assigned port.
-  const isE2E = Boolean(process.env.ORCA_E2E_USER_DATA_DIR)
-  const requestedE2EWsPort = process.env.ORCA_E2E_RUNTIME_WS_PORT
-  const e2eWsPort = requestedE2EWsPort === undefined ? 0 : Number(requestedE2EWsPort)
-  if (isE2E && (!Number.isInteger(e2eWsPort) || e2eWsPort < 0 || e2eWsPort > 65_535)) {
-    throw new Error(`Invalid ORCA_E2E_RUNTIME_WS_PORT value: ${requestedE2EWsPort}`)
-  }
-  // Why: pin dev to 6769 so `pnpm dev` doesn't race packaged Orca on 6768 and fall back to a random port, breaking deterministic mobile pairing/repro (STA-1511).
-  const devWsPort = is.dev && !isE2E ? 6769 : undefined
+function installRuntimeRpc(runtime: RuntimeService): OrcaRuntimeRpcServer {
   const runtimeRpc = new OrcaRuntimeRpcServer({
     runtime,
-    // Why: mobile pairing needs the stable pre-setName() path (getCanonicalUserDataPath), not a late app.getPath('userData') that drops paired devices across restarts.
-    userDataPath: getCanonicalUserDataPath(),
-    enableWebSocket: true,
-    // Why: STA-2370 — the desktop app binds the WS listener to loopback until the user pairs a device;
-    // `orca serve` is an explicit remote opt-in, and E2E keeps the wide bind its harness connects over.
-    exposeNetworkByDefault: Boolean(serveOptions) || isE2E,
-    ...(isE2E ? { wsPort: e2eWsPort } : {}),
-    ...(devWsPort !== undefined ? { wsPort: devWsPort } : {}),
-    webClientRoot: getBundledWebClientRoot()
+    // Why: the CLI reads the unix socket path from the stable pre-setName() userData path.
+    userDataPath: getCanonicalUserDataPath()
   })
   state.runtimeRpc = runtimeRpc
   return runtimeRpc
@@ -237,7 +212,7 @@ export async function initializeMainProcessRuntimeLaunch(
     return
   }
   state.serveOptions = serveOptions
-  const runtimeRpc = installRuntimeRpc(runtime, serveOptions)
+  const runtimeRpc = installRuntimeRpc(runtime)
   const shellPathReady = shellPathHydration.whenReady()
   // Why published: the renderer's git-environment barrier must fence on the same
   // generation the terminal startup services wait for, not a later re-read.

@@ -38,7 +38,7 @@ const WILDCARD_BIND_PIN = 0
  * following reports zero offenders and reads exactly like a clean tree. During
  * development a single wrong regex dropped this from 24 to 3.
  */
-const RECOGNIZED_CONSTRUCTION_FLOOR = 20
+const RECOGNIZED_CONSTRUCTION_FLOOR = 14
 
 describe('WebSocketServer loopback bind boundary', () => {
   const repoRoot = resolve(__dirname, '..', '..')

@@ -1,10 +1,5 @@
 import { reserveNotificationCooldown } from '../../shared/notification-burst-cooldown'
 import type { AgentStatusState } from '../../shared/agent-status-types'
-import type {
-  MobilePushTestResult,
-  MobilePushRegisterInput,
-  MobilePushRegisterResult
-} from '../../shared/mobile-push-contract'
 import { MobileNotificationReplayBuffer } from './mobile-notification-replay'
 import { notifyRuntimeListeners } from './runtime-async-boundaries'
 import { getRuntimeDesktopSurface } from './runtime-desktop-surface'
@@ -42,18 +37,10 @@ export type MobileNotificationEvent =
   | MobileNotificationDispatchEvent
   | MobileNotificationDismissEvent
 
-/** The desktop push service, once it exists; absent on hosts that never started one. */
-export type MobilePushRegistrar = {
-  test(deviceId: string): Promise<MobilePushTestResult>
-  register(input: MobilePushRegisterInput): Promise<MobilePushRegisterResult>
-  unregister(deviceId: string): Promise<{ unregistered: boolean }>
-}
-
 export class RuntimeMobileNotificationController {
   private readonly listeners = new Set<(event: MobileNotificationEvent) => void>()
   private readonly legacyCooldown = new Map<string, number>()
   private readonly replay = new MobileNotificationReplayBuffer()
-  private pushRegistrar: MobilePushRegistrar | null = null
   private dismissalStore: MobileNotificationDismissalStore | null = null
 
   configureDismissalStore(userDataPath: string): void {
@@ -64,27 +51,6 @@ export class RuntimeMobileNotificationController {
     delivered: readonly DeliveredNotificationIdentity[]
   ): DeliveredNotificationIdentity[] {
     return this.dismissalStore?.reconcile(delivered) ?? []
-  }
-
-  setPushRegistrar(registrar: MobilePushRegistrar | null): void {
-    this.pushRegistrar = registrar
-  }
-
-  async registerPushDevice(input: MobilePushRegisterInput): Promise<MobilePushRegisterResult> {
-    return (
-      (await this.pushRegistrar?.register(input)) ?? {
-        registered: false,
-        reason: 'gateway_unreachable'
-      }
-    )
-  }
-
-  async testPushDevice(deviceId: string): Promise<MobilePushTestResult> {
-    return (await this.pushRegistrar?.test(deviceId)) ?? { accepted: false, reason: 'unavailable' }
-  }
-
-  async unregisterPushDevice(deviceId: string): Promise<{ unregistered: boolean }> {
-    return (await this.pushRegistrar?.unregister(deviceId)) ?? { unregistered: false }
   }
 
   onDispatched(listener: (event: MobileNotificationEvent) => void): () => void {

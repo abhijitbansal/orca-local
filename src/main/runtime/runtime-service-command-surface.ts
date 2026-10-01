@@ -36,10 +36,6 @@ export type RuntimeServiceCommandSurface = {
   getMobileNotificationEpoch: RuntimeMobileNotificationController['getEpoch']
   dismissMobileNotification: RuntimeMobileNotificationController['dismiss']
   dispatchPluginNotification: RuntimeMobileNotificationController['dispatchPlugin']
-  setMobilePushRegistrar: RuntimeMobileNotificationController['setPushRegistrar']
-  testMobilePushDevice: RuntimeMobileNotificationController['testPushDevice']
-  registerMobilePushDevice: RuntimeMobileNotificationController['registerPushDevice']
-  unregisterMobilePushDevice: RuntimeMobileNotificationController['unregisterPushDevice']
   setAccountServices: RuntimeAccountController['setServices']
   setCommitMessageAgentEnvironmentResolvers: RuntimeAccountController['setCommitMessageAgentEnvironment']
   getCommitMessageAgentEnvironmentResolvers: RuntimeAccountController['getCommitMessageAgentEnvironment']
@@ -127,10 +123,6 @@ export function installRuntimeServiceCommandSurface(
     getMobileNotificationEpoch: notifications.getEpoch.bind(notifications),
     dismissMobileNotification: notifications.dismiss.bind(notifications),
     dispatchPluginNotification: notifications.dispatchPlugin.bind(notifications),
-    setMobilePushRegistrar: notifications.setPushRegistrar.bind(notifications),
-    testMobilePushDevice: notifications.testPushDevice.bind(notifications),
-    registerMobilePushDevice: notifications.registerPushDevice.bind(notifications),
-    unregisterMobilePushDevice: notifications.unregisterPushDevice.bind(notifications),
     setAccountServices: accounts.setServices.bind(accounts),
     setCommitMessageAgentEnvironmentResolvers:
       accounts.setCommitMessageAgentEnvironment.bind(accounts),

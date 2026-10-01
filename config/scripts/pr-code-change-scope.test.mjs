@@ -314,10 +314,6 @@ describe('per-job path classification', () => {
         package_windows: true
       })
     }
-    expectClassification(
-      ['tests/e2e/cross-version-wire/cross-version-terminal-wire.unit.test.ts'],
-      { 'cross-version-wire': true }
-    )
   })
 
   it('runs workflow-self-change and lockfile diffs as force-all', () => {

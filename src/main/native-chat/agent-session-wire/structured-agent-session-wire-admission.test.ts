@@ -8,7 +8,6 @@ import type {
 } from '../../../shared/agent-session-journal-types'
 import type { AgentSessionSubscribeEvent } from '../../../shared/agent-session-wire'
 import { REMOTE_RUNTIME_MAX_OUTBOUND_JSON_BYTES } from '../../../shared/remote-runtime-memory-limits'
-import { mobileE2EETextPayloadAdmissionBytes } from '../../runtime/rpc/mobile-e2ee-outbound-admission'
 import {
   AGENT_JOURNAL_THREAD_SCOPE,
   AGENT_SESSION_JOURNAL_SCHEMA_VERSION
@@ -144,8 +143,7 @@ describe('structured agent-session outbound admission', () => {
 
 function expectAdmitted(value: unknown): void {
   const frame = JSON.stringify({ id: 'request-1', result: value })
-  const bytes = mobileE2EETextPayloadAdmissionBytes(frame)
-  expect(Number.isFinite(bytes)).toBe(true)
+  const bytes = Buffer.byteLength(frame, 'utf8')
   expect(bytes).toBeLessThanOrEqual(REMOTE_RUNTIME_MAX_OUTBOUND_JSON_BYTES)
 }
 

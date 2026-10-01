@@ -29,8 +29,7 @@ export const UNIT_EXCLUDE = [
   'src/shared/fish-query-reply-child-stdin.node-pty.test.ts',
   'src/shared/pty-reply-echo-shapes.node-pty.test.ts',
   'src/shared/startup-shell-portability.live-shell.test.ts',
-  'src/shared/posix-command-path-lookup.test.ts',
-  'tests/e2e/cross-version-wire/**'
+  'src/shared/posix-command-path-lookup.test.ts'
 ]
 
 export function discoverUnitFiles(root = process.cwd()) {

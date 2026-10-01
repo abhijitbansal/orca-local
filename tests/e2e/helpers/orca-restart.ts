@@ -17,7 +17,6 @@ import {
 } from '@stablyai/playwright-test'
 import { execSync } from 'node:child_process'
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
-import { createServer } from 'node:net'
 import os from 'node:os'
 import path from 'node:path'
 import { runProcess, type ProcessResult } from '../../../src/shared/child-process/run-process'
@@ -63,22 +62,6 @@ async function delay(ms: number): Promise<void> {
   return new Promise((resolve) => {
     const timeout = setTimeout(resolve, ms)
     timeout.unref?.()
-  })
-}
-
-async function reserveRestartRuntimeWsPort(): Promise<number> {
-  const server = createServer()
-  return new Promise<number>((resolve, reject) => {
-    server.once('error', reject)
-    server.listen(0, '127.0.0.1', () => {
-      const address = server.address()
-      if (!address || typeof address === 'string') {
-        server.close()
-        reject(new Error('Restart fixture could not reserve a runtime WebSocket port'))
-        return
-      }
-      server.close((error) => (error ? reject(error) : resolve(address.port)))
-    })
   })
 }
 
@@ -142,7 +125,6 @@ export function createRestartSession(
   const userDataDir = mkdtempSync(path.join(os.tmpdir(), 'orca-e2e-restart-'))
   const headful = shouldLaunchHeadful(testInfo)
   const homeIsolation = createRestartLaunchIsolation(userDataDir, headful, extraEnv)
-  let runtimeWsPort: number | null = null
 
   // Why: this helper bypasses the shared `electronApp` fixture, so it must
   // seed the same completed onboarding profile or first-run overlays cover
@@ -175,13 +157,11 @@ export function createRestartSession(
   }
 
   const launch = async (options?: LaunchOptions): Promise<LaunchedOrca> => {
-    runtimeWsPort ??= await reserveRestartRuntimeWsPort()
     const app = await electron.launch({
       args: getOrcaElectronLaunchArgs(mainPath, headful),
       env: {
         ...homeIsolation.env,
-        ...options?.extraEnv,
-        ORCA_E2E_RUNTIME_WS_PORT: String(runtimeWsPort)
+        ...options?.extraEnv
       }
     })
     // Why: attach before firstWindow — the main-process daemon guard and the
@@ -215,15 +195,13 @@ export function createRestartSession(
 
   // Startup refusals exit before a renderer exists; capture their output from process creation.
   const launchUntilExit = async (executablePath: string): Promise<ProcessResult> => {
-    runtimeWsPort ??= await reserveRestartRuntimeWsPort()
     return runProcess({
       program: executablePath,
       args: getOrcaElectronLaunchArgs(mainPath, false),
       env: {
         ...homeIsolation.env,
         ORCA_BACKGROUND_LAUNCH: '1',
-        ORCA_E2E_HEADLESS: '1',
-        ORCA_E2E_RUNTIME_WS_PORT: String(runtimeWsPort)
+        ORCA_E2E_HEADLESS: '1'
       },
       timeoutMs: 30_000,
       detached: process.platform !== 'win32',

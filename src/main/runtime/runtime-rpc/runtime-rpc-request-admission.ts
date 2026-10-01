@@ -3,10 +3,10 @@ import { writeRuntimeMetadata } from '../runtime-metadata'
 import type { RpcMessageContext } from '../rpc/transport'
 import type { RpcRequest, RpcResponse } from '../rpc/core'
 import { errorResponse } from '../rpc/errors'
-import { RuntimeRpcBinaryRouting } from './runtime-rpc-binary-routing'
+import { RuntimeRpcState } from './runtime-rpc-state'
 import { classifyRuntimeLongPoll, type RuntimeLongPollClass } from './runtime-rpc-long-poll'
 
-export class RuntimeRpcRequestAdmission extends RuntimeRpcBinaryRouting {
+export class RuntimeRpcRequestAdmission extends RuntimeRpcState {
   // Why: Unix socket dispatch is one-shot and auths via the shared token from the 0o600 metadata file. See §3.1.
   protected async handleMessage(
     rawMessage: string,

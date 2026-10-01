@@ -22,8 +22,7 @@ vi.mock('../orca-profiles/profile-cloud-auth-config', () => ({
 }))
 vi.mock('../orca-profiles/profile-storage-paths', () => ({ getProfileUserDataPath: vi.fn() }))
 vi.mock('../persistence', () => ({
-  getCanonicalUserDataPath: () => '/tmp/orca-user-data',
-  migrateMobilePairingDataToCanonicalUserDataPath: vi.fn()
+  getCanonicalUserDataPath: () => '/tmp/orca-user-data'
 }))
 vi.mock('../runtime/runtime-rpc', () => ({
   OrcaRuntimeRpcServer: class {
