@@ -8,8 +8,6 @@ import { isPluginPanelTabKey } from '../plugins/plugin-manifest'
 import { isFeatureInteractionId } from '../feature-interactions'
 import type { FeatureInteractionId } from '../feature-interactions'
 import { ACTIVITY_GROUP_BY_VALUES, THREAD_READ_FILTER_VALUES } from '../agents-view-thread-filters'
-import { isReleaseChannel } from '../release-channel'
-import type { ReleaseChannel } from '../release-channel'
 import { ClientUiWorkspaceFilterFields } from './client-ui-workspace-filter-fields-params'
 import { TaskResumeState } from './task-resume-state-params'
 import { WorkspaceCleanup } from './workspace-cleanup-ui-params'
@@ -193,12 +191,6 @@ export const UiUpdateFields = z
     dismissedUpdateVersion: NullableString.optional(),
     dismissedUnexpectedSignoutVersion: NullableString.optional(),
     lastUpdateCheckAt: z.number().finite().nullable().optional(),
-    pendingUpdateNudgeId: NullableString.optional(),
-    dismissedUpdateNudgeId: NullableString.optional(),
-    // Why the predicate rather than an inline z.enum: an enum here is a copy of
-    // RELEASE_CHANNELS, and a copy that drifts silently rejects the new
-    // channel's override on its way here — the picker moves, nothing installs.
-    releaseChannelOverride: z.custom<ReleaseChannel>(isReleaseChannel).nullable().optional(),
     notificationPermissionRequested: z.boolean().optional(),
     updateReassuranceSeen: z.boolean().optional(),
     osc52ClipboardDefaultOnNoticePending: z.boolean().optional(),

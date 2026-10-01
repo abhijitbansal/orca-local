@@ -1,4 +1,3 @@
-import type { ReleaseChannel } from './release-channel'
 import type { WorkspaceCleanupUIState } from './workspace-cleanup'
 import type { FeatureTipId } from './feature-tips'
 import type { ContextualTourId } from './contextual-tours'
@@ -134,10 +133,6 @@ export type PersistedUIState = {
   /** Version when the sign-out notice was seen or dismissed; any value suppresses future appearances. */
   dismissedUnexpectedSignoutVersion?: string | null
   lastUpdateCheckAt: number | null
-  /** Dev-only update channel override; absent means the build's own channel. */
-  releaseChannelOverride?: ReleaseChannel | null
-  pendingUpdateNudgeId?: string | null
-  dismissedUpdateNudgeId?: string | null
   /** Whether Orca already tried triggering the macOS notification permission dialog; prevents re-firing every launch. */
   notificationPermissionRequested?: boolean
   /** Once the "your sessions won't be interrupted" reassurance card is seen, never show it again. */
