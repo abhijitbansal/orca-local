@@ -80,10 +80,6 @@ function spawnDetached(command: string, args: string[], options: SpawnOptions): 
 export function serveOrcaApp(
   args: {
     json?: boolean
-    port?: string | null
-    pairingAddress?: string | null
-    noPairing?: boolean
-    mobilePairing?: boolean
     recipeJson?: boolean
     projectRoot?: string | null
   } = {}
@@ -93,18 +89,6 @@ export function serveOrcaApp(
   childArgs.push('--serve')
   if (args.json) {
     childArgs.push('--serve-json')
-  }
-  if (args.port) {
-    childArgs.push('--serve-port', args.port)
-  }
-  if (args.pairingAddress) {
-    childArgs.push('--serve-pairing-address', args.pairingAddress)
-  }
-  if (args.noPairing) {
-    childArgs.push('--serve-no-pairing')
-  }
-  if (args.mobilePairing) {
-    childArgs.push('--serve-mobile-pairing')
   }
   if (args.recipeJson) {
     if (!args.projectRoot) {

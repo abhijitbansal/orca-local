@@ -353,46 +353,6 @@ describe('serveOrcaApp', () => {
     )
   })
 
-  it('passes mobile pairing through to the foreground server child', async () => {
-    const child = {
-      kill: vi.fn(),
-      once: vi.fn(
-        (event: string, handler: (code: number | null, signal: string | null) => void) => {
-          if (event === 'exit') {
-            queueMicrotask(() => handler(0, null))
-          }
-          return child
-        }
-      )
-    }
-    spawnMock.mockReturnValue(child)
-
-    await expect(
-      serveOrcaApp({
-        json: true,
-        port: '6768',
-        pairingAddress: '100.64.1.20',
-        mobilePairing: true
-      })
-    ).resolves.toBe(0)
-
-    expect(spawnMock).toHaveBeenCalledWith(
-      '/Applications/Orca.app/Contents/MacOS/Orca',
-      [
-        '--serve',
-        '--serve-json',
-        '--serve-port',
-        '6768',
-        '--serve-pairing-address',
-        '100.64.1.20',
-        '--serve-mobile-pairing'
-      ],
-      expect.objectContaining({
-        cwd: resolve(__dirname, '../../..')
-      })
-    )
-  })
-
   it('passes the app root before serve flags for dev Electron executables', async () => {
     process.env.ORCA_APP_EXECUTABLE = '/repo/node_modules/.bin/electron'
     process.env.ORCA_APP_EXECUTABLE_NEEDS_APP_ROOT = '1'
@@ -409,11 +369,11 @@ describe('serveOrcaApp', () => {
     }
     spawnMock.mockReturnValue(child)
 
-    await expect(serveOrcaApp({ json: true, port: '6768' })).resolves.toBe(0)
+    await expect(serveOrcaApp({ json: true })).resolves.toBe(0)
 
     expect(spawnMock).toHaveBeenCalledWith(
       '/repo/node_modules/.bin/electron',
-      [resolve(__dirname, '../../..'), '--serve', '--serve-json', '--serve-port', '6768'],
+      [resolve(__dirname, '../../..'), '--serve', '--serve-json'],
       expect.objectContaining({
         cwd: resolve(__dirname, '../../..')
       })
@@ -486,7 +446,6 @@ describe('serveOrcaApp', () => {
     const writeSpy = vi.spyOn(process.stdout, 'write').mockImplementation(() => true)
 
     const result = serveOrcaApp({
-      pairingAddress: 'wss://sandbox.example.com',
       recipeJson: true,
       projectRoot: '/workspace/repo'
     })
@@ -498,14 +457,7 @@ describe('serveOrcaApp', () => {
 
     expect(spawnMock).toHaveBeenCalledWith(
       '/Applications/Orca.app/Contents/MacOS/Orca',
-      [
-        '--serve',
-        '--serve-pairing-address',
-        'wss://sandbox.example.com',
-        '--serve-recipe-json',
-        '--serve-project-root',
-        '/workspace/repo'
-      ],
+      ['--serve', '--serve-recipe-json', '--serve-project-root', '/workspace/repo'],
       expect.objectContaining({
         cwd: resolve(__dirname, '../../..'),
         detached: true,

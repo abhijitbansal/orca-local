@@ -50,7 +50,7 @@ case "$entrypoint_kind" in
   *) echo "unsupported entrypoint: $entrypoint_kind" >&2; exit 64 ;;
 esac
 
-setsid env -u DISPLAY "${entrypoint[@]}" serve --port 0 --pairing-address 127.0.0.1 --json \
+setsid env -u DISPLAY "${entrypoint[@]}" serve --json \
   >"$stdout_log" 2>"$stderr_log" &
 app_pid=$!
 app_start_ticks=$(awk '{print $22}' "/proc/$app_pid/stat")

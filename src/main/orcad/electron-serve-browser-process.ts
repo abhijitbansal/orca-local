@@ -1,5 +1,4 @@
 import { mkdtemp, rm } from 'node:fs/promises'
-import { createServer, type AddressInfo } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
@@ -31,27 +30,6 @@ const BrowserCloseResult = z.object({ closed: z.boolean() }).passthrough()
 const BrowserTabListResult = z.object({ tabs: z.array(ElectronSidecarTabSchema) }).passthrough()
 const RuntimeStatusResult = z.object({ capabilities: z.array(z.string()).optional() }).passthrough()
 
-async function reserveLoopbackPort(): Promise<number> {
-  const server = createServer()
-  await new Promise<void>((resolve, reject) => {
-    server.once('error', reject)
-    server.listen(0, '127.0.0.1', () => {
-      server.removeListener('error', reject)
-      resolve()
-    })
-  })
-  const address = server.address() as AddressInfo
-  await new Promise<void>((resolve, reject) => {
-    server.close((error) => {
-      if (error) {
-        reject(error)
-      } else {
-        resolve()
-      }
-    })
-  })
-  return address.port
-}
 function electronServeEnvironment(): NodeJS.ProcessEnv {
   const environment = { ...process.env }
   for (const key of [
@@ -101,17 +79,9 @@ export class ElectronServeBrowserProcess {
     const temporaryRoot = process.platform === 'win32' ? tmpdir() : '/tmp'
     const userDataPath = await mkdtemp(join(temporaryRoot, 'orcad-browser-'))
     this.sidecarDataPath = userDataPath
-    const port = await reserveLoopbackPort()
     const child = spawnProcess({
       program: this.executablePath,
-      args: [
-        '--serve',
-        '--serve-port',
-        String(port),
-        '--serve-json',
-        '--serve-no-pairing',
-        `--user-data-dir=${userDataPath}`
-      ],
+      args: ['--serve', '--serve-json', `--user-data-dir=${userDataPath}`],
       env: electronServeEnvironment()
     })
     this.child = child

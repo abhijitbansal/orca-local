@@ -295,7 +295,7 @@ if (graphErrors.length > 0) {
   // Why require + parseArgs and not a real daemon: requiring the bundle evaluates every
   // top-level import, and calling its exported argv parser proves the entry's own code is
   // there rather than a graph that merely resolved. Booting one would need a socket, a
-  // token and a PTY — `smoke:orcad-terminal` does that end to end, through orcad.
+  // token and a PTY.
   // The verdict is carried by the exit code for the same minification reason as above.
   const daemonSmoke = spawnSync(
     process.execPath,

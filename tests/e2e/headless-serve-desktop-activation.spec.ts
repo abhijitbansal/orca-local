@@ -135,7 +135,7 @@ test('promotes the headless owner without replacing its daemon terminal', async 
 
   try {
     serveApp = await electron.launch({
-      args: [...getOrcaElectronLaunchArgs(mainPath, false), '--serve', '--serve-no-pairing'],
+      args: [...getOrcaElectronLaunchArgs(mainPath, false), '--serve'],
       env
     })
     const resolvedHome = await serveApp.evaluate(({ app }) => app.getPath('home'))

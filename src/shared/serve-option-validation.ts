@@ -1,44 +1,20 @@
 import { levenshtein } from './edit-distance'
 
 export type ServeOptionValidationInput = {
-  noPairing: boolean
-  mobilePairing: boolean
   recipeJson: boolean
   projectRoot: string | null | undefined
 }
 
 export function getServeOptionValidationError(options: ServeOptionValidationInput): string | null {
-  if (options.noPairing && options.mobilePairing) {
-    return 'Use either --mobile-pairing or --no-pairing, not both.'
-  }
-  if (options.recipeJson && options.noPairing) {
-    return 'Recipe JSON output requires runtime pairing; remove --no-pairing.'
-  }
-  if (options.recipeJson && options.mobilePairing) {
-    return 'Recipe JSON output requires runtime pairing; remove --mobile-pairing.'
-  }
   if (options.recipeJson && !options.projectRoot) {
     return 'Recipe JSON output requires --project-root.'
   }
   return null
 }
 
-const SERVE_SECURITY_FLAG_NAMES = [
-  '--no-pairing',
-  '--serve-no-pairing',
-  '--mobile-pairing',
-  '--serve-mobile-pairing',
-  '--recipe-json',
-  '--serve-recipe-json',
-  '--pairing-address',
-  '--serve-pairing-address'
-] as const
+const SERVE_SECURITY_FLAG_NAMES = ['--recipe-json', '--serve-recipe-json'] as const
 
 const SERVE_VALUE_FLAG_NAMES = new Set([
-  '--port',
-  '--serve-port',
-  '--pairing-address',
-  '--serve-pairing-address',
   '--project-root',
   '--serve-project-root',
   '--pairing-code',

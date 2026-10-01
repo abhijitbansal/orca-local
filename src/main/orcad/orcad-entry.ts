@@ -15,7 +15,6 @@ import { setAppEnvironment, type AppEnvironment } from '../../shared/app-environ
 import { setSecretStore, type SecretStore } from '../../shared/secret-store'
 import type { ServeReadiness } from '../server/serve-readiness'
 import { resolveOrcadInstallRoot, resolveOrcadPath, resolveUserDataPath } from './orcad-app-paths'
-import { describeOrcadBindExposure, resolveOrcadBindHost } from './orcad-bind-address'
 import {
   flushOrcadProfileStoreForShutdown,
   installOrcadShutdownSignals,
@@ -86,12 +85,7 @@ export function installOrcadHostAdapters(): void {
 }
 
 export type OrcadOptions = {
-  port?: number
   json?: boolean
-  noPairing?: boolean
-  pairingAddress?: string
-  /** Literal IP to bind. Defaults to loopback; see orcad-bind-address.ts. */
-  bind?: string
 }
 
 export type OrcadHandle = {
@@ -122,7 +116,6 @@ async function startOrcadRuntime(
   const { registerHeadlessPtyRuntime, getLocalPtyProvider, getSshPtyProvider } =
     await import('../ipc/pty')
   const { getAppEnvironment } = await import('../../shared/app-environment')
-  const { resolveAdvertisedPairingEndpoint } = await import('../runtime/pairing-endpoint')
   const { ServeReadinessPublisher } = await import('../server/serve-readiness')
   const { createOrcadProfileStateStartup } = await import('./orcad-profile-state-startup')
   const { startOrcadDaemon, stopOrcadDaemon } = await import('./orcad-daemon-supervision')
@@ -289,55 +282,25 @@ async function startOrcadRuntime(
   // Recovery binds terminal and dispatch identities; only now can startup observations be fenced.
   observedStatusCapture.attach(runtime)
 
-  const bindHost = resolveOrcadBindHost(options.bind)
   rpc = new OrcaRuntimeRpcServer({
     runtime,
     userDataPath: runtimeUserDataPath,
-    enableWebSocket: true,
-    // Why pinned and not `exposeNetworkByDefault`: an unattended host's exposure must be
-    // exactly what the operator asked for, on every launch. The default path widens itself
-    // once a device has connected, so a loopback deployment would silently go wide one
-    // restart after its first client paired.
-    pinnedBindHost: bindHost,
-    ...(options.port !== undefined ? { wsPort: options.port, preferPinnedWsPort: true } : {})
+    enableWebSocket: true
   })
   await rpc.start()
-  console.error(`[orcad] ${describeOrcadBindExposure(bindHost)}`)
-
-  const boundEndpoint = rpc.getWebSocketEndpoint()
-  const advertised = boundEndpoint
-    ? resolveAdvertisedPairingEndpoint(boundEndpoint, options.pairingAddress)
-    : null
-  const offer = options.noPairing
-    ? ({
-        available: false,
-        reason: 'disabled_by_operator',
-        guidance: 'Restart without --no-pairing to create a client pairing offer.'
-      } as const)
-    : rpc.createPairingOffer({
-        address: options.pairingAddress,
-        name: `CLI ${new Date().toLocaleDateString()}`,
-        scope: 'runtime'
-      })
 
   const readiness: ServeReadiness = {
     runtimeId: runtime.getRuntimeId(),
-    boundEndpoint,
-    advertisedEndpoint: advertised?.ok ? advertised.endpoint : null,
+    boundEndpoint: null,
+    advertisedEndpoint: null,
     // Why 'settled': the WSL CLI reconciliation barrier is a desktop-launch concern.
     // orcad never runs it, so there is no pending repair a client could race.
     managedWslCliReconciliation: 'settled',
-    pairing: offer.available
-      ? {
-          available: true,
-          url: offer.pairingUrl,
-          endpoint: offer.endpoint,
-          deviceId: offer.deviceId,
-          webClientUrl: offer.webClientUrl,
-          scope: 'runtime',
-          qr: null
-        }
-      : offer,
+    pairing: {
+      available: false,
+      reason: 'disabled_by_operator',
+      guidance: 'This build has no network listener; connect with the orca CLI on this machine.'
+    },
     // Why in the readiness payload: this is the one message a supervisor and a deploy
     // transaction both read, and a green orcad with a dead daemon is exactly the
     // looks-healthy-but-useless state they must not activate.

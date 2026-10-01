@@ -1,6 +1,6 @@
 /**
  * Detect and normalize headless-serve argv for both Electron flags (`--serve`)
- * and CLI-form subcommands (`serve --port …`) that land on the main process
+ * and CLI-form subcommands (`serve --json`) that land on the main process
  * when the AppImage/CLI redirect did not rewrite them.
  */
 
@@ -10,16 +10,10 @@ const SERVE_FLAG = '--serve'
 // stray `serve toString` positional into a function spliced onto argv.
 const CLI_TO_SERVE_FLAG = new Map([
   ['--json', '--serve-json'],
-  ['--no-pairing', '--serve-no-pairing'],
-  ['--mobile-pairing', '--serve-mobile-pairing'],
   ['--recipe-json', '--serve-recipe-json']
 ])
 
-const CLI_TO_SERVE_VALUE_FLAG = new Map([
-  ['--port', '--serve-port'],
-  ['--pairing-address', '--serve-pairing-address'],
-  ['--project-root', '--serve-project-root']
-])
+const CLI_TO_SERVE_VALUE_FLAG = new Map([['--project-root', '--serve-project-root']])
 
 /**
  * Flags that consume the next argv token as a value (CLI-form + Electron passthrough).
@@ -28,8 +22,6 @@ const CLI_TO_SERVE_VALUE_FLAG = new Map([
  */
 export const VALUE_TAKING_FLAGS = new Set([
   ...CLI_TO_SERVE_VALUE_FLAG.keys(),
-  '--serve-port',
-  '--serve-pairing-address',
   '--serve-project-root',
   '--disable-features',
   '--user-data-dir',
@@ -40,7 +32,7 @@ export const VALUE_TAKING_FLAGS = new Set([
 
 // Why: a CLI-form `serve` is not a serve launch when help was asked for. The AppImage redirect
 // already hands these to the CLI (the same three tokens); without the refusal here,
-// `<binary> serve --help` binds a network-exposed runtime server with pairing on and prints nothing.
+// `<binary> serve --help` starts a runtime server and prints nothing.
 // Scoped to the subcommand form on purpose: `--serve` is the CLI's own contract and never carries
 // `--help`, so widening this would risk the one path that already works.
 const HELP_FLAGS = new Set(['--help', '-h', 'help'])
@@ -115,9 +107,8 @@ export function argvRequestsServeMode(argv: readonly string[]): boolean {
  * `getServeOptions` already understands. Idempotent when already in flag form.
  *
  * Serve flags are translated whenever serve mode is requested, including the
- * mixed `--serve --port 6768` form: leaving them untranslated is what makes a
- * security-shaped flag like `--no-pairing` read as accepted while pairing stays
- * on (#12677).
+ * mixed `--serve --project-root /repo` form: leaving them untranslated is what
+ * makes an accepted flag get silently dropped (#12677).
  */
 export function normalizeServeModeArgv(argv: readonly string[]): string[] {
   const serveIndex = findServeSubcommandIndex(argv)
@@ -140,9 +131,8 @@ export function normalizeServeModeArgv(argv: readonly string[]): string[] {
     const eq = token.indexOf('=')
     const name = eq === -1 ? token : token.slice(0, eq)
     // Why only the bare form: the CLI reads its serve booleans as `flags.get(name) === true`
-    // (src/cli/handlers/core.ts), so `--no-pairing=false` is NOT no-pairing there. Translating it
-    // anyway dropped the value and disabled pairing for an operator who wrote `=false` — the
-    // security-shaped inversion of #12677. Passing it through leaves pairing on, as the CLI does.
+    // (src/cli/handlers/core.ts), so `--recipe-json=false` is NOT recipe-json there. Translating it
+    // anyway would drop the value; passing it through matches the CLI.
     const booleanFlag = eq === -1 ? CLI_TO_SERVE_FLAG.get(name) : undefined
     if (booleanFlag) {
       next.push(booleanFlag)

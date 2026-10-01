@@ -2,8 +2,6 @@ import { describe, expect, it } from 'vitest'
 import { getServeFlagTypoError, getServeOptionValidationError } from './serve-option-validation'
 
 const validOptions = {
-  noPairing: false,
-  mobilePairing: false,
   recipeJson: false,
   projectRoot: null
 }
@@ -13,21 +11,11 @@ describe('getServeOptionValidationError', () => {
     expect(getServeOptionValidationError(validOptions)).toBeNull()
   })
 
-  it.each([
-    [{ noPairing: true, mobilePairing: true }, /either --mobile-pairing or --no-pairing/i],
-    [
-      { recipeJson: true, noPairing: true, projectRoot: '/tmp/repo' },
-      /requires runtime pairing.*--no-pairing/i
-    ],
-    [
-      { recipeJson: true, mobilePairing: true, projectRoot: '/tmp/repo' },
-      /requires runtime pairing.*--mobile-pairing/i
-    ],
-    [{ recipeJson: true }, /requires --project-root/i]
-  ])('rejects incompatible options', (override, expected) => {
-    expect(
-      getServeOptionValidationError({ ...validOptions, ...override } as typeof validOptions)
-    ).toMatch(expected)
+  it('requires a project root for recipe JSON', () => {
+    expect(getServeOptionValidationError({ ...validOptions, recipeJson: true })).toMatch(
+      /requires --project-root/i
+    )
+    expect(getServeOptionValidationError({ recipeJson: true, projectRoot: '/tmp/repo' })).toBeNull()
   })
 })
 
@@ -37,7 +25,7 @@ describe('getServeFlagTypoError', () => {
       getServeFlagTypoError([
         '/opt/orca/orca-ide',
         '--serve',
-        '--serve-no-pairing',
+        '--serve-recipe-json',
         '--disable-gpu',
         '--disable-features=Vulkan',
         '--no-parent'
@@ -45,28 +33,30 @@ describe('getServeFlagTypoError', () => {
     ).toBeNull()
   })
 
-  it.each(['--no-pair', '--no-pairng', '--no-paring', '--mobile-pairng'])(
-    'suggests the intended pairing flag for %s',
+  it.each(['--recipe-jsn', '--recipe-jason', '--serve-recipe-jsn'])(
+    'suggests the intended flag for %s',
     (flag) => {
       expect(getServeFlagTypoError(['/opt/orca/orca-ide', '--serve', flag])).toMatch(
-        /Unknown flag .*Did you mean --(?:no-pairing|mobile-pairing)\?/i
+        /Unknown flag .*Did you mean --(?:serve-)?recipe-json\?/i
       )
     }
   )
 
   it('does not reinterpret tokens after --', () => {
-    expect(getServeFlagTypoError(['/opt/orca/orca-ide', '--serve', '--', '--no-pairng'])).toBeNull()
+    expect(
+      getServeFlagTypoError(['/opt/orca/orca-ide', '--serve', '--', '--recipe-jsn'])
+    ).toBeNull()
   })
 
   it('does not inspect an equals-form value as a flag', () => {
     expect(
-      getServeFlagTypoError(['/opt/orca/orca-ide', '--serve-pairing-address=--no-pairng'])
+      getServeFlagTypoError(['/opt/orca/orca-ide', '--serve-project-root=--recipe-jsn'])
     ).toBeNull()
   })
 
   it('keeps flag-shaped space values subject to typo validation', () => {
     expect(
-      getServeFlagTypoError(['/opt/orca/orca-ide', '--serve-pairing-address', '--no-pairng'])
-    ).toMatch(/Unknown flag --no-pairng.*--no-pairing/i)
+      getServeFlagTypoError(['/opt/orca/orca-ide', '--serve-project-root', '--recipe-jsn'])
+    ).toMatch(/Unknown flag --recipe-jsn.*--recipe-json/i)
   })
 })

@@ -142,11 +142,7 @@ describe('ElectronServeBrowserProcess start-up', () => {
     const spec = spawnSpec()
     expect(spec.program).toBe(INSTALLED_EXECUTABLE)
     const args = [...(spec.args ?? [])]
-    expect(args).toEqual(
-      expect.arrayContaining(['--serve', '--serve-port', '--serve-json', '--serve-no-pairing'])
-    )
-    const port = Number(args[args.indexOf('--serve-port') + 1])
-    expect(Number.isInteger(port) && port > 0 && port < 65_536).toBe(true)
+    expect(args).toEqual(expect.arrayContaining(['--serve', '--serve-json']))
     const userDataArg = args.find((arg) => arg.startsWith('--user-data-dir='))
     expect(userDataArg).toBeDefined()
     for (const key of AGENT_BROWSER_ENVIRONMENT_KEYS) {

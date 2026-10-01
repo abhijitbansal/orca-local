@@ -5,10 +5,6 @@ import {
 
 export type ServeOptions = {
   json: boolean
-  wsPort?: number
-  pairingAddress: string | null
-  noPairing: boolean
-  mobilePairing: boolean
   recipeJson: boolean
   projectRoot: string | null
 }
@@ -96,28 +92,9 @@ export function getServeOptions(argv: readonly string[]): ServeOptions {
     throw new Error(typoError)
   }
 
-  const rawPort = valueAfter(optionsArgv, ['--serve-port', '--port'], true, '--serve-port')
-  let wsPort: number | undefined
-  if (rawPort) {
-    const parsedPort = Number(rawPort)
-    if (!Number.isInteger(parsedPort) || parsedPort < 0 || parsedPort > 65535) {
-      throw new Error(`Invalid --serve-port value: ${rawPort}`)
-    }
-    wsPort = parsedPort
-  }
-
   const options: ServeOptions = {
     // The CLI uses `flags.has('json')`, so even `--json=false` enables JSON output.
     json: hasFlag(optionsArgv, ['--serve-json', '--json']),
-    ...(wsPort !== undefined ? { wsPort } : {}),
-    pairingAddress: valueAfter(
-      optionsArgv,
-      ['--serve-pairing-address', '--pairing-address'],
-      false,
-      '--serve-pairing-address'
-    ),
-    noPairing: lastBooleanValue(optionsArgv, ['--serve-no-pairing', '--no-pairing']),
-    mobilePairing: lastBooleanValue(optionsArgv, ['--serve-mobile-pairing', '--mobile-pairing']),
     recipeJson: lastBooleanValue(optionsArgv, ['--serve-recipe-json', '--recipe-json']),
     projectRoot: valueAfter(
       optionsArgv,
