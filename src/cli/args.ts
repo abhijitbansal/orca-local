@@ -154,7 +154,6 @@ export function supportsBrowserPageFlag(commandPath: string[]): boolean {
       'emulator',
       'note',
       'diagnostics',
-      'linear',
       'skills',
       'search',
       'agent-context'

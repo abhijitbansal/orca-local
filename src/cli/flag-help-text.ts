@@ -82,13 +82,6 @@ export const FLAG_HELP_TEXT: Record<string, string> = {
   timezone: '--timezone <tz>       IANA timezone for the automation',
   enabled: '--enabled              Enable the automation',
   disabled: '--disabled             Disable the automation',
-  current: '--current              Use the current Orca worktree linked Linear issue',
-  comments: '--comments             Include threaded Linear comments',
-  children: '--children             Include recursive child issues',
-  depth: '--depth <n>            Child issue depth for --children/--full',
-  attachments: '--attachments          Include attachment metadata and URLs',
-  relations: '--relations            Include blocking, related, and duplicate links',
-  activity: '--activity             Include issue field-change history',
   full: '--full                 Include all supported V1 issue context within caps',
   'reuse-session':
     '--reuse-session        Reuse the previous live session for existing-workspace runs',

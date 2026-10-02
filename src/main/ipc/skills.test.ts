@@ -183,7 +183,7 @@ describe('registerSkillsHandlers', () => {
   it('shares the home and bundled WSL scan across name-filtered requests', async () => {
     const handler = getDiscoverHandler()
 
-    for (const name of ['orchestration', 'linear-tickets']) {
+    for (const name of ['orchestration', 'orca-cli']) {
       await handler(null, {
         runtime: 'wsl',
         wslDistro: 'Ubuntu',

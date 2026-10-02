@@ -117,7 +117,6 @@
       "config/scripts/nsis-process-check.test.mjs": 62,
       "config/scripts/orca-cli-skill-guidance.test.mjs": 62,
       "config/scripts/orca-dev-bin.test.mjs": 79,
-      "config/scripts/orca-linear-skill-guidance.test.mjs": 50,
       "config/scripts/orcad-artifact-version.test.mjs": 470,
       "config/scripts/orcad-operations-restart-safety.test.mjs": 45,
       "config/scripts/orcad-watcher-package.test.mjs": 132,

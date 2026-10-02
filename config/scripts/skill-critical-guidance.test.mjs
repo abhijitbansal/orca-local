@@ -9,18 +9,6 @@ function readGuide(name) {
   ).replace(/\s+/gu, ' ')
 }
 
-it('preserves Linear completion and terminal-state exclusions', () => {
-  for (const name of ['orca-linear', 'linear-tickets']) {
-    const text = readGuide(name)
-    expect(text).toContain('Post exactly one completion comment')
-    expect(text).toContain('containing the PR/MR link')
-    expect(text).toContain(
-      'Completion moves are allowed unless the current type is `completed` or `canceled`'
-    )
-    expect(text).toContain('If zero or multiple states qualify, leave status unchanged')
-  }
-})
-
 it('preserves verification distinctions and emulator cleanup', () => {
   const text = readGuide('computer-use')
   expect(text).toContain('`verified` means the changed value was read back')
