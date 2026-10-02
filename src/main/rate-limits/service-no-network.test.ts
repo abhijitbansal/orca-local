@@ -17,6 +17,12 @@ function authPreparation(configDir: string): ClaudeRuntimeAuthPreparation {
   }
 }
 
+const LIVE_POST = {
+  configDir: '/tmp/claude-a',
+  fiveHour: { used_percentage: 40, resets_at: Math.floor(Date.now() / 1000) + 600 },
+  sevenDay: null
+}
+
 describe('RateLimitService (local-only)', () => {
   const globalFetch = vi.fn()
   beforeEach(() => {
@@ -76,13 +82,41 @@ describe('RateLimitService (local-only)', () => {
     await service.refreshClaudeForTarget(HOST_TARGET)
     // The next account's resolver never settles, so only the cleared snapshot can stop old posts.
     service.setClaudeAuthPreparationResolver(() => new Promise(() => {}))
-    void service.refreshClaudeForTarget(HOST_TARGET)
+    void service.refreshForClaudeAccountChange('old-account', HOST_TARGET)
     service.ingestLiveClaudeRateLimits({
       configDir: '/tmp/claude-a',
       fiveHour: { used_percentage: 40, resets_at: Math.floor(Date.now() / 1000) + 60 },
       sevenDay: null
     })
     expect(service.getState().claude).toBeNull()
+  })
+
+  it('clears the snapshot and the claude slot when the target changes', async () => {
+    const service = new RateLimitService()
+    service.setClaudeAuthPreparationResolver(async () => authPreparation('/tmp/claude-a'))
+    await service.refreshClaudeForTarget(HOST_TARGET)
+    service.ingestLiveClaudeRateLimits(LIVE_POST)
+    expect(service.getState().claude?.status).toBe('ok')
+    service.setClaudeAuthPreparationResolver(() => new Promise(() => {}))
+    void service.refreshClaudeForTarget({ runtime: 'wsl', wslDistro: 'Ubuntu' })
+    expect(service.getState().claude).toBeNull()
+    service.ingestLiveClaudeRateLimits(LIVE_POST)
+    expect(service.getState().claude).toBeNull()
+  })
+
+  it('keeps the snapshot and the claude slot on a same-target refresh', async () => {
+    const service = new RateLimitService()
+    service.setClaudeAuthPreparationResolver(async () => authPreparation('/tmp/claude-a'))
+    await service.refreshClaudeForTarget(HOST_TARGET)
+    service.ingestLiveClaudeRateLimits(LIVE_POST)
+    service.setClaudeAuthPreparationResolver(() => new Promise(() => {}))
+    void service.refreshClaudeForTarget(HOST_TARGET)
+    expect(service.getState().claude?.status).toBe('ok')
+    service.ingestLiveClaudeRateLimits({
+      ...LIVE_POST,
+      fiveHour: { ...LIVE_POST.fiveHour, used_percentage: 41 }
+    })
+    expect(service.getState().claude?.session?.usedPercent).toBe(41)
   })
 
   it('never reports vendor credentials as configured, so no provider shows a loading skeleton', () => {

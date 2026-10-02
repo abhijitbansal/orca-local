@@ -114,17 +114,36 @@ export class RateLimitService {
     _outgoingAccountId?: string | null,
     target?: ClaudeAccountSelectionTarget
   ): Promise<RateLimitState> {
-    return this.refreshClaudeForTarget(target)
+    // Why: an account switch keeps the same runtime target but still changes whose usage the bar shows.
+    return this.refreshClaude(target, true)
   }
 
   async refreshClaudeForTarget(target?: ClaudeAccountSelectionTarget): Promise<RateLimitState> {
-    this.claudeFetchTarget = normalizeClaudeAccountSelectionTarget(target)
-    // Why: posts from the outgoing account's sessions must not land on the incoming account's bar mid-switch.
-    this.claudeAuthSnapshot = null
-    // Why: live windows belong to the previous account; the next statusline post repopulates the bar.
-    this.updateState({ ...this.state, claude: null })
+    return this.refreshClaude(target, false)
+  }
+
+  private async refreshClaude(
+    target: ClaudeAccountSelectionTarget | undefined,
+    forceReset: boolean
+  ): Promise<RateLimitState> {
+    const nextTarget = normalizeClaudeAccountSelectionTarget(target)
+    const shouldReset = forceReset || !this.isSameClaudeTarget(this.claudeFetchTarget, nextTarget)
+    this.claudeFetchTarget = nextTarget
+    if (shouldReset) {
+      // Why: posts from the outgoing target's sessions must not land on the incoming bar mid-switch.
+      this.claudeAuthSnapshot = null
+      // Why: live windows belong to the previous target; the next statusline post repopulates the bar.
+      this.updateState({ ...this.state, claude: null })
+    }
     await this.captureClaudeAuthSnapshot()
     return this.getState()
+  }
+
+  private isSameClaudeTarget(
+    left: NormalizedClaudeAccountSelectionTarget,
+    right: NormalizedClaudeAccountSelectionTarget
+  ): boolean {
+    return left.runtime === right.runtime && left.wslDistro === right.wslDistro
   }
 
   async refreshForCodexAccountChange(
