@@ -762,9 +762,6 @@
       "pluginCommandKeybindings": {
         "group": "Plugins"
       },
-      "feedback": {
-        "image": {}
-      },
       "activateAiVaultStructuredSession": {
         "unavailable": "结构化代理会话尚不可用。稍后重试。",
         "gone": "此聊天不再在此主机上，因此无法在此处重新打开。",
@@ -9370,38 +9367,6 @@
         "YamlThemeImportButton": {
           "label": "从 YAML 导入"
         },
-        "cli": {
-          "source": {
-            "control": {
-              "integration": {
-                "cards": {
-                  "d5b3be8ecd": "重新检查",
-                  "8cbc39f862": "了解更多",
-                  "707180d09c": "glab auth login",
-                  "4be0616873": "GitLab CLI 已安装但未通过身份验证。请在终端中运行此命令：",
-                  "54a640af7a": "安装 GitLab CLI",
-                  "b56fd5676a": "安装 GitLab CLI 以启用合并请求、议题和流水线。",
-                  "faddeb763d": "此运行时暂不支持 GitLab CLI 状态。",
-                  "a47f71e357": "CLI。",
-                  "2a6b359e75": "glab",
-                  "1f2b347bd3": "通过",
-                  "8d90249d22": "gh auth login",
-                  "2e44dda68a": "GitHub CLI 已安装但未通过身份验证。请在终端中运行此命令：",
-                  "7755c28af5": "安装 GitHub CLI",
-                  "23cb5a0dee": "安装 GitHub CLI 以启用拉取请求、议题和检查。",
-                  "6f30fc4216": "此运行时暂不支持 GitHub CLI 状态。",
-                  "6b2cfb52b4": "gh",
-                  "b4d900e7f1": "通过",
-                  "account_scope_prefix": "账户范围",
-                  "statusConnected": "已连接",
-                  "statusUnavailable": "不可用",
-                  "statusNotInstalled": "未安装",
-                  "statusNotAuthenticated": "未经过验证"
-                }
-              }
-            }
-          }
-        },
         "task": {
           "tracker": {
             "integration": {
@@ -9692,7 +9657,6 @@
           "notificationPlaygroundDescription": "用于检查提示布局、恢复操作和长文案换行的开发触发器。",
           "devOnly": "仅开发",
           "orcaCloud": "Orca Cloud",
-          "orcaCloudDescription": "仅限开发环境的第一方云登录预览。在生产环境中隐藏；在开发环境中，设置 ORCA_CLOUD_API_URL 和 ORCA_CLOUD_CLIENT_ID 后也会出现在侧边栏账户切换器中。",
           "deleteAnywayClicked": "仍然删除点击"
         },
         "EphemeralVmRecipeRow": {
@@ -10113,21 +10077,6 @@
             "logs": "插件日志",
             "development": "开发插件"
           }
-        },
-        "LinearAgentSkillGuide": {
-          "setupUnverified": "无法验证"
-        },
-        "TaskSourceProviderCard": {
-          "statusChecking": "检查中…",
-          "statusReady": "已就绪",
-          "statusConnectRequired": "需要连接",
-          "statusSkillRequired": "需要技能",
-          "statusUnverified": "无法验证",
-          "statusUnavailable": "状态不可用",
-          "statusHidden": "已从任务中隐藏",
-          "statusIncomplete": "需要设置",
-          "collapseSetup": "收起 {{provider}} 设置步骤",
-          "expandSetup": "显示 {{provider}} 设置步骤"
         },
         "TaskSourceShowInTasksStep": {
           "shown": "已显示",

@@ -628,9 +628,6 @@
       "pluginCommandKeybindings": {
         "group": "Plugins"
       },
-      "feedback": {
-        "image": {}
-      },
       "dropSkipReason": {
         "missing": "Ya no está en su ruta original.",
         "symlink": "Los enlaces simbólicos no se pueden adjuntar.",
@@ -8330,34 +8327,6 @@
         "YamlThemeImportButton": {
           "label": "Importar desde YAML"
         },
-        "cli": {
-          "source": {
-            "control": {
-              "integration": {
-                "cards": {
-                  "d5b3be8ecd": "Volver a comprobar",
-                  "8cbc39f862": "Más información",
-                  "707180d09c": "glab auth login",
-                  "4be0616873": "La CLI de GitLab está instalada, pero no autenticada. Ejecuta este comando en un terminal:",
-                  "54a640af7a": "Instalar la CLI de GitLab",
-                  "b56fd5676a": "Instala la CLI de GitLab para habilitar merge requests, issues y pipelines.",
-                  "faddeb763d": "El estado de la CLI de GitLab aún no está disponible en este runtime.",
-                  "a47f71e357": "CLI.",
-                  "2a6b359e75": "glab",
-                  "1f2b347bd3": "Merge requests, issues, todos y pipelines mediante la",
-                  "8d90249d22": "gh auth login",
-                  "2e44dda68a": "La CLI de GitHub está instalada, pero no autenticada. Ejecuta este comando en un terminal:",
-                  "7755c28af5": "Instalar la CLI de GitHub",
-                  "23cb5a0dee": "Instala la CLI de GitHub para habilitar pull requests, issues y checks.",
-                  "6f30fc4216": "El estado de la CLI de GitHub aún no está disponible en este runtime.",
-                  "6b2cfb52b4": "gh",
-                  "b4d900e7f1": "Pull requests, issues y checks mediante la",
-                  "account_scope_prefix": "Alcance de la cuenta"
-                }
-              }
-            }
-          }
-        },
         "task": {
           "tracker": {
             "integration": {
@@ -8637,8 +8606,7 @@
           "notificationPlayground": "Panel de prueba de notificaciones",
           "notificationPlaygroundDescription": "Disparadores solo para desarrollo para comprobar el diseño de toasts, acciones de recuperación y ajuste de texto largo.",
           "devOnly": "Solo para desarrollo",
-          "orcaCloud": "Orca Cloud",
-          "orcaCloudDescription": "Vista previa solo para desarrolladores del inicio de sesión de la nube propia. Oculto en producción; en desarrollo también aparece en el selector de cuentas de la barra lateral cuando se configuran ORCA_CLOUD_API_URL y ORCA_CLOUD_CLIENT_ID."
+          "orcaCloud": "Orca Cloud"
         },
         "EphemeralVmRecipeRow": {
           "useInWorkspace": "Usar en el espacio de trabajo"
@@ -9047,17 +9015,6 @@
             "logs": "registros de plugins",
             "development": "plugins de desarrollo"
           }
-        },
-        "TaskSourceProviderCard": {
-          "statusChecking": "Comprobando…",
-          "statusReady": "Listo",
-          "statusConnectRequired": "Requiere conexión",
-          "statusSkillRequired": "Requiere la habilidad",
-          "statusUnavailable": "Estado no disponible",
-          "statusHidden": "Oculto en Tareas",
-          "statusIncomplete": "Necesita configuración",
-          "collapseSetup": "Contraer los pasos de configuración de {{provider}}",
-          "expandSetup": "Mostrar los pasos de configuración de {{provider}}"
         },
         "TaskSourceShowInTasksStep": {
           "shown": "Visible",

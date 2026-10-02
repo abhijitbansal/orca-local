@@ -762,9 +762,6 @@
       "pluginCommandKeybindings": {
         "group": "Plugins"
       },
-      "feedback": {
-        "image": {}
-      },
       "activateAiVaultStructuredSession": {
         "unavailable": "구조화된 에이전트 세션은 아직 사용할 수 없습니다. 잠시 후 다시 시도하세요.",
         "gone": "이 채팅은 더 이상 이 호스트에 없으므로 여기에서 다시 열 수 없습니다.",
@@ -9370,38 +9367,6 @@
         "YamlThemeImportButton": {
           "label": "YAML에서 가져오기"
         },
-        "cli": {
-          "source": {
-            "control": {
-              "integration": {
-                "cards": {
-                  "d5b3be8ecd": "Re-check",
-                  "8cbc39f862": "자세히 알아보기",
-                  "707180d09c": "glab auth login",
-                  "4be0616873": "GitLab CLI가 설치되어 있지만 인증되지 않았습니다. terminal에서 다음 명령을 실행하세요.",
-                  "54a640af7a": "GitLab CLI 설치",
-                  "b56fd5676a": "MR, 이슈 및 파이프라인을 활성화하려면 GitLab CLI를 설치하세요.",
-                  "faddeb763d": "이 런타임에서는 아직 GitLab CLI 상태를 사용할 수 없습니다.",
-                  "a47f71e357": "CLI.",
-                  "2a6b359e75": "glab",
-                  "1f2b347bd3": "다음을 통해 MR, 이슈, 할 일, 파이프라인을 병합합니다.",
-                  "8d90249d22": "gh auth login",
-                  "2e44dda68a": "GitHub CLI가 설치되어 있지만 인증되지 않았습니다. terminal에서 다음 명령을 실행하세요.",
-                  "7755c28af5": "GitHub CLI 설치",
-                  "23cb5a0dee": "PR, 이슈 및 검사를 활성화하려면 GitHub CLI를 설치하세요.",
-                  "6f30fc4216": "이 런타임에서는 아직 GitHub CLI 상태를 사용할 수 없습니다.",
-                  "6b2cfb52b4": "gh",
-                  "b4d900e7f1": "PR, 이슈 및 검사는 다음을 통해 이루어집니다.",
-                  "account_scope_prefix": "계정 범위",
-                  "statusConnected": "연결됨",
-                  "statusUnavailable": "없는",
-                  "statusNotInstalled": "설치되지 않음",
-                  "statusNotAuthenticated": "인증되지 않음"
-                }
-              }
-            }
-          }
-        },
         "task": {
           "tracker": {
             "integration": {
@@ -9692,7 +9657,6 @@
           "notificationPlaygroundDescription": "토스트 레이아웃, 복구 액션, 긴 텍스트 줄바꿈을 확인하기 위한 개발 전용 트리거입니다.",
           "devOnly": "Dev only",
           "orcaCloud": "Orca Cloud",
-          "orcaCloudDescription": "자사 클라우드 로그인의 개발자 전용 미리보기. 프로덕션에서는 숨겨집니다. 개발 환경에서는 ORCA_CLOUD_API_URL과 ORCA_CLOUD_CLIENT_ID가 설정되면 사이드바 계정 전환기에도 표시됩니다.",
           "deleteAnywayClicked": "무시하고 삭제를 클릭했습니다."
         },
         "EphemeralVmRecipeRow": {
@@ -10113,21 +10077,6 @@
             "logs": "플러그인 로그",
             "development": "개발 플러그인"
           }
-        },
-        "LinearAgentSkillGuide": {
-          "setupUnverified": "확인할 수 없습니다"
-        },
-        "TaskSourceProviderCard": {
-          "statusChecking": "확인 중…",
-          "statusReady": "준비됨",
-          "statusConnectRequired": "연결 필요",
-          "statusSkillRequired": "스킬 필요",
-          "statusUnavailable": "상태를 확인할 수 없음",
-          "statusHidden": "작업에서 숨김",
-          "statusIncomplete": "설정 필요",
-          "collapseSetup": "{{provider}} 설정 단계 접기",
-          "expandSetup": "{{provider}} 설정 단계 표시",
-          "statusUnverified": "확인할 수 없습니다"
         },
         "TaskSourceShowInTasksStep": {
           "shown": "표시 중",

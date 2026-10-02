@@ -2163,8 +2163,7 @@
           "6b5a2cd3a5": "Accessibility"
         },
         "DevToolsPane": {
-          "orcaCloud": "Orca Cloud",
-          "orcaCloudDescription": "Dev-only preview of first-party cloud sign-in. Hidden in production; in dev it also appears in the sidebar account switcher once ORCA_CLOUD_API_URL and ORCA_CLOUD_CLIENT_ID are set."
+          "orcaCloud": "Orca Cloud"
         },
         "EphemeralVmRuntimesSection": {
           "cleaned": "Cleaned up temporary VM runtime.",
@@ -2286,9 +2285,6 @@
           "f7eb5f0b24": "Not installed",
           "f92fbf11aa": "Not configured",
           "fe4d378dc4": "Verified"
-        },
-        "LinearAgentSkillGuide": {
-          "setupUnverified": "Cannot verify"
         },
         "ManageSessionsSection": {
           "9c940434af": "Switch back to the local runtime to restart or kill local daemon sessions.",
@@ -2457,18 +2453,6 @@
           "e9609ddca6": "Proxy, jump host, and connection reuse",
           "f2331ce599": "Edit SSH Target"
         },
-        "TaskSourceProviderCard": {
-          "collapseSetup": "Collapse {{provider}} setup steps",
-          "expandSetup": "Show {{provider}} setup steps",
-          "statusChecking": "Checking…",
-          "statusConnectRequired": "Connect required",
-          "statusHidden": "Hidden from Tasks",
-          "statusIncomplete": "Needs setup",
-          "statusReady": "Ready",
-          "statusSkillRequired": "Skill required",
-          "statusUnavailable": "Status unavailable",
-          "statusUnverified": "Cannot verify"
-        },
         "TaskSourceShowInTasksStep": {
           "description": "Include this provider in the Tasks source picker and sidebar shortcuts.",
           "hide": "Hide",
@@ -2630,38 +2614,6 @@
             "branch": {
               "search": {
                 "427f2cd1eb": "Auto-Rename Branch"
-              }
-            }
-          }
-        },
-        "cli": {
-          "source": {
-            "control": {
-              "integration": {
-                "cards": {
-                  "1f2b347bd3": "Merge requests, issues, todos, and pipelines via the",
-                  "23cb5a0dee": "Install the GitHub CLI to enable pull requests, issues, and checks.",
-                  "2a6b359e75": "glab",
-                  "2e44dda68a": "The GitHub CLI is installed but not authenticated. Run this command in a terminal:",
-                  "4be0616873": "The GitLab CLI is installed but not authenticated. Run this command in a terminal:",
-                  "54a640af7a": "Install GitLab CLI",
-                  "6b2cfb52b4": "gh",
-                  "6f30fc4216": "GitHub CLI status is not available in this runtime yet.",
-                  "707180d09c": "glab auth login",
-                  "7755c28af5": "Install GitHub CLI",
-                  "8cbc39f862": "Learn more",
-                  "8d90249d22": "gh auth login",
-                  "a47f71e357": "CLI.",
-                  "account_scope_prefix": "Account scope",
-                  "b4d900e7f1": "Pull requests, issues, and checks via the",
-                  "b56fd5676a": "Install the GitLab CLI to enable merge requests, issues, and pipelines.",
-                  "d5b3be8ecd": "Re-check",
-                  "faddeb763d": "GitLab CLI status is not available in this runtime yet.",
-                  "statusConnected": "Connected",
-                  "statusNotAuthenticated": "Not authenticated",
-                  "statusNotInstalled": "Not installed",
-                  "statusUnavailable": "Unavailable"
-                }
               }
             }
           }
