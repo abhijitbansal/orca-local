@@ -1,10 +1,6 @@
 /**
- * #11994: a project deleted on the paired Orca host stayed in the client's sidebar and
- * could not be removed there. `repo.rm` answers `repo_not_found` (it is already gone on
- * the host) and `removeProject` wrapped its whole body in one try/catch, so the rejection
- * aborted the local purge before the `set()` — the ghost row survived and nothing was
- * surfaced to the user. Only `repo_not_found` is tolerated; any other failure must keep
- * the row, and the error toast is opt-in so bulk/background callers stay silent.
+ * A runtime-owned project cannot be removed in the local-only build: removal fails closed,
+ * keeps the row, and never falls back to a local `repos.remove`.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { toast } from 'sonner'
@@ -97,25 +93,32 @@ beforeEach(() => {
   })
 })
 
-describe('removeProject when the owning host already dropped the project', () => {
-  it('drops the ghost row when the remote reports repo_not_found', async () => {
+describe('removeProject for a runtime-owned project in the local-only build', () => {
+  it('fails closed and keeps the row instead of purging it locally', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
     answerRepoRmWith('repo_not_found')
     const store = seedRemoteProjects([liveRemoteRepo, staleRemoteRepo])
 
     await store.getState().removeProject('project-b', { hostId: 'runtime:env-1' })
 
-    expect(store.getState().repos.map((repo) => repo.id)).toEqual(['project-a'])
+    expect(store.getState().repos.map((repo) => repo.id)).toEqual(['project-a', 'project-b'])
+    expect(reposRemove).not.toHaveBeenCalled()
+    expect(reposRemoveForHost).not.toHaveBeenCalled()
+    expect(runtimeEnvironmentCall).not.toHaveBeenCalled()
   })
 
   it('leaves a same-id project on another host untouched', async () => {
-    answerRepoRmWith('repo_not_found')
+    vi.spyOn(console, 'error').mockImplementation(() => {})
     const store = seedRemoteProjects([liveRemoteRepo, staleRemoteRepo, localTwinRepo])
 
     await store.getState().removeProject('project-b', { hostId: 'runtime:env-1' })
 
     expect(store.getState().repos.map((repo) => repo.path)).toEqual([
       '/Users/mini/project-a',
+      '/Users/mini/project-b',
       '/Users/laptop/project-b'
     ])
+    expect(reposRemove).not.toHaveBeenCalled()
+    expect(reposRemoveForHost).not.toHaveBeenCalled()
   })
 })

@@ -309,7 +309,7 @@ describe('fetchWorktrees', () => {
     expect(store.getState().workspaceLineageByChildKey).toEqual({})
   })
 
-  it('drops a host lineage row the refresh reply no longer reports', async () => {
+  it('keeps a runtime-owned lineage row and never lists local lineage for it', async () => {
     const store = createTestStore()
     const worktree = makeWorktree({
       id: 'repo1::/remote/wt1',
@@ -324,20 +324,12 @@ describe('fetchWorktrees', () => {
       worktreesByRepo: { repo1: [worktree] },
       worktreeLineageById: { [stale.worktreeId]: stale }
     } as Partial<AppState>)
-    runtimeEnvironmentCall.mockImplementation(({ method }: RuntimeEnvironmentCallRequest) =>
-      Promise.resolve({
-        id: 'rpc-1',
-        ok: true,
-        result:
-          method === 'worktree.lineageList'
-            ? { lineage: {}, workspaceLineage: {} }
-            : makeDetectedResult('repo1', [worktree]),
-        _meta: { runtimeId: 'runtime-remote' }
-      })
-    )
+    vi.spyOn(console, 'error').mockImplementation(() => {})
 
     await store.getState().fetchWorktreeLineage({ executionHostId: 'runtime:env-1' })
 
-    expect(store.getState().worktreeLineageById).toEqual({})
+    expect(store.getState().worktreeLineageById).toEqual({ [stale.worktreeId]: stale })
+    expect(mockApi.worktrees.listLineage).not.toHaveBeenCalled()
+    expect(runtimeEnvironmentCall).not.toHaveBeenCalled()
   })
 })

@@ -132,14 +132,16 @@ describe('deleting one host copy of a same-named project', () => {
     expect(remainingRepoIds(store)).toEqual(['env-a-uuid'])
   })
 
-  it('keeps remote B when remote A reports the project already gone', async () => {
-    // The reporter's #11994 case with a name collision: the ghost purge is host-scoped.
-    answerRepoRm({ failingSelector: 'env-a', code: 'repo_not_found' })
+  it('fails a runtime-owned removal closed and keeps every host row', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
     const store = seed([localTwin, remoteATwin, remoteBTwin], 'env-b')
 
     await store.getState().removeProject('env-a-uuid', { hostId: 'runtime:env-a' })
 
-    expect(remainingRepoIds(store)).toEqual(['local-uuid', 'env-b-uuid'])
+    expect(remainingRepoIds(store)).toEqual(['local-uuid', 'env-a-uuid', 'env-b-uuid'])
+    expect(reposRemove).not.toHaveBeenCalled()
+    expect(reposRemoveForHost).not.toHaveBeenCalled()
+    expect(repoRmCalls()).toEqual([])
   })
 })
 

@@ -31,9 +31,10 @@ describe('runtime RPC client routing', () => {
     expect(getActiveRuntimeTarget({ activeRuntimeEnvironmentId: '   ' })).toEqual({ kind: 'local' })
   })
 
-  it('getActiveRuntimeTarget ignores a persisted activeRuntimeEnvironmentId', () => {
-    expect(getActiveRuntimeTarget({ activeRuntimeEnvironmentId: 'env-1' })).toEqual({
-      kind: 'local'
+  it('keeps a non-empty runtime owner id as an environment target so it fails closed', () => {
+    expect(getActiveRuntimeTarget({ activeRuntimeEnvironmentId: ' env-1 ' })).toEqual({
+      kind: 'environment',
+      environmentId: 'env-1'
     })
   })
 

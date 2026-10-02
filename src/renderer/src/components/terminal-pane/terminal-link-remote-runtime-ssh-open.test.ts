@@ -120,15 +120,9 @@ describe('handleOscLink', () => {
     )
   })
 
-  it('does not pin runtime-owned links to the worktree SSH target', async () => {
+  it('fails runtime-owned links closed instead of statting or opening them locally', async () => {
     setPlatform('Windows')
     vi.mocked(getConnectionId).mockReturnValue('ssh-1')
-    runtimeEnvironmentCallMock.mockResolvedValueOnce({
-      id: 'rpc-1',
-      ok: true,
-      result: { size: 1, isDirectory: false, mtime: 1 },
-      _meta: { runtimeId: 'remote-runtime' }
-    })
 
     openDetectedFilePath('//wsl.localhost/ubuntu/home/Alice/repo/src/main.ts', null, null, {
       worktreeId: 'wt-1',
@@ -137,16 +131,9 @@ describe('handleOscLink', () => {
     })
     await flushAsyncWork()
 
-    expect(openFileMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        filePath: '//wsl.localhost/ubuntu/home/Alice/repo/src/main.ts'
-      }),
-      { forceContentReload: true }
-    )
-    expect(openFileMock).toHaveBeenCalledWith(
-      expect.not.objectContaining({ externalSshTargetId: expect.anything() }),
-      { forceContentReload: true }
-    )
+    expect(statMock).not.toHaveBeenCalled()
+    expect(openFileMock).not.toHaveBeenCalled()
+    expect(runtimeEnvironmentCallMock).not.toHaveBeenCalled()
   })
 
   it('downloads shift-modifier SSH file links before the OS opens them, like the popover row', async () => {

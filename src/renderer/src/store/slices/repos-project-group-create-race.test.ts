@@ -65,12 +65,12 @@ function setup(runtimeEnvironmentId: string | null) {
     projectGroups: [otherHostGroup]
   })
   const ownerHostId = runtimeEnvironmentId ? `runtime:${runtimeEnvironmentId}` : 'local'
-  return { store, created, createStarted, ownerHostId }
+  return { store, created, createStarted, create, ownerHostId }
 }
 
-describe.each([null, 'env-1'])('project group creation on host %s', (runtimeEnvironmentId) => {
+describe('project group creation on the local host', () => {
   it('does not roll back a successful refresh if the create response fails', async () => {
-    const { store, created, createStarted } = setup(runtimeEnvironmentId)
+    const { store, created, createStarted } = setup(null)
     vi.spyOn(console, 'error').mockImplementation(() => {})
     const pendingCreate = store.getState().createProjectGroup('Platform')
     await createStarted.promise
@@ -80,6 +80,17 @@ describe.each([null, 'env-1'])('project group creation on host %s', (runtimeEnvi
     await expect(pendingCreate).resolves.toBeNull()
     expect(store.getState()).toBe(refreshedState)
   })
+})
+
+it('fails a runtime-owned group creation closed without creating locally', async () => {
+  const { store, create } = setup('env-1')
+  vi.spyOn(console, 'error').mockImplementation(() => {})
+  const state = store.getState()
+
+  await expect(state.createProjectGroup('Platform')).resolves.toBeNull()
+
+  expect(create).not.toHaveBeenCalled()
+  expect(store.getState()).toBe(state)
 })
 
 it('recognizes an unstamped local group without conflating an SSH catalog row', async () => {

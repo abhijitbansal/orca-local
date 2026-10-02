@@ -4,10 +4,11 @@ import { parseExecutionHostId, type ExecutionHostId } from '../../../shared/exec
 export type RuntimeClientTarget = { kind: 'local' } | { kind: 'environment'; environmentId: string }
 
 export function getActiveRuntimeTarget(
-  _settings: Pick<GlobalSettings, 'activeRuntimeEnvironmentId'> | null | undefined
+  settings: Pick<GlobalSettings, 'activeRuntimeEnvironmentId'> | null | undefined
 ): RuntimeClientTarget {
-  // Why: the persisted preference is inert in the local-only build; nothing can mint a value.
-  return { kind: 'local' }
+  // Why: a runtime: owner id must reach callRuntimeRpc and fail closed, never resolve to local.
+  const environmentId = settings?.activeRuntimeEnvironmentId?.trim()
+  return environmentId ? { kind: 'environment', environmentId } : { kind: 'local' }
 }
 
 /** RPC target for a dispatchable host; direct SSH cannot use this client path. */
