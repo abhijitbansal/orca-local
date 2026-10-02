@@ -35,7 +35,6 @@ type NewWorkspaceComposerProjectSectionProps = Pick<
   projectHostSetupOptions: NewWorkspaceComposerCardProps['projectHostSetupOptions']
   handleProjectHostSetupChange: (setupId: string) => void
   handleAddSshHost: () => void
-  handleAddRemoteServer: () => void
   handleConnectRunTargetHost: (option: NeedsProjectHostOption) => Promise<void>
   handleSetLocation: (option: NeedsProjectHostOption) => void
   sshStatusLabel: string
@@ -61,7 +60,6 @@ export function NewWorkspaceComposerProjectSection({
   selectedProjectHostSetupId,
   handleProjectHostSetupChange,
   handleAddSshHost,
-  handleAddRemoteServer,
   handleConnectRunTargetHost,
   handleSetLocation,
   selectedRepoRequiresConnection,
@@ -143,7 +141,6 @@ export function NewWorkspaceComposerProjectSection({
             hostValue={selectedProjectHostSetupId ?? null}
             onHostChange={handleProjectHostSetupChange}
             onAddSshHost={handleAddSshHost}
-            onAddRemoteServer={handleAddRemoteServer}
             onConnectHost={handleConnectRunTargetHost}
             onSetLocation={handleSetLocation}
           />

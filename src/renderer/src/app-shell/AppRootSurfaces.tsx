@@ -51,9 +51,6 @@ const SshPassphraseDialog = lazy(() =>
     default: module.SshPassphraseDialog
   }))
 )
-const RemoteServerUpdateDialog = lazy(
-  () => import('../components/settings/RemoteServerUpdateDialog')
-)
 const ContextualTourOverlay = lazy(() =>
   import('../components/contextual-tours/ContextualTourOverlay').then((module) => ({
     default: module.ContextualTourOverlay
@@ -328,11 +325,6 @@ export function AppRootSurfaces(props: {
       <OverlayBoundary boundaryId="overlay.recent-tab-switcher" resetKey={activeView}>
         <RecentTabSwitcher />
       </OverlayBoundary>
-      <Suspense fallback={null}>
-        <OverlayBoundary boundaryId="overlay.remote-server-update-dialog">
-          <RemoteServerUpdateDialog />
-        </OverlayBoundary>
-      </Suspense>
     </>
   )
 }

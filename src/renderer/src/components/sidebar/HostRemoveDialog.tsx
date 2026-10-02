@@ -85,16 +85,6 @@ export function HostRemoveDialog({
     dropOverridesForHost()
   }
 
-  // Why: runtime-environment removal needs active-environment switching and
-  // error context owned by the Orca servers settings pane, so we deep-link
-  // there with the host pre-selected instead of duplicating that flow.
-  const handleRemoveRuntime = (environmentId: string): void => {
-    const state = useAppStore.getState()
-    state.openSettingsTarget({ pane: 'servers', repoId: null, sectionId: environmentId })
-    state.openSettingsPage()
-    onOpenChange(false)
-  }
-
   const runSshRemoval = async (): Promise<void> => {
     if (target.kind !== 'ssh') {
       return
@@ -161,22 +151,16 @@ export function HostRemoveDialog({
           }
         )
 
-  const description =
-    target.kind === 'runtime'
-      ? translate(
-          'auto.components.sidebar.HostRemoveDialog.4d5e6f7a8b',
-          'This opens the Orca servers settings where you can remove this server.'
-        )
-      : hasWorkspaces
-        ? translate(
-            'auto.components.sidebar.HostRemoveDialog.hostHasWorkspacesDefault',
-            'Removes {{value0}} and its credentials from this computer. Its {{value1}} stay in Orca — remote files are not touched.',
-            { value0: label, value1: workspaceCountLabel }
-          )
-        : translate(
-            'auto.components.sidebar.HostRemoveDialog.5e6f7a8b9c',
-            'This removes the saved SSH host and its credentials from this computer. Remote files are not deleted.'
-          )
+  const description = hasWorkspaces
+    ? translate(
+        'auto.components.sidebar.HostRemoveDialog.hostHasWorkspacesDefault',
+        'Removes {{value0}} and its credentials from this computer. Its {{value1}} stay in Orca — remote files are not touched.',
+        { value0: label, value1: workspaceCountLabel }
+      )
+    : translate(
+        'auto.components.sidebar.HostRemoveDialog.5e6f7a8b9c',
+        'This removes the saved SSH host and its credentials from this computer. Remote files are not deleted.'
+      )
 
   // The destructive opt-in wording depends on whether we delete remote files or
   // only forget Orca's records (offline/ghost host).
@@ -273,25 +257,15 @@ export function HostRemoveDialog({
           >
             {translate('auto.components.sidebar.HostRemoveDialog.6f7a8b9c0d', 'Cancel')}
           </Button>
-          {target.kind === 'runtime' ? (
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={() => handleRemoveRuntime(target.environmentId)}
-            >
-              {translate('auto.components.sidebar.HostRemoveDialog.7a8b9c0d1e', 'Open settings')}
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              variant="destructive"
-              disabled={busy}
-              onClick={() => void runSshRemoval()}
-            >
-              {busy ? <Loader2 className="size-3.5 animate-spin" /> : null}
-              {translate('auto.components.sidebar.HostRemoveDialog.8b9c0d1e2f', 'Remove host')}
-            </Button>
-          )}
+          <Button
+            type="button"
+            variant="destructive"
+            disabled={busy}
+            onClick={() => void runSshRemoval()}
+          >
+            {busy ? <Loader2 className="size-3.5 animate-spin" /> : null}
+            {translate('auto.components.sidebar.HostRemoveDialog.8b9c0d1e2f', 'Remove host')}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

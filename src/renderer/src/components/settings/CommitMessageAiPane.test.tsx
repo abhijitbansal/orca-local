@@ -11,7 +11,6 @@ import {
 import { useAppStore } from '../../store'
 import {
   CommitMessageAiPane,
-  getCommitMessageSettingsPaneDiscoveryHostKey,
   mergeDiscoveredModelsIntoCommitMessageConfig
 } from './CommitMessageAiPane'
 import {
@@ -446,19 +445,5 @@ describe('CommitMessageAiPane', () => {
     expect(getCommitMessageModelDiscoveryHostKeyForLocalRuntime(null)).toBe('local')
     expect(getCommitMessageModelDiscoveryHostKeyForScope('runtime:env-1')).toBe('runtime:env-1')
     expect(getCommitMessageModelDiscoveryHostKeyForScope('ssh-1')).toBe('ssh:ssh-1')
-  })
-
-  it('keeps local active worktree discovery scoped to local, not unknown', () => {
-    expect(getCommitMessageSettingsPaneDiscoveryHostKey(buildSettings(), null, true)).toBe('local')
-    expect(getCommitMessageSettingsPaneDiscoveryHostKey(buildSettings(), undefined, true)).toBe(
-      'unknown'
-    )
-    expect(
-      getCommitMessageSettingsPaneDiscoveryHostKey(
-        buildSettings({ activeRuntimeEnvironmentId: 'env-1' }),
-        null,
-        true
-      )
-    ).toBe('runtime:env-1')
   })
 })

@@ -6,7 +6,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '../../runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 
 // Mirrors the real report: one project name ("orca") set up on the local Mac and on a
 // remote Orca server, where only the local repo row carries the user's chosen color.
@@ -87,7 +86,6 @@ function runtimeResult(method: string): unknown {
 }
 
 beforeEach(() => {
-  clearRuntimeCompatibilityCacheForTests()
   reposList.mockReset()
   reposUpdate.mockReset()
   projectsList.mockReset()
@@ -166,17 +164,5 @@ describe('shared project badge color across hosts', () => {
       recolored
     )
     expect(badgeColor(store)).toBe(recolored)
-  })
-
-  it('leaves a remote-only project showing its own host color', async () => {
-    reposList.mockResolvedValue([])
-    projectsList.mockResolvedValue([])
-    listHostSetups.mockResolvedValue([])
-    const store = createTestStore()
-    store.setState({ settings: { activeRuntimeEnvironmentId: 'env-1' } as never })
-
-    await store.getState().fetchReposForAllHosts()
-
-    expect(badgeColor(store)).toBe(REMOTE_NEUTRAL)
   })
 })

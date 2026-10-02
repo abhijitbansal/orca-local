@@ -1,8 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type * as AgentStatusModule from '@/lib/agent-status'
-import { getDefaultSettings } from '../../../../shared/constants'
 import { createCompatibleRuntimeStatusResponseIfNeeded } from '../../runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 import { toast } from 'sonner'
 import {
   createTestStore,
@@ -46,7 +44,6 @@ const mockApi = createStoreCascadesMockApi()
 describe('removeWorktree cascade', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    clearRuntimeCompatibilityCacheForTests()
     saveSessionCommitDrafts({})
     mockApi.worktrees.remove.mockResolvedValue(undefined)
     mockApi.worktrees.forceDeletePreservedBranch.mockResolvedValue({ deleted: true })
@@ -565,60 +562,6 @@ describe('removeWorktree cascade', () => {
     expect(result.ok).toBe(false)
     expect(store.getState().deleteStateByWorktreeId[worktreeId]?.canForceDelete).toBe(false)
   })
-
-  it.each([
-    'Could not connect to the remote Orca runtime.',
-    'Remote Orca runtime closed the connection.',
-    'Timed out waiting for the remote Orca runtime to respond.'
-  ])(
-    'does not offer force delete for wrapped remote runtime failure: %s',
-    async (runtimeFailure) => {
-      const store = createTestStore()
-      const worktreeId = 'repo1::/path/wt1'
-      const error = `Error invoking remote method 'runtime-environments:call': Error: ${runtimeFailure}`
-      // The wrapper is stripped for display; the runtime failure text is what the user sees.
-      const displayed = runtimeFailure
-
-      mockApi.runtimeEnvironments.call.mockImplementation((args: { method: string }) => {
-        const compatibility = createCompatibleRuntimeStatusResponseIfNeeded(args)
-        if (compatibility) {
-          return Promise.resolve(compatibility)
-        }
-        if (args.method === 'repo.hooksCheck') {
-          return Promise.resolve({
-            id: 'rpc-hooks',
-            ok: true,
-            result: { hasHooks: false, hooks: null, mayNeedUpdate: false },
-            _meta: { runtimeId: 'remote-runtime' }
-          })
-        }
-        return Promise.reject(new Error(error))
-      })
-
-      seedStore(store, {
-        settings: { ...getDefaultSettings('/tmp'), activeRuntimeEnvironmentId: 'env-1' },
-        worktreesByRepo: {
-          repo1: [makeWorktree({ id: worktreeId, repoId: 'repo1', hostId: 'runtime:env-1' })]
-        },
-        tabsByWorktree: {},
-        ptyIdsByTabId: {},
-        terminalLayoutsByTabId: {}
-      })
-
-      const result = await store
-        .getState()
-        .removeWorktree({ id: worktreeId, executionHostId: null })
-
-      expect(result).toEqual({ ok: false, error: displayed })
-      expect(store.getState().deleteStateByWorktreeId[worktreeId]).toEqual({
-        isDeleting: false,
-        error: displayed,
-        canForceDelete: false,
-        forceDeleteReason: null
-      })
-      expect(mockApi.worktrees.remove).not.toHaveBeenCalled()
-    }
-  )
 
   it('offers force delete for orphaned Orca worktree directories', async () => {
     const store = createTestStore()

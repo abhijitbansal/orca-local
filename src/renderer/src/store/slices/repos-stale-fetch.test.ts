@@ -3,7 +3,6 @@ import { createTestStore, makeLayout, makeTab } from './store-test-helpers'
 import type { Repo } from '../../../../shared/repo-types'
 import type { WorkspaceSessionState } from '../../../../shared/workspace-session-state-types'
 import { getDefaultWorkspaceSession } from '../../../../shared/constants'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 
 const localRepo: Repo = {
   id: 'local-repo',
@@ -52,7 +51,6 @@ function makePromotionSession(): WorkspaceSessionState {
 }
 
 beforeEach(() => {
-  clearRuntimeCompatibilityCacheForTests()
   reposList.mockReset()
   // Only repos.list is exercised here — the missing projects API makes
   // fetchProjectHostSetupCompatibility fall back to deriving from repos.

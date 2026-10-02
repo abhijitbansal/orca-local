@@ -27,10 +27,7 @@ import { translate } from '@/i18n/i18n'
 import { sshConnectVerb } from '@/ssh/ssh-connect-verb'
 import { parseExecutionHostId } from '../../../../shared/execution-host'
 import { describeRuntimeCompatBlock } from '../../../../shared/protocol-compat'
-import {
-  clearRuntimeCompatibilityCache,
-  unwrapRuntimeRpcResult
-} from '@/runtime/runtime-rpc-client'
+import { unwrapRuntimeRpcResult } from '@/runtime/runtime-rpc-client'
 import type { RuntimeStatus } from '../../../../shared/runtime-types'
 import type { HostHeaderRow } from './host-section-rows'
 import { buildHostHeaderMenuModel } from './host-header-menu-items'
@@ -54,14 +51,7 @@ function blockedTitle(reason: 'client-too-old' | 'server-too-old'): string {
 // their management pages separate so each connection type can explain itself.
 function openManageHost(row: HostHeaderRow): void {
   const state = useAppStore.getState()
-  if (row.kind === 'runtime') {
-    const parsed = parseExecutionHostId(row.hostId)
-    state.openSettingsTarget({
-      pane: 'servers',
-      repoId: null,
-      sectionId: parsed?.kind === 'runtime' ? parsed.environmentId : undefined
-    })
-  } else if (row.kind === 'ssh') {
+  if (row.kind === 'ssh') {
     state.openSettingsTarget({ pane: 'ssh', repoId: null, sectionId: 'ssh' })
   } else {
     state.openSettingsTarget({ pane: 'general', repoId: null })
@@ -133,9 +123,6 @@ export function HostSectionHeaderMenu({ row }: { row: HostHeaderRow }): React.JS
       return
     }
     setBusy(true)
-    // Why: drop any cached "compatible" verdict so the re-probe re-evaluates
-    // version skew instead of trusting the prior pass.
-    clearRuntimeCompatibilityCache(parsed.environmentId)
     try {
       const response = await window.api.runtimeEnvironments.getStatus({
         selector: parsed.environmentId,

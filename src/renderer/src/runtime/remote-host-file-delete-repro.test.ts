@@ -40,7 +40,6 @@ const REMOTE_PATH = '/home/user/project/src/index.ts'
 const REMOTE_REPO_ID = 'repo-ssh'
 const REMOTE_WORKTREE_ID = `${REMOTE_REPO_ID}::/home/user/project`
 const FOLDER_WORKSPACE_ID = 'folder-workspace-1'
-const LOCAL_PATH = '/tmp/project/src/index.ts'
 
 function makeFolderWorkspace(overrides: Partial<FolderWorkspace> = {}): FolderWorkspace {
   return {
@@ -95,15 +94,6 @@ const remoteFile: TreeNode = {
   isDirectory: false,
   depth: 0,
   operationOwner: { kind: 'ssh', connectionId: SSH_CONNECTION_ID }
-}
-
-const localFile: TreeNode = {
-  name: 'index.ts',
-  path: LOCAL_PATH,
-  relativePath: 'src/index.ts',
-  isDirectory: false,
-  depth: 0,
-  operationOwner: { kind: 'local' }
 }
 
 function renderDelete(activeWorktreeId: string) {
@@ -256,51 +246,5 @@ describe('issue #8135: deleting a remote SSH folder file', () => {
     })
     expect(fsReadFile).not.toHaveBeenCalled()
     expect(fsDeletePath).not.toHaveBeenCalled()
-  })
-
-  it('routes a runtime-owned folder workspace with its synthetic worktree path', async () => {
-    useAppStore.setState({
-      settings: { activeRuntimeEnvironmentId: 'focused-env' } as never,
-      folderWorkspaces: [makeFolderWorkspace({ folderPath: '/tmp/project' })],
-      projectGroups: [
-        makeProjectGroup({
-          parentPath: '/tmp/project',
-          executionHostId: 'runtime:env-1'
-        })
-      ],
-      repos: [],
-      worktreesByRepo: {}
-    })
-
-    const { result } = renderDelete(folderWorkspaceKey(FOLDER_WORKSPACE_ID))
-
-    await act(async () => {
-      result.current.requestDelete({
-        ...localFile,
-        operationOwner: {
-          kind: 'runtime',
-          environmentId: 'env-1',
-          executionHostId: 'runtime:env-1'
-        }
-      })
-    })
-
-    await vi.waitFor(() => {
-      expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-        selector: 'env-1',
-        method: 'files.delete',
-        params: {
-          worktree: `id:${folderWorkspaceKey(FOLDER_WORKSPACE_ID)}`,
-          relativePath: 'src/index.ts',
-          recursive: false,
-          expectedExecutionHostId: 'local'
-        },
-        expectedEnvironmentPairingRevision: undefined,
-        timeoutMs: 15_000
-      })
-    })
-    expect(fsDeletePath).not.toHaveBeenCalled()
-    expect(toastError).not.toHaveBeenCalled()
-    expect(confirm).toHaveBeenCalledTimes(1)
   })
 })

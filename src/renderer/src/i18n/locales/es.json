@@ -249,7 +249,6 @@
           "presenceProfileOverflow": "{{names}} +{{count}} más"
         },
         "settings": {
-          "e12dab333b": "No se pudo cambiar de servidor",
           "faa8fb83dd": "Guarde o cierre las pestañas del editor no guardadas antes de cambiar de servidor."
         },
         "ui": {
@@ -339,18 +338,6 @@
             }
           }
         }
-      },
-      "remotePairingCopy": {
-        "invalidInput": "Introduce un enlace de acceso de Orca o un código de emparejamiento.",
-        "mobileOnly": "Este enlace concede acceso solo para dispositivos móviles. Genera un enlace para otro cliente de Orca.",
-        "invalidDestination": "Este enlace de acceso contiene un destino no válido.",
-        "unsupportedDestination": "Este enlace de acceso contiene un destino no compatible.",
-        "nonConnectableDestination": "Este enlace de acceso contiene un destino al que no se puede conectar.",
-        "loopback": "Bucle local",
-        "tailscale": "Dirección de Tailscale",
-        "lan": "Dirección LAN privada",
-        "public": "Dirección pública",
-        "custom": "Nombre de host personalizado"
       },
       "ensure": {
         "simulator": {
@@ -703,7 +690,6 @@
         "31e57d1c70": "Usa máquinas existentes por SSH para archivos, terminales, Git y espacios de trabajo.",
         "94a5afe910": "Hosts SSH",
         "40d80bad8a": "Beta",
-        "de0c2907a1": "Servidores remotos de Orca",
         "b351014180": "Estadísticas de Orca más análisis de tokens de Claude, Codex, OpenCode y Muse y uso de suscripción de Grok.",
         "d72a58b5b9": "Estadísticas y uso",
         "dcd0d9b74f": "Atajos de teclado para acciones comunes.",
@@ -971,8 +957,6 @@
         "addHostHint": "Register another machine or Orca server",
         "addSshHost": "Add SSH host",
         "addSshHostHint": "Use an existing machine over SSH",
-        "addRemoteOrcaServer": "Add Remote Orca Server",
-        "addRemoteOrcaServerHint": "Pair another Orca runtime",
         "hostConnectionFailed": "Connection failed"
       },
       "NewWorkspaceComposerModal": {
@@ -2496,12 +2480,10 @@
             "e9a5d3c2b1f0": "¿Terminar {{value0}}?"
           },
           "SshStatusSegment": {
-            "3ad70e0365": "Administrar hosts remotos…",
             "6e8a9a4242": "Hosts remotos",
             "d09ec41831": "Hosts remotos",
             "fdc57e9970": "Estado de conexión del host remoto",
             "59b553e2aa": "Desconectar",
-            "63f36455cc": "Conectar",
             "bf07aee59e": "Falló la desconexión",
             "2c29e2de68": "La conexión falló",
             "bc5a3fd41a": "parcial",
@@ -2510,15 +2492,6 @@
             "fbb3f9f05e": "conflicto",
             "95e4ff5b4b": "haciendo push",
             "63a2b965f6": "haciendo pull",
-            "remote_server": "Servidor remoto",
-            "runtime_checking": "Comprobando",
-            "runtime_online": "Conectado",
-            "runtime_unavailable": "Desconectado",
-            "runtime_connect_unavailable": "No se puede acceder al host remoto",
-            "runtime_disconnect_failed": "No se pudo desconectar",
-            "runtime_reconnecting": "Reconectando",
-            "runtime_last_close_reason": "Cerrado: {{value0}}",
-            "runtime_reconnect_attempt": "Intento {{value0}}",
             "connectedHostCount_one": "{{count}} host",
             "connectedHostCount_other": "{{count}} hosts",
             "connecting": "Conectando…",
@@ -2783,16 +2756,6 @@
             "footerDetailAria": "Usage footer detail",
             "detailedTooltip": "Uso completo con barras, etiquetas y porcentajes",
             "compactTooltip": "Uso condensado: sólo la ventana más estrecha"
-          },
-          "RemoteServerUpdateStatusSegment": {
-            "updating": "Updating {{value0}}/{{value1}}",
-            "updatingTooltip": "Remote Orca Server updates are in progress",
-            "failed": "{{value0}} server updates failed",
-            "failedTooltip": "Open Remote Orca Server updates to review and retry",
-            "updated": "{{value0}} servers updated",
-            "updatedTooltip": "Remote Orca Server updates completed",
-            "failedOne": "1 server update failed",
-            "updatedOne": "1 server updated"
           },
           "resource": {
             "memory": {
@@ -4339,11 +4302,9 @@
           "connecting": "Conectando",
           "connect": "Conectar",
           "addSshHost": "Agregar host SSH",
-          "addRemoteServer": "Agregar servidor remoto",
           "addRemoteHost": "Agregar host remoto",
           "addRemoteHostTooltip": "Elige SSH para una máquina donde puedas iniciar sesión, o servidor remoto para un servidor de Orca.",
           "addSshHostDetail": "Usa una máquina existente mediante SSH.",
-          "addRemoteServerDetail": "Empareja con Orca ejecutándose en otro equipo.",
           "addRemoteHostDetail": "Host SSH o servidor Orca"
         },
         "sidebarHostOptions": {
@@ -4358,10 +4319,8 @@
           "1a2b3c4d5e": "Se quitó {{value0}}",
           "2b3c4d5e6f": "No se pudo quitar el host",
           "3c4d5e6f7a": "¿Quitar {{value0}}?",
-          "4d5e6f7a8b": "Esto abre los ajustes de servidores de Orca, donde puedes quitar este servidor.",
           "5e6f7a8b9c": "Esto quita el host SSH guardado y sus credenciales de este equipo. Los archivos remotos no se eliminan.",
           "6f7a8b9c0d": "Cancelar",
-          "7a8b9c0d1e": "Abrir ajustes",
           "8b9c0d1e2f": "Quitar host",
           "workspacesFailed": "No se pudieron eliminar {{count}} espacios de trabajo de este anfitrión. El anfitrión se conservó para que pueda reintentar.",
           "oneWorkspace": "1 espacio de trabajo",
@@ -4452,12 +4411,7 @@
           "sshRelayGraceInvalid": "El tiempo de espera del terminal debe estar entre 60 y {{value0}} segundos.",
           "sshSaved": "Se agregó el host SSH.",
           "sshSaveFailed": "No se pudo agregar el host SSH.",
-          "serverFieldsRequired": "Se requieren el nombre del servidor y el código de emparejamiento.",
-          "serverSaved": "Se agregó servidor remoto.",
-          "serverSaveFailed": "No se pudo agregar el servidor remoto.",
-          "serverTitle": "Agregar servidor remoto",
           "sshTitle": "Agregar host SSH",
-          "serverDescription": "Empareja con Orca ejecutándose en otro equipo.",
           "sshDescription": "Agrega una máquina persistente donde puedas iniciar sesión por SSH.",
           "cancel": "Cancelar",
           "saving": "Guardando...",
@@ -4471,20 +4425,11 @@
           "port": "Puerto",
           "identityFile": "Archivo de identidad",
           "identityFilePlaceholder": "~/.ssh/id_ed25519 (opcional)",
-          "serverName": "Nombre del servidor",
-          "serverNamePlaceholder": "Dev box",
-          "pairingCode": "Código de emparejamiento",
-          "pairingCodePlaceholder": "orca://pair?code=...",
-          "pairingHelpSuffix": "en el servidor y pega la URL de emparejamiento impresa.",
           "sshImportAlreadySynced": "~/.ssh/config ya está sincronizado.",
           "sshImportSynced": "Se sincronizó {{value0}} host{{value1}}.",
           "sshImportFailed": "No se pudo importar la configuración SSH.",
           "sshPersistenceDefault": "Los terminales remotos en este host seguirán activos hasta que los cierres o restablezcas el relay.",
-          "advanced": "Advanced",
-          "linkDestination": "Destino del enlace",
-          "sshTunnel": "Estoy usando un túnel SSH",
-          "sshTunnelHelp": "De lo contrario, este enlace apunta a este dispositivo y no puede identificar el otro equipo.",
-          "loopbackBlocked": "Activa la opción de túnel SSH o crea un enlace nuevo con la dirección de Tailscale o LAN del otro host."
+          "advanced": "Advanced"
         },
         "ForgetSshWorkspaceDialog": {
           "reconnectFailed": "Error de reconexión",
@@ -5952,91 +5897,6 @@
           "ccb07dd027": "Guardado",
           "e57dde9d93": "Cambios no guardados"
         },
-        "RuntimeEnvironmentsPane": {
-          "aeb26635d2": "Quitar {{value0}}",
-          "af53761f31": "Cancelar",
-          "bb90dd6487": "Quitar servidor",
-          "d2e00809e4": "Cambiar",
-          "05e0fc3ebf": "Cambiar a",
-          "b2290ed203": "Orca enfocará este host y cargará sus proyectos. Los terminales y las pestañas del navegador existentes en otros hosts permanecerán activos.",
-          "d570c35a99": "Cambiar servidor",
-          "9a3758d983": "No hay servidores guardados.",
-          "9bee6bbeeb": "Agregar servidor",
-          "55fcc964cd": "en el servidor y pega la URL de emparejamiento impresa.",
-          "960e901ae4": "orca serve --pairing-address <host>",
-          "163671f7b5": "Ejecutar",
-          "c3d772c514": "orca://pair?code=...",
-          "9bc9b83474": "Código de emparejamiento",
-          "e038625857": "Equipo de desarrollo",
-          "54ebacc600": "Nombre del servidor",
-          "1826bd0608": "Servidores guardados",
-          "6ce4664003": "Actualizar servidores",
-          "b07070ed3c": "Ningún servidor conectado",
-          "78692becbd": "Escritorio local",
-          "64b6bea541": "Servidor activo",
-          "99ac81fb43": "Cambiado a {{value0}}.",
-          "b5b5114cb0": "Se eliminó {{value0}}.",
-          "6cb6eae14f": "No se pudo guardar el runtime.",
-          "7b5986c8df": "Se guardó {{value0}}. Usa Servidor activo para cambiar cuando esté listo.",
-          "5ef712f407": "Ya existe un servidor llamado \"{{value0}}\".",
-          "0c55a47480": "Se requieren nombre y código de emparejamiento.",
-          "e6410d72c3": "No se pudieron cargar los runtimes.",
-          "6ef71985da": "Sin punto final",
-          "ed3e3f069d": "Esto elimina el servidor guardado de Orca. No cambia el servidor activo.",
-          "b2fda48c39": "Al quitar el servidor activo, este navegador se desconecta de ese host. Las sesiones existentes del host se conservan.",
-          "9f7665a01b": "Al quitar el servidor activo, Orca primero vuelve al Escritorio local. Las sesiones existentes del host se conservan.",
-          "8cf8790697": "Los servidores guardados enrutan este navegador a través de un runtime de Orca emparejado.",
-          "f75ce1c7a5": "Local mantiene el comportamiento actual del escritorio. Los servidores guardados enrutan las llamadas de cliente compatibles a través del runtime remoto.",
-          "d25f0688b1": "Eliminar",
-          "f3a3d6d834": "Capacidades de {{value0}}",
-          "0ef838094a": "Protocolo {{value0}}",
-          "9a91c4a0eb": "Compatible",
-          "86ed75bec8": "Actualizar servidor",
-          "62ac182a27": "Actualizar cliente",
-          "c8791efc45": "Estado no disponible",
-          "5120beaac6": "Comprobando…",
-          "4b5c6d7e8f": "No se informaron capacidades",
-          "hostModelCapabilityUnknown": "Soporte de modelo de host: comprobando capacidades del servidor",
-          "hostModelCapabilitySupported": "Soporte de modelo de host: listo",
-          "hostModelCapabilityMissing": "Soporte de modelo de host: actualiza el servidor para {{value0}}",
-          "hostModelCapabilityProjectSetup": "configuración del proyecto",
-          "hostModelCapabilityTaskSourceContext": "contexto de origen de tareas",
-          "hostModelCapabilityWorkspaceRunContext": "contexto de ejecución del workspace",
-          "3f67e8078a": "Usa esta computadora de forma predeterminada. Elige un servidor guardado solo cuando quieras que los proyectos, archivos, terminales, checks de proveedores y traspaso entre navegador/móvil compatibles pasen por ese servidor.",
-          "2c85efb3e8": "Al seleccionar un servidor guardado, este navegador usará ese runtime de Orca emparejado como host predeterminado.",
-          "serverConnected": "Conectado",
-          "serverChecking": "Comprobando…",
-          "serverDisconnected": "Desconectado",
-          "disconnectedServer": "Desconectado de {{value0}}.",
-          "connectToRemoteServers": "Conectarse a servidores remotos",
-          "connectToRemoteServersHelp": "Empareja otro runtime de Orca y luego conéctalo o desconéctalo aquí. Usa Avanzado > Servidor activo solo cuando quieras cambiar el host predeterminado.",
-          "activeServerRowHelp": "Servidor activo para proyectos, terminales y checks de proveedores enrutados por servidor.",
-          "disconnect": "Desconectar",
-          "connect": "Conectar",
-          "advanced": "Avanzado",
-          "serverDetails": "Detalles del servidor",
-          "runtimeReachable": "{{value0}} está accesible.",
-          "updateAvailableOne": "1 update available",
-          "updatesAvailable": "{{value0}} updates available",
-          "versionUnavailable": "Orca version unavailable",
-          "updateServer": "Update",
-          "reviewServerUpdates": "Server updates",
-          "orcaVersion": "Orca v{{value0}}",
-          "removeActiveServerBlocked": "Choose another Active Server in Advanced before removing this server.",
-          "removeActiveServerDescription": "Choose another Active Server in Advanced before removing this server. Existing host sessions are left alone.",
-          "updatingServers": "Updating servers…",
-          "workflow": "Flujo de servidor remoto",
-          "connectWorkflow": "Conectarse a un host",
-          "connectWorkflowHelp": "Esta aplicación se conecta a otra máquina",
-          "troubleshootWorkflow": "Solución de problemas de conexión",
-          "sshTunnelRequired": "Se requiere un túnel SSH",
-          "troubleshootTitle": "Crear un enlace nuevo en el otro host",
-          "troubleshootDescription": "Un enlace que usa 127.0.0.1 apunta al dispositivo que lo abre, no al equipo que lo creó.",
-          "troubleshootStepShare": "En el otro equipo, abre Compartir este host.",
-          "troubleshootStepAddress": "Elige Otro dispositivo y selecciona su dirección de Tailscale o LAN.",
-          "troubleshootStepRegenerate": "Genera un enlace de acceso nuevo y usa aquí solo el más reciente.",
-          "troubleshootTunnel": "¿Usas un reenvío local SSH? Vuelve a Conectarse a un host, pega el enlace de bucle local y activa «Estoy usando un túnel SSH» en Avanzado."
-        },
         "Settings": {
           "3bf149e873": "Configuración del proyecto > {{value0}}",
           "075341c763": "Nuevas funciones que aún están tomando forma. Pruébalas.",
@@ -6049,9 +5909,6 @@
           "65660d4548": "Permisos de macOS",
           "c2ee313198": "Usa máquinas existentes por SSH para archivos, terminales, Git y espacios de trabajo.",
           "9b02492d1f": "Hosts SSH",
-          "b5ee17826b": "Empareja runtimes remotos de Orca para sesiones persistentes, estado remoto más completo y traspaso web o móvil.",
-          "7686cb5c36": "Conecta este navegador a un servidor Orca guardado.",
-          "bd0181eeca": "Servidores remotos de Orca",
           "8acf3f22e0": "Estadísticas de Orca más análisis de tokens de Claude, Codex, OpenCode y Muse y uso de suscripción de Grok.",
           "954a8f5aef": "Estadísticas y uso",
           "a737a4bb22": "Atajos de teclado para acciones comunes.",
@@ -7557,20 +7414,6 @@
             }
           }
         },
-        "machine": {
-          "name": {
-            "search": {
-              "title": "Nombre del equipo",
-              "description": "Elige el nombre con el que otros dispositivos y hosts muestran este equipo.",
-              "machineName": "nombre del equipo",
-              "machine": "máquina",
-              "hostname": "hostname",
-              "computer": "equipo",
-              "rename": "renombrar",
-              "name": "nombre"
-            }
-          }
-        },
         "mobile": {
           "emulator": {
             "search": {
@@ -7855,27 +7698,6 @@
             "copy": "copy",
             "clone": "clone",
             "apfs": "apfs"
-          }
-        },
-        "runtime": {
-          "environments": {
-            "search": {
-              "772e3b4753": "vm",
-              "45501ff2c3": "nube",
-              "2bd988d041": "código de emparejamiento",
-              "5cd7dca3b8": "remoto",
-              "d760866285": "cliente",
-              "09568ccc65": "servidor",
-              "ebd5369acf": "entorno",
-              "d198440ce3": "runtime",
-              "baec27aa8f": "Conecte este navegador a un servidor Orca guardado.",
-              "3517fb2ec0": "Servidores Orca remotos",
-              "c6e5a03aa0": "dev box",
-              "f1575f1e09": "cliente web",
-              "81444c4102": "URL de emparejamiento",
-              "104f4d7dbd": "emparejamiento",
-              "4575341c77": "Agrega un servidor Orca remoto guardado, genera una URL de emparejamiento o ajusta el runtime predeterminado avanzado."
-            }
           }
         },
         "shortcutDefinitionCatalog": {
@@ -8379,8 +8201,7 @@
           "6f7a8b9cad": "Usa una ruta relativa (p. ej., .orca/worktrees) para una ubicación por proyecto, o una ruta absoluta para una carpeta compartida."
         },
         "ProviderHostScopeControl": {
-          "scope_label": "{{value0}}: {{value1}}",
-          "change_host": "Abrir servidores remotos"
+          "scope_label": "{{value0}}: {{value1}}"
         },
         "providerAccountScope": {
           "remoteServer": "Servidor remoto: {{value0}}",
@@ -8611,43 +8432,6 @@
           "title": "Fuente del editor",
           "description": "Fuente utilizada por los editores de archivos y vistas de diferencias. Dejar vacío para seguir la fuente de la terminal.",
           "placeholder": "Igual que la fuente de la terminal"
-        },
-        "RemoteServerUpdateDialog": {
-          "versionUnavailable": "Version unavailable",
-          "restartingHelp": "Waiting for the replacement server to reconnect on the new version.",
-          "retry": "Retry",
-          "update": "Update",
-          "title": "Update Remote Orca Servers",
-          "description": "Review paired servers and update supported installs from this Orca client.",
-          "restartWarning": "Updating restarts these servers. {{value0}} live tabs and {{value1}} terminal panes may briefly disconnect.",
-          "checking": "Checking paired servers…",
-          "empty": "No paired Remote Orca Servers.",
-          "checkAgain": "Check again",
-          "updating": "Updating servers…",
-          "updateAll": "Update {{value0}} servers",
-          "noUpdates": "No updates available",
-          "updateOne": "Update server",
-          "downloadProgress": "{{value0}} download progress",
-          "liveTabOne": "1 live tab",
-          "liveTabs": "{{value0}} live tabs",
-          "livePaneOne": "1 live pane",
-          "livePanes": "{{value0}} live panes"
-        },
-        "RemoteServerUpdateStatus": {
-          "checking": "Checking…",
-          "available": "Update available",
-          "current": "Up to date",
-          "manual": "Manual update",
-          "offline": "Offline",
-          "queued": "Queued",
-          "checkingUpdate": "Checking update…",
-          "downloading": "Downloading…",
-          "restarting": "Restarting…",
-          "updated": "Updated",
-          "failed": "Update failed",
-          "serviceManagerHelp": "Update Orca through the service manager that starts this server.",
-          "unpackedHelp": "Development builds must be updated from their source checkout.",
-          "legacyHelp": "Update this server manually once to enable remote updates."
         },
         "BrowserLinkRoutingSetting": {
           "description": "Abre los enlaces http(s) del terminal, Markdown y el editor en el navegador integrado de Orca. {{shortcut}} siempre usa el navegador del sistema.",
@@ -8909,43 +8693,6 @@
           "lastProviderHint": "Al menos un proveedor debe permanecer visible en Tareas.",
           "title": "Mostrar en Tareas",
           "description": "Incluye este proveedor en el selector de fuentes de Tareas y en los accesos directos de la barra lateral."
-        },
-        "RuntimeHostAccessForm": {
-          "getLink": "Obtener un enlace de acceso del otro host",
-          "stepOpenShare": "Abre Ajustes → Servidores remotos de Orca → Compartir este host.",
-          "stepChooseAddress": "Elige Otro dispositivo y selecciona una dirección accesible.",
-          "stepCopyLink": "Genera el enlace y, a continuación, copia el enlace «Emparejar otro cliente de Orca».",
-          "name": "Nombre en Orca",
-          "namePlaceholder": "Estación de trabajo Linux",
-          "nameHelp": "Esto solo cambia cómo aparece el equipo en Orca.",
-          "accessLink": "Enlace de acceso",
-          "accessLinkPlaceholder": "orca://pair?code=...",
-          "accessLinkHelp": "Orca muestra el destino antes de conectarse. Las credenciales permanecen ocultas.",
-          "destination": "Destino del enlace",
-          "loopbackTitle": "Este enlace apunta de nuevo a este dispositivo",
-          "loopbackDescription": "Usa {{endpoint}}, que apunta al dispositivo que abre el enlace, no al otro equipo que lo creó.",
-          "loopbackRecovery": "En el otro equipo, crea un enlace nuevo con Otro dispositivo y elige su dirección de Tailscale o LAN.",
-          "identityMismatch": "El host Orca alcanzado no coincide con este enlace de acceso",
-          "identityMismatchHelp": "Orca llegó a {{endpoint}}, pero ese host no coincide con este enlace. Genera un enlace nuevo en el otro host.",
-          "invalidLink": "Este enlace de acceso ya no es válido",
-          "invalidLinkHelp": "Genera un enlace de acceso nuevo en el otro host e inténtalo de nuevo.",
-          "incompatible": "Las versiones de Orca no son compatibles",
-          "incompatibleHelp": "Actualiza Orca en este dispositivo y en el otro host e inténtalo de nuevo.",
-          "interrupted": "Conexión interrumpida",
-          "interruptedHelp": "La conexión se detuvo durante la verificación. Comprueba la red o el túnel SSH e inténtalo de nuevo.",
-          "unavailable": "Host no disponible",
-          "unavailableHelp": "Asegúrate de que Orca se esté ejecutando en el otro host y de que la red o el túnel SSH puedan acceder a {{endpoint}}.",
-          "advanced": "Avanzado",
-          "sshTunnel": "Estoy usando un túnel SSH hacia esta dirección local",
-          "sshTunnelHelp": "Mantén el túnel activo mientras usas esta conexión.",
-          "headlessHelp": "¿Usas orca serve sin interfaz? Ejecuta orca serve --pairing-address <host-accesible> en el otro equipo.",
-          "cancel": "Cancelar",
-          "addWithTunnel": "Añadir host mediante túnel",
-          "addHost": "Añadir host",
-          "connectionDetails": "Detalles de conexión",
-          "endpointKind": "Tipo de destino",
-          "networkConnection": "Conexión de red",
-          "notAttempted": "No se intentó"
         },
         "GlobalWorktreeVisibilitySourcesSetting": {
           "saveFailed": "No se pudieron guardar los valores predeterminados de visibilidad.",
@@ -12948,17 +12695,6 @@
       }
     },
     "runtime": {
-      "remoteServerUpdateErrors": {
-        "manualRequired": "This server must be updated manually through its service manager.",
-        "notAvailable": "The server no longer reports an available update. Check again.",
-        "notDownloaded": "The server update has not finished downloading.",
-        "legacyServer": "Update this server manually once to enable remote updates.",
-        "updaterTimeout": "Timed out waiting for the server updater.",
-        "requestedVersionUnavailable": "The server updater did not offer the requested Orca version.",
-        "updateUnavailable": "The server did not report an available update.",
-        "downloadIncomplete": "The server update did not finish downloading.",
-        "reconnectTimeout": "The server did not reconnect on the updated version."
-      },
       "webRuntimeSession": {
         "remoteHostDisconnected": "The workspace is not connected to a remote Orca host."
       }

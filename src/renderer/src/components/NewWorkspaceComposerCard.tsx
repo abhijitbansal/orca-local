@@ -306,7 +306,6 @@ export default function NewWorkspaceComposerCard(
           shouldShowRunTargetPicker={shouldShowRunTargetPicker}
           handleProjectHostSetupChange={(setupId) => onProjectHostSetupChange?.(setupId)}
           handleAddSshHost={() => setAddRemoteHostMode('ssh')}
-          handleAddRemoteServer={() => setAddRemoteHostMode('server')}
           handleConnectRunTargetHost={handleConnectRunTargetHost}
           handleSetLocation={handleSetLocation}
           sshStatusLabel={sshStatusLabel}

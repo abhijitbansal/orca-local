@@ -5,7 +5,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '../../runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 import { safeAutoForkSyncAttempts, scheduleSafeAutoForkSync } from './safe-auto-fork-sync'
 
 const runtimeEnvironmentCall = vi.fn()
@@ -36,7 +35,6 @@ async function flushScheduledSyncs(): Promise<void> {
 }
 
 beforeEach(() => {
-  clearRuntimeCompatibilityCacheForTests()
   safeAutoForkSyncAttempts.clear()
   runtimeEnvironmentCall.mockReset()
   runtimeEnvironmentTransportCall.mockReset()
@@ -60,19 +58,6 @@ beforeEach(() => {
 })
 
 describe('scheduleSafeAutoForkSync', () => {
-  it('addresses a runtime-hosted repo by its main worktree id, not the bare repo id', async () => {
-    // Why: the runtime rejects `id:<repo-id>` with worktree_id_requires_full_path (#16447).
-    scheduleSafeAutoForkSync(() => stateWith(RUNTIME_REPO), [RUNTIME_REPO])
-    await flushScheduledSyncs()
-
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith(
-      expect.objectContaining({
-        method: 'git.forkSync',
-        params: expect.objectContaining({ worktree: 'id:repo-1::/srv/repo-1' })
-      })
-    )
-  })
-
   it('still runs local repos against the repo path over local git IPC', async () => {
     const localRepo: Repo = {
       ...RUNTIME_REPO,

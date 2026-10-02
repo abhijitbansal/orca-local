@@ -77,21 +77,6 @@ describe('useActiveProjectSkillRuntime', () => {
     useAppStore.setState({ activeRepoId: null })
   })
 
-  it('does not inject the local WSL runtime or shell into a remote environment', () => {
-    setGlobalWslDefault('Ubuntu')
-    useAppStore.setState({
-      settings: {
-        ...useAppStore.getState().settings!,
-        activeRuntimeEnvironmentId: 'ssh-production'
-      },
-      runtimeEnvironments: [{ id: 'ssh-production' }] as never
-    })
-    const { result } = renderHook(() => useActiveProjectSkillRuntime())
-
-    expect(result.current.agentRuntime).toBeUndefined()
-    expect(result.current.terminalShellOverride).toBeUndefined()
-  })
-
   it('leaves the shell alone on non-Windows hosts', () => {
     setPlatform('darwin')
     const { result } = renderHook(() => useActiveProjectSkillRuntime())

@@ -40,7 +40,7 @@ async function prepare(remote = false, requestedPtyId?: string) {
   return { ...p, paired, actions, probePtyRunningWork, verdict, reply, closed, settle }
 }
 
-it.each([false, true])('requires confirmation for pending live work, paired=%s', async (remote) => {
+it.each([false])('requires confirmation for pending live work, paired=%s', async (remote) => {
   const p = await prepare(remote)
   p.actions.handleRequestClosePane(1)
   expect(p.probePtyRunningWork).toHaveBeenCalledWith(

@@ -1,14 +1,6 @@
 import type { StateCreator } from 'zustand'
 import type { AppState } from '../types'
 import type { GlobalSettings } from '../../../../shared/global-settings-types'
-import { toast } from 'sonner'
-import {
-  clearRuntimeCompatibilityCache,
-  markRuntimeEnvironmentCompatible,
-  unwrapRuntimeRpcResult
-} from '@/runtime/runtime-rpc-client'
-import { assertRuntimeStatusCompatible } from '@/runtime/runtime-protocol-compat'
-import type { RuntimeStatus } from '../../../../shared/runtime-types'
 import { normalizeTerminalQuickCommands } from '../../../../shared/terminal-quick-commands'
 import { normalizeTerminalCustomThemes } from '../../../../shared/terminal-custom-themes'
 import { normalizeTaskProviderSettings } from '../../../../shared/task-providers'
@@ -20,18 +12,13 @@ import {
   normalizeTuiAgentArgsRecord,
   normalizeTuiAgentEnvRecord
 } from '../../../../shared/tui-agent-launch-defaults'
-import { bumpProviderRuntimeSessionGeneration } from '@/lib/provider-runtime-context'
 import { normalizeUiLanguage } from '../../../../shared/ui-language'
 import { normalizeDesktopTerminalScrollbackRows } from '../../../../shared/terminal-scrollback-policy'
-import { translate } from '@/i18n/i18n'
 import {
   normalizeMobilePairingCustomAddress,
   normalizeMobilePairingCustomAddresses
 } from '../../../../shared/mobile-pairing-custom-address'
-import {
-  hydrateOwnerWorktreeVisibilityDefaults,
-  type WorktreeVisibilityDefaultsByHost
-} from './worktree-visibility-owner-settings'
+import type { WorktreeVisibilityDefaultsByHost } from './worktree-visibility-owner-settings'
 import * as ownerHydration from './settings-owner-hydration-publication'
 import { persistVisibilityAwareSettings } from './worktree-visibility-settings-write'
 import { getSettingsFocusedExecutionHostId } from '../../../../shared/execution-host'
@@ -46,16 +33,10 @@ export type SettingsSlice = SettingsSearchState & {
   awaitOwnerWorktreeVisibilityDefaultsHydration: () => Promise<void>
   updateSettings: (updates: Partial<GlobalSettings>) => Promise<void>
   updateSettingsOrThrow: (updates: Partial<GlobalSettings>) => Promise<void>
-  setActiveRuntimeEnvironmentPreference: (environmentId: string | null) => Promise<boolean>
 }
 
 type LegacyTerminalScrollbackSettingsUpdate = Partial<GlobalSettings> & {
   terminalScrollbackBytes?: unknown
-}
-
-function normalizeRuntimeEnvironmentId(value: string | null | undefined): string | null {
-  const trimmed = value?.trim()
-  return trimmed ? trimmed : null
 }
 
 function normalizeSettingsUpdates(
@@ -156,21 +137,6 @@ function hasCompleteRuntimeStatusCoverage(
   )
 }
 
-async function verifyRuntimeEnvironmentReachable(environmentId: string | null): Promise<void> {
-  if (!environmentId) {
-    return
-  }
-  const response = await window.api.runtimeEnvironments.getStatus({
-    selector: environmentId,
-    timeoutMs: 15_000
-  })
-  const status = unwrapRuntimeRpcResult<RuntimeStatus>(response)
-  assertRuntimeStatusCompatible(status)
-  // Why: the switch probe already proved compatibility; avoid immediately
-  // re-probing through the heavier generic runtime RPC path during hydration.
-  markRuntimeEnvironmentCompatible(environmentId)
-}
-
 export const createSettingsSlice: StateCreator<AppState, [], [], SettingsSlice> = (set, get) => ({
   settings: null,
   worktreeVisibilityDefaultsByHost: {},
@@ -234,65 +200,6 @@ export const createSettingsSlice: StateCreator<AppState, [], [], SettingsSlice> 
     )
     if ('worktreeVisibilityDefaults' in updates) {
       await get().fetchAllWorktrees({ visibilityOwnerHostId })
-    }
-  },
-
-  setActiveRuntimeEnvironmentPreference: async (environmentId) => {
-    const nextId = normalizeRuntimeEnvironmentId(environmentId)
-    const previousId = normalizeRuntimeEnvironmentId(get().settings?.activeRuntimeEnvironmentId)
-    if (previousId === nextId) {
-      return true
-    }
-    const shouldPublish = ownerHydration.createSettingsPublicationFence(true)
-    try {
-      clearRuntimeCompatibilityCache(nextId)
-      await verifyRuntimeEnvironmentReachable(nextId)
-      if (!shouldPublish()) {
-        return true
-      }
-      const nextSettings = await window.api.settings.setActiveRuntimeEnvironmentPreference({
-        environmentId: nextId
-      })
-      bumpProviderRuntimeSessionGeneration()
-      // Why: this is a focus change, so keep other host state while hydrating only the new owner's default.
-      const focusedSettings =
-        (nextSettings as GlobalSettings | undefined) ??
-        (get().settings ? { ...get().settings!, activeRuntimeEnvironmentId: nextId } : null)
-      if (focusedSettings) {
-        const hydrated = await hydrateOwnerWorktreeVisibilityDefaults(
-          focusedSettings,
-          get().worktreeVisibilityDefaultsByHost
-        )
-        if (!shouldPublish()) {
-          return true
-        }
-        set((state) => ({
-          settings: hydrated.settings,
-          worktreeVisibilityDefaultsByHost: {
-            ...state.worktreeVisibilityDefaultsByHost,
-            ...hydrated.defaultsByHost
-          },
-          worktreeVisibilityDefaultsSupportedRuntimeEnvironmentId:
-            hydrated.supportedRuntimeEnvironmentId,
-          worktreeVisibilitySourceDefaultsSupportedRuntimeEnvironmentId:
-            hydrated.sourceDefaultsSupportedRuntimeEnvironmentId
-        }))
-      } else {
-        set({ settings: null })
-      }
-      // Why: hydration is host-merged by downstream slices. Switching focus
-      // should add/update the selected host without discarding other hosts.
-      await get().fetchRepos()
-      await get().fetchAllWorktrees()
-      await get().fetchWorktreeLineage()
-      await get().fetchBrowserSessionProfiles()
-      return true
-    } catch (err) {
-      console.error('Failed to switch runtime environment:', err)
-      toast.error(translate('auto.store.slices.settings.e12dab333b', 'Failed to switch servers'), {
-        description: err instanceof Error ? err.message : String(err)
-      })
-      return false
     }
   }
 })

@@ -11,7 +11,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '@/runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '@/runtime/runtime-rpc-client'
 import { liveRemoteEvidence } from './codex-session-restart-test-fixture'
 
 const ACCOUNT_A = 'account-a@example.com'
@@ -47,7 +46,6 @@ describe('markLiveCodexSessionsForRestart', () => {
   const runtimeEnvironmentTransportCall = vi.fn()
 
   beforeEach(() => {
-    clearRuntimeCompatibilityCacheForTests()
     runtimeEnvironmentCall.mockReset()
     runtimeEnvironmentTransportCall.mockReset()
     runtimeEnvironmentTransportCall.mockImplementation((args: RuntimeEnvironmentCallRequest) => {
@@ -377,58 +375,6 @@ describe('markLiveCodexSessionsForRestart', () => {
       nextAccountLabel: ACCOUNT_C
     })
   })
-
-  it('inspects remote runtime PTYs through the active runtime environment', async () => {
-    useAppStore.setState({
-      settings: { activeRuntimeEnvironmentId: 'env-1' } as never,
-      tabsByWorktree: {
-        wt1: [
-          {
-            id: 'tab-1',
-            ptyId: 'remote:term-1',
-            worktreeId: 'wt1',
-            title: 'orca-1',
-            customTitle: null,
-            color: null,
-            sortOrder: 0,
-            createdAt: 1
-          }
-        ]
-      },
-      ptyIdsByTabId: {
-        'tab-1': ['remote:term-1']
-      }
-    })
-    runtimeEnvironmentCall.mockResolvedValue({
-      id: 'rpc-1',
-      ok: true,
-      result: {
-        process: {
-          foregroundProcess: 'codex',
-          hasChildProcesses: true,
-          foregroundProcessEvidence: liveRemoteEvidence('term-1')
-        }
-      },
-      _meta: { runtimeId: 'remote-runtime' }
-    })
-
-    await markLiveCodexSessionsForRestart({
-      previousAccountLabel: ACCOUNT_A,
-      nextAccountLabel: ACCOUNT_B
-    })
-
-    expect(window.api.pty.inspectProcess).not.toHaveBeenCalled()
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-      selector: 'env-1',
-      method: 'terminal.inspectProcess',
-      params: { terminal: 'term-1' },
-      timeoutMs: 15_000
-    })
-    expect(useAppStore.getState().codexRestartNoticeByPtyId['remote:term-1']).toEqual({
-      previousAccountLabel: ACCOUNT_A,
-      nextAccountLabel: ACCOUNT_B
-    })
-  })
 })
 
 /**
@@ -476,7 +422,6 @@ describe('markLiveCodexSessionsForRestart lane scoping', () => {
   }
 
   beforeEach(() => {
-    clearRuntimeCompatibilityCacheForTests()
     runtimeEnvironmentCall.mockReset()
     runtimeEnvironmentTransportCall.mockReset()
     runtimeEnvironmentTransportCall.mockImplementation((args: RuntimeEnvironmentCallRequest) => {
@@ -624,27 +569,6 @@ describe('markLiveCodexSessionsForRestart lane scoping', () => {
     })
 
     expect(useAppStore.getState().codexRestartNoticeByPtyId).toEqual({})
-  })
-
-  it('leaves the local host pane alone when the switch was made on a runtime environment', async () => {
-    seedPanes([{ ptyId: 'pty-1' }, { ptyId: 'remote:env-1@@term-1' }])
-    useAppStore.setState({ settings: { activeRuntimeEnvironmentId: 'env-1' } as never })
-
-    await markLiveCodexSessionsForRestart({
-      previousAccountLabel: ACCOUNT_A,
-      nextAccountLabel: ACCOUNT_B,
-      target: { runtime: 'host' }
-    })
-
-    // Why: that mutation was RPC'd to env-1's own roster, so env-1's panes are
-    // the stale ones and the local shell is untouched — the mirror of the bug.
-    expect(useAppStore.getState().codexRestartNoticeByPtyId).toEqual({
-      'remote:env-1@@term-1': {
-        previousAccountLabel: ACCOUNT_A,
-        nextAccountLabel: ACCOUNT_B
-      }
-    })
-    expect(window.api.pty.inspectProcess).not.toHaveBeenCalled()
   })
 
   /**
@@ -825,7 +749,6 @@ describe('markRestoredStaleCodexSessionsForRestart', () => {
   const originalWindow = (globalThis as { window?: typeof window }).window
 
   beforeEach(() => {
-    clearRuntimeCompatibilityCacheForTests()
     useAppStore.setState({
       tabsByWorktree: {
         wt1: [

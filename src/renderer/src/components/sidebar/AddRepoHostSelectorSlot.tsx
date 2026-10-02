@@ -20,7 +20,6 @@ export function AddRepoHostSelectorSlot({
         onSelectHost={(hostId) => void hostSelection.handleSelectAddProjectHost(hostId)}
         onConnectHost={(hostId) => void hostSelection.handleConnectAddProjectHost(hostId)}
         onAddSshHost={() => setAddRemoteHostMode('ssh')}
-        onAddRemoteServer={() => setAddRemoteHostMode('server')}
       />
       <AddRemoteHostDialog mode={addRemoteHostMode} onOpenChange={setAddRemoteHostMode} />
     </>

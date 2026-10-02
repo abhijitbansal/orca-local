@@ -10,7 +10,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from './runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from './runtime-rpc-client'
 import { TERMINAL_INPUT_MAX_BYTES } from '../../../shared/terminal-input'
 import { useAppStore } from '../store'
 import type { RemoteForegroundEvidence } from '../../../shared/foreground-process-evidence'
@@ -55,7 +54,6 @@ describe('runtime terminal owner routing', () => {
   const localInspect = vi.fn()
 
   beforeEach(() => {
-    clearRuntimeCompatibilityCacheForTests()
     vi.clearAllMocks()
     runtimeCall.mockResolvedValue({
       ok: true,
@@ -108,123 +106,10 @@ describe('runtime terminal owner routing', () => {
     expect(useAppStore.getState().lastTerminalInputAtByPaneKey[PANE_KEY]).toBe(123)
   })
 
-  it('sends input through the PTY owning environment instead of the active one', async () => {
-    expect(
-      sendRuntimePtyInput(
-        { activeRuntimeEnvironmentId: 'env-2' },
-        'remote:env-1@@terminal-1',
-        'x',
-        'driving'
-      )
-    ).toBe(true)
-
-    await vi.waitFor(() => {
-      expect(runtimeCall).toHaveBeenCalledWith({
-        selector: 'env-1',
-        method: 'terminal.send',
-        params: {
-          terminal: 'terminal-1',
-          text: 'x',
-          client: { id: 'orca-desktop', type: 'desktop' }
-        },
-        timeoutMs: 15_000
-      })
-    })
-    expect(localWrite).not.toHaveBeenCalled()
-  })
-
-  it('inspects the PTY owning environment instead of the active one', async () => {
-    await expect(
-      inspectRuntimeTerminalProcess(
-        { activeRuntimeEnvironmentId: 'env-2' },
-        'remote:env-1@@terminal-1'
-      )
-    ).resolves.toMatchObject({ foregroundProcess: 'bash', hasChildProcesses: true })
-
-    expect(runtimeCall).toHaveBeenCalledWith({
-      selector: 'env-1',
-      method: 'terminal.inspectProcess',
-      params: { terminal: 'terminal-1' },
-      timeoutMs: 15_000
-    })
-    expect(localForeground).not.toHaveBeenCalled()
-    expect(localHasChildren).not.toHaveBeenCalled()
-  })
-
   // Why these exist: the close guards ask the host to pay for a real child-process read, and the
   // environment path used to drop the option before it reached the wire. The host then declined to
   // scan and answered `unverifiable`, which the guard reads as running work -- a confirmation
   // dialog on every idle close of a remote Windows pane. Found by review on #18591.
-  it('forwards scanChildProcesses to the PTY owning environment', async () => {
-    await inspectRuntimeTerminalProcess(
-      { activeRuntimeEnvironmentId: 'env-2' },
-      'remote:env-1@@terminal-1',
-      { scanChildProcesses: true }
-    )
-
-    expect(runtimeCall).toHaveBeenCalledWith({
-      selector: 'env-1',
-      method: 'terminal.inspectProcess',
-      params: { terminal: 'terminal-1', scanChildProcesses: true },
-      timeoutMs: 15_000
-    })
-  })
-
-  it('forwards scanChildProcesses alongside the incarnation fence', async () => {
-    await inspectRuntimeTerminalProcess(
-      { activeRuntimeEnvironmentId: 'env-2' },
-      'remote:env-1@@terminal-1',
-      { expectedIncarnationId: 'incarnation-1', scanChildProcesses: true }
-    )
-
-    expect(runtimeCall).toHaveBeenCalledWith({
-      selector: 'env-1',
-      method: 'terminal.inspectProcess',
-      params: {
-        terminal: 'terminal-1',
-        expectedIncarnationId: 'incarnation-1',
-        scanChildProcesses: true
-      },
-      timeoutMs: 15_000
-    })
-  })
-
-  it('omits scanChildProcesses when the caller is only polling', async () => {
-    await inspectRuntimeTerminalProcess(
-      { activeRuntimeEnvironmentId: 'env-2' },
-      'remote:env-1@@terminal-1'
-    )
-
-    expect(runtimeCall).toHaveBeenCalledWith({
-      selector: 'env-1',
-      method: 'terminal.inspectProcess',
-      params: { terminal: 'terminal-1' },
-      timeoutMs: 15_000
-    })
-  })
-
-  it('maps an old host inspection to client-only unverifiable', async () => {
-    runtimeCall.mockResolvedValue({
-      ok: true,
-      result: {
-        process: { foregroundProcess: 'codex', hasChildProcesses: true }
-      },
-      _meta: { runtimeId: 'runtime-1' }
-    })
-
-    await expect(
-      inspectRuntimeTerminalProcess(
-        { activeRuntimeEnvironmentId: 'env-2' },
-        'remote:env-1@@terminal-1'
-      )
-    ).resolves.toEqual({
-      foregroundProcess: null,
-      hasChildProcesses: false,
-      verdict: 'unverifiable',
-      reason: 'old_host'
-    })
-  })
-
   it('uses strict main-process inspection for a direct SSH PTY', async () => {
     localInspect.mockResolvedValue({
       foregroundProcess: 'codex',
@@ -255,51 +140,6 @@ describe('runtime terminal owner routing', () => {
     })
   })
 
-  it.each(['no_connected_pty', 'terminal_handle_stale', 'terminal_gone'])(
-    'reports %s remote process inspection as client-only unverifiable',
-    async (code) => {
-      runtimeCall.mockResolvedValue({
-        ok: false,
-        error: { code, message: code }
-      })
-
-      await expect(
-        inspectRuntimeTerminalProcess(
-          { activeRuntimeEnvironmentId: 'env-2' },
-          'remote:env-1@@terminal-stale'
-        )
-      ).resolves.toEqual({
-        foregroundProcess: null,
-        hasChildProcesses: false,
-        verdict: 'unverifiable',
-        reason: 'terminal_gone'
-      })
-    }
-  )
-
-  it('maps lost contact and timeout to client-only unverifiable results', async () => {
-    runtimeCall.mockRejectedValueOnce(new Error('SSH connection lost, reconnecting...'))
-    await expect(
-      inspectRuntimeTerminalProcess(
-        { activeRuntimeEnvironmentId: 'env-2' },
-        'remote:env-1@@terminal-transport'
-      )
-    ).resolves.toEqual({
-      foregroundProcess: null,
-      hasChildProcesses: false,
-      verdict: 'unverifiable',
-      reason: 'transport_loss'
-    })
-
-    runtimeCall.mockRejectedValueOnce(new Error('Request timed out before completion'))
-    await expect(
-      inspectRuntimeTerminalProcess(
-        { activeRuntimeEnvironmentId: 'env-2' },
-        'remote:env-1@@terminal-timeout'
-      )
-    ).resolves.toMatchObject({ verdict: 'unverifiable', reason: 'timeout' })
-  })
-
   it('keeps client-only unverifiable free of host metadata', () => {
     type HostFieldsCannotBeConstructed = ClientOnlyUnverifiableInspection extends {
       authorityGeneration?: never
@@ -315,179 +155,6 @@ describe('runtime terminal owner routing', () => {
     const result = clientOnlyUnverifiableInspection('transport_loss')
     expect(result).not.toHaveProperty('authorityGeneration')
     expect(result).not.toHaveProperty('foregroundProcessEvidence')
-  })
-
-  it('still throws an unclassified programming error', async () => {
-    runtimeCall.mockRejectedValueOnce(new Error('inspection invariant violated'))
-    await expect(
-      inspectRuntimeTerminalProcess(
-        { activeRuntimeEnvironmentId: 'env-2' },
-        'remote:env-1@@terminal-bug'
-      )
-    ).rejects.toThrow('inspection invariant violated')
-  })
-
-  it('records accepted fire-and-forget runtime input against the owning pane key', async () => {
-    runtimeCall.mockResolvedValue({
-      ok: true,
-      result: { send: { handle: 'terminal-1', accepted: true, bytesWritten: 1 } },
-      _meta: { runtimeId: 'runtime-1' }
-    })
-    useAppStore.setState({
-      settings: { experimentalAgentHibernation: true } as never,
-      terminalLayoutsByTabId: {
-        'tab-1': {
-          root: { type: 'leaf', leafId: LEAF_ID },
-          activeLeafId: LEAF_ID,
-          expandedLeafId: null,
-          ptyIdsByLeafId: { [LEAF_ID]: 'remote:env-1@@terminal-1' }
-        }
-      }
-    })
-
-    expect(
-      sendRuntimePtyInput(
-        { activeRuntimeEnvironmentId: 'env-2' },
-        'remote:env-1@@terminal-1',
-        'x',
-        'driving'
-      )
-    ).toBe(true)
-
-    await vi.waitFor(() => {
-      expect(useAppStore.getState().lastTerminalInputAtByPaneKey[PANE_KEY]).toEqual(
-        expect.any(Number)
-      )
-    })
-  })
-
-  it('attributes a delayed runtime acknowledgement to the current layout owner', async () => {
-    const pendingSend = Promise.withResolvers<{
-      ok: true
-      result: { send: { handle: string; accepted: true; bytesWritten: number } }
-      _meta: { runtimeId: string }
-    }>()
-    runtimeCall.mockReturnValue(pendingSend.promise)
-    useAppStore.setState({
-      terminalLayoutsByTabId: {
-        'tab-1': {
-          root: { type: 'leaf', leafId: LEAF_ID },
-          activeLeafId: LEAF_ID,
-          expandedLeafId: null,
-          ptyIdsByLeafId: { [LEAF_ID]: 'remote:env-1@@terminal-1' }
-        }
-      }
-    })
-    recordRuntimeTerminalInputForPtyId('remote:env-1@@terminal-1', 123)
-    useAppStore.setState({ lastTerminalInputAtByPaneKey: {} })
-
-    expect(
-      sendRuntimePtyInput(
-        { activeRuntimeEnvironmentId: 'env-2' },
-        'remote:env-1@@terminal-1',
-        'x',
-        'driving'
-      )
-    ).toBe(true)
-    const nextLeafId = '22222222-2222-4222-8222-222222222222'
-    useAppStore.setState({
-      terminalLayoutsByTabId: {
-        'tab-2': {
-          root: { type: 'leaf', leafId: nextLeafId },
-          activeLeafId: nextLeafId,
-          expandedLeafId: null,
-          ptyIdsByLeafId: { [nextLeafId]: 'remote:env-1@@terminal-1' }
-        }
-      }
-    })
-    pendingSend.resolve({
-      ok: true,
-      result: { send: { handle: 'terminal-1', accepted: true, bytesWritten: 1 } },
-      _meta: { runtimeId: 'runtime-1' }
-    })
-
-    await vi.waitFor(() => {
-      expect(useAppStore.getState().lastTerminalInputAtByPaneKey).toEqual({
-        [`tab-2:${nextLeafId}`]: expect.any(Number)
-      })
-    })
-  })
-
-  it('does not record declined fire-and-forget runtime input', async () => {
-    runtimeCall.mockResolvedValue({
-      ok: true,
-      result: { send: { handle: 'terminal-1', accepted: false, bytesWritten: 0 } },
-      _meta: { runtimeId: 'runtime-1' }
-    })
-    useAppStore.setState({
-      settings: { experimentalAgentHibernation: true } as never,
-      terminalLayoutsByTabId: {
-        'tab-1': {
-          root: { type: 'leaf', leafId: LEAF_ID },
-          activeLeafId: LEAF_ID,
-          expandedLeafId: null,
-          ptyIdsByLeafId: { [LEAF_ID]: 'remote:env-1@@terminal-1' }
-        }
-      }
-    })
-
-    expect(
-      sendRuntimePtyInput(
-        { activeRuntimeEnvironmentId: 'env-2' },
-        'remote:env-1@@terminal-1',
-        'x',
-        'driving'
-      )
-    ).toBe(true)
-
-    await vi.waitFor(() => {
-      expect(runtimeCall).toHaveBeenCalled()
-    })
-    expect(useAppStore.getState().lastTerminalInputAtByPaneKey[PANE_KEY]).toBeUndefined()
-  })
-
-  it('reports stale remote terminal handles as rejected during verified send', async () => {
-    runtimeCall.mockResolvedValue({
-      ok: false,
-      error: { code: 'terminal_handle_stale', message: 'terminal_handle_stale' }
-    })
-
-    await expect(
-      sendRuntimePtyInputVerified(
-        { activeRuntimeEnvironmentId: 'env-2' },
-        'remote:env-1@@terminal-stale',
-        'x',
-        'driving'
-      )
-    ).resolves.toBe(false)
-  })
-
-  it('reports declined remote terminal sends as rejected during verified send', async () => {
-    runtimeCall.mockResolvedValue({
-      ok: true,
-      result: { send: { handle: 'terminal-1', accepted: false, bytesWritten: 0 } },
-      _meta: { runtimeId: 'runtime-1' }
-    })
-
-    await expect(
-      sendRuntimePtyInputVerified(
-        { activeRuntimeEnvironmentId: 'env-2' },
-        'remote:env-1@@terminal-1',
-        'x',
-        'driving'
-      )
-    ).resolves.toBe(false)
-
-    expect(runtimeCall).toHaveBeenCalledWith({
-      selector: 'env-1',
-      method: 'terminal.send',
-      params: {
-        terminal: 'terminal-1',
-        text: 'x',
-        client: { id: 'orca-desktop', type: 'desktop' }
-      },
-      timeoutMs: 15_000
-    })
   })
 
   it('uses accepted local writes for verified input', async () => {
@@ -624,68 +291,6 @@ describe('runtime terminal owner routing', () => {
     } finally {
       vi.useRealTimers()
     }
-  })
-
-  it('records accepted runtime input against the owning pane key', async () => {
-    runtimeCall.mockResolvedValue({
-      ok: true,
-      result: { send: { handle: 'terminal-1', accepted: true, bytesWritten: 1 } },
-      _meta: { runtimeId: 'runtime-1' }
-    })
-    useAppStore.setState({
-      settings: { experimentalAgentHibernation: true } as never,
-      terminalLayoutsByTabId: {
-        'tab-1': {
-          root: { type: 'leaf', leafId: LEAF_ID },
-          activeLeafId: LEAF_ID,
-          expandedLeafId: null,
-          ptyIdsByLeafId: { [LEAF_ID]: 'remote:env-1@@terminal-1' }
-        }
-      }
-    })
-
-    await expect(
-      sendRuntimePtyInputVerified(
-        { activeRuntimeEnvironmentId: 'env-2' },
-        'remote:env-1@@terminal-1',
-        'x',
-        'driving'
-      )
-    ).resolves.toBe(true)
-
-    expect(useAppStore.getState().lastTerminalInputAtByPaneKey[PANE_KEY]).toEqual(
-      expect.any(Number)
-    )
-  })
-
-  it('does not record rejected runtime input against the owning pane key', async () => {
-    runtimeCall.mockResolvedValue({
-      ok: true,
-      result: { send: { handle: 'terminal-1', accepted: false, bytesWritten: 0 } },
-      _meta: { runtimeId: 'runtime-1' }
-    })
-    useAppStore.setState({
-      settings: { experimentalAgentHibernation: true } as never,
-      terminalLayoutsByTabId: {
-        'tab-1': {
-          root: { type: 'leaf', leafId: LEAF_ID },
-          activeLeafId: LEAF_ID,
-          expandedLeafId: null,
-          ptyIdsByLeafId: { [LEAF_ID]: 'remote:env-1@@terminal-1' }
-        }
-      }
-    })
-
-    await expect(
-      sendRuntimePtyInputVerified(
-        { activeRuntimeEnvironmentId: 'env-2' },
-        'remote:env-1@@terminal-1',
-        'x',
-        'driving'
-      )
-    ).resolves.toBe(false)
-
-    expect(useAppStore.getState().lastTerminalInputAtByPaneKey[PANE_KEY]).toBeUndefined()
   })
 
   it('indexes a stable layout identity once across repeated terminal input', () => {

@@ -7,7 +7,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '@/runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '@/runtime/runtime-rpc-client'
 
 const hooksCheckMock = vi.fn()
 const readIssueCommandMock = vi.fn()
@@ -41,7 +40,6 @@ describe('orca.yaml trust prompt evicted from the modal slot', () => {
     runtimeEnvironmentTransportCallMock.mockImplementation((args: RuntimeEnvironmentCallRequest) =>
       createCompatibleRuntimeStatusResponseIfNeeded(args)
     )
-    clearRuntimeCompatibilityCacheForTests()
     vi.stubGlobal('window', {
       api: {
         hooks: { check: hooksCheckMock, readIssueCommand: readIssueCommandMock },

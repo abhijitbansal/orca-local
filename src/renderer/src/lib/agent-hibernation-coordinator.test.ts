@@ -16,7 +16,6 @@ import {
   entry,
   installEligibleState,
   installRuntimeListResponses,
-  layout,
   LEAF,
   mockRuntimeEnvironmentCall,
   NOW,
@@ -297,123 +296,6 @@ describe('agent sleep coordinator', () => {
     expect(shutdown).not.toHaveBeenCalled()
   })
 
-  it.each(['wt-bg', 'folder:folder-1'])(
-    'hibernates a runtime-backed candidate in %s with fresh liveness and exact PTYs',
-    async (worktreeId) => {
-      vi.useFakeTimers()
-      const result = runtimeListResult(['pty-1'])
-      result.terminals[0].worktreeId = worktreeId
-      installRuntimeListResponses(result, result, result)
-      const shutdown = installEligibleState(vi.fn().mockResolvedValue(undefined), {
-        settings: {
-          experimentalAgentHibernation: true,
-          agentHibernationIdleMs: DEFAULT_AGENT_HIBERNATION_IDLE_MS,
-          activeRuntimeEnvironmentId: 'runtime-1'
-        } as never,
-        folderWorkspaces: [
-          {
-            id: 'folder-1',
-            folderPath: tmpdir(),
-            executionHostId: 'runtime:runtime-1'
-          }
-        ] as never,
-        tabsByWorktree: { [worktreeId]: [{ ...tab(), worktreeId }] },
-        agentStatusByPaneKey: { [entry().paneKey]: { ...entry(), worktreeId } },
-        ptyIdsByTabId: { 'tab-1': [] }
-      })
-      startAgentHibernationCoordinator({ intervalMs: 1000, now: () => NOW })
-
-      await vi.advanceTimersByTimeAsync(1000)
-      await vi.advanceTimersByTimeAsync(1000)
-
-      expect(shutdown).toHaveBeenCalledWith(worktreeId, {
-        paneKey: `tab-1:${LEAF}`,
-        tabId: 'tab-1',
-        leafId: LEAF,
-        ptyId: 'pty-1',
-        expectedRuntimePtyId: 'pty-1'
-      })
-      expect(mockRuntimeEnvironmentCall).toHaveBeenCalledWith(
-        expect.objectContaining({
-          method: 'terminal.list',
-          params: expect.objectContaining({ requireFreshPtyLiveness: true })
-        })
-      )
-    }
-  )
-
-  it('requires fresh runtime liveness for confirmation and pre-shutdown recheck', async () => {
-    vi.useFakeTimers()
-    installRuntimeListResponses(
-      runtimeListResult(['pty-1']),
-      runtimeListResult(['pty-1']),
-      runtimeListResult(['pty-shell'])
-    )
-    const shutdown = installEligibleState(vi.fn().mockResolvedValue(undefined), {
-      settings: {
-        experimentalAgentHibernation: true,
-        agentHibernationIdleMs: DEFAULT_AGENT_HIBERNATION_IDLE_MS,
-        activeRuntimeEnvironmentId: 'runtime-1'
-      } as never,
-      ptyIdsByTabId: { 'tab-1': [] }
-    })
-    startAgentHibernationCoordinator({ intervalMs: 1000, now: () => NOW })
-
-    await vi.advanceTimersByTimeAsync(1000)
-    await vi.advanceTimersByTimeAsync(1000)
-
-    expect(shutdown).not.toHaveBeenCalled()
-    expect(
-      mockRuntimeEnvironmentCall.mock.calls.filter(([args]) => args.method === 'terminal.list')
-    ).toHaveLength(3)
-  })
-
-  it('revalidates a confirmed pane without listing unrelated runtime worktrees', async () => {
-    installRuntimeListResponses(...Array.from({ length: 3 }, () => runtimeListResult(['pty-1'])))
-    const shutdown = installEligibleState(vi.fn().mockResolvedValue(undefined), {
-      settings: {
-        experimentalAgentHibernation: true,
-        agentHibernationIdleMs: DEFAULT_AGENT_HIBERNATION_IDLE_MS,
-        activeRuntimeEnvironmentId: 'runtime-1'
-      } as never,
-      worktreesByRepo: {
-        'fixture-repo': [
-          {
-            id: 'wt-bg',
-            repoId: 'fixture-repo',
-            hostId: 'runtime:runtime-1',
-            runtimeOwnerEnvironmentId: 'runtime-1'
-          },
-          {
-            id: 'wt-unrelated',
-            repoId: 'fixture-repo',
-            hostId: 'runtime:runtime-2',
-            runtimeOwnerEnvironmentId: 'runtime-2'
-          }
-        ]
-      } as never,
-      tabsByWorktree: {
-        'wt-bg': [tab()],
-        'wt-unrelated': [{ ...tab(), id: 'tab-2', worktreeId: 'wt-unrelated' }]
-      },
-      ptyIdsByTabId: { 'tab-1': [] }
-    })
-
-    await runAgentHibernationTick()
-    await runAgentHibernationTick()
-
-    expect(shutdown).toHaveBeenCalledTimes(1)
-    const listCalls = mockRuntimeEnvironmentCall.mock.calls.filter(
-      ([args]) => args.method === 'terminal.list'
-    )
-    // Both confirmation samples and the destructive recheck query only the completed agent's owner.
-    expect(listCalls).toHaveLength(3)
-    expect(listCalls.at(-1)?.[0]).toMatchObject({
-      selector: 'runtime-1',
-      params: { worktree: expect.anything() }
-    })
-  })
-
   it('does not request runtime inventories for 100 workspaces without completed agents', async () => {
     installRuntimeListResponses()
     const tabs = Array.from({ length: 100 }, (_, index) => ({
@@ -449,59 +331,6 @@ describe('agent sleep coordinator', () => {
 
     expect(mockRuntimeEnvironmentCall).not.toHaveBeenCalled()
     expect(shutdown).not.toHaveBeenCalled()
-  })
-
-  it('requires host evidence after a skipped workspace completes during another inventory request', async () => {
-    const delayed = deferred<ReturnType<typeof runtimeListResult>>()
-    installRuntimeListResponses()
-    const respond = mockRuntimeEnvironmentCall.getMockImplementation()!
-    mockRuntimeEnvironmentCall.mockImplementation((args: { method: string }) =>
-      args.method === 'terminal.list'
-        ? delayed.promise.then((result) => ({ id: 'delayed', ok: true, result }))
-        : respond(args)
-    )
-    const first = entry()
-    const second = { ...entry(), tabId: 'tab-2', paneKey: `tab-2:${LEAF}`, worktreeId: 'wt-other' }
-    const shutdown = installEligibleState(vi.fn(), {
-      worktreesByRepo: {
-        'fixture-repo': ['wt-bg', 'wt-other'].map((id) => ({
-          id,
-          repoId: 'fixture-repo',
-          hostId: 'runtime:runtime-1',
-          runtimeOwnerEnvironmentId: 'runtime-1'
-        }))
-      } as never,
-      tabsByWorktree: {
-        'wt-bg': [tab()],
-        'wt-other': [{ ...tab(), id: 'tab-2', worktreeId: 'wt-other' }]
-      },
-      agentStatusByPaneKey: {
-        [first.paneKey]: { ...first, state: 'working' },
-        [second.paneKey]: second
-      }
-    })
-
-    const tick = runAgentHibernationTick()
-    await vi.waitFor(() =>
-      expect(mockRuntimeEnvironmentCall).toHaveBeenCalledWith(
-        expect.objectContaining({ method: 'terminal.list' })
-      )
-    )
-    useAppStore.setState({ agentStatusByPaneKey: { [first.paneKey]: first } })
-    delayed.resolve(runtimeListResult([]))
-    await tick
-
-    installRuntimeListResponses()
-    await runAgentHibernationTick()
-    expect(shutdown).not.toHaveBeenCalled()
-    await runAgentHibernationTick()
-    expect(shutdown).toHaveBeenCalledTimes(1)
-    expect(shutdown).toHaveBeenCalledWith(
-      'wt-bg',
-      expect.objectContaining({
-        expectedRuntimePtyId: 'pty-1'
-      })
-    )
   })
 
   it('uses fresh store state after awaiting runtime liveness before shutdown', async () => {
@@ -552,61 +381,6 @@ describe('agent sleep coordinator', () => {
     expect(shutdown).not.toHaveBeenCalled()
   })
 
-  it('hibernates runtime-backed candidates independently when siblings remain live', async () => {
-    vi.useFakeTimers()
-    installRuntimeListResponses(
-      runtimeListResult(['pty-1', 'pty-2']),
-      runtimeListResult(['pty-1', 'pty-2']),
-      runtimeListResult(['pty-1', 'pty-2']),
-      runtimeListResult(['pty-1', 'pty-2']),
-      runtimeListResult(['pty-1', 'pty-2'])
-    )
-    const secondLeaf = '22222222-2222-4222-8222-222222222222'
-    const e = {
-      ...entry(),
-      paneKey: `tab-1:${secondLeaf}`,
-      providerSession: { key: 'session_id' as const, id: 'session-2' }
-    }
-    const shutdown = installEligibleState(vi.fn().mockResolvedValue(undefined), {
-      settings: {
-        experimentalAgentHibernation: true,
-        agentHibernationIdleMs: DEFAULT_AGENT_HIBERNATION_IDLE_MS,
-        activeRuntimeEnvironmentId: 'runtime-1'
-      } as never,
-      ptyIdsByTabId: { 'tab-1': [] },
-      terminalLayoutsByTabId: {
-        'tab-1': {
-          ...layout(),
-          ptyIdsByLeafId: { [LEAF]: 'pty-1', [secondLeaf]: 'pty-2' }
-        }
-      },
-      agentStatusByPaneKey: {
-        [`tab-1:${LEAF}`]: entry(),
-        [e.paneKey]: e
-      }
-    })
-    startAgentHibernationCoordinator({ intervalMs: 1000, now: () => NOW })
-
-    await vi.advanceTimersByTimeAsync(1000)
-    await vi.advanceTimersByTimeAsync(1000)
-
-    expect(shutdown).toHaveBeenCalledTimes(2)
-    expect(shutdown).toHaveBeenCalledWith('wt-bg', {
-      paneKey: `tab-1:${LEAF}`,
-      tabId: 'tab-1',
-      leafId: LEAF,
-      ptyId: 'pty-1',
-      expectedRuntimePtyId: 'pty-1'
-    })
-    expect(shutdown).toHaveBeenCalledWith('wt-bg', {
-      paneKey: `tab-1:${secondLeaf}`,
-      tabId: 'tab-1',
-      leafId: secondLeaf,
-      ptyId: 'pty-2',
-      expectedRuntimePtyId: 'pty-2'
-    })
-  })
-
   it('fails closed on truncated runtime liveness samples', async () => {
     vi.useFakeTimers()
     installRuntimeListResponses(runtimeListResult(['pty-1'], true), runtimeListResult(['pty-1']))
@@ -624,28 +398,6 @@ describe('agent sleep coordinator', () => {
     await vi.advanceTimersByTimeAsync(1000)
 
     expect(shutdown).not.toHaveBeenCalled()
-  })
-
-  it('fails closed when fresh runtime liveness rejects after an earlier good sample', async () => {
-    vi.useFakeTimers()
-    installRuntimeListResponses(runtimeListResult(['pty-1']), new Error('runtime unavailable'))
-    const shutdown = installEligibleState(vi.fn().mockResolvedValue(undefined), {
-      settings: {
-        experimentalAgentHibernation: true,
-        agentHibernationIdleMs: DEFAULT_AGENT_HIBERNATION_IDLE_MS,
-        activeRuntimeEnvironmentId: 'runtime-1'
-      } as never,
-      ptyIdsByTabId: { 'tab-1': [] }
-    })
-    startAgentHibernationCoordinator({ intervalMs: 1000, now: () => NOW })
-
-    await vi.advanceTimersByTimeAsync(1000)
-    await vi.advanceTimersByTimeAsync(1000)
-
-    expect(shutdown).not.toHaveBeenCalled()
-    expect(
-      mockRuntimeEnvironmentCall.mock.calls.filter(([args]) => args.method === 'terminal.list')
-    ).toHaveLength(2)
   })
 })
 

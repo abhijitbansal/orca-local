@@ -677,14 +677,6 @@ describe('StructuredAgentSessionStatusBridge', () => {
     }
   })
 
-  it('keys the feed by the worktree runtime environment', async () => {
-    mocks.store?.setState({ testRuntimeOwner: 'env-1' })
-    render(<StructuredAgentSessionStatusBridge />)
-    await waitFor(() => expect(mocks.subscribeStatus).toHaveBeenCalledOnce())
-
-    expect(feed().target).toEqual({ kind: 'environment', environmentId: 'env-1' })
-  })
-
   it('does not project an unknown provider as Codex', async () => {
     mocks.store?.setState({
       unifiedTabsByWorktree: {

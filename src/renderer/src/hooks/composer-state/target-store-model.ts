@@ -52,7 +52,6 @@ export type ComposerTargetStoreModel = {
   closeModal: ComposerStoreActions['closeModal']
   openSettingsPage: ComposerStoreActions['openSettingsPage']
   openSettingsTarget: ComposerStoreActions['openSettingsTarget']
-  setActiveRuntimeEnvironmentPreference: ComposerStoreActions['setActiveRuntimeEnvironmentPreference']
   prefetchWorktreeCreateBase: ComposerStoreActions['prefetchWorktreeCreateBase']
   fetchSparsePresets: ComposerStoreActions['fetchSparsePresets']
   repos: readonly Repo[]

@@ -3,7 +3,6 @@ import type { RuntimeHostStatusSnapshot } from '../../../../shared/runtime-host-
 import type { RuntimeStatus } from '../../../../shared/runtime-types'
 import { unwrapRuntimeRpcResult } from '@/runtime/runtime-rpc-client'
 import { getRuntimeEnvironmentRevision } from '@/runtime/runtime-environment-revision'
-import { extractRuntimeTransportDiagnostics } from '@/runtime/runtime-status-probe-diagnostics'
 
 export async function refreshRuntimeEnvironmentStatus(
   environmentId: string,
@@ -37,16 +36,11 @@ export async function refreshRuntimeEnvironmentStatus(
     }
     publish({ status, checkedAt: Date.now() })
     return true
-  } catch (error: unknown) {
+  } catch {
     if (getRuntimeEnvironmentRevision(environmentId) !== expectedEnvironmentRevision) {
       return false
     }
-    const remoteControl = extractRuntimeTransportDiagnostics(error)
-    publish({
-      status: null,
-      ...(remoteControl ? { remoteControl } : {}),
-      checkedAt: Date.now()
-    })
+    publish({ status: null, checkedAt: Date.now() })
     return false
   }
 }

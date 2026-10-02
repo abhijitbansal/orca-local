@@ -23,7 +23,6 @@ type RunTargetComboboxProps = {
   hostOptions: readonly ProjectHostSetupOption[]
   hostValue: string | null
   onHostChange?: (setupId: string) => void
-  onAddRemoteServer?: () => void
   onAddSshHost?: () => void
   onConnectHost?: (option: NeedsSetupProjectHostOption) => Promise<void> | void
   onSetLocation?: (option: NeedsSetupProjectHostOption) => void
@@ -44,7 +43,6 @@ export default function RunTargetCombobox({
   hostOptions,
   hostValue,
   onHostChange,
-  onAddRemoteServer,
   onAddSshHost,
   onConnectHost,
   onSetLocation
@@ -53,7 +51,7 @@ export default function RunTargetCombobox({
   // Track in-flight connects per host so one stalling connect never blocks the others.
   const [connectingHostIds, setConnectingHostIds] = useState<ReadonlySet<string>>(() => new Set())
 
-  const hasAddHost = Boolean(onAddSshHost || onAddRemoteServer)
+  const hasAddHost = Boolean(onAddSshHost)
   const deriveRowKeys = useCallback(
     (query: string): string[] =>
       buildRunTargetRows({ hostOptions, query, hasAddHost }).rows.map((row) => row.key),
@@ -338,14 +336,6 @@ export default function RunTargetCombobox({
                     onAddSshHost: () => {
                       close()
                       onAddSshHost()
-                    }
-                  }
-                : {})}
-              {...(onAddRemoteServer
-                ? {
-                    onAddRemoteServer: () => {
-                      close()
-                      onAddRemoteServer()
                     }
                   }
                 : {})}

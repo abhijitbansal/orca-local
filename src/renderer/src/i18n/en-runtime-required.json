@@ -2318,12 +2318,6 @@
           "7784912ed6": "repo",
           "f91b649324": "Saved Commands"
         },
-        "RemoteServerUpdateDialog": {
-          "checkAgain": "Check for Server Updates",
-          "restartWarning": "Updating restarts these servers. {{value0}} live tabs and {{value1}} terminal panes may briefly disconnect.",
-          "updateOne": "Update server",
-          "updating": "Updating servers…"
-        },
         "RepositoryHooksSection": {
           "0e0dd5b9a5": "loaded",
           "32f417fe17": "text-emerald-700 dark:text-emerald-300",
@@ -2369,24 +2363,6 @@
           "8b8bc5913a": "Repository action recipes. Global settings are used until this repository customizes them.",
           "ccb07dd027": "Saved",
           "e57dde9d93": "Unsaved changes"
-        },
-        "RuntimeEnvironmentsPane": {
-          "163671f7b5": "Run",
-          "1826bd0608": "Saved Servers",
-          "54ebacc600": "Server name",
-          "55fcc964cd": "on the server and paste the printed pairing URL.",
-          "7b5986c8df": "Saved {{value0}}. Use Active Server to switch when ready.",
-          "8cf8790697": "Saved servers route this browser through a paired Orca runtime.",
-          "960e901ae4": "orca serve --pairing-address <host>",
-          "9bc9b83474": "Pairing code",
-          "9f7665a01b": "Removing the active server first switches Orca back to Local desktop. Existing host sessions are left alone.",
-          "b2fda48c39": "Removing the active server disconnects this browser from that host. Existing host sessions are left alone.",
-          "c3d772c514": "orca://pair?code=...",
-          "e038625857": "Dev box",
-          "f3a3d6d834": "{{value0}} capabilities",
-          "f75ce1c7a5": "Local keeps today's desktop behavior. Saved servers route supported client calls through the remote runtime.",
-          "updateAvailableOne": "1 update available",
-          "updatesAvailable": "{{value0}} updates available"
         },
         "Settings": {
           "084d8fac5b": "Privacy & Security",
@@ -2743,14 +2719,6 @@
             "vm": "vm"
           }
         },
-        "runtime": {
-          "environments": {
-            "search": {
-              "3517fb2ec0": "Active Server",
-              "4575341c77": "Choose local desktop, add a saved remote Orca server, or generate a pairing URL."
-            }
-          }
-        },
         "settingOwnership": {
           "clientDefaultProjectScopes": "Client default + project scopes",
           "terminalQuickCommands": "Commands are saved on this client, then scoped globally or to a project setup so they run from the selected terminal context."
@@ -2889,9 +2857,6 @@
       },
       "sidebar": {
         "AddRemoteHostDialog": {
-          "pairingCode": "Pairing code",
-          "pairingHelpSuffix": "on the server and paste the printed pairing URL.",
-          "serverName": "Server name",
           "sshConfigPickerBulkHint": "Bulk sync stays in Settings → SSH",
           "sshConfigPickerDescription": "Pick a host to fill the form. Nothing is saved until you click Save.",
           "sshPersistenceDefault": "Remote terminals on this host stay alive until you end them or reset the relay."
@@ -3825,6 +3790,7 @@
       "useSettingsNavigationMetadata": {
         "2b043783ef": "Integrations",
         "33a5e1d597": "Connect GitHub, GitLab, Linear, and source-hosting services.",
+        "40d80bad8a": "Beta",
         "5235c215ca": "Choose which task providers appear in the Tasks page and sidebar.",
         "85f4fd7710": "Task Sources",
         "tasksDescription": "Connect providers, install the Linear skill, and choose what appears in Tasks."

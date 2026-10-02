@@ -7,7 +7,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '../../runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 import { createTestStore } from './store-test-helpers'
 
 const folderWorkspacesUpdate = vi.fn()
@@ -76,7 +75,6 @@ type FolderWorkspaceUpdateArgs = {
 }
 
 function stubFolderWorkspaceApis(): void {
-  clearRuntimeCompatibilityCacheForTests()
   folderWorkspacesUpdate.mockReset()
   folderWorkspacesList.mockReset()
   runtimeEnvironmentCall.mockReset()

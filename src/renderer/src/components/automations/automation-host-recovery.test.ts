@@ -79,17 +79,6 @@ describe('automation host recovery', () => {
     expect(target.retry).toHaveBeenCalledWith(desktopSelf)
   })
 
-  it('deep-links a runtime to its update row in Remote Orca Servers settings', () => {
-    const target = deps()
-    runAutomationHostRecovery('update-server', RUNTIME_SSH, target)
-    expect(target.openSettings).toHaveBeenCalledWith({
-      pane: 'servers',
-      repoId: null,
-      // Runtime environment IDs are nested scroll anchors within the pane.
-      sectionId: RUNTIME_ENVIRONMENT_ID
-    })
-  })
-
   it('sends a stale desktop SSH registration to the SSH pane instead', () => {
     const target = deps()
     runAutomationHostRecovery('update-server', DESKTOP_SSH, target)

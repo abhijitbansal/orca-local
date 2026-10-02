@@ -2393,9 +2393,6 @@
   "auto.components.settings.ProjectWindowsRuntimeSetting.wslUnavailable": {
     "ko": "WSL을 사용할 수 없습니다. 이 프로젝트를 Windows로 전환하거나 WSL을 복구하세요."
   },
-  "auto.components.settings.ProviderHostScopeControl.change_host": {
-    "ko": "원격 서버 열기"
-  },
   "auto.components.settings.QuickCommandsPane.9fcfc29519": {
     "ko": "삽입"
   },
@@ -2617,9 +2614,6 @@
   },
   "auto.components.settings.Settings.9b83cc62c2": {
     "ko": "terminal에서 실행되는 개발자 도구의 macOS 개인정보 보호 접근 권한입니다."
-  },
-  "auto.components.settings.Settings.b5ee17826b": {
-    "ko": "지속 세션, 더 풍부한 원격 상태, 웹 또는 모바일 핸드오프를 위해 원격 Orca 런타임을 페어링합니다."
   },
   "auto.components.settings.Settings.b79b5b31e9": {
     "ko": "셸, 렌더러, 세션, terminal 동작."
@@ -3593,24 +3587,6 @@
   "auto.components.settings.repository.search.projectRuntimeDescription": {
     "ko": "이 프로젝트를 Windows에서 실행할지 WSL에서 실행할지 선택합니다."
   },
-  "auto.components.settings.runtime.environments.search.09568ccc65": {
-    "ko": "서버"
-  },
-  "auto.components.settings.runtime.environments.search.104f4d7dbd": {
-    "ko": "페어링"
-  },
-  "auto.components.settings.runtime.environments.search.45501ff2c3": {
-    "ko": "클라우드"
-  },
-  "auto.components.settings.runtime.environments.search.c6e5a03aa0": {
-    "ko": "개발 박스"
-  },
-  "auto.components.settings.runtime.environments.search.d198440ce3": {
-    "ko": "런타임"
-  },
-  "auto.components.settings.runtime.environments.search.d760866285": {
-    "ko": "클라이언트"
-  },
   "auto.components.settings.settingOwnership.agentLaunchDefaults": {
     "ko": "기본 agent, 명령 재정의, CLI 인수, 실행 환경은 클라이언트 환경설정입니다. SSH 및 원격 서버 실행은 실행 시점에 여전히 호스트 사용 가능 여부를 확인합니다."
   },
@@ -4148,14 +4124,8 @@
   "auto.components.sidebar.HostRemoveDialog.3c4d5e6f7a": {
     "ko": "{{value0}}을(를) 제거할까요?"
   },
-  "auto.components.sidebar.HostRemoveDialog.4d5e6f7a8b": {
-    "ko": "이 작업은 이 서버를 제거할 수 있는 Orca 서버 설정을 엽니다."
-  },
   "auto.components.sidebar.HostRemoveDialog.5e6f7a8b9c": {
     "ko": "이 컴퓨터에서 저장된 SSH 호스트와 인증 정보를 제거합니다. 원격 파일은 삭제되지 않습니다."
-  },
-  "auto.components.sidebar.HostRemoveDialog.7a8b9c0d1e": {
-    "ko": "설정 열기"
   },
   "auto.components.sidebar.HostRemoveDialog.8b9c0d1e2f": {
     "ko": "호스트 제거"
@@ -4559,9 +4529,6 @@
   "auto.components.status.bar.ResourceUsageStatusSegment.0f9e50eb07": {
     "ko": "기타"
   },
-  "auto.components.status.bar.SshStatusSegment.3ad70e0365": {
-    "ko": "원격 호스트 관리…"
-  },
   "auto.components.status.bar.SshStatusSegment.6e8a9a4242": {
     "ko": "원격 호스트"
   },
@@ -4570,27 +4537,6 @@
   },
   "auto.components.status.bar.SshStatusSegment.fdc57e9970": {
     "ko": "원격 호스트 연결 상태"
-  },
-  "auto.components.status.bar.SshStatusSegment.remote_server": {
-    "ko": "원격 서버"
-  },
-  "auto.components.status.bar.SshStatusSegment.runtime_connect_unavailable": {
-    "ko": "원격 호스트에 연결할 수 없습니다."
-  },
-  "auto.components.status.bar.SshStatusSegment.runtime_disconnect_failed": {
-    "ko": "연결 해제 실패"
-  },
-  "auto.components.status.bar.SshStatusSegment.runtime_last_close_reason": {
-    "ko": "닫힘: {{value0}}"
-  },
-  "auto.components.status.bar.SshStatusSegment.runtime_reconnect_attempt": {
-    "ko": "{{value0}}번째 시도"
-  },
-  "auto.components.status.bar.SshStatusSegment.runtime_reconnecting": {
-    "ko": "다시 연결 중"
-  },
-  "auto.components.status.bar.SshStatusSegment.runtime_unavailable": {
-    "ko": "연결 끊김"
   },
   "auto.components.status.bar.SshTargetStatusRow.sshHost": {
     "ko": "SSH 호스트"

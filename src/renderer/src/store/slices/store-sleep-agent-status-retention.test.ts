@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type * as AgentStatusModule from '@/lib/agent-status'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 import { createTestStore, makeTab, makeWorktree, seedStore } from './store-test-helpers'
 import { shutdownBufferCaptures } from '@/components/terminal-pane/shutdown-buffer-captures'
 import {
@@ -36,7 +35,6 @@ const mockApi = createStoreCascadesMockApi()
 describe('shutdownWorktreeTerminals (sleep) — agent status hygiene', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    clearRuntimeCompatibilityCacheForTests()
     mockApi.pty.kill.mockResolvedValue(undefined)
     mockUnregisterPtyDataHandlers.mockReturnValue([])
     applySleepRuntimeRpcDefault(mockApi)

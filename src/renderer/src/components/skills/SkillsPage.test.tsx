@@ -6,8 +6,6 @@ import { fireEvent } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { GlobalSettings } from '../../../../shared/global-settings-types'
 import type { DiscoveredSkill, SkillDiscoveryResult } from '../../../../shared/skills'
-import { createCompatibleRuntimeStatusResponseIfNeeded } from '@/runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '@/runtime/runtime-rpc-client'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { ConfirmationDialogProvider } from '@/components/confirmation-dialog'
 import { useAppStore } from '@/store'
@@ -44,14 +42,6 @@ function skillsApi(discover: ReturnType<typeof vi.fn>) {
     discover,
     deleteSupported: () => Promise.resolve(true)
   }
-}
-
-function deferred<T>(): { promise: Promise<T>; resolve: (value: T) => void } {
-  let resolve!: (value: T) => void
-  const promise = new Promise<T>((resolvePromise) => {
-    resolve = resolvePromise
-  })
-  return { promise, resolve }
 }
 
 function setRuntimeOwner(environmentId: string | null): void {
@@ -136,7 +126,6 @@ afterEach(async () => {
   root = null
   container?.remove()
   container = null
-  clearRuntimeCompatibilityCacheForTests()
   useAppStore.setState({
     settings: null,
     runtimeEnvironments: [],
@@ -199,90 +188,9 @@ describe('SkillsPage', () => {
     expect(path?.textContent).toBe(longPath)
   })
 
-  it('scans the connected remote runtime instead of the client disk', async () => {
-    const discover = vi.fn().mockResolvedValue(discoveryResult(['local-only']))
-    const call = vi.fn(
-      async (args: { method: string; selector?: string }) =>
-        createCompatibleRuntimeStatusResponseIfNeeded(args) ?? {
-          id: 'skills',
-          ok: true,
-          result: discoveryResult(['remote-only'])
-        }
-    )
-    Object.defineProperty(window, 'api', {
-      configurable: true,
-      value: { skills: skillsApi(discover), runtimeEnvironments: { call } }
-    })
-    setRuntimeOwner('env-1')
-
-    await renderPage()
-    await flushMicrotasks()
-
-    expect(discover).not.toHaveBeenCalled()
-    expect(renderedSkillNames()).toContain('remote-only')
-  })
-
   // Why: a cold local scan walks every skill root, so it can land after a newer
   // remote scan. Without a generation guard it overwrites the remote list and
   // the page silently shows the client's skills again — #6789 all over.
-  it('does not let a slow local scan overwrite a newer remote scan', async () => {
-    const localScan = deferred<SkillDiscoveryResult>()
-    const discover = vi.fn().mockReturnValue(localScan.promise)
-    const call = vi.fn(
-      async (args: { method: string; selector?: string }) =>
-        createCompatibleRuntimeStatusResponseIfNeeded(args) ?? {
-          id: 'skills',
-          ok: true,
-          result: discoveryResult(['remote-only'])
-        }
-    )
-    Object.defineProperty(window, 'api', {
-      configurable: true,
-      value: { skills: skillsApi(discover), runtimeEnvironments: { call } }
-    })
-
-    await renderPage()
-    await act(async () => {
-      setRuntimeOwner('env-1')
-    })
-    await flushMicrotasks()
-    expect(renderedSkillNames()).toContain('remote-only')
-
-    localScan.resolve(discoveryResult(['local-only']))
-    await flushMicrotasks()
-
-    expect(renderedSkillNames()).toContain('remote-only')
-    expect(renderedSkillNames()).not.toContain('local-only')
-  })
-
-  it("does not show one runtime's skills when the next runtime scan fails", async () => {
-    const discover = vi.fn().mockResolvedValue(discoveryResult(['local-only']))
-    const call = vi.fn(async (args: { method: string; selector?: string }) => {
-      const compatibilityResponse = createCompatibleRuntimeStatusResponseIfNeeded(args)
-      if (compatibilityResponse) {
-        return compatibilityResponse
-      }
-      throw new Error('remote unavailable')
-    })
-    Object.defineProperty(window, 'api', {
-      configurable: true,
-      value: { skills: skillsApi(discover), runtimeEnvironments: { call } }
-    })
-    vi.spyOn(console, 'error').mockImplementation(() => {})
-
-    await renderPage()
-    await flushMicrotasks()
-    expect(renderedSkillNames()).toEqual(['local-only'])
-
-    await act(async () => {
-      setRuntimeOwner('env-1')
-    })
-    await flushMicrotasks()
-
-    expect(container?.textContent).toContain('Could not scan skills')
-    expect(renderedSkillNames()).toEqual([])
-  })
-
   it('keeps scanning rather than listing client skills before the owner is known', async () => {
     const discover = vi.fn().mockResolvedValue(discoveryResult(['local-only']))
     const call = vi.fn()

@@ -4,10 +4,6 @@ import { useShallow } from 'zustand/react/shallow'
 // Why: this registry mirrors the Settings sidebar in one neutral module so
 // Cmd+J and Settings visibility cannot drift. Keep it free of Settings pane UI
 // imports; the boundary is enforced by a focused architecture test.
-import {
-  getRuntimeEnvironmentsSearchEntry,
-  getWebRuntimeEnvironmentsSearchEntry
-} from '@/components/settings/runtime-environments-search'
 import { getTerminalPaneSearchEntries } from '@/components/settings/terminal-search'
 import { isMacUserAgent, isWindowsUserAgent } from '@/components/terminal-pane/pane-helpers'
 import { getClientCreationActionPolicy } from '@/lib/client-creation-action-policy'
@@ -58,9 +54,6 @@ export function buildSettingsNavigationMetadata({
     isWindowsTerminalHost,
     isMac
   })
-  const runtimeEnvironmentsSearchEntry = isWebClient
-    ? getWebRuntimeEnvironmentsSearchEntry()
-    : getRuntimeEnvironmentsSearchEntry()
   const reposById = new Map<string, Repo>()
   for (const repo of repos) {
     if (!reposById.has(repo.id)) {
@@ -87,7 +80,7 @@ export function buildSettingsNavigationMetadata({
     ...buildSetupSettingsSections(options),
     ...buildWorkflowSettingsSections(options, terminalPaneSearchEntries),
     ...buildInterfaceSettingsSections(options),
-    ...buildRemoteSettingsSections(options, runtimeEnvironmentsSearchEntry, reposById)
+    ...buildRemoteSettingsSections(options, reposById)
   ]
 }
 

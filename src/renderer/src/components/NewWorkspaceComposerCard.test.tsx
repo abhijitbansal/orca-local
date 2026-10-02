@@ -807,24 +807,7 @@ describe('NewWorkspaceComposerCard folder task source mode', () => {
     })
 
     expect(findRunTargetItem('Add SSH host')).toBeTruthy()
-    expect(findRunTargetItem('Add Remote Orca Server')).toBeTruthy()
-  })
-
-  it('opens the remote Orca server add dialog over the composer without leaving for Settings', () => {
-    current = renderCard({
-      projectHostSetupOptions: [localReadyHostOption, devboxNeedsSetupHostOption],
-      selectedProjectHostSetupId: 'setup-local'
-    })
-
-    openRunTargetPicker(current.container)
-    act(() => findRunTargetItem('Add host')?.click())
-    act(() => findRunTargetItem('Add Remote Orca Server')?.click())
-
-    const dialog = document.body.querySelector('[data-testid="add-remote-host-dialog"]')
-    expect(dialog?.getAttribute('data-mode')).toBe('server')
-    expect(storeMocks.closeModal).not.toHaveBeenCalled()
-    expect(storeMocks.openSettingsPage).not.toHaveBeenCalled()
-    expect(storeMocks.openSettingsTarget).not.toHaveBeenCalled()
+    expect(findRunTargetItem('Add Remote Orca Server')).toBeUndefined()
   })
 
   it('selects an existing host from the run target picker', () => {

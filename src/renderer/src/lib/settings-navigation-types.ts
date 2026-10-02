@@ -40,16 +40,11 @@ const SETTINGS_NAV_TARGETS = [
   'share-skills',
   'automations',
   'setup-guide',
-  'servers',
   'mobile-emulator',
   'repo'
 ] as const
 
-const SETTINGS_NAV_INTENTS = [
-  'add-quick-command',
-  'add-remote-orca-server',
-  'add-ssh-host'
-] as const
+const SETTINGS_NAV_INTENTS = ['add-quick-command', 'add-ssh-host'] as const
 
 const SETTINGS_NAV_TARGET_SET: ReadonlySet<string> = new Set(SETTINGS_NAV_TARGETS)
 const SETTINGS_NAV_INTENT_SET: ReadonlySet<string> = new Set(SETTINGS_NAV_INTENTS)

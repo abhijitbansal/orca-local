@@ -7,7 +7,6 @@ import {
   installReposRuntimeRoutingHarness,
   localRepo,
   orcaProfileFindProjectProfiles,
-  projectGroupsMoveProject,
   projectsSetupExistingFolder,
   ptyKill,
   remoteRepo,
@@ -15,9 +14,7 @@ import {
   reposClone,
   reposCloneRemote,
   reposList,
-  reposPickFolder,
   reposRemove,
-  reposReorder,
   reposUpdate,
   runtimeEnvironmentCall,
   sshRepo
@@ -92,83 +89,6 @@ describe('repo slice runtime routing', () => {
     expect(store.getState().repos).toHaveLength(2)
   })
 
-  it('fetches repos from the active remote runtime environment', async () => {
-    runtimeEnvironmentCall.mockResolvedValue({
-      id: 'rpc-1',
-      ok: true,
-      result: { repos: [remoteRepo] },
-      _meta: { runtimeId: 'runtime-remote' }
-    })
-    const store = createTestStore()
-    store.setState({
-      settings: { activeRuntimeEnvironmentId: 'env-1' } as never,
-      activeRepoId: 'stale-repo',
-      filterRepoIds: ['remote-repo', 'stale-repo']
-    })
-
-    await store.getState().fetchRepos()
-
-    expect(store.getState().repos).toEqual([{ ...remoteRepo, executionHostId: 'runtime:env-1' }])
-    expect(store.getState().projects).toEqual([
-      expect.objectContaining({ id: 'repo:remote-repo', sourceRepoIds: ['remote-repo'] })
-    ])
-    expect(store.getState().projectHostSetups).toEqual([
-      expect.objectContaining({ id: 'remote-repo', hostId: 'runtime:env-1' })
-    ])
-    expect(store.getState().activeRepoId).toBeNull()
-    expect(store.getState().filterRepoIds).toEqual(['remote-repo'])
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-      selector: 'env-1',
-      method: 'repo.list',
-      params: undefined,
-      timeoutMs: 15_000
-    })
-    expect(reposList).not.toHaveBeenCalled()
-  })
-
-  it('stamps runtime-fetched SSH repos with the runtime owner', async () => {
-    runtimeEnvironmentCall.mockResolvedValue({
-      id: 'rpc-ssh-repo',
-      ok: true,
-      result: { repos: [{ ...remoteRepo, connectionId: 'ssh-1' }] },
-      _meta: { runtimeId: 'runtime-remote' }
-    })
-    const store = createTestStore()
-    store.setState({ settings: { activeRuntimeEnvironmentId: 'env-1' } as never })
-
-    await store.getState().fetchRepos()
-
-    expect(store.getState().repos).toEqual([
-      { ...remoteRepo, connectionId: 'ssh-1', executionHostId: 'runtime:env-1' }
-    ])
-  })
-
-  it('updates repos through the active remote runtime environment', async () => {
-    runtimeEnvironmentCall.mockResolvedValue({
-      id: 'rpc-2',
-      ok: true,
-      result: { repo: { ...remoteRepo, displayName: 'Renamed' } },
-      _meta: { runtimeId: 'runtime-remote' }
-    })
-    const store = createTestStore()
-    store.setState({
-      settings: { activeRuntimeEnvironmentId: 'env-1' } as never,
-      repos: [remoteRepo]
-    })
-
-    await store.getState().updateRepo(remoteRepo.id, { displayName: 'Renamed' })
-
-    expect(store.getState().repos[0]?.displayName).toBe('Renamed')
-    expect(store.getState().repos[0]?.executionHostId).toBe('runtime:env-1')
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-      selector: 'env-1',
-      method: 'repo.update',
-      params: { repo: remoteRepo.id, updates: { displayName: 'Renamed' } },
-      timeoutMs: 15_000
-    })
-    expect(reposUpdate).not.toHaveBeenCalled()
-  })
-
   it('updates SSH-owned repos through local IPC even when a runtime is focused', async () => {
     reposUpdate.mockResolvedValue({ ...sshRepo, displayName: 'SSH Renamed' })
     const store = createTestStore()
@@ -186,35 +106,6 @@ describe('repo slice runtime routing', () => {
       updates: { displayName: 'SSH Renamed' }
     })
     expect(runtimeEnvironmentCall).not.toHaveBeenCalled()
-  })
-
-  it('adds explicit server paths through the active remote runtime environment', async () => {
-    runtimeEnvironmentCall.mockResolvedValue({
-      id: 'rpc-add',
-      ok: true,
-      result: { repo: remoteRepo },
-      _meta: { runtimeId: 'runtime-remote' }
-    })
-    const store = createTestStore()
-    store.setState({
-      settings: { activeRuntimeEnvironmentId: 'env-1' } as never
-    })
-
-    await expect(store.getState().addRepoPath('/srv/project', 'folder')).resolves.toEqual({
-      ...remoteRepo,
-      executionHostId: 'runtime:env-1'
-    })
-
-    expect(store.getState().repos).toEqual([{ ...remoteRepo, executionHostId: 'runtime:env-1' }])
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-      selector: 'env-1',
-      method: 'repo.add',
-      params: { path: '/srv/project', kind: 'folder' },
-      timeoutMs: 15_000
-    })
-    expect(reposAdd).not.toHaveBeenCalled()
-    expect(reposPickFolder).not.toHaveBeenCalled()
-    expect(orcaProfileFindProjectProfiles).not.toHaveBeenCalled()
   })
 
   it('warns when a local project is already present in another profile', async () => {
@@ -297,68 +188,6 @@ describe('repo slice runtime routing', () => {
       hostId: 'local',
       path: '/local',
       kind: 'git'
-    })
-  })
-
-  it('sets up a project on the active runtime host through runtime RPC', async () => {
-    const project: Project = {
-      id: 'project-1',
-      displayName: 'Project',
-      badgeColor: '#000',
-      sourceRepoIds: ['remote-repo'],
-      createdAt: 1,
-      updatedAt: 1
-    }
-    const setup: ProjectHostSetup = {
-      id: 'remote-repo',
-      projectId: project.id,
-      hostId: 'local',
-      repoId: 'remote-repo',
-      path: '/srv/project',
-      displayName: 'Remote',
-      setupState: 'ready',
-      setupMethod: 'legacy-repo',
-      createdAt: 1,
-      updatedAt: 1
-    }
-    runtimeEnvironmentCall.mockResolvedValue({
-      id: 'rpc-setup',
-      ok: true,
-      result: { result: { project, setup, repo: remoteRepo } },
-      _meta: { runtimeId: 'runtime-remote' }
-    })
-    const store = createTestStore()
-    store.setState({ settings: { activeRuntimeEnvironmentId: 'env-1' } as never })
-
-    await expect(
-      store.getState().setupProjectExistingFolder({
-        projectId: project.id,
-        hostId: 'runtime:env-1',
-        path: '/srv/project',
-        kind: 'git'
-      })
-    ).resolves.toEqual({
-      project,
-      setup: {
-        ...setup,
-        hostId: 'runtime:env-1',
-        executionHostId: 'runtime:env-1',
-        runtimeOwnerEnvironmentId: 'env-1',
-        connectionId: null
-      },
-      repo: { ...remoteRepo, executionHostId: 'runtime:env-1' }
-    })
-
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-      selector: 'env-1',
-      method: 'projectHostSetup.setupExistingFolder',
-      params: {
-        projectId: project.id,
-        hostId: 'runtime:env-1',
-        path: '/srv/project',
-        kind: 'git'
-      },
-      timeoutMs: 15_000
     })
   })
 
@@ -468,87 +297,6 @@ describe('repo slice runtime routing', () => {
     })
   })
 
-  it('clones a project on a runtime host before aligning it as a host setup', async () => {
-    const project: Project = {
-      id: 'project-1',
-      displayName: 'Project',
-      badgeColor: '#000',
-      sourceRepoIds: ['remote-repo'],
-      createdAt: 1,
-      updatedAt: 1
-    }
-    const clonedRepo = { ...remoteRepo, path: '/srv/project' }
-    const setup: ProjectHostSetup = {
-      id: clonedRepo.id,
-      projectId: project.id,
-      hostId: 'local',
-      repoId: clonedRepo.id,
-      path: clonedRepo.path,
-      displayName: clonedRepo.displayName,
-      setupState: 'ready',
-      setupMethod: 'cloned',
-      createdAt: 1,
-      updatedAt: 1
-    }
-    runtimeEnvironmentCall
-      .mockResolvedValueOnce({
-        id: 'rpc-clone',
-        ok: true,
-        result: { repo: clonedRepo },
-        _meta: { runtimeId: 'runtime-remote' }
-      })
-      .mockResolvedValueOnce({
-        id: 'rpc-setup',
-        ok: true,
-        result: { result: { project, setup, repo: clonedRepo } },
-        _meta: { runtimeId: 'runtime-remote' }
-      })
-    const store = createTestStore()
-
-    await expect(
-      store.getState().setupProjectClone({
-        projectId: project.id,
-        hostId: 'runtime:env-1',
-        url: 'https://github.com/stablyai/orca.git',
-        destination: '/srv',
-        displayName: 'Project'
-      })
-    ).resolves.toEqual({
-      project,
-      setup: {
-        ...setup,
-        hostId: 'runtime:env-1',
-        executionHostId: 'runtime:env-1',
-        runtimeOwnerEnvironmentId: 'env-1',
-        connectionId: null
-      },
-      repo: { ...clonedRepo, executionHostId: 'runtime:env-1' }
-    })
-
-    expect(runtimeEnvironmentCall).toHaveBeenNthCalledWith(1, {
-      selector: 'env-1',
-      method: 'repo.clone',
-      params: {
-        url: 'https://github.com/stablyai/orca.git',
-        destination: '/srv'
-      },
-      timeoutMs: 10 * 60_000
-    })
-    expect(runtimeEnvironmentCall).toHaveBeenNthCalledWith(2, {
-      selector: 'env-1',
-      method: 'projectHostSetup.setupExistingFolder',
-      params: {
-        projectId: project.id,
-        hostId: 'runtime:env-1',
-        path: clonedRepo.path,
-        kind: 'git',
-        displayName: 'Project',
-        setupMethod: 'cloned'
-      },
-      timeoutMs: 15_000
-    })
-  })
-
   it('clones a project on an SSH host before aligning it as a host setup', async () => {
     const project: Project = {
       id: 'project-1',
@@ -604,72 +352,6 @@ describe('repo slice runtime routing', () => {
     })
   })
 
-  it('keeps runtime ownership when a runtime repo is moved between groups', async () => {
-    runtimeEnvironmentCall.mockResolvedValue({
-      id: 'rpc-move',
-      ok: true,
-      result: { repo: { ...remoteRepo, projectGroupId: 'group-1' } },
-      _meta: { runtimeId: 'runtime-remote' }
-    })
-    const store = createTestStore()
-    store.setState({
-      settings: { activeRuntimeEnvironmentId: 'env-1' } as never,
-      repos: [{ ...remoteRepo, executionHostId: 'runtime:env-1' }]
-    })
-
-    await expect(store.getState().moveProjectToGroup(remoteRepo.id, 'group-1')).resolves.toBe(true)
-
-    expect(store.getState().repos).toEqual([
-      { ...remoteRepo, projectGroupId: 'group-1', executionHostId: 'runtime:env-1' }
-    ])
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-      selector: 'env-1',
-      method: 'projectGroup.moveProject',
-      params: { repo: remoteRepo.id, groupId: 'group-1', order: undefined },
-      timeoutMs: 15_000
-    })
-    expect(projectGroupsMoveProject).not.toHaveBeenCalled()
-  })
-
-  it('does not open the client folder picker when a remote runtime environment is active', async () => {
-    const store = createTestStore()
-    store.setState({
-      settings: { activeRuntimeEnvironmentId: 'env-1' } as never
-    })
-
-    await expect(store.getState().addRepo()).resolves.toBeNull()
-
-    expect(reposPickFolder).not.toHaveBeenCalled()
-    expect(runtimeEnvironmentCall).not.toHaveBeenCalled()
-  })
-
-  it('removes repos through the active remote runtime environment', async () => {
-    runtimeEnvironmentCall.mockResolvedValue({
-      id: 'rpc-3',
-      ok: true,
-      result: { removed: true },
-      _meta: { runtimeId: 'runtime-remote' }
-    })
-    const store = createTestStore()
-    store.setState({
-      settings: { activeRuntimeEnvironmentId: 'env-1' } as never,
-      repos: [remoteRepo],
-      activeRepoId: remoteRepo.id
-    })
-
-    await store.getState().removeProject(remoteRepo.id)
-
-    expect(store.getState().repos).toEqual([])
-    expect(store.getState().activeRepoId).toBeNull()
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-      selector: 'env-1',
-      method: 'repo.rm',
-      params: { repo: remoteRepo.id },
-      timeoutMs: 15_000
-    })
-    expect(reposRemove).not.toHaveBeenCalled()
-  })
-
   it('removes SSH-owned repos through local IPC even when a runtime is focused', async () => {
     const store = createTestStore()
     const worktreeId = `${sshRepo.id}::/home/orca/wt`
@@ -708,74 +390,6 @@ describe('repo slice runtime routing', () => {
     expect(store.getState().repos).toEqual([localRepo])
     expect(store.getState().lastVisitedAtByWorktreeId).toEqual({ [localWorktreeId]: 200 })
     expect(reposRemove).toHaveBeenCalledWith({ repoId: sshRepo.id })
-  })
-
-  it('drops persisted visit timestamps for removed unhydrated runtime repos', async () => {
-    runtimeEnvironmentCall.mockResolvedValue({
-      id: 'rpc-remove-runtime-unhydrated',
-      ok: true,
-      result: { removed: true },
-      _meta: { runtimeId: 'runtime-remote' }
-    })
-    const store = createTestStore()
-    const remoteWorktreeId = `${remoteRepo.id}::/srv/orca/wt`
-    const localWorktreeId = `${localRepo.id}::/local/wt`
-    store.setState({
-      settings: { activeRuntimeEnvironmentId: 'env-1' } as never,
-      repos: [remoteRepo, localRepo],
-      activeRepoId: remoteRepo.id,
-      lastVisitedAtByWorktreeId: {
-        [remoteWorktreeId]: 100,
-        [localWorktreeId]: 200
-      }
-    })
-
-    await store.getState().removeProject(remoteRepo.id)
-
-    expect(store.getState().repos).toEqual([localRepo])
-    expect(store.getState().lastVisitedAtByWorktreeId).toEqual({ [localWorktreeId]: 200 })
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-      selector: 'env-1',
-      method: 'repo.rm',
-      params: { repo: remoteRepo.id },
-      timeoutMs: 15_000
-    })
-    expect(reposRemove).not.toHaveBeenCalled()
-  })
-
-  it('stops remote runtime terminals instead of killing remote ids through local pty IPC', async () => {
-    runtimeEnvironmentCall.mockResolvedValue({
-      id: 'rpc-remote',
-      ok: true,
-      result: { ok: true },
-      _meta: { runtimeId: 'runtime-remote' }
-    })
-    const store = createTestStore()
-    const worktreeId = `${remoteRepo.id}::/remote/wt`
-    store.setState({
-      settings: { activeRuntimeEnvironmentId: 'env-1' } as never,
-      repos: [remoteRepo],
-      worktreesByRepo: {
-        [remoteRepo.id]: [makeWorktree({ id: worktreeId, repoId: remoteRepo.id })]
-      },
-      tabsByWorktree: {
-        [worktreeId]: [{ id: 'tab-1', worktreeId } as never]
-      },
-      ptyIdsByTabId: {
-        'tab-1': ['remote:term-1', 'pty-local-stale']
-      }
-    })
-
-    await store.getState().removeProject(remoteRepo.id)
-
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-      selector: 'env-1',
-      method: 'terminal.stop',
-      params: { worktree: `id:${worktreeId}` },
-      timeoutMs: 15_000
-    })
-    expect(ptyKill).toHaveBeenCalledWith('pty-local-stale')
-    expect(ptyKill).not.toHaveBeenCalledWith('remote:term-1')
   })
 
   it('cleans up hidden detected worktree state when removing a repo', async () => {
@@ -818,30 +432,5 @@ describe('repo slice runtime routing', () => {
     expect(store.getState().tabsByWorktree[hiddenWorktree.id]).toBeUndefined()
     expect(store.getState().activeWorktreeId).toBeNull()
     expect(ptyKill).toHaveBeenCalledWith('pty-hidden')
-  })
-
-  it('reorders repos through the active remote runtime environment', async () => {
-    runtimeEnvironmentCall.mockResolvedValue({
-      id: 'rpc-4',
-      ok: true,
-      result: { status: 'applied' },
-      _meta: { runtimeId: 'runtime-remote' }
-    })
-    const store = createTestStore()
-    store.setState({
-      settings: { activeRuntimeEnvironmentId: 'env-1' } as never,
-      repos: [localRepo, remoteRepo]
-    })
-
-    await store.getState().reorderRepos([remoteRepo.id, localRepo.id])
-
-    expect(store.getState().repos.map((repo) => repo.id)).toEqual([remoteRepo.id, localRepo.id])
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-      selector: 'env-1',
-      method: 'repo.reorder',
-      params: { orderedIds: [remoteRepo.id, localRepo.id] },
-      timeoutMs: 15_000
-    })
-    expect(reposReorder).not.toHaveBeenCalled()
   })
 })

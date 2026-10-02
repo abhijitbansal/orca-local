@@ -10,7 +10,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '../../runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 import type { Tab } from '../../../../shared/tab-types'
 
 const { toastErrorMock } = vi.hoisted(() => ({
@@ -52,7 +51,6 @@ describe('createEditorSlice untitled cleanup routing', () => {
 
   beforeEach(() => {
     remoteUntitledFileSize = 0
-    clearRuntimeCompatibilityCacheForTests()
     runtimeEnvironmentCallMock.mockReset()
     runtimeEnvironmentTransportCallMock.mockReset()
     localDeletePathMock.mockReset()
@@ -115,96 +113,6 @@ describe('createEditorSlice untitled cleanup routing', () => {
     } as Partial<AppState>)
   }
 
-  it('closeFile deletes untouched remote untitled files through runtime file RPC', async () => {
-    const store = createEditorStore()
-    seedRemoteWorktree(store)
-    store.getState().openFile({
-      filePath: '/remote/wt/untitled.md',
-      relativePath: 'untitled.md',
-      worktreeId: 'wt-1',
-      language: 'markdown',
-      isUntitled: true,
-      mode: 'edit'
-    })
-
-    store.getState().closeFile('/remote/wt/untitled.md')
-
-    await vi.waitFor(() => {
-      expect(runtimeEnvironmentCallMock).toHaveBeenCalledWith({
-        selector: 'env-1',
-        method: 'files.delete',
-        params: {
-          worktree: 'id:wt-1',
-          relativePath: 'untitled.md',
-          recursive: undefined,
-          expectedExecutionHostId: 'local'
-        },
-        expectedEnvironmentPairingRevision: undefined,
-        timeoutMs: 15_000
-      })
-    })
-    expect(localDeletePathMock).not.toHaveBeenCalled()
-  })
-
-  it('closeAllFiles deletes untouched remote untitled files through runtime file RPC', async () => {
-    const store = createEditorStore()
-    seedRemoteWorktree(store)
-    store.getState().openFile({
-      filePath: '/remote/wt/untitled.md',
-      relativePath: 'untitled.md',
-      worktreeId: 'wt-1',
-      language: 'markdown',
-      isUntitled: true,
-      mode: 'edit'
-    })
-
-    store.getState().closeAllFiles()
-
-    await vi.waitFor(() => {
-      expect(runtimeEnvironmentCallMock).toHaveBeenCalledWith({
-        selector: 'env-1',
-        method: 'files.delete',
-        params: {
-          worktree: 'id:wt-1',
-          relativePath: 'untitled.md',
-          recursive: undefined,
-          expectedExecutionHostId: 'local'
-        },
-        expectedEnvironmentPairingRevision: undefined,
-        timeoutMs: 15_000
-      })
-    })
-    expect(localDeletePathMock).not.toHaveBeenCalled()
-  })
-
-  it('closeFile keeps an untouched remote untitled file that something else wrote into', async () => {
-    remoteUntitledFileSize = 42
-    const store = createEditorStore()
-    seedRemoteWorktree(store)
-    store.getState().openFile({
-      filePath: '/remote/wt/untitled.md',
-      relativePath: 'untitled.md',
-      worktreeId: 'wt-1',
-      language: 'markdown',
-      isUntitled: true,
-      mode: 'edit'
-    })
-
-    store.getState().closeFile('/remote/wt/untitled.md')
-
-    await vi.waitFor(() =>
-      expect(runtimeEnvironmentCallMock).toHaveBeenCalledWith(
-        expect.objectContaining({ method: 'files.stat' })
-      )
-    )
-    // Why: a macrotask drains the whole stat → cleanup microtask chain, however many hops the runtime client adds.
-    await new Promise((resolve) => setTimeout(resolve, 0))
-    expect(runtimeEnvironmentCallMock).not.toHaveBeenCalledWith(
-      expect.objectContaining({ method: 'files.delete' })
-    )
-    expect(localDeletePathMock).not.toHaveBeenCalled()
-  })
-
   it('closeFile does not delete when worktree ownership metadata is missing', async () => {
     const store = createEditorStore()
     store.setState({
@@ -226,70 +134,6 @@ describe('createEditorSlice untitled cleanup routing', () => {
     await flushAsyncRemoteRefresh()
 
     expect(runtimeEnvironmentCallMock).not.toHaveBeenCalled()
-    expect(localDeletePathMock).not.toHaveBeenCalled()
-  })
-
-  it('closeFile deletes untouched remote untitled files in their owning runtime after switching local', async () => {
-    const store = createEditorStore()
-    seedRemoteWorktree(store)
-    store.getState().openFile({
-      filePath: '/remote/wt/untitled.md',
-      relativePath: 'untitled.md',
-      worktreeId: 'wt-1',
-      language: 'markdown',
-      isUntitled: true,
-      mode: 'edit'
-    })
-    store.setState({ settings: { activeRuntimeEnvironmentId: null } as never })
-
-    store.getState().closeFile('/remote/wt/untitled.md')
-
-    await vi.waitFor(() => {
-      expect(runtimeEnvironmentCallMock).toHaveBeenCalledWith({
-        selector: 'env-1',
-        method: 'files.delete',
-        params: {
-          worktree: 'id:wt-1',
-          relativePath: 'untitled.md',
-          recursive: undefined,
-          expectedExecutionHostId: 'local'
-        },
-        expectedEnvironmentPairingRevision: undefined,
-        timeoutMs: 15_000
-      })
-    })
-    expect(localDeletePathMock).not.toHaveBeenCalled()
-  })
-
-  it('closeFile deletes untouched remote untitled files in their owning runtime after switching environments', async () => {
-    const store = createEditorStore()
-    seedRemoteWorktree(store)
-    store.getState().openFile({
-      filePath: '/remote/wt/untitled.md',
-      relativePath: 'untitled.md',
-      worktreeId: 'wt-1',
-      language: 'markdown',
-      isUntitled: true,
-      mode: 'edit'
-    })
-    store.setState({ settings: { activeRuntimeEnvironmentId: 'env-2' } as never })
-
-    store.getState().closeFile('/remote/wt/untitled.md')
-
-    await vi.waitFor(() => {
-      expect(runtimeEnvironmentCallMock).toHaveBeenCalledWith({
-        selector: 'env-1',
-        method: 'files.delete',
-        params: {
-          worktree: 'id:wt-1',
-          relativePath: 'untitled.md',
-          recursive: undefined,
-          expectedExecutionHostId: 'local'
-        },
-        expectedEnvironmentPairingRevision: undefined,
-        timeoutMs: 15_000
-      })
-    })
     expect(localDeletePathMock).not.toHaveBeenCalled()
   })
 

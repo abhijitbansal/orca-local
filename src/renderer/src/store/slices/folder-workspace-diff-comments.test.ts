@@ -9,7 +9,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '../../runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 import { createDiffCommentsSlice } from './diffComments'
 
 const runtimeEnvironmentCall = vi.fn()
@@ -92,7 +91,6 @@ function bodies(store: ReturnType<typeof createTestStore>, workspaceKey: string)
 
 beforeEach(() => {
   vi.clearAllMocks()
-  clearRuntimeCompatibilityCacheForTests()
   runtimeEnvironmentTransportCall.mockImplementation((args: RuntimeEnvironmentCallRequest) => {
     return createCompatibleRuntimeStatusResponseIfNeeded(args) ?? runtimeEnvironmentCall(args)
   })
@@ -173,97 +171,6 @@ describe('folder workspace diff comments', () => {
         ]
       }
     })
-  })
-
-  it('keeps same-id writes scoped to their original hosts', async () => {
-    const store = createTestStore()
-    const workspaceId = 'shared-folder-id'
-    const workspaceKey = folderWorkspaceKey(workspaceId)
-    const localWorkspace = makeFolderWorkspace({
-      id: workspaceId,
-      projectGroupId: 'local-group',
-      folderPath: '/workspace/local'
-    })
-    const runtimeWorkspace = makeFolderWorkspace({
-      id: workspaceId,
-      projectGroupId: 'runtime-group',
-      folderPath: '/workspace/runtime',
-      executionHostId: 'runtime:env-owner'
-    })
-    let resolveLocal!: () => void
-    folderWorkspacesUpdate.mockImplementation(
-      ({ updates }) =>
-        new Promise<FolderWorkspace>((resolve) => {
-          resolveLocal = () => resolve({ ...localWorkspace, ...updates })
-        })
-    )
-    runtimeEnvironmentCall.mockImplementation(async (args: RuntimeEnvironmentCallRequest) => ({
-      id: 'rpc-folder-update',
-      ok: true,
-      result: {
-        folderWorkspace: {
-          ...runtimeWorkspace,
-          ...(
-            args as RuntimeEnvironmentCallRequest & {
-              params: { updates?: Partial<FolderWorkspace> }
-            }
-          ).params.updates
-        }
-      },
-      _meta: { runtimeId: 'remote-runtime' }
-    }))
-    store.setState({
-      activeWorktreeId: workspaceKey,
-      activeWorkspaceExecutionHostId: 'local',
-      folderWorkspaces: [localWorkspace, runtimeWorkspace]
-    })
-
-    const localAdd = store.getState().addDiffComment({
-      worktreeId: workspaceKey,
-      filePath: 'LOCAL.md',
-      source: 'markdown',
-      lineNumber: 1,
-      body: 'local note',
-      side: 'modified'
-    })
-    await vi.waitFor(() => expect(folderWorkspacesUpdate).toHaveBeenCalledOnce())
-
-    store.setState({ activeWorkspaceExecutionHostId: 'runtime:env-owner' })
-    const runtimeAdd = store.getState().addDiffComment({
-      worktreeId: workspaceKey,
-      filePath: 'REMOTE.md',
-      source: 'markdown',
-      lineNumber: 1,
-      body: 'runtime note',
-      side: 'modified'
-    })
-    await vi.waitFor(() =>
-      expect(runtimeEnvironmentCall).toHaveBeenCalledWith(
-        expect.objectContaining({
-          selector: 'env-owner',
-          method: 'folderWorkspace.update',
-          params: expect.objectContaining({
-            updates: {
-              diffComments: [expect.objectContaining({ body: 'runtime note' })]
-            }
-          })
-        })
-      )
-    )
-
-    store.setState({ activeWorkspaceExecutionHostId: 'local' })
-    resolveLocal()
-    await expect(Promise.all([localAdd, runtimeAdd])).resolves.toEqual([
-      expect.objectContaining({ body: 'local note' }),
-      expect.objectContaining({ body: 'runtime note' })
-    ])
-    expect(store.getState().getDiffComments(workspaceKey)).toEqual([
-      expect.objectContaining({ body: 'local note' })
-    ])
-    store.setState({ activeWorkspaceExecutionHostId: 'runtime:env-owner' })
-    expect(store.getState().getDiffComments(workspaceKey)).toEqual([
-      expect.objectContaining({ body: 'runtime note' })
-    ])
   })
 })
 
@@ -573,64 +480,5 @@ describe('folder workspace diff comment rollback convergence', () => {
 
     await expect(addNote(store, key, 'note A', 1)).resolves.toBeNull()
     expect(store.getState().getDiffComments(key)).toEqual([])
-  })
-
-  it('converges on the runtime branch when two consecutive writes fail', async () => {
-    const store = createTestStore()
-    const runtimeWorkspace = makeFolderWorkspace({ executionHostId: 'runtime:env-owner' })
-    const key = folderWorkspaceKey(runtimeWorkspace.id)
-    store.setState({
-      activeWorktreeId: key,
-      activeWorkspaceExecutionHostId: 'runtime:env-owner',
-      folderWorkspaces: [runtimeWorkspace]
-    })
-    runtimeEnvironmentCall.mockRejectedValue(new Error('runtime unreachable'))
-
-    await expect(
-      Promise.all([addNote(store, key, 'A', 1), addNote(store, key, 'B', 2)])
-    ).resolves.toEqual([null, null])
-    expect(store.getState().getDiffComments(key)).toEqual([])
-    expect(folderWorkspacesUpdate).not.toHaveBeenCalled()
-  })
-
-  it('keeps a failing burst scoped to its own execution host', async () => {
-    const store = createTestStore()
-    const workspaceId = 'shared-folder-id'
-    const key = folderWorkspaceKey(workspaceId)
-    const localWorkspace = makeFolderWorkspace({ id: workspaceId, projectGroupId: 'local-group' })
-    const runtimeWorkspace = makeFolderWorkspace({
-      id: workspaceId,
-      projectGroupId: 'runtime-group',
-      executionHostId: 'runtime:env-owner'
-    })
-    store.setState({
-      activeWorktreeId: key,
-      activeWorkspaceExecutionHostId: 'runtime:env-owner',
-      folderWorkspaces: [localWorkspace, runtimeWorkspace]
-    })
-    runtimeEnvironmentCall.mockImplementation(async (args: RuntimeEnvironmentCallRequest) => ({
-      id: 'rpc-folder-update',
-      ok: true,
-      result: {
-        folderWorkspace: {
-          ...runtimeWorkspace,
-          ...(
-            args as RuntimeEnvironmentCallRequest & {
-              params: { updates?: Partial<FolderWorkspace> }
-            }
-          ).params.updates
-        }
-      },
-      _meta: { runtimeId: 'remote-runtime' }
-    }))
-    folderWorkspacesUpdate.mockImplementation(() => Promise.reject(new Error('disk full')))
-
-    await addNote(store, key, 'runtime note', 1)
-    store.setState({ activeWorkspaceExecutionHostId: 'local' })
-    await Promise.all([addNote(store, key, 'local A', 2), addNote(store, key, 'local B', 3)])
-
-    expect(store.getState().getDiffComments(key)).toEqual([])
-    store.setState({ activeWorkspaceExecutionHostId: 'runtime:env-owner' })
-    expect(bodies(store, key)).toEqual(['runtime note'])
   })
 })

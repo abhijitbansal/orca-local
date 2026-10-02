@@ -45,13 +45,7 @@
     "browser": {
       "clientHostedRemote": {
         "title": "在此设备上托管远程浏览器页面",
-        "description": "在此桌面上渲染远程工作区页面；网络流量仍然通过远程主机。仅适用于新页面。",
-        "optionDevice": "当前设备",
-        "optionDeviceTooltip": "页面在此桌面上呈现，因此输入和弹出窗口的行为是本机的。",
-        "optionServer": "服务器（流式传输）",
-        "optionServerTooltip": "页面在远程服务器上呈现并流式传输到该设备。",
-        "rowTitle": "远程服务器工作区",
-        "rowDescription": "页面呈现的位置。流量始终通过远程服务器。仅适用于新页面。"
+        "description": "在此桌面上渲染远程工作区页面；网络流量仍然通过远程主机。仅适用于新页面。"
       },
       "sshWorkspaceRouting": {
         "title": "浏览 SSH 工作区主机",
@@ -334,7 +328,6 @@
           "wslFilesystemBoundaryDescription": "该项目的 Git 在 {{distro}} 中运行，它通过 WSL 文件系统桥到达 Windows 驱动器。预计 git 的速度比存储在 {{distro}} 内的副本慢大约 20 倍。"
         },
         "settings": {
-          "e12dab333b": "切换服务器失败",
           "faa8fb83dd": "在切换服务器之前保存或关闭未保存的编辑器选项卡。"
         },
         "ui": {
@@ -442,18 +435,6 @@
             }
           }
         }
-      },
-      "remotePairingCopy": {
-        "invalidInput": "请输入 Orca 访问链接或配对代码。",
-        "mobileOnly": "此链接仅授予移动端访问权限。请为另一个 Orca 客户端生成链接。",
-        "invalidDestination": "此访问链接包含无效的目标地址。",
-        "unsupportedDestination": "此访问链接包含不受支持的目标地址。",
-        "nonConnectableDestination": "此访问链接包含无法连接的目标地址。",
-        "loopback": "环回地址",
-        "tailscale": "Tailscale 地址",
-        "lan": "专用 LAN 地址",
-        "public": "公网地址",
-        "custom": "自定义主机名"
       },
       "ensure": {
         "simulator": {
@@ -856,7 +837,6 @@
         "31e57d1c70": "通过 SSH 使用已有机器处理文件、终端、Git 和工作区。",
         "94a5afe910": "SSH 主机",
         "40d80bad8a": "测试版",
-        "de0c2907a1": "远程 Orca 服务器",
         "b351014180": "Orca 统计，以及 Claude、Codex、OpenCode、Muse Token 分析和 Grok 订阅使用量。",
         "d72a58b5b9": "统计和使用情况",
         "dcd0d9b74f": "常见操作的键盘快捷键。",
@@ -1161,8 +1141,6 @@
         "addHostHint": "注册另一台机器或 Orca 服务器",
         "addSshHost": "添加 SSH 主机",
         "addSshHostHint": "通过 SSH 使用现有机器",
-        "addRemoteOrcaServer": "添加远程 Orca 服务器",
-        "addRemoteOrcaServerHint": "配对另一个 Orca 运行时",
         "hostConnectionFailed": "Connection failed",
         "defaultBranchUpdateFailed": "无法更新项目默认分支。再试一次。",
         "setLocation": "设置项目位置",
@@ -2759,12 +2737,10 @@
             "e9a5d3c2b1f0": "终止 {{value0}}？"
           },
           "SshStatusSegment": {
-            "3ad70e0365": "管理远程主机",
             "6e8a9a4242": "远程主机",
             "d09ec41831": "远程主机",
             "fdc57e9970": "远程主机连接状态",
             "59b553e2aa": "断开连接",
-            "63f36455cc": "连接",
             "bf07aee59e": "断开连接失败",
             "2c29e2de68": "连接失败",
             "bc5a3fd41a": "部分",
@@ -2773,22 +2749,11 @@
             "fbb3f9f05e": "冲突",
             "95e4ff5b4b": "推送中",
             "63a2b965f6": "拉取中",
-            "remote_server": "远程服务器",
-            "runtime_checking": "检查中",
-            "runtime_online": "已连接",
-            "runtime_unavailable": "已断开",
-            "runtime_connect_unavailable": "远程主机不可达",
-            "runtime_disconnect_failed": "断开连接失败",
-            "runtime_reconnecting": "重新连接中",
-            "runtime_last_close_reason": "已关闭：{{value0}}",
-            "runtime_reconnect_attempt": "第 {{value0}} 次尝试",
             "connectedHostCount_one": "{{count}} 个主机",
             "connectedHostCount_other": "{{count}} 个主机",
             "connecting": "正在连接…",
             "workspaceConflict": "工作区冲突",
-            "workspaceSyncError": "工作区同步错误",
-            "runtime_unavailable_transport_up": "Orca 不可用",
-            "runtime_workspace_window_closed": "工作区窗口已关闭"
+            "workspaceSyncError": "工作区同步错误"
           },
           "CaffeinateStatusSegment": {
             "active": "生效中",
@@ -3056,16 +3021,6 @@
             "detailedTooltip": "完整使用情况，包含条形图、标签和百分比",
             "compactTooltip": "精简使用情况：仅显示最吃紧的窗口"
           },
-          "RemoteServerUpdateStatusSegment": {
-            "updating": "Updating {{value0}}/{{value1}}",
-            "updatingTooltip": "远程 Orca 服务器更新正在进行中",
-            "failed": "{{value0}} 个服务器更新失败",
-            "failedTooltip": "打开远程 Orca 服务器更新以查看并重试",
-            "updated": "{{value0}} servers updated",
-            "updatedTooltip": "远程 Orca 服务器更新已完成",
-            "failedOne": "1 个服务器更新失败",
-            "updatedOne": "1 server updated"
-          },
           "resource": {
             "memory": {
               "metric": {
@@ -3105,18 +3060,6 @@
             "stoppingLabel": "Stopping update",
             "stoppingTooltip": "正在停止技能更新…",
             "stoppingAria": "正在停止技能更新。点击查看详情。"
-          },
-          "RuntimeHostStatusRow": {
-            "previous_connection_closed": "之前的连接关闭了",
-            "workspace_window_closed": "工作区窗口已关闭",
-            "checking_host": "Orca 正在检查该主机是否可达",
-            "restoring_connection": "Orca 正在尝试恢复连接",
-            "host_unreachable": "在此主机上无法访问 Orca",
-            "runtime_unavailable": "SSH 传输已连接，但 Orca 运行时不可用",
-            "runtime_unavailable_explanation": "远程主机可能仍在运行；仅 Orca 运行时连接不可用。",
-            "contact_note": "主机可能仍在运行；仅 Orca 连接不可用。",
-            "last_connected": "最后连接 {{value0}}",
-            "reconnect_attempt": "尝试{{value0}}"
           },
           "NativeChatResumeStatusSegment": {
             "labelOne": "恢复 1 次聊天",
@@ -4939,11 +4882,9 @@
           "connecting": "正在连接",
           "connect": "连接",
           "addSshHost": "添加 SSH 主机",
-          "addRemoteServer": "添加远程服务器",
           "addRemoteHost": "添加远程主机",
           "addRemoteHostTooltip": "可选择能通过 SSH 登录的机器，也可选择运行 Orca 的远程服务器。",
           "addSshHostDetail": "通过 SSH 使用现有机器。",
-          "addRemoteServerDetail": "与另一台电脑上运行的 Orca 配对。",
           "addRemoteHostDetail": "SSH 主机或 Orca 服务器"
         },
         "sidebarHostOptions": {
@@ -4958,10 +4899,8 @@
           "1a2b3c4d5e": "已移除 {{value0}}",
           "2b3c4d5e6f": "删除主机失败",
           "3c4d5e6f7a": "移除 {{value0}}？",
-          "4d5e6f7a8b": "这会打开 Orca 服务器设置，你可以在那里移除此服务器。",
           "5e6f7a8b9c": "这会从此计算机移除保存的 SSH 主机及其凭据。远程文件不会被删除。",
           "6f7a8b9c0d": "取消",
-          "7a8b9c0d1e": "打开设置",
           "8b9c0d1e2f": "删除主机",
           "workspacesFailed": "无法移除此主机的 {{count}} 个工作区。主机已保留，您可以重试。",
           "oneWorkspace": "1 个工作区",
@@ -5058,12 +4997,7 @@
           "sshRelayGraceInvalid": "终端超时时间必须介于 60 到 {{value0}} 秒之间。",
           "sshSaved": "已添加 SSH 主机。",
           "sshSaveFailed": "添加 SSH 主机失败。",
-          "serverFieldsRequired": "必须填写服务器名称和配对码。",
-          "serverSaved": "已添加远程服务器。",
-          "serverSaveFailed": "添加远程服务器失败。",
-          "serverTitle": "添加远程服务器",
           "sshTitle": "添加 SSH 主机",
-          "serverDescription": "与另一台电脑上运行的 Orca 配对。",
           "sshDescription": "添加一台可通过 SSH 登录并持久保存的机器。",
           "cancel": "取消",
           "saving": "正在保存...",
@@ -5077,20 +5011,11 @@
           "port": "端口",
           "identityFile": "身份文件",
           "identityFilePlaceholder": "~/.ssh/id_ed25519（可选）",
-          "serverName": "服务器名称",
-          "serverNamePlaceholder": "开发机",
-          "pairingCode": "配对码",
-          "pairingCodePlaceholder": "orca://pair?code=...",
-          "pairingHelpSuffix": "，然后粘贴打印出的配对 URL。",
           "sshImportAlreadySynced": "~/.ssh/config 已同步。",
           "sshImportSynced": "已同步 {{value0}} 个主机{{value1}}。",
           "sshImportFailed": "导入 SSH 配置失败。",
           "sshPersistenceDefault": "此主机上的远程终端会保持运行，直到你结束它们或重置中继。",
           "advanced": "Advanced",
-          "linkDestination": "链接目标",
-          "sshTunnel": "我正在使用 SSH 隧道",
-          "sshTunnelHelp": "否则，此链接会指回此设备，无法识别另一台计算机。",
-          "loopbackBlocked": "启用 SSH 隧道选项，或使用另一台主机的 Tailscale 或 LAN 地址创建新链接。",
           "sshAlreadyExists": "该 SSH 主机已在 Orca 中。",
           "sshConfigPickerLoadFailed": "无法读取 ~/.ssh/config。",
           "sshConfigPickerResolveFailed": "无法解析该 SSH 配置主机。",
@@ -6783,95 +6708,6 @@
           "ccb07dd027": "已保存",
           "e57dde9d93": "未保存的更改"
         },
-        "RuntimeEnvironmentsPane": {
-          "aeb26635d2": "删除 {{value0}}",
-          "af53761f31": "取消",
-          "bb90dd6487": "删除服务器",
-          "d2e00809e4": "切换",
-          "05e0fc3ebf": "切换到",
-          "b2290ed203": "Orca 会聚焦此主机并加载其项目。其他主机上的现有终端和浏览器标签页会保持运行。",
-          "d570c35a99": "切换服务器",
-          "9a3758d983": "没有保存的服务器。",
-          "9bee6bbeeb": "添加服务器",
-          "55fcc964cd": "在服务器上运行，并粘贴输出的配对 URL。",
-          "960e901ae4": "orca serve --pairing-address <host>",
-          "163671f7b5": "运行",
-          "c3d772c514": "orca://pair?code=...",
-          "9bc9b83474": "配对码",
-          "e038625857": "开发环境",
-          "54ebacc600": "服务器名称",
-          "1826bd0608": "已保存的服务器",
-          "6ce4664003": "刷新服务器",
-          "b07070ed3c": "没有连接服务器",
-          "78692becbd": "本地桌面",
-          "64b6bea541": "活动服务器",
-          "99ac81fb43": "切换到 {{value0}}。",
-          "b5b5114cb0": "删除了 {{value0}}。",
-          "6cb6eae14f": "无法保存运行时环境。",
-          "7b5986c8df": "已保存 {{value0}}。准备好后可通过活动服务器进行切换。",
-          "5ef712f407": "名为“{{value0}}”的服务器已存在。",
-          "0c55a47480": "需要名称和配对代码。",
-          "e6410d72c3": "无法加载运行时环境。",
-          "6ef71985da": "无终点",
-          "ed3e3f069d": "这将从 Orca 中删除保存的服务器。它不会更改活动服务器。",
-          "b2fda48c39": "删除活动服务器会使此浏览器与该主机断开连接。现有主机会话会保持不变。",
-          "9f7665a01b": "删除活动服务器会先将 Orca 切换回本地桌面。现有主机会话会保持不变。",
-          "8cf8790697": "已保存的服务器会通过配对的 Orca 运行时路由此浏览器。",
-          "f75ce1c7a5": "本地会保留当前的桌面行为。已保存的服务器会通过远程运行时路由受支持的客户端调用。",
-          "d25f0688b1": "移除",
-          "f3a3d6d834": "{{value0}} 功能",
-          "0ef838094a": "协议 {{value0}}",
-          "9a91c4a0eb": "兼容",
-          "86ed75bec8": "更新服务器",
-          "62ac182a27": "更新客户端",
-          "c8791efc45": "状态不可用",
-          "5120beaac6": "正在检查…",
-          "4b5c6d7e8f": "未报告任何功能",
-          "hostModelCapabilityUnknown": "主机模型支持：正在检查服务器功能",
-          "hostModelCapabilitySupported": "主机模型支持：就绪",
-          "hostModelCapabilityMissing": "主机模型支持：请更新服务器以使用 {{value0}}",
-          "hostModelCapabilityProjectSetup": "项目设置",
-          "hostModelCapabilityTaskSourceContext": "任务来源上下文",
-          "hostModelCapabilityWorkspaceRunContext": "工作区运行上下文",
-          "3f67e8078a": "默认使用此电脑。仅当你希望受支持的项目、文件、终端、提供商检查以及浏览器/移动端接续通过某个服务器运行时，才选择已保存的服务器。",
-          "2c85efb3e8": "选择已保存的服务器后，此浏览器会将配对的 Orca 运行时用作默认主机。",
-          "serverConnected": "已连接",
-          "serverChecking": "正在检查…",
-          "serverDisconnected": "已断开连接",
-          "disconnectedServer": "已断开与 {{value0}} 的连接。",
-          "connectToRemoteServers": "连接到远程服务器",
-          "connectToRemoteServersHelp": "配对另一个 Orca 运行时，然后在此处连接或断开连接。仅当你想更改默认主机时，才使用高级 > 活动服务器。",
-          "activeServerRowHelp": "用于通过服务器路由的项目、终端和提供商检查的活动服务器。",
-          "disconnect": "断开连接",
-          "connect": "连接",
-          "advanced": "高级",
-          "serverDetails": "服务器详细信息",
-          "runtimeReachable": "可连接到 {{value0}}。",
-          "updateAvailableOne": "1 个更新可用",
-          "updatesAvailable": "{{value0}} 个更新可用",
-          "versionUnavailable": "Orca 版本不可用",
-          "updateServer": "更新",
-          "reviewServerUpdates": "服务器更新",
-          "orcaVersion": "Orca v{{value0}}",
-          "removeActiveServerBlocked": "请先在“高级”中选择另一个活动服务器，然后再移除此服务器。",
-          "removeActiveServerDescription": "请先在“高级”中选择另一个活动服务器，然后再移除此服务器。现有的主机会话将保留。",
-          "updatingServers": "正在更新服务器…",
-          "workflow": "远程服务器工作流程",
-          "connectWorkflow": "连接到主机",
-          "connectWorkflowHelp": "此应用加入另一台机器",
-          "troubleshootWorkflow": "连接故障排除",
-          "sshTunnelRequired": "需要 SSH 隧道",
-          "troubleshootTitle": "在另一台主机上创建新链接",
-          "troubleshootDescription": "使用 127.0.0.1 的链接会指向打开它的设备，而不是创建它的计算机。",
-          "troubleshootStepShare": "在另一台计算机上，打开“共享此主机”。",
-          "troubleshootStepAddress": "选择“其他设备”，然后选择其 Tailscale 或 LAN 地址。",
-          "troubleshootStepRegenerate": "生成新的访问链接，并仅在此处使用最新的链接。",
-          "troubleshootTunnel": "正在使用 SSH 本地转发？返回“连接到主机”，粘贴环回链接，然后在“高级”下启用“我正在使用 SSH 隧道”。",
-          "serverWorkspaceWindowClosed": "工作区窗口已关闭",
-          "serverRuntimeUnavailable": "Orca 不可用",
-          "serverRuntimeUnavailableDescription": "SSH 传输已连接，但 Orca 运行时未应答。主机可能仍在运行。",
-          "serverReconnecting": "重新连接"
-        },
         "Settings": {
           "3bf149e873": "项目设置 > {{value0}}",
           "075341c763": "仍在形成的新功能。尝试一下。",
@@ -6884,9 +6720,6 @@
           "65660d4548": "macOS 权限",
           "c2ee313198": "通过 SSH 使用已有机器处理文件、终端、Git 和工作区。",
           "9b02492d1f": "SSH 远程主机",
-          "b5ee17826b": "配对远程 Orca 运行时，以获得持久会话、更丰富的远程状态，以及 Web 或移动端接续。",
-          "7686cb5c36": "将此浏览器连接到已保存的 Orca 服务器。",
-          "bd0181eeca": "远程 Orca 服务器",
           "8acf3f22e0": "Orca 统计，以及 Claude、Codex、OpenCode、Muse Token 分析和 Grok 订阅使用量。",
           "954a8f5aef": "统计和使用情况",
           "a737a4bb22": "常见操作的键盘快捷键。",
@@ -7957,13 +7790,6 @@
             "c4e3bf3282": "选项卡",
             "a8c55c9c91": "图标",
             "660c1dd007": "标签",
-            "clientHostedRemote": {
-              "remote": "偏僻的",
-              "client": "客户",
-              "host": "主持人",
-              "desktop": "桌面",
-              "placement": "放置"
-            },
             "sshWorkspaceRouting": {
               "ssh": "SSH",
               "proxy": "代理",
@@ -8521,20 +8347,6 @@
             }
           }
         },
-        "machine": {
-          "name": {
-            "search": {
-              "title": "机器名称",
-              "description": "选择其他设备和主机用来显示这台电脑的名称。",
-              "machineName": "机器名称",
-              "machine": "机器",
-              "hostname": "主机名",
-              "computer": "电脑",
-              "rename": "重命名",
-              "name": "名称"
-            }
-          }
-        },
         "mobile": {
           "emulator": {
             "search": {
@@ -8837,27 +8649,6 @@
             "distro": "发行版",
             "agentRuntime": "代理运行时",
             "skillRuntime": "技能运行时间"
-          }
-        },
-        "runtime": {
-          "environments": {
-            "search": {
-              "772e3b4753": "虚拟机",
-              "45501ff2c3": "云",
-              "2bd988d041": "配对码",
-              "5cd7dca3b8": "远程",
-              "d760866285": "客户",
-              "09568ccc65": "服务器",
-              "ebd5369acf": "环境",
-              "d198440ce3": "运行时",
-              "baec27aa8f": "将此浏览器连接到已保存的 Orca 服务器。",
-              "3517fb2ec0": "活动服务器",
-              "c6e5a03aa0": "开发盒",
-              "f1575f1e09": "网络客户端",
-              "81444c4102": "配对网址",
-              "104f4d7dbd": "配对",
-              "4575341c77": "选择本地桌面、添加已保存的远程 Orca 服务器或生成配对 URL。"
-            }
           }
         },
         "shortcutDefinitionCatalog": {
@@ -9423,8 +9214,7 @@
           "6f7a8b9cad": "使用相对路径（例如 .orca/worktrees）可让每个项目使用各自的位置，使用绝对路径则所有项目共用一个文件夹。"
         },
         "ProviderHostScopeControl": {
-          "scope_label": "{{value0}}：{{value1}}",
-          "change_host": "打开远程服务器"
+          "scope_label": "{{value0}}：{{value1}}"
         },
         "providerAccountScope": {
           "remoteServer": "远程服务器：{{value0}}",
@@ -9660,43 +9450,6 @@
           "title": "编辑器字体",
           "description": "文件编辑器和差异视图使用的字体，留空则跟随终端字体。",
           "placeholder": "与终端字体相同"
-        },
-        "RemoteServerUpdateDialog": {
-          "versionUnavailable": "版本不可用",
-          "restartingHelp": "正在等待替代服务器在新版本上重新连接。",
-          "retry": "重试",
-          "update": "更新",
-          "title": "更新远程 Orca 服务器",
-          "description": "查看已配对的服务器，并从此 Orca 客户端更新受支持的安装。",
-          "restartWarning": "更新将重启这些服务器。{{value0}} 个活动标签页和 {{value1}} 个终端窗格可能会短暂断开连接。",
-          "checking": "正在检查已配对的服务器…",
-          "empty": "没有已配对的远程 Orca 服务器。",
-          "checkAgain": "再次检查",
-          "updating": "正在更新服务器…",
-          "updateAll": "更新 {{value0}} 台服务器",
-          "noUpdates": "没有可用更新",
-          "updateOne": "更新服务器",
-          "downloadProgress": "{{value0}} 下载进度",
-          "liveTabOne": "1 个活动标签页",
-          "liveTabs": "{{value0}} 个活动标签页",
-          "livePaneOne": "1 个活动窗格",
-          "livePanes": "{{value0}} 个活动窗格"
-        },
-        "RemoteServerUpdateStatus": {
-          "checking": "检查中…",
-          "available": "有可用更新",
-          "current": "已是最新",
-          "manual": "手动更新",
-          "offline": "离线",
-          "queued": "已排队",
-          "checkingUpdate": "正在检查更新…",
-          "downloading": "正在下载…",
-          "restarting": "正在重启…",
-          "updated": "已更新",
-          "failed": "更新失败",
-          "serviceManagerHelp": "通过启动此服务器的服务管理器更新 Orca。",
-          "unpackedHelp": "开发版本必须从其源代码检出进行更新。",
-          "legacyHelp": "手动更新此服务器一次以启用远程更新。"
         },
         "BrowserLinkRoutingSetting": {
           "description": "在 Orca 内置浏览器中打开来自终端、Markdown 和编辑器的 http(s) 链接。{{shortcut}} 始终使用系统浏览器。",
@@ -9958,45 +9711,6 @@
           "lastProviderHint": "任务中必须至少保留一个可见提供商。",
           "title": "在任务中显示",
           "description": "在任务来源选择器和侧边栏快捷方式中显示此提供商。"
-        },
-        "RuntimeHostAccessForm": {
-          "getLink": "从另一台主机获取访问链接",
-          "stepOpenShare": "打开设置 → 远程 Orca 服务器 → 共享此主机。",
-          "stepChooseAddress": "选择“其他设备”，然后选择一个可达地址。",
-          "stepCopyLink": "生成链接，然后复制“配对另一个 Orca 客户端”链接。",
-          "name": "在 Orca 中的名称",
-          "namePlaceholder": "Linux 工作站",
-          "nameHelp": "这仅更改计算机在 Orca 中的显示方式。",
-          "accessLink": "访问链接",
-          "accessLinkPlaceholder": "orca://pair?code=...",
-          "accessLinkHelp": "Orca 会在连接前显示目标。凭据保持隐藏。",
-          "destination": "链接目标",
-          "loopbackTitle": "此链接指向此设备",
-          "loopbackDescription": "{{endpoint}} 会指向打开链接的设备，而不是创建链接的另一台计算机。",
-          "loopbackRecovery": "在另一台计算机上，使用“其他设备”创建新链接，并选择其 Tailscale 或 LAN 地址。",
-          "identityMismatch": "到达的 Orca 主机与此访问链接不匹配",
-          "identityMismatchHelp": "已连接到 {{endpoint}} 上的 Orca，但该主机与此链接不匹配。请在另一台主机上生成新链接。",
-          "invalidLink": "此访问链接不再有效",
-          "invalidLinkHelp": "请在另一台主机上生成新的访问链接，然后重试。",
-          "incompatible": "Orca 版本不兼容",
-          "incompatibleHelp": "请更新此设备和另一台主机上的 Orca，然后重试。",
-          "interrupted": "连接中断",
-          "interruptedHelp": "验证期间连接已中断。请检查网络或 SSH 隧道，然后重试。",
-          "unavailable": "主机不可用",
-          "unavailableHelp": "请确保 Orca 正在另一台主机上运行，并且网络或 SSH 隧道可以连接到 {{endpoint}}。",
-          "advanced": "高级",
-          "sshTunnel": "我正在使用 SSH 隧道连接到此本地地址",
-          "sshTunnelHelp": "使用此连接时保持隧道活跃。",
-          "headlessHelp": "正在使用无头 orca serve？在另一台计算机上运行 orca serve --pairing-address <可达主机>。",
-          "cancel": "取消",
-          "addWithTunnel": "使用隧道添加主机",
-          "addHost": "添加主机",
-          "connectionDetails": "连接详情",
-          "endpointKind": "端点类型",
-          "networkConnection": "网络连接",
-          "notAttempted": "未尝试",
-          "saveFailed": "无法保存主机",
-          "saveFailedHelp": "主机已验证，但 Orca 无法保存。检查名称和本地设置存储，然后重试。"
         },
         "VoiceMicrophoneSetting": {
           "systemDefault": "系统默认",
@@ -14612,17 +14326,6 @@
       }
     },
     "runtime": {
-      "remoteServerUpdateErrors": {
-        "manualRequired": "此服务器必须通过其服务管理器手动更新。",
-        "notAvailable": "服务器不再报告有可用更新。请再次检查。",
-        "notDownloaded": "服务器更新尚未下载完成。",
-        "legacyServer": "请手动更新此服务器一次，以启用远程更新。",
-        "updaterTimeout": "等待服务器更新器超时。",
-        "requestedVersionUnavailable": "服务器更新器未提供所请求的 Orca 版本。",
-        "updateUnavailable": "服务器未报告有可用更新。",
-        "downloadIncomplete": "服务器更新未完成下载。",
-        "reconnectTimeout": "服务器未以更新后的版本重新连接。"
-      },
       "webRuntimeSession": {
         "remoteHostDisconnected": "工作区未连接到远程 Orca 主机。"
       }
@@ -15902,10 +15605,6 @@
       "computersConsent": "每台计算机都保留自己的代理对话和工具输出的可搜索副本。没有任何东西离开那台计算机。",
       "serverVersion": "Orca v{{version}}",
       "rowSwitchLabel": "搜索 {{host}} 上的会话",
-      "serverOffline": "离线",
-      "serverTooOld": "需要更新版本的 Orca。",
-      "updateServer": "更新服务器",
-      "serverToggleError": "无法更改 {{host}} 上的会话搜索。再试一次。",
       "clearedAndTurnedOff": "搜索已关闭，搜索数据已清除。",
       "thisComputer": "这台电脑",
       "remoteServers": "Orca 远程服务器",
@@ -15913,8 +15612,7 @@
       "showFewer": "显示较少",
       "openInSidebar": "在侧边栏中打开",
       "openInSidebarCopy": "输入您记得的内容，或询问代理：“找到我们修复登录超时的会话。”",
-      "open": "打开",
-      "enableOnAll": "在所有计算机上启用"
+      "open": "打开"
     }
   },
   "aiVault": {

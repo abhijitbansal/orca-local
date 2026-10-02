@@ -102,7 +102,7 @@ describe('settings navigation metadata', () => {
     expect(webIds).not.toContain('computer-use')
     expect(webIds).not.toContain('voice')
     expect(webIds).not.toContain('advanced')
-    expect(webIds).toContain('servers')
+    expect(webIds).not.toContain('servers')
     expect(webIds).toContain('repo-repo-1')
     const floatingWorkspace = webSections.find((section) => section.id === 'floating-workspace')
     expect(floatingWorkspace?.description).toBe('Global terminal and markdown tabs.')

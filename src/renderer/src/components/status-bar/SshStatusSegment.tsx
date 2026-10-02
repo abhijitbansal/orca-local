@@ -1,66 +1,25 @@
-import React, { useCallback, useMemo } from 'react'
+import React from 'react'
 import { AlertTriangle, Loader2, MonitorSmartphone, Server, ServerOff } from 'lucide-react'
-import { toast } from 'sonner'
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { useAppStore } from '../../store'
 import type { SshConnectionStatus } from '../../../../shared/ssh-types'
 import { translate } from '@/i18n/i18n'
-import { getHostDisplayLabelOverrides } from '../../../../shared/host-setting-overrides'
-import {
-  isRuntimeOwnedSshTargetId,
-  toRuntimeExecutionHostId
-} from '../../../../shared/execution-host'
-import { isUserManagedRuntimeEnvironment } from '../../../../shared/runtime-environments'
-import { RuntimeHostStatusRow } from './RuntimeHostStatusRow'
+import { isRuntimeOwnedSshTargetId } from '../../../../shared/execution-host'
 import {
   connectedHostCountLabel,
   connectingHostsLabel,
   workspaceSyncProblemLabel
 } from './ssh-status-segment-copy'
 import { SshTargetStatusRow } from './SshTargetStatusRow'
-import { connectRuntimeEnvironmentAndRecordStatus } from './runtime-environment-explicit-connect'
 import {
   overallDotColor,
   overallStatus,
-  runtimeHostConnectionDetail,
   sshStatusForOverall
 } from './remote-host-connection-status'
-import {
-  isConnectedRuntimeHostState,
-  runtimeHostConnectionStateForEntry,
-  runtimeStatusForOverall
-} from '@/runtime/runtime-host-connection-state'
-import { refreshRuntimeProjectWorktreesAndLineage } from '@/hooks/runtime-project-refresh-scheduler'
-import type { ExecutionHostId } from '../../../../shared/execution-host'
-
-export async function connectRuntimeHostForNavigation(args: {
-  environmentId: string
-  refreshStatus: (environmentId: string, timeoutMs: number) => Promise<boolean>
-  fetchRepos: (environmentId: string) => Promise<{ id: string }[]>
-  fetchWorktrees: (
-    repoId: string,
-    options: { executionHostId: ExecutionHostId; suppressRemoteLineageRefresh: true }
-  ) => Promise<unknown>
-  fetchLineage: (options: { executionHostId: ExecutionHostId }) => Promise<unknown>
-}): Promise<boolean> {
-  if (!(await args.refreshStatus(args.environmentId, 5_000))) {
-    return false
-  }
-  const repos = await args.fetchRepos(args.environmentId)
-  await refreshRuntimeProjectWorktreesAndLineage(
-    args.environmentId,
-    repos,
-    args.fetchWorktrees,
-    args.fetchLineage
-  )
-  return true
-}
 
 export function SshStatusSegment({
   compact,
@@ -71,19 +30,11 @@ export function SshStatusSegment({
 }): React.JSX.Element | null {
   const sshConnectionStates = useAppStore((s) => s.sshConnectionStates)
   const sshTargetLabels = useAppStore((s) => s.sshTargetLabels)
-  const settings = useAppStore((s) => s.settings)
-  const runtimeEnvironments = useAppStore((s) => s.runtimeEnvironments)
-  const runtimeStatusByEnvironmentId = useAppStore((s) => s.runtimeStatusByEnvironmentId)
-  const readRuntimeHostStatusSnapshots = useAppStore((s) => s.readRuntimeHostStatusSnapshots)
-  const hydrateRuntimeEnvironmentStatuses = useAppStore((s) => s.hydrateRuntimeEnvironmentStatuses)
   const remoteWorkspaceSyncStatusByTargetId = useAppStore(
     (s) => s.remoteWorkspaceSyncStatusByTargetId
   )
-  const setActiveView = useAppStore((s) => s.setActiveView)
-  const openSettingsTarget = useAppStore((s) => s.openSettingsTarget)
   const recordFeatureInteraction = useAppStore((s) => s.recordFeatureInteraction)
 
-  const hostLabelOverrides = useMemo(() => getHostDisplayLabelOverrides(settings), [settings])
   const targets = Array.from(sshTargetLabels.entries())
     // Why: runtime-owned (per-workspace-env) SSH targets are hidden — never list them
     // as a user-facing SSH host in the status bar.
@@ -97,85 +48,13 @@ export function SshStatusSegment({
         syncStatus: remoteWorkspaceSyncStatusByTargetId[id]
       }
     })
-  const runtimeHosts = runtimeEnvironments
-    .filter(isUserManagedRuntimeEnvironment)
-    .map((environment) => {
-      const statusEntry = runtimeStatusByEnvironmentId.get(environment.id)
-      const override = hostLabelOverrides.get(toRuntimeExecutionHostId(environment.id))
-      return {
-        id: environment.id,
-        label: override || environment.name || environment.id,
-        snapshot: statusEntry?.snapshot,
-        status: statusEntry?.status ?? null,
-        active: settings?.activeRuntimeEnvironmentId === environment.id,
-        remoteControl: statusEntry?.remoteControl ?? statusEntry?.status?.remoteControl ?? null
-      }
-    })
-  const runtimeHostRows = runtimeHosts.map((host) => ({
-    ...host,
-    state: runtimeHostConnectionStateForEntry(runtimeStatusByEnvironmentId.get(host.id))
-  }))
-  // Available remote servers are online even when they are not the active runtime.
-  // Keep host health separate from the advanced active-server selection.
-  const connectedRuntimeHosts = runtimeHostRows.filter((host) =>
-    isConnectedRuntimeHostState(host.state)
-  )
-  const inactiveRuntimeHosts = runtimeHostRows.filter(
-    (host) => !isConnectedRuntimeHostState(host.state)
-  )
   const connectedTargets = targets.filter((target) => target.status === 'connected')
   const disconnectedTargets = targets.filter((target) => target.status !== 'connected')
-  const connectRuntimeHost = useCallback(
-    async (environmentId: string): Promise<void> => {
-      const store = useAppStore.getState()
-      const reachable = await connectRuntimeHostForNavigation({
-        environmentId,
-        refreshStatus: connectRuntimeEnvironmentAndRecordStatus,
-        fetchRepos: store.fetchRuntimeEnvironmentRepos,
-        fetchWorktrees: store.fetchWorktrees,
-        fetchLineage: store.fetchWorktreeLineage
-      })
-      if (!reachable) {
-        toast.error(
-          translate(
-            'auto.components.status.bar.SshStatusSegment.runtime_connect_unavailable',
-            'Remote host is not reachable'
-          )
-        )
-        return
-      }
-      recordFeatureInteraction('ssh')
-    },
-    [recordFeatureInteraction]
-  )
-  const disconnectRuntimeHost = useCallback(
-    async (environmentId: string): Promise<void> => {
-      try {
-        await window.api.runtimeEnvironments.disconnect({ selector: environmentId })
-        await readRuntimeHostStatusSnapshots()
-        recordFeatureInteraction('ssh')
-      } catch (err) {
-        toast.error(
-          err instanceof Error
-            ? err.message
-            : translate(
-                'auto.components.status.bar.SshStatusSegment.runtime_disconnect_failed',
-                'Disconnect failed'
-              )
-        )
-      }
-    },
-    [recordFeatureInteraction, readRuntimeHostStatusSnapshots]
-  )
-
-  if (targets.length === 0 && runtimeHosts.length === 0) {
+  if (targets.length === 0) {
     return null
   }
 
-  const statuses = [
-    ...targets.map((t) => sshStatusForOverall(t.status)),
-    ...runtimeHostRows.map((host) => runtimeStatusForOverall(host.state))
-  ]
+  const statuses = targets.map((t) => sshStatusForOverall(t.status))
   const overall = overallStatus(statuses)
   const connectedHostCount = statuses.filter((status) => status === 'connected').length
   const anyConnecting = overall === 'connecting'
@@ -189,7 +68,6 @@ export function SshStatusSegment({
     <DropdownMenu
       onOpenChange={(open) => {
         if (open) {
-          void hydrateRuntimeEnvironmentStatuses()
           recordFeatureInteraction('ssh')
         }
       }}
@@ -259,17 +137,6 @@ export function SshStatusSegment({
         <div className="px-2 pt-1.5 pb-1 text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
           {translate('auto.components.status.bar.SshStatusSegment.6e8a9a4242', 'Remote Hosts')}
         </div>
-        {connectedRuntimeHosts.map((host) => (
-          <RuntimeHostStatusRow
-            key={host.id}
-            label={host.label}
-            state={host.state}
-            detail={runtimeHostConnectionDetail(host.remoteControl)}
-            diagnostics={host.remoteControl}
-            onConnect={() => connectRuntimeHost(host.id)}
-            onDisconnect={() => disconnectRuntimeHost(host.id)}
-          />
-        ))}
         {connectedTargets.map((t) => (
           <SshTargetStatusRow
             key={t.id}
@@ -277,17 +144,6 @@ export function SshStatusSegment({
             label={t.label}
             status={t.status}
             syncStatus={t.syncStatus}
-          />
-        ))}
-        {inactiveRuntimeHosts.map((host) => (
-          <RuntimeHostStatusRow
-            key={host.id}
-            label={host.label}
-            state={host.state}
-            detail={runtimeHostConnectionDetail(host.remoteControl)}
-            diagnostics={host.remoteControl}
-            onConnect={() => connectRuntimeHost(host.id)}
-            onDisconnect={() => disconnectRuntimeHost(host.id)}
           />
         ))}
         {disconnectedTargets.map((t) => (
@@ -299,19 +155,6 @@ export function SshStatusSegment({
             syncStatus={t.syncStatus}
           />
         ))}
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onSelect={() => {
-            recordFeatureInteraction('ssh')
-            openSettingsTarget({ pane: 'servers', repoId: null })
-            setActiveView('settings')
-          }}
-        >
-          {translate(
-            'auto.components.status.bar.SshStatusSegment.3ad70e0365',
-            'Manage Remote Hosts…'
-          )}
-        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

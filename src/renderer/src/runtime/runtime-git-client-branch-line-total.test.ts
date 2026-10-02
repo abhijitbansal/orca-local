@@ -4,7 +4,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from './runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from './runtime-rpc-client'
 
 const MERGE_BASE = '1f3c0d9a5b6e7f8091a2b3c4d5e6f708192a3b4c'
 
@@ -14,7 +13,6 @@ const runtimeEnvironmentCall = vi.fn()
 const runtimeEnvironmentTransportCall = vi.fn()
 
 beforeEach(() => {
-  clearRuntimeCompatibilityCacheForTests()
   gitStatus.mockReset()
   gitStatus.mockResolvedValue({ entries: [], conflictOperation: 'unknown' })
   gitCancelStatus.mockReset()
@@ -66,68 +64,6 @@ describe('branch line total merge base on git status requests', () => {
     expect(gitStatus).toHaveBeenNthCalledWith(3, {
       worktreePath: '/repo',
       connectionId: undefined
-    })
-  })
-
-  it('forwards the merge base through the active runtime environment', async () => {
-    await getRuntimeGitStatus(
-      {
-        settings: { activeRuntimeEnvironmentId: 'env-1' },
-        worktreeId: 'wt-1',
-        worktreePath: '/repo'
-      },
-      { branchLineTotalMergeBase: MERGE_BASE }
-    )
-
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-      selector: 'env-1',
-      method: 'git.status',
-      params: { worktree: 'id:wt-1', branchLineTotalMergeBase: MERGE_BASE },
-      timeoutMs: 15_000
-    })
-  })
-
-  it('omits the merge base param entirely for a remote status with no visible chip', async () => {
-    // Why: Rule-1 wire safety — an old server must see the exact params it
-    // already understands, and a hidden chip must not cost a remote diff.
-    await getRuntimeGitStatus({
-      settings: { activeRuntimeEnvironmentId: 'env-1' },
-      worktreeId: 'wt-1',
-      worktreePath: '/repo'
-    })
-
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-      selector: 'env-1',
-      method: 'git.status',
-      params: { worktree: 'id:wt-1' },
-      timeoutMs: 15_000
-    })
-  })
-
-  it('keeps the merge base alongside reuse and cache-bypass flags', async () => {
-    await getRuntimeGitStatus(
-      {
-        settings: { activeRuntimeEnvironmentId: 'env-1' },
-        worktreeId: 'wt-1',
-        worktreePath: '/repo'
-      },
-      {
-        reuseLineStats: true,
-        bypassEffectiveUpstreamNegativeCache: true,
-        branchLineTotalMergeBase: MERGE_BASE
-      }
-    )
-
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-      selector: 'env-1',
-      method: 'git.status',
-      params: {
-        worktree: 'id:wt-1',
-        bypassEffectiveUpstreamNegativeCache: true,
-        reuseLineStats: true,
-        branchLineTotalMergeBase: MERGE_BASE
-      },
-      timeoutMs: 15_000
     })
   })
 })

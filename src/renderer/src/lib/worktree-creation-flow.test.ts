@@ -163,22 +163,6 @@ describe('runBackgroundWorktreeCreation', () => {
       })
     )
   })
-
-  it('falls back to focused runtime state for legacy captured requests', () => {
-    store.settings.activeRuntimeEnvironmentId = 'focused-runtime'
-    store.beginPendingWorktreeCreation.mockClear()
-
-    runBackgroundWorktreeCreation(makeRequest())
-
-    expect(store.beginPendingWorktreeCreation).toHaveBeenCalledWith(
-      expect.objectContaining({
-        indeterminate: true,
-        request: expect.not.objectContaining({
-          worktreeCreateProgressMode: expect.any(String)
-        })
-      })
-    )
-  })
 })
 
 describe('staged background worktree creation', () => {

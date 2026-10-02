@@ -10,33 +10,17 @@ import { ConfirmationDialogContext } from '@/components/confirmation-dialog-cont
 import { SessionHistorySettingsPane } from './SessionHistorySettingsPane'
 
 const mocks = vi.hoisted(() => {
-  const environments: { id: string; name: string }[] = []
-  const statusByHost: Record<string, unknown> = {}
-  const details: Record<string, unknown> = {}
   return {
     web: false,
     visible: true,
     status: vi.fn(),
-    statusByHost,
     clear: vi.fn(),
     setEnabled: vi.fn(),
-    environments,
-    details,
     closeSettingsPage: vi.fn(),
     showAiVaultSearch: vi.fn(),
     markFeatureTipsSeen: vi.fn()
   }
 })
-vi.mock('./use-runtime-environment-catalog', () => ({
-  useRuntimeEnvironmentCatalog: () => ({
-    environments: mocks.environments,
-    isLoading: false,
-    detailsByEnvironmentId: mocks.details,
-    setDetailsByEnvironmentId: vi.fn(),
-    mountedRef: { current: true },
-    loadEnvironments: vi.fn()
-  })
-}))
 vi.mock('@/store', () => ({
   useAppStore: (selector: (state: Record<string, unknown>) => unknown) =>
     selector({
@@ -75,41 +59,6 @@ function pane(
     </ConfirmationDialogContext.Provider>
   )
 }
-const CONNECTED_DETAILS = {
-  status: 'ready',
-  runtimeStatus: {
-    runtimeId: 'runtime-1',
-    rendererGraphEpoch: 1,
-    graphStatus: 'ready',
-    authoritativeWindowId: 1,
-    liveTabCount: 1,
-    liveLeafCount: 1,
-    appVersion: '1.4.202'
-  },
-  remoteControl: null,
-  compatibility: { kind: 'ok', clientProtocolVersion: 1, serverProtocolVersion: 1 },
-  error: null
-}
-const OFFLINE_DETAILS = {
-  status: 'error',
-  runtimeStatus: null,
-  remoteControl: null,
-  compatibility: null,
-  error: 'unreachable'
-}
-/** Answers status per host so one pane can hold servers in different states. */
-function statusByHost(): void {
-  mocks.status.mockImplementation(async (hostId: string) => {
-    const answer = mocks.statusByHost[hostId]
-    if (answer === undefined) {
-      return unavailableSessionSearchStatus()
-    }
-    if (answer === 'too-old') {
-      throw new Error("Error invoking remote method 'x': Error: host-too-old")
-    }
-    return answer
-  })
-}
 const enableAllButton = () => screen.queryByRole('button', { name: 'Enable on all computers' })
 async function openAdvanced(): Promise<void> {
   await act(async () => {
@@ -124,14 +73,10 @@ const current: AiVaultSearchStatus = {
   messagesIndexed: 3_400,
   lastSweepCompletedAt: 1
 }
-const off: AiVaultSearchStatus = unavailableSessionSearchStatus()
 beforeEach(() => {
   vi.useFakeTimers()
   mocks.web = false
   mocks.visible = true
-  mocks.environments = []
-  mocks.details = {}
-  mocks.statusByHost = {}
   mocks.closeSettingsPage.mockReset()
   mocks.showAiVaultSearch.mockReset()
   mocks.status.mockReset().mockResolvedValue(current)
@@ -337,25 +282,8 @@ it('keeps the last index status visible while a save is in flight', async () => 
   })
 })
 
-it('lists one row per paired Orca server under this computer, and says where SSH stands', async () => {
-  mocks.environments = [
-    { id: 'env-1', name: 'build-box' },
-    { id: 'env-2', name: 'office-mini' }
-  ]
-  pane(true)
-  await act(async () => {})
-  const switches = screen.getAllByRole('switch')
-  expect(switches).toHaveLength(3)
-  expect(screen.getByRole('switch', { name: 'Search sessions on build-box' })).toBeInTheDocument()
-  expect(screen.getByRole('switch', { name: 'Search sessions on office-mini' })).toBeInTheDocument()
-  expect(mocks.status).toHaveBeenCalledWith('local')
-  expect(screen.getByText('This computer')).toBeInTheDocument()
-  expect(screen.getByText('Orca remote servers')).toBeInTheDocument()
-})
-
 it('offers only this computer to a paired client, with no server rows', async () => {
   mocks.web = true
-  mocks.environments = [{ id: 'env-1', name: 'build-box' }]
   pane(true)
   await act(async () => {})
   expect(screen.getAllByRole('switch')).toHaveLength(1)
@@ -366,29 +294,6 @@ it('offers only this computer to a paired client, with no server rows', async ()
   expect(mocks.status).not.toHaveBeenCalled()
 })
 
-/** Local on, one server on, one off, one offline, one too old. */
-function mixedFleet(): void {
-  mocks.environments = [
-    { id: 'on', name: 'build-01' },
-    { id: 'off', name: 'gpu-a' },
-    { id: 'gone', name: 'linux 1' },
-    { id: 'old', name: 'm4 air' }
-  ]
-  mocks.details = {
-    on: CONNECTED_DETAILS,
-    off: CONNECTED_DETAILS,
-    gone: OFFLINE_DETAILS,
-    old: CONNECTED_DETAILS
-  }
-  mocks.statusByHost = {
-    local: current,
-    'runtime:on': current,
-    'runtime:off': off,
-    'runtime:old': 'too-old'
-  }
-  statusByHost()
-}
-
 it('leaves a lone computer to its own switch, with no roll-up above it', async () => {
   pane(true)
   await act(async () => {})
@@ -396,140 +301,4 @@ it('leaves a lone computer to its own switch, with no roll-up above it', async (
   expect(enableAllButton()).not.toBeInTheDocument()
   expect(screen.queryByText('This computer')).not.toBeInTheDocument()
   expect(screen.queryByText('Orca remote servers')).not.toBeInTheDocument()
-})
-
-it('offers the button only while a paired server is reachable and off', async () => {
-  mixedFleet()
-  pane(true)
-  await act(async () => {})
-  expect(enableAllButton()).toBeInTheDocument()
-
-  // gpu-a was the only eligible one; with it on, the offline and too-old rows leave nothing to do.
-  mocks.statusByHost = { ...mocks.statusByHost, 'runtime:off': current }
-  statusByHost()
-  cleanup()
-  pane(true)
-  await act(async () => {})
-  expect(enableAllButton()).not.toBeInTheDocument()
-})
-
-it('does not offer the button for a server whose state is still unknown', async () => {
-  mocks.environments = [{ id: 'a', name: 'gpu-a' }]
-  mocks.details = {}
-  mocks.statusByHost = { local: current }
-  statusByHost()
-  pane(true)
-  await act(async () => {})
-  expect(enableAllButton()).not.toBeInTheDocument()
-})
-
-it('enables every reachable server and skips the ones it cannot', async () => {
-  mixedFleet()
-  const confirm = vi.fn().mockResolvedValue(true)
-  pane(true, confirm)
-  await act(async () => {})
-  await act(async () => {
-    fireEvent.click(screen.getByRole('button', { name: 'Enable on all computers' }))
-  })
-  expect(confirm).not.toHaveBeenCalled()
-  // linux 1 is offline and m4 air is too old, so neither is asked; build-01 is already on.
-  expect(mocks.setEnabled.mock.calls.map((call) => call[0])).toEqual(['runtime:off'])
-})
-
-it('enables this computer as part of enabling them all', async () => {
-  mocks.environments = [{ id: 'off', name: 'gpu-a' }]
-  mocks.details = { off: CONNECTED_DETAILS }
-  mocks.statusByHost = { local: off, 'runtime:off': off }
-  statusByHost()
-  const save = vi.fn().mockResolvedValue(undefined)
-  pane(false, undefined, save)
-  await act(async () => {})
-  await act(async () => {
-    fireEvent.click(screen.getByRole('button', { name: 'Enable on all computers' }))
-  })
-  expect(save).toHaveBeenCalledWith({ aiVaultSearch: { enabled: true, historyDays: null } })
-  expect(mocks.setEnabled).toHaveBeenCalledWith('runtime:off', true)
-})
-
-it('keeps going after a host refuses, and names the one that did', async () => {
-  mocks.environments = [
-    { id: 'a', name: 'gpu-a' },
-    { id: 'b', name: 'gpu-b' }
-  ]
-  mocks.details = { a: CONNECTED_DETAILS, b: CONNECTED_DETAILS }
-  mocks.statusByHost = { local: current, 'runtime:a': off, 'runtime:b': off }
-  statusByHost()
-  mocks.setEnabled.mockRejectedValueOnce(new Error('relay down')).mockResolvedValue(current)
-  pane(true)
-  await act(async () => {})
-  await act(async () => {
-    fireEvent.click(screen.getByRole('button', { name: 'Enable on all computers' }))
-  })
-  expect(mocks.setEnabled.mock.calls.map((call) => call[0])).toEqual(['runtime:a', 'runtime:b'])
-  expect(screen.getByRole('alert')).toHaveTextContent('Could not change session search on gpu-a')
-})
-
-it('remembers nothing after a server is turned back off by hand', async () => {
-  mocks.environments = [{ id: 'a', name: 'gpu-a' }]
-  mocks.details = { a: CONNECTED_DETAILS }
-  mocks.statusByHost = { local: current, 'runtime:a': current }
-  statusByHost()
-  const save = vi.fn().mockResolvedValue(undefined)
-  pane(true, undefined, save)
-  await act(async () => {})
-  expect(enableAllButton()).not.toBeInTheDocument()
-  mocks.setEnabled.mockResolvedValue(off)
-  await act(async () => {
-    fireEvent.click(screen.getByRole('switch', { name: 'Search sessions on gpu-a' }))
-  })
-  // The row went off, so the offer comes straight back; no preference was written either way.
-  expect(enableAllButton()).toBeInTheDocument()
-  expect(save).not.toHaveBeenCalled()
-})
-
-it('folds the list past six computers and orders it by what the user can act on', async () => {
-  mocks.environments = [
-    { id: 'gone', name: 'zz-offline' },
-    { id: 'old', name: 'aa-old' },
-    { id: 'off1', name: 'bb-off' },
-    { id: 'off2', name: 'aa-off' },
-    { id: 'on1', name: 'zz-on' },
-    { id: 'on2', name: 'aa-on' }
-  ]
-  mocks.details = {
-    gone: OFFLINE_DETAILS,
-    old: CONNECTED_DETAILS,
-    off1: CONNECTED_DETAILS,
-    off2: CONNECTED_DETAILS,
-    on1: CONNECTED_DETAILS,
-    on2: CONNECTED_DETAILS
-  }
-  mocks.statusByHost = {
-    local: current,
-    'runtime:old': 'too-old',
-    'runtime:off1': off,
-    'runtime:off2': off,
-    'runtime:on1': current,
-    'runtime:on2': current
-  }
-  statusByHost()
-  pane(true)
-  await act(async () => {})
-  // The local row's label is the host's own name, which differs per platform; the servers are the order under test.
-  const serverNames = (): string[] =>
-    screen
-      .getAllByRole('switch')
-      .map((element) => element.getAttribute('aria-label') ?? '')
-      .filter((label) => label.startsWith('Search sessions on '))
-      .map((label) => label.replace('Search sessions on ', ''))
-      .slice(1)
-  expect(serverNames()).toEqual(['aa-on', 'zz-on', 'aa-off', 'bb-off', 'aa-old'])
-  await act(async () => {
-    fireEvent.click(screen.getByRole('button', { name: 'Show 1 more' }))
-  })
-  expect(serverNames()).toEqual(['aa-on', 'zz-on', 'aa-off', 'bb-off', 'aa-old', 'zz-offline'])
-  await act(async () => {
-    fireEvent.click(screen.getByRole('button', { name: 'Show fewer' }))
-  })
-  expect(screen.getByRole('button', { name: 'Show 1 more' })).toBeInTheDocument()
 })

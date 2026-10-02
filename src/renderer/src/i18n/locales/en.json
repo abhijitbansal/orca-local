@@ -162,13 +162,7 @@
     "browser": {
       "clientHostedRemote": {
         "title": "Host remote browser pages on this device",
-        "description": "Render remote workspace pages on this desktop; network traffic still goes through the remote host. Applies to new pages only.",
-        "optionDevice": "This device",
-        "optionDeviceTooltip": "Pages render on this desktop, so input and popups behave natively.",
-        "optionServer": "Server (streamed)",
-        "optionServerTooltip": "Pages render on the remote server and stream to this device.",
-        "rowTitle": "Remote server workspaces",
-        "rowDescription": "Where pages render. Traffic always goes through the remote server. Applies to new pages only."
+        "description": "Render remote workspace pages on this desktop; network traffic still goes through the remote host. Applies to new pages only."
       },
       "sshWorkspaceRouting": {
         "title": "Browse through SSH workspace hosts",
@@ -457,7 +451,6 @@
           "wslFilesystemBoundaryDescription": "Git for this project runs in {{distro}}, which reaches Windows drives over the WSL filesystem bridge. Expect git to be roughly 20x slower than it would be on a copy stored inside {{distro}}."
         },
         "settings": {
-          "e12dab333b": "Failed to switch servers",
           "faa8fb83dd": "Save or close unsaved editor tabs before switching servers."
         },
         "ui": {
@@ -568,18 +561,6 @@
             }
           }
         }
-      },
-      "remotePairingCopy": {
-        "invalidInput": "Enter an Orca access link or bare pairing code.",
-        "mobileOnly": "This link grants mobile-only access. Generate a link for another Orca client.",
-        "invalidDestination": "This access link contains an invalid destination.",
-        "unsupportedDestination": "This access link contains an unsupported destination.",
-        "nonConnectableDestination": "This access link contains a non-connectable destination.",
-        "loopback": "Loopback",
-        "tailscale": "Tailscale address",
-        "lan": "Private LAN address",
-        "public": "Public address",
-        "custom": "Custom hostname"
       },
       "ensure": {
         "simulator": {
@@ -982,7 +963,6 @@
         "31e57d1c70": "Use existing machines over SSH for files, terminals, Git, and workspaces.",
         "94a5afe910": "SSH Hosts",
         "40d80bad8a": "Beta",
-        "de0c2907a1": "Remote Orca Servers",
         "b351014180": "Orca stats plus Claude, Codex, OpenCode, Muse token analytics and Grok subscription usage.",
         "d72a58b5b9": "Stats & Usage",
         "dcd0d9b74f": "Keyboard shortcuts for common actions.",
@@ -1297,8 +1277,6 @@
         "addHostHint": "Register another machine or Orca server",
         "addSshHost": "Add SSH host",
         "addSshHostHint": "Use an existing machine over SSH",
-        "addRemoteOrcaServer": "Add Remote Orca Server",
-        "addRemoteOrcaServerHint": "Pair another Orca runtime",
         "hostConnectionFailed": "Connection failed"
       },
       "NewWorkspaceComposerModal": {
@@ -2927,12 +2905,10 @@
             "e9a5d3c2b1f0": "Kill {{value0}}?"
           },
           "SshStatusSegment": {
-            "3ad70e0365": "Manage Remote Hosts…",
             "6e8a9a4242": "Remote Hosts",
             "d09ec41831": "Remote Hosts",
             "fdc57e9970": "Remote host connection status",
             "59b553e2aa": "Disconnect",
-            "63f36455cc": "Connect",
             "bf07aee59e": "Disconnect failed",
             "2c29e2de68": "Connection failed",
             "bc5a3fd41a": "partial",
@@ -2941,17 +2917,6 @@
             "fbb3f9f05e": "conflict",
             "95e4ff5b4b": "pushing",
             "63a2b965f6": "pulling",
-            "remote_server": "Remote Server",
-            "runtime_checking": "Checking",
-            "runtime_online": "Connected",
-            "runtime_unavailable_transport_up": "Orca unavailable",
-            "runtime_unavailable": "Disconnected",
-            "runtime_connect_unavailable": "Remote host is not reachable",
-            "runtime_disconnect_failed": "Disconnect failed",
-            "runtime_reconnecting": "Reconnecting",
-            "runtime_last_close_reason": "Closed: {{value0}}",
-            "runtime_reconnect_attempt": "Attempt {{value0}}",
-            "runtime_workspace_window_closed": "Workspace window closed",
             "connectedHostCount_one": "{{count}} host",
             "connectedHostCount_other": "{{count}} hosts",
             "connecting": "Connecting…",
@@ -3236,16 +3201,6 @@
             "compactTooltip": "Condensed usage: only the tightest window",
             "footerDetailAria": "Usage footer detail"
           },
-          "RemoteServerUpdateStatusSegment": {
-            "updating": "Updating {{value0}}/{{value1}}",
-            "updatingTooltip": "Remote Orca Server updates are in progress",
-            "failed": "{{value0}} server updates failed",
-            "failedTooltip": "Open Remote Orca Server updates to review and retry",
-            "updated": "{{value0}} servers updated",
-            "updatedTooltip": "Remote Orca Server updates completed",
-            "failedOne": "1 server update failed",
-            "updatedOne": "1 server updated"
-          },
           "resource": {
             "memory": {
               "metric": {
@@ -3277,18 +3232,6 @@
             "onDescription": "Keep this computer awake continuously",
             "autoDescription": "Stay awake while an agent is working",
             "offDescription": "Allow normal system sleep behavior"
-          },
-          "RuntimeHostStatusRow": {
-            "previous_connection_closed": "The previous connection closed",
-            "workspace_window_closed": "The workspace window is closed",
-            "checking_host": "Orca is checking whether this host is reachable",
-            "restoring_connection": "Orca is trying to restore the connection",
-            "host_unreachable": "Orca isn’t reachable on this host",
-            "runtime_unavailable": "SSH transport is connected, but the Orca runtime is unavailable",
-            "runtime_unavailable_explanation": "The remote host may still be running; only the Orca runtime connection is unavailable.",
-            "contact_note": "The host may still be running; only the Orca connection is unavailable.",
-            "last_connected": "Last connected {{value0}}",
-            "reconnect_attempt": "Attempt {{value0}}"
           },
           "NativeChatResumeStatusSegment": {
             "labelOne": "1 chat to resume",
@@ -4179,11 +4122,9 @@
           "connecting": "Connecting",
           "connect": "Connect",
           "addSshHost": "Add SSH host",
-          "addRemoteServer": "Add remote server",
           "addRemoteHost": "Add remote host",
           "addRemoteHostTooltip": "Choose SSH for a machine you can log into, or remote server for an Orca server.",
           "addSshHostDetail": "Use an existing machine over SSH.",
-          "addRemoteServerDetail": "Pair with Orca running on another computer.",
           "addRemoteHostDetail": "SSH host or Orca server"
         },
         "AddRepoNestedImportStep": {
@@ -5089,10 +5030,8 @@
           "1a2b3c4d5e": "Removed {{value0}}",
           "2b3c4d5e6f": "Failed to remove host",
           "3c4d5e6f7a": "Remove {{value0}}?",
-          "4d5e6f7a8b": "This opens the Orca servers settings where you can remove this server.",
           "5e6f7a8b9c": "This removes the saved SSH host and its credentials from this computer. Remote files are not deleted.",
           "6f7a8b9c0d": "Cancel",
-          "7a8b9c0d1e": "Open settings",
           "8b9c0d1e2f": "Remove host",
           "workspacesFailed": "Could not remove {{count}} of this host’s workspaces. The host was kept so you can retry.",
           "oneWorkspace": "1 workspace",
@@ -5204,12 +5143,7 @@
           "sshRelayGraceInvalid": "Terminal timeout must be between 60 and {{value0}} seconds.",
           "sshSaved": "SSH host added.",
           "sshSaveFailed": "Failed to add SSH host.",
-          "serverFieldsRequired": "Server name and pairing code are required.",
-          "serverSaved": "Remote server added.",
-          "serverSaveFailed": "Failed to add remote server.",
-          "serverTitle": "Add remote server",
           "sshTitle": "Add SSH host",
-          "serverDescription": "Pair with Orca running on another computer.",
           "sshDescription": "Add a persistent machine you can log into over SSH.",
           "cancel": "Cancel",
           "saving": "Saving...",
@@ -5224,20 +5158,11 @@
           "identityFile": "Identity file",
           "identityFilePlaceholder": "~/.ssh/id_ed25519 (optional)",
           "sshPersistenceDefault": "Remote terminals on this host stay alive until you end them or reset the relay.",
-          "serverName": "Server name",
-          "serverNamePlaceholder": "Dev box",
-          "pairingCode": "Pairing code",
-          "pairingCodePlaceholder": "orca://pair?code=...",
-          "pairingHelpSuffix": "on the server and paste the printed pairing URL.",
           "sshImportAlreadySynced": "~/.ssh/config already in sync.",
           "sshImportSynced": "Added {{value0}} host{{value1}} to Orca.",
           "sshImportFailed": "Failed to import SSH config.",
           "sshAlreadyExists": "That SSH host is already in Orca.",
           "advanced": "Advanced",
-          "linkDestination": "Link destination",
-          "sshTunnel": "I am using an SSH tunnel",
-          "sshTunnelHelp": "Otherwise, this link points back to this device and cannot identify the other computer.",
-          "loopbackBlocked": "Enable the SSH tunnel override or create a new link using the other host’s Tailscale or LAN address.",
           "sshConfigPickerLoadFailed": "Failed to read ~/.ssh/config.",
           "sshConfigPickerResolveFailed": "Failed to resolve that SSH config host.",
           "sshConfigPickerRestartRequired": "Restart Orca to finish applying the SSH config picker update.",
@@ -7019,95 +6944,6 @@
           "ccb07dd027": "Saved",
           "e57dde9d93": "Unsaved changes"
         },
-        "RuntimeEnvironmentsPane": {
-          "aeb26635d2": "Remove {{value0}}",
-          "af53761f31": "Cancel",
-          "bb90dd6487": "Remove Server",
-          "d2e00809e4": "Switch",
-          "05e0fc3ebf": "Switch to",
-          "b2290ed203": "Orca will focus this host and load its projects. Existing terminals and browser tabs on other hosts stay alive.",
-          "d570c35a99": "Switch Server",
-          "f3a3d6d834": "{{value0}} capabilities",
-          "0ef838094a": "Protocol {{value0}}",
-          "9a91c4a0eb": "Compatible",
-          "86ed75bec8": "Update server",
-          "62ac182a27": "Update client",
-          "c8791efc45": "Status unavailable",
-          "5120beaac6": "Checking…",
-          "9a3758d983": "No saved servers.",
-          "9bee6bbeeb": "Add Server",
-          "55fcc964cd": "on the server and paste the printed pairing URL.",
-          "960e901ae4": "orca serve --pairing-address <host>",
-          "163671f7b5": "Run",
-          "c3d772c514": "orca://pair?code=...",
-          "9bc9b83474": "Pairing code",
-          "e038625857": "Dev box",
-          "54ebacc600": "Server name",
-          "1826bd0608": "Saved Servers",
-          "6ce4664003": "Refresh servers",
-          "b07070ed3c": "No server connected",
-          "78692becbd": "Local desktop",
-          "64b6bea541": "Active Server",
-          "99ac81fb43": "Switched to {{value0}}.",
-          "b5b5114cb0": "Removed {{value0}}.",
-          "6cb6eae14f": "Failed to save runtime environment.",
-          "7b5986c8df": "Saved {{value0}}. Use Active Server to switch when ready.",
-          "5ef712f407": "A server named \"{{value0}}\" already exists.",
-          "0c55a47480": "Name and pairing code are required.",
-          "e6410d72c3": "Failed to load runtime environments.",
-          "6ef71985da": "No endpoint",
-          "ed3e3f069d": "This removes the saved server from Orca. It does not change the active server.",
-          "b2fda48c39": "Removing the active server disconnects this browser from that host. Existing host sessions are left alone.",
-          "9f7665a01b": "Removing the active server first switches Orca back to Local desktop. Existing host sessions are left alone.",
-          "8cf8790697": "Saved servers route this browser through a paired Orca runtime.",
-          "f75ce1c7a5": "Local keeps today's desktop behavior. Saved servers route supported client calls through the remote runtime.",
-          "d25f0688b1": "Remove",
-          "4b5c6d7e8f": "No capabilities reported",
-          "hostModelCapabilityUnknown": "Host model support: checking server capabilities",
-          "hostModelCapabilitySupported": "Host model support: ready",
-          "hostModelCapabilityMissing": "Host model support: update server for {{value0}}",
-          "hostModelCapabilityProjectSetup": "project setup",
-          "hostModelCapabilityTaskSourceContext": "task source context",
-          "hostModelCapabilityWorkspaceRunContext": "workspace run context",
-          "3f67e8078a": "Use this computer by default. Choose a saved server only when you want supported projects, files, terminals, provider checks, and browser/mobile handoff to run through that server.",
-          "2c85efb3e8": "Selecting a saved server makes this browser use that paired Orca runtime as its default Host.",
-          "serverConnected": "Connected",
-          "serverWorkspaceWindowClosed": "Workspace window closed",
-          "serverRuntimeUnavailable": "Orca unavailable",
-          "serverRuntimeUnavailableDescription": "SSH transport is connected, but the Orca runtime did not answer. The host may still be running.",
-          "serverChecking": "Checking…",
-          "serverReconnecting": "Reconnecting",
-          "serverDisconnected": "Disconnected",
-          "disconnectedServer": "Disconnected from {{value0}}.",
-          "connectToRemoteServers": "Connect to remote servers",
-          "connectToRemoteServersHelp": "Pair another Orca runtime, then connect or disconnect it here.",
-          "activeServerRowHelp": "Active server for server-routed projects, terminals, and provider checks.",
-          "disconnect": "Disconnect",
-          "connect": "Connect",
-          "advanced": "Advanced",
-          "serverDetails": "Server details",
-          "runtimeReachable": "{{value0}} is reachable.",
-          "updateAvailableOne": "1 update available",
-          "updatesAvailable": "{{value0}} updates available",
-          "versionUnavailable": "Orca version unavailable",
-          "updateServer": "Update",
-          "reviewServerUpdates": "Check for Server Updates",
-          "updatingServers": "Updating servers…",
-          "orcaVersion": "Orca v{{value0}}",
-          "removeActiveServerBlocked": "Choose another Active Server in Advanced before removing this server.",
-          "removeActiveServerDescription": "Choose another Active Server in Advanced before removing this server. Existing host sessions are left alone.",
-          "workflow": "Remote server workflow",
-          "connectWorkflow": "Connect to a host",
-          "connectWorkflowHelp": "This app joins another machine",
-          "troubleshootWorkflow": "Connection troubleshooting",
-          "sshTunnelRequired": "SSH tunnel required",
-          "troubleshootTitle": "Create a new link on the other host",
-          "troubleshootDescription": "A link that uses 127.0.0.1 points back to the device opening it, not the computer that created it.",
-          "troubleshootStepShare": "On the other computer, open Share this host.",
-          "troubleshootStepAddress": "Choose Another device and select its Tailscale or LAN address.",
-          "troubleshootStepRegenerate": "Generate a new access link and use only the newest link here.",
-          "troubleshootTunnel": "Using an SSH local forward? Return to Connect to a host, paste the loopback link, then enable “I am using an SSH tunnel” under Advanced."
-        },
         "Settings": {
           "3bf149e873": "Project Settings > {{value0}}",
           "075341c763": "New features that are still taking shape. Give them a try.",
@@ -7120,9 +6956,6 @@
           "65660d4548": "macOS Permissions",
           "c2ee313198": "Use existing machines over SSH for files, terminals, Git, and workspaces.",
           "9b02492d1f": "SSH Hosts",
-          "b5ee17826b": "Pair remote Orca runtimes for persistent sessions, richer remote state, and web or mobile handoff.",
-          "7686cb5c36": "Connect this browser to a saved Orca server.",
-          "bd0181eeca": "Remote Orca Servers",
           "8acf3f22e0": "Orca stats plus Claude, Codex, OpenCode, Muse token analytics and Grok subscription usage.",
           "954a8f5aef": "Stats & Usage",
           "a737a4bb22": "Keyboard shortcuts for common actions.",
@@ -8212,13 +8045,6 @@
             "c4e3bf3282": "tabs",
             "a8c55c9c91": "favicon",
             "660c1dd007": "labels",
-            "clientHostedRemote": {
-              "remote": "remote",
-              "client": "client",
-              "host": "host",
-              "desktop": "desktop",
-              "placement": "placement"
-            },
             "sshWorkspaceRouting": {
               "ssh": "ssh",
               "proxy": "proxy",
@@ -8776,20 +8602,6 @@
             }
           }
         },
-        "machine": {
-          "name": {
-            "search": {
-              "title": "Machine name",
-              "description": "Choose the name other devices and hosts list this computer under.",
-              "machineName": "machine name",
-              "machine": "machine",
-              "hostname": "hostname",
-              "computer": "computer",
-              "rename": "rename",
-              "name": "name"
-            }
-          }
-        },
         "mobile": {
           "emulator": {
             "search": {
@@ -9095,27 +8907,6 @@
             "distro": "distro",
             "agentRuntime": "agent runtime",
             "skillRuntime": "skill runtime"
-          }
-        },
-        "runtime": {
-          "environments": {
-            "search": {
-              "772e3b4753": "vm",
-              "45501ff2c3": "cloud",
-              "2bd988d041": "pairing code",
-              "5cd7dca3b8": "remote",
-              "d760866285": "client",
-              "09568ccc65": "server",
-              "ebd5369acf": "environment",
-              "d198440ce3": "runtime",
-              "baec27aa8f": "Connect this browser to a saved Orca server.",
-              "3517fb2ec0": "Active Server",
-              "c6e5a03aa0": "dev box",
-              "f1575f1e09": "web client",
-              "81444c4102": "pairing url",
-              "104f4d7dbd": "pairing",
-              "4575341c77": "Choose local desktop, add a saved remote Orca server, or generate a pairing URL."
-            }
           }
         },
         "shortcuts": {
@@ -9607,8 +9398,7 @@
           }
         },
         "ProviderHostScopeControl": {
-          "scope_label": "{{value0}}: {{value1}}",
-          "change_host": "Open Remote Servers"
+          "scope_label": "{{value0}}: {{value1}}"
         },
         "computerUseSkillRuntime": {
           "thisDevice": "This device"
@@ -9860,43 +9650,6 @@
           "title": "Editor Font Family",
           "description": "Font used by file editors and diff views. Leave empty to follow the terminal font.",
           "placeholder": "Same as terminal font"
-        },
-        "RemoteServerUpdateDialog": {
-          "versionUnavailable": "Version unavailable",
-          "restartingHelp": "Waiting for the replacement server to reconnect on the new version.",
-          "retry": "Retry",
-          "update": "Update this server",
-          "title": "Update Remote Orca Servers",
-          "description": "Review paired servers and update supported installs from this Orca client.",
-          "restartWarning": "Updating restarts these servers. {{value0}} live tabs and {{value1}} terminal panes may briefly disconnect.",
-          "checking": "Checking paired servers…",
-          "empty": "No paired Remote Orca Servers.",
-          "checkAgain": "Check for Server Updates",
-          "updating": "Updating servers…",
-          "updateAll": "Update all {{value0}} servers",
-          "noUpdates": "All servers are up to date.",
-          "updateOne": "Update server",
-          "downloadProgress": "{{value0}} download progress",
-          "liveTabOne": "1 live tab",
-          "liveTabs": "{{value0}} live tabs",
-          "livePaneOne": "1 live pane",
-          "livePanes": "{{value0}} live panes"
-        },
-        "RemoteServerUpdateStatus": {
-          "checking": "Checking…",
-          "available": "Update available",
-          "current": "Up to date",
-          "manual": "Manual update",
-          "offline": "Offline",
-          "queued": "Queued",
-          "checkingUpdate": "Checking update…",
-          "downloading": "Downloading…",
-          "restarting": "Restarting…",
-          "updated": "Updated",
-          "failed": "Update failed",
-          "serviceManagerHelp": "Update Orca on the server host — through its system package manager if it was installed from a .deb or .rpm, otherwise through the service manager that starts it.",
-          "unpackedHelp": "Development builds must be updated from their source checkout.",
-          "legacyHelp": "Update this server manually once to enable remote updates."
         },
         "BrowserLinkRoutingSetting": {
           "description": "Open http(s) links in Orca's built-in browser — from the terminal, markdown, and the editor. {{shortcut}} always uses your system browser.",
@@ -10172,45 +9925,6 @@
           "lastProviderHint": "At least one provider must stay visible in Tasks.",
           "title": "Show in Tasks",
           "description": "Include this provider in the Tasks source picker and sidebar shortcuts."
-        },
-        "RuntimeHostAccessForm": {
-          "getLink": "Get an access link from the other host",
-          "stepOpenShare": "Open Settings → Remote Orca Servers → Share this host.",
-          "stepChooseAddress": "Choose Another device and select a reachable address.",
-          "stepCopyLink": "Generate the link, then copy the “Pair another Orca client” link.",
-          "name": "Name in Orca",
-          "namePlaceholder": "Linux workstation",
-          "nameHelp": "This only changes how the computer appears in Orca.",
-          "accessLink": "Access link",
-          "accessLinkPlaceholder": "orca://pair?code=...",
-          "accessLinkHelp": "Orca shows the destination before connecting. Credentials stay hidden.",
-          "destination": "Link destination",
-          "loopbackTitle": "This link points back to this device",
-          "loopbackDescription": "It uses {{endpoint}}, which points back to the device opening the link—not the other computer that created it.",
-          "loopbackRecovery": "On the other computer, create a new link using Another device and choose its Tailscale or LAN address.",
-          "identityMismatch": "The reached Orca host does not match this access link",
-          "identityMismatchHelp": "Orca reached {{endpoint}}, but that host does not match this link. Generate a new link on the other host.",
-          "invalidLink": "This access link is no longer valid",
-          "invalidLinkHelp": "Generate a new access link on the other host and try again.",
-          "incompatible": "Orca versions are not compatible",
-          "incompatibleHelp": "Update Orca on this device and the other host, then try again.",
-          "interrupted": "Connection interrupted",
-          "interruptedHelp": "The connection stopped during verification. Check the network or SSH tunnel and try again.",
-          "unavailable": "Host unavailable",
-          "unavailableHelp": "Make sure Orca is running on the other host and that the network or SSH tunnel can reach {{endpoint}}.",
-          "advanced": "Advanced",
-          "sshTunnel": "I am using an SSH tunnel to this local address",
-          "sshTunnelHelp": "Keep the tunnel active while using this connection.",
-          "headlessHelp": "Using headless orca serve? Run orca serve --pairing-address <reachable-host> on the other computer.",
-          "cancel": "Cancel",
-          "addWithTunnel": "Add host using tunnel",
-          "addHost": "Add host",
-          "connectionDetails": "Connection details",
-          "endpointKind": "Endpoint kind",
-          "networkConnection": "Network connection",
-          "notAttempted": "Not attempted",
-          "saveFailed": "Could not save the host",
-          "saveFailedHelp": "The host was verified, but Orca could not save it. Check the name and local settings storage, then try again."
         },
         "VoiceMicrophoneSetting": {
           "systemDefault": "System default",
@@ -14777,17 +14491,6 @@
       }
     },
     "runtime": {
-      "remoteServerUpdateErrors": {
-        "manualRequired": "This server must be updated manually through its service manager.",
-        "notAvailable": "The server no longer reports an available update. Check again.",
-        "notDownloaded": "The server update has not finished downloading.",
-        "legacyServer": "Update this server manually once to enable remote updates.",
-        "updaterTimeout": "Timed out waiting for the server updater.",
-        "requestedVersionUnavailable": "The server updater did not offer the requested Orca version.",
-        "updateUnavailable": "The server did not report an available update.",
-        "downloadIncomplete": "The server update did not finish downloading.",
-        "reconnectTimeout": "The server did not reconnect on the updated version."
-      },
       "webRuntimeSession": {
         "remoteHostDisconnected": "The workspace is not connected to a remote Orca host."
       }
@@ -15951,10 +15654,6 @@
       "computersConsent": "Each computer keeps a searchable copy of its own agent conversations and tool output. Nothing leaves that computer.",
       "serverVersion": "Orca v{{version}}",
       "rowSwitchLabel": "Search sessions on {{host}}",
-      "serverOffline": "Offline",
-      "serverTooOld": "Needs a newer version of Orca.",
-      "updateServer": "Update server",
-      "serverToggleError": "Could not change session search on {{host}}. Try again.",
       "clearedAndTurnedOff": "Search turned off and search data cleared.",
       "thisComputer": "This computer",
       "remoteServers": "Orca remote servers",
@@ -15962,8 +15661,7 @@
       "showFewer": "Show fewer",
       "openInSidebar": "Open in the sidebar",
       "openInSidebarCopy": "Type what you remember, or ask an agent: “find the session where we fixed the login timeout.”",
-      "open": "Open",
-      "enableOnAll": "Enable on all computers"
+      "open": "Open"
     }
   },
   "aiVault": {

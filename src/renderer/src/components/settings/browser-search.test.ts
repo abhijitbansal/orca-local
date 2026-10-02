@@ -104,7 +104,6 @@ describe('browser link routing modifier copy', () => {
       'Terminal URL clicks',
       'Localhost Worktree Labels',
       'Session & Cookies',
-      'Remote server workspaces',
       'SSH workspaces',
       'Browser identity'
     ])

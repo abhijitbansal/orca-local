@@ -14,7 +14,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '../../runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 
 vi.mock('sonner', () => ({ toast: { info: vi.fn(), success: vi.fn(), error: vi.fn() } }))
 
@@ -74,7 +73,6 @@ function seedRemoteProjects(repos: readonly Repo[]): ReturnType<typeof createTes
 }
 
 beforeEach(() => {
-  clearRuntimeCompatibilityCacheForTests()
   vi.mocked(toast.error).mockReset()
   for (const mock of [
     reposRemove,
@@ -107,27 +105,6 @@ describe('removeProject when the owning host already dropped the project', () =>
     await store.getState().removeProject('project-b', { hostId: 'runtime:env-1' })
 
     expect(store.getState().repos.map((repo) => repo.id)).toEqual(['project-a'])
-  })
-
-  it('keeps the row and stays silent when the remote fails for another reason', async () => {
-    answerRepoRmWith('runtime_unavailable')
-    const store = seedRemoteProjects([liveRemoteRepo, staleRemoteRepo])
-
-    await store.getState().removeProject('project-b', { hostId: 'runtime:env-1' })
-
-    expect(store.getState().repos.map((repo) => repo.id)).toEqual(['project-a', 'project-b'])
-    expect(toast.error).not.toHaveBeenCalled()
-  })
-
-  it('toasts once for a genuine failure when the caller opts in', async () => {
-    answerRepoRmWith('runtime_unavailable')
-    const store = seedRemoteProjects([liveRemoteRepo, staleRemoteRepo])
-
-    await store
-      .getState()
-      .removeProject('project-b', { hostId: 'runtime:env-1', errorFeedback: 'toast' })
-
-    expect(toast.error).toHaveBeenCalledTimes(1)
   })
 
   it('leaves a same-id project on another host untouched', async () => {

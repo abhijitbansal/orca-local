@@ -45,13 +45,7 @@
     "browser": {
       "clientHostedRemote": {
         "title": "このデバイスでリモートブラウザページをホストする",
-        "description": "このデスクトップ上にリモートワークスペースページをレンダリングします。ネットワークトラフィックは引き続きリモートホストを通過します。新規ページにのみ適用されます。",
-        "optionDevice": "このデバイス",
-        "optionDeviceTooltip": "ページはこのデスクトップ上でレンダリングされるため、入力とポップアップはネイティブに動作します。",
-        "optionServer": "サーバー (ストリーミング)",
-        "optionServerTooltip": "ページはリモートサーバー上でレンダリングされ、このデバイスにストリーミングされます。",
-        "rowTitle": "リモートサーバーワークスペース",
-        "rowDescription": "ページがレンダリングされる場所。トラフィックは常にリモートサーバーを通過します。新規ページにのみ適用されます。"
+        "description": "このデスクトップ上にリモートワークスペースページをレンダリングします。ネットワークトラフィックは引き続きリモートホストを通過します。新規ページにのみ適用されます。"
       },
       "sshWorkspaceRouting": {
         "title": "SSH ワークスペースホストを参照する",
@@ -334,7 +328,6 @@
           "wslFilesystemBoundaryDescription": "このプロジェクトの Git は {{distro}} で実行され、WSL ファイルシステムブリッジを介して Windows ドライブに到達します。 git は、{{distro}} 内に保存されたコピーよりも約 20 倍遅くなることが予想されます。"
         },
         "settings": {
-          "e12dab333b": "サーバーの切り替えに失敗しました",
           "faa8fb83dd": "サーバーを切り替える前に、未保存のエディタータブを保存するか閉じてください。"
         },
         "ui": {
@@ -442,18 +435,6 @@
             }
           }
         }
-      },
-      "remotePairingCopy": {
-        "invalidInput": "Orca のアクセスリンクまたはペアリングコードを入力してください。",
-        "mobileOnly": "このリンクはモバイル専用アクセスを許可します。別の Orca クライアント用のリンクを生成してください。",
-        "invalidDestination": "このアクセスリンクには無効な接続先が含まれています。",
-        "unsupportedDestination": "このアクセスリンクには未対応の接続先が含まれています。",
-        "nonConnectableDestination": "このアクセスリンクには接続できない接続先が含まれています。",
-        "loopback": "ループバック",
-        "tailscale": "Tailscale アドレス",
-        "lan": "プライベート LAN アドレス",
-        "public": "パブリックアドレス",
-        "custom": "カスタムホスト名"
       },
       "ensure": {
         "simulator": {
@@ -856,7 +837,6 @@
         "31e57d1c70": "ファイル、ターミナル、Git、ワークスペースに既存のマシンを SSH 経由で使用します。",
         "94a5afe910": "SSH ホスト",
         "40d80bad8a": "ベータ",
-        "de0c2907a1": "リモート Orca サーバー",
         "b351014180": "Orca の統計に加え、Claude、Codex、OpenCode、Muse のトークン分析と Grok サブスクリプション使用状況。",
         "d72a58b5b9": "統計と使用状況",
         "dcd0d9b74f": "よく使う操作のキーボードショートカット。",
@@ -1161,8 +1141,6 @@
         "addHostHint": "別のマシンまたは Orca サーバーを登録します",
         "addSshHost": "SSH ホストを追加",
         "addSshHostHint": "既存のマシンを SSH 経由で使用します",
-        "addRemoteOrcaServer": "リモート Orca サーバーを追加",
-        "addRemoteOrcaServerHint": "別の Orca ランタイムとペアリングします",
         "hostConnectionFailed": "接続に失敗しました",
         "defaultBranchUpdateFailed": "プロジェクトのデフォルトブランチを更新できませんでした。再試行。",
         "setLocation": "プロジェクトの場所を設定する",
@@ -2759,12 +2737,10 @@
             "e9a5d3c2b1f0": "{{value0}} を終了しますか？"
           },
           "SshStatusSegment": {
-            "3ad70e0365": "リモートホストを管理…",
             "6e8a9a4242": "リモートホスト",
             "d09ec41831": "リモートホスト",
             "fdc57e9970": "リモートホスト接続状態",
             "59b553e2aa": "切断",
-            "63f36455cc": "接続",
             "bf07aee59e": "切断に失敗しました",
             "2c29e2de68": "接続に失敗しました",
             "bc5a3fd41a": "部分的",
@@ -2773,22 +2749,11 @@
             "fbb3f9f05e": "競合",
             "95e4ff5b4b": "プッシュ中",
             "63a2b965f6": "プル中",
-            "remote_server": "リモートサーバー",
-            "runtime_checking": "確認中",
-            "runtime_online": "接続済み",
-            "runtime_unavailable": "切断済み",
-            "runtime_connect_unavailable": "リモートホストに到達できません",
-            "runtime_disconnect_failed": "切断に失敗しました",
-            "runtime_reconnecting": "再接続中",
-            "runtime_last_close_reason": "クローズ: {{value0}}",
-            "runtime_reconnect_attempt": "試行 {{value0}}",
             "connectedHostCount_one": "{{count}} 台のホスト",
             "connectedHostCount_other": "{{count}} 台のホスト",
             "connecting": "接続中…",
             "workspaceConflict": "ワークスペースの競合",
-            "workspaceSyncError": "ワークスペースの同期エラー",
-            "runtime_unavailable_transport_up": "Orca は利用できません",
-            "runtime_workspace_window_closed": "ワークスペースウィンドウを閉じた"
+            "workspaceSyncError": "ワークスペースの同期エラー"
           },
           "CaffeinateStatusSegment": {
             "active": "アクティブ",
@@ -3056,16 +3021,6 @@
             "detailedTooltip": "バー・ラベル・パーセントを含む完全な使用状況",
             "compactTooltip": "凝縮された使用状況: 最も狭いウィンドウのみ"
           },
-          "RemoteServerUpdateStatusSegment": {
-            "updating": "{{value0}}/{{value1}}を更新中",
-            "updatingTooltip": "リモート Orca サーバーの更新が進行中",
-            "failed": "{{value0}}台のサーバー更新に失敗",
-            "failedTooltip": "リモート Orca サーバーの更新を開いて確認し、再試行してください",
-            "updated": "{{value0}}台のサーバーを更新完了",
-            "updatedTooltip": "リモート Orca サーバーの更新が完了しました",
-            "failedOne": "1台のサーバー更新に失敗",
-            "updatedOne": "1台のサーバーを更新完了"
-          },
           "resource": {
             "memory": {
               "metric": {
@@ -3105,18 +3060,6 @@
             "stoppingLabel": "更新を停止しています",
             "stoppingTooltip": "スキルの更新を停止しています…",
             "stoppingAria": "スキルの更新を停止しています。クリックすると詳細を開きます。"
-          },
-          "RuntimeHostStatusRow": {
-            "previous_connection_closed": "以前の接続が閉じられました",
-            "workspace_window_closed": "ワークスペースウィンドウが閉じられています",
-            "checking_host": "Orca はこのホストが到達可能かどうかを確認しています",
-            "restoring_connection": "Orca は接続を復元しようとしています",
-            "host_unreachable": "このホストでは Orca にアクセスできません",
-            "runtime_unavailable": "SSH トランスポートは接続されていますが、Orca ランタイムは使用できません",
-            "runtime_unavailable_explanation": "リモートホストがまだ実行されている可能性があります。 Orca ランタイム接続のみが利用できません。",
-            "contact_note": "ホストはまだ実行中の可能性があります。 Orca 接続のみが利用できません。",
-            "last_connected": "最後に接続したのは {{value0}}",
-            "reconnect_attempt": "{{value0}} を試みます"
           },
           "NativeChatResumeStatusSegment": {
             "labelOne": "再開するには 1 チャット",
@@ -4939,11 +4882,9 @@
           "connecting": "接続中",
           "connect": "接続",
           "addSshHost": "SSH ホストを追加",
-          "addRemoteServer": "リモートサーバーを追加する",
           "addRemoteHost": "リモートホストの追加",
           "addRemoteHostTooltip": "ログインできるマシンには SSH を選択し、Orca サーバーにはリモートサーバーを選択します。",
           "addSshHostDetail": "SSH 経由で既存のマシンを使用します。",
-          "addRemoteServerDetail": "別のコンピュータで実行されている Orca とペアリングします。",
           "addRemoteHostDetail": "SSH ホストまたは Orca サーバー"
         },
         "sidebarHostOptions": {
@@ -4958,10 +4899,8 @@
           "1a2b3c4d5e": "{{value0}} を削除しました",
           "2b3c4d5e6f": "ホストの削除に失敗しました",
           "3c4d5e6f7a": "{{value0}} を削除しますか？",
-          "4d5e6f7a8b": "これにより、このサーバーを削除できる Orca サーバー設定が開きます。",
           "5e6f7a8b9c": "保存済みの SSH ホストとその認証情報を、このコンピュータから削除します。リモートのファイルは削除されません。",
           "6f7a8b9c0d": "キャンセル",
-          "7a8b9c0d1e": "設定を開く",
           "8b9c0d1e2f": "ホストを削除",
           "workspacesFailed": "このホストの {{count}} 個のワークスペースを削除できませんでした。ホストは保持されたので、再試行できます。",
           "oneWorkspace": "1つのワークスペース",
@@ -5058,12 +4997,7 @@
           "sshRelayGraceInvalid": "ターミナルのタイムアウトは 60 秒から {{value0}} 秒の間である必要があります。",
           "sshSaved": "SSH ホストが追加されました。",
           "sshSaveFailed": "SSH ホストの追加に失敗しました。",
-          "serverFieldsRequired": "サーバー名とペアリングコードは必須です。",
-          "serverSaved": "リモートサーバーが追加されました。",
-          "serverSaveFailed": "リモートサーバーの追加に失敗しました。",
-          "serverTitle": "リモートサーバーを追加する",
           "sshTitle": "SSH ホストを追加",
-          "serverDescription": "別のコンピュータで実行されている Orca とペアリングします。",
           "sshDescription": "SSH でログインできる永続的なマシンを追加します。",
           "cancel": "キャンセル",
           "saving": "保存中…",
@@ -5077,20 +5011,11 @@
           "port": "ポート",
           "identityFile": "秘密鍵ファイル",
           "identityFilePlaceholder": "~/.ssh/id_ed25519 (オプション)",
-          "serverName": "サーバー名",
-          "serverNamePlaceholder": "開発環境",
-          "pairingCode": "ペアリングコード",
-          "pairingCodePlaceholder": "orca://pair?code=...",
-          "pairingHelpSuffix": "をサーバーで実行し、出力されたペアリング URL を貼り付けます。",
           "sshImportAlreadySynced": "~/.ssh/config はすでに同期されています。",
           "sshImportSynced": "{{value0}} ホスト{{value1}} を同期しました。",
           "sshImportFailed": "SSH 構成のインポートに失敗しました。",
           "sshPersistenceDefault": "このホスト上のリモートターミナルは、終了するかリレーをリセットするまで動作し続けます。",
           "advanced": "詳細設定",
-          "linkDestination": "リンク先",
-          "sshTunnel": "SSH トンネルを使用しています",
-          "sshTunnelHelp": "それ以外の場合、このリンクはこのデバイス自身を指すため、もう一方のコンピュータを識別できません。",
-          "loopbackBlocked": "SSH トンネルの上書きを有効にするか、もう一方のホストの Tailscale または LAN アドレスを使って新規リンクを作成してください。",
           "sshAlreadyExists": "その SSH ホストはすでに Orca にあります。",
           "sshConfigPickerLoadFailed": "~/.ssh/configの読み取りに失敗しました。",
           "sshConfigPickerResolveFailed": "SSH 構成ホストを解決できませんでした。",
@@ -6820,95 +6745,6 @@
           "ccb07dd027": "保存済み",
           "e57dde9d93": "未保存の変更"
         },
-        "RuntimeEnvironmentsPane": {
-          "aeb26635d2": "{{value0}} を削除",
-          "af53761f31": "キャンセル",
-          "bb90dd6487": "サーバーの削除",
-          "d2e00809e4": "切り替え",
-          "05e0fc3ebf": "切り替え先",
-          "b2290ed203": "Orca はこのホストにフォーカスして、そのプロジェクトを読み込みます。他のホスト上の既存のターミナルとブラウザタブは動作したままです。",
-          "d570c35a99": "サーバーを切り替え",
-          "9a3758d983": "保存されたサーバーはありません。",
-          "9bee6bbeeb": "サーバーの追加",
-          "55fcc964cd": "をサーバーで実行し、出力されたペアリング URL を貼り付けます。",
-          "960e901ae4": "orca serve --pairing-address <host>",
-          "163671f7b5": "実行",
-          "c3d772c514": "orca://pair?code=...",
-          "9bc9b83474": "ペアリングコード",
-          "e038625857": "開発環境",
-          "54ebacc600": "サーバー名",
-          "1826bd0608": "保存されたサーバー",
-          "6ce4664003": "サーバーを更新する",
-          "b07070ed3c": "サーバーが接続されていません",
-          "78692becbd": "ローカルデスクトップ",
-          "64b6bea541": "アクティブサーバー",
-          "99ac81fb43": "{{value0}} に切り替えました。",
-          "b5b5114cb0": "{{value0}} を削除しました。",
-          "6cb6eae14f": "実行環境の保存に失敗しました。",
-          "7b5986c8df": "{{value0}} を保存しました。準備ができたら、アクティブサーバーで切り替えてください。",
-          "5ef712f407": "「{{value0}}」という名前のサーバーはすでに存在します。",
-          "0c55a47480": "名前とペアリングコードは必須です。",
-          "e6410d72c3": "ランタイム環境の読み込みに失敗しました。",
-          "6ef71985da": "エンドポイントなし",
-          "ed3e3f069d": "これにより、保存されたサーバーが Orca から削除されます。アクティブなサーバーは変更されません。",
-          "b2fda48c39": "アクティブサーバーを削除すると、このブラウザはそのホストから切断されます。既存のホストセッションはそのまま残ります。",
-          "9f7665a01b": "アクティブサーバーを削除すると、まず Orca はローカルデスクトップに戻ります。既存のホストセッションはそのまま残ります。",
-          "8cf8790697": "保存済みサーバーは、ペアリング済みの Orca ランタイム経由でこのブラウザをルーティングします。",
-          "f75ce1c7a5": "ローカルでは現在のデスクトップ動作を維持します。保存済みサーバーは、対応しているクライアント呼び出しをリモートランタイム経由でルーティングします。",
-          "d25f0688b1": "削除",
-          "f3a3d6d834": "{{value0}} の機能",
-          "0ef838094a": "プロトコル {{value0}}",
-          "9a91c4a0eb": "互換性あり",
-          "86ed75bec8": "サーバーを更新",
-          "62ac182a27": "クライアントを更新",
-          "c8791efc45": "ステータスを取得できません",
-          "5120beaac6": "確認中…",
-          "4b5c6d7e8f": "報告された機能はありません",
-          "hostModelCapabilityUnknown": "ホストモデル対応: サーバー機能を確認中",
-          "hostModelCapabilitySupported": "ホストモデル対応: 準備完了",
-          "hostModelCapabilityMissing": "ホストモデル対応: {{value0}} にはサーバーの更新が必要です",
-          "hostModelCapabilityProjectSetup": "プロジェクト設定",
-          "hostModelCapabilityTaskSourceContext": "タスクソースコンテキスト",
-          "hostModelCapabilityWorkspaceRunContext": "ワークスペース実行コンテキスト",
-          "3f67e8078a": "既定ではこのコンピュータを使用します。対応するプロジェクト、ファイル、ターミナル、プロバイダーチェック、ブラウザ/モバイルの引き継ぎをそのサーバー経由で実行したい場合にのみ、保存済みサーバーを選択してください。",
-          "2c85efb3e8": "保存済みサーバーを選択すると、このブラウザはペアリング済みの Orca ランタイムを既定のホストとして使用します。",
-          "serverConnected": "接続済み",
-          "serverChecking": "確認中…",
-          "serverDisconnected": "切断済み",
-          "disconnectedServer": "{{value0}} から切断しました。",
-          "connectToRemoteServers": "リモートサーバーに接続",
-          "connectToRemoteServersHelp": "別の Orca ランタイムをペアリングし、ここで接続または切断します。既定のホストを変更したい場合にのみ、詳細 > アクティブサーバーを使用してください。",
-          "activeServerRowHelp": "サーバー経由のプロジェクト、ターミナル、プロバイダーチェックに使うアクティブサーバーです。",
-          "disconnect": "切断",
-          "connect": "接続",
-          "advanced": "詳細設定",
-          "serverDetails": "サーバーの詳細",
-          "runtimeReachable": "{{value0}} に到達できます。",
-          "updateAvailableOne": "1 件の更新があります",
-          "updatesAvailable": "{{value0}} 件の更新があります",
-          "versionUnavailable": "Orca のバージョンを取得できません",
-          "updateServer": "更新",
-          "reviewServerUpdates": "サーバーの更新を確認",
-          "orcaVersion": "Orca v{{value0}}",
-          "removeActiveServerBlocked": "このサーバーを削除する前に、[詳細設定] で別のアクティブサーバーを選択してください。",
-          "removeActiveServerDescription": "このサーバーを削除する前に、[詳細設定] で別のアクティブサーバーを選択してください。既存のホストセッションはそのまま残ります。",
-          "updatingServers": "サーバーを更新しています…",
-          "workflow": "リモートサーバーワークフロー",
-          "connectWorkflow": "ホストに接続",
-          "connectWorkflowHelp": "このアプリを別のマシンに接続します",
-          "troubleshootWorkflow": "接続のトラブルシューティング",
-          "sshTunnelRequired": "SSH トンネルが必要です",
-          "troubleshootTitle": "もう一方のホストで新規リンクを作成",
-          "troubleshootDescription": "127.0.0.1 を使うリンクは、作成したコンピュータではなく、リンクを開いたデバイス自身を指します。",
-          "troubleshootStepShare": "もう一方のコンピュータで「このホストを共有」を開きます。",
-          "troubleshootStepAddress": "「別のデバイス」を選び、Tailscale または LAN アドレスを選択します。",
-          "troubleshootStepRegenerate": "新規アクセスリンクを生成し、ここでは最新のリンクだけを使います。",
-          "troubleshootTunnel": "SSH ローカルフォワードを使う場合は、「ホストに接続」に戻ってループバックリンクを貼り付け、「詳細」で「SSH トンネルを使用しています」を有効にします。",
-          "serverWorkspaceWindowClosed": "ワークスペースウィンドウを閉じた",
-          "serverRuntimeUnavailable": "Orca は利用できません",
-          "serverRuntimeUnavailableDescription": "SSH トランスポートは接続されていますが、Orca ランタイムが応答しませんでした。ホストがまだ実行中の可能性があります。",
-          "serverReconnecting": "再接続中"
-        },
         "Settings": {
           "3bf149e873": "プロジェクト設定 > {{value0}}",
           "075341c763": "まだ形になりつつある新機能。試してみてください。",
@@ -6921,9 +6757,6 @@
           "65660d4548": "macOS のアクセス許可",
           "c2ee313198": "ファイル、ターミナル、Git、ワークスペースに既存のマシンを SSH 経由で使用します。",
           "9b02492d1f": "SSH ホスト",
-          "b5ee17826b": "リモートの Orca ランタイムとペアリングすると、セッションの永続化、リモート状態の拡充、Web やモバイルへの引き継ぎができます。",
-          "7686cb5c36": "このブラウザを保存された Orca サーバーに接続します。",
-          "bd0181eeca": "リモート Orca サーバー",
           "8acf3f22e0": "Orca の統計に加え、Claude、Codex、OpenCode、Muse のトークン分析と Grok サブスクリプション使用状況。",
           "954a8f5aef": "統計と使用状況",
           "a737a4bb22": "よく使う操作のキーボードショートカット。",
@@ -7994,13 +7827,6 @@
             "c4e3bf3282": "タブ",
             "a8c55c9c91": "ファビコン",
             "660c1dd007": "ラベル",
-            "clientHostedRemote": {
-              "remote": "リモート",
-              "client": "クライアント",
-              "host": "ホスト",
-              "desktop": "デスクトップ",
-              "placement": "配置"
-            },
             "sshWorkspaceRouting": {
               "ssh": "ssh",
               "proxy": "プロキシ",
@@ -8558,20 +8384,6 @@
             }
           }
         },
-        "machine": {
-          "name": {
-            "search": {
-              "title": "マシン名",
-              "description": "他のデバイスやホストでこのコンピューターを表示する名前を選びます。",
-              "machineName": "マシン名",
-              "machine": "マシン",
-              "hostname": "ホスト名",
-              "computer": "コンピューター",
-              "rename": "名前変更",
-              "name": "名前"
-            }
-          }
-        },
         "mobile": {
           "emulator": {
             "search": {
@@ -8874,27 +8686,6 @@
             "distro": "ディストリビューション",
             "agentRuntime": "Agent ランタイム",
             "skillRuntime": "スキルランタイム"
-          }
-        },
-        "runtime": {
-          "environments": {
-            "search": {
-              "772e3b4753": "vm",
-              "45501ff2c3": "雲",
-              "2bd988d041": "ペアリングコード",
-              "5cd7dca3b8": "リモート",
-              "d760866285": "クライアント",
-              "09568ccc65": "サーバー",
-              "ebd5369acf": "環境",
-              "d198440ce3": "ランタイム",
-              "baec27aa8f": "このブラウザを保存された Orca サーバーに接続します。",
-              "3517fb2ec0": "アクティブサーバー",
-              "c6e5a03aa0": "開発ボックス",
-              "f1575f1e09": "ウェブクライアント",
-              "81444c4102": "ペアリングURL",
-              "104f4d7dbd": "ペアリング",
-              "4575341c77": "ローカルデスクトップを選択するか、保存されたリモート Orca サーバーを追加するか、ペアリング URL を生成します。"
-            }
           }
         },
         "shortcutDefinitionCatalog": {
@@ -9423,8 +9214,7 @@
           "6f7a8b9cad": "相対パス（例: .orca/ワークツリー）を指定するとプロジェクトごとの場所になり、絶対パスを指定すると全プロジェクトで 1 つのフォルダーを共有します。"
         },
         "ProviderHostScopeControl": {
-          "scope_label": "{{value0}}: {{value1}}",
-          "change_host": "リモートサーバーを開く"
+          "scope_label": "{{value0}}: {{value1}}"
         },
         "providerAccountScope": {
           "remoteServer": "リモートサーバー: {{value0}}",
@@ -9660,43 +9450,6 @@
           "title": "エディターフォント",
           "description": "ファイルエディターと差分ビューで使用されるフォント。空の場合はターミナルフォントに従います。",
           "placeholder": "ターミナルフォントと同じ"
-        },
-        "RemoteServerUpdateDialog": {
-          "versionUnavailable": "バージョンを取得できません",
-          "restartingHelp": "置き換え後のサーバーが、新規バージョンで再接続するのを待っています。",
-          "retry": "再試行",
-          "update": "このサーバーを更新",
-          "title": "リモート Orca サーバーを更新",
-          "description": "ペアリング済みサーバーを確認し、対応するインストールをこの Orca クライアントから更新します。",
-          "restartWarning": "更新すると、これらのサーバーが再起動します。実行中のタブ {{value0}} 個とターミナルペイン {{value1}} 個が、一時的に切断される可能性があります。",
-          "checking": "ペアリング済みサーバーを確認しています…",
-          "empty": "ペアリング済みのリモート Orca サーバーはありません。",
-          "checkAgain": "サーバーの更新を確認",
-          "updating": "サーバーを更新しています…",
-          "updateAll": "{{value0}} 台のサーバーをすべて更新",
-          "noUpdates": "すべてのサーバーが最新です。",
-          "updateOne": "サーバーを更新",
-          "downloadProgress": "{{value0}} ダウンロード進捗",
-          "liveTabOne": "1つのライブタブ",
-          "liveTabs": "{{value0}}つのライブタブ",
-          "livePaneOne": "1つのライブペイン",
-          "livePanes": "{{value0}}つのライブペイン"
-        },
-        "RemoteServerUpdateStatus": {
-          "checking": "確認中…",
-          "available": "更新があります",
-          "current": "最新",
-          "manual": "手動更新",
-          "offline": "オフライン",
-          "queued": "キュー待ち",
-          "checkingUpdate": "更新を確認中…",
-          "downloading": "ダウンロード中…",
-          "restarting": "再起動中…",
-          "updated": "更新済み",
-          "failed": "更新に失敗しました",
-          "serviceManagerHelp": "このサーバーを開始するサービスマネージャーを通じて Orca を更新してください。",
-          "unpackedHelp": "開発ビルドはソースチェックアウトから更新する必要があります。",
-          "legacyHelp": "リモート更新を有効にするには、このサーバーを一度手動で更新してください。"
         },
         "BrowserLinkRoutingSetting": {
           "description": "ターミナル、Markdown、エディターの http(s) リンクを Orca の組み込みブラウザで開きます。{{shortcut}} は常にシステムブラウザを使用します。",
@@ -9958,45 +9711,6 @@
           "lastProviderHint": "タスクには少なくとも 1 つのプロバイダーを表示する必要があります。",
           "title": "タスクに表示",
           "description": "このプロバイダーをタスクのソース選択とサイドバーのショートカットに表示します。"
-        },
-        "RuntimeHostAccessForm": {
-          "getLink": "もう一方のホストからアクセスリンクを取得",
-          "stepOpenShare": "設定 → リモート Orca サーバー → このホストを共有 を開きます。",
-          "stepChooseAddress": "「別のデバイス」を選び、到達可能なアドレスを選択します。",
-          "stepCopyLink": "リンクを生成し、「別の Orca クライアントをペアリング」リンクをコピーします。",
-          "name": "Orca での名前",
-          "namePlaceholder": "Linux ワークステーション",
-          "nameHelp": "これは Orca でのコンピュータの表示名だけを変更します。",
-          "accessLink": "アクセスリンク",
-          "accessLinkPlaceholder": "orca://pair?code=...",
-          "accessLinkHelp": "Orca は接続前に接続先を表示します。認証情報は非表示のままです。",
-          "destination": "リンク先",
-          "loopbackTitle": "このリンクはこのデバイス自身を指しています",
-          "loopbackDescription": "{{endpoint}} はリンクを開いたデバイス自身を指し、リンクを作成したもう一方のコンピュータには接続しません。",
-          "loopbackRecovery": "もう一方のコンピュータで「別のデバイス」を使って新規リンクを作成し、Tailscale または LAN アドレスを選んでください。",
-          "identityMismatch": "接続した Orca ホストがこのアクセスリンクと一致しません",
-          "identityMismatchHelp": "{{endpoint}} の Orca に接続しましたが、そのホストはこのリンクと一致しません。もう一方のホストで新規リンクを生成してください。",
-          "invalidLink": "このアクセスリンクは無効になっています",
-          "invalidLinkHelp": "もう一方のホストで新規アクセスリンクを生成し、もう一度お試しください。",
-          "incompatible": "Orca のバージョンに互換性がありません",
-          "incompatibleHelp": "このデバイスともう一方のホストの Orca を更新し、もう一度お試しください。",
-          "interrupted": "接続が中断されました",
-          "interruptedHelp": "検証中に接続が停止しました。ネットワークまたは SSH トンネルを確認して、もう一度お試しください。",
-          "unavailable": "ホストを利用できません",
-          "unavailableHelp": "もう一方のホストで Orca が実行中であり、ネットワークまたは SSH トンネルから {{endpoint}} に到達できることを確認してください。",
-          "advanced": "詳細設定",
-          "sshTunnel": "このローカルアドレスへの SSH トンネルを使用しています",
-          "sshTunnelHelp": "この接続を使用している間はトンネルを維持してください。",
-          "headlessHelp": "ヘッドレスの orca serve を使う場合は、もう一方のコンピュータで orca serve --pairing-address <reachable-host> を実行してください。",
-          "cancel": "キャンセル",
-          "addWithTunnel": "トンネルを使ってホストを追加",
-          "addHost": "ホストを追加",
-          "connectionDetails": "接続の詳細",
-          "endpointKind": "接続先の種類",
-          "networkConnection": "ネットワーク接続",
-          "notAttempted": "未試行",
-          "saveFailed": "ホストを保存できませんでした",
-          "saveFailedHelp": "ホストは確認されましたが、Orca はホストを保存できませんでした。名前とローカル設定ストレージを確認して、再試行してください。"
         },
         "GlobalWorktreeVisibilitySourcesSetting": {
           "saveFailed": "表示設定のデフォルトを保存できませんでした。",
@@ -14612,17 +14326,6 @@
       }
     },
     "runtime": {
-      "remoteServerUpdateErrors": {
-        "manualRequired": "このサーバーは、サービスマネージャーから手動で更新する必要があります。",
-        "notAvailable": "サーバーは、利用可能な更新を報告しなくなりました。もう一度確認してください。",
-        "notDownloaded": "サーバーの更新のダウンロードが完了していません。",
-        "legacyServer": "リモート更新を有効にするには、このサーバーを一度手動で更新してください。",
-        "updaterTimeout": "サーバーのアップデーターの応答待ちがタイムアウトしました。",
-        "requestedVersionUnavailable": "サーバーのアップデーターは、要求した Orca のバージョンを提供しませんでした。",
-        "updateUnavailable": "サーバーは、利用可能な更新を報告しませんでした。",
-        "downloadIncomplete": "サーバーの更新のダウンロードが完了しませんでした。",
-        "reconnectTimeout": "サーバーは、更新後のバージョンで再接続しませんでした。"
-      },
       "webRuntimeSession": {
         "remoteHostDisconnected": "このワークスペースは、リモートの Orca ホストに接続されていません。"
       }
@@ -15902,10 +15605,6 @@
       "computersConsent": "各コンピュータは、自身の Agent の会話とツールの出力の検索可能なコピーを保持します。そのコンピュータからは何も残りません。",
       "serverVersion": "Orca v{{version}}",
       "rowSwitchLabel": "{{host}} のセッションを検索",
-      "serverOffline": "オフライン",
-      "serverTooOld": "Orca の新規バージョンが必要です。",
-      "updateServer": "アップデートサーバー",
-      "serverToggleError": "{{host}} のセッション検索を変更できませんでした。再試行。",
       "clearedAndTurnedOff": "検索がオフになり、検索データが消去されました。",
       "thisComputer": "このコンピュータ",
       "remoteServers": "Orca リモートサーバー",
@@ -15913,8 +15612,7 @@
       "showFewer": "表示数を減らす",
       "openInSidebar": "サイドバーで開く",
       "openInSidebarCopy": "覚えていることを入力するか、Agent に「ログインタイムアウトを修正したセッションを見つけてください」と尋ねます。",
-      "open": "オープン",
-      "enableOnAll": "すべてのコンピュータで有効にする"
+      "open": "オープン"
     }
   },
   "aiVault": {

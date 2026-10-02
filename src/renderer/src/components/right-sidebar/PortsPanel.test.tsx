@@ -1,11 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import {
-  MIN_COMPATIBLE_RUNTIME_CLIENT_VERSION,
-  RUNTIME_PROTOCOL_VERSION
-} from '../../../../shared/protocol-version'
 import type { PortForwardEntry } from '../../../../shared/ssh-types'
 import type { WorkspacePort, WorkspacePortScanResult } from '../../../../shared/workspace-ports'
-import { clearRuntimeCompatibilityCacheForTests } from '@/runtime/runtime-rpc-client'
 import {
   addressForPort,
   addressForPortForwardEntry,
@@ -57,14 +52,6 @@ const emptyScan: WorkspacePortScanResult = {
   ports: []
 }
 
-const compatibleStatus = {
-  runtimeId: 'runtime-1',
-  graphStatus: 'ready',
-  runtimeProtocolVersion: RUNTIME_PROTOCOL_VERSION,
-  minCompatibleRuntimeClientVersion: MIN_COMPATIBLE_RUNTIME_CLIENT_VERSION,
-  capabilities: ['browser.screencast.v1']
-}
-
 const localScan = vi.fn()
 const localKill = vi.fn()
 const runtimeCall = vi.fn()
@@ -89,7 +76,6 @@ beforeEach(() => {
   runtimeEnvironmentCall.mockReset()
   openUrl.mockReset()
   activateAndRevealWorktreeMock.mockReset()
-  clearRuntimeCompatibilityCacheForTests()
   vi.stubGlobal('window', {
     setTimeout: globalThis.setTimeout,
     api: {
@@ -261,35 +247,6 @@ describe('PortsPanel runtime routing', () => {
     expect(sections.externalPorts.map((port) => port.kind)).toEqual(['external', 'external'])
   })
 
-  it('routes remote scans through runtime RPC and degrades on older runtimes', async () => {
-    runtimeEnvironmentCall.mockImplementation(({ method }: { method: string }) =>
-      Promise.resolve(
-        method === 'status.get'
-          ? { id: method, ok: true, result: compatibleStatus, _meta: { runtimeId: 'runtime-1' } }
-          : {
-              id: method,
-              ok: false,
-              error: { code: 'method_not_found', message: 'Unknown method' },
-              _meta: { runtimeId: 'runtime-1' }
-            }
-      )
-    )
-
-    const result = await scanWorkspacePortsForTarget(
-      { kind: 'environment', environmentId: 'env-1' },
-      'repo'
-    )
-
-    expect(result).toMatchObject({
-      ports: [],
-      unavailableReason: 'The connected runtime does not support workspace port management yet.'
-    })
-    expect(runtimeEnvironmentCall.mock.calls.map((call) => call[0].method)).toEqual([
-      'status.get',
-      'workspacePorts.scan'
-    ])
-  })
-
   it('merges local and runtime scans with host-prefixed row ids', () => {
     const runtimePort: WorkspacePort = {
       ...workspacePort,
@@ -317,92 +274,6 @@ describe('PortsPanel runtime routing', () => {
     expect(
       merged?.ports.map((port) => (port.kind === 'workspace' ? port.owner.worktreeId : null))
     ).toEqual(['runtime-repo::/srv/app', 'repo::/workspace/app'])
-  })
-
-  it('reuses the capability verdict across remote port opens', async () => {
-    runtimeEnvironmentCall.mockImplementation(({ method }: { method: string }) =>
-      Promise.resolve({
-        id: method,
-        ok: true,
-        result:
-          method === 'status.get' ? compatibleStatus : { browserPageId: 'remote-browser-page-1' },
-        _meta: { runtimeId: 'runtime-1' }
-      })
-    )
-    const createBrowserTab = vi.fn(() => ({ activePageId: 'local-page-1' }))
-    const setRemoteBrowserPageHandle = vi.fn()
-
-    await expect(
-      openWorkspacePortInBrowser({
-        port: workspacePort,
-        runtimeTarget: { kind: 'environment', environmentId: 'env-1' },
-        createBrowserTab: createBrowserTab as never,
-        setRemoteBrowserPageHandle: setRemoteBrowserPageHandle as never
-      })
-    ).resolves.toEqual({ ok: true })
-    await expect(
-      openWorkspacePortInBrowser({
-        port: workspacePort,
-        runtimeTarget: { kind: 'environment', environmentId: 'env-1' },
-        createBrowserTab: createBrowserTab as never,
-        setRemoteBrowserPageHandle: setRemoteBrowserPageHandle as never
-      })
-    ).resolves.toEqual({ ok: true })
-
-    expect(activateAndRevealWorktreeMock).toHaveBeenCalledTimes(2)
-    // Why: the browser tab is the surface — port opens must not re-seed a shell.
-    expect(activateAndRevealWorktreeMock).toHaveBeenCalledWith('repo::/workspace/app', {
-      providesInitialSurface: true
-    })
-    expect(runtimeEnvironmentCall.mock.calls.map((call) => call[0].method)).toEqual([
-      'status.get',
-      'browser.tabCreate',
-      'browser.tabCreate'
-    ])
-    expect(runtimeEnvironmentCall.mock.calls[1][0].params).toEqual({
-      worktree: 'id:repo::/workspace/app',
-      url: 'http://127.0.0.1:63468'
-    })
-    expect(createBrowserTab).toHaveBeenCalledWith(
-      'repo::/workspace/app',
-      'http://127.0.0.1:63468',
-      {
-        activate: true,
-        browserRuntimeEnvironmentId: 'env-1'
-      }
-    )
-    expect(setRemoteBrowserPageHandle).toHaveBeenCalledWith('local-page-1', {
-      environmentId: 'env-1',
-      remotePageId: 'remote-browser-page-1'
-    })
-  })
-
-  it('rejects remote port browser creation before RPC without the screencast provider', async () => {
-    runtimeEnvironmentCall.mockImplementation(({ method }: { method: string }) =>
-      Promise.resolve({
-        id: method,
-        ok: true,
-        result: { ...compatibleStatus, capabilities: [] },
-        _meta: { runtimeId: 'runtime-1' }
-      })
-    )
-    const createBrowserTab = vi.fn()
-
-    await expect(
-      openWorkspacePortInBrowser({
-        port: workspacePort,
-        runtimeTarget: { kind: 'environment', environmentId: 'env-1' },
-        createBrowserTab: createBrowserTab as never,
-        setRemoteBrowserPageHandle: vi.fn() as never
-      })
-    ).resolves.toEqual({
-      ok: false,
-      reason:
-        'Managed browser tabs are unavailable because the paired runtime does not support browser streaming.'
-    })
-
-    expect(runtimeEnvironmentCall.mock.calls.map((call) => call[0].method)).toEqual(['status.get'])
-    expect(createBrowserTab).not.toHaveBeenCalled()
   })
 
   it('opens workspace ports in the system browser when link routing is off', async () => {
@@ -442,172 +313,6 @@ describe('PortsPanel runtime routing', () => {
     expect(replaceWorkspacePortScans).not.toHaveBeenCalled()
     expect(setWorkspacePortScanRefreshing).toHaveBeenNthCalledWith(1, true)
     expect(setWorkspacePortScanRefreshing).toHaveBeenNthCalledWith(2, false)
-  })
-
-  it('ignores settled remote post-stop refresh failures after updating state', async () => {
-    const replaceWorkspacePortScans = vi.fn()
-    const setWorkspacePortScanRefreshing = vi.fn()
-    const firstScan = { ...emptyScan, scannedAt: 2 }
-    let scanCalls = 0
-    runtimeEnvironmentCall.mockImplementation(({ method }: { method: string }) => {
-      if (method === 'status.get') {
-        return Promise.resolve({
-          id: method,
-          ok: true,
-          result: compatibleStatus,
-          _meta: { runtimeId: 'runtime-1' }
-        })
-      }
-      if (method === 'workspacePorts.scan') {
-        scanCalls += 1
-        if (scanCalls === 1) {
-          return Promise.resolve({
-            id: method,
-            ok: true,
-            result: firstScan,
-            _meta: { runtimeId: 'runtime-1' }
-          })
-        }
-        return Promise.reject(new Error('transient RPC timeout'))
-      }
-      return Promise.reject(new Error(`Unexpected method ${method}`))
-    })
-
-    await expect(
-      refreshWorkspacePortScanAfterStop({
-        runtimeTarget: { kind: 'environment', environmentId: 'env-1' },
-        replaceWorkspacePortScans: replaceWorkspacePortScans as never,
-        getWorkspacePortScansByKey: () => ({}),
-        setWorkspacePortScanRefreshing: setWorkspacePortScanRefreshing as never
-      })
-    ).resolves.toEqual({ ok: true })
-
-    expect(runtimeEnvironmentCall.mock.calls.map((call) => call[0].method)).toEqual([
-      'status.get',
-      'workspacePorts.scan',
-      'workspacePorts.scan'
-    ])
-    expect(replaceWorkspacePortScans).toHaveBeenCalledTimes(1)
-    expect(replaceWorkspacePortScans).toHaveBeenCalledWith(
-      { 'environment:env-1:all': firstScan },
-      {
-        key: 'environment:env-1:all',
-        result: firstScan
-      }
-    )
-    expect(setWorkspacePortScanRefreshing).toHaveBeenNthCalledWith(1, true)
-    expect(setWorkspacePortScanRefreshing).toHaveBeenNthCalledWith(2, false)
-  })
-
-  it('preserves an all-host projection after refreshing one host post-stop', async () => {
-    const replaceWorkspacePortScans = vi.fn()
-    const setWorkspacePortScanRefreshing = vi.fn()
-    const localPort: WorkspacePort = { ...workspacePort, id: 'local-port', port: 5173 }
-    const refreshedRemotePort: WorkspacePort = {
-      ...workspacePort,
-      id: 'remote-port',
-      port: 3000,
-      owner: {
-        ...workspacePort.owner,
-        repoId: 'runtime-repo',
-        worktreeId: 'runtime-repo::/srv/app',
-        displayName: 'runtime app',
-        path: '/srv/app'
-      }
-    }
-    const localHostScan: WorkspacePortScanResult = {
-      ...emptyScan,
-      scannedAt: 10,
-      ports: [localPort]
-    }
-    const remoteHostScan: WorkspacePortScanResult = {
-      ...emptyScan,
-      scannedAt: 20,
-      ports: [refreshedRemotePort]
-    }
-    let scanCalls = 0
-    runtimeEnvironmentCall.mockImplementation(({ method }: { method: string }) => {
-      if (method === 'status.get') {
-        return Promise.resolve({
-          id: method,
-          ok: true,
-          result: compatibleStatus,
-          _meta: { runtimeId: 'runtime-1' }
-        })
-      }
-      if (method === 'workspacePorts.scan') {
-        scanCalls += 1
-        return Promise.resolve({
-          id: method,
-          ok: true,
-          result: remoteHostScan,
-          _meta: { runtimeId: 'runtime-1' }
-        })
-      }
-      return Promise.reject(new Error(`Unexpected method ${method}`))
-    })
-
-    await expect(
-      refreshWorkspacePortScanAfterStop({
-        runtimeTarget: { kind: 'environment', environmentId: 'env-1' },
-        replaceWorkspacePortScans: replaceWorkspacePortScans as never,
-        getWorkspacePortScansByKey: () => ({ 'local:all': localHostScan }),
-        setWorkspacePortScanRefreshing: setWorkspacePortScanRefreshing as never
-      })
-    ).resolves.toEqual({ ok: true })
-
-    expect(replaceWorkspacePortScans).toHaveBeenLastCalledWith(
-      { 'local:all': localHostScan, 'environment:env-1:all': remoteHostScan },
-      {
-        key: 'all-hosts:all',
-        result: expect.objectContaining({
-          ports: expect.arrayContaining([
-            expect.objectContaining({ port: 5173 }),
-            expect.objectContaining({ port: 3000 })
-          ])
-        })
-      }
-    )
-    expect(scanCalls).toBe(2)
-  })
-
-  it('keeps remote workspace ports in the server-side browser when link routing is off', async () => {
-    runtimeEnvironmentCall.mockImplementation(({ method }: { method: string }) =>
-      Promise.resolve({
-        id: method,
-        ok: true,
-        result:
-          method === 'status.get' ? compatibleStatus : { browserPageId: 'remote-browser-page-1' },
-        _meta: { runtimeId: 'runtime-1' }
-      })
-    )
-    const createBrowserTab = vi.fn(() => ({ activePageId: 'local-page-1' }))
-    const setRemoteBrowserPageHandle = vi.fn()
-
-    await expect(
-      openWorkspacePortInBrowser({
-        port: workspacePort,
-        runtimeTarget: { kind: 'environment', environmentId: 'env-1' },
-        createBrowserTab: createBrowserTab as never,
-        setRemoteBrowserPageHandle: setRemoteBrowserPageHandle as never,
-        openInOrcaBrowser: false
-      })
-    ).resolves.toEqual({ ok: true })
-
-    expect(openUrl).not.toHaveBeenCalled()
-    expect(runtimeEnvironmentCall.mock.calls.map((call) => call[0].method)).toEqual([
-      'status.get',
-      'browser.tabCreate'
-    ])
-    expect(createBrowserTab).toHaveBeenCalledWith(
-      'repo::/workspace/app',
-      'http://127.0.0.1:63468',
-      { activate: true, browserRuntimeEnvironmentId: 'env-1' }
-    )
-    expect(setRemoteBrowserPageHandle).toHaveBeenCalledWith('local-page-1', {
-      environmentId: 'env-1',
-      remotePageId: 'remote-browser-page-1'
-    })
   })
 
   it('defaults unknown protocols to http for built-in browser opens', () => {

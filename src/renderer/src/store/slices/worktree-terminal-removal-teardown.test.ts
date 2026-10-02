@@ -23,7 +23,6 @@ globalThis.window = {
 
 import { getDefaultSettings } from '../../../../shared/constants'
 import { createCompatibleRuntimeStatusResponseIfNeeded } from '../../runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 import { createTestStore, makeRuntimeOwnedWorktree, makeTab, seedStore } from './store-test-helpers'
 
 const worktreeId = 'repo1::/srv/worktree'
@@ -50,7 +49,6 @@ function seedRuntimeOwnedWorktree(store: ReturnType<typeof createTestStore>): vo
 describe('worktree terminal removal teardown', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    clearRuntimeCompatibilityCacheForTests()
     runtimeCall.mockImplementation((args: { method: string }) =>
       Promise.resolve(
         createCompatibleRuntimeStatusResponseIfNeeded(args) ?? {
@@ -81,32 +79,4 @@ describe('worktree terminal removal teardown', () => {
   })
 
   // Why: the skip is an opt-in for backend-paired removal; a bare call must still kill remote PTYs or they leak with no local trace.
-  it('still stops remote terminals when the caller passes no options', async () => {
-    const store = createTestStore()
-    seedRuntimeOwnedWorktree(store)
-
-    await store.getState().shutdownWorktreeTerminals(worktreeId)
-
-    expect(runtimeCall).toHaveBeenCalledWith(
-      expect.objectContaining({
-        selector: 'env-1',
-        method: 'terminal.stop',
-        params: { worktree: `id:${worktreeId}` }
-      })
-    )
-    expect(store.getState().ptyIdsByTabId['tab-1']).toEqual([])
-  })
-
-  it('still stops remote terminals for an explicit remove reason without the opt-in', async () => {
-    const store = createTestStore()
-    seedRuntimeOwnedWorktree(store)
-
-    await store
-      .getState()
-      .shutdownWorktreeTerminals(worktreeId, { shutdownReason: 'remove-worktree' })
-
-    expect(runtimeCall.mock.calls.filter(([args]) => args.method === 'terminal.stop')).toHaveLength(
-      1
-    )
-  })
 })

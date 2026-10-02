@@ -10,13 +10,4 @@ describe('getSourceControlAiControllerDiscoveryHostKey', () => {
     expect(getSourceControlAiControllerDiscoveryHostKey(settings, undefined)).toBe('unknown')
     expect(getSourceControlAiControllerDiscoveryHostKey(settings, 'ssh-1')).toBe('ssh:ssh-1')
   })
-
-  it('uses the active runtime environment before SSH connection scope', () => {
-    const settings = {
-      ...getDefaultSettings('/tmp'),
-      activeRuntimeEnvironmentId: 'env-1'
-    }
-
-    expect(getSourceControlAiControllerDiscoveryHostKey(settings, 'ssh-1')).toBe('runtime:env-1')
-  })
 })

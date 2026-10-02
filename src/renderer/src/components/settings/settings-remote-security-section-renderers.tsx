@@ -1,43 +1,9 @@
 import { DeveloperPermissionsPane } from './DeveloperPermissionsPane'
 import { PrivacyPane } from './PrivacyPane'
-import { RuntimeEnvironmentsPane } from './RuntimeEnvironmentsPane'
 import { SshPane } from './SshPane'
 import { SettingsSection } from './SettingsSection'
 import { translate } from '@/i18n/i18n'
 import type { SettingsRenderContext } from './settings-render-context'
-
-export function renderServersSettingsSection(context: SettingsRenderContext): React.JSX.Element {
-  const { model, navigation, view } = context
-  return (
-    <SettingsSection
-      id="servers"
-      title={translate('auto.components.settings.Settings.bd0181eeca', 'Remote Orca Servers')}
-      badge="Beta"
-      description={
-        model.isWebClient
-          ? translate(
-              'auto.components.settings.Settings.7686cb5c36',
-              'Connect this browser to a saved Orca server.'
-            )
-          : translate(
-              'auto.components.settings.Settings.b5ee17826b',
-              'Pair remote Orca runtimes for persistent sessions, richer remote state, and web or mobile handoff.'
-            )
-      }
-      searchEntries={navigation.getSectionSearchEntries('servers')}
-    >
-      {view.isSectionMounted('servers') ? (
-        <RuntimeEnvironmentsPane
-          settings={model.settings}
-          setActiveRuntimeEnvironmentPreference={model.setActiveRuntimeEnvironmentPreference}
-          canGeneratePairingUrl={!model.isWebClient}
-          allowLocalRuntime={!model.isWebClient}
-          addServerIntentSignal={model.remoteServerAddIntentSignal}
-        />
-      ) : null}
-    </SettingsSection>
-  )
-}
 
 export function renderSshSettingsSection(context: SettingsRenderContext): React.JSX.Element | null {
   const { model, navigation, view } = context

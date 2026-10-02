@@ -6,7 +6,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '../../runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 
 export type BrowserMockApi = {
   browser: {
@@ -96,7 +95,6 @@ export function resetBrowserRuntimeMocks(mocks: {
 }): void {
   const { runtimeEnvironmentCall, runtimeEnvironmentTransportCall } = mocks
   vi.clearAllMocks()
-  clearRuntimeCompatibilityCacheForTests()
   runtimeEnvironmentCall.mockReset()
   runtimeEnvironmentTransportCall.mockReset()
   mocks.createWebRuntimeSessionBrowserTabMock.mockReset()

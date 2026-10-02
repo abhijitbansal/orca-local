@@ -47,15 +47,12 @@ describe('AddRepoHostSelector', () => {
         onOpenChange={vi.fn()}
         onSelectHost={vi.fn()}
         onAddSshHost={vi.fn()}
-        onAddRemoteServer={vi.fn()}
       />
     )
 
     expect(html).toContain('Add remote host')
     expect(html).toContain('Add SSH host')
     expect(html).toContain('Use an existing machine over SSH.')
-    expect(html).toContain('Add remote server')
-    expect(html).toContain('Pair with Orca running on another computer.')
   })
 
   it('shows disconnected SSH hosts with a connect action in Add Project', () => {

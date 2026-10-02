@@ -1,6 +1,5 @@
 import { beforeEach, vi } from 'vitest'
 import type { Mock } from 'vitest'
-import { clearRuntimeCompatibilityCacheForTests } from './runtime-rpc-client'
 import { replaceRuntimeEnvironmentRevisions } from './runtime-environment-revision'
 import { clearLegacyQuickOpenInventoryCacheForTests } from './runtime-legacy-quick-open-inventory'
 import {
@@ -64,7 +63,6 @@ export const runtimeCall: PreloadStub = vi.fn()
 export function installRuntimeFileClientEnvironment(): void {
   beforeEach(() => {
     delete (globalThis as { __ORCA_WEB_CLIENT__?: boolean }).__ORCA_WEB_CLIENT__
-    clearRuntimeCompatibilityCacheForTests()
     clearLegacyQuickOpenInventoryCacheForTests()
     replaceRuntimeEnvironmentRevisions([])
     fsReadFile.mockReset()

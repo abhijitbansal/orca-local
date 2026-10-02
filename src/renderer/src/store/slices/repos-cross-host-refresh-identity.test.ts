@@ -6,7 +6,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '../../runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 
 // One project cloned on the local Mac and on a remote Orca server under distinct repo ids —
 // the shape the compat merge exists to serve, and the only shape whose sourceRepoIds are
@@ -89,7 +88,6 @@ function runtimeResult(method: string): unknown {
 }
 
 beforeEach(() => {
-  clearRuntimeCompatibilityCacheForTests()
   reposList.mockReset()
   projectsList.mockReset()
   listHostSetups.mockReset()
@@ -133,25 +131,6 @@ function sharedProject(store: ReturnType<typeof createTestStore>): Project | und
 }
 
 describe('cross-host project refresh identity', () => {
-  it('keeps sourceRepoIds ordered the same whichever host refreshed', async () => {
-    const store = createTestStore()
-    // Why: with no active env, `fetchRepos` targets local, so the two calls below really do
-    // alternate hosts.
-    store.setState({ settings: { activeRuntimeEnvironmentId: null } as never })
-    await store.getState().fetchReposForAllHosts()
-    const afterAllHosts = sharedProject(store)?.sourceRepoIds
-    expect(afterAllHosts).toHaveLength(2)
-
-    await store.getState().fetchRepos()
-    const afterLocal = sharedProject(store)?.sourceRepoIds
-
-    await store.getState().fetchRuntimeEnvironmentRepos('env-1')
-    const afterRuntime = sharedProject(store)?.sourceRepoIds
-
-    expect(afterLocal).toEqual(afterAllHosts)
-    expect(afterRuntime).toEqual(afterAllHosts)
-  })
-
   it('reuses the cross-host project row across alternating single-host refreshes', async () => {
     const store = createTestStore()
     store.setState({ settings: { activeRuntimeEnvironmentId: null } as never })

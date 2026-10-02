@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { toast } from 'sonner'
 import { createTestStore, makeWorktree, seedStore } from './store-test-helpers'
 import { createStoreCascadesMockApi } from './store-cascades-test-harness'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 import { _resetHostWorktreeRemovalsForTests } from './worktrees/teardown/host-worktree-removal-state'
 import {
   _resetBackgroundWorktreeRemovalBridgeForTests,
@@ -51,7 +50,6 @@ describe('removing a worktree the host deletes in the background', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    clearRuntimeCompatibilityCacheForTests()
     store = createTestStore()
   })
 

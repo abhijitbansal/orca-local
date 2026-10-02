@@ -1,5 +1,5 @@
 import React from 'react'
-import { ChevronDown, Cloud, Plus, Server } from 'lucide-react'
+import { ChevronDown, Plus, Server } from 'lucide-react'
 import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 import { translate } from '@/i18n/i18n'
@@ -19,8 +19,7 @@ export function AddHostSubmenuRow({
   armed,
   optionId,
   onArm,
-  onAddSshHost,
-  onAddRemoteServer
+  onAddSshHost
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -28,7 +27,6 @@ export function AddHostSubmenuRow({
   optionId: string | undefined
   onArm: () => void
   onAddSshHost?: () => void
-  onAddRemoteServer?: () => void
 }): React.JSX.Element {
   const [hoveredKey, setHoveredKey] = React.useState<string | null>(null)
   const addHostLabel = translate('auto.components.NewWorkspaceComposerCard.addHost', 'Add host')
@@ -83,25 +81,6 @@ export function AddHostSubmenuRow({
               optionId={undefined}
               onArm={() => setHoveredKey('ssh')}
               onCommit={onAddSshHost}
-            />
-          ) : null}
-          {onAddRemoteServer ? (
-            <RunTargetRow
-              icon={<Cloud className="size-3.5 shrink-0 text-muted-foreground" />}
-              label={translate(
-                'auto.components.NewWorkspaceComposerCard.addRemoteOrcaServer',
-                'Add Remote Orca Server'
-              )}
-              detail={translate(
-                'auto.components.NewWorkspaceComposerCard.addRemoteOrcaServerHint',
-                'Pair another Orca runtime'
-              )}
-              armed={hoveredKey === 'remote'}
-              current={false}
-              stacked
-              optionId={undefined}
-              onArm={() => setHoveredKey('remote')}
-              onCommit={onAddRemoteServer}
             />
           ) : null}
         </div>

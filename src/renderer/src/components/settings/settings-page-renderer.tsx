@@ -35,7 +35,6 @@ import {
 import {
   renderDeveloperPermissionsSettingsSection,
   renderPrivacySettingsSection,
-  renderServersSettingsSection,
   renderSshSettingsSection
 } from './settings-remote-security-section-renderers'
 import {
@@ -127,7 +126,6 @@ export function renderSettingsPage(context: SettingsRenderContext): React.JSX.El
                 {renderNotificationsSettingsSection(context)}
                 {renderShortcutsSettingsSection(context)}
                 {renderStatsSettingsSection(context)}
-                {renderServersSettingsSection(context)}
                 {renderSshSettingsSection(context)}
                 {renderDeveloperPermissionsSettingsSection(context)}
                 {renderPrivacySettingsSection(context)}

@@ -33,9 +33,6 @@ export function useSettingsStoreModel() {
   const keybindings = useAppStore((s) => s.keybindings)
   const updateSettings = useAppStore((s) => s.updateSettings)
   const updateSettingsOrThrow = useAppStore((s) => s.updateSettingsOrThrow)
-  const setActiveRuntimeEnvironmentPreference = useAppStore(
-    (s) => s.setActiveRuntimeEnvironmentPreference
-  )
   const fetchSettings = useAppStore((s) => s.fetchSettings)
   const fetchKeybindings = useAppStore((s) => s.fetchKeybindings)
   const closeSettingsPage = useAppStore((s) => s.closeSettingsPage)
@@ -117,7 +114,6 @@ export function useSettingsStoreModel() {
   )
   const [quickCommandAddIntentSignal, setQuickCommandAddIntentSignal] = useState(0)
   const [sshHostAddIntentSignal, setSshHostAddIntentSignal] = useState(0)
-  const [remoteServerAddIntentSignal, setRemoteServerAddIntentSignal] = useState(0)
   const [hasUnsavedCommitPromptChanges, setHasUnsavedCommitPromptChanges] = useState(false)
   const [hasUnsavedBranchPromptChanges, setHasUnsavedBranchPromptChanges] = useState(false)
   const [sourceControlAiPromptDiscardSignal, setSourceControlAiPromptDiscardSignal] = useState(0)
@@ -130,7 +126,6 @@ export function useSettingsStoreModel() {
     keybindings,
     updateSettings,
     updateSettingsOrThrow,
-    setActiveRuntimeEnvironmentPreference,
     fetchSettings,
     fetchKeybindings,
     closeSettingsPage,
@@ -186,8 +181,6 @@ export function useSettingsStoreModel() {
     setQuickCommandAddIntentSignal,
     sshHostAddIntentSignal,
     setSshHostAddIntentSignal,
-    remoteServerAddIntentSignal,
-    setRemoteServerAddIntentSignal,
     hasUnsavedCommitPromptChanges,
     setHasUnsavedCommitPromptChanges,
     hasUnsavedBranchPromptChanges,

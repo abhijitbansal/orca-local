@@ -8,7 +8,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '../../runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 import { LOCAL_EXECUTION_HOST_ID } from '../../../../shared/execution-host'
 import type {
   ForgetRemovedWorktreesForExecutionHostArgs,
@@ -109,7 +108,6 @@ export const mockApi = {
 globalThis.window = { api: mockApi }
 
 export function resetRemoteRuntimeMocks() {
-  clearRuntimeCompatibilityCacheForTests()
   resetHostedReviewLinkMutationGenerationForTests()
   runtimeEnvironmentCall.mockReset()
   runtimeEnvironmentTransportCall.mockReset()

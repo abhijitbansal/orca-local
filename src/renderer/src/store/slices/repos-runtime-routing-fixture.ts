@@ -5,7 +5,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '../../runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 
 // Shared harness for the repo-slice runtime-routing suite: sample repos, IPC/runtime
 // mocks, and the window stub reset between tests. Extracted to keep the test file itself
@@ -60,7 +59,6 @@ export const uiSet: Mock = vi.fn()
 // Registers the per-test reset + window stub. Call once inside the suite's module scope.
 export function installReposRuntimeRoutingHarness(): void {
   beforeEach(() => {
-    clearRuntimeCompatibilityCacheForTests()
     vi.mocked(toast.error).mockReset()
     vi.mocked(toast.info).mockReset()
     vi.mocked(toast.success).mockReset()

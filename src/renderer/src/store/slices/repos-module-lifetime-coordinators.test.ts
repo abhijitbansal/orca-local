@@ -4,7 +4,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '../../runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 import { createTestStore } from './store-test-helpers'
 
 const { syncFork } = vi.hoisted(() => ({ syncFork: vi.fn() }))
@@ -20,7 +19,6 @@ vi.mock('../../runtime/runtime-git-client', async (importOriginal) => {
 const runtimeCall = vi.fn()
 
 beforeEach(() => {
-  clearRuntimeCompatibilityCacheForTests()
   vi.clearAllMocks()
   vi.stubGlobal('window', {
     api: {

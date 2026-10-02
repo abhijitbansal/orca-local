@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AppState } from '../types'
 import type { LocalBaseRefRefreshResult } from '../../../../shared/worktree/base-ref-drift-types'
 import { toast } from 'sonner'
-import type { RuntimeEnvironmentCallRequest } from '../../runtime/runtime-compatibility-test-fixture'
 import { folderWorkspaceKey, worktreeWorkspaceKey } from '../../../../shared/workspace-scope'
 import { makeWorkspaceLineage, makeWorktree } from './worktrees-slice-test-fixtures'
 import {
@@ -10,7 +9,6 @@ import {
   mockApi,
   resetRemoteRuntimeMocks,
   resetWorktreeSliceModuleMemory,
-  runtimeEnvironmentCall,
   runtimeEnvironmentTransportCall
 } from './worktrees-slice-test-harness'
 
@@ -48,24 +46,6 @@ describe('createWorktree base status merge', () => {
       baseBranch: 'origin/main'
     })
     expect(runtimeEnvironmentTransportCall).not.toHaveBeenCalled()
-  })
-
-  it('prefetches create base through runtime RPC for remote runtime targets', async () => {
-    const store = createTestStore()
-    store.setState({
-      settings: { activeRuntimeEnvironmentId: 'remote-runtime' }
-    } as Partial<AppState>)
-    runtimeEnvironmentCall.mockResolvedValue({ id: 'req', ok: true, result: null })
-
-    await store.getState().prefetchWorktreeCreateBase('repo1')
-
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-      selector: 'remote-runtime',
-      method: 'worktree.prefetchCreateBase',
-      params: { repo: 'repo1' },
-      timeoutMs: 30_000
-    })
-    expect(mockApi.worktrees.prefetchCreateBase).not.toHaveBeenCalled()
   })
 
   it('marks the create payload as a generated name only when the caller says so', async () => {
@@ -170,46 +150,6 @@ describe('createWorktree base status merge', () => {
       linkedLinearIssue: 'ENG-123',
       workspaceStatus: 'in-review',
       pendingFirstAgentMessageRename: true
-    })
-  })
-
-  it('stamps the owning runtime host onto worktrees created on a remote runtime', async () => {
-    const store = createTestStore()
-    const created = makeWorktree({
-      id: 'repo-remote::/remote/feature',
-      repoId: 'repo-remote',
-      path: '/remote/feature',
-      // Why: the remote reports the worktree from its own perspective, so it comes back with the default local host.
-      hostId: 'local'
-    })
-    store.setState({
-      repos: [
-        {
-          id: 'repo-remote',
-          path: '/home/dvic/src/omarchy-dotfiles',
-          displayName: 'omarchy-dotfiles',
-          badgeColor: '#000',
-          addedAt: 0,
-          executionHostId: 'runtime:env-1'
-        }
-      ]
-    } as Partial<AppState>)
-    runtimeEnvironmentCall.mockImplementation(({ method }: RuntimeEnvironmentCallRequest) =>
-      Promise.resolve({
-        id: 'rpc-remote-create',
-        ok: true,
-        result: method === 'worktree.create' ? { worktree: created } : null,
-        _meta: { runtimeId: 'runtime-remote' }
-      })
-    )
-
-    await store.getState().createWorktree('repo-remote', 'feature', 'origin/main')
-
-    expect(mockApi.worktrees.create).not.toHaveBeenCalled()
-    expect(store.getState().worktreesByRepo['repo-remote']?.[0]).toEqual({
-      ...created,
-      hostId: 'runtime:env-1',
-      runtimeOwnerEnvironmentId: 'env-1'
     })
   })
 

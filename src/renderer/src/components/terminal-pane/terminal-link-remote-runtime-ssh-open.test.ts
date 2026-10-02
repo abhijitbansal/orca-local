@@ -14,7 +14,6 @@ import {
 const doubles = createTerminalLinkTestDoubles()
 const {
   storeState,
-  deps,
   authorizeExternalPathMock,
   statMock,
   openFileMock,
@@ -54,72 +53,6 @@ vi.mock('@/lib/file-preview', () => ({
 installTerminalLinkTestEnvironment(doubles)
 
 describe('handleOscLink', () => {
-  it('stats remote-runtime file links through the active runtime environment', async () => {
-    setPlatform('Macintosh')
-    storeState.settings = { activeRuntimeEnvironmentId: 'env-1' }
-    runtimeEnvironmentCallMock.mockResolvedValueOnce({
-      id: 'rpc-1',
-      ok: true,
-      result: { size: 1, isDirectory: false, mtime: 1 },
-      _meta: { runtimeId: 'remote-runtime' }
-    })
-
-    openDetectedFilePath('/tmp/src/main.ts', null, null, deps)
-    await new Promise((resolve) => setTimeout(resolve, 0))
-
-    expect(authorizeExternalPathMock).not.toHaveBeenCalled()
-    expect(statMock).not.toHaveBeenCalled()
-    await vi.waitFor(() => {
-      expect(runtimeEnvironmentCallMock).toHaveBeenCalledWith({
-        selector: 'env-1',
-        method: 'files.stat',
-        params: { worktree: 'id:wt-1', relativePath: 'src/main.ts' },
-        timeoutMs: 15_000
-      })
-    })
-    expect(openFileMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        filePath: '/tmp/src/main.ts',
-        relativePath: 'src/main.ts'
-      }),
-      { forceContentReload: true }
-    )
-  })
-
-  it('stats remote-runtime file links through the owning PTY runtime environment', async () => {
-    setPlatform('Macintosh')
-    storeState.settings = { activeRuntimeEnvironmentId: 'env-2' }
-    runtimeEnvironmentCallMock.mockResolvedValueOnce({
-      id: 'rpc-1',
-      ok: true,
-      result: { size: 1, isDirectory: false, mtime: 1 },
-      _meta: { runtimeId: 'remote-runtime' }
-    })
-
-    openDetectedFilePath('/tmp/src/main.ts', null, null, {
-      ...deps,
-      runtimeEnvironmentId: 'env-1'
-    })
-    await new Promise((resolve) => setTimeout(resolve, 0))
-
-    await vi.waitFor(() => {
-      expect(runtimeEnvironmentCallMock).toHaveBeenCalledWith({
-        selector: 'env-1',
-        method: 'files.stat',
-        params: { worktree: 'id:wt-1', relativePath: 'src/main.ts' },
-        timeoutMs: 15_000
-      })
-    })
-    expect(openFileMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        filePath: '/tmp/src/main.ts',
-        relativePath: 'src/main.ts',
-        runtimeEnvironmentId: 'env-1'
-      }),
-      { forceContentReload: true }
-    )
-  })
-
   it('opens SSH file links through Orca without local authorization', async () => {
     setPlatform('Macintosh')
     vi.mocked(getConnectionId).mockReturnValue('ssh-1')
