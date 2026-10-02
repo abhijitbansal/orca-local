@@ -229,7 +229,7 @@ test('a missing legacy worker cannot spawn a replacement during restart recovery
     await getActiveTabId(first.page)
     await waitForActivePanePtyId(first.page)
     const coordinatorPane = await waitForActivePaneHookDescriptor(first.page)
-    const firstClient = new RuntimeClient(session.userDataDir, 30_000, null, null)
+    const firstClient = new RuntimeClient(session.userDataDir, 30_000)
     const coordinator = await firstClient.call<{ terminal: { handle: string } }>(
       'terminal.resolvePane',
       { paneKey: coordinatorPane.paneKey }
@@ -340,7 +340,7 @@ test('a missing legacy worker cannot spawn a replacement during restart recovery
     secondApp = second.app
     await waitForSessionReady(second.page)
     expect(await waitForActiveWorktree(second.page)).toBe(worktreeId)
-    const secondClient = new RuntimeClient(session.userDataDir, 30_000, null, null)
+    const secondClient = new RuntimeClient(session.userDataDir, 30_000)
     await expect
       .poll(async () => {
         const listed = await secondClient.call<RuntimeTerminalListResult>('terminal.list')

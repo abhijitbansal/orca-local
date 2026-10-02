@@ -115,7 +115,7 @@ async function setUpMailFixture(
   await waitForActiveTerminalManager(orcaPage)
 
   const userDataDir = await readUserDataDir(electronApp)
-  const client = new RuntimeClient(userDataDir, 30_000, null, null)
+  const client = new RuntimeClient(userDataDir, 30_000)
 
   // Why: the renderer publishes the active worktree before the runtime finishes
   // registering it, and terminal.create resolves its selector against the

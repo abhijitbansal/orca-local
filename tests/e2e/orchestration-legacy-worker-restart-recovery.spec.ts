@@ -455,7 +455,7 @@ for (const contractVersion of [LEGACY_CONTRACT_VERSION, CURRENT_CONTRACT_VERSION
       expect(coordinatorTabId).toBeTruthy()
       await waitForActivePanePtyId(first.page)
       const coordinatorPane = await waitForActivePaneHookDescriptor(first.page)
-      const firstClient = new RuntimeClient(session.userDataDir, 30_000, null, null)
+      const firstClient = new RuntimeClient(session.userDataDir, 30_000)
       const coordinator = await firstClient.call<{ terminal: { handle: string } }>(
         'terminal.resolvePane',
         { paneKey: coordinatorPane.paneKey }
@@ -639,7 +639,7 @@ for (const contractVersion of [LEGACY_CONTRACT_VERSION, CURRENT_CONTRACT_VERSION
       secondApp = second.app
       await waitForSessionReady(second.page)
       expect(await waitForActiveWorktree(second.page)).toBe(worktreeId)
-      const secondClient = new RuntimeClient(session.userDataDir, 30_000, null, null)
+      const secondClient = new RuntimeClient(session.userDataDir, 30_000)
       let recovered = (
         await secondClient.call<RuntimeTerminalListResult>('terminal.list')
       ).result.terminals.find((terminal) => terminal.ptyId === initialWorker.ptyId)

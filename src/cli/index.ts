@@ -15,6 +15,7 @@ import { printHelp } from './help'
 import type { RuntimeClient } from './runtime-client'
 import { COMMAND_SPECS } from './specs'
 import { resolveOrchestrationCliExecutable } from './runtime/orchestration-recovery-command'
+import { refusePairedServerEnvironment } from './paired-server-env-rejection'
 import { refuseConflictingSessionCallerFlags } from './session-caller-flags'
 
 export { COMMAND_SPECS } from './specs'
@@ -93,6 +94,7 @@ export async function main(
       findCommandSpec(COMMAND_SPECS, parsed.commandPath),
       parsed.flags
     )
+    refusePairedServerEnvironment()
     const RuntimeClientClass = await loadRuntimeClientClass()
     let client: RuntimeClient | undefined
     await dispatch(parsed.commandPath, {

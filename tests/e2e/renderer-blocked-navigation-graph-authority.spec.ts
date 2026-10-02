@@ -19,7 +19,7 @@ test('blocked navigation preserves the renderer document and graph authority', a
 }) => {
   await waitForSessionReady(orcaPage)
   const userDataDir = await electronApp.evaluate(({ app }) => app.getPath('userData'))
-  const client = new RuntimeClient(userDataDir, 30_000, null, null)
+  const client = new RuntimeClient(userDataDir, 30_000)
   const before = (await client.call<RuntimeStatus>('status.get')).result
 
   await electronApp.evaluate(({ BrowserWindow, shell }) => {
@@ -70,7 +70,7 @@ test('cancelled renderer reload restores the surviving graph authority', async (
 }) => {
   await waitForSessionReady(orcaPage)
   const userDataDir = await electronApp.evaluate(({ app }) => app.getPath('userData'))
-  const client = new RuntimeClient(userDataDir, 30_000, null, null)
+  const client = new RuntimeClient(userDataDir, 30_000)
   const before = (await client.call<RuntimeStatus>('status.get')).result
   await orcaPage.evaluate(() => {
     ;(window as unknown as { __cancelledReloadCanary: string }).__cancelledReloadCanary = 'alive'
@@ -111,7 +111,7 @@ test('beforeunload cancellation never retires the surviving graph authority', as
 }) => {
   await waitForSessionReady(orcaPage)
   const userDataDir = await electronApp.evaluate(({ app }) => app.getPath('userData'))
-  const client = new RuntimeClient(userDataDir, 30_000, null, null)
+  const client = new RuntimeClient(userDataDir, 30_000)
   const before = (await client.call<RuntimeStatus>('status.get')).result
   await orcaPage.evaluate(() => {
     ;(window as unknown as { __preventedUnloadCanary: string }).__preventedUnloadCanary = 'alive'

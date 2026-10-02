@@ -40,7 +40,7 @@ async function createFakeCodexTerminal(
   testRepoPath: string,
   args: string[] = []
 ): Promise<string> {
-  const client = new RuntimeClient(userDataDir, 30_000, null, null)
+  const client = new RuntimeClient(userDataDir, 30_000)
   const expectedPath = path.resolve(testRepoPath)
   const findWorktree = async (): Promise<{ id: string } | undefined> => {
     const listed = await client.call<{ worktrees: { id: string; path: string }[] }>(

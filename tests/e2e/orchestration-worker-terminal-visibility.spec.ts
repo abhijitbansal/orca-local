@@ -133,7 +133,7 @@ test('worker-start preserves one live inactive worker across workspace re-entry'
   await waitForActivePanePtyId(orcaPage)
   const coordinatorPane = await waitForActivePaneHookDescriptor(orcaPage)
   const userDataDir = await electronApp.evaluate(({ app }) => app.getPath('userData'))
-  const client = new RuntimeClient(userDataDir, 30_000, null, null)
+  const client = new RuntimeClient(userDataDir, 30_000)
   const coordinator = await client.call<{ terminal: { handle: string } }>('terminal.resolvePane', {
     paneKey: coordinatorPane.paneKey
   })
