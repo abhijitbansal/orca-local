@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { scanLocalOnly } from './check-local-only.mjs'
+import { readAllowlist, scanLocalOnly } from './check-local-only.mjs'
 
 const roots = []
 function fixture(files) {
@@ -140,5 +140,12 @@ describe('scanLocalOnly', () => {
     expect(
       scanLocalOnly({ rootDir: root, allowlist: new Set(['src/main/a.ts:forbidden-host']) })
     ).toEqual([])
+  })
+})
+
+describe('repository', () => {
+  it('has no local-only violations outside the allowlist', () => {
+    const rootDir = path.resolve(import.meta.dirname, '../..')
+    expect(scanLocalOnly({ rootDir, allowlist: readAllowlist(rootDir) })).toEqual([])
   })
 })
