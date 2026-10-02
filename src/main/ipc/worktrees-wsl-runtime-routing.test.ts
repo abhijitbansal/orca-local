@@ -7,7 +7,6 @@ import {
   removeWorktreeMock,
   resolveDefaultBaseRefWithLocalGitMock,
   getBranchConflictKindMock,
-  getPRForBranchMock,
   getEffectiveHooksMock,
   createSetupRunnerScriptMock,
   getEffectiveHooksFromConfigMock,
@@ -41,12 +40,6 @@ vi.mock('../git/git-username', async (importOriginal) => ({
   resolveLocalGitUsername: (await import('./worktrees-test-module-mocks'))
     .resolveLocalGitUsernameMock
 }))
-vi.mock('../github/client', async () =>
-  (await import('./worktrees-test-module-mocks')).githubClientModuleMock()
-)
-vi.mock('../source-control/hosted-review', async () =>
-  (await import('./worktrees-test-module-mocks')).hostedReviewModuleMock()
-)
 vi.mock('../providers/ssh-git-dispatch', async () =>
   (await import('./worktrees-test-module-mocks')).sshGitDispatchModuleMock()
 )
@@ -369,56 +362,6 @@ describe('registerWorktreeHandlers', () => {
       )
     )
     expect(distros).toEqual(new Set(['Ubuntu']))
-  })
-
-  it('routes selected PR branch conflict lookup through the selected WSL project runtime', async () => {
-    mockSelectedWslProjectRuntime()
-    getBranchConflictKindMock.mockResolvedValueOnce('remote')
-    getPRForBranchMock.mockResolvedValueOnce({
-      number: 42,
-      title: 'Selected PR',
-      state: 'open',
-      url: 'https://example.com/pr/42',
-      checksStatus: 'success',
-      updatedAt: '2026-06-16T00:00:00.000Z',
-      mergeable: 'UNKNOWN'
-    })
-    listWorktreesMock.mockResolvedValue([
-      {
-        path: '/workspace/fix-title',
-        head: 'abc123',
-        branch: 'refs/heads/feature/fix',
-        isBare: false,
-        isMainWorktree: false
-      }
-    ])
-
-    await handlers['worktrees:create'](null, {
-      repoId: 'repo-1',
-      name: 'fix-title',
-      baseBranch: 'abc123',
-      branchNameOverride: 'feature/fix',
-      linkedPR: 42,
-      pushTarget: { remoteName: 'origin', branchName: 'feature/fix' }
-    })
-
-    expect(getPRForBranchMock).toHaveBeenCalledWith(
-      '/workspace/repo',
-      'feature/fix',
-      null,
-      null,
-      null,
-      { localGitExecOptions: { wslDistro: 'Ubuntu' } }
-    )
-    expect(addWorktreeMock).toHaveBeenCalledWith(
-      '/workspace/repo',
-      '/workspace/fix-title',
-      'feature/fix',
-      'abc123',
-      false,
-      false,
-      { wslDistro: 'Ubuntu' }
-    )
   })
 
   it('lists detected worktrees through the selected WSL project runtime', async () => {

@@ -175,27 +175,6 @@ describe('OrcaRuntimeService', () => {
     })
   })
 
-  it('reads the linked-PR state from the renderer repoId-keyed GitHub cache', async () => {
-    // Regression: renderer keys the PR cache by repoId::branch; reading by path::branch missed every entry (muted mobile badge).
-    const runtimeStore = {
-      ...store,
-      getGitHubCache: () => ({
-        pr: {
-          [`${TEST_REPO_ID}::feature/foo`]: {
-            data: { number: 42, state: 'merged' },
-            fetchedAt: 1
-          }
-        },
-        issue: {}
-      })
-    }
-    const runtime = new OrcaRuntimeService(runtimeStore as never)
-
-    const { worktrees } = await runtime.getWorktreePs()
-    const summary = worktrees.find((w) => w.worktreeId === TEST_WORKTREE_ID)
-    expect(summary?.linkedPR).toEqual({ number: 42, state: 'merged' })
-  })
-
   it('carries persisted worktree host ownership in mobile summaries', async () => {
     const metaById = {
       [TEST_WORKTREE_ID]: {

@@ -1,7 +1,6 @@
 import type { Repo } from '../../shared/repo-types'
 import { WorktreeCreateCollisionError } from '../../shared/new-workspace/worktree-create-collision'
 import type { CreateWorktreeArgs } from '../../shared/worktree/create-types'
-import type { getPRForBranch } from '../github/client'
 import {
   computeWorktreePath,
   ensurePathWithinWorkspace,
@@ -21,20 +20,12 @@ import { createRetiredNameLookup } from '../../shared/worktree/retired-name-regi
 import { getRetiredNameRegistryForRepo } from '../worktree-name-retirement'
 import type { RuntimeManagedWorktreeCreateArgs } from './runtime-managed-worktree-create-types'
 import {
-  getSelectedReviewBranch,
-  isAllowedPushTargetRemoteConflict,
-  isMatchingSelectedGitHubPr
-} from './selected-review-branch'
-import {
   canCheckoutExistingLocalBranch,
-  getLocalGitHubPrForBranch,
-  getSelectedHostedReviewForBranch,
   resolveCreateBranchName
 } from './runtime-worktree-create-git'
 import { runtimePathExists } from './runtime-worktree-filesystem'
 import { findPendingWorktreeRemovalConflict } from '../worktree-background-removal'
 import type { RuntimeStore } from './runtime-store-contract'
-import type { HostedReviewExecutionOptions } from '../source-control/hosted-review-git-options'
 
 export type RuntimeLocalWorktreeCreateCandidate = {
   effectiveRequestedName: string
@@ -59,7 +50,6 @@ export async function resolveRuntimeLocalWorktreeCreateCandidate(args: {
   store?: RuntimeStore
   baseBranch: string
   localWorktreeGitOptions: { wslDistro?: string }
-  hostedReviewExecutionContext?: HostedReviewExecutionOptions
 }): Promise<RuntimeLocalWorktreeCreateCandidate> {
   const sanitizedName = sanitizeWorktreeName(args.request.name)
   let effectiveRequestedName = args.request.name
@@ -136,55 +126,8 @@ export async function resolveRuntimeLocalWorktreeCreateCandidate(args: {
     if (checkoutExistingBranch && !selectedExistingLocalBranchName) {
       selectedExistingLocalBranchName = branchName
     }
-    const allowedPushTargetRemoteConflict =
-      branchConflictKind &&
-      isAllowedPushTargetRemoteConflict(branchConflictKind, branchName, args.request)
-    let selectedReviewConflictMatched = false
     if (branchConflictKind) {
-      if (allowedPushTargetRemoteConflict) {
-        let existingPR: Awaited<ReturnType<typeof getPRForBranch>> | null = null
-        const selectedReview = getSelectedReviewBranch(args.request)
-        if (selectedReview?.provider === 'github') {
-          try {
-            existingPR = await getLocalGitHubPrForBranch(
-              args.repo.path,
-              branchName,
-              args.localWorktreeGitOptions
-            )
-          } catch {}
-          if (isMatchingSelectedGitHubPr(existingPR, args.request, branchName)) {
-            branchConflictKind = null
-            selectedReviewConflictMatched = true
-          }
-        } else if (selectedReview) {
-          const review = await getSelectedHostedReviewForBranch(
-            args.repo,
-            branchName,
-            args.request,
-            args.hostedReviewExecutionContext
-          ).catch(() => null)
-          if (review?.matchesSelected) {
-            branchConflictKind = null
-            selectedReviewConflictMatched = true
-          }
-        }
-      }
-      if (branchConflictKind) {
-        continue
-      }
-    }
-    if (!checkoutExistingBranch && !selectedReviewConflictMatched) {
-      let existingPR: Awaited<ReturnType<typeof getPRForBranch>> | null = null
-      try {
-        existingPR = await getLocalGitHubPrForBranch(
-          args.repo.path,
-          branchName,
-          args.localWorktreeGitOptions
-        )
-      } catch {}
-      if (existingPR && !isMatchingSelectedGitHubPr(existingPR, args.request, branchName)) {
-        continue
-      }
+      continue
     }
     worktreePath = ensurePathWithinWorkspace(
       computeWorktreePath(effectiveSanitizedName, args.repo.path, args.worktreePathSettings),

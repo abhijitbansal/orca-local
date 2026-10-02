@@ -3,7 +3,6 @@ import type { RuntimeBrowserCommands, RuntimeBrowserCommandHost } from './orca-r
 import { RuntimeEmulatorCommands } from './orca-runtime-emulator'
 import { RuntimeBrowserScreencastController } from './runtime-browser-screencast-controller'
 import { createRuntimeBrowserCommands } from './runtime-browser-commands-factory'
-import { RuntimeJiraCommands } from './runtime-jira-commands'
 
 type PublicMethods<T> = Pick<T, keyof T>
 type BrowserSurface = Omit<PublicMethods<RuntimeBrowserCommands>, 'browserScreencast'> & {
@@ -20,9 +19,7 @@ type BrowserSurface = Omit<PublicMethods<RuntimeBrowserCommands>, 'browserScreen
   ): Promise<void>
 }
 
-export type RuntimeEdgeCommandSurface = BrowserSurface &
-  PublicMethods<RuntimeJiraCommands> &
-  PublicMethods<RuntimeEmulatorCommands>
+export type RuntimeEdgeCommandSurface = BrowserSurface & PublicMethods<RuntimeEmulatorCommands>
 
 type ScreencastDependencies = ConstructorParameters<typeof RuntimeBrowserScreencastController>[0]
 type EmulatorHost = ConstructorParameters<typeof RuntimeEmulatorCommands>[0]
@@ -135,7 +132,6 @@ function bindNamedMethods<T extends object>(
 }
 
 export class RuntimeEdgeCommandController {
-  private readonly jira = new RuntimeJiraCommands()
   private readonly browser: RuntimeBrowserCommands
   private readonly screencasts: RuntimeBrowserScreencastController
   private readonly emulator: RuntimeEmulatorCommands
@@ -154,7 +150,6 @@ export class RuntimeEdgeCommandController {
     })
     this.emulator = new RuntimeEmulatorCommands(args.emulatorHost)
     this.surface = {
-      ...bindPrefixedMethods(this.jira, 'jira'),
       ...bindNamedMethods(this.browser, BROWSER_COMMAND_NAMES),
       ...bindPrefixedMethods(this.emulator, 'emulator'),
       browserScreencast: (params, options) => this.screencasts.start(params, options)

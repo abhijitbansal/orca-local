@@ -11,11 +11,7 @@ import { describe, expect, it } from 'vitest'
 //
 // Rule 2 entries map a file to its expected number of non-`net` `.fetch(` calls. A count change
 // means a call site was added, removed, or moved: re-audit the file and update the count.
-const AUDITED_NON_NET_FETCH_CALLS = new Map<string, number>([
-  // Injected HttpClient, not a session: resolves to net.fetch on defaultSession
-  // (main/host/electron-http-client.ts) or to the global-fetch-audited Node fallback.
-  ['main/jira/authenticated-request.ts', 1]
-])
+const AUDITED_NON_NET_FETCH_CALLS = new Map<string, number>([])
 
 // `globalThis.fetch` / `global.fetch` belong to global-fetch-call-site-audit.test.ts.
 // `\s*` before `(`: the formatter never emits `net.fetch (url)`, but an unformatted call must not

@@ -21,7 +21,6 @@ import { gitExecFileAsync } from '../../git/runner'
 import { withLinkedIssueDraftContext } from '../../../shared/source-control-ai-action-variables'
 import { resolveSourceControlAiLinkedIssueMeta } from '../source-control-ai-linked-issue'
 import { resolveHostedReviewBodyForGeneration } from '../../source-control/pull-request-template'
-import { loadPullRequestLinkedIssue } from '../../source-control/pull-request-linked-issue'
 import type { FilesystemHandlerContext } from './filesystem-handler-context'
 import {
   getLocalAgentRuntimeTarget,
@@ -83,14 +82,6 @@ export function registerFilesystemGitPullRequestGenerationHandlers(
           }
         }
         const issueMeta = resolveSourceControlAiLinkedIssueMeta(store, args)
-        const linkedIssueDetailsPromise = loadPullRequestLinkedIssue({
-          meta: issueMeta,
-          provider: args.provider,
-          repoPath: args.worktreePath,
-          connectionId: args.connectionId
-        })
-        // Preparation can return before this lookup settles; retain its error for the later await.
-        void linkedIssueDetailsPromise.catch(() => undefined)
         let context: Awaited<ReturnType<typeof getPullRequestDraftContext>>
         try {
           const currentBody = await resolveHostedReviewBodyForGeneration({
@@ -124,11 +115,9 @@ export function registerFilesystemGitPullRequestGenerationHandlers(
         if (!context) {
           return { success: false, error: 'No branch changes to summarize.' }
         }
-        const linkedIssueDetails = await linkedIssueDetailsPromise
         context = {
           ...withLinkedIssueDraftContext(context, issueMeta?.linkedIssue),
-          ...(args.provider ? { provider: args.provider } : {}),
-          ...(linkedIssueDetails ? { linkedIssueDetails } : {})
+          ...(args.provider ? { provider: args.provider } : {})
         }
         return generatePullRequestFieldsFromContext(context, resolvedSettings.params, {
           kind: 'remote',
@@ -146,15 +135,6 @@ export function registerFilesystemGitPullRequestGenerationHandlers(
         worktreePath
       )
       const issueMeta = resolveSourceControlAiLinkedIssueMeta(store, args, worktreePath)
-      const linkedIssueDetailsPromise = loadPullRequestLinkedIssue({
-        meta: issueMeta,
-        provider: args.provider,
-        repoPath: worktreePath,
-        connectionId: args.connectionId,
-        localGitOptions: gitOptions
-      })
-      // Preparation can return before this lookup settles; retain its error for the later await.
-      void linkedIssueDetailsPromise.catch(() => undefined)
       let context: Awaited<ReturnType<typeof getPullRequestDraftContext>>
       try {
         const currentBody = await resolveHostedReviewBodyForGeneration({
@@ -190,11 +170,9 @@ export function registerFilesystemGitPullRequestGenerationHandlers(
       if (!context) {
         return { success: false, error: 'No branch changes to summarize.' }
       }
-      const linkedIssueDetails = await linkedIssueDetailsPromise
       context = {
         ...withLinkedIssueDraftContext(context, issueMeta?.linkedIssue),
-        ...(args.provider ? { provider: args.provider } : {}),
-        ...(linkedIssueDetails ? { linkedIssueDetails } : {})
+        ...(args.provider ? { provider: args.provider } : {})
       }
       const localEnv = await prepareLocalCommitMessageAgentEnv(
         resolvedSettings.params.agentId,

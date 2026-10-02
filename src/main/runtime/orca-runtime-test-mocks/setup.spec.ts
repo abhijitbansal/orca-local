@@ -125,71 +125,12 @@ const {
   muxRequestMock,
   invalidateAuthorizedRootsCacheMock,
   prepareLocalWorktreeRootForRepoMock,
-  createHostedReviewMock,
-  createStackedHostedReviewMock,
-  getHostedReviewCreationEligibilityMock,
-  getHostedReviewForBranchMock,
-  getPRForBranchMock,
-  getPRForBranchOutcomeMock,
-  getRepoSlugMock,
-  getRepoUpstreamMock,
-  getGitHubWorkItemMock,
-  getPullRequestPushTargetMock,
-  getGitHubWorkItemByOwnerRepoMock,
-  getGitHubWorkItemDetailsMock,
-  getGitHubPRFileContentsMock,
-  getGitHubPRChecksMock,
-  rerunGitHubPRChecksMock,
-  getGitHubPRCheckDetailsMock,
-  getGitHubPRCommentsMock,
-  resolveGitHubReviewThreadMock,
-  setGitHubPRFileViewedMock,
-  updateGitHubPRTitleMock,
-  updateGitHubPRDetailsMock,
-  mergeGitHubPRMock,
-  setGitHubPRAutoMergeMock,
-  updateGitHubPRStateMock,
-  requestGitHubPRReviewersMock,
-  removeGitHubPRReviewersMock,
-  addGitHubPRReviewCommentMock,
-  addGitHubPRReviewCommentReplyMock,
-  listGitHubIssuesMock,
-  listGitHubWorkItemsMock,
-  countGitHubWorkItemsMock,
-  createGitHubIssueMock,
-  updateGitHubIssueMock,
-  addGitHubIssueCommentMock,
-  listGitHubLabelsMock,
-  listGitHubAssignableUsersMock,
   applyAgentStatusHooksEnabledMock,
   detectInstalledAgentsWithShellPathHydrationMock,
   detectRemoteAgentsMock,
   markCodexProjectTrustedMock,
   markCopilotFolderTrustedMock,
   markCursorWorkspaceTrustedMock,
-  listGitLabMergeRequestsMock,
-  listGitLabWorkItemsMock,
-  listGitLabIssuesMock,
-  listGitLabLabelsMock,
-  listGitLabTodosMock,
-  getGitLabProjectRefForRemoteMock,
-  getGitLabWorkItemByProjectRefMock,
-  createGitLabIssueMock,
-  updateGitLabIssueMock,
-  addGitLabIssueCommentMock,
-  addGitLabMRCommentMock,
-  addGitLabMRInlineCommentMock,
-  resolveGitLabMRDiscussionMock,
-  getGitLabJobTraceMock,
-  retryGitLabJobMock,
-  mergeGitLabMRMock,
-  closeGitLabMRMock,
-  reopenGitLabMRMock,
-  updateGitLabMRMock,
-  getGlabKnownHostsMock,
-  getGitLabWorkItemDetailsMock,
-  updateGitLabMRReviewersMock,
-  getIssueMock,
   deleteWorktreeHistoryDirMock
 } = vi.hoisted(() => {
   // Why: SSH runtime tests register providers via the public dispatcher API, so the mock needs the same registry semantics as the real module.
@@ -234,73 +175,12 @@ const {
     muxRequestMock: vi.fn() as TestMock,
     invalidateAuthorizedRootsCacheMock: vi.fn() as TestMock,
     prepareLocalWorktreeRootForRepoMock: vi.fn() as TestMock,
-    createHostedReviewMock: vi.fn() as TestMock,
-    createStackedHostedReviewMock: vi.fn() as TestMock,
-    getHostedReviewCreationEligibilityMock: vi.fn() as TestMock,
-    getHostedReviewForBranchMock: vi.fn() as TestMock,
-    getPRForBranchMock: vi.fn().mockResolvedValue(null) as TestMock,
-    getPRForBranchOutcomeMock: vi
-      .fn()
-      .mockResolvedValue({ kind: 'no-pr', fetchedAt: 0 }) as TestMock,
-    getRepoSlugMock: vi.fn().mockResolvedValue(null) as TestMock,
-    getRepoUpstreamMock: vi.fn().mockResolvedValue(null) as TestMock,
-    getGitHubWorkItemMock: vi.fn() as TestMock,
-    getPullRequestPushTargetMock: vi.fn() as TestMock,
-    getGitHubWorkItemByOwnerRepoMock: vi.fn() as TestMock,
-    getGitHubWorkItemDetailsMock: vi.fn() as TestMock,
-    getGitHubPRFileContentsMock: vi.fn() as TestMock,
-    getGitHubPRChecksMock: vi.fn() as TestMock,
-    rerunGitHubPRChecksMock: vi.fn() as TestMock,
-    getGitHubPRCheckDetailsMock: vi.fn() as TestMock,
-    getGitHubPRCommentsMock: vi.fn() as TestMock,
-    resolveGitHubReviewThreadMock: vi.fn() as TestMock,
-    setGitHubPRFileViewedMock: vi.fn() as TestMock,
-    updateGitHubPRTitleMock: vi.fn() as TestMock,
-    updateGitHubPRDetailsMock: vi.fn() as TestMock,
-    mergeGitHubPRMock: vi.fn() as TestMock,
-    setGitHubPRAutoMergeMock: vi.fn() as TestMock,
-    updateGitHubPRStateMock: vi.fn() as TestMock,
-    requestGitHubPRReviewersMock: vi.fn() as TestMock,
-    removeGitHubPRReviewersMock: vi.fn() as TestMock,
-    addGitHubPRReviewCommentMock: vi.fn() as TestMock,
-    addGitHubPRReviewCommentReplyMock: vi.fn() as TestMock,
-    listGitHubIssuesMock: vi.fn() as TestMock,
-    listGitHubWorkItemsMock: vi.fn() as TestMock,
-    countGitHubWorkItemsMock: vi.fn() as TestMock,
-    createGitHubIssueMock: vi.fn() as TestMock,
-    updateGitHubIssueMock: vi.fn() as TestMock,
-    addGitHubIssueCommentMock: vi.fn() as TestMock,
-    listGitHubLabelsMock: vi.fn() as TestMock,
-    listGitHubAssignableUsersMock: vi.fn() as TestMock,
     applyAgentStatusHooksEnabledMock: vi.fn() as TestMock,
     detectInstalledAgentsWithShellPathHydrationMock: vi.fn() as TestMock,
     detectRemoteAgentsMock: vi.fn() as TestMock,
     markCodexProjectTrustedMock: vi.fn() as TestMock,
     markCopilotFolderTrustedMock: vi.fn() as TestMock,
     markCursorWorkspaceTrustedMock: vi.fn() as TestMock,
-    listGitLabMergeRequestsMock: vi.fn() as TestMock,
-    listGitLabWorkItemsMock: vi.fn() as TestMock,
-    listGitLabIssuesMock: vi.fn() as TestMock,
-    listGitLabLabelsMock: vi.fn() as TestMock,
-    listGitLabTodosMock: vi.fn() as TestMock,
-    getGitLabProjectRefForRemoteMock: vi.fn() as TestMock,
-    getGitLabWorkItemByProjectRefMock: vi.fn() as TestMock,
-    createGitLabIssueMock: vi.fn() as TestMock,
-    updateGitLabIssueMock: vi.fn() as TestMock,
-    addGitLabIssueCommentMock: vi.fn() as TestMock,
-    addGitLabMRCommentMock: vi.fn() as TestMock,
-    addGitLabMRInlineCommentMock: vi.fn() as TestMock,
-    resolveGitLabMRDiscussionMock: vi.fn() as TestMock,
-    getGitLabJobTraceMock: vi.fn() as TestMock,
-    retryGitLabJobMock: vi.fn() as TestMock,
-    mergeGitLabMRMock: vi.fn() as TestMock,
-    closeGitLabMRMock: vi.fn() as TestMock,
-    reopenGitLabMRMock: vi.fn() as TestMock,
-    updateGitLabMRMock: vi.fn() as TestMock,
-    getGlabKnownHostsMock: vi.fn() as TestMock,
-    getGitLabWorkItemDetailsMock: vi.fn() as TestMock,
-    updateGitLabMRReviewersMock: vi.fn() as TestMock,
-    getIssueMock: vi.fn() as TestMock,
     deleteWorktreeHistoryDirMock: vi.fn() as TestMock
   }
 })
@@ -435,117 +315,6 @@ vi.mock('../../worktree-root-preparation', () => ({
   prepareLocalWorktreeRootForRepo: prepareLocalWorktreeRootForRepoMock
 }))
 
-vi.mock('../../source-control/hosted-review-creation', () => ({
-  createHostedReview: createHostedReviewMock,
-  getHostedReviewCreationEligibility: getHostedReviewCreationEligibilityMock
-}))
-
-vi.mock('../../source-control/stacked-hosted-review-creation', () => ({
-  createStackedHostedReview: createStackedHostedReviewMock
-}))
-
-vi.mock('../../source-control/hosted-review', () => ({
-  getHostedReviewForBranch: getHostedReviewForBranchMock
-}))
-
-vi.mock('../../github/client', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>
-  return {
-    ...actual,
-    getPRForBranch: getPRForBranchMock,
-    getPRForBranchOutcome: getPRForBranchOutcomeMock,
-    getRepoSlug: getRepoSlugMock,
-    getRepoUpstream: getRepoUpstreamMock,
-    getWorkItem: getGitHubWorkItemMock,
-    getPullRequestPushTarget: getPullRequestPushTargetMock,
-    getWorkItemByOwnerRepo: getGitHubWorkItemByOwnerRepoMock,
-    getPRChecks: getGitHubPRChecksMock,
-    rerunPRChecks: rerunGitHubPRChecksMock,
-    getPRCheckDetails: getGitHubPRCheckDetailsMock,
-    getPRComments: getGitHubPRCommentsMock,
-    resolveReviewThread: resolveGitHubReviewThreadMock,
-    setPRFileViewed: setGitHubPRFileViewedMock,
-    updatePRTitle: updateGitHubPRTitleMock,
-    updatePRDetails: updateGitHubPRDetailsMock,
-    mergePR: mergeGitHubPRMock,
-    setPRAutoMerge: setGitHubPRAutoMergeMock,
-    updatePRState: updateGitHubPRStateMock,
-    requestPRReviewers: requestGitHubPRReviewersMock,
-    removePRReviewers: removeGitHubPRReviewersMock,
-    addPRReviewComment: addGitHubPRReviewCommentMock,
-    addPRReviewCommentReply: addGitHubPRReviewCommentReplyMock,
-    listIssues: listGitHubIssuesMock,
-    listWorkItems: listGitHubWorkItemsMock,
-    countWorkItems: countGitHubWorkItemsMock,
-    getIssue: getIssueMock,
-    createIssue: createGitHubIssueMock,
-    updateIssue: updateGitHubIssueMock,
-    addIssueComment: addGitHubIssueCommentMock,
-    listLabels: listGitHubLabelsMock,
-    listAssignableUsers: listGitHubAssignableUsersMock
-  }
-})
-
-vi.mock('../../gitlab/client', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>
-  return {
-    ...actual,
-    listMergeRequests: listGitLabMergeRequestsMock,
-    listWorkItems: listGitLabWorkItemsMock,
-    listIssues: listGitLabIssuesMock,
-    listLabels: listGitLabLabelsMock,
-    listTodos: listGitLabTodosMock,
-    getProjectRefForRemote: getGitLabProjectRefForRemoteMock,
-    getWorkItemByProjectRef: getGitLabWorkItemByProjectRefMock,
-    createIssue: createGitLabIssueMock,
-    updateIssue: updateGitLabIssueMock,
-    addIssueComment: addGitLabIssueCommentMock,
-    addMRComment: addGitLabMRCommentMock,
-    addMRInlineComment: addGitLabMRInlineCommentMock,
-    resolveMRDiscussion: resolveGitLabMRDiscussionMock,
-    getJobTrace: getGitLabJobTraceMock,
-    retryJob: retryGitLabJobMock,
-    mergeMR: mergeGitLabMRMock,
-    closeMR: closeGitLabMRMock,
-    reopenMR: reopenGitLabMRMock,
-    updateMR: updateGitLabMRMock,
-    updateMRReviewers: updateGitLabMRReviewersMock
-  }
-})
-
-vi.mock('../../gitlab/gl-utils', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>
-  return {
-    ...actual,
-    getGlabKnownHosts: getGlabKnownHostsMock
-  }
-})
-
-vi.mock('../../gitlab/work-item-details', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>
-  return {
-    ...actual,
-    getWorkItemDetails: getGitLabWorkItemDetailsMock
-  }
-})
-
-vi.mock('../../github/work-item-details', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>
-  return {
-    ...actual,
-    getWorkItemDetails: getGitHubWorkItemDetailsMock,
-    getPRFileContents: getGitHubPRFileContentsMock
-  }
-})
-
-vi.mock('../../github/issues', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>
-  return {
-    ...actual,
-    getIssue: getIssueMock
-  }
-})
-
 // Why: CLI worktree creation resolves a default against fabricated repo paths, so keep the async resolver deterministic.
 vi.mock('../../git/repo', async (importOriginal) => {
   const actual = (await importOriginal()) as Record<string, unknown>
@@ -606,70 +375,11 @@ export {
   muxRequestMock,
   invalidateAuthorizedRootsCacheMock,
   prepareLocalWorktreeRootForRepoMock,
-  createHostedReviewMock,
-  createStackedHostedReviewMock,
-  getHostedReviewCreationEligibilityMock,
-  getHostedReviewForBranchMock,
-  getPRForBranchMock,
-  getPRForBranchOutcomeMock,
-  getRepoSlugMock,
-  getRepoUpstreamMock,
-  getGitHubWorkItemMock,
-  getPullRequestPushTargetMock,
-  getGitHubWorkItemByOwnerRepoMock,
-  getGitHubWorkItemDetailsMock,
-  getGitHubPRFileContentsMock,
-  getGitHubPRChecksMock,
-  rerunGitHubPRChecksMock,
-  getGitHubPRCheckDetailsMock,
-  getGitHubPRCommentsMock,
-  resolveGitHubReviewThreadMock,
-  setGitHubPRFileViewedMock,
-  updateGitHubPRTitleMock,
-  updateGitHubPRDetailsMock,
-  mergeGitHubPRMock,
-  setGitHubPRAutoMergeMock,
-  updateGitHubPRStateMock,
-  requestGitHubPRReviewersMock,
-  removeGitHubPRReviewersMock,
-  addGitHubPRReviewCommentMock,
-  addGitHubPRReviewCommentReplyMock,
-  listGitHubIssuesMock,
-  listGitHubWorkItemsMock,
-  countGitHubWorkItemsMock,
-  createGitHubIssueMock,
-  updateGitHubIssueMock,
-  addGitHubIssueCommentMock,
-  listGitHubLabelsMock,
-  listGitHubAssignableUsersMock,
   applyAgentStatusHooksEnabledMock,
   detectInstalledAgentsWithShellPathHydrationMock,
   detectRemoteAgentsMock,
   markCodexProjectTrustedMock,
   markCopilotFolderTrustedMock,
   markCursorWorkspaceTrustedMock,
-  listGitLabMergeRequestsMock,
-  listGitLabWorkItemsMock,
-  listGitLabIssuesMock,
-  listGitLabLabelsMock,
-  listGitLabTodosMock,
-  getGitLabProjectRefForRemoteMock,
-  getGitLabWorkItemByProjectRefMock,
-  createGitLabIssueMock,
-  updateGitLabIssueMock,
-  addGitLabIssueCommentMock,
-  addGitLabMRCommentMock,
-  addGitLabMRInlineCommentMock,
-  resolveGitLabMRDiscussionMock,
-  getGitLabJobTraceMock,
-  retryGitLabJobMock,
-  mergeGitLabMRMock,
-  closeGitLabMRMock,
-  reopenGitLabMRMock,
-  updateGitLabMRMock,
-  getGlabKnownHostsMock,
-  getGitLabWorkItemDetailsMock,
-  updateGitLabMRReviewersMock,
-  getIssueMock,
   deleteWorktreeHistoryDirMock
 }

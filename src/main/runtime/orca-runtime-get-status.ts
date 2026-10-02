@@ -171,9 +171,6 @@ export class OrcaRuntimeWithGetStatus extends OrcaRuntimeWithGetRuntimeId {
 
   setNotifier(notifier: RuntimeNotifier | null): void {
     this.notifier = notifier
-    if (notifier) {
-      this.repositoryForkBackfill.start()
-    }
   }
 
   protected countTerminalSideEffectConsumingClientEventListeners(): number {

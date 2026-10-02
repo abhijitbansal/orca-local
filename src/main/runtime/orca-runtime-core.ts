@@ -10,11 +10,9 @@ import type {
   RuntimeTerminalPresentation
 } from '../../shared/runtime-types'
 import type { RuntimeEdgeCommandSurface } from './runtime-edge-command-controller'
-import type { RuntimeLinearCommandSurface } from './runtime-linear-command-surface'
 import type { RuntimeFileCommandSurface } from './runtime-file-command-surface'
 import type { RuntimeGitCommandSurface } from './runtime-git-command-surface'
 import type { RuntimeRepositoryCommandSurface } from './runtime-repository-command-surface'
-import type { RuntimeReviewCommandSurface } from './runtime-review-command-surface'
 import type { RuntimeServiceCommandSurface } from './runtime-service-command-surface'
 import type { RuntimeSkillCommandSurface } from './runtime-skill-command-surface'
 
@@ -336,11 +334,9 @@ export type LayoutQueueEntry = {
 }
 
 export type RuntimeInstalledCommandSurfaces = RuntimeEdgeCommandSurface &
-  RuntimeLinearCommandSurface &
   RuntimeFileCommandSurface &
   RuntimeGitCommandSurface &
   RuntimeRepositoryCommandSurface &
-  RuntimeReviewCommandSurface &
   RuntimeServiceCommandSurface &
   RuntimeSkillCommandSurface
 

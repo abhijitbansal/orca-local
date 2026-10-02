@@ -6,7 +6,6 @@ import { isLegacyRepoForExternalWorktreeVisibility } from '../../../shared/exter
 import { normalizeRepoSourceControlAiOverrides } from '../../../shared/source-control-ai'
 import { normalizeWorktreeVisibilitySourcePreferences } from '../../../shared/worktree/visibility-sources'
 import type { GhAccountBinding } from '../../../shared/github/account-binding'
-import { invalidateGhAccountTokenCache } from '../../github/gh-account-token'
 import { sanitizeRepoUpdatesForPersistence } from './repo-sanitization'
 
 export type RepoUpdateMutationOperations = {
@@ -114,7 +113,6 @@ export class RepoUpdatePersistenceOperations {
     if (!repo) {
       return null
     }
-    const previousGhAccount = repo.ghAccount
     const sanitizedUpdates = sanitizeRepoUpdatesForPersistence(updates)
     if (
       'executionHostId' in updates &&
@@ -225,13 +223,6 @@ export class RepoUpdatePersistenceOperations {
         delete sanitizedUpdates.sourceControlAi
       } else {
         sanitizedUpdates.sourceControlAi = normalizedSourceControlAi
-      }
-    }
-    if ('ghAccount' in updates) {
-      // Why: a rebind or unbind must not reuse a token cached for the previous login.
-      invalidateGhAccountTokenCache(previousGhAccount)
-      if (sanitizedUpdates.ghAccount) {
-        invalidateGhAccountTokenCache(sanitizedUpdates.ghAccount)
       }
     }
     Object.assign(repo, sanitizedUpdates)

@@ -34,12 +34,6 @@ vi.mock('../git/git-username', async (importOriginal) => ({
   resolveLocalGitUsername: (await import('./worktrees-test-module-mocks'))
     .resolveLocalGitUsernameMock
 }))
-vi.mock('../github/client', async () =>
-  (await import('./worktrees-test-module-mocks')).githubClientModuleMock()
-)
-vi.mock('../source-control/hosted-review', async () =>
-  (await import('./worktrees-test-module-mocks')).hostedReviewModuleMock()
-)
 vi.mock('../providers/ssh-git-dispatch', async () =>
   (await import('./worktrees-test-module-mocks')).sshGitDispatchModuleMock()
 )

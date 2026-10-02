@@ -1,5 +1,5 @@
 // @ts-nocheck -- mechanically split from OrcaRuntimeService; behavior is covered by AST equivalence and characterization tests.
-import { OrcaRuntimeWithLinearCommands } from './orca-runtime-linear-commands'
+import { OrcaRuntimeWithFileCommands } from './orca-runtime-file-commands'
 import type { RuntimeStore } from './runtime-store-contract'
 import type { StatsCollector } from '../stats/collector'
 import type { IPtyProvider } from '../providers/types'
@@ -21,7 +21,6 @@ import type { RuntimeCommandSurfaceHost } from './orca-runtime-core'
 import { installRuntimeFileCommandSurface } from './runtime-file-command-surface'
 import { installRuntimeGitCommandSurface } from './runtime-git-command-surface'
 import { installRuntimeRepositoryCommandSurface } from './runtime-repository-command-surface'
-import { installRuntimeReviewCommandSurface } from './runtime-review-command-surface'
 import { installRuntimeServiceCommandSurface } from './runtime-service-command-surface'
 import {
   RuntimeSkillCommands,
@@ -42,7 +41,7 @@ import { registerConptyDa1OverrideInstaller } from './terminal-model-query-autho
 import { registerTerminalViewAttributesApplier } from './terminal-view-attribute-store'
 import { RuntimeMachineName } from './runtime-machine-name'
 
-export class OrcaRuntimeWithStateFields extends OrcaRuntimeWithLinearCommands {
+export class OrcaRuntimeWithStateFields extends OrcaRuntimeWithFileCommands {
   protected readonly prepareClaudeAuth?: PrepareClaudeAuth
 
   protected readonly machineName = new RuntimeMachineName(
@@ -140,18 +139,8 @@ export class OrcaRuntimeWithStateFields extends OrcaRuntimeWithLinearCommands {
       repositoryClones: this.repositoryClones,
       repositorySettings: this.repositorySettings,
       repositoryRefQueries: this.repositoryRefQueries,
-      hostedReviews: this.hostedReviews,
-      gitHubRepositoryQueries: this.gitHubRepositoryQueries,
       repositoryHooks: this.repositoryHooks,
       repositoryIssueCommand: this.repositoryIssueCommand
-    })
-    installRuntimeReviewCommandSurface(runtime, {
-      gitLabQueries: this.gitLabQueryCommands,
-      gitLabMutations: this.gitLabMutationCommands,
-      gitHubReviewQueries: this.gitHubReviewQueries,
-      gitHubReviewMutations: this.gitHubReviewMutations,
-      gitHubIssueComments: this.gitHubIssueComments,
-      gitHubProjects: this.gitHubProjectCommands
     })
     installRuntimeServiceCommandSurface(runtime, {
       aiVault: this.aiVault,

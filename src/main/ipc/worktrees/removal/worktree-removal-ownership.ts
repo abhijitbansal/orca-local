@@ -10,7 +10,6 @@ import { getRepoIdFromWorktreeId } from '../../../../shared/worktree/id'
 import { advertisedUrlWatcher } from '../../../ports/advertised-url-watcher'
 import { localhostWorktreeLabelProxy } from '../../../localhost-worktree-label-proxy'
 import { deleteWorktreeHistoryDir } from '../../../terminal-history-deletion'
-import { pruneWorktreePRRefreshAliases } from '../../../github/pr-refresh-coordinator'
 import { recordWorkspaceCleanupRemovalSnapshotPrune } from '../../../workspace-cleanup-removal-snapshot-prune'
 import { pruneWorkspaceCleanupScanSnapshot } from '../../../workspace-cleanup-scan-snapshot'
 import { pruneWorkspaceSpaceAnalysisSnapshot } from '../../../workspace-space-analysis-snapshot'
@@ -94,8 +93,6 @@ export function removeWorktreeMetadataAndTransientState(
     localhostWorktreeLabelProxy.unregisterWorktree(worktreeId)
     // Why: schedule async history tree removal — never recursive-rmSync on the delete critical path.
     deleteWorktreeHistoryDir(worktreeId)
-    // Why: release the removed worktree's PR-refresh aliases so coalesced queue entries don't retain it all session (memory creep).
-    pruneWorktreePRRefreshAliases(worktreeId)
   }
   // Why: removed workspaces must never resurrect from the persisted cleanup/space scan snapshots.
   const snapshotDirectory = store.getProfileStorageDirectory()

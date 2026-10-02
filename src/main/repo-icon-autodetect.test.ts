@@ -247,7 +247,7 @@ describe('detectRepoIcon', () => {
     expect(nested.stat).not.toHaveBeenCalled()
   })
 
-  it('falls back to the GitHub owner avatar for GitHub repos', async () => {
+  it('does not fetch a GitHub owner avatar for GitHub repos', async () => {
     const repoPath = await makeTempRepoDir()
     await gitExecFileAsync(['init'], { cwd: repoPath })
     await gitExecFileAsync(['remote', 'add', 'origin', 'git@github.com:stablyai/orca.git'], {
@@ -256,15 +256,10 @@ describe('detectRepoIcon', () => {
 
     await expect(
       detectRepoIcon({ repoPath, kind: 'git', executionHostId: 'local' })
-    ).resolves.toEqual({
-      type: 'image',
-      src: 'https://github.com/stablyai.png?size=64',
-      source: 'github',
-      label: 'stablyai/orca'
-    })
+    ).resolves.toBeUndefined()
   })
 
-  it('skips code-host package homepages so GitHub remotes stay repo-specific', async () => {
+  it('skips code-host package homepages for GitHub remotes', async () => {
     const repoPath = await makeTempRepoDir()
     await writeFile(
       join(repoPath, 'package.json'),
@@ -277,12 +272,7 @@ describe('detectRepoIcon', () => {
 
     await expect(
       detectRepoIcon({ repoPath, kind: 'git', executionHostId: 'local' })
-    ).resolves.toEqual({
-      type: 'image',
-      src: 'https://github.com/stablyai.png?size=64',
-      source: 'github',
-      label: 'stablyai/orca'
-    })
+    ).resolves.toBeUndefined()
   })
 
   it('stores a null upstream marker for git repos without a resolved fork parent', async () => {
@@ -296,7 +286,7 @@ describe('detectRepoIcon', () => {
     })
   })
 
-  it('uses the resolved fork upstream for both metadata and the GitHub avatar', async () => {
+  it('records the remote identity of a fork without resolving its upstream', async () => {
     const repoPath = await makeTempRepoDir()
     await gitExecFileAsync(['init'], { cwd: repoPath })
     await gitExecFileAsync(['remote', 'add', 'origin', 'git@github.com:tmchow/orca.git'], {
@@ -314,18 +304,12 @@ describe('detectRepoIcon', () => {
         remoteName: 'upstream',
         remoteUrl: 'git@github.com:stablyai/orca.git'
       },
-      repoIcon: {
-        type: 'image',
-        src: 'https://github.com/stablyai.png?size=64',
-        source: 'github',
-        label: 'stablyai/orca'
-      },
-      // Why: fork parents resolve host-qualified so avatars/links stay on the fork's server.
-      upstream: { owner: 'stablyai', repo: 'orca', host: 'github.com' }
+      // Why: no forge lookup runs, so fork parents are never resolved and no avatar is derived.
+      upstream: null
     })
   })
 
-  it('keeps the renamed fork own owner avatar while storing the upstream metadata', async () => {
+  it('records the upstream remote identity of a renamed fork without an avatar', async () => {
     const repoPath = await makeTempRepoDir()
     await gitExecFileAsync(['init'], { cwd: repoPath })
     await gitExecFileAsync(['remote', 'add', 'origin', 'git@github.com:acme/rocket-pro.git'], {
@@ -346,14 +330,7 @@ describe('detectRepoIcon', () => {
         remoteName: 'upstream',
         remoteUrl: 'git@github.com:upstream-org/rocket.git'
       },
-      // Why: a renamed fork is its own project, so the avatar stays on the origin owner.
-      repoIcon: {
-        type: 'image',
-        src: 'https://github.com/acme.png?size=64',
-        source: 'github',
-        label: 'acme/rocket-pro'
-      },
-      upstream: { owner: 'upstream-org', repo: 'rocket', host: 'github.com' }
+      upstream: null
     })
   })
 

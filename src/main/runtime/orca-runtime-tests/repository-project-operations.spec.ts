@@ -4,7 +4,6 @@ import {
   EventEmitter,
   OrcaRuntimeService,
   execFileSync,
-  getRepoUpstreamMock,
   gitRunner,
   join,
   mkdir,
@@ -122,7 +121,6 @@ describe('OrcaRuntimeService', () => {
   it('sets up an existing folder on a fresh runtime after importing the repo project', async () => {
     const tempRoot = await mkdtemp(join(tmpdir(), 'orca-runtime-project-setup-'))
     const repos: Record<string, unknown>[] = []
-    getRepoUpstreamMock.mockResolvedValueOnce({ owner: 'stablyai', repo: 'orca' })
     const runtimeStore = {
       ...store,
       getRepos: () => [...repos] as never,
@@ -180,6 +178,7 @@ describe('OrcaRuntimeService', () => {
       execFileSync('git', ['init'], { cwd: tempRoot, stdio: 'ignore' })
       const result = await runtime.setupProjectExistingFolder({
         projectId: 'github:stablyai/orca',
+        projectProviderIdentity: { provider: 'github', owner: 'stablyai', repo: 'orca' },
         hostId: 'runtime:env-1',
         path: tempRoot,
         kind: 'git',
@@ -201,7 +200,6 @@ describe('OrcaRuntimeService', () => {
   it('sets up a project whose identity exists only on the requesting host', async () => {
     const tempRoot = await mkdtemp(join(tmpdir(), 'orca-runtime-cross-host-project-'))
     const repos: Record<string, unknown>[] = []
-    getRepoUpstreamMock.mockResolvedValueOnce(null)
     const runtimeStore = {
       ...store,
       getRepos: () => [...repos] as never,
@@ -253,7 +251,6 @@ describe('OrcaRuntimeService', () => {
   it('rolls back a new runtime repo when project alignment fails', async () => {
     const tempRoot = await mkdtemp(join(tmpdir(), 'orca-runtime-project-rollback-'))
     const repos: Record<string, unknown>[] = []
-    getRepoUpstreamMock.mockResolvedValueOnce(null)
     const runtimeStore = {
       ...store,
       getRepos: () => [...repos] as never,
@@ -340,7 +337,6 @@ describe('OrcaRuntimeService', () => {
   it('keeps existing-folder imports split by runtime host on the same normalized path', async () => {
     const tempRoot = await mkdtemp(join(tmpdir(), 'orca-runtime-project-host-'))
     const repos: Record<string, unknown>[] = []
-    getRepoUpstreamMock.mockResolvedValue({ owner: 'stablyai', repo: 'orca' })
     const runtimeStore = {
       ...store,
       getRepos: () => [...repos] as never,
@@ -366,6 +362,7 @@ describe('OrcaRuntimeService', () => {
       execFileSync('git', ['init'], { cwd: tempRoot, stdio: 'ignore' })
       const first = await runtime.setupProjectExistingFolder({
         projectId: 'github:stablyai/orca',
+        projectProviderIdentity: { provider: 'github', owner: 'stablyai', repo: 'orca' },
         hostId: 'runtime:env-1',
         path: tempRoot,
         kind: 'git',
@@ -373,6 +370,7 @@ describe('OrcaRuntimeService', () => {
       })
       const second = await runtime.setupProjectExistingFolder({
         projectId: 'github:stablyai/orca',
+        projectProviderIdentity: { provider: 'github', owner: 'stablyai', repo: 'orca' },
         hostId: 'runtime:env-2',
         path: tempRoot,
         kind: 'git',
@@ -531,7 +529,6 @@ describe('OrcaRuntimeService', () => {
     const clonePath = join(destination, 'orca')
     const spawnSpy = vi.spyOn(gitRunner, 'gitSpawnAfterWindowsEnvironmentReady')
     const repos: Record<string, unknown>[] = []
-    getRepoUpstreamMock.mockResolvedValue({ owner: 'stablyai', repo: 'orca' })
     const runtimeStore = {
       ...store,
       getRepos: () => [...repos] as never,
@@ -566,6 +563,7 @@ describe('OrcaRuntimeService', () => {
     try {
       const result = await runtime.setupProjectClone({
         projectId: 'github:stablyai/orca',
+        projectProviderIdentity: { provider: 'github', owner: 'stablyai', repo: 'orca' },
         hostId: 'runtime:env-1',
         url: 'https://example.com/orca.git',
         destination
@@ -620,6 +618,7 @@ describe('OrcaRuntimeService', () => {
       const cloneError = await runtime
         .setupProjectClone({
           projectId: 'github:stablyai/orca',
+          projectProviderIdentity: { provider: 'github', owner: 'stablyai', repo: 'orca' },
           hostId: 'ssh:openclaw',
           url: 'https://example.com/orca.git',
           destination
@@ -628,6 +627,7 @@ describe('OrcaRuntimeService', () => {
       const existingFolderError = await runtime
         .setupProjectExistingFolder({
           projectId: 'github:stablyai/orca',
+          projectProviderIdentity: { provider: 'github', owner: 'stablyai', repo: 'orca' },
           hostId: 'ssh:openclaw',
           path: existingFolder,
           kind: 'git'

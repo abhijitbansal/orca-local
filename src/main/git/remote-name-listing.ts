@@ -1,4 +1,4 @@
-import { readLocalGitConfigSignature } from '../github/local-git-config-signature'
+import { readLocalGitConfigSignature } from './local-git-config-signature'
 import { getSshGitProvider, getSshGitProviderGeneration } from '../providers/ssh-git-dispatch'
 import { runCoalescedProbe, type CoalescedProbes } from './coalesced-probe'
 import type { GitAdmissionTier } from './command-runner/git-exec-options'

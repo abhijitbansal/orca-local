@@ -1,4 +1,3 @@
-import { installRuntimeLinearCommandSurface } from './runtime-linear-command-surface'
 import { OrcaRuntimeWithResolveWaiter } from './orca-runtime-resolve-waiter'
 import type { RuntimeCommandSurfaceHost } from './orca-runtime-core'
 import { registerWorktreeChangeInvalidator } from '../ipc/worktree-change-invalidators'
@@ -20,7 +19,6 @@ const OrcaRuntimeServiceExport = OrcaRuntimeService as unknown as {
   readonly prototype: OrcaRuntimeServiceExport
 }
 export { OrcaRuntimeServiceExport as OrcaRuntimeService }
-installRuntimeLinearCommandSurface(OrcaRuntimeServiceExport.prototype)
 
 export type { LegacyWorkerTerminalRecoveryResult } from './runtime-legacy-worker-terminal-recovery-types'
 export type {

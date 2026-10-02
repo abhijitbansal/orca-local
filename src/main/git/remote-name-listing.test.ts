@@ -17,7 +17,7 @@ vi.mock('../providers/ssh-git-dispatch', () => ({
   getSshGitProvider: getSshGitProviderMock,
   getSshGitProviderGeneration: getSshGitProviderGenerationMock
 }))
-vi.mock('../github/local-git-config-signature', () => ({
+vi.mock('./local-git-config-signature', () => ({
   readLocalGitConfigSignature: readLocalGitConfigSignatureMock
 }))
 

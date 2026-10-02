@@ -17,7 +17,6 @@ const requireFromProject = createRequire(join(projectDir, 'package.json'))
 const PACKAGED_RUNTIME_PACKAGE_ROOTS = [
   '@anthropic-ai/claude-agent-sdk',
   '@electron-toolkit/utils',
-  '@linear/sdk',
   '@parcel/watcher',
   'i18next',
   'jsonc-parser',
@@ -471,7 +470,7 @@ function prunePackagedParcelWatcher(resourcesDir, electronPlatformName, electron
 }
 
 // Why type declarations: they are compile-time only; the packaged app never resolves them.
-// Why source maps: they embed the original sources (megabytes for @linear/sdk alone) and
+// Why source maps: they embed the original sources (megabytes for a single large SDK) and
 // nothing in the packaged app turns on Node's source-map support, so they are never read.
 // Orca's own main-process maps live outside node_modules and ship as a separate release artifact.
 function isPrunableTypeOrSourceMapArtifact(filename) {

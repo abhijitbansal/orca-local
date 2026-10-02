@@ -2,17 +2,8 @@ import { readFile, stat } from 'node:fs/promises'
 import type { ExecutionHostId } from '../shared/execution-host'
 import type { GitHubRepositoryIdentity } from '../shared/github/pull-request-types'
 import type { RepoKind } from '../shared/repo-types'
-import {
-  faviconUrlFromWebsite,
-  githubAvatarIcon,
-  githubAvatarSlug,
-  type RepoIcon
-} from '../shared/repo-icon'
-import { getRepoSlug, getRepoUpstream } from './github/client'
-import {
-  resolveFilesystemRouteForHost,
-  resolveGitRouteForHost
-} from './providers/execution-host-provider-dispatch'
+import { faviconUrlFromWebsite, type RepoIcon } from '../shared/repo-icon'
+import { resolveFilesystemRouteForHost } from './providers/execution-host-provider-dispatch'
 import type { IFilesystemProvider } from './providers/types'
 import { detectGitRemoteIdentity } from './repo-git-remote-identity'
 import { detectRepoFileIcon } from './repo-icon-file-detection'
@@ -81,40 +72,12 @@ async function detectRemotePackageHomepageIcon(
   }
 }
 
-/**
- * The connection this client may dial to read `executionHostId`'s remotes, or `refuse` when it may
- * dial none. `runtime:` is refused rather than degraded to `null`: that server runs its own git,
- * and answering "no connection" would read this machine's copy of the path instead.
- */
-function repoRemoteReadConnection(
-  executionHostId: ExecutionHostId
-): { kind: 'refuse' } | { kind: 'dial'; connectionId: string | null } {
-  const route = resolveGitRouteForHost(executionHostId)
-  switch (route.kind) {
-    case 'local':
-      return { kind: 'dial', connectionId: null }
-    case 'ssh':
-      return { kind: 'dial', connectionId: route.connectionId }
-    case 'runtime':
-      return { kind: 'refuse' }
-  }
-}
-
 export async function detectGitHubAvatarIcon(
-  repoPath: string,
-  executionHostId: ExecutionHostId,
-  upstream?: GitHubRepositoryIdentity | null
+  _repoPath: string,
+  _executionHostId: ExecutionHostId,
+  _upstream?: GitHubRepositoryIdentity | null
 ): Promise<RepoIcon | null> {
-  try {
-    const target = repoRemoteReadConnection(executionHostId)
-    if (target.kind === 'refuse') {
-      return null
-    }
-    const slug = githubAvatarSlug(await getRepoSlug(repoPath, target.connectionId), upstream)
-    return slug ? githubAvatarIcon(slug) : null
-  } catch {
-    return null
-  }
+  return null
 }
 
 export async function detectRepoIcon({
@@ -167,11 +130,7 @@ export async function detectRepoIconAndUpstream({
   kind: RepoKind
   executionHostId: ExecutionHostId
 }) {
-  const remoteRead = repoRemoteReadConnection(executionHostId)
-  const upstream =
-    kind === 'git' && remoteRead.kind === 'dial'
-      ? await getRepoUpstream(repoPath, remoteRead.connectionId)
-      : null
+  const upstream = null
   const gitRemoteIdentity =
     kind === 'git' ? await detectGitRemoteIdentity(repoPath, executionHostId) : null
   const repoIcon = await detectRepoIcon({ repoPath, kind, executionHostId, upstream })

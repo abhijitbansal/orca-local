@@ -5,7 +5,6 @@ import { withLinkedIssueDraftContext } from '../../shared/source-control-ai-acti
 import type { TuiAgent } from '../../shared/tui-agent'
 import { getStagedCommitContext } from '../git/status'
 import { SSH_GIT_PROVIDER_UNAVAILABLE_MESSAGE } from '../providers/ssh-git-dispatch'
-import { loadPullRequestLinkedIssue } from '../source-control/pull-request-linked-issue'
 import { resolveHostedReviewBodyForGeneration } from '../source-control/pull-request-template'
 import { prepareLocalCommitMessageAgentEnv } from '../text-generation/commit-message-agent-environment'
 import {
@@ -169,20 +168,6 @@ export class RuntimeGitGenerationCommands {
       return { success: false, error: SSH_GIT_PROVIDER_UNAVAILABLE_MESSAGE }
     }
     const issueMeta = linkedIssueMetaForTarget(this.host, target)
-    const linkedIssueDetailsPromise = loadPullRequestLinkedIssue({
-      meta: issueMeta,
-      provider: input.provider,
-      repoPath: target.worktree.path,
-      connectionId: route.kind === 'ssh' ? route.connectionId : undefined,
-      localGitOptions:
-        route.kind === 'ssh'
-          ? {}
-          : {
-              ...localGitOptionsForTarget(target),
-              admissionTier: 'interactive'
-            }
-    })
-    void linkedIssueDetailsPromise.catch(() => undefined)
     let context: Awaited<ReturnType<typeof getPullRequestDraftContext>>
     try {
       const currentBody = await resolveHostedReviewBodyForGeneration({
@@ -207,11 +192,9 @@ export class RuntimeGitGenerationCommands {
     if (!context) {
       return { success: false, error: 'No branch changes to summarize.' }
     }
-    const linkedIssueDetails = await linkedIssueDetailsPromise
     context = {
       ...withLinkedIssueDraftContext(context, issueMeta?.linkedIssue),
-      ...(input.provider ? { provider: input.provider } : {}),
-      ...(linkedIssueDetails ? { linkedIssueDetails } : {})
+      ...(input.provider ? { provider: input.provider } : {})
     }
 
     if (route.kind === 'ssh') {
