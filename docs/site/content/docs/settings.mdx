@@ -75,7 +75,7 @@ Settings are grouped into panes. Everything here is searchable with `Cmd-,` then
 - **Enable Voice Dictation** — requires microphone permission (macOS may open Privacy & Security).
 - **Microphone** — pick which input device dictation uses. Defaults to the system mic; choose a specific device (for example a headset) when you do not want the OS default. If the chosen mic is unplugged or missing, Orca falls back to the system default and shows a non-blocking notice.
 - **Dictation mode** — **Toggle** (press shortcut to start/stop) or **Hold** (hold shortcut to talk).
-- **Speech Model** — download/select an on-device model, or use cloud OpenAI models after pasting an API key:
+- **Speech Model** — download/select an on-device model (transcription runs locally; there is no cloud option):
   - **Parakeet TDT v3** (recommended) — multilingual European languages, offline.
   - **Parakeet TDT v2** — English, faster.
   - **Zipformer** family — bilingual ZH+EN streaming; streaming EN/ZH; **Zipformer Streaming KO** (Korean).
@@ -83,7 +83,6 @@ Settings are grouped into panes. Everything here is searchable with `Cmd-,` then
   - **Parakeet TDT-CTC JA** — Japanese.
   - **SenseVoice** — ZH / EN / JA / KO / Cantonese with auto language detection.
   - **Whisper Tiny** — 90+ languages, lower accuracy.
-  - **GPT-4o mini / GPT-4o Transcribe** — cloud; needs OpenAI key under the same pane.
 - While listening, a **Listening…** pill shows a **Stop** control; in toggle mode the tooltip also shows the dictation shortcut.
 
 ## SSH
