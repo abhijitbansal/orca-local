@@ -109,107 +109,112 @@ export function VoiceSpeechModelSection({
                     )
                   }
                 }}
-                className="group flex items-center gap-2.5 py-2.5"
+                className="group"
               >
-                <span className="flex size-4 shrink-0 items-center justify-center">
-                  {isActive && isReady ? (
-                    <Check className="size-3.5" />
-                  ) : isDownloading ? (
-                    <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
-                  ) : null}
-                </span>
-                <div className={cn('min-w-0 flex-1', !isReady && !isDownloading && 'opacity-50')}>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-sm font-medium">{manifest.label}</span>
-                    <span className="text-[10px] px-1 py-px rounded-full leading-none bg-muted text-muted-foreground">
-                      {manifest.streaming
-                        ? translate('auto.components.settings.VoicePane.d504ab05f0', 'streaming')
-                        : translate('auto.components.settings.VoicePane.8f4d2a51d7', 'offline')}
-                    </span>
-                    {manifest.recommended && (
-                      <span className="text-[10px] px-1 py-px rounded-full leading-none bg-status-success-background text-status-success">
-                        {translate('auto.components.settings.VoicePane.1ba81c0ff0', 'recommended')}
+                <div className="flex w-full items-center gap-2.5 py-1.5">
+                  <span className="flex size-4 shrink-0 items-center justify-center">
+                    {isActive && isReady ? (
+                      <Check className="size-3.5" />
+                    ) : isDownloading ? (
+                      <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
+                    ) : null}
+                  </span>
+                  <div className={cn('min-w-0 flex-1', !isReady && !isDownloading && 'opacity-50')}>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-sm font-medium">{manifest.label}</span>
+                      <span className="text-[10px] px-1 py-px rounded-full leading-none bg-muted text-muted-foreground">
+                        {manifest.streaming
+                          ? translate('auto.components.settings.VoicePane.d504ab05f0', 'streaming')
+                          : translate('auto.components.settings.VoicePane.8f4d2a51d7', 'offline')}
                       </span>
-                    )}
-                    <span className="text-[10px] text-muted-foreground/60">
-                      {isDownloading && mState?.progress !== undefined
-                        ? mState.status === 'extracting'
-                          ? translate(
-                              'auto.components.settings.VoicePane.61a16c8141',
-                              'Extracting...'
-                            )
-                          : `${Math.round(mState.progress * 100)}%`
-                        : translate(
-                            'auto.components.settings.VoicePane.91980ce124',
-                            '{{value0}} MB',
-                            { value0: sizeMb }
+                      {manifest.recommended && (
+                        <span className="text-[10px] px-1 py-px rounded-full leading-none bg-status-success-background text-status-success">
+                          {translate(
+                            'auto.components.settings.VoicePane.1ba81c0ff0',
+                            'recommended'
                           )}
-                    </span>
+                        </span>
+                      )}
+                      <span className="text-[10px] text-muted-foreground/60">
+                        {isDownloading && mState?.progress !== undefined
+                          ? mState.status === 'extracting'
+                            ? translate(
+                                'auto.components.settings.VoicePane.61a16c8141',
+                                'Extracting...'
+                              )
+                            : `${Math.round(mState.progress * 100)}%`
+                          : translate(
+                              'auto.components.settings.VoicePane.91980ce124',
+                              '{{value0}} MB',
+                              { value0: sizeMb }
+                            )}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">
+                      {manifest.description}
+                    </p>
                   </div>
-                  <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">
-                    {manifest.description}
-                  </p>
-                </div>
-                {isReady ? (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-xs"
-                    aria-label={translate(
-                      'auto.components.settings.VoicePane.6fa734ed95',
-                      'Delete {{value0}}',
-                      {
-                        value0: manifest.label
-                      }
-                    )}
-                    disabled={deletePending}
-                    onMouseDown={(event) => {
-                      event.preventDefault()
-                      event.stopPropagation()
-                    }}
-                    onClick={(event) => {
-                      event.preventDefault()
-                      event.stopPropagation()
-                      if (deletePending) {
-                        return
-                      }
-                      setPendingDeleteModelIds((prev) => {
-                        const next = new Set(prev)
-                        next.add(manifest.id)
-                        return next
-                      })
-                      void window.api.speech
-                        .deleteModel(manifest.id)
-                        .then(onRefreshModelStates)
-                        .catch(() =>
-                          toast.error(
-                            translate(
-                              'auto.components.settings.VoicePane.68de13f72c',
-                              'Failed to delete model.'
+                  {isReady ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xs"
+                      aria-label={translate(
+                        'auto.components.settings.VoicePane.6fa734ed95',
+                        'Delete {{value0}}',
+                        {
+                          value0: manifest.label
+                        }
+                      )}
+                      disabled={deletePending}
+                      onMouseDown={(event) => {
+                        event.preventDefault()
+                        event.stopPropagation()
+                      }}
+                      onClick={(event) => {
+                        event.preventDefault()
+                        event.stopPropagation()
+                        if (deletePending) {
+                          return
+                        }
+                        setPendingDeleteModelIds((prev) => {
+                          const next = new Set(prev)
+                          next.add(manifest.id)
+                          return next
+                        })
+                        void window.api.speech
+                          .deleteModel(manifest.id)
+                          .then(onRefreshModelStates)
+                          .catch(() =>
+                            toast.error(
+                              translate(
+                                'auto.components.settings.VoicePane.68de13f72c',
+                                'Failed to delete model.'
+                              )
                             )
                           )
-                        )
-                        .finally(() =>
-                          setPendingDeleteModelIds((prev) => {
-                            const next = new Set(prev)
-                            next.delete(manifest.id)
-                            return next
-                          })
-                        )
-                    }}
-                    className="shrink-0 text-muted-foreground can-hover:opacity-0 group-hover:opacity-100 hover:text-destructive disabled:opacity-60 disabled:hover:text-muted-foreground"
-                  >
-                    {deletePending ? (
-                      <Loader2 className="size-3 animate-spin" />
-                    ) : (
-                      <Trash2 className="size-3" />
-                    )}
-                  </Button>
-                ) : !isDownloading ? (
-                  <span className="shrink-0 p-1 text-muted-foreground can-hover:opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Download className="size-3" />
-                  </span>
-                ) : null}
+                          .finally(() =>
+                            setPendingDeleteModelIds((prev) => {
+                              const next = new Set(prev)
+                              next.delete(manifest.id)
+                              return next
+                            })
+                          )
+                      }}
+                      className="shrink-0 text-muted-foreground can-hover:opacity-0 group-hover:opacity-100 hover:text-destructive disabled:opacity-60 disabled:hover:text-muted-foreground"
+                    >
+                      {deletePending ? (
+                        <Loader2 className="size-3 animate-spin" />
+                      ) : (
+                        <Trash2 className="size-3" />
+                      )}
+                    </Button>
+                  ) : !isDownloading ? (
+                    <span className="shrink-0 p-1 text-muted-foreground can-hover:opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Download className="size-3" />
+                    </span>
+                  ) : null}
+                </div>
               </DropdownMenuItem>
             )
           })}
