@@ -146,6 +146,34 @@ describe('PluginCommandRegistry', () => {
     expect(registry.list()).toHaveLength(1)
   })
 
+  it('previews legacy no-op actions but never projects them or lets them claim a chord', () => {
+    const legacy = commandPlugin('legacy', {
+      commands: [
+        { id: 'tasks', title: 'Open Tasks', action: 'view.tasks' },
+        { id: 'board', title: 'Open Board', action: 'workspace.openBoard' }
+      ],
+      keybindings: [{ command: 'tasks', key: 'Mod+Alt+T' }]
+    })
+    const other = commandPlugin('other', {
+      commands: [{ id: 'tasks', title: 'Tasks', action: 'workspace.openBoard' }],
+      keybindings: [{ command: 'tasks', key: 'Mod+Alt+T' }]
+    })
+    const registry = new PluginCommandRegistry()
+
+    registry.reconcile([legacy, other], () => true)
+
+    expect(registry.preview(legacy.pluginKey).map((command) => command.id)).toEqual([
+      'tasks',
+      'board'
+    ])
+    expect(registry.list().map((command) => `${command.pluginKey}/${command.id}`)).toEqual([
+      `${legacy.pluginKey}/board`,
+      `${other.pluginKey}/tasks`
+    ])
+    expect(registry.error(legacy.pluginKey)).toBeNull()
+    expect(registry.error(other.pluginKey)).toBeNull()
+  })
+
   it('projects worker commands and inherited worktree keybinding context', () => {
     const plugin = commandPlugin('worker', {
       commands: [{ id: 'create', title: 'Create Task', context: 'worktree' }],

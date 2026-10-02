@@ -1,5 +1,6 @@
 import {
   isPluginCommandActionId,
+  isPluginCommandLegacyNoopActionId,
   pluginCommandKeybindingActionId,
   type PluginCommandActionId
 } from '../../shared/plugins/plugin-command-actions'
@@ -73,7 +74,10 @@ export class PluginCommandRegistry {
       this.previews.set(plugin.pluginKey, plugin.commands)
     }
 
-    const approved = registrations.filter((plugin) => plugin.approved)
+    // Why: legacy no-op actions validate for old manifests but must not reach the palette or claim a chord.
+    const approved = registrations
+      .filter((plugin) => plugin.approved)
+      .map((plugin) => ({ ...plugin, commands: plugin.commands.filter(isLiveCommand) }))
     const chordOwners = new Map<string, CommandOwner[]>()
     for (const plugin of approved) {
       for (const command of plugin.commands) {
@@ -108,6 +112,12 @@ export class PluginCommandRegistry {
       .filter((plugin) => !conflicted.has(plugin.pluginKey))
       .flatMap((plugin) => plugin.commands)
   }
+}
+
+function isLiveCommand(command: PluginCommandRegistration): boolean {
+  return !(
+    command.handler.type === 'built-in' && isPluginCommandLegacyNoopActionId(command.handler.action)
+  )
 }
 
 function effectiveCommandKeybindings(
