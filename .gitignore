@@ -132,6 +132,8 @@ docs/**
 !docs/reference/headless-linux-server.md
 !docs/reference/ime-regression-checklist.md
 !docs/reference/linux-glibc-compatibility.md
+!docs/reference/local-only-architecture.md
+!docs/reference/local-only-upstream-sync.md
 !docs/reference/macos-press-and-hold.md
 !docs/reference/orcad-operations.md
 !docs/reference/pnpm-install-policy.md

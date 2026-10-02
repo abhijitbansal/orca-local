@@ -6,9 +6,9 @@ import { Callout } from '@/components/docs/prose'
 
 Orca can drive agents on remote machines over SSH — useful for long-running builds, GPU boxes, or any environment where your laptop isn't the right place to run the work.
 
-<Callout title="One of four run modes">
-  SSH is one way to put agents on remote compute. For local, self-hosted servers, and ephemeral VMs,
-  see [Ways to run Orca](/docs/ways-to-run).
+<Callout title="One of three run modes">
+  SSH is one way to put agents on remote compute. For local and ephemeral VMs, see [Ways to run
+  Orca](/docs/ways-to-run).
 </Callout>
 
 ## Add an SSH target
@@ -60,8 +60,6 @@ Right-click in the SSH worktree file explorer:
 
 Orca uses the same SSH transfer path as the connection. Folder download appears only when the connection advertises recursive folder transfer (typically full SFTP). Connections that stay on system OpenSSH-only transfer may still download **files** but not show **Download Folder**.
 
-This is a desktop-only action — the web client doesn't expose Download because it relies on Electron's save dialog.
-
 ## Open a remote workspace in VS Code
 
 For SSH worktrees, the worktree menu's **Open in** list can hand the remote path to VS Code Remote-SSH when your configured app is VS Code or VS Code Insiders (`code` / `code-insiders`, or a direct path to those launchers).
@@ -70,7 +68,7 @@ For SSH worktrees, the worktree menu's **Open in** list can hand the remote path
 1. Right-click the SSH worktree (or use the worktree overflow menu) → **Open in** → **VS Code**.
 1. Orca launches VS Code with Remote-SSH against that host and the worktree path (`--remote ssh-remote+<host> <path>`). The menu entry may show a **Remote SSH** badge.
 
-**Not supported for this remote path:** Cursor, Zed, compound shell commands, or opening via a **Remote Orca Server** active runtime (those stay **Local only**). Use the Finder/Explorer item only for local paths.
+**Not supported for this remote path:** Cursor, Zed, compound shell commands. Use the Finder/Explorer item only for local paths.
 
 ## Kerberos / GSSAPI
 

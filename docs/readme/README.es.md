@@ -1,13 +1,9 @@
 <h1 align="center">
-  <a href="https://onOrca.dev"><img src="../../resources/build/icon.png" alt="Orca" width="64" valign="middle" /></a> Orca
+  <img src="../../resources/build/icon.png" alt="Orca" width="64" valign="middle" /> Orca
 </h1>
 
 <p align="center">
-  <a href="https://github.com/stablyai/orca"><img src="https://img.shields.io/github/stars/stablyai/orca?style=flat&amp;label=%E2%98%85&amp;color=08C" alt="Estrellas en GitHub" /></a>
-  <a href="https://github.com/stablyai/orca/releases"><img src="../assets/readme-downloads.svg" alt="Descargas totales en todas las versiones" /></a>
   <img src="https://img.shields.io/badge/license-MIT-08C?style=flat" alt="Licencia: MIT" />
-  <a href="https://discord.gg/fzjDKHxv8Q"><img src="https://img.shields.io/badge/Discord-5865F2?logo=discord&logoColor=white" alt="Únete al Discord de Orca" /></a>
-  <a href="https://x.com/orca_build"><img src="https://img.shields.io/badge/X-000000?logo=x&logoColor=white" alt="Sigue a Orca en X" /></a>
   <img src="https://img.shields.io/badge/macOS%20%7C%20Windows%20%7C%20Linux-4493F8?style=flat-square" alt="Plataformas compatibles: macOS, Windows y Linux" />
 </p>
 
@@ -20,11 +16,7 @@
   Ejecuta Codex, Claude Code, OpenCode u Pi en paralelo — cada uno en su propio worktree, supervisados desde un solo lugar.
 </p>
 
-<h3 align="center"><a href="https://onorca.dev/download"><ins>Descargar Orca</ins></a></h3>
-
-<p align="center">
-  <img src="../assets/readme-hero.jpg" alt="La app de escritorio de Orca ejecutando agentes en worktrees paralelos, con la app companion móvil de Orca en la esquina" width="960" />
-</p>
+> **Fork solo local.** Este fork de [stablyai/orca](https://github.com/stablyai/orca) se ejecuta por completo en tu máquina. No hay cuentas en la nube, ni app móvil, ni actualización automática, ni envío de telemetría, ni escucha de red. Los eventos de producto anónimos, si los permites, se escriben en un archivo local y no se envían a ningún sitio. Git funciona con tu propio CLI `git` contra tus propios remotos. Los invariantes, los sockets que quedan y los pocos lugares que aún acceden a la red están en [docs/reference/local-only-architecture.md](../reference/local-only-architecture.md). Para incorporar una nueva versión de upstream, consulta [docs/reference/local-only-upstream-sync.md](../reference/local-only-upstream-sync.md).
 
 ## Características
 
@@ -32,29 +24,15 @@
 <tr>
 <td width="50%" valign="middle">
 
-### App companion móvil
-
-Supervisa y dirige a tus agentes desde el teléfono — recibe una notificación cuando un agente termine y envía instrucciones de seguimiento desde cualquier lugar.
-
-[App Store de iOS](https://apps.apple.com/us/app/orca-ide/id6766130217) · [APK para Android](https://github.com/stablyai/orca/releases/download/mobile-android-v0.0.50/app-release.apk) · [Docs →](https://www.onorca.dev/docs/mobile)
-
-</td>
-<td width="50%">
-  <a href="https://www.onorca.dev/docs/mobile"><picture><source srcset="../assets/feature-wall/mobile-companion-app-showcase.gif" type="image/gif"><img src="../assets/feature-wall/mobile-companion-app-showcase.jpg" alt="Orca de escritorio con la app companion móvil" width="100%" /></picture></a>
-</td>
-</tr>
-<tr>
-<td width="50%" valign="middle">
-
 ### Worktrees en paralelo
 
 Lanza un mismo prompt a cinco agentes, cada uno en su propio worktree de git aislado — compara los resultados y haz merge del ganador.
 
-[Docs →](https://www.onorca.dev/docs/model/worktrees)
+[Docs →](../site/content/docs/model/worktrees.mdx)
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/model/worktrees"><picture><source srcset="../site/public/docs/tab-split.gif" type="image/gif"><img src="../site/public/docs/posters/tab-split.jpg" alt="Orquestación de worktrees en paralelo" width="100%" /></picture></a>
+  <a href="../site/content/docs/model/worktrees.mdx"><picture><source srcset="../site/public/docs/tab-split.gif" type="image/gif"><img src="../site/public/docs/posters/tab-split.jpg" alt="Orquestación de worktrees en paralelo" width="100%" /></picture></a>
 </td>
 </tr>
 <tr>
@@ -64,11 +42,11 @@ Lanza un mismo prompt a cinco agentes, cada uno en su propio worktree de git ais
 
 Terminales de nivel Ghostty con renderizado WebGL, divisiones infinitas y un scrollback que sobrevive a los reinicios.
 
-[Docs →](https://www.onorca.dev/docs/terminal)
+[Docs →](../site/content/docs/terminal.mdx)
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/terminal"><picture><source srcset="../../resources/onboarding/feature-wall/tile-02.gif" type="image/gif"><img src="../../resources/onboarding/feature-wall/tile-02.poster.jpg" alt="Terminales divididas" width="100%" /></picture></a>
+  <a href="../site/content/docs/terminal.mdx"><picture><source srcset="../../resources/onboarding/feature-wall/tile-02.gif" type="image/gif"><img src="../../resources/onboarding/feature-wall/tile-02.poster.jpg" alt="Terminales divididas" width="100%" /></picture></a>
 </td>
 </tr>
 <tr>
@@ -78,25 +56,11 @@ Terminales de nivel Ghostty con renderizado WebGL, divisiones infinitas y un scr
 
 Haz clic en cualquier elemento de UI en una ventana real de Chromium para enviar su HTML, su CSS y una captura recortada directo al prompt de tu agente.
 
-[Docs →](https://www.onorca.dev/docs/browser/design-mode)
+[Docs →](../site/content/docs/browser/design-mode.mdx)
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/browser/design-mode"><picture><source srcset="../site/public/docs/orca-design-mode.gif" type="image/gif"><img src="../../resources/onboarding/feature-wall/tile-05.poster.jpg" alt="Navegador integrado y modo diseño" width="100%" /></picture></a>
-</td>
-</tr>
-<tr>
-<td width="50%" valign="middle">
-
-### GitHub y Linear, nativos
-
-Explora PRs, issues y tableros de proyecto dentro de la app — abre un worktree desde cualquier tarea y revisa sin cambiar de contexto.
-
-[Docs →](https://www.onorca.dev/docs/review/linear)
-
-</td>
-<td width="50%">
-  <a href="https://www.onorca.dev/docs/review/linear"><picture><source srcset="../../resources/onboarding/feature-wall/tile-03.gif" type="image/gif"><img src="../../resources/onboarding/feature-wall/tile-03.poster.jpg" alt="Flujos de trabajo de GitHub y Linear en Orca" width="100%" /></picture></a>
+  <a href="../site/content/docs/browser/design-mode.mdx"><picture><source srcset="../site/public/docs/orca-design-mode.gif" type="image/gif"><img src="../../resources/onboarding/feature-wall/tile-05.poster.jpg" alt="Navegador integrado y modo diseño" width="100%" /></picture></a>
 </td>
 </tr>
 <tr>
@@ -106,11 +70,11 @@ Explora PRs, issues y tableros de proyecto dentro de la app — abre un worktree
 
 Ejecuta agentes en una máquina remota potente con edición completa de archivos, git y terminales — con reconexión automática y reenvío de puertos incluidos.
 
-[Docs →](https://www.onorca.dev/docs/ssh)
+[Docs →](../site/content/docs/ssh.mdx)
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/ssh"><picture><source srcset="../../resources/onboarding/feature-wall/tile-06.gif" type="image/gif"><img src="../../resources/onboarding/feature-wall/tile-06.poster.jpg" alt="Worktrees remotos por SSH" width="100%" /></picture></a>
+  <a href="../site/content/docs/ssh.mdx"><picture><source srcset="../../resources/onboarding/feature-wall/tile-06.gif" type="image/gif"><img src="../../resources/onboarding/feature-wall/tile-06.poster.jpg" alt="Worktrees remotos por SSH" width="100%" /></picture></a>
 </td>
 </tr>
 <tr>
@@ -120,11 +84,11 @@ Ejecuta agentes en una máquina remota potente con edición completa de archivos
 
 Deja comentarios en cualquier línea de un diff y envíalos de vuelta al agente — revisa, edita y haz commit sin salir de Orca.
 
-[Docs →](https://www.onorca.dev/docs/review/annotate-ai-diff)
+[Docs →](../site/content/docs/review/annotate-ai-diff.mdx)
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/review/annotate-ai-diff"><picture><source srcset="../site/public/docs/annotate-ai-diff.gif" type="image/gif"><img src="../../resources/onboarding/feature-wall/tile-08.poster.jpg" alt="Anotar diffs generados por IA" width="100%" /></picture></a>
+  <a href="../site/content/docs/review/annotate-ai-diff.mdx"><picture><source srcset="../site/public/docs/annotate-ai-diff.gif" type="image/gif"><img src="../../resources/onboarding/feature-wall/tile-08.poster.jpg" alt="Anotar diffs generados por IA" width="100%" /></picture></a>
 </td>
 </tr>
 <tr>
@@ -134,11 +98,11 @@ Deja comentarios en cualquier línea de un diff y envíalos de vuelta al agente 
 
 El editor de VS Code con autoguardado en todas partes — arrastra archivos o imágenes directo al prompt de un agente.
 
-[Docs →](https://www.onorca.dev/docs/editing/file-explorer)
+[Docs →](../site/content/docs/editing/file-explorer.mdx)
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/editing/file-explorer"><picture><source srcset="../../resources/onboarding/feature-wall/tile-07.gif" type="image/gif"><img src="../../resources/onboarding/feature-wall/tile-07.poster.jpg" alt="Arrastra archivos e imágenes al prompt de un agente" width="100%" /></picture></a>
+  <a href="../site/content/docs/editing/file-explorer.mdx"><picture><source srcset="../../resources/onboarding/feature-wall/tile-07.gif" type="image/gif"><img src="../../resources/onboarding/feature-wall/tile-07.poster.jpg" alt="Arrastra archivos e imágenes al prompt de un agente" width="100%" /></picture></a>
 </td>
 </tr>
 <tr>
@@ -148,22 +112,22 @@ El editor de VS Code con autoguardado en todas partes — arrastra archivos o im
 
 Los agentes también manejan Orca — automatiza cualquier flujo de trabajo con `orca worktree create`, `snapshot`, `click` y `fill`.
 
-[Docs →](https://www.onorca.dev/docs/cli/overview)
+[Docs →](../site/content/docs/cli/overview.mdx)
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/cli/overview"><picture><source srcset="../../resources/onboarding/feature-wall/tile-09.gif" type="image/gif"><img src="../../resources/onboarding/feature-wall/tile-09.poster.jpg" alt="Automatiza Orca desde la CLI" width="100%" /></picture></a>
+  <a href="../site/content/docs/cli/overview.mdx"><picture><source srcset="../../resources/onboarding/feature-wall/tile-09.gif" type="image/gif"><img src="../../resources/onboarding/feature-wall/tile-09.poster.jpg" alt="Automatiza Orca desde la CLI" width="100%" /></picture></a>
 </td>
 </tr>
 </table>
 
 **También incluye:**
 
-- **[Apertura rápida](https://www.onorca.dev/docs/model/quick-open)** — Busca entre worktrees, archivos, agentes, comandos y contexto del repo sin salir de tu flujo.
-- **[Cambio de cuenta y seguimiento de uso](https://www.onorca.dev/docs/agents/usage-tracking)** — Consulta el uso de Claude y Codex y los reinicios de límites de uso, y cambia de cuenta al instante sin volver a iniciar sesión.
-- **[Previews ricos del repo](https://www.onorca.dev/docs/editing/markdown)** — Previsualiza Markdown, imágenes, PDFs y documentos del repo en el workspace.
-- **[Computer Use](https://www.onorca.dev/docs/cli/computer-use)** — Deja que los agentes manejen apps de escritorio y UI visible cuando un flujo de trabajo necesita interacción real.
-- **[Notificaciones y estado de no leído](https://www.onorca.dev/docs/notifications)** — Entérate cuando un agente termine o necesite tu atención, y marca hilos como no leídos para retomarlos después.
+- **[Apertura rápida](../site/content/docs/model/quick-open.mdx)** — Busca entre worktrees, archivos, agentes, comandos y contexto del repo sin salir de tu flujo.
+- **[Cambio de cuenta y seguimiento de uso](../site/content/docs/agents/usage-tracking.mdx)** — Consulta el uso de Claude y Codex y los reinicios de límites de uso, y cambia de cuenta al instante sin volver a iniciar sesión.
+- **[Previews ricos del repo](../site/content/docs/editing/markdown.mdx)** — Previsualiza Markdown, imágenes, PDFs y documentos del repo en el workspace.
+- **[Computer Use](../site/content/docs/cli/computer-use.mdx)** — Deja que los agentes manejen apps de escritorio y UI visible cuando un flujo de trabajo necesita interacción real.
+- **[Notificaciones y estado de no leído](../site/content/docs/notifications.mdx)** — Entérate cuando un agente termine o necesite tu atención, y marca hilos como no leídos para retomarlos después.
 - **Y muchas, muchas más** — lanzamos a diario, así que esta lista siempre va atrasada. El [changelog](https://github.com/stablyai/orca/releases) es la verdadera lista de funciones.
 
 ---
@@ -211,47 +175,34 @@ Funciona con **cualquier agente CLI** — si corre en una terminal, corre en Orc
 
 ## Instalación
 
-### Escritorio — macOS, Windows, Linux
-
-- **[Descarga desde onOrca.dev](https://onorca.dev/download)**
-- O descarga un build directamente: [macOS Apple Silicon](https://github.com/stablyai/orca/releases/latest/download/orca-macos-arm64.dmg) · [macOS Intel](https://github.com/stablyai/orca/releases/latest/download/orca-macos-x64.dmg) · [Windows (.exe)](https://github.com/stablyai/orca/releases/latest/download/orca-windows-setup.exe) · [Linux AppImage](https://github.com/stablyai/orca/releases/latest/download/orca-linux.AppImage) · [Todos los builds](https://github.com/stablyai/orca/releases/latest)
-
-_O mediante un gestor de paquetes:_
+Este fork no ofrece descargas precompiladas, ni cask de Homebrew, ni actualización automática. Compílalo desde el código fuente y actualiza fusionando upstream y volviendo a compilar ([guía de sincronización con upstream](../reference/local-only-upstream-sync.md)).
 
 ```bash
-# macOS (Homebrew)
-brew install --cask stablyai/orca/orca
+pnpm install
 
-# Arch Linux (AUR) — or stably-orca-git to build from source
-yay -S stably-orca-bin
+# macOS
+pnpm build:mac
+
+# Linux
+pnpm build:linux
+
+# Windows
+pnpm build:win
 ```
 
-### App companion móvil — iOS, Android
-
-Vincúlala con tu app de escritorio para supervisar y dirigir a tus agentes desde el teléfono.
-
-- **iOS:** [Descargar desde App Store](https://apps.apple.com/us/app/orca-ide/id6766130217)
-- **Android:** [Descargar el APK](https://github.com/stablyai/orca/releases/download/mobile-android-v0.0.50/app-release.apk)
+Para ejecutar desde el código fuente sin empaquetar, usa `pnpm dev`. Cómo contribuir y los requisitos de cada plataforma están en [CONTRIBUTING.md](../../.github/CONTRIBUTING.md). La documentación de `docs/site/content/docs/` es el sitio de documentación de upstream. Este fork no lo publica; lee las páginas directamente en el repositorio.
 
 ---
 
-## Comunidad y soporte
+## Privacidad
 
-- **Discord:** Únete a la comunidad en **[Discord](https://discord.gg/fzjDKHxv8Q)**.
-- **Twitter / X:** Sigue a **[@orca_build](https://x.com/orca_build)** para novedades y anuncios.
-- **Feedback e ideas:** Lanzamos rápido. ¿Te falta algo? [Pide una nueva feature](https://github.com/stablyai/orca/issues).
-- **Privacidad:** Consulta la [documentación de privacidad y telemetría](https://www.onorca.dev/docs/telemetry) para saber qué datos anónimos de uso recopila Orca y cómo desactivar su envío.
-- **Muéstranos tu apoyo:** Dale una [estrella](https://github.com/stablyai/orca) a este repo para seguir nuestros lanzamientos diarios.
+Orca no se conecta por sí mismo a ningún servicio en la nube. Los eventos de producto se validan, dependen de tu consentimiento en Ajustes y se añaden a `telemetry.ndjson` en la carpeta `logs` de la app, con tamaño limitado y sin subirse nunca. Consulta [Privacidad y telemetría](../site/content/docs/telemetry.mdx) y las [notas de arquitectura](../reference/local-only-architecture.md). Los CLI de agentes que ejecutas en Orca (Claude Code, Codex, ...) se conectan con sus propios proveedores; ese tráfico es suyo.
 
 ---
 
 ## Desarrollo
 
-¿Quieres contribuir o ejecutar Orca localmente? Consulta nuestra guía [CONTRIBUTING.md](../../.github/CONTRIBUTING.md).
-
-<a href="https://github.com/stablyai/orca/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=stablyai/orca" alt="Contribuidores de Orca" />
-</a>
+¿Quieres contribuir o ejecutar Orca localmente? Consulta [CONTRIBUTING.md](../../.github/CONTRIBUTING.md) y ejecuta `pnpm run check:local-only` antes de abrir un cambio. Upstream: [stablyai/orca](https://github.com/stablyai/orca).
 
 ## Licencia
 

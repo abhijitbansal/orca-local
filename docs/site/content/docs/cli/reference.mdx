@@ -63,17 +63,17 @@ List every machine the current Orca host can target and the selector for each on
 orca host list --json
 ```
 
-The result includes this machine, its registered [SSH targets](/docs/ssh), and paired [Remote Orca Servers](/docs/remote-servers). Use `--host local` for this machine, `--host ssh:<target-id>` for an SSH target, and `--environment <server-name>` for a paired server. SSH rows include the detected remote platform (`linux`, `darwin`, or `win32`) after the target connects; older or disconnected targets report `platform unknown`. They also include `connected` and, when known, the SSH lifecycle `connectionStatus`. SSH labels and paired-server names also resolve when they are unique; use the IDs from `host list` when names collide. If you put a machine name on the wrong selector, Orca reports the matching machine and the flag to use instead of returning an empty result.
+The result includes this machine and its registered [SSH targets](/docs/ssh). Use `--host local` for this machine and `--host ssh:<target-id>` for an SSH target. SSH rows include the detected remote platform (`linux`, `darwin`, or `win32`) after the target connects; older or disconnected targets report `platform unknown`. They also include `connected` and, when known, the SSH lifecycle `connectionStatus`. SSH labels also resolve when they are unique; use the IDs from `host list` when names collide. If you put a machine name on the wrong selector, Orca reports the matching machine and the flag to use instead of returning an empty result.
 
 ## Runtime commands
 
 ```bash
 orca open --json
 orca status --json
-orca serve --port 6768 --pairing-address 100.64.1.20 --json
+orca serve --json
 ```
 
-`orca serve` starts a runtime server in the foreground without opening the desktop window. Use it for [Remote Orca Servers](/docs/remote-servers) or headless environments, and stop it with `Ctrl-C`.
+`orca serve` starts the runtime in the foreground without opening the desktop window, for headless environments, and stops with `Ctrl-C`. It has no network listener: connect with the `orca` CLI on the same machine over the local socket.
 
 ## Repos
 
@@ -232,57 +232,6 @@ orca emulator shutdown --worktree active --json
 
 Coordinates are normalized from `0` to `1`. Prefer `tap` for single taps, and use `gesture` for drags or multi-step touch input. Pass `--device <udid-or-name>` or `--emulator <id>` when a script must target a specific simulator instead of the worktree's active emulator.
 
-## Linear
-
-The `orca linear` surface is what agents use via the `orca-linear` skill (legacy install name `linear-tickets` still works). Prefer `--json`. Linked worktrees resolve with `--current`.
-
-### Read
-
-```bash
-orca linear issue --current --full --json
-orca linear issue ENG-123 --comments --children --relations --activity --json
-orca linear search "auth bug" --workspace all --json
-orca linear list --filter assigned --limit 10 --json
-orca linear list-issues --team ENG --state started --assignee me --json
-orca linear list-issues --query auth --updated-at -P7D --cursor <cursor> --workspace <id> --json
-orca linear team list --json
-orca linear team states --team ENG --json
-orca linear team labels --team ENG --json
-orca linear project list --query launch --json
-```
-
-`--full` expands comments, children, attachments, relations, and activity. Section flags (`--comments`, `--children`, `--attachments`, `--relations`, `--activity`) work individually.
-
-### MCP-style write
-
-```bash
-# Create or update (omit id/--current to create; requires --team and --title on create)
-orca linear save-issue --team ENG --title "Fix auth" --priority high --json
-orca linear save-issue ENG-123 --state "In Progress" --assignee me --json
-orca linear save-issue --current --project null --due-date null --json
-
-orca linear relation add ENG-1 --related ENG-2 --type blocks --json
-orca linear relation remove ENG-1 --related ENG-2 --type related --json
-```
-
-`save-issue` labels **replace** the full label set (Linear MCP `save_issue` semantics). Literal `null` clears assignee, estimate, due date, project, or parent.
-
-### Field helpers (still valid)
-
-```bash
-orca linear status set --current --to "In Progress" --json
-orca linear assignee set --current --me --json
-orca linear priority set ENG-123 --to high --json
-orca linear estimate set --current --to 3 --json
-orca linear due-date set --current --to 2026-08-01 --json
-orca linear label add --current --label backend --json
-orca linear comment add --current --body "Investigating regression" --json
-orca linear attach --current --url https://example.com/repro --title "Repro" --json
-orca linear create --title "Flaky login test" --team ENG --priority high --json
-```
-
-Run `orca linear --help` or `orca skills get orca-linear` for the version-matched list. Pass an explicit issue id (e.g. `ENG-123`) when a script may run outside an Orca-linked worktree.
-
 ## Skills (local, no runtime required)
 
 List bundled guides or print a version-matched guide:
@@ -297,7 +246,7 @@ orca skills get orchestration --full
 
 ## Account (host-local runtime)
 
-On a headless host running Orca (`orca serve` or the desktop app), add managed Claude/Codex accounts when the remote client cannot use **Add account** (remote runtime scope disables that button):
+On a headless host running Orca (`orca serve` or the desktop app), add managed Claude/Codex accounts from the host's terminal:
 
 ```bash
 orca account list
@@ -305,30 +254,9 @@ orca account add                 # Claude by default
 orca account add --agent codex
 ```
 
-`account add` runs `claude login` / `codex login` in **this** terminal on the host, then registers the captured credentials with the local runtime. Codex uses device authorization so the browser can finish on another machine. Run these on the machine that owns the accounts — not through a client-only remote session.
+`account add` runs `claude login` / `codex login` in **this** terminal on the host, then registers the captured credentials with the local runtime. Codex uses device authorization so the browser can finish on another machine. Run these on the machine that owns the accounts.
 
-## Artifacts
-
-Publish HTML or Markdown through the signed-in Orca account. Viewing a public link does not require sign-in; create/list/update/delete do. **Publishing is off by default** — a human must enable **Settings → Artifacts → Allow publishing public artifact links** on the device. There is no CLI flag that grants the gate. `list`, `unshare`, and `delete` stay available so you can audit or revoke links after turning publishing off.
-
-```bash
-orca artifacts share ./report.html --json
-orca artifacts share ./notes.md --json
-orca artifacts update ./notes.md --json
-orca artifacts unshare ./notes.md --json
-orca artifacts list --json
-orca artifacts list --cursor <cursor> --json
-orca artifacts delete <id> --json
-```
-
-- Accepted files: `.html`, `.htm`, `.md`, `.markdown`.
-- `share` stores the edit token in the active Orca profile and does not print it. `update` / `unshare` resolve by the same local path and profile that originally shared the file.
-- `list` is paged (`nextCursor` → `--cursor`). `delete` takes the artifact id from `list` and does not need the original file.
-- Relative HTML assets are not uploaded — share self-contained HTML or absolute asset URLs.
-- Denied publish/update fails with `artifact_sharing_disabled`; fix Settings instead of retrying.
-- Desktop: open a local HTML or Markdown file and use **Share as artifact**, or manage links from the sidebar **Artifacts** page.
-
-## Automations, environments, and hooks
+## Automations and hooks
 
 Scheduled prompts:
 
@@ -336,14 +264,6 @@ Scheduled prompts:
 orca automations list --json
 orca automations create --name "Daily review" --trigger daily --time 09:00 --prompt "Review open changes" --provider codex --repo id:<repoId> --disabled --json
 orca automations run <automationId> --json
-```
-
-Remote runtime environments:
-
-```bash
-orca environment add --name work-laptop --pairing-code "orca://pair?code=..." --json
-orca environment list --json
-orca environment rm --environment <selector> --json
 ```
 
 Agent status hooks:

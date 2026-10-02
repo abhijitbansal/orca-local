@@ -1,3 +1,7 @@
+# Local-only fork
+
+This fork runs entirely on the local machine: no cloud accounts, no mobile app, no auto-update, no telemetry upload, no network listener. Telemetry is written to a local file only. Before adding anything that opens a network connection, binds a socket, or reads a cloud service, read [`docs/reference/local-only-architecture.md`](./docs/reference/local-only-architecture.md) (invariants, remaining listeners, egress exceptions). `pnpm run check:local-only` enforces it (rules in `config/scripts/check-local-only.mjs`, exemptions in `config/local-only-allowlist.txt`) and runs in `pnpm lint`; do not widen the allowlist to make a new cloud call pass. Merging a new upstream release follows [`docs/reference/local-only-upstream-sync.md`](./docs/reference/local-only-upstream-sync.md). SSH remotes and remote runtimes stay until Spec B.
+
 # Design System
 
 All UI work — layout, color, typography, spacing, component selection, UX behavior — must follow [`docs/STYLEGUIDE.md`](./docs/STYLEGUIDE.md). Most of it is linted: `pnpm run check:code-quality:changed` fails on new restyles of a `components/ui/` primitive, raw palette colors, and computed `className` strings; `pnpm lint` fails on any class Tailwind cannot generate. See the Enforcement section of the style guide before suppressing either. Use the tokens defined in `src/renderer/src/assets/main.css` (the canonical source) and the shadcn primitives in `src/renderer/src/components/ui/`. Don't invent new color values, font sizes, or shadow tiers when a documented one already covers the role. When STYLEGUIDE.md is silent, follow the resolution order in its final section.
@@ -98,7 +102,7 @@ All changes must consider folder workspaces as well as git worktrees. Don't assu
 
 ## Agent Status
 
-The execution host owns agent status in one store, the hook server's, and every reader (sidebar, `worktree ps`, mobile, dashboard) subscribes to it. Before adding a producer, a cache, or a reader-side precedence rule, read [`docs/reference/agent-status-store.md`](./docs/reference/agent-status-store.md): new producers write into that store, and readers keep only presentation policy.
+The execution host owns agent status in one store, the hook server's, and every reader (sidebar, `worktree ps`, dashboard) subscribes to it. Before adding a producer, a cache, or a reader-side precedence rule, read [`docs/reference/agent-status-store.md`](./docs/reference/agent-status-store.md): new producers write into that store, and readers keep only presentation policy.
 
 ## Agent Terminal Screens
 
@@ -106,7 +110,7 @@ A rule that reads what an agent CLI paints on a terminal — readiness, blocked 
 
 ## Remote Wire Compatibility
 
-Clients and remote Orca servers update independently, so mixed versions are the normal state. Before changing anything a paired client and host exchange — RPC params, stream frames, or the content either side publishes over them — follow [`docs/reference/remote-wire-compatibility.md`](./docs/reference/remote-wire-compatibility.md). A new optional field is safe; a new stream opcode must be capability-negotiated because decoders drop unknown opcodes silently; and changing what the host publishes reaches old clients even with no wire change.
+The mobile client, the runtime WebSocket listener, and the browser web client are removed. The outbound desktop/CLI client to a user-paired remote Orca runtime remains until Spec B, and that client and its host still update independently. Before changing anything such a pair exchanges — RPC params, stream frames, or the content either side publishes over them — follow [`docs/reference/remote-wire-compatibility.md`](./docs/reference/remote-wire-compatibility.md). A new optional field is safe; a new stream opcode must be capability-negotiated because decoders drop unknown opcodes silently; and changing what the host publishes reaches old clients even with no wire change.
 
 ## Git Binary Compatibility
 
@@ -126,10 +130,6 @@ When adding or changing a Git command:
 - Prefer `rg` over the checked-out files for source searches. For history or refs, use a named ref, an explicit namespace/path, `--max-count`, and a bounded output; do not use an unqualified `--all` scan as a first diagnostic.
 - Keep repository-wide commands targeted to the current repository and worktree. If an unbounded scan is genuinely required, measure the ref count first, explain the cost, and get confirmation before running it.
 
-## Git Provider Compatibility
+## Git Providers
 
-Source-control and review changes must consider GitLab and other supported git providers, not only GitHub. Keep provider-specific behavior behind explicit checks, and avoid GitHub-only naming for generic review concepts.
-
-## GitHub CLI Usage
-
-Be mindful of the user's `gh` CLI API rate limit — batch requests where possible and avoid unnecessary calls. All code, commands, and scripts must be compatible with macOS, Linux, and Windows.
+Orca's GitHub, GitLab, Bitbucket, Azure DevOps, Gitea, Jira and Linear integrations, and the `gh`/`glab` runners, are removed in this fork. Source control goes through the git CLI only (fetch, push, clone against the user's own remotes). Do not reintroduce a provider API call; see the local-only architecture doc above.

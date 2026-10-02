@@ -29,7 +29,6 @@ Results include:
 - **Recent Worktrees** — the next empty-query section, ordered by last focus, capped so the list stays scannable.
 - Projects and repo groups, so you can jump to a sidebar section by name.
 - Every worktree grouped by repo once you start typing.
-- Worktrees matched by cached GitHub PR title or number (`#123`) and cached GitLab merge request title or number (`!123`) when that review metadata is already available.
 - Every open tab, scoped first by current worktree, then globally. A match in the tab's title or content ranks ahead of a match only in its worktree, branch, or repo; equally strong matches prefer the tab you used more recently. Rows show the last-active age when Orca has one. Type aliases such as `terminal` or `simulator` still match those tab types without cluttering the row label.
 
 When a typed query hits **both** open tabs and worktrees, the palette interleaves a short preview of each section so neither primary list is buried. If a section has more matches, click **See more** in its _N more_ row to reveal 20 additional entries at a time. Changing the query resets the expanded sections. Single-section results keep a full hard-capped list.

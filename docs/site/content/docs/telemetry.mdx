@@ -1,60 +1,57 @@
 ---
 title: Privacy & Telemetry
-description: What anonymous usage data Orca collects, what it never collects, and how to opt out.
+description: What Orca records in its local usage file, what it never records, and how to turn it off. Nothing is uploaded.
 ---
 
 import { ImagePlaceholder } from '@/components/docs/prose'
 
-This page describes the anonymous product-usage telemetry we collect in packaged Orca builds, what we never collect, and how to opt out.
+This page describes the anonymous product-usage record this fork keeps on your machine, what it never records, and how to turn it off. **Nothing is uploaded.** The record is a file on disk, and no code in the app sends it, reads it back over a socket, or contacts a telemetry service.
 
 ## Summary
 
-- **Anonymous.** Events are keyed by a random ID stored locally on your machine. No account, email, IP address, or user name is collected.
-- **No content.** We never transmit file contents, prompts, agent output, terminal output, repo names, branch names, URLs, paths, or commit messages.
-- **Always off when:** `DO_NOT_TRACK=1` or `ORCA_TELEMETRY_DISABLED=1` is set.
+- **Local only.** Events are appended to `telemetry.ndjson` in the `logs` folder of Orca's data directory (on macOS, `~/Library/Application Support/Orca/logs/`). The file is size-capped and rotated: 10 MB per file, 10 files, oldest deleted. It is readable only by your user account.
+- **Anonymous.** Events are keyed by a random ID stored locally on your machine. No account, email, IP address, or user name is recorded.
+- **No content.** Orca never records file contents, prompts, agent output, terminal output, repo names, branch names, URLs, paths, or commit messages.
+- **Off when:** you turn off **Keep a Local Usage Record** in Settings, or `DO_NOT_TRACK=1` or `ORCA_TELEMETRY_DISABLED=1` is set, or Orca detects a CI environment. When it is off, nothing is written.
 
-## What we collect
+## What is recorded
 
-Alongside each event we include basic build and platform information: the Orca version, your operating system (e.g. `darwin` / `win32` / `linux`), CPU architecture, coarse OS release string, release channel (`stable` or `rc`), and the anonymous local ID described above. No hostname, no username, no IP.
+Alongside each event Orca includes basic build and platform information: the Orca version, your operating system (e.g. `darwin` / `win32` / `linux`), CPU architecture, coarse OS release string, and the anonymous local ID described above. No hostname, no username, no IP.
 
-The categories of behavior we observe:
+The categories of behavior recorded:
 
-- **Lifecycle** — when the app opens. Used to estimate daily, weekly, and monthly active users.
-- **Repos and workspaces** — when you add a repo or create a workspace. We record _how_ you did it (e.g. folder picker vs. clone URL; command palette vs. drag-and-drop), never the repo name, URL, path, branch name, or any free-form text.
+- **Lifecycle** — when the app opens. Lets you see how often you open the app.
+- **Repos and workspaces** — when you add a repo or create a workspace. Orca records _how_ you did it (e.g. folder picker vs. clone URL; command palette vs. drag-and-drop), never the repo name, URL, path, branch name, or any free-form text.
 - **Agents** — which agents you use and their token counts. Never prompts or agent output.
-- **Agent errors** — a coarse error category and which agent kind was involved. We never see raw error messages or stack traces; per-incident detail stays in a local diagnostic trace file on your machine and only reaches Orca if you explicitly share a diagnostic bundle.
-- **Settings** — when you toggle one of a small whitelisted set of feature-flag or UX preferences. We record which preference changed and whether it's a boolean or an enum, never the raw value of any free-form setting.
-- **Privacy controls** — when you opt in or out of telemetry, so we can tell from aggregate data whether our consent UI is working.
+- **Agent errors** — a coarse error category and which agent kind was involved. Raw error messages and stack traces are not part of the record; per-incident detail stays in a local diagnostic trace file on your machine.
+- **Settings** — when you toggle one of a small whitelisted set of feature-flag or UX preferences. Orca records which preference changed and whether it's a boolean or an enum, never the raw value of any free-form setting.
+- **Privacy controls** — when you turn the local record on or off.
 - **SSH remote runtime** — once per SSH host per app session, which runtime Orca used to run on that host and why: coarse host facts (operating system, CPU architecture, C library family and glibc minor version, and the host's Node.js major version when Orca runs on it), the category of any refusal, whether a runtime was uploaded, and a coarse duration bucket. Never the hostname, user name, paths, or raw error text.
 
-Fields include fixed enum values, version strings, numeric counts and revisions, and random local IDs. Conversation IDs allow repeated token summaries for the same conversation to be associated; they are pseudonymous. No free-form strings from any UI input ever leave your machine.
+Fields include fixed enum values, version strings, numeric counts and revisions, and random local IDs. Conversation IDs allow repeated token summaries for the same conversation to be associated; they are pseudonymous. No free-form strings from any UI input are recorded.
 
-## What we never send
+## What is never recorded
 
 - No file paths, repo names, branch names, URLs, commit messages, or current working directory.
 - No agent prompts, responses, or terminal contents.
-- No raw error messages or stack frames. Per-incident error context stays in a local diagnostic trace file on your machine and only reaches us if you explicitly share a diagnostic bundle.
+- No raw error messages or stack frames. Per-incident error context stays in a local diagnostic trace file on your machine.
 - No user account information (Orca has no account system).
-- No IP address and no precise geoip; country is the only geographic signal derived from the request.
-- No vendor-side user profile tied to your anonymous ID.
+- No IP address and no location: the file is never sent anywhere.
 
-## How to opt out
+## How to turn it off
 
-You can disable telemetry in three ways. Any one of them is sufficient; they compose.
+You can disable the local record in three ways. Any one of them is sufficient; they compose.
 
-1. **In the app.** Settings → Privacy → toggle "Share anonymous usage data" off. The change is immediate and persistent.
+1. **In the app.** Settings → Privacy → toggle "Keep a local usage record" off. The change is immediate and persistent.
 
 <ImagePlaceholder
   src="/docs/privacy-toggle.png"
-  caption="Settings → Privacy — toggle 'Share anonymous usage data' off to disable telemetry."
+  caption="Settings → Privacy — toggle 'Keep a local usage record' off to stop writing it."
 />
-2. **`DO_NOT_TRACK=1`** — community-standard environment variable. Disables transmission for that
-launch. Unsetting it restores your stored preference on the next launch. 3.
-**`ORCA_TELEMETRY_DISABLED=1`** — Orca-specific kill switch with the same semantics as
-`DO_NOT_TRACK`.
+2. **`DO_NOT_TRACK=1`** — community-standard environment variable. Stops writing for that launch.
+Unsetting it restores your stored preference on the next launch. 3. **`ORCA_TELEMETRY_DISABLED=1`**
+— Orca-specific kill switch with the same semantics as `DO_NOT_TRACK`.
 
 ## Where the data goes
 
-- **Vendor:** PostHog Cloud, **United States** region.
-- **Retention:** PostHog Cloud's plan-level default per their pricing page. We do not set a custom retention window.
-- **Access:** project membership is restricted to a small number of Orca maintainers.
+Nowhere. The record stays in `telemetry.ndjson` on this machine. Delete the file at any time; Orca recreates it when the record is on. The agent CLIs you run in Orca (Claude Code, Codex, ...) have their own telemetry settings and talk to their own vendors; Orca does not control that traffic.

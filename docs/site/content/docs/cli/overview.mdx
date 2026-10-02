@@ -1,26 +1,21 @@
 ---
 title: Orca CLI overview
-description: Use the Orca CLI to script Orca from a terminal, manage worktrees, control agent terminals, automate the built-in browser, and install agent skills.
+description: Use the Orca CLI to script Orca from a terminal, manage worktrees, control agent terminals, automate the built-in browser, and read bundled agent skills.
 keywords:
   - orca cli
   - Orca CLI
   - orca command line
   - Orca skills
-  - npx skills add
   - agent CLI
 ---
 
 import { Callout } from '@/components/docs/prose'
 
-The Orca CLI is the `orca` command-line interface for scripting a running Orca editor from any shell. Use it to create and inspect worktrees, drive agent terminals, open files and diffs, automate the built-in browser, run scheduled automations, share HTML/Markdown artifacts, and control Orca-native tools from scripts or AI agents.
+The Orca CLI is the `orca` command-line interface for scripting a running Orca editor from any shell. Use it to create and inspect worktrees, drive agent terminals, open files and diffs, automate the built-in browser, run scheduled automations, and control Orca-native tools from scripts or AI agents.
 
 It ships with the desktop app; register it under [Settings → General → Orca CLI](/docs/settings). On Linux the command is `orca-ide`, because GNOME Orca's screen reader already owns `/usr/bin/orca` — see [Install → Linux](/docs/install#linux).
 
-Agents can install the matching Orca CLI skill with:
-
-```bash
-npx skills add https://github.com/stablyai/orca --skill orca-cli
-```
+Agents load the matching Orca CLI guide from the running CLI with `orca skills get orca-cli`. See [Orca skills](/docs/cli/skills).
 
 See [Skills registry & MCP](/docs/cli/skills) for every installable Orca skill.
 
@@ -75,10 +70,6 @@ Browser profiles isolate tab session state, so a script or agent can test with d
 ## Scheduled automations
 
 Use `orca automations` to create, inspect, run, and remove scheduled Orca tasks from a shell. Start with [Scheduled automations](/docs/cli/automations) when you want a recurring prompt to run against a repo or an existing worktree.
-
-## Artifacts
-
-Share HTML or Markdown as public view links through the signed-in Orca account (`orca artifacts share|update|list|delete`). Publishing is **opt-in** under Settings → Artifacts. Command details: [CLI reference → Artifacts](/docs/cli/reference#artifacts).
 
 ## Browser automation
 
