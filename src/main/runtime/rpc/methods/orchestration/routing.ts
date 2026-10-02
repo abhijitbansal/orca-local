@@ -122,12 +122,3 @@ export function interruptedAcknowledgedCheck(
     waitInterrupted: reason
   }
 }
-
-export function rejectFederatedExplicitTarget(params: { to?: string; run?: string }): void {
-  if (params.to || params.run) {
-    throw new OrchestrationError(
-      'invalid_argument',
-      'Federated Dispatch messages route to their Run home; omit --to and --run.'
-    )
-  }
-}

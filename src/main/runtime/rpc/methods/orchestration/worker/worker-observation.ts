@@ -1,7 +1,6 @@
 import type { RuntimeTerminalInteractiveWait } from '../../../../../../shared/runtime-types'
 import type { OrcaRuntimeService } from '../../../../orca-runtime'
 import type { OrchestrationDb } from '../../../../orchestration/db'
-import { OrchestrationError } from '../../../../orchestration/orchestration-error'
 import { parseWorkerTerminalHostScope } from '../../../../orchestration/worker-terminal-process-liveness'
 import type { OrchestrationFleetWorker } from '../../../../../../shared/orchestration-fleet-projection'
 import { projectWorkerFleet } from './worker-list-projection'
@@ -10,11 +9,7 @@ import {
   resolveStructuredWorkerForDispatch
 } from '../../orchestration-structured-worker-lifecycle'
 import { structuredWorkerAddressable } from '../../../../structured-worker-custody'
-import type {
-  DispatchContextRow,
-  FederatedDispatchRow,
-  WorkerDispatchRow
-} from '../../../../orchestration/types'
+import type { DispatchContextRow, WorkerDispatchRow } from '../../../../orchestration/types'
 
 /** Observe a worker terminal, re-minting a live handle from the recorded process incarnation when the durable handle went stale, so a still-running worker is never reported missing and leaked. */
 export async function inspectWorkerTerminal(
@@ -291,67 +286,4 @@ export function projectFleetWorker(
   dispatchId: string
 ): OrchestrationFleetWorker | null {
   return projectFleetWorkerPage(runtime, db, dispatchId)?.workers[0] ?? null
-}
-
-export function exposeFederatedWorkerObservation(
-  observation: { status?: string; exactWorker: boolean; reason?: string },
-  projected: boolean
-) {
-  if (!projected) {
-    return { status: 'unverifiable' as const, exactWorker: false, reason: 'observation_superseded' }
-  }
-  // Legacy `running` maps to live; an absent peer verdict remains unverifiable.
-  return {
-    ...observation,
-    status: observation.status === 'running' ? 'live' : (observation.status ?? 'unverifiable')
-  }
-}
-
-export function resolvePinnedFederatedServer(
-  runtime: OrcaRuntimeService,
-  federated: FederatedDispatchRow
-) {
-  const server = runtime.resolveOrchestrationWorkerServer(federated.environment_id)
-  if (server.peerFingerprint !== federated.peer_fingerprint) {
-    throw new OrchestrationError(
-      'peer_changed',
-      `Saved environment ${federated.environment_name} now identifies a different Orca server.`
-    )
-  }
-  return server
-}
-
-export async function callFederatedWorkerShow(
-  runtime: OrcaRuntimeService,
-  federated: FederatedDispatchRow
-): Promise<{
-  runtimeEpoch: string
-  attachment: {
-    state: string
-    stage: string
-    last_error: string | null
-    worktree_id: string | null
-    terminal_handle: string | null
-    setup_state: string
-    effects: unknown[]
-    residualResources: unknown[]
-  }
-  terminal: unknown
-  observation: {
-    status: string
-    exactWorker: boolean
-    reason?: string
-    /** Absent from servers that predate the field; absence is unknown, not "not waiting". */
-    agentWait?: RuntimeTerminalInteractiveWait | null
-  }
-}> {
-  const server = resolvePinnedFederatedServer(runtime, federated)
-  return (await runtime.callOrchestrationWorkerServer(
-    server.environmentId,
-    'orchestration.federationShow',
-    { dispatchId: federated.dispatch_id },
-    15_000,
-    undefined,
-    { expectedEnvironmentPairingRevision: server.pairingRevision }
-  )) as Awaited<ReturnType<typeof callFederatedWorkerShow>>
 }

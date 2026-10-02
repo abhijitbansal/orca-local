@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const {
   getPathMock,
   listEnvironmentsMock,
-  callRuntimeEnvironmentMock,
   registerCliHandlersMock,
   registerPreflightHandlersMock,
   registerUsageProviderHandlersMock,
@@ -61,7 +60,6 @@ const {
 } = vi.hoisted(() => ({
   getPathMock: vi.fn(() => '/test/user-data'),
   listEnvironmentsMock: vi.fn(() => []),
-  callRuntimeEnvironmentMock: vi.fn(),
   registerCliHandlersMock: vi.fn(),
   registerPreflightHandlersMock: vi.fn(),
   registerUsageProviderHandlersMock: vi.fn(),
@@ -127,10 +125,6 @@ vi.mock('electron', () => ({
 
 vi.mock('../../shared/runtime-environment-store', () => ({
   listEnvironments: listEnvironmentsMock
-}))
-
-vi.mock('../runtime-environment-transport-routing', () => ({
-  callRuntimeEnvironment: callRuntimeEnvironmentMock
 }))
 
 vi.mock('../codex-config-sync', () => ({
@@ -355,7 +349,6 @@ describe('registerCoreHandlers', () => {
     getPathMock.mockReturnValue('/test/user-data')
     listEnvironmentsMock.mockReset()
     listEnvironmentsMock.mockReturnValue([])
-    callRuntimeEnvironmentMock.mockReset()
     registerCliHandlersMock.mockReset()
     registerPreflightHandlersMock.mockReset()
     registerUsageProviderHandlersMock.mockReset()
@@ -452,11 +445,6 @@ describe('registerCoreHandlers', () => {
     registeredAiVaultOptions = aiVaultOptions
     registeredRuntime = runtime
 
-    callRuntimeEnvironmentMock.mockResolvedValueOnce({
-      ok: true,
-      result: { sessions: 'bad-shape' }
-    })
-
     expect(registerUsageProviderHandlersMock).toHaveBeenCalledWith({
       claudeUsage,
       codexUsage,
@@ -525,60 +513,6 @@ describe('registerCoreHandlers', () => {
     expect(registerBrowserHandlersMock).toHaveBeenCalled()
     expect(registerFilesystemWatcherHandlersMock).toHaveBeenCalled()
     expect(registerSpeechHandlersMock).toHaveBeenCalledWith(store)
-
-    await expect(
-      aiVaultOptions.scanRuntimeAiVaultSessions(
-        'env-123',
-        {
-          limit: 10,
-          scopePaths: ['/workspace']
-        },
-        { timeoutMs: 3000 }
-      )
-    ).resolves.toEqual({
-      sessions: [],
-      issues: [
-        expect.objectContaining({
-          executionHostId: 'runtime:env-123',
-          agent: 'codex',
-          path: 'env-123',
-          message: expect.stringContaining('Invalid aiVault.listSessions response')
-        })
-      ],
-      scannedAt: expect.any(String)
-    })
-    expect(callRuntimeEnvironmentMock).toHaveBeenCalledWith(
-      '/test/user-data',
-      'env-123',
-      'aiVault.listSessions',
-      {
-        limit: 10,
-        force: undefined,
-        scopePaths: ['/workspace'],
-        executionHostId: 'runtime:env-123'
-      },
-      3000
-    )
-
-    callRuntimeEnvironmentMock.mockResolvedValueOnce({
-      ok: true,
-      result: { useRealCodexHome: true }
-    })
-    const prepareArgs = {
-      agent: 'codex',
-      filePath: '/managed/sessions/2026/07/20/rollout-a.jsonl',
-      codexHome: '/managed',
-      executionHostId: 'runtime:env-123'
-    }
-    await expect(
-      aiVaultOptions.prepareRuntimeSessionResume('env-123', prepareArgs)
-    ).resolves.toEqual({ useRealCodexHome: true })
-    expect(callRuntimeEnvironmentMock).toHaveBeenLastCalledWith(
-      '/test/user-data',
-      'env-123',
-      'aiVault.prepareSessionResume',
-      prepareArgs
-    )
   })
 
   // Session history and terminal resume are not chats: the refusal chats get leaves them no host

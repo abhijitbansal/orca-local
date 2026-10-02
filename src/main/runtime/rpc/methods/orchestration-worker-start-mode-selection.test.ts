@@ -25,9 +25,6 @@ vi.mock('./orchestration/worker/worker-topology', async (importOriginal) => ({
     createStructuredWorkerSessionForWorktree(args),
   createExistingWorktreeWorkerTerminal: () => createExistingWorktreeWorkerTerminal()
 }))
-vi.mock('./orchestration/federation/federated-worker-start', () => ({
-  startFederatedWorker: async () => ({ state: 'ready', dispatchId: 'ctx_remote' })
-}))
 vi.mock('./orchestration-structured-worker-session', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   sendStructuredWorkerPreamble: async () => 'accepted',
@@ -268,16 +265,10 @@ describe('worker-start honours the settings default', () => {
     expect(createStructuredWorkerSessionForWorktree).not.toHaveBeenCalled()
   })
 
-  it('tells a remote dispatch why its structured default did not apply', async () => {
-    const result = await startWorker(STRUCTURED_DEFAULT, {
-      on: 'server-1',
-      worktree: 'repo::remote'
-    })
-
-    expect(result).toMatchObject({
-      state: 'ready',
-      mode: { mode: 'terminal', preferred: 'structured', reason: 'remote_execution_host' }
-    })
+  it('rejects --on with server_required in the local-only build', async () => {
+    await expect(
+      startWorker(STRUCTURED_DEFAULT, { on: 'build-server', worktree: 'repo::remote' })
+    ).rejects.toMatchObject({ code: 'server_required' })
     expect(createStructuredWorkerSessionForWorktree).not.toHaveBeenCalled()
   })
 })

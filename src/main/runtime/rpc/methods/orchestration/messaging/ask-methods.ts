@@ -3,8 +3,6 @@ import { OrchestrationError } from '../../../../orchestration/orchestration-erro
 import { clampOrchestrationAskTimeoutMs } from '../../../../../../shared/orchestration-ask-timeout'
 import { isGroupAddress } from '../../../../orchestration/groups'
 import { AskParams } from '../schemas'
-import { rejectFederatedExplicitTarget } from '../routing'
-import { askRemoteRunHome } from './ask-remote'
 import {
   mailboxAddressOf,
   runCoordinatorKey
@@ -48,19 +46,11 @@ export const ORCHESTRATION_ASK_METHODS = [
         })
       }
       const remoteAttachment = paneKey ? db.findActiveRemoteAttachmentForPane(paneKey) : undefined
-      if (remoteAttachment && paneKey) {
-        rejectFederatedExplicitTarget(params)
-        return askRemoteRunHome({
-          params: { ...params, timeoutMs },
-          runtime,
-          signal,
-          recordMutationReceipt,
-          from,
-          paneKey,
-          dispatchId: remoteAttachment.dispatch_id,
-          taskId: remoteAttachment.task_id,
-          workerState: remoteAttachment.state
-        })
+      if (remoteAttachment) {
+        throw new OrchestrationError(
+          'server_required',
+          'Connected-server orchestration is unavailable in this build.'
+        )
       }
       const activeDispatch = db.getActiveDispatchForIdentity(from, paneKey)
       if (!activeDispatch) {

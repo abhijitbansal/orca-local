@@ -1,8 +1,6 @@
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
 import { defineMethod } from '../../../core'
-import { releaseFederatedWorker } from '../federation/federated-worker-release'
 import { ORCHESTRATION_WORKER_LIST_METHOD } from './worker-list-method'
-import { resolvePinnedFederatedServer } from './worker-observation'
 import {
   archiveSummary,
   completeWorkerTerminalRelease,
@@ -15,23 +13,13 @@ export const ORCHESTRATION_WORKER_RELEASE_METHODS = [
   defineMethod({
     name: 'orchestration.workerRelease',
     params: WorkerDispatchParams,
-    handler: async (params, { runtime, orchestrationMutation }): Promise<WorkerReleaseReceipt> => {
+    handler: async (params, { runtime }): Promise<WorkerReleaseReceipt> => {
       const db = runtime.getOrchestrationDb()
-      const federated = db.getFederatedDispatch(params.dispatch)
-      if (federated) {
-        if (!orchestrationMutation) {
-          throw new OrchestrationError(
-            'invalid_argument',
-            'Remote worker-release requires a durable retry request.'
-          )
-        }
-        return releaseFederatedWorker({
-          runtime,
-          server: resolvePinnedFederatedServer(runtime, federated),
-          federated,
-          dispatchId: params.dispatch,
-          requestId: orchestrationMutation.requestId
-        })
+      if (db.getFederatedDispatch(params.dispatch)) {
+        throw new OrchestrationError(
+          'server_required',
+          'Connected-server orchestration is unavailable in this build.'
+        )
       }
       const requested = db.requestWorkerTerminalRelease(params.dispatch)
       if (requested.disposition === 'already_released') {

@@ -436,7 +436,7 @@ describe('orchestration commit-notify recovery', () => {
     )
   })
 
-  it('replays one federated enqueue after the relay wake throws post-commit', async () => {
+  it('fails a send to a persisted federated Dispatch closed without queueing a relay item', async () => {
     const { db, runtime } = harness.setup()
     const task = db.createTask({ spec: 'Receive federated control mail' })
     const started = db.createStartingWorkerDispatch({
@@ -452,27 +452,17 @@ describe('orchestration commit-notify recovery', () => {
       }
     })
     db.markWorkerDispatchReady(started.dispatch.id)
-    vi.spyOn(runtime, 'ensureOrchestrationFederationRelay').mockImplementationOnce(() => {
-      throw new Error('injected relay wake failure')
-    })
     const dispatcher = new RpcDispatcher({ runtime, methods: ORCHESTRATION_METHODS })
-    const first = request('rpc_federated_send', 'mutation_federated_send', 'orchestration.send', {
-      from: 'term_coord',
-      to: `dispatch:${started.dispatch.id}`,
-      subject: 'One durable relay item'
-    })
 
-    const failed = await dispatcher.dispatch(first)
-    const replayed = await dispatcher.dispatch({ ...first, id: 'rpc_federated_send_retry' })
+    const response = await dispatcher.dispatch(
+      request('rpc_federated_send', 'mutation_federated_send', 'orchestration.send', {
+        from: 'term_coord',
+        to: `dispatch:${started.dispatch.id}`,
+        subject: 'Never relayed'
+      })
+    )
 
-    expect(failed).toMatchObject({ ok: false, error: { code: 'runtime_error' } })
-    expect(replayed).toMatchObject({
-      ok: true,
-      result: {
-        relay: { dispatchId: started.dispatch.id, accepted: true },
-        mutation: { requestId: 'mutation_federated_send', replayed: true }
-      }
-    })
-    expect(db.listPendingFederationRelay(started.dispatch.id, 'to_worker')).toHaveLength(1)
+    expect(response).toMatchObject({ ok: false, error: { code: 'server_required' } })
+    expect(db.listPendingFederationRelay(started.dispatch.id, 'to_worker')).toEqual([])
   })
 })

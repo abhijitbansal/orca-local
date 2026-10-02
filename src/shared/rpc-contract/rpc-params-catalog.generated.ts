@@ -213,18 +213,6 @@ import {
   NotificationsSubscribeParams
 } from './notifications-params'
 import {
-  FederationDispatchParams,
-  FederationFleetSnapshotParams,
-  FederationOutputReadParams,
-  FederationReadParams
-} from './orchestration-federation-control-params'
-import {
-  FederationAckParams,
-  FederationImportParams,
-  FederationPullParams
-} from './orchestration-federation-relay-params'
-import { FederationAttachStartParams } from './orchestration-federation-start-params'
-import {
   GateCreateParams,
   GateListParams,
   GateResolveParams,
@@ -681,16 +669,6 @@ export const RPC_PARAMS_BY_METHOD = {
   'orchestration.check': CheckParams,
   'orchestration.dispatch': DispatchParams,
   'orchestration.dispatchShow': DispatchShowParams,
-  'orchestration.federationAck': FederationAckParams,
-  'orchestration.federationAttachStart': FederationAttachStartParams,
-  'orchestration.federationFleetSnapshot': FederationFleetSnapshotParams,
-  'orchestration.federationImport': FederationImportParams,
-  'orchestration.federationPull': FederationPullParams,
-  'orchestration.federationRead': FederationReadParams,
-  'orchestration.federationReadOutput': FederationOutputReadParams,
-  'orchestration.federationRelease': FederationDispatchParams,
-  'orchestration.federationShow': FederationDispatchParams,
-  'orchestration.federationStop': FederationDispatchParams,
   'orchestration.gateCreate': GateCreateParams,
   'orchestration.gateList': GateListParams,
   'orchestration.gateResolve': GateResolveParams,

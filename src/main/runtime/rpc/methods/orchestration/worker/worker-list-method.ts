@@ -6,10 +6,6 @@ import { OrchestrationError } from '../../../../orchestration/orchestration-erro
 import type { OrcaRuntimeService } from '../../../../orca-runtime'
 import { defineMethod } from '../../../core'
 import {
-  applyFederatedFleetObservations,
-  readFederatedFleetSnapshots
-} from '../federation/federated-fleet-snapshot'
-import {
   decodeWorkerListCursor,
   encodeWorkerListCursor,
   type WorkerListCursor
@@ -205,16 +201,6 @@ async function projectWorkerListPageWithFilteredSnapshot(
     now: authorityNow,
     completeProjection: args.completeProjection
   })
-  const federated = params.includeRemote
-    ? await readFederatedFleetSnapshots({
-        runtime,
-        db,
-        dispatchIds: pageRows.map((row) => row.dispatchId)
-      })
-    : null
-  if (federated) {
-    applyFederatedFleetObservations(fleet, federated, fleet.durable)
-  }
   // Total and counts must come out of one row set. A pinned filtered cursor's row set is its
   // membership; deriving the total from that and the counts from a live scan of the extent
   // reported a total no count could reach once a pinned row left the filter.
@@ -301,7 +287,6 @@ async function projectWorkerListPageWithFilteredSnapshot(
             `Showing ${pageRows.length} of ${inventory.total} Dispatches, newest first; more are on later pages. Follow page.nextCursor with --cursor.`
           ]
         }
-      : {}),
-    ...(federated?.errors.length ? { partialHostErrors: federated.errors } : {})
+      : {})
   }
 }

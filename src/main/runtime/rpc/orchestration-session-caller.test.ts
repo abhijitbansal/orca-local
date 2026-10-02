@@ -40,7 +40,6 @@ const NAMES_NO_RESOLVED_PARTY: Readonly<Record<string, string>> = {
   'orchestration.runShow from': 'reads a Run by id; `from` is unused',
   'orchestration.dispatchShow from': '`from` only fills the preview preamble text',
   'orchestration.workerStart terminal': 'adopts an existing PTY pane, which a session never has',
-  'orchestration.federationAttachStart terminal': 'names the remote worker terminal',
   'orchestration.workerTerminalUserInput terminal': 'names the worker terminal'
 }
 
@@ -88,9 +87,9 @@ describe('orchestration session callers at the dispatch entry', () => {
       })
       .sort()
 
-    // The population: 41 registered methods carrying 25 party-naming fields.
-    expect(registry.size).toBe(41)
-    expect(partyNaming).toHaveLength(25)
+    // The population: 31 registered methods carrying 24 party-naming fields.
+    expect(registry.size).toBe(31)
+    expect(partyNaming).toHaveLength(24)
     expect(partyNaming).toEqual(
       [
         ...Object.entries(ORCHESTRATION_CALLER_PARAM).map(
