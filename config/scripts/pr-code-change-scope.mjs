@@ -25,7 +25,6 @@ export const PR_CHECK_JOBS = [
   'xterm_patch_sync',
   'shell_contracts',
   'test',
-  'orcad_browser',
   'cross-version-wire',
   'managed_hook_node18',
   'package',
@@ -105,13 +104,6 @@ const SHELL_PREFIXES = [
   'config/patches/node-pty@',
   'config/scripts/ensure-native-runtime',
   'config/scripts/node-pty-job-ownership'
-]
-
-const ORCAD_BROWSER_PREFIXES = [
-  'src/main/orcad/external-chromium-',
-  'src/main/orcad/orcad-browser-provider',
-  'src/main/orcad/orcad-agent-browser-binary',
-  'src/main/orcad/electron-serve-browser-process'
 ]
 
 const CROSS_VERSION_WIRE_PREFIXES = [
@@ -388,8 +380,6 @@ function jobDetector(job) {
       return (files) => files.some((file) => matchesPrefix(file, XTERM_PREFIXES))
     case 'shell_contracts':
       return (files) => files.some((file) => matchesPrefix(file, SHELL_PREFIXES))
-    case 'orcad_browser':
-      return (files) => files.some((file) => matchesPrefix(file, ORCAD_BROWSER_PREFIXES))
     case 'cross-version-wire':
       return (files) => files.some((file) => matchesPrefix(file, CROSS_VERSION_WIRE_PREFIXES))
     case 'managed_hook_node18':

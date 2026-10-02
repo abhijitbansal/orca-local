@@ -15,40 +15,12 @@ const EXPECTED_MATRIX = {
   '.github/workflows/e2e.yml#ssh-browser-network-route': { contents: 'read' },
   '.github/workflows/e2e.yml#ssh-localhost': { contents: 'read' },
   '.github/workflows/e2e.yml#ssh-docker-watcher-isolation': { contents: 'read' },
-  '.github/workflows/node-server-tests.yml#changes': { contents: 'read' },
-  '.github/workflows/node-server-tests.yml#desktop_template': { contents: 'read' },
-  '.github/workflows/node-server-tests.yml#linux_glibc217_compat': { contents: 'read' },
-  '.github/workflows/node-server-tests.yml#linux_glibc_floor': { contents: 'read' },
-  '.github/workflows/node-server-tests.yml#linux_musl': { contents: 'read' },
-  '.github/workflows/node-server-tests.yml#persistence': { contents: 'read' },
   '.github/workflows/release-mac-build.yml#build-mac': { actions: 'read', contents: 'write' },
   [`${RELEASE_WORKFLOW}#build`]: { actions: 'read', contents: 'write' },
   [`${RELEASE_WORKFLOW}#build-mac`]: { actions: 'write', contents: 'read' },
   [`${RELEASE_WORKFLOW}#create-release`]: { contents: 'write' },
   [`${RELEASE_WORKFLOW}#cut`]: { contents: 'write' },
   [`${RELEASE_WORKFLOW}#docs-production-dispatch`]: { actions: 'write' },
-  [`${RELEASE_WORKFLOW}#orcad-template`]: { contents: 'read' },
-  [`${RELEASE_WORKFLOW}#orcad-template -> .github/workflows/node-server-tests.yml#changes`]: {
-    contents: 'read'
-  },
-  [`${RELEASE_WORKFLOW}#orcad-template -> .github/workflows/node-server-tests.yml#desktop_template`]:
-    {
-      contents: 'read'
-    },
-  [`${RELEASE_WORKFLOW}#orcad-template -> .github/workflows/node-server-tests.yml#linux_glibc217_compat`]:
-    {
-      contents: 'read'
-    },
-  [`${RELEASE_WORKFLOW}#orcad-template -> .github/workflows/node-server-tests.yml#linux_glibc_floor`]:
-    {
-      contents: 'read'
-    },
-  [`${RELEASE_WORKFLOW}#orcad-template -> .github/workflows/node-server-tests.yml#linux_musl`]: {
-    contents: 'read'
-  },
-  [`${RELEASE_WORKFLOW}#orcad-template -> .github/workflows/node-server-tests.yml#persistence`]: {
-    contents: 'read'
-  },
   [`${RELEASE_WORKFLOW}#post-release-e2e`]: { actions: 'write' },
   [`${RELEASE_WORKFLOW}#publish-release`]: { contents: 'write' },
   [`${RELEASE_WORKFLOW}#release-preflight`]: { contents: 'read' },

@@ -24,13 +24,6 @@ const {
 const {
   verifyPackagedWindowsNodePty
 } = require('./scripts/verify-packaged-node-pty-job-ownership.cjs')
-const {
-  assertOrcadTemplateBuilt,
-  finalizePackagedOrcadTemplate,
-  orcadTemplateExtraResource,
-  orcadTemplateNodeModulesExtraResource,
-  orcadTemplateMacSignIgnore
-} = require('./scripts/packaged-orcad-template.cjs')
 const { verifySkillsCliRuntime } = require('./scripts/verify-skills-cli-runtime.cjs')
 const { verifyStaticAppImagePackage } = require('./scripts/static-appimage-package-contract.cjs')
 const { signWindowsUninstallerViaSignPath } = require('./scripts/windows-uninstaller-signing.cjs')
@@ -101,8 +94,6 @@ const emojiShortcodeDatasetResource = {
 }
 const commonExtraResources = [
   relayExtraResource,
-  orcadTemplateExtraResource,
-  orcadTemplateNodeModulesExtraResource,
   ...bundledRipgrepExtraResources,
   bundledPluginResources,
   skillFreshnessResources,
@@ -179,10 +170,6 @@ module.exports = {
     // Why: these repo-only inputs are either bundled into out/ or copied via
     // extraResources. Shipping them in app.asar bloats the desktop bundle.
     '!src{,/**/*}',
-    '!out/orcad{,/**/*}',
-    // Never in app.asar: the template ships via orcadTemplateExtraResource; prebuilds are build inputs.
-    '!out/orcad-*{,/**/*}',
-    '!out/.orcad-*{,/**/*}',
     // Why: the pinned Node a local orcad build references (~120 MB) and its download cache.
     '!out/runtimes{,/**/*}',
     '!out/node-runtime-cache{,/**/*}',
@@ -309,7 +296,6 @@ module.exports = {
   beforePack: (context) => {
     assertPackagedNativeVariantsInstalled(context.electronPlatformName, context.arch)
     assertBundledRipgrepInstalled()
-    assertOrcadTemplateBuilt()
   },
   afterPack: async (context) => {
     const resourcesDir =
@@ -397,11 +383,6 @@ module.exports = {
     // mapping fails packaging before bundled content reaches users.
     verifyPackagedPluginResources(resourcesDir)
     finalizePackagedRipgrep(resourcesDir)
-    await finalizePackagedOrcadTemplate(resourcesDir, {
-      platform: context.electronPlatformName,
-      signMacBinary: (path) =>
-        signMacStandaloneHelper(path, 'orcad template binary', context.packager)
-    })
     chmodUnixCliLaunchers(resourcesDir, context.electronPlatformName)
     for (const filename of readdirSync(resourcesDir)) {
       if (!filename.startsWith('agent-browser-')) {
@@ -499,7 +480,7 @@ module.exports = {
     icon: 'resources/build/icon.icns',
     entitlements: 'resources/build/entitlements.mac.plist',
     entitlementsInherit: 'resources/build/entitlements.mac.plist',
-    signIgnore: [...bundledRipgrepMacSignIgnore, ...orcadTemplateMacSignIgnore],
+    signIgnore: [...bundledRipgrepMacSignIgnore],
     extendInfo: {
       NSAppleEventsUsageDescription:
         'Orca allows terminal-launched developer tools to automate local apps when you request it.',

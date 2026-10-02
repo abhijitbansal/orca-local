@@ -4,7 +4,6 @@ import {
   ServeReadinessPublisher,
   type ServeReadiness
 } from './serve-readiness'
-import type { OrcadHealth } from '../orcad/orcad-health'
 
 const ready: ServeReadiness = {
   runtimeId: 'runtime-1',
@@ -19,26 +18,6 @@ const ready: ServeReadiness = {
     webClientUrl: 'https://orca.example.test/runtime/web-index.html#pairing=secret',
     scope: 'runtime',
     qr: null
-  }
-}
-
-const health: OrcadHealth = {
-  buildHash: 'abc123def4567890',
-  buildVersion: '1.4.0',
-  nodeVersion: '20.11.0',
-  nodeAbi: '115',
-  platform: 'linux',
-  arch: 'x64',
-  pid: 1234,
-  terminalDaemon: {
-    state: 'live',
-    ownsFreshSessions: true,
-    pid: 4242,
-    buildVersion: '1.4.0',
-    entryPath: '/opt/orcad/daemon-entry.js',
-    protocolVersion: 36,
-    cgroupUnit: null,
-    selfTest: { ok: true, coverage: 'pty-spawn', verdict: 'healthy', durationMs: 12 }
   }
 }
 
@@ -97,42 +76,6 @@ describe('ServeReadinessPublisher', () => {
     // does not publish health" from "this host published a green verdict".
     expect('health' in payload).toBe(false)
     expect(renderServeReadiness(ready, { mode: 'human' })).not.toContain('Terminal daemon')
-  })
-
-  it('carries build identity, Node ABI and the daemon self-test in the JSON contract', () => {
-    const payload = JSON.parse(renderServeReadiness({ ...ready, health }, { mode: 'json' }))
-    expect(payload.health.buildHash).toBe('abc123def4567890')
-    expect(payload.health.nodeAbi).toBe('115')
-    expect(payload.health.terminalDaemon.selfTest).toEqual({
-      ok: true,
-      coverage: 'pty-spawn',
-      verdict: 'healthy',
-      durationMs: 12
-    })
-  })
-
-  it('says out loud when the daemon self-test failed', () => {
-    const failed: ServeReadiness = {
-      ...ready,
-      health: {
-        ...health,
-        terminalDaemon: {
-          ...health.terminalDaemon,
-          state: 'degraded',
-          ownsFreshSessions: false,
-          selfTest: {
-            ok: false,
-            coverage: 'pty-spawn',
-            verdict: 'pty-spawn-unhealthy',
-            durationMs: 3_000
-          }
-        }
-      }
-    }
-    const human = renderServeReadiness(failed, { mode: 'human' })
-    // An operator reading the ready block must not have to infer this from a missing line.
-    expect(human).toContain('PTY self-test FAILED')
-    expect(human).toContain('terminals survive an orcad restart: NO')
   })
 
   it('rejects concurrent and later duplicate publications', async () => {

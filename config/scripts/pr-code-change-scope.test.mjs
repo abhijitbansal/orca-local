@@ -22,7 +22,6 @@ const expensiveJobs = [
   'xterm_patch_sync',
   'shell_contracts',
   'test',
-  'orcad_browser',
   'cross-version-wire',
   'managed_hook_node18',
   'package',
@@ -256,25 +255,6 @@ describe('per-job path classification', () => {
     })
     expectClassification(['src/main/shell-startup-launch-intent-fixtures.ts'], {
       shell_contracts: true,
-      package: true,
-      package_windows: true
-    })
-  })
-
-  it('runs orcad browser when Chrome launch, session, or tab modules change', () => {
-    for (const file of [
-      'src/main/orcad/external-chromium-browser-session.ts',
-      'src/main/orcad/external-chromium-command-arguments.ts',
-      'src/main/orcad/external-chromium-tab-registry.ts',
-      'src/main/orcad/external-chromium-tab-projection.ts'
-    ]) {
-      expectClassification([file], {
-        orcad_browser: true,
-        package: true,
-        package_windows: true
-      })
-    }
-    expectClassification(['src/main/orcad/orcad-native-preflight.ts'], {
       package: true,
       package_windows: true
     })
