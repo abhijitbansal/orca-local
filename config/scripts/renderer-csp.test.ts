@@ -10,6 +10,8 @@ const REQUIRED = [
   "default-src 'self'",
   "script-src 'self' 'wasm-unsafe-eval'",
   "worker-src 'self' blob:",
+  // Why: markdown export fetch()es blob: image URLs, which 'self' does not cover.
+  "connect-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'none'"
 ]

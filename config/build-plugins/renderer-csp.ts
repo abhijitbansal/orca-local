@@ -10,7 +10,7 @@ export const RENDERER_CSP = [
   "media-src 'self' data: blob: file:",
   "font-src 'self' data: file:",
   "worker-src 'self' blob:",
-  "connect-src 'self' ws://127.0.0.1:* http://127.0.0.1:* ws://localhost:* http://localhost:*",
+  "connect-src 'self' blob: ws://127.0.0.1:* http://127.0.0.1:* ws://localhost:* http://localhost:*",
   "frame-src 'self' data: blob: file: http: https: orca-preview:",
   "object-src 'none'",
   "base-uri 'none'",
