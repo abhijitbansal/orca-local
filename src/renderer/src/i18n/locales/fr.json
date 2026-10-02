@@ -4690,17 +4690,11 @@
           "skillOther": "{{count}} skills",
           "sourceOne": "{{count}} source",
           "sourceOther": "{{count}} sources",
-          "fileOne": "{{count}} fichier",
-          "fileOther": "{{count}} fichiers",
           "resultOne": "{{count}} résultat",
           "resultOther": "{{count}} résultats",
           "selected": "{{count}} sélectionnés",
           "shareOne": "Partager {{count}} skill",
           "shareOther": "Partager {{count}} skills",
-          "installOne": "Installer {{count}} skill",
-          "installOther": "Installer {{count}} skills",
-          "retryOne": "Réessayer {{count}} skill",
-          "retryOther": "Réessayer {{count}} skills",
           "linkOne": "{{count}} lien",
           "linkOther": "{{count}} liens",
           "deleteOne": "Supprimer {{count}} skill",
@@ -4737,10 +4731,6 @@
           "newVersionDescriptionPlain": "Ajoute une nouvelle version au lien existant.",
           "accessSummaryShort": "Lien non répertorié — toute personne qui le possède peut l'installer. Publication en tant que {{value0}}.",
           "accessSummaryPlain": "Lien non répertorié — toute personne qui le possède peut l'installer."
-        },
-        "description": {
-          "showLess": "Afficher moins",
-          "showMore": "Afficher plus"
         },
         "install": {
           "agentsLabel": "Agents",
@@ -7933,18 +7923,6 @@
           "serverRuntimeUnavailableDescription": "Le transport SSH est connecté, mais le runtime Orca n'a pas répondu. L'hôte est peut-être toujours en cours d'exécution.",
           "serverReconnecting": "Reconnexion"
         },
-        "RuntimePairingUrlGenerator": {
-          "279e0dcb57": "127.0.0.1 ne fonctionne que sur cet ordinateur. Utilisez une adresse LAN, Tailscale ou personnalisée pour un autre appareil.",
-          "de6d5cff95": "Cet ordinateur (",
-          "b91e36a986": "web",
-          "custom-option": "{{address}} (personnalisée)",
-          "add-custom": "Ajouter une adresse personnalisée…",
-          "custom-title": "Adresse de connexion personnalisée",
-          "custom-description": "Annoncez une adresse joignable par un autre appareil — un hôte LAN ou Tailscale, ou une URL ws(s):// complète.",
-          "custom-hint": "Saisissez un hôte, un hôte:port ou une URL ws(s)://.",
-          "custom-cancel": "Annuler",
-          "custom-use": "Utiliser l'adresse"
-        },
         "Settings": {
           "3bf149e873": "Paramètres du projet > {{value0}}",
           "075341c763": "Nouvelles fonctionnalités encore en cours de construction. Essayez-les.",
@@ -10017,26 +9995,6 @@
             "380a788da7": "Connexions SSH"
           }
         },
-        "tasks": {
-          "search": {
-            "58cda6f9c0": "masquer",
-            "44083ae418": "écran",
-            "604d8e4089": "atlassian",
-            "5430396e11": "jira",
-            "412ec3c702": "linear",
-            "11f001cdd4": "gitlab",
-            "c10ac2125e": "github",
-            "3d81c26d78": "source",
-            "cf0e3e0c2f": "fournisseur",
-            "2ec54bee51": "tâches",
-            "5b8e4aace5": "Fournisseurs de tâches",
-            "providersDescription": "Connectez des fournisseurs de tâches, installez le skill d'agent Linear et choisissez ce qui apparaît dans Tâches.",
-            "setup": "configuration",
-            "apiKey": "clé API",
-            "skill": "skill",
-            "connect": "connect"
-          }
-        },
         "terminal": {
           "clipboard": {
             "search": {
@@ -10883,12 +10841,6 @@
           "unavailable": "Indisponible",
           "standby": "Veille — aucun appareil via Relay"
         },
-        "MachineNameField": {
-          "label": "Nom de la machine",
-          "description": "Les autres appareils et hôtes voient « {{name}} ». Laissez vide pour utiliser le nom de l’ordinateur.",
-          "pending": "Les autres appareils et hôtes voient ce nom. Laissez vide pour utiliser le nom d’ordinateur détecté.",
-          "placeholder": "Détecté automatiquement"
-        },
         "MobileRelayBetaAvailability": {
           "about": "À propos de la bêta d'Orca Relay",
           "beta": "Beta",
@@ -10918,20 +10870,6 @@
           "title": "Police de l'éditeur",
           "description": "Police utilisée par les éditeurs de fichiers et les vues de diff. Laissez vide pour suivre la police du terminal.",
           "placeholder": "Identique à la police du terminal"
-        },
-        "GeneralRemoteServerUpdates": {
-          "serverCount": "{{value0}} serveurs jumelés",
-          "availableCount": "{{value0}} prêts pour la mise à jour",
-          "currentCount": "{{value0}} à jour",
-          "manualCount": "{{value0}} manuels",
-          "offlineCount": "{{value0}} hors ligne",
-          "title": "Serveurs Orca distants",
-          "description": "Vérifiez et mettez à jour les serveurs Orca jumelés depuis ce client.",
-          "updating": "Mise à jour des serveurs…",
-          "reviewUpdates": "{{value0}} mises à jour disponibles",
-          "reviewServers": "Rechercher des mises à jour du serveur",
-          "serverCountOne": "1 serveur jumelé",
-          "reviewUpdateOne": "1 mise à jour disponible"
         },
         "RemoteServerUpdateDialog": {
           "versionUnavailable": "Version indisponible",
@@ -12485,44 +12423,6 @@
               }
             }
           },
-          "gitlab": {
-            "mr": {
-              "merge": {
-                "state": {
-                  "04a3015a12": "Peut être fusionné",
-                  "53c6d3b7e9": "GitLab indique que cette MR peut être fusionnée, mais le pipeline est toujours en cours",
-                  "65c847ad1e": "Vérifications en attente",
-                  "b41fbc180c": "GitLab indique que cette MR peut être fusionnée, mais certains jobs du pipeline ont échoué",
-                  "49ac4fec10": "Vérifications échouées",
-                  "22b7e50621": "GitLab signale des conflits de fusion",
-                  "96b05e374c": "Conflits",
-                  "d63bb6f76e": "Cette demande de fusion est encore au stade de brouillon",
-                  "b2715092c6": "Brouillon",
-                  "2388413f28": "Cette demande de fusion est fermée",
-                  "88d044c42f": "Fermé",
-                  "ee482a2bad": "Cette demande de fusion est déjà fusionnée",
-                  "fae95ae20d": "Fusionnés",
-                  "5105b0e584": "Approbation requise",
-                  "46dc85711b": "GitLab exige une approbation avant que cette MR puisse être fusionnée",
-                  "893a999c8c": "Modifications demandées",
-                  "c65408a99d": "Un relecteur a demandé des modifications sur cette demande de fusion",
-                  "01ab632a21": "Fils non résolus",
-                  "4191fdfcec": "GitLab exige que les discussions non résolues soient résolues avant la fusion",
-                  "bf628700f6": "Les vérifications doivent passer",
-                  "37d8637c70": "GitLab exige que le pipeline réussisse avant que cette MR puisse être fusionnée",
-                  "049ea91a82": "Le pipeline est toujours en cours",
-                  "382c70faeb": "En retard",
-                  "2c61100b3a": "Mettez à jour la branche avant de merger",
-                  "195917574e": "Vérification",
-                  "ff6db2db63": "GitLab calcule encore le statut de cette demande de fusion",
-                  "4ecc0d90ee": "Bloquée",
-                  "a0f3de7023": "GitLab signale que cette demande de fusion est bloquée",
-                  "804ecf93e8": "GitLab n'a pas communiqué de statut de fusion final",
-                  "a5c049afe4": "GitLab indique que cette MR peut être fusionnée"
-                }
-              }
-            }
-          },
           "index": {
             "70893f017b": "Côté",
             "7b415c39e9": "Haut",
@@ -12544,22 +12444,6 @@
             "aiVaultSessionHistory": "Agents",
             "folderWorkspaces": "Worktrees attachés",
             "parentPrChecks": "Vérifications de la PR"
-          },
-          "right": {
-            "panel": {
-              "comment": {
-                "composer": {
-                  "9bca633dee": "Annuler",
-                  "cf5a7aba6f": "Liste",
-                  "d6d9c3c947": "Citation",
-                  "f49e0a21e0": "Code",
-                  "542bf6a7e2": "Italique",
-                  "256300f8ea": "Gras",
-                  "87aff03d63": "Envoi…",
-                  "commentTooLarge": "Le commentaire est trop volumineux pour être envoyé sans risque."
-                }
-              }
-            }
           },
           "source": {
             "control": {
@@ -13090,17 +12974,6 @@
                   "369aba4b32": "{{included}}GitHub fusionnera {{count}} pull requests de manière atomique avec {{method}}. Si l'une ne peut pas être fusionnée, aucune ne le sera.",
                   "493c78f521": "Fusionner {{count}} PR",
                   "eb7051d268": "Fusionner {{count}} PR"
-                },
-                "merge": {
-                  "55ae29b907": "Fusionner via #{{pr}} · {{count}} PR",
-                  "b8446f6ec2": "Fusionner via #{{pr}} · {{count}} PR",
-                  "189d0ec614": "#{{pr}} est toujours un brouillon.",
-                  "640fb50d9c": "#{{pr}} est fermée.",
-                  "46ffcbda75": "#{{pr}} présente des conflits de fusion.",
-                  "6dabefd63e": "#{{pr}} a demandé des modifications.",
-                  "2bb21fc326": "#{{pr}} attend encore une approbation de relecture.",
-                  "c23faf74df": "#{{pr}} doit être mise à jour.",
-                  "f561e80968": "#{{pr}} est bloquée."
                 }
               }
             }
@@ -13121,23 +12994,6 @@
             "mayBeSlower": "Peut être plus lent",
             "slowest": "Le plus lent",
             "unlimited": "Illimité"
-          },
-          "GitHubPRStackMap": {
-            "3511405914": "closed",
-            "8a9bdc36c0": "fusionnée",
-            "568c647ccd": "brouillon",
-            "bea9ade223": "conflits",
-            "838aadf512": "vérifications échouées",
-            "316039b5db": "vérifications en attente",
-            "4b1e5ee9d3": "modifications demandées",
-            "9a17b5255c": "relecture requise",
-            "d3d97cf3f2": "approuvée",
-            "e6cb964305": "ouvrir",
-            "7737bd66be": "Réduire la stack #{{value0}}",
-            "0c1645ebd0": "Développer la stack #{{value0}}",
-            "e3ee2daa32": "Stack #{{value0}}",
-            "cb440931b7": "{{value0}} sur {{value1}} · {{value2}}",
-            "525259fa17": "Les détails de la stack sont temporairement indisponibles."
           },
           "CreateHostedReviewBasePicker": {
             "205ef284fa": "Branche de base",
@@ -13492,27 +13348,6 @@
           "WorktreeListSlide": {
             "c5ad56786d": "spinner"
           }
-        },
-        "NetworkInterfacePicker": {
-          "no-address-selected": "Aucune adresse sélectionnée",
-          "trigger-label": "Adresse réseau à annoncer",
-          "custom-option": "{{address}} (personnalisée)",
-          "add-custom": "Ajouter une adresse personnalisée…",
-          "custom-section": "Personnalisé",
-          "remove-custom": "Supprimer {{address}}"
-        },
-        "WindowsFirewallNotice": {
-          "repair-success": "Le Pare-feu Windows autorise désormais Orca Mobile sur les réseaux privés",
-          "repair-failed": "Impossible de mettre à jour les règles du Pare-feu Windows",
-          "public-title": "Windows marque ce réseau comme public",
-          "missing-title": "Autoriser les connexions des téléphones via le Pare-feu Windows",
-          "public-description": "Définissez ce réseau Wi-Fi approuvé comme Privé avant d'autoriser les connexions Orca Mobile.",
-          "missing-description": "Windows peut bloquer le serveur d'appairage. Ajoutez une règle pour cette application Orca et le port TCP {{port}} sur les réseaux privés.",
-          "open-settings": "Ouvrir les paramètres réseau",
-          "repair-unverified": "Impossible de vérifier l'accès au Pare-feu Windows",
-          "blocked-title": "Windows bloque peut-être Orca Mobile",
-          "blocked-description": "Une règle entrante de blocage existante peut prendre le pas sur l'exception d'appairage. La réparation supprime les règles TCP conflictuelles de cette application Orca, puis autorise le port {{port}} sur les réseaux privés.",
-          "relay-note": "L'appairage fonctionne toujours via Orca Relay — cette autorisation ajoute seulement la connexion locale, plus rapide."
         }
       },
       "gitlab": {
@@ -15952,14 +15787,6 @@
           "8490e5d36a": "Confirmer",
           "56f5c60e0c": "Annuler",
           "92bac3217e": "Ne plus demander"
-        },
-        "skip": {
-          "saved": "Cette confirmation sera ignorée la prochaine fois.",
-          "savedDescription": "Vous pouvez changer cela dans les paramètres.",
-          "openSettings": "Ouvrir les paramètres",
-          "preference": {
-            "0b0cb6e3f9": "Impossible d'enregistrer la préférence de confirmation."
-          }
         }
       },
       "jira": {
@@ -16248,18 +16075,6 @@
           "copy": "Copier"
         }
       },
-      "orca": {
-        "profiles": {
-          "signout": {
-            "confirm": {
-              "title": "Se déconnecter d'Orca ?",
-              "description": "Les artifacts et Orca Relay seront indisponibles jusqu'à votre reconnexion. Vos projets et worktrees locaux ne seront pas affectés.",
-              "cancel": "Annuler",
-              "action": "Se déconnecter"
-            }
-          }
-        }
-      },
       "linear-issue-attribute-filter-dropdowns": {
         "removeFilter": "Retirer le filtre {{value0}}",
         "teamRequired": "Sélectionnez une équipe pour charger les statuts, responsables et étiquettes de cet espace de travail.",
@@ -16342,13 +16157,6 @@
         "title": "Espace de travail créé depuis une base locale",
         "description": "La ref de suivi distante « {{value0}} » était indisponible ; Orca a donc utilisé la locale « {{value1}} ». Cet espace de travail pourrait ne pas inclure les derniers changements distants.",
         "dismiss": "Compris"
-      },
-      "pr-check-counts": {
-        "passingChip": "{{value0}} réussis",
-        "failingChip": "{{value0}} en échec",
-        "pendingChip": "{{value0}} en attente",
-        "needsActionChip": "{{value0}} action requise",
-        "unresolvedChip": "{{value0}} non résolus"
       },
       "BrowserPane": {
         "streamConnectionLost": "Connexion au serveur distant perdue.",

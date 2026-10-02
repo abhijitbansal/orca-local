@@ -4271,8 +4271,6 @@
           "skillOther": "{{count}} 个技能",
           "sourceOne": "{{count}} 个来源",
           "sourceOther": "{{count}} 个来源",
-          "fileOne": "{{count}} 个文件",
-          "fileOther": "{{count}} 个文件",
           "resultOne": "{{count}} 个结果",
           "resultOther": "{{count}} 个结果",
           "selected": "已选择 {{count}} 个",
@@ -4287,11 +4285,7 @@
           "deleteFolderOne": "{{count}} 个文件夹",
           "deleteFolderOther": "{{count}} 个文件夹",
           "deleteLinkOne": "{{count}} 个链接",
-          "deleteLinkOther": "{{count}} 个链接",
-          "installOne": "安装 {{count}} 技能",
-          "installOther": "安装 {{count}} 技能",
-          "retryOne": "重试 {{count}} 技能",
-          "retryOther": "重试 {{count}} 技能"
+          "deleteLinkOther": "{{count}} 个链接"
         },
         "filter": {
           "allAgents": "所有 Agent",
@@ -4677,10 +4671,6 @@
           "newVersionDescriptionPlain": "将新版本添加到现有链接。",
           "accessSummaryShort": "未列出的链接 - 任何拥有它的人都可以安装它。发布为 {{value0}}。",
           "accessSummaryPlain": "未列出的链接 - 任何拥有它的人都可以安装它。"
-        },
-        "description": {
-          "showLess": "显示较少",
-          "showMore": "显示更多"
         },
         "install": {
           "authorizing": "授权包访问...",
@@ -7777,18 +7767,6 @@
           "serverRuntimeUnavailableDescription": "SSH 传输已连接，但 Orca 运行时未应答。主机可能仍在运行。",
           "serverReconnecting": "重新连接"
         },
-        "RuntimePairingUrlGenerator": {
-          "279e0dcb57": "127.0.0.1 仅适用于此计算机。使用 LAN、Tailscale 或其他设备的自定义地址。",
-          "de6d5cff95": "这台电脑（",
-          "b91e36a986": "网络",
-          "custom-option": "{{address}}（自定义）",
-          "add-custom": "添加自定义地址…",
-          "custom-title": "自定义连接地址",
-          "custom-description": "公布其他设备可以访问的地址：LAN 或 Tailscale 主机，或完整的 ws(s):// URL。",
-          "custom-hint": "请输入主机、host:port 或 ws(s):// URL。",
-          "custom-cancel": "取消",
-          "custom-use": "使用地址"
-        },
         "Settings": {
           "3bf149e873": "项目设置 > {{value0}}",
           "075341c763": "仍在形成的新功能。尝试一下。",
@@ -9860,26 +9838,6 @@
             "380a788da7": "SSH 连接"
           }
         },
-        "tasks": {
-          "search": {
-            "58cda6f9c0": "隐藏",
-            "44083ae418": "显示",
-            "604d8e4089": "阿特拉斯语",
-            "5430396e11": "Jira",
-            "412ec3c702": "Linear",
-            "11f001cdd4": "GitLab",
-            "c10ac2125e": "GitHub",
-            "3d81c26d78": "来源",
-            "cf0e3e0c2f": "提供者",
-            "2ec54bee51": "任务",
-            "5b8e4aace5": "任务提供者",
-            "providersDescription": "连接任务提供商、安装 Linear 智能体技能并选择要在任务中显示的内容。",
-            "setup": "设置",
-            "apiKey": "API 密钥",
-            "skill": "技能",
-            "connect": "连接"
-          }
-        },
         "terminal": {
           "clipboard": {
             "search": {
@@ -10802,12 +10760,6 @@
           "unavailable": "不可用",
           "standby": "待机 — 无 Relay 设备"
         },
-        "MachineNameField": {
-          "label": "机器名称",
-          "description": "其他设备和主机会看到“{{name}}”。留空则使用这台电脑自己的名称。",
-          "pending": "其他设备和主机会看到此名称。留空则使用检测到的电脑名称。",
-          "placeholder": "自动检测"
-        },
         "MobileRelayBetaAvailability": {
           "about": "关于 Orca Relay 测试版",
           "beta": "测试版",
@@ -10837,20 +10789,6 @@
           "title": "编辑器字体",
           "description": "文件编辑器和差异视图使用的字体，留空则跟随终端字体。",
           "placeholder": "与终端字体相同"
-        },
-        "GeneralRemoteServerUpdates": {
-          "serverCount": "{{value0}} paired servers",
-          "availableCount": "{{value0}} 个可更新",
-          "currentCount": "{{value0}} 个已是最新",
-          "manualCount": "{{value0}} manual",
-          "offlineCount": "{{value0}} offline",
-          "title": "远程 Orca 服务器",
-          "description": "从此客户端检查和更新已配对的 Orca 服务器。",
-          "updating": "Updating servers…",
-          "reviewUpdates": "{{value0}} updates available",
-          "reviewServers": "Server updates",
-          "serverCountOne": "1 paired server",
-          "reviewUpdateOne": "1 update available"
         },
         "RemoteServerUpdateDialog": {
           "versionUnavailable": "版本不可用",
@@ -12382,44 +12320,6 @@
               }
             }
           },
-          "gitlab": {
-            "mr": {
-              "merge": {
-                "state": {
-                  "04a3015a12": "可以合并",
-                  "53c6d3b7e9": "GitLab 表示该 MR 可以合并，但管道仍在运行",
-                  "65c847ad1e": "检查待处理",
-                  "b41fbc180c": "GitLab 表示这个 MR 可以合并，但一些管道作业失败了",
-                  "49ac4fec10": "检查失败",
-                  "22b7e50621": "GitLab 报告合并冲突",
-                  "96b05e374c": "冲突",
-                  "d63bb6f76e": "此合并请求仍是草稿",
-                  "b2715092c6": "草稿",
-                  "2388413f28": "此合并请求已关闭",
-                  "88d044c42f": "已关闭",
-                  "ee482a2bad": "该合并请求已被合并",
-                  "fae95ae20d": "合并",
-                  "5105b0e584": "需要批准",
-                  "46dc85711b": "GitLab 需要获得批准才能合并此 MR",
-                  "893a999c8c": "要求更改",
-                  "c65408a99d": "评审人请求对此合并请求进行更改",
-                  "01ab632a21": "未解决的话题",
-                  "4191fdfcec": "GitLab 要求在合并之前解决未解决的讨论",
-                  "bf628700f6": "检查必须通过",
-                  "37d8637c70": "GitLab 要求管道成功才能合并此 MR",
-                  "049ea91a82": "管道仍在运行",
-                  "382c70faeb": "在后面",
-                  "2c61100b3a": "合并前更新分支",
-                  "195917574e": "检查中",
-                  "ff6db2db63": "GitLab 仍在计算此合并请求状态",
-                  "4ecc0d90ee": "被阻止",
-                  "a0f3de7023": "GitLab 报告此合并请求被阻止",
-                  "804ecf93e8": "GitLab 尚未报告最终合并状态",
-                  "a5c049afe4": "GitLab 说这个 MR 可以合并"
-                }
-              }
-            }
-          },
           "index": {
             "70893f017b": "边",
             "7b415c39e9": "顶部",
@@ -12441,22 +12341,6 @@
             "aiVaultSessionHistory": "智能体",
             "folderWorkspaces": "已附加的工作树",
             "parentPrChecks": "PR 检查"
-          },
-          "right": {
-            "panel": {
-              "comment": {
-                "composer": {
-                  "9bca633dee": "取消",
-                  "cf5a7aba6f": "列表",
-                  "d6d9c3c947": "引用",
-                  "f49e0a21e0": "代码",
-                  "542bf6a7e2": "斜体",
-                  "256300f8ea": "粗体",
-                  "87aff03d63": "正在发送...",
-                  "commentTooLarge": "评论过长，无法安全提交。"
-                }
-              }
-            }
           },
           "source": {
             "control": {
@@ -12987,17 +12871,6 @@
                   "369aba4b32": "{{included}}GitHub 将使用 {{method}} 以原子方式合并 {{count}} 拉取请求。如果有一个无法合并，那么就没有一个会合并。",
                   "493c78f521": "合并 {{count}} PR",
                   "eb7051d268": "合并 {{count}} PR"
-                },
-                "merge": {
-                  "55ae29b907": "通过 #{{pr}} · {{count}} PR 合并",
-                  "b8446f6ec2": "通过 #{{pr}} · {{count}} PR 合并",
-                  "189d0ec614": "#{{pr}} 仍然是草案。",
-                  "640fb50d9c": "#{{pr}} 已关闭。",
-                  "46ffcbda75": "#{{pr}} 有合并冲突。",
-                  "6dabefd63e": "#{{pr}} 已请求更改。",
-                  "2bb21fc326": "#{{pr}} 仍需评审批准。",
-                  "c23faf74df": "#{{pr}} 必须更新。",
-                  "f561e80968": "#{{pr}} 被阻止。"
                 }
               }
             }
@@ -13018,23 +12891,6 @@
             "mayBeSlower": "可能较慢",
             "slowest": "最慢",
             "unlimited": "无限制"
-          },
-          "GitHubPRStackMap": {
-            "3511405914": "关闭",
-            "8a9bdc36c0": "合并",
-            "568c647ccd": "草稿",
-            "bea9ade223": "冲突",
-            "838aadf512": "检查失败",
-            "316039b5db": "支票待处理",
-            "4b1e5ee9d3": "要求更改",
-            "9a17b5255c": "需要审查",
-            "d3d97cf3f2": "得到正式认可的",
-            "e6cb964305": "打开",
-            "7737bd66be": "折叠堆栈 #{{value0}}",
-            "0c1645ebd0": "展开堆栈 #{{value0}}",
-            "e3ee2daa32": "堆栈#{{value0}}",
-            "cb440931b7": "{{value1}} 的 {{value0}} · {{value2}}",
-            "525259fa17": "堆栈详细信息暂时不可用。"
           },
           "CreateHostedReviewBasePicker": {
             "205ef284fa": "基地支部",
@@ -13389,27 +13245,6 @@
           "WorktreeListSlide": {
             "c5ad56786d": "旋转器"
           }
-        },
-        "NetworkInterfacePicker": {
-          "trigger-label": "要公布的网络地址",
-          "custom-option": "{{address}}（自定义）",
-          "add-custom": "添加自定义地址…",
-          "no-address-selected": "未选择地址",
-          "custom-section": "自定义",
-          "remove-custom": "删除 {{address}}"
-        },
-        "WindowsFirewallNotice": {
-          "repair-success": "Windows 防火墙现已允许 Orca Mobile 在专用网络上通信",
-          "repair-failed": "无法更新 Windows 防火墙规则",
-          "public-title": "Windows 将此网络标记为公用",
-          "missing-title": "允许手机连接通过 Windows 防火墙",
-          "public-description": "请先将此受信任的 Wi-Fi 网络更改为专用网络，然后再允许 Orca Mobile 连接。",
-          "missing-description": "Windows 可能会阻止配对服务器。请为此 Orca 应用和专用网络上的 TCP 端口 {{port}} 添加规则。",
-          "open-settings": "打开网络设置",
-          "repair-unverified": "无法验证 Windows 防火墙访问权限",
-          "blocked-title": "Windows 可能正在阻止 Orca Mobile",
-          "blocked-description": "现有的入站阻止规则可能会覆盖配对例外。修复将移除此 Orca 应用的冲突 TCP 规则，然后在专用网络上允许端口 {{port}}。",
-          "relay-note": "配对仍可通过 Orca Relay 进行 — 允许后只是额外获得更快的本地连接。"
         }
       },
       "gitlab": {
@@ -15849,14 +15684,6 @@
           "8490e5d36a": "确认",
           "56f5c60e0c": "取消",
           "92bac3217e": "不要再问"
-        },
-        "skip": {
-          "saved": "下次我们将跳过此确认。",
-          "savedDescription": "您可以在“设置”中更改此设置。",
-          "openSettings": "打开设置",
-          "preference": {
-            "0b0cb6e3f9": "无法保存确认首选项。"
-          }
         }
       },
       "jira": {
@@ -16145,18 +15972,6 @@
           "copy": "复制"
         }
       },
-      "orca": {
-        "profiles": {
-          "signout": {
-            "confirm": {
-              "title": "退出 Orca？",
-              "description": "你将在此设备上退出 Orca。本地项目和工作树不会受到影响。",
-              "cancel": "取消",
-              "action": "退出登录"
-            }
-          }
-        }
-      },
       "linear-issue-attribute-filter-dropdowns": {
         "removeFilter": "移除 {{value0}} 筛选器",
         "teamRequired": "选择一个团队以加载此工作区的状态、负责人和标签。",
@@ -16234,13 +16049,6 @@
         "useManualTerminalWorktreeParking": {
           "cannotPark": "这些终端无法安全停放。"
         }
-      },
-      "pr-check-counts": {
-        "passingChip": "{{value0}} 通过",
-        "failingChip": "{{value0}} 失败",
-        "pendingChip": "{{value0}} 待处理",
-        "needsActionChip": "{{value0}} 个需要操作",
-        "unresolvedChip": "{{value0}} 个未解决"
       },
       "artifacts": {
         "ArtifactsPage": {

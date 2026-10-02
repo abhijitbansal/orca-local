@@ -2032,27 +2032,6 @@
           "a4f8c2d91e": "Hide from sidebar",
           "b7e3d1c84a": "Show in sidebar"
         },
-        "NetworkInterfacePicker": {
-          "add-custom": "Add custom address…",
-          "custom-option": "{{address}} (custom)",
-          "custom-section": "Custom",
-          "no-address-selected": "No address selected",
-          "remove-custom": "Remove {{address}}",
-          "trigger-label": "Network address to advertise"
-        },
-        "WindowsFirewallNotice": {
-          "blocked-description": "An existing inbound Block rule can override the pairing exception. Repair removes conflicting TCP rules for this Orca app, then allows port {{port}} on Private networks.",
-          "blocked-title": "Windows may be blocking Orca Mobile",
-          "missing-description": "Windows may block the pairing server. Add a rule for this Orca app and TCP port {{port}} on Private networks.",
-          "missing-title": "Allow phone connections through Windows Firewall",
-          "open-settings": "Open network settings",
-          "public-description": "Change this trusted Wi-Fi network to Private before allowing Orca Mobile connections.",
-          "public-title": "Windows marks this network as public",
-          "relay-note": "Pairing still works over Orca Relay — allowing this only adds the faster local connection.",
-          "repair-failed": "Could not update the Windows Firewall rules",
-          "repair-success": "Windows Firewall now allows Orca Mobile on private networks",
-          "repair-unverified": "Windows Firewall access could not be verified"
-        },
         "mobile": {
           "platform": {
             "copy": {
@@ -3076,10 +3055,6 @@
             "copy": "Preview updated worktree-card layout, metadata placement, card-display menu options, and status presentation."
           }
         },
-        "GeneralRemoteServerUpdates": {
-          "reviewUpdateOne": "1 update available",
-          "reviewUpdates": "{{value0}} updates available"
-        },
         "GeneralWorkspaceSettingsSection": {
           "externalWorktreesDescription": "Choose whether worktrees created outside Orca appear by default.",
           "hide": "Hide",
@@ -3389,18 +3364,6 @@
           "f75ce1c7a5": "Local keeps today's desktop behavior. Saved servers route supported client calls through the remote runtime.",
           "updateAvailableOne": "1 update available",
           "updatesAvailable": "{{value0}} updates available"
-        },
-        "RuntimePairingUrlGenerator": {
-          "279e0dcb57": "127.0.0.1 only works on this computer. Use a LAN, Tailscale, or custom address for another device.",
-          "add-custom": "Add custom address…",
-          "b91e36a986": "web",
-          "custom-cancel": "Cancel",
-          "custom-description": "Advertise an address another device can reach — a LAN or Tailscale host, or a full ws(s):// URL.",
-          "custom-hint": "Enter a host, host:port, or a ws(s):// URL.",
-          "custom-option": "{{address}} (custom)",
-          "custom-title": "Custom connection address",
-          "custom-use": "Use address",
-          "de6d5cff95": "This computer ("
         },
         "Settings": {
           "084d8fac5b": "Privacy & Security",

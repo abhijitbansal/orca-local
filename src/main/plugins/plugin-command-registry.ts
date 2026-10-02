@@ -1,4 +1,5 @@
 import {
+  isPluginCommandActionId,
   pluginCommandKeybindingActionId,
   type PluginCommandActionId
 } from '../../shared/plugins/plugin-command-actions'
@@ -139,10 +140,11 @@ function registrationsForManifest(
     id: command.id,
     title: command.title,
     context: command.context ?? 'global',
+    // Why: manifest validation already rejected unknown actions, so a non-alias action here is a worker command.
     handler:
-      command.action === undefined
-        ? { type: 'worker' as const }
-        : { type: 'built-in' as const, action: command.action as PluginCommandActionId },
+      command.action !== undefined && isPluginCommandActionId(command.action)
+        ? { type: 'built-in' as const, action: command.action }
+        : { type: 'worker' as const },
     keybindings: keybindingsForCommand(command, bindingsByCommand.get(command.id) ?? [])
   }))
 }

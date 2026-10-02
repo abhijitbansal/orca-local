@@ -52,7 +52,6 @@ export const FEATURE_INTERACTION_CATEGORY_BY_ID = {
   'agent-orchestration': 'collaboration',
   'mobile-emulator-agent-setup': 'setup',
   'ai-commit-generation': 'source_control',
-  'ai-pr-generation': 'source_control',
   'claude-account-switching': 'settings',
   'computer-use-setup': 'setup',
   'computer-use': 'agent',

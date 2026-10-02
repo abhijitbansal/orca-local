@@ -4271,8 +4271,6 @@
           "skillOther": "스킬 {{count}}개",
           "sourceOne": "소스 {{count}}개",
           "sourceOther": "소스 {{count}}개",
-          "fileOne": "파일 {{count}}개",
-          "fileOther": "파일 {{count}}개",
           "resultOne": "결과 {{count}}개",
           "resultOther": "결과 {{count}}개",
           "selected": "{{count}}개 선택됨",
@@ -4280,10 +4278,6 @@
           "shareOther": "스킬 {{count}}개 공유",
           "linkOne": "링크 {{count}}개",
           "linkOther": "링크 {{count}}개",
-          "installOne": "{{count}} 스킬 설치",
-          "installOther": "{{count}} 스킬 설치",
-          "retryOne": "{{count}} 스킬 재시도",
-          "retryOther": "{{count}} 기술을 다시 시도하세요.",
           "deleteOne": "{{count}} 스킬 삭제",
           "deleteOther": "{{count}} 기술 삭제",
           "deletedOne": "{{count}} 스킬을 삭제했습니다.",
@@ -4651,10 +4645,6 @@
           "newVersionDescriptionPlain": "기존 링크에 새 버전을 추가합니다.",
           "accessSummaryShort": "비공개 링크 — 링크가 있는 사람은 누구나 설치할 수 있습니다. {{value0}}(으)로 게시 중입니다.",
           "accessSummaryPlain": "비공개 링크 — 링크가 있는 사람은 누구나 설치할 수 있습니다."
-        },
-        "description": {
-          "showLess": "간략히 보기",
-          "showMore": "더 보기"
         },
         "install": {
           "authorizing": "패키지 액세스 승인 중…",
@@ -7777,18 +7767,6 @@
           "serverRuntimeUnavailableDescription": "SSH 전송이 연결되었지만 Orca 런타임이 응답하지 않았습니다. 호스트가 아직 실행 중일 수 있습니다.",
           "serverReconnecting": "다시 연결하는 중"
         },
-        "RuntimePairingUrlGenerator": {
-          "279e0dcb57": "127.0.0.1은 이 컴퓨터에서만 작동합니다. 다른 장치에 LAN, Tailscale 또는 사용자 정의 주소를 사용하십시오.",
-          "de6d5cff95": "이 컴퓨터(",
-          "b91e36a986": "웹",
-          "custom-option": "{{address}} (사용자 지정)",
-          "add-custom": "사용자 지정 주소 추가…",
-          "custom-title": "사용자 지정 연결 주소",
-          "custom-description": "다른 기기가 연결할 수 있는 주소를 알립니다. LAN 또는 Tailscale 호스트, 또는 전체 ws(s):// URL입니다.",
-          "custom-hint": "호스트, host:port 또는 ws(s):// URL을 입력하세요.",
-          "custom-cancel": "취소",
-          "custom-use": "주소 사용"
-        },
         "Settings": {
           "3bf149e873": "프로젝트 설정 > {{value0}}",
           "075341c763": "아직 구체화되고 있는 새로운 기능입니다. 한번 시도해 보세요.",
@@ -9860,26 +9838,6 @@
             "380a788da7": "SSH 연결"
           }
         },
-        "tasks": {
-          "search": {
-            "58cda6f9c0": "숨기기",
-            "44083ae418": "표시",
-            "604d8e4089": "Atlassian",
-            "5430396e11": "Jira",
-            "412ec3c702": "Linear",
-            "11f001cdd4": "gitlab",
-            "c10ac2125e": "GitHub",
-            "3d81c26d78": "소스",
-            "cf0e3e0c2f": "공급자",
-            "2ec54bee51": "작업",
-            "5b8e4aace5": "작업 제공자",
-            "providersDescription": "작업 제공업체를 연결하고 Linear 에이전트 스킬을 설치한 다음 작업에 표시할 항목을 선택하세요.",
-            "setup": "설정",
-            "apiKey": "API 키",
-            "skill": "스킬",
-            "connect": "연결"
-          }
-        },
         "terminal": {
           "clipboard": {
             "search": {
@@ -10802,12 +10760,6 @@
           "unavailable": "Unavailable",
           "standby": "대기 중 — 릴레이 기기 없음"
         },
-        "MachineNameField": {
-          "label": "머신 이름",
-          "description": "다른 장치와 호스트에는 “{{name}}”(으)로 표시됩니다. 비워 두면 컴퓨터 자체의 이름을 사용합니다.",
-          "pending": "다른 장치와 호스트에는 이 이름이 표시됩니다. 비워 두면 감지된 컴퓨터 이름을 사용합니다.",
-          "placeholder": "자동으로 감지됨"
-        },
         "MobileRelayBetaAvailability": {
           "about": "Orca Relay 베타 정보",
           "beta": "베타",
@@ -10837,20 +10789,6 @@
           "title": "편집기 글꼴",
           "description": "파일 편집기 및 diff 보기에서 사용되는 글꼴입니다. 비워두면 터미널 글꼴을 따릅니다.",
           "placeholder": "터미널 글꼴과 동일"
-        },
-        "GeneralRemoteServerUpdates": {
-          "serverCount": "{{value0}} paired servers",
-          "availableCount": "{{value0}} ready to update",
-          "currentCount": "{{value0}} up to date",
-          "manualCount": "{{value0}} manual",
-          "offlineCount": "{{value0}} offline",
-          "title": "Remote Orca Servers",
-          "description": "Check and update paired Orca servers from this client.",
-          "updating": "Updating servers…",
-          "reviewUpdates": "{{value0}} updates available",
-          "reviewServers": "Server updates",
-          "serverCountOne": "1 paired server",
-          "reviewUpdateOne": "1 update available"
         },
         "RemoteServerUpdateDialog": {
           "versionUnavailable": "Version unavailable",
@@ -12382,44 +12320,6 @@
               }
             }
           },
-          "gitlab": {
-            "mr": {
-              "merge": {
-                "state": {
-                  "04a3015a12": "병합 가능",
-                  "53c6d3b7e9": "GitLab에서는 이 MR이 병합될 수 있지만 파이프라인은 여전히 ​​실행 중이라고 말합니다.",
-                  "65c847ad1e": "검사 대기 중",
-                  "b41fbc180c": "GitLab에서는 이 MR이 병합될 수 있지만 일부 파이프라인 작업이 실패했다고 말합니다.",
-                  "49ac4fec10": "검사 실패",
-                  "22b7e50621": "GitLab이 병합 충돌을 보고합니다.",
-                  "96b05e374c": "충돌",
-                  "d63bb6f76e": "이 MR은 아직 초안입니다.",
-                  "b2715092c6": "초안",
-                  "2388413f28": "이 MR이 종료되었습니다.",
-                  "88d044c42f": "닫힘",
-                  "ee482a2bad": "이 MR은 이미 병합되었습니다.",
-                  "fae95ae20d": "병합됨",
-                  "5105b0e584": "승인 필요",
-                  "46dc85711b": "이 MR을 병합하려면 GitLab의 승인이 필요합니다.",
-                  "893a999c8c": "변경 요청됨",
-                  "c65408a99d": "리뷰어가 이 MR에 대한 변경을 요청했습니다.",
-                  "01ab632a21": "해결되지 않은 스레드",
-                  "4191fdfcec": "GitLab에서는 병합 전에 해결되지 않은 토론을 해결해야 합니다.",
-                  "bf628700f6": "수표를 통과해야 합니다",
-                  "37d8637c70": "GitLab에서는 이 MR을 병합하기 전에 파이프라인이 성공해야 합니다.",
-                  "049ea91a82": "파이프라인은 여전히 ​​실행 중입니다.",
-                  "382c70faeb": "뒤에",
-                  "2c61100b3a": "병합하기 전에 브랜치 업데이트",
-                  "195917574e": "확인 중",
-                  "ff6db2db63": "GitLab은 아직 이 MR 상태를 계산 중입니다.",
-                  "4ecc0d90ee": "막힌",
-                  "a0f3de7023": "GitLab에서는 이 MR이 차단되었다고 보고합니다.",
-                  "804ecf93e8": "GitLab은 최종 병합 상태를 보고하지 않았습니다.",
-                  "a5c049afe4": "GitLab은 이 MR이 병합될 수 있다고 말합니다."
-                }
-              }
-            }
-          },
           "index": {
             "70893f017b": "옆",
             "7b415c39e9": "맨 위",
@@ -12441,22 +12341,6 @@
             "aiVaultSessionHistory": "에이전트",
             "folderWorkspaces": "연결된 워크트리",
             "parentPrChecks": "PR 검사"
-          },
-          "right": {
-            "panel": {
-              "comment": {
-                "composer": {
-                  "9bca633dee": "취소",
-                  "cf5a7aba6f": "목록",
-                  "d6d9c3c947": "인용",
-                  "f49e0a21e0": "코드",
-                  "542bf6a7e2": "기울임",
-                  "256300f8ea": "굵게",
-                  "87aff03d63": "전송 중...",
-                  "commentTooLarge": "댓글이 너무 길어 안전하게 제출할 수 없습니다."
-                }
-              }
-            }
           },
           "source": {
             "control": {
@@ -12987,17 +12871,6 @@
                   "369aba4b32": "{{included}}GitHub는 {{method}}를 사용하여 {{count}} PR을 원자적으로 병합합니다. 병합할 수 없는 경우에는 병합할 수 없습니다.",
                   "493c78f521": "{{count}} PR 병합",
                   "eb7051d268": "{{count}} PR 병합"
-                },
-                "merge": {
-                  "55ae29b907": "#{{pr}} · {{count}} PR을 통해 병합",
-                  "b8446f6ec2": "#{{pr}} · {{count}} PR을 통해 병합",
-                  "189d0ec614": "#{{pr}}은 아직 초안입니다.",
-                  "640fb50d9c": "#{{pr}}이(가) 닫혔습니다.",
-                  "46ffcbda75": "#{{pr}}에 병합 충돌이 있습니다.",
-                  "6dabefd63e": "#{{pr}}님이 변경 사항을 요청했습니다.",
-                  "2bb21fc326": "#{{pr}}에는 아직 검토 승인이 필요합니다.",
-                  "c23faf74df": "#{{pr}}을(를) 업데이트해야 합니다.",
-                  "f561e80968": "#{{pr}}이(가) 차단되었습니다."
                 }
               }
             }
@@ -13018,23 +12891,6 @@
             "mayBeSlower": "느려질 수 있음",
             "slowest": "가장 느림",
             "unlimited": "무제한"
-          },
-          "GitHubPRStackMap": {
-            "3511405914": "닫은",
-            "8a9bdc36c0": "병합된",
-            "568c647ccd": "초안",
-            "bea9ade223": "충돌",
-            "838aadf512": "확인 실패",
-            "316039b5db": "보류 중인 수표",
-            "4b1e5ee9d3": "변경 요청됨",
-            "9a17b5255c": "리뷰 필요",
-            "d3d97cf3f2": "승인됨",
-            "e6cb964305": "열려 있는",
-            "7737bd66be": "스택 #{{value0}} 축소",
-            "0c1645ebd0": "스택 #{{value0}} 확장",
-            "e3ee2daa32": "스택 #{{value0}}",
-            "cb440931b7": "{{value1}} 중 {{value0}} · {{value2}}",
-            "525259fa17": "스택 세부정보를 일시적으로 사용할 수 없습니다."
           },
           "CreateHostedReviewBasePicker": {
             "205ef284fa": "기본 브랜치",
@@ -13389,27 +13245,6 @@
           "WorktreeListSlide": {
             "c5ad56786d": "스피너"
           }
-        },
-        "NetworkInterfacePicker": {
-          "trigger-label": "알릴 네트워크 주소",
-          "custom-option": "{{address}} (사용자 지정)",
-          "add-custom": "사용자 지정 주소 추가…",
-          "no-address-selected": "선택한 주소가 없습니다.",
-          "custom-section": "관습",
-          "remove-custom": "{{address}} 제거"
-        },
-        "WindowsFirewallNotice": {
-          "repair-success": "이제 Windows 방화벽이 개인 네트워크에서 Orca Mobile을 허용합니다",
-          "repair-failed": "Windows 방화벽 규칙을 업데이트할 수 없습니다",
-          "public-title": "Windows가 이 네트워크를 공용으로 표시합니다",
-          "missing-title": "Windows 방화벽에서 휴대폰 연결 허용",
-          "public-description": "Orca Mobile 연결을 허용하기 전에 이 신뢰할 수 있는 Wi-Fi 네트워크를 개인으로 변경하세요.",
-          "missing-description": "Windows가 페어링 서버를 차단할 수 있습니다. 개인 네트워크에서 이 Orca 앱과 TCP 포트 {{port}}에 대한 규칙을 추가하세요.",
-          "open-settings": "네트워크 설정 열기",
-          "repair-unverified": "Windows 방화벽 액세스를 확인할 수 없습니다",
-          "blocked-title": "Windows가 Orca Mobile을 차단하고 있을 수 있습니다",
-          "blocked-description": "기존 인바운드 차단 규칙이 페어링 예외보다 우선할 수 있습니다. 복구를 실행하면 이 Orca 앱의 충돌하는 TCP 규칙을 제거한 다음 개인 네트워크에서 포트 {{port}}을(를) 허용합니다.",
-          "relay-note": "페어링은 Orca Relay를 통해 계속 작동합니다. 허용하면 더 빠른 로컬 연결이 추가될 뿐입니다."
         }
       },
       "gitlab": {
@@ -15849,14 +15684,6 @@
           "8490e5d36a": "확인",
           "56f5c60e0c": "취소",
           "92bac3217e": "다시 묻지 마세요"
-        },
-        "skip": {
-          "saved": "다음번에는 이 확인을 건너뛰겠습니다.",
-          "savedDescription": "설정에서 이를 변경할 수 있습니다.",
-          "openSettings": "설정 열기",
-          "preference": {
-            "0b0cb6e3f9": "확인 기본 설정을 저장할 수 없습니다."
-          }
         }
       },
       "jira": {
@@ -16145,18 +15972,6 @@
           "copy": "복사"
         }
       },
-      "orca": {
-        "profiles": {
-          "signout": {
-            "confirm": {
-              "title": "Orca에서 로그아웃할까요?",
-              "description": "이 기기의 Orca에서 로그아웃됩니다. 로컬 프로젝트와 워크트리에는 영향을 주지 않습니다.",
-              "cancel": "취소",
-              "action": "로그아웃"
-            }
-          }
-        }
-      },
       "linear-issue-attribute-filter-dropdowns": {
         "removeFilter": "{{value0}} 필터 제거",
         "teamRequired": "이 워크트리의 상태, 담당자, 레이블을 로드하려면 팀을 선택하세요.",
@@ -16234,13 +16049,6 @@
         "useManualTerminalWorktreeParking": {
           "cannotPark": "These terminals cannot be parked safely."
         }
-      },
-      "pr-check-counts": {
-        "passingChip": "{{value0}} 통과",
-        "failingChip": "{{value0}} 실패",
-        "pendingChip": "{{value0}} 보류 중",
-        "needsActionChip": "{{value0}}개 조치 필요",
-        "unresolvedChip": "{{value0}}개 미해결"
       },
       "artifacts": {
         "ArtifactsPage": {

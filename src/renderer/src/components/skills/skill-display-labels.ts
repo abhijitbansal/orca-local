@@ -28,12 +28,6 @@ export function sourceCountLabel(count: number): string {
     : translate('auto.components.skills.count.sourceOther', '{{count}} sources', { count })
 }
 
-export function fileCountLabel(count: number): string {
-  return count === 1
-    ? translate('auto.components.skills.count.fileOne', '{{count}} file', { count })
-    : translate('auto.components.skills.count.fileOther', '{{count}} files', { count })
-}
-
 export function resultCountLabel(count: number): string {
   return count === 1
     ? translate('auto.components.skills.count.resultOne', '{{count}} result', { count })
@@ -42,16 +36,4 @@ export function resultCountLabel(count: number): string {
 
 export function selectedCountLabel(count: number): string {
   return translate('auto.components.skills.count.selected', '{{count}} selected', { count })
-}
-
-export function installSkillsActionLabel(count: number): string {
-  return count === 1
-    ? translate('auto.components.skills.count.installOne', 'Install {{count}} skill', { count })
-    : translate('auto.components.skills.count.installOther', 'Install {{count}} skills', { count })
-}
-
-export function retrySkillsActionLabel(count: number): string {
-  return count === 1
-    ? translate('auto.components.skills.count.retryOne', 'Retry {{count}} skill', { count })
-    : translate('auto.components.skills.count.retryOther', 'Retry {{count}} skills', { count })
 }

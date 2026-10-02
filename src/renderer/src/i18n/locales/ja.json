@@ -4271,8 +4271,6 @@
           "skillOther": "{{count}} 件のスキル",
           "sourceOne": "{{count}} 件のソース",
           "sourceOther": "{{count}} 件のソース",
-          "fileOne": "{{count}} 個のファイル",
-          "fileOther": "{{count}} 個のファイル",
           "resultOne": "{{count}} 件の結果",
           "resultOther": "{{count}} 件の結果",
           "selected": "{{count}} 件を選択",
@@ -4280,10 +4278,6 @@
           "shareOther": "{{count}} 件のスキルを共有",
           "linkOne": "{{count}} 件のリンク",
           "linkOther": "{{count}} 件のリンク",
-          "installOne": "{{count}} スキルをインストールする",
-          "installOther": "{{count}} スキルをインストールする",
-          "retryOne": "{{count}} スキルを再試行してください",
-          "retryOther": "{{count}} スキルを再試行してください",
           "deleteOne": "{{count}} スキルを削除",
           "deleteOther": "{{count}} スキルを削除",
           "deletedOne": "{{count}} スキルを削除しました",
@@ -4651,10 +4645,6 @@
           "newVersionDescriptionPlain": "新規バージョンを既存のリンクに追加します。",
           "accessSummaryShort": "リストにないリンク — これを持っている人は誰でもこれをインストールできます。 {{value0}} として公開します。",
           "accessSummaryPlain": "リストにないリンク — これを持っている人は誰でもこれをインストールできます。"
-        },
-        "description": {
-          "showLess": "表示を少なくする",
-          "showMore": "もっと見る"
         },
         "install": {
           "authorizing": "パッケージへのアクセスを許可しています…",
@@ -7814,18 +7804,6 @@
           "serverRuntimeUnavailableDescription": "SSH トランスポートは接続されていますが、Orca ランタイムが応答しませんでした。ホストがまだ実行中の可能性があります。",
           "serverReconnecting": "再接続中"
         },
-        "RuntimePairingUrlGenerator": {
-          "279e0dcb57": "127.0.0.1 はこのコンピュータでのみ動作します。別のデバイスの LAN、Tailscale、またはカスタムアドレスを使用します。",
-          "de6d5cff95": "このコンピュータ (",
-          "b91e36a986": "ウェブ",
-          "custom-option": "{{address}}（カスタム）",
-          "add-custom": "カスタムアドレスを追加…",
-          "custom-title": "カスタム接続アドレス",
-          "custom-description": "他のデバイスから到達できるアドレスを指定します。LAN や Tailscale のホスト、または完全な ws(s):// URL です。",
-          "custom-hint": "ホスト、host:port、または ws(s):// URL を入力してください。",
-          "custom-cancel": "キャンセル",
-          "custom-use": "アドレスを使用"
-        },
         "Settings": {
           "3bf149e873": "プロジェクト設定 > {{value0}}",
           "075341c763": "まだ形になりつつある新機能。試してみてください。",
@@ -9897,26 +9875,6 @@
             "380a788da7": "SSH 接続"
           }
         },
-        "tasks": {
-          "search": {
-            "58cda6f9c0": "非表示",
-            "44083ae418": "ディスプレイ",
-            "604d8e4089": "アトラシアン",
-            "5430396e11": "Jira",
-            "412ec3c702": "Linear",
-            "11f001cdd4": "gitlab",
-            "c10ac2125e": "GitHub",
-            "3d81c26d78": "ソース",
-            "cf0e3e0c2f": "プロバイダー",
-            "2ec54bee51": "タスク",
-            "5b8e4aace5": "タスクプロバイダー",
-            "providersDescription": "タスクプロバイダーを接続し、Linear Agent スキルをインストールして、タスクに表示する項目を選択します。",
-            "setup": "セットアップ",
-            "apiKey": "APIキー",
-            "skill": "スキル",
-            "connect": "接続"
-          }
-        },
         "terminal": {
           "clipboard": {
             "search": {
@@ -10802,12 +10760,6 @@
           "unavailable": "利用不可",
           "standby": "待機中 — リレー対象のデバイスがありません"
         },
-        "MachineNameField": {
-          "label": "マシン名",
-          "description": "他のデバイスやホストには「{{name}}」と表示されます。空欄にするとコンピューター自身の名前を使います。",
-          "pending": "他のデバイスやホストにはこの名前が表示されます。空欄にすると検出されたコンピューター名を使います。",
-          "placeholder": "自動検出"
-        },
         "MobileRelayBetaAvailability": {
           "about": "Orca Relay ベータについて",
           "beta": "ベータ",
@@ -10837,20 +10789,6 @@
           "title": "エディターフォント",
           "description": "ファイルエディターと差分ビューで使用されるフォント。空の場合はターミナルフォントに従います。",
           "placeholder": "ターミナルフォントと同じ"
-        },
-        "GeneralRemoteServerUpdates": {
-          "serverCount": "ペアリング済みサーバー {{value0}} 台",
-          "availableCount": "更新可能 {{value0}} 台",
-          "currentCount": "最新 {{value0}} 台",
-          "manualCount": "手動更新 {{value0}} 台",
-          "offlineCount": "オフライン {{value0}} 台",
-          "title": "リモート Orca サーバー",
-          "description": "ペアリング済みの Orca サーバーを、このクライアントから確認・更新します。",
-          "updating": "サーバーを更新しています…",
-          "reviewUpdates": "{{value0}} 件の更新があります",
-          "reviewServers": "サーバーの更新を確認",
-          "serverCountOne": "ペアリング済みサーバー 1 台",
-          "reviewUpdateOne": "1 件の更新があります"
         },
         "RemoteServerUpdateDialog": {
           "versionUnavailable": "バージョンを取得できません",
@@ -12382,44 +12320,6 @@
               }
             }
           },
-          "gitlab": {
-            "mr": {
-              "merge": {
-                "state": {
-                  "04a3015a12": "マージ可能",
-                  "53c6d3b7e9": "GitLab は、この MR はマージできるが、パイプラインはまだ実行中であると言っています",
-                  "65c847ad1e": "保留中のチェック",
-                  "b41fbc180c": "GitLab は、この MR はマージできるが、一部のパイプラインジョブが失敗したと言っています",
-                  "49ac4fec10": "チェックに失敗しました",
-                  "22b7e50621": "GitLab がマージ競合を報告",
-                  "96b05e374c": "競合",
-                  "d63bb6f76e": "この MR はまだ下書きです",
-                  "b2715092c6": "下書き",
-                  "2388413f28": "この MR はクローズされています",
-                  "88d044c42f": "クローズ",
-                  "ee482a2bad": "この MR はすでにマージされています",
-                  "fae95ae20d": "マージ済み",
-                  "5105b0e584": "承認が必要です",
-                  "46dc85711b": "この MR をマージするには GitLab の承認が必要です",
-                  "893a999c8c": "変更要求",
-                  "c65408a99d": "レビュアーがこの MR の変更をリクエストしました",
-                  "01ab632a21": "未解決のスレッド",
-                  "4191fdfcec": "GitLab では、マージ前に未解決のディスカッションを解決する必要があります",
-                  "bf628700f6": "チェックに合格する必要があります",
-                  "37d8637c70": "GitLab では、この MR をマージする前にパイプラインが成功する必要があります",
-                  "049ea91a82": "パイプラインはまだ実行中です",
-                  "382c70faeb": "遅れ",
-                  "2c61100b3a": "マージする前にブランチを更新する",
-                  "195917574e": "確認中",
-                  "ff6db2db63": "GitLab はまだこの MR のステータスを計算中です",
-                  "4ecc0d90ee": "ブロック中",
-                  "a0f3de7023": "GitLab はこの MR がブロックされていると報告しています",
-                  "804ecf93e8": "GitLab は最終的なマージステータスを報告していません",
-                  "a5c049afe4": "GitLab は、この MR はマージできると言っています"
-                }
-              }
-            }
-          },
           "index": {
             "70893f017b": "側",
             "7b415c39e9": "トップ",
@@ -12441,22 +12341,6 @@
             "aiVaultSessionHistory": "Agent",
             "folderWorkspaces": "添付ワークツリー",
             "parentPrChecks": "PR チェック"
-          },
-          "right": {
-            "panel": {
-              "comment": {
-                "composer": {
-                  "9bca633dee": "キャンセル",
-                  "cf5a7aba6f": "リスト",
-                  "d6d9c3c947": "引用",
-                  "f49e0a21e0": "コード",
-                  "542bf6a7e2": "イタリック",
-                  "256300f8ea": "太字",
-                  "87aff03d63": "送信中…",
-                  "commentTooLarge": "コメントが大きすぎるため安全に送信できません。"
-                }
-              }
-            }
           },
           "source": {
             "control": {
@@ -12987,17 +12871,6 @@
                   "369aba4b32": "{{included}}GitHub は、{{method}} を使用して {{count}} PR をアトミックにマージします。どれかがマージできない場合、どれもマージできません。",
                   "493c78f521": "{{count}} PR をマージ",
                   "eb7051d268": "{{count}} PR をマージする"
-                },
-                "merge": {
-                  "55ae29b907": "#{{pr}} · {{count}} PR を介してマージ",
-                  "b8446f6ec2": "#{{pr}} · {{count}} PR を介してマージ",
-                  "189d0ec614": "#{{pr}} はまだ下書きです。",
-                  "640fb50d9c": "#{{pr}} は閉店しています。",
-                  "46ffcbda75": "#{{pr}} にはマージ競合があります。",
-                  "6dabefd63e": "#{{pr}} が変更をリクエストしました。",
-                  "2bb21fc326": "#{{pr}} はまだレビューの承認が必要です。",
-                  "c23faf74df": "#{{pr}} を更新する必要があります。",
-                  "f561e80968": "#{{pr}} はブロックされています。"
                 }
               }
             }
@@ -13018,23 +12891,6 @@
             "mayBeSlower": "遅くなる可能性あり",
             "slowest": "最も低速",
             "unlimited": "無制限"
-          },
-          "GitHubPRStackMap": {
-            "3511405914": "閉まっている",
-            "8a9bdc36c0": "合併した",
-            "568c647ccd": "下書き",
-            "bea9ade223": "衝突",
-            "838aadf512": "チェックに失敗しました",
-            "316039b5db": "保留中のチェック",
-            "4b1e5ee9d3": "変更が要求されました",
-            "9a17b5255c": "見直しが必要",
-            "d3d97cf3f2": "承認された",
-            "e6cb964305": "開ける",
-            "7737bd66be": "スタック #{{value0}} を折りたたむ",
-            "0c1645ebd0": "スタック #{{value0}} を展開します",
-            "e3ee2daa32": "スタック #{{value0}}",
-            "cb440931b7": "{{value0}} / {{value1}} · {{value2}}",
-            "525259fa17": "スタックの詳細は一時的に利用できなくなります。"
           },
           "CreateHostedReviewBasePicker": {
             "205ef284fa": "ベースブランチ",
@@ -13389,27 +13245,6 @@
           "WorktreeListSlide": {
             "c5ad56786d": "スピナー"
           }
-        },
-        "NetworkInterfacePicker": {
-          "trigger-label": "通知するネットワークアドレス",
-          "custom-option": "{{address}}（カスタム）",
-          "add-custom": "カスタムアドレスを追加…",
-          "no-address-selected": "アドレスが選択されていません",
-          "custom-section": "カスタム",
-          "remove-custom": "{{address}} を削除"
-        },
-        "WindowsFirewallNotice": {
-          "repair-success": "Windows ファイアウォールで、プライベートネットワーク上の Orca Mobile を許可しました",
-          "repair-failed": "Windows ファイアウォールのルールを更新できませんでした",
-          "public-title": "Windows は、このネットワークをパブリックとして扱っています",
-          "missing-title": "Windows ファイアウォールでスマートフォンからの接続を許可",
-          "public-description": "Orca モバイル接続を許可する前に、この信頼されたWi-Fiネットワークをプライベートに変更してください。",
-          "missing-description": "Windowsがペアリングサーバーをブロックする可能性があります。プライベートネットワーク上のこの Orca アプリとTCPポート{{port}}のルールを追加してください。",
-          "open-settings": "ネットワーク設定を開く",
-          "repair-unverified": "Windows ファイアウォールのアクセスを確認できませんでした",
-          "blocked-title": "Windowsが Orca モバイルをブロックしている可能性があります",
-          "blocked-description": "既存のインバウンドブロックルールがペアリング例外を上書きする可能性があります。修復はこの Orca アプリの競合するTCPルールを削除し、プライベートネットワーク上のポート{{port}}を許可します。",
-          "relay-note": "ペアリングは Orca Relay 経由で引き続き機能します。許可すると、より高速なローカル接続が追加されるだけです。"
         }
       },
       "gitlab": {
@@ -15849,14 +15684,6 @@
           "8490e5d36a": "確認する",
           "56f5c60e0c": "キャンセル",
           "92bac3217e": "今後表示しない"
-        },
-        "skip": {
-          "saved": "次回からはこの確認は省略させていただきます。",
-          "savedDescription": "これは設定で変更できます。",
-          "openSettings": "設定を開く",
-          "preference": {
-            "0b0cb6e3f9": "確認設定を保存できませんでした。"
-          }
         }
       },
       "jira": {
@@ -16145,18 +15972,6 @@
           "copy": "コピー"
         }
       },
-      "orca": {
-        "profiles": {
-          "signout": {
-            "confirm": {
-              "title": "Orca からログアウトしますか？",
-              "description": "このデバイスで Orca からログアウトします。ローカルのプロジェクトとワークツリーには影響しません。",
-              "cancel": "キャンセル",
-              "action": "サインアウト"
-            }
-          }
-        }
-      },
       "linear-issue-attribute-filter-dropdowns": {
         "removeFilter": "{{value0}} フィルターを解除",
         "teamRequired": "このワークスペースのステータス、担当者、ラベルを読み込むにはチームを選択してください。",
@@ -16234,13 +16049,6 @@
         "useManualTerminalWorktreeParking": {
           "cannotPark": "これらのターミナルは安全に退避できません。"
         }
-      },
-      "pr-check-counts": {
-        "passingChip": "{{value0}} 通過",
-        "failingChip": "{{value0}} 件失敗",
-        "pendingChip": "{{value0}} 件保留中",
-        "needsActionChip": "{{value0}} 件の対応が必要",
-        "unresolvedChip": "{{value0}} 件未解決"
       },
       "artifacts": {
         "ArtifactsPage": {

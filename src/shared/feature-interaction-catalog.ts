@@ -31,7 +31,6 @@ export type FeatureInteractionId =
   | 'ephemeral-vm-setup'
   | 'mobile-emulator-agent-setup'
   | 'ai-commit-generation'
-  | 'ai-pr-generation'
   | 'claude-account-switching'
   | 'computer-use-setup'
   | 'computer-use'
@@ -112,7 +111,6 @@ export const FEATURE_INTERACTIONS = [
     id: 'ai-commit-generation',
     interaction: 'AI commit message generation enabled or used'
   },
-  { id: 'ai-pr-generation', interaction: 'AI pull request generation used' },
   {
     id: 'claude-account-switching',
     interaction: 'Claude managed account added, selected, reauthenticated, or removed'

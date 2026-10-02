@@ -33,10 +33,14 @@ export function isPluginCommandAliasActionId(value: string): value is PluginComm
   return PLUGIN_COMMAND_ALIAS_ACTION_ID_SET.has(value)
 }
 
+const PLUGIN_COMMAND_LEGACY_NOOP_ACTION_ID_SET = new Set<string>(
+  PLUGIN_COMMAND_LEGACY_NOOP_ACTION_IDS
+)
+
 export function isPluginCommandLegacyNoopActionId(
   value: string
 ): value is PluginCommandLegacyNoopActionId {
-  return (PLUGIN_COMMAND_LEGACY_NOOP_ACTION_IDS as readonly string[]).includes(value)
+  return PLUGIN_COMMAND_LEGACY_NOOP_ACTION_ID_SET.has(value)
 }
 
 export function isPluginCommandActionId(value: string): value is PluginCommandActionId {

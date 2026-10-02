@@ -4761,17 +4761,11 @@
           "skillOther": "{{count}} skills",
           "sourceOne": "{{count}} source",
           "sourceOther": "{{count}} sources",
-          "fileOne": "{{count}} file",
-          "fileOther": "{{count}} files",
           "resultOne": "{{count}} result",
           "resultOther": "{{count}} results",
           "selected": "{{count}} selected",
           "shareOne": "Share {{count}} skill",
           "shareOther": "Share {{count}} skills",
-          "installOne": "Install {{count}} skill",
-          "installOther": "Install {{count}} skills",
-          "retryOne": "Retry {{count}} skill",
-          "retryOther": "Retry {{count}} skills",
           "linkOne": "{{count}} link",
           "linkOther": "{{count}} links",
           "deleteOne": "Delete {{count}} skill",
@@ -4808,10 +4802,6 @@
           "newVersionDescriptionPlain": "Adds a new version to the existing link.",
           "accessSummaryShort": "Unlisted link — anyone with it can install this. Publishing as {{value0}}.",
           "accessSummaryPlain": "Unlisted link — anyone with it can install this."
-        },
-        "description": {
-          "showLess": "Show less",
-          "showMore": "Show more"
         },
         "install": {
           "authorizing": "Authorizing package access…",
@@ -8015,18 +8005,6 @@
           "cloudVmWorkflow": "Cloud VM",
           "cloudVmWorkflowHelp": "Manage recipe-created cloud machines"
         },
-        "RuntimePairingUrlGenerator": {
-          "279e0dcb57": "127.0.0.1 only works on this computer. Use a LAN, Tailscale, or custom address for another device.",
-          "de6d5cff95": "This computer (",
-          "b91e36a986": "web",
-          "custom-option": "{{address}} (custom)",
-          "add-custom": "Add custom address…",
-          "custom-title": "Custom connection address",
-          "custom-description": "Advertise an address another device can reach — a LAN or Tailscale host, or a full ws(s):// URL.",
-          "custom-hint": "Enter a host, host:port, or a ws(s):// URL.",
-          "custom-cancel": "Cancel",
-          "custom-use": "Use address"
-        },
         "Settings": {
           "3bf149e873": "Project Settings > {{value0}}",
           "075341c763": "New features that are still taking shape. Give them a try.",
@@ -10119,26 +10097,6 @@
             "380a788da7": "SSH Connections"
           }
         },
-        "tasks": {
-          "search": {
-            "58cda6f9c0": "hide",
-            "44083ae418": "display",
-            "604d8e4089": "atlassian",
-            "5430396e11": "jira",
-            "412ec3c702": "linear",
-            "11f001cdd4": "gitlab",
-            "c10ac2125e": "github",
-            "3d81c26d78": "source",
-            "cf0e3e0c2f": "provider",
-            "2ec54bee51": "tasks",
-            "5b8e4aace5": "Task Providers",
-            "providersDescription": "Connect task providers, install the Linear agent skill, and choose what appears in Tasks.",
-            "setup": "setup",
-            "apiKey": "api key",
-            "skill": "skill",
-            "connect": "connect"
-          }
-        },
         "terminal": {
           "clipboard": {
             "search": {
@@ -10988,12 +10946,6 @@
           "unavailable": "Unavailable",
           "standby": "Standby — no relay devices"
         },
-        "MachineNameField": {
-          "label": "Machine name",
-          "description": "Other devices and hosts see “{{name}}”. Leave this blank to use the computer’s own name.",
-          "pending": "Other devices and hosts see this name. Leave it blank to use the detected computer name.",
-          "placeholder": "Detected automatically"
-        },
         "MobileRelayBetaAvailability": {
           "about": "About the Orca Relay beta",
           "beta": "Beta",
@@ -11023,20 +10975,6 @@
           "title": "Editor Font Family",
           "description": "Font used by file editors and diff views. Leave empty to follow the terminal font.",
           "placeholder": "Same as terminal font"
-        },
-        "GeneralRemoteServerUpdates": {
-          "serverCount": "{{value0}} paired servers",
-          "availableCount": "{{value0}} ready to update",
-          "currentCount": "{{value0}} up to date",
-          "manualCount": "{{value0}} manual",
-          "offlineCount": "{{value0}} offline",
-          "title": "Remote Orca Servers",
-          "description": "Check and update paired Orca servers from this client.",
-          "updating": "Updating servers…",
-          "reviewUpdates": "{{value0}} updates available",
-          "reviewServers": "Check for Server Updates",
-          "serverCountOne": "1 paired server",
-          "reviewUpdateOne": "1 update available"
         },
         "RemoteServerUpdateDialog": {
           "versionUnavailable": "Version unavailable",
@@ -12593,44 +12531,6 @@
               }
             }
           },
-          "gitlab": {
-            "mr": {
-              "merge": {
-                "state": {
-                  "04a3015a12": "Able to merge",
-                  "53c6d3b7e9": "GitLab says this MR can merge, but the pipeline is still running",
-                  "65c847ad1e": "Checks pending",
-                  "b41fbc180c": "GitLab says this MR can merge, but some pipeline jobs failed",
-                  "49ac4fec10": "Checks failed",
-                  "22b7e50621": "GitLab reports merge conflicts",
-                  "96b05e374c": "Conflicts",
-                  "d63bb6f76e": "This merge request is still a draft",
-                  "b2715092c6": "Draft",
-                  "2388413f28": "This merge request is closed",
-                  "88d044c42f": "Closed",
-                  "ee482a2bad": "This merge request is already merged",
-                  "fae95ae20d": "Merged",
-                  "5105b0e584": "Approval required",
-                  "46dc85711b": "GitLab requires approval before this MR can merge",
-                  "893a999c8c": "Changes requested",
-                  "c65408a99d": "A reviewer requested changes on this merge request",
-                  "01ab632a21": "Unresolved threads",
-                  "4191fdfcec": "GitLab requires unresolved discussions to be resolved before merge",
-                  "bf628700f6": "Checks must pass",
-                  "37d8637c70": "GitLab requires the pipeline to succeed before this MR can merge",
-                  "049ea91a82": "The pipeline is still running",
-                  "382c70faeb": "Behind",
-                  "2c61100b3a": "Update the branch before merging",
-                  "195917574e": "Checking",
-                  "ff6db2db63": "GitLab is still computing this merge request status",
-                  "4ecc0d90ee": "Blocked",
-                  "a0f3de7023": "GitLab reports this merge request is blocked",
-                  "804ecf93e8": "GitLab has not reported a final merge status",
-                  "a5c049afe4": "GitLab says this MR can merge"
-                }
-              }
-            }
-          },
           "index": {
             "70893f017b": "Side",
             "7b415c39e9": "Top",
@@ -12652,22 +12552,6 @@
             "aiVaultSessionHistory": "Agents",
             "folderWorkspaces": "Attached worktrees",
             "parentPrChecks": "PR Checks"
-          },
-          "right": {
-            "panel": {
-              "comment": {
-                "composer": {
-                  "9bca633dee": "Cancel",
-                  "cf5a7aba6f": "List",
-                  "d6d9c3c947": "Quote",
-                  "f49e0a21e0": "Code",
-                  "542bf6a7e2": "Italic",
-                  "256300f8ea": "Bold",
-                  "87aff03d63": "Sending...",
-                  "commentTooLarge": "Comment is too large to submit safely."
-                }
-              }
-            }
           },
           "source": {
             "control": {
@@ -13198,17 +13082,6 @@
                   "369aba4b32": "{{included}}GitHub will merge {{count}} pull requests atomically using {{method}}. If any cannot merge, none will.",
                   "493c78f521": "Merge {{count}} PR",
                   "eb7051d268": "Merge {{count}} PRs"
-                },
-                "merge": {
-                  "55ae29b907": "Merge through #{{pr}} · {{count}} PR",
-                  "b8446f6ec2": "Merge through #{{pr}} · {{count}} PRs",
-                  "189d0ec614": "#{{pr}} is still a draft.",
-                  "640fb50d9c": "#{{pr}} is closed.",
-                  "46ffcbda75": "#{{pr}} has merge conflicts.",
-                  "6dabefd63e": "#{{pr}} has requested changes.",
-                  "2bb21fc326": "#{{pr}} still needs review approval.",
-                  "c23faf74df": "#{{pr}} must be updated.",
-                  "f561e80968": "#{{pr}} is blocked."
                 }
               }
             }
@@ -13229,23 +13102,6 @@
             "mayBeSlower": "May be slower",
             "slowest": "Slowest",
             "unlimited": "Unlimited"
-          },
-          "GitHubPRStackMap": {
-            "3511405914": "closed",
-            "8a9bdc36c0": "merged",
-            "568c647ccd": "draft",
-            "bea9ade223": "conflicts",
-            "838aadf512": "checks failed",
-            "316039b5db": "checks pending",
-            "4b1e5ee9d3": "changes requested",
-            "9a17b5255c": "review needed",
-            "d3d97cf3f2": "approved",
-            "e6cb964305": "open",
-            "7737bd66be": "Collapse stack #{{value0}}",
-            "0c1645ebd0": "Expand stack #{{value0}}",
-            "e3ee2daa32": "Stack #{{value0}}",
-            "cb440931b7": "{{value0}} of {{value1}} · {{value2}}",
-            "525259fa17": "Stack details are temporarily unavailable."
           },
           "CreateHostedReviewBasePicker": {
             "205ef284fa": "Base branch",
@@ -13600,27 +13456,6 @@
           "WorktreeListSlide": {
             "c5ad56786d": "spinner"
           }
-        },
-        "NetworkInterfacePicker": {
-          "no-address-selected": "No address selected",
-          "trigger-label": "Network address to advertise",
-          "custom-option": "{{address}} (custom)",
-          "add-custom": "Add custom address…",
-          "custom-section": "Custom",
-          "remove-custom": "Remove {{address}}"
-        },
-        "WindowsFirewallNotice": {
-          "repair-success": "Windows Firewall now allows Orca Mobile on private networks",
-          "repair-failed": "Could not update the Windows Firewall rules",
-          "public-title": "Windows marks this network as public",
-          "missing-title": "Allow phone connections through Windows Firewall",
-          "public-description": "Change this trusted Wi-Fi network to Private before allowing Orca Mobile connections.",
-          "missing-description": "Windows may block the pairing server. Add a rule for this Orca app and TCP port {{port}} on Private networks.",
-          "open-settings": "Open network settings",
-          "repair-unverified": "Windows Firewall access could not be verified",
-          "blocked-title": "Windows may be blocking Orca Mobile",
-          "blocked-description": "An existing inbound Block rule can override the pairing exception. Repair removes conflicting TCP rules for this Orca app, then allows port {{port}} on Private networks.",
-          "relay-note": "Pairing still works over Orca Relay — allowing this only adds the faster local connection."
         }
       },
       "gitlab": {
@@ -16062,14 +15897,6 @@
           "8490e5d36a": "Confirm",
           "56f5c60e0c": "Cancel",
           "92bac3217e": "Don't ask again"
-        },
-        "skip": {
-          "saved": "We'll skip this confirmation next time.",
-          "savedDescription": "You can change this in Settings.",
-          "openSettings": "Open Settings",
-          "preference": {
-            "0b0cb6e3f9": "Could not save the confirmation preference."
-          }
         }
       },
       "jira": {
@@ -16358,18 +16185,6 @@
           "copy": "Copy"
         }
       },
-      "orca": {
-        "profiles": {
-          "signout": {
-            "confirm": {
-              "title": "Sign out of Orca?",
-              "description": "Artifacts and Orca Relay will be unavailable until you sign in again. Your local projects and worktrees won't be affected.",
-              "cancel": "Cancel",
-              "action": "Sign out"
-            }
-          }
-        }
-      },
       "linear-issue-attribute-filter-dropdowns": {
         "removeFilter": "Remove {{value0}} filter",
         "teamRequired": "Select a team to load status, assignees, and labels for this workspace.",
@@ -16458,13 +16273,6 @@
         "title": "Workspace created from a local base",
         "description": "The remote-tracking ref \"{{value0}}\" was unavailable, so Orca used local \"{{value1}}\" instead. This workspace may not include the latest remote changes.",
         "dismiss": "Got it"
-      },
-      "pr-check-counts": {
-        "passingChip": "{{value0}} passing",
-        "failingChip": "{{value0}} failing",
-        "pendingChip": "{{value0}} pending",
-        "needsActionChip": "{{value0}} action required",
-        "unresolvedChip": "{{value0}} unresolved"
       },
       "BrowserPane": {
         "streamConnectionLost": "Lost connection to the remote server.",

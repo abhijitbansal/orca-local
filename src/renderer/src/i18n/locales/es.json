@@ -3896,8 +3896,6 @@
           "skillOther": "{{count}} skills",
           "sourceOne": "{{count}} origen",
           "sourceOther": "{{count}} orígenes",
-          "fileOne": "{{count}} archivo",
-          "fileOther": "{{count}} archivos",
           "resultOne": "{{count}} resultado",
           "resultOther": "{{count}} resultados",
           "selected": "{{count}} seleccionadas",
@@ -6755,18 +6753,6 @@
           "cloudVmWorkflow": "VM en la nube",
           "cloudVmWorkflowHelp": "Gestionar máquinas en la nube creadas mediante recetas"
         },
-        "RuntimePairingUrlGenerator": {
-          "279e0dcb57": "127.0.0.1 solo funciona en esta computadora. Usa una LAN, Tailscale o una dirección personalizada para otro dispositivo.",
-          "de6d5cff95": "Esta computadora (",
-          "b91e36a986": "web",
-          "custom-option": "{{address}} (personalizada)",
-          "add-custom": "Añadir dirección personalizada…",
-          "custom-title": "Dirección de conexión personalizada",
-          "custom-description": "Anuncia una dirección que otro dispositivo pueda alcanzar: un host de LAN o Tailscale, o una URL ws(s):// completa.",
-          "custom-hint": "Introduce un host, host:puerto o una URL ws(s)://.",
-          "custom-cancel": "Cancelar",
-          "custom-use": "Usar dirección"
-        },
         "Settings": {
           "3bf149e873": "Configuración del proyecto > {{value0}}",
           "075341c763": "Nuevas funciones que aún están tomando forma. Pruébalas.",
@@ -8688,26 +8674,6 @@
             "380a788da7": "Conexiones SSH"
           }
         },
-        "tasks": {
-          "search": {
-            "58cda6f9c0": "ocultar",
-            "44083ae418": "mostrar",
-            "604d8e4089": "Atlassian",
-            "5430396e11": "jira",
-            "412ec3c702": "Linear",
-            "11f001cdd4": "gitlab",
-            "c10ac2125e": "github",
-            "3d81c26d78": "fuente",
-            "cf0e3e0c2f": "proveedor",
-            "2ec54bee51": "tareas",
-            "5b8e4aace5": "Proveedores de tareas",
-            "providersDescription": "Conecta proveedores de tareas, instala la habilidad de agente de Linear y elige qué aparece en Tareas.",
-            "setup": "configuración",
-            "apiKey": "clave de API",
-            "skill": "habilidad",
-            "connect": "conectar"
-          }
-        },
         "terminal": {
           "clipboard": {
             "search": {
@@ -9545,12 +9511,6 @@
           "unavailable": "Unavailable",
           "standby": "Standby — no relay devices"
         },
-        "MachineNameField": {
-          "label": "Nombre del equipo",
-          "description": "Otros dispositivos y hosts ven “{{name}}”. Déjalo en blanco para usar el nombre propio del equipo.",
-          "pending": "Otros dispositivos y hosts ven este nombre. Déjalo en blanco para usar el nombre detectado del equipo.",
-          "placeholder": "Detectado automáticamente"
-        },
         "MobileRelayBetaAvailability": {
           "about": "Acerca de la beta de Orca Relay",
           "beta": "Beta",
@@ -9580,20 +9540,6 @@
           "title": "Fuente del editor",
           "description": "Fuente utilizada por los editores de archivos y vistas de diferencias. Dejar vacío para seguir la fuente de la terminal.",
           "placeholder": "Igual que la fuente de la terminal"
-        },
-        "GeneralRemoteServerUpdates": {
-          "serverCount": "{{value0}} paired servers",
-          "availableCount": "{{value0}} ready to update",
-          "currentCount": "{{value0}} up to date",
-          "manualCount": "{{value0}} manual",
-          "offlineCount": "{{value0}} offline",
-          "title": "Remote Orca Servers",
-          "description": "Check and update paired Orca servers from this client.",
-          "updating": "Updating servers…",
-          "reviewUpdates": "{{value0}} updates available",
-          "reviewServers": "Server updates",
-          "serverCountOne": "1 paired server",
-          "reviewUpdateOne": "1 update available"
         },
         "RemoteServerUpdateDialog": {
           "versionUnavailable": "Version unavailable",
@@ -10839,27 +10785,6 @@
               }
             }
           },
-          "gitlab": {
-            "mr": {
-              "merge": {
-                "state": {
-                  "04a3015a12": "Se puede hacer merge",
-                  "53c6d3b7e9": "GitLab dice que este MR puede hacer merge, pero el pipeline sigue en ejecución",
-                  "65c847ad1e": "Checks pendientes",
-                  "b41fbc180c": "GitLab dice que este MR puede hacer merge, pero algunos jobs del pipeline fallaron",
-                  "49ac4fec10": "Los controles fallaron",
-                  "22b7e50621": "GitLab informa conflictos de merge",
-                  "96b05e374c": "Conflictos",
-                  "d63bb6f76e": "Este merge request aún está en borrador",
-                  "b2715092c6": "Borrador",
-                  "2388413f28": "Esta solicitud de fusión está cerrada",
-                  "88d044c42f": "Cerrado",
-                  "ee482a2bad": "Este merge request ya se hizo merge",
-                  "fae95ae20d": "Mergeado"
-                }
-              }
-            }
-          },
           "index": {
             "70893f017b": "Lado",
             "7b415c39e9": "Arriba",
@@ -10881,22 +10806,6 @@
             "aiVaultSessionHistory": "Agentes",
             "folderWorkspaces": "Worktrees adjuntos",
             "parentPrChecks": "Checks de PR"
-          },
-          "right": {
-            "panel": {
-              "comment": {
-                "composer": {
-                  "9bca633dee": "Cancelar",
-                  "cf5a7aba6f": "Lista",
-                  "d6d9c3c947": "Cita",
-                  "f49e0a21e0": "Código",
-                  "542bf6a7e2": "Cursiva",
-                  "256300f8ea": "Negrita",
-                  "87aff03d63": "Enviando...",
-                  "commentTooLarge": "El comentario es demasiado grande para enviarlo de forma segura."
-                }
-              }
-            }
           },
           "source": {
             "control": {
@@ -11671,24 +11580,6 @@
           "WorktreeListSlide": {
             "c5ad56786d": "hilandero"
           }
-        },
-        "NetworkInterfacePicker": {
-          "trigger-label": "Dirección de red para anunciar",
-          "custom-option": "{{address}} (personalizada)",
-          "add-custom": "Añadir dirección personalizada…"
-        },
-        "WindowsFirewallNotice": {
-          "repair-success": "Windows Firewall now allows Orca Mobile on private networks",
-          "repair-failed": "Could not update the Windows Firewall rules",
-          "public-title": "Windows marks this network as public",
-          "missing-title": "Allow phone connections through Windows Firewall",
-          "public-description": "Change this trusted Wi-Fi network to Private before allowing Orca Mobile connections.",
-          "missing-description": "Windows may block the pairing server. Add a rule for this Orca app and TCP port {{port}} on Private networks.",
-          "open-settings": "Open network settings",
-          "repair-unverified": "Windows Firewall access could not be verified",
-          "blocked-title": "Windows may be blocking Orca Mobile",
-          "blocked-description": "An existing inbound Block rule can override the pairing exception. Repair removes conflicting TCP rules for this Orca app, then allows port {{port}} on Private networks.",
-          "relay-note": "El emparejamiento sigue funcionando por Orca Relay: permitirlo solo añade la conexión local más rápida."
         }
       },
       "gitlab": {
@@ -14015,18 +13906,6 @@
           "copy": "Copiar"
         }
       },
-      "orca": {
-        "profiles": {
-          "signout": {
-            "confirm": {
-              "title": "¿Cerrar sesión en Orca?",
-              "description": "Se cerrará tu sesión de Orca en este dispositivo. Tus proyectos y worktrees locales no se verán afectados.",
-              "cancel": "Cancelar",
-              "action": "Cerrar sesión"
-            }
-          }
-        }
-      },
       "linear-issue-attribute-filter-dropdowns": {
         "removeFilter": "Eliminar filtro de {{value0}}",
         "teamRequired": "Selecciona un equipo para cargar el estado, asignatarios y etiquetas de este espacio de trabajo.",
@@ -14101,13 +13980,6 @@
         "useManualTerminalWorktreeParking": {
           "cannotPark": "These terminals cannot be parked safely."
         }
-      },
-      "pr-check-counts": {
-        "passingChip": "{{value0}} pasando",
-        "failingChip": "{{value0}} fallando",
-        "pendingChip": "{{value0}} pendiente",
-        "needsActionChip": "{{value0}} requiere acción",
-        "unresolvedChip": "{{value0}} sin resolver"
       },
       "artifacts": {
         "ArtifactsPage": {
