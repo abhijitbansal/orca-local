@@ -5881,22 +5881,7 @@
           "localNetworkOpenSettings": "システム設定を開く",
           "openSettingsFailed": "システム設定を開けませんでした",
           "localNetworkOpenSystemSettings": "システム設定を開く",
-          "statusManagedByMacOS": "macOS によって管理される",
-          "connectionTestInvalidTarget": "ホスト名またはプライベート LAN IP と 1 ～ 65535 のポートを入力します。",
-          "connectionTestTimeout": "接続がタイムアウトしました。ターゲット、サービス、および macOS ローカルネットワーク設定を確認してください。",
-          "connectionTestRefused": "ホストは応答しましたが、ポートが接続を拒否しました。",
-          "connectionTestUnreachable": "目標には到達できませんでした。",
-          "connectionTestUnresolved": "ホスト名を解決できませんでした。",
-          "connectionTestUnsupported": "接続テストは macOS デスクトップアプリで利用できます。",
-          "connectionTestFailed": "接続テストを完了できませんでした。",
-          "connectionTestTitle": "テスト接続",
-          "connectionTestDescription": "ローカルネットワーク上の別のデバイスでサービスを開始します。 Orca は、ターミナルツールで使用されるのと同じネットワークパスをテストします。",
-          "connectionTestLastVerified": "最終確認済み",
-          "connectionTestNotYetVerified": "成功したテストは保存されません。",
-          "connectionTestHost": "ホスト",
-          "connectionTestPort": "ポート",
-          "connectionTestRunning": "テスト中…",
-          "connectionTestAction": "テスト接続"
+          "statusManagedByMacOS": "macOS によって管理される"
         },
         "ExperimentalPane": {
           "9762364929": "可能な場合は macOS で APFS clone-copy を使用し、それ以外の場合は設定済みのフォルダーまたはファイルを作成済みワークツリーへシンボリックリンクします。",

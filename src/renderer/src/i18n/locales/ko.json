@@ -5881,22 +5881,7 @@
           "localNetworkOpenSettings": "시스템 설정 열기",
           "openSettingsFailed": "시스템 설정을 열 수 없습니다.",
           "localNetworkOpenSystemSettings": "시스템 설정 열기",
-          "statusManagedByMacOS": "macOS에서 관리됨",
-          "connectionTestInvalidTarget": "호스트 이름 또는 개인 LAN IP와 1~65535 사이의 포트를 입력하세요.",
-          "connectionTestTimeout": "연결 시간이 초과되었습니다. 대상, 서비스, macOS 로컬 네트워크 설정을 확인하세요.",
-          "connectionTestRefused": "호스트가 응답했지만 포트가 연결을 거부했습니다.",
-          "connectionTestUnreachable": "목표에 도달할 수 없습니다.",
-          "connectionTestUnresolved": "호스트 이름을 확인할 수 없습니다.",
-          "connectionTestUnsupported": "연결 테스트는 macOS 데스크탑 앱에서 가능합니다.",
-          "connectionTestFailed": "연결 테스트를 완료할 수 없습니다.",
-          "connectionTestTitle": "연결 테스트",
-          "connectionTestDescription": "로컬 네트워크의 다른 장치에 서비스를 입력하세요. Orca는 터미널 도구에서 사용되는 것과 동일한 네트워크 경로를 테스트합니다.",
-          "connectionTestLastVerified": "마지막 확인",
-          "connectionTestNotYetVerified": "성공한 테스트가 저장되지 않았습니다.",
-          "connectionTestHost": "주인",
-          "connectionTestPort": "포트",
-          "connectionTestRunning": "테스트 중...",
-          "connectionTestAction": "연결 테스트"
+          "statusManagedByMacOS": "macOS에서 관리됨"
         },
         "ExperimentalPane": {
           "9762364929": "가능하면 macOS에서 APFS clone-copy를 사용하고, 그렇지 않으면 구성된 폴더나 파일을 생성된 작업 트리에 심볼릭 링크합니다.",

@@ -32,26 +32,13 @@ export function createBrowserCookieImportActions(
             error: null
           })
         )
-        // Why: tracked across the try so a failed fallback RPC still reports the machine it ran on.
-        let ranOnClient = false
         try {
-          // Why: client-hosted pages render on this desktop, so their logins live
-          // here -- detecting and importing on the headless remote finds nothing.
-          const clientHostResult = await window.api.browser.sessionImportFromBrowserForClientHost({
-            environmentId: runtimeEnvironmentId,
-            profileId,
-            browserFamily,
-            browserProfile
-          })
-          ranOnClient = clientHostResult != null
-          const result =
-            clientHostResult ??
-            (await callRuntimeRpc<BrowserProfileImportFromBrowserResult>(
-              { kind: 'environment', environmentId: runtimeEnvironmentId },
-              'browser.profileImportFromBrowser',
-              { profileId, browserFamily, browserProfile, supportsPartitionSkippedCookies: true },
-              { timeoutMs: 30_000 }
-            ))
+          const result = await callRuntimeRpc<BrowserProfileImportFromBrowserResult>(
+            { kind: 'environment', environmentId: runtimeEnvironmentId },
+            'browser.profileImportFromBrowser',
+            { profileId, browserFamily, browserProfile, supportsPartitionSkippedCookies: true },
+            { timeoutMs: 30_000 }
+          )
           if (result.ok) {
             set((state) =>
               browserImportStateForHostUpdate(state, hostId, {
@@ -76,12 +63,7 @@ export function createBrowserCookieImportActions(
               })
             )
           }
-          return retainCookieImportExecutionHost(
-            result,
-            hostId,
-            executionHostLabel,
-            ranOnClient ? 'client' : 'remote'
-          )
+          return retainCookieImportExecutionHost(result, hostId, executionHostLabel, 'remote')
         } catch (err) {
           const reason = String((err as Error)?.message ?? err)
           set((state) =>
@@ -96,7 +78,7 @@ export function createBrowserCookieImportActions(
             { ok: false as const, reason },
             hostId,
             executionHostLabel,
-            ranOnClient ? 'client' : 'remote'
+            'remote'
           )
         }
       }

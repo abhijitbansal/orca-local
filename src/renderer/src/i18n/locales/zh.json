@@ -5881,22 +5881,7 @@
           "localNetworkOpenSettings": "打开系统设置",
           "openSettingsFailed": "无法打开系统设置",
           "localNetworkOpenSystemSettings": "打开系统设置",
-          "statusManagedByMacOS": "由 macOS 管理",
-          "connectionTestInvalidTarget": "输入主机名或专用 LAN IP 以及 1 到 65535 之间的端口。",
-          "connectionTestTimeout": "连接超时。检查目标、服务和 macOS 本地网络设置。",
-          "connectionTestRefused": "主机响应，但端口拒绝连接。",
-          "connectionTestUnreachable": "目标无法达到。",
-          "connectionTestUnresolved": "无法解析主机名。",
-          "connectionTestUnsupported": "连接测试可在 macOS 桌面应用程序中进行。",
-          "connectionTestFailed": "连接测试无法完成。",
-          "connectionTestTitle": "测试连接",
-          "connectionTestDescription": "输入本地网络上另一台设备上的服务。 Orca 测试终端工具使用的相同网络路径。",
-          "connectionTestLastVerified": "最后验证",
-          "connectionTestNotYetVerified": "未保存成功的测试。",
-          "connectionTestHost": "主持人",
-          "connectionTestPort": "端口",
-          "connectionTestRunning": "测试...",
-          "connectionTestAction": "测试连接"
+          "statusManagedByMacOS": "由 macOS 管理"
         },
         "ExperimentalPane": {
           "9762364929": "在可能时在 macOS 上使用 APFS clone-copy；否则，将配置的文件夹或文件符号链接到创建的工作树中。",

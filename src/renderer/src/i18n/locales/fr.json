@@ -5999,22 +5999,7 @@
           "localNetworkOpenSettings": "Ouvrir Réglages Système",
           "openSettingsFailed": "Impossible d'ouvrir Réglages Système",
           "localNetworkOpenSystemSettings": "Ouvrir Réglages Système",
-          "statusManagedByMacOS": "Géré par macOS",
-          "connectionTestInvalidTarget": "Saisissez un nom d'hôte ou une adresse IP privée du réseau local, et un port compris entre 1 et 65535.",
-          "connectionTestTimeout": "Délai de connexion dépassé. Vérifiez la cible, le service et les réglages Réseau local de macOS.",
-          "connectionTestRefused": "L'hôte a répondu, mais le port a refusé la connexion.",
-          "connectionTestUnreachable": "Impossible d'atteindre la cible.",
-          "connectionTestUnresolved": "Le nom d'hôte n'a pas pu être résolu.",
-          "connectionTestUnsupported": "Le test de connexion est disponible dans l'application de bureau macOS.",
-          "connectionTestFailed": "Le test de connexion n'a pas pu être effectué.",
-          "connectionTestTitle": "Tester la connexion",
-          "connectionTestDescription": "Saisissez un service situé sur un autre appareil de votre réseau local. Orca teste le même chemin réseau que celui utilisé par les outils de terminal.",
-          "connectionTestLastVerified": "Dernière vérification",
-          "connectionTestNotYetVerified": "Aucun test réussi enregistré.",
-          "connectionTestHost": "Hôte",
-          "connectionTestPort": "Port",
-          "connectionTestRunning": "Test en cours...",
-          "connectionTestAction": "Tester la connexion"
+          "statusManagedByMacOS": "Géré par macOS"
         },
         "ExperimentalPane": {
           "9762364929": "Utilise le clonage APFS sur macOS quand c'est possible, sinon crée des liens symboliques vers les dossiers ou fichiers configurés dans les worktrees créés.",

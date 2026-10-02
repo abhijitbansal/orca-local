@@ -3919,9 +3919,7 @@
         },
         {
           "file": "src/renderer/src/hooks/useIpcEvents-close-routing-session-tabs.test.ts",
-          "assertions": [
-            "explicit cleanup cannot close a page owned by another worktree"
-          ]
+          "assertions": ["explicit cleanup cannot close a page owned by another worktree"]
         },
         {
           "file": "src/renderer/src/store/slices/browser.test.ts",
@@ -3977,9 +3975,7 @@
         },
         {
           "file": "src/main/browser/doc-preview-failure-notice.test.ts",
-          "assertions": [
-            "413 and 415 map to distinct reasons and everything else stays generic"
-          ]
+          "assertions": ["413 and 415 map to distinct reasons and everything else stays generic"]
         },
         {
           "file": "src/renderer/src/lib/file-preview-action-visibility.test.tsx",
@@ -4036,9 +4032,7 @@
         },
         {
           "file": "src/shared/doc-preview-scheme.test.ts",
-          "assertions": [
-            "preview URLs round-trip per segment and reject a malformed grant id"
-          ]
+          "assertions": ["preview URLs round-trip per segment and reject a malformed grant id"]
         },
         {
           "file": "src/renderer/src/lib/doc-preview-grants.test.ts",
@@ -4375,31 +4369,28 @@
       "invariant": "A client-hosted browser network route exists only for an exact live server-owned browser-host lease, authority epoch, host generation, paired identity, execution-host revision or SSH provider authority, and server-owned route generation. A client page is usable only when its runtime ID, authority epoch, host identity and generation, logical page ID, page-host generation, current placement, and still-live lease all match atomically; a retired, retirement-pending, or server-placed page cannot be claimed as live client placement. Live logical placements and their identities are bounded, an occupied logical page cannot change placement until exact two-phase retirement completes, cancellation restores the same authority, and the runtime-wide page generation stays monotonic without tombstones. Server-issued page commands and results remain bounded, FIFO per page, immutable after admission, authenticated to the exact paired lease, attach connection, and live placement, and replayable only when byte-equivalent. Negotiated transient result-transport loss retains exact authority and replays unsettled commands through the preserved client dedupe cache; terminal authority loss makes outstanding outcomes unknown and makes only the exact host generation's placements non-cancellable retirement-pending until exact cleanup or reconciliation proof. Desktop composition installs exact command authority before delivery, keeps result settlements below nested-request capacity, suspends every tunnel without closing guests on negotiated loss, gates handlers through route recovery, and synchronously suspends routes and revokes exact retained navigation grants before asynchronous transport or handler cleanup on terminal loss. Navigation-revocation failure remains observable without preventing guest destruction and route cleanup. One environment pairing revision owns at most one composed desktop host and one reference-counted route per canonical execution-host key; pairing replacement and shutdown close control transport before pages and force-close routes even when guest cleanup remains ambiguous. Non-native descriptors require explicit capability negotiation and an exact runtime-minted lease-bound execution-host grant. Host selection never chooses arbitrarily, stale cleanup or settlement cannot remove a replacement, destination names remain unresolved until the execution host, credit returns only after writes settle, and route loss never falls back to desktop DNS or sockets. A main-owned local listener remains stable across upstream transport loss, rejects CONNECT while offline, accepts only a strictly newer tunnel generation, ignores superseded callbacks, and never reuses a stream ID within one generation. Pending opens, admitted open rate, nested control requests, per-route application bytes, aggregate browser-host/process bytes, claims, and socket sources remain bounded with exact release on settlement and retirement. Queued transport drain yields after a bounded quantum. The local SOCKS endpoint accepts only loopback CONNECT and rejects unsupported commands.",
       "oracle": "Attach two browser hosts and require unqualified selection to fail ambiguous while exact selection succeeds. Reject a second identity on one connection and a fifth identity for one paired device, release one exact lease, then admit its replacement without starving another device. Admit four hosts from one authenticated device and a host from a second, reject the first device's fifth host, and release only the first device's exact counters while the second remains live. Fill asks and hosts to their shared ceiling, retain a quarter of the total budget for ordinary waits, close both sockets, and prove every global, class, and device counter releases. Reject one initial host attach with the unchanged runtime_busy response, then require bounded client-specific jitter to attach when capacity returns; repeated rejection and explicit close must release every timer and subscription. Replace one same-device connection, require the old subscription and route to fence, then prove late old cleanup leaves the new generation live. Mint an exact execution-host grant, reject a different key, prove late old grant cleanup leaves its replacement, and invalidate every grant with lease replacement. Reject client-to-client, client-to-server, server-to-server, and server-to-client placement overwrite until exact retirement. Begin retirement once idempotently, reject client use and every replacement while pending, cancel the exact token to restore the same placement, and reject delayed cancellation or completion after a newer retirement begins. On explicit release, replacement, legacy disconnect, and reconnect-grace expiry, require only the exact host generation's client placements to become non-cancellable retirement-pending before lease settlement; preserve negotiated grace, other hosts, server placements, replacements, and capacity until exact completion. Complete only the exact pending token, retain capacity until completion, and require a reused client page ID to receive a higher global generation without retaining a tombstone. Require a client page through the exact runtime, epoch, host, and page tuple; reject every mismatch, released or replaced leases, retirement-pending pages, retired pages, server placements, invalid identities, and the 257th live placement. Admit 16 pending destination opens and reject the seventeenth until one connects; admit 128 opens in one monotonic 10-second window and reject the 129th until the window expires. Fill 8 MiB across destination-to-client queues and separately across unsettled client-to-destination writes, release one exact retired stream, admit one replacement, and require the next byte claim to close the route without stale-callback or reentrant-close underflow. Across multiple routes, charge application copies, encrypted queue entries, and dynamic native socket bytes to one 32 MiB browser-host and 128 MiB process ceiling; reject zero-byte claim/socket-source floods, fence released leases, synchronously release JavaScript queue claims while retaining native claims through exact socket close, and yield a parked queue after four frames without reordering. Route nested responses by exact ID under reordering, reject unknown and duplicate IDs, cap pending requests and queued bytes, and tear down every concurrent waiter once on timeout or close. Drive one real paired attach, command, and result through one exact connection ID; reject missing send support and malformed or wrong-runtime acknowledgements while preserving old non-v1 attaches. Drop an authenticated transport, require the same listener to reject CONNECT before and during reconnect, attach the exact existing native v1 payload and capability pair to a strictly newer generation, ignore late old callbacks, and roll an exhausted stream-ID ledger only by replacing the generation. Require SSH descriptors to add an execution-host capability and exact grant, reject missing grants and stale provider authority before resolver or binary registration, pass exact domains to ssh2 and system-SSH SOCKS without local resolution, sanitize connector diagnostics, and close every stream and standalone route process once on timeout, synchronous failure, or rotation. Drive the accepted lease through real paired E2EE native SOCKS-to-HTTP and ephemeral Docker ssh2 remote-only DNS journeys, then exercise exact frame, credit, half-close, stale-stream, remote-DNS, unsupported-command, offline, and teardown assertions.",
       "commands": [
-        "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-route-webcontents-registry.test.ts src/main/browser/browser-client-page-unavailability.test.ts src/main/browser/paired-runtime-browser-client-host-reconnect.test.ts src/main/browser/paired-runtime-browser-client-host-composition.test.ts src/main/runtime/runtime-browser-client-page-recovery.test.ts src/main/runtime/rpc/methods/session-tab-browser-placement-mutations.test.ts src/main/runtime/rpc/methods/session-tab-browser-placement-projection.test.ts",
+        "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-route-webcontents-registry.test.ts src/main/browser/browser-client-page-unavailability.test.ts src/main/runtime/runtime-browser-client-page-recovery.test.ts src/main/runtime/rpc/methods/session-tab-browser-placement-mutations.test.ts src/main/runtime/rpc/methods/session-tab-browser-placement-projection.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/main/runtime/browser-host-page-retirement.test.ts src/main/runtime/browser-host-page-placement-replacement.test.ts src/main/runtime/browser-host-page-placement.test.ts src/main/runtime/browser-host-lease-registry.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/main/runtime/browser-host-lease-placement-retirement.test.ts src/main/runtime/browser-host-page-retirement.test.ts src/main/runtime/browser-host-page-placement-replacement.test.ts src/main/runtime/browser-host-page-placement.test.ts src/main/runtime/browser-host-lease-registry.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/main/runtime/browser-host-page-reconciliation-plan.test.ts src/main/runtime/browser-host-page-reconciliation-executor.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/main/runtime/browser-host-page-reconciliation-orchestration.test.ts src/main/runtime/browser-host-command-ledger.test.ts src/main/runtime/browser-host-page-placement.test.ts src/main/runtime/browser-host-lease-registry.test.ts",
-        "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-reconciliation-protocol.test.ts src/main/browser/paired-runtime-browser-host-reconciliation-negotiation.test.ts src/main/runtime/rpc/methods/browser-client-host-reconciliation.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/browser/paired-runtime-browser-client-host.test.ts",
-        "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/browser/browser-client-host-attach-request.test.ts src/main/browser/browser-client-page-command-executor.test.ts src/main/browser/browser-client-page-command-integration.test.ts src/main/browser/browser-client-page-inventory.test.ts src/main/browser/paired-runtime-browser-client-host-composition.test.ts src/main/browser/paired-runtime-browser-client-host.test.ts src/main/browser/paired-runtime-browser-host-lease.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts src/main/runtime/browser-host-page-reconciliation-plan.test.ts",
-        "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-client-host-reconciliation-command-order.test.ts src/main/browser/browser-client-page-reconciliation-adapters.test.ts src/main/browser/browser-route-prepared-page-rekey.test.ts",
+        "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-reconciliation-protocol.test.ts src/main/runtime/rpc/methods/browser-client-host-reconciliation.test.ts src/main/runtime/browser-host-lease-registry.test.ts",
+        "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/browser/browser-client-page-command-executor.test.ts src/main/browser/browser-client-page-inventory.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts src/main/runtime/browser-host-page-reconciliation-plan.test.ts",
+        "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-client-page-reconciliation-adapters.test.ts src/main/browser/browser-route-prepared-page-rekey.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-network-capabilities.test.ts src/shared/browser-network-tunnel-protocol.test.ts src/main/browser/browser-network-tunnel-session.test.ts src/main/browser/remote-browser-socks-server.test.ts",
-        "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/browser/paired-runtime-browser-network-route.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts",
+        "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-network-tunnel-outbound-memory-budget.test.ts src/main/browser/browser-network-tunnel-client-memory-budget.test.ts src/main/browser/browser-network-tunnel-session-aggregate-memory.test.ts src/shared/ws-outbound-backpressure-queue.test.ts src/shared/remote-runtime-client.test.ts",
-        "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/shared/ws-outbound-backpressure-queue.test.ts src/shared/remote-runtime-client.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts src/main/browser/paired-runtime-browser-host-lease.test.ts src/main/browser/paired-runtime-browser-network-route.test.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/browser/browser-network-tunnel-client-memory-budget.test.ts src/main/browser/browser-network-tunnel-session.test.ts src/main/browser/browser-network-tunnel-session-aggregate-memory.test.ts src/main/browser/browser-network-tunnel-outbound-memory-budget.test.ts src/main/browser/remote-browser-socks-server.test.ts",
-        "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts src/main/browser/paired-runtime-browser-host-lease.test.ts src/main/browser/paired-runtime-browser-network-route.test.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/browser/browser-network-tunnel-session.test.ts src/main/browser/remote-browser-socks-server.test.ts",
+        "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/shared/ws-outbound-backpressure-queue.test.ts src/shared/remote-runtime-client.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/browser/browser-network-tunnel-client-memory-budget.test.ts src/main/browser/browser-network-tunnel-session.test.ts src/main/browser/browser-network-tunnel-session-aggregate-memory.test.ts src/main/browser/browser-network-tunnel-outbound-memory-budget.test.ts src/main/browser/remote-browser-socks-server.test.ts",
+        "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/browser/browser-network-tunnel-session.test.ts src/main/browser/remote-browser-socks-server.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/shared/remote-runtime-client.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/shared/remote-runtime-subscription-request.test.ts",
-        "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-client-host-command-dispatcher.test.ts",
-        "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/paired-runtime-browser-client-host.test.ts src/main/browser/paired-runtime-browser-host-lease.test.ts src/main/browser/browser-client-host-command-dispatcher.test.ts",
-        "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/paired-runtime-browser-client-host.test.ts src/main/browser/paired-runtime-browser-client-host-reconnect.test.ts src/main/browser/paired-runtime-browser-host-lease.test.ts src/main/browser/paired-runtime-browser-host-lease-reconnect.test.ts src/main/browser/browser-host-lease-reconnect-delay.test.ts src/main/browser/browser-client-host-command-dispatcher.test.ts",
-        "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/paired-runtime-browser-host-lease-reconnect.test.ts",
-        "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/browser/browser-client-host-attach-request.test.ts src/main/browser/browser-client-network-route-registry.test.ts src/main/browser/paired-runtime-browser-client-host-composition.test.ts src/main/browser/paired-runtime-browser-client-host.test.ts src/main/browser/paired-runtime-browser-client-host-reconnect.test.ts src/main/browser/paired-runtime-browser-host-lease.test.ts src/main/browser/paired-runtime-browser-host-lease-reconnect.test.ts src/main/browser/browser-host-lease-reconnect-delay.test.ts src/main/browser/paired-runtime-browser-network-route.test.ts src/main/runtime/browser-host-command-ledger.test.ts src/main/runtime/browser-host-command-ledger-capacity.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts",
-        "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/browser/browser-client-host-attach-request.test.ts src/main/browser/browser-client-network-route-registry.test.ts src/main/browser/paired-runtime-browser-client-host-composition.test.ts src/main/browser/paired-runtime-browser-client-host.test.ts src/main/browser/paired-runtime-browser-client-host-reconnect.test.ts src/main/browser/paired-runtime-browser-host-lease.test.ts src/main/browser/paired-runtime-browser-host-lease-reconnect.test.ts src/main/browser/browser-host-lease-reconnect-delay.test.ts src/main/browser/paired-runtime-browser-network-route.test.ts src/main/runtime/browser-host-command-ledger.test.ts src/main/runtime/browser-host-command-ledger-capacity.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts",
-        "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/browser/browser-client-host-attach-request.test.ts src/main/browser/browser-client-network-route-registry.test.ts src/main/browser/paired-runtime-browser-client-host-composition.test.ts src/main/browser/paired-runtime-browser-client-host.test.ts src/main/browser/paired-runtime-browser-client-host-reconnect.test.ts src/main/browser/paired-runtime-browser-host-lease.test.ts src/main/browser/paired-runtime-browser-host-lease-reconnect.test.ts src/main/browser/browser-host-lease-reconnect-delay.test.ts src/main/browser/paired-runtime-browser-network-route.test.ts src/main/runtime/browser-host-command-ledger.test.ts src/main/runtime/browser-host-command-ledger-capacity.test.ts src/main/runtime/browser-host-lease-placement-retirement.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts",
-        "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-client-network-route-registry.test.ts src/main/browser/paired-runtime-browser-client-host-composition.test.ts src/main/browser/paired-runtime-browser-client-host-registry.test.ts src/main/browser/paired-runtime-browser-client-host-runtime.test.ts src/main/browser/browser-client-page-command-executor.test.ts src/main/browser/browser-session-startup.test.ts src/main/ipc/runtime-environments-subscription-teardown.test.ts",
+        "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-host-lease-reconnect-delay.test.ts",
+        "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/browser/browser-client-network-route-registry.test.ts src/main/browser/browser-host-lease-reconnect-delay.test.ts src/main/runtime/browser-host-command-ledger.test.ts src/main/runtime/browser-host-command-ledger-capacity.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts",
+        "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/browser/browser-client-network-route-registry.test.ts src/main/browser/browser-host-lease-reconnect-delay.test.ts src/main/runtime/browser-host-command-ledger.test.ts src/main/runtime/browser-host-command-ledger-capacity.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts",
+        "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/browser/browser-client-network-route-registry.test.ts src/main/browser/browser-host-lease-reconnect-delay.test.ts src/main/runtime/browser-host-command-ledger.test.ts src/main/runtime/browser-host-command-ledger-capacity.test.ts src/main/runtime/browser-host-lease-placement-retirement.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts",
+        "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-client-network-route-registry.test.ts src/main/browser/browser-client-page-command-executor.test.ts src/main/browser/browser-session-startup.test.ts src/main/ipc/runtime-environments-subscription-teardown.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/main/runtime/browser-host-command-ledger.test.ts src/main/runtime/browser-host-command-ledger-capacity.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts",
-        "pnpm exec vitest run --config config/vitest.config.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/browser/browser-network-deferred-socket.test.ts src/main/browser/browser-network-execution-route.test.ts src/main/browser/paired-runtime-browser-network-route.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts src/main/browser/ssh-browser-network-execution-route.test.ts src/main/browser/system-ssh-socks-client-socket.test.ts src/main/ssh/system-ssh-dynamic-forward-process.test.ts src/shared/browser-client-host-protocol.test.ts src/shared/browser-network-capabilities.test.ts src/main/ssh/system-ssh-forward-process.test.ts src/main/ssh/ssh-system-fallback.test.ts src/main/ssh/ssh-port-forward.test.ts",
+        "pnpm exec vitest run --config config/vitest.config.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/browser/browser-network-deferred-socket.test.ts src/main/browser/browser-network-execution-route.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts src/main/browser/ssh-browser-network-execution-route.test.ts src/main/browser/system-ssh-socks-client-socket.test.ts src/main/ssh/system-ssh-dynamic-forward-process.test.ts src/shared/browser-client-host-protocol.test.ts src/shared/browser-network-capabilities.test.ts src/main/ssh/system-ssh-forward-process.test.ts src/main/ssh/ssh-system-fallback.test.ts src/main/ssh/ssh-port-forward.test.ts",
         "ORCA_RUN_DOCKER_SSH_BROWSER_E2E=1 pnpm exec vitest run --config config/vitest.config.ts tests/e2e/ssh-browser-network-execution-route.docker.unit.test.ts",
         "ORCA_RUN_DOCKER_SSH_BROWSER_E2E=1 node_modules/.bin/vitest run --config config/vitest.config.ts tests/e2e/ssh-browser-network-execution-route.docker.unit.test.ts"
       ],
@@ -4425,26 +4416,14 @@
         "src/main/runtime/browser-host-lease-registry.test.ts",
         "src/main/runtime/rpc/methods/browser-client-host.test.ts",
         "src/main/runtime/rpc/methods/browser-client-host-reconciliation.test.ts",
-        "src/main/browser/paired-runtime-browser-host-lease.test.ts",
-        "src/main/browser/paired-runtime-browser-host-lease-reconnect.test.ts",
-        "src/main/browser/paired-runtime-browser-host-reconciliation-negotiation.test.ts",
         "src/main/browser/browser-host-lease-reconnect-delay.test.ts",
-        "src/main/browser/paired-runtime-browser-client-host.test.ts",
-        "src/main/browser/paired-runtime-browser-client-host-reconnect.test.ts",
         "src/main/browser/browser-client-network-route-registry.test.ts",
-        "src/main/browser/paired-runtime-browser-client-host-composition.test.ts",
-        "src/main/browser/paired-runtime-browser-client-host-registry.test.ts",
-        "src/main/browser/paired-runtime-browser-client-host-runtime.test.ts",
-        "src/main/browser/browser-client-host-attach-request.test.ts",
-        "src/main/browser/browser-client-host-reconciliation-command-order.test.ts",
         "src/main/browser/browser-client-page-command-executor.test.ts",
-        "src/main/browser/browser-client-page-command-integration.test.ts",
         "src/main/browser/browser-client-page-reconciliation-adapters.test.ts",
         "src/main/browser/browser-client-page-inventory.test.ts",
         "src/main/browser/browser-route-prepared-page-rekey.test.ts",
         "src/main/browser/browser-session-startup.test.ts",
         "src/main/ipc/runtime-environments-subscription-teardown.test.ts",
-        "src/main/browser/browser-client-host-command-dispatcher.test.ts",
         "src/main/browser/browser-network-tunnel-session.test.ts",
         "src/main/browser/browser-network-tunnel-session-aggregate-memory.test.ts",
         "src/main/browser/browser-network-tunnel-client.test.ts",
@@ -4452,7 +4431,6 @@
         "src/main/browser/browser-network-tunnel-outbound-memory-budget.test.ts",
         "src/main/browser/browser-network-deferred-socket.test.ts",
         "src/main/browser/browser-network-execution-route.test.ts",
-        "src/main/browser/paired-runtime-browser-network-route.test.ts",
         "src/main/browser/ssh-browser-network-execution-route.test.ts",
         "src/main/browser/system-ssh-socks-client-socket.test.ts",
         "src/main/ssh/system-ssh-dynamic-forward-process.test.ts",
@@ -4560,101 +4538,10 @@
           ]
         },
         {
-          "file": "src/main/browser/paired-runtime-browser-host-lease.test.ts",
-          "assertions": [
-            "a client requests commands only with a delivery handler and accepts them only after an exact v1 echo",
-            "an old host that omits the echo cannot deliver a command",
-            "one complete inventory snapshot is sampled before attach, a missing echo stays unsupported, and an unsolicited echo closes the lease",
-            "stale authority commands close the exact lease before handler delivery",
-            "completed and failed results submit exact command authority on the established subscription",
-            "missing result transport, handler failure, server rejection, and malformed or wrong-runtime acknowledgement close the lease",
-            "exact duplicate result acknowledgement remains idempotent",
-            "result settlement concurrency stays below nested-request capacity and excess unsettled results fail closed"
-          ]
-        },
-        {
-          "file": "src/main/browser/paired-runtime-browser-host-lease-reconnect.test.ts",
-          "assertions": [
-            "initial runtime_busy admission retries on bounded deterministic jitter and attaches when capacity returns",
-            "initial admission expiry and explicit close release every timer and subscription",
-            "runtime_busy during negotiated reconnect remains inside the existing grace without replacing authority",
-            "only an echoed reconnect v1 plus complete inventory preserves exact authority after recoverable transport loss",
-            "duplicate and stale transport callbacks cannot start extra attempts or fence the current subscription",
-            "repeated reconnects retain bounded timers and subscriptions while authority changes and explicit revocation fail terminally",
-            "missing echo preserves legacy teardown and grace expiry closes every retained attempt exactly once",
-            "malformed and unsolicited reconnect echoes fail closed",
-            "outstanding command replay reuses exact active result admissions without double-charging settlement capacity",
-            "an unencodable reconnect inventory cannot silently replace exact authority or fall back to legacy"
-          ]
-        },
-        {
-          "file": "src/main/browser/paired-runtime-browser-host-reconciliation-negotiation.test.ts",
-          "assertions": [
-            "the optional reconciliation request is retained only after exact ready echo",
-            "an older host can omit the echo without enabling reconciliation",
-            "unsolicited and dependency-inconsistent echoes fail closed",
-            "exact reconnect rejects reconciliation downgrade"
-          ]
-        },
-        {
           "file": "src/main/browser/browser-host-lease-reconnect-delay.test.ts",
           "assertions": [
             "client-specific retry jitter is deterministic and remains inside exponential, two-second, and grace ceilings",
             "invalid timer delays fail before starting a subscription"
-          ]
-        },
-        {
-          "file": "src/main/browser/paired-runtime-browser-client-host.test.ts",
-          "assertions": [
-            "reconciliation is advertised only when the composed host explicitly enables it beside complete inventory",
-            "exact dispatcher authority exists before the first same-socket command can arrive",
-            "explicit close shuts transport before aborting every owned page handler",
-            "dispatcher abort still runs when lease cleanup rejects",
-            "lease transport failure aborts every owned handler and reports one terminal error",
-            "retirement and forgetting accept only the exact owned page generation",
-            "timed-out retirement stays fenced until the exact late handler settles",
-            "bounded host close exposes exact eventual settlement for deferred page cleanup"
-          ]
-        },
-        {
-          "file": "src/main/browser/paired-runtime-browser-client-host-reconnect.test.ts",
-          "assertions": [
-            "an acknowledged mutation replay uses the preserved dispatcher result without rerunning its handler"
-          ]
-        },
-        {
-          "file": "src/main/browser/paired-runtime-browser-client-host-composition.test.ts",
-          "assertions": [
-            "exact route authority activates before the first page command",
-            "each initial or reconnect attach samples a fresh exact executor inventory while the compatibility gate binds to the latest published snapshot",
-            "control loss suspends routes without closing pages and command admission waits for exact route recovery",
-            "one command gate spans repeated loss while stale route recoveries cannot close the replacement",
-            "page retirement settles dispatcher ownership before guest cleanup and ledger forget",
-            "terminal close suspends routes and fences every navigation grant before control cleanup can await handlers",
-            "shutdown closes control transport before executor pages and every retained route",
-            "non-settling handlers remove network reach immediately and defer page cleanup until exact late settlement",
-            "deferred executor cleanup failures remain fenced and emit an observable composition error",
-            "same-pairing runtime replacement retires old routes, fences guest navigation, waits for old handlers, and activates retained inventory only after exact reconciliation echo",
-            "a legacy replacement remains available for empty inventory but cannot activate routes for unreconciled retained pages",
-            "retired-route cleanup failure closes the composition before replacement authority can activate",
-            "late callbacks from a replaced host generation cannot suspend or close its replacement",
-            "cleanly absent failed creates are forgotten while unresolved cleanup remains fenced"
-          ]
-        },
-        {
-          "file": "src/main/browser/browser-client-host-attach-request.test.ts",
-          "assertions": [
-            "an unencodable optional inventory is omitted without changing legacy page-command negotiation",
-            "reconnect negotiation is emitted only beside an encoded complete inventory"
-          ]
-        },
-        {
-          "file": "src/main/browser/browser-client-host-reconciliation-command-order.test.ts",
-          "assertions": [
-            "reclaim, restore, and close are valid first commands only after exact reconciliation negotiation",
-            "reclaim and restore failure cancels later navigation without running it",
-            "nested prior authority is immutable and exact duplicate matching rejects mutation on both ledgers",
-            "successful close is terminal while failed close releases the fence and successful reclaim can continue with navigation"
           ]
         },
         {
@@ -4693,29 +4580,10 @@
           ]
         },
         {
-          "file": "src/main/browser/browser-client-page-command-integration.test.ts",
-          "assertions": [
-            "spontaneous exact guest destruction revokes active inventory before explicit page retirement"
-          ]
-        },
-        {
           "file": "src/main/browser/browser-client-page-inventory.test.ts",
           "assertions": [
             "optional URLs compact by deterministic codepoint order without dropping required page identity",
             "an unencodable complete snapshot declines inventory negotiation instead of dropping a page"
-          ]
-        },
-        {
-          "file": "src/main/browser/paired-runtime-browser-client-host-registry.test.ts",
-          "assertions": [
-            "one environment pairing revision shares one host composition",
-            "a same-pairing runtime change preserves that composition and delegates exact authority replacement",
-            "a failed authority replacement retains a cleanup tombstone and cannot expose a half-active successor",
-            "a changed pairing revision closes before its replacement starts",
-            "unsettled host cleanup retains a bounded tombstone, blocks replacement, and releases only when deferred cleanup proves completion",
-            "unresolved deferred cleanup remains fail-closed until authenticated reconciliation or process restart",
-            "environment retirement permits a later exact restart",
-            "app shutdown permanently fences new host admission before closing every environment"
           ]
         },
         {
@@ -4731,25 +4599,6 @@
             "authority retirement blocks admission and reconnect while retaining suspended SSH routes until exact page release",
             "final shutdown force-closes retained retired routes",
             "registry shutdown closes every route and rejects later admission"
-          ]
-        },
-        {
-          "file": "src/main/browser/paired-runtime-browser-client-host-runtime.test.ts",
-          "assertions": ["pairing resolution failures preserve the asynchronous start contract"]
-        },
-        {
-          "file": "src/main/browser/browser-client-host-command-dispatcher.test.ts",
-          "assertions": [
-            "commands execute FIFO per page while only exact payload-matched duplicates replay without rerunning side effects",
-            "authority, sequence, generation, and create dependencies fence stale or ambiguous commands",
-            "failed admission consumes no page authority and every resource class stays bounded",
-            "retirement and close cancel immediately but retain a fence until non-cooperative handlers settle",
-            "bounded close exposes one exact eventual-settlement barrier after late handlers finish",
-            "a handler cannot reenter retirement before its bounded join is installed",
-            "an abort listener cannot reenter before the shared retirement operation is published",
-            "retiring a queued generation removes its stale scheduler entry before replacement",
-            "forgotten pages retain a global stale-generation floor and cached results have a global ceiling",
-            "lease authority and command identity are immutable snapshots while replacement releases retired cache"
           ]
         },
         {
@@ -4874,23 +4723,6 @@
           ]
         },
         {
-          "file": "src/main/browser/paired-runtime-browser-network-route.test.ts",
-          "assertions": [
-            "route teardown closes a subscription that resolves after startup cancellation",
-            "close after subscription acquisition settles the pending readiness wait",
-            "post-auth readiness has a deadline and runtime close tears down the local route",
-            "listener teardown failures remain visible to the route owner",
-            "the route binds and releases its exact host/process memory lease and four-frame drain quantum",
-            "one listener stays fail-closed and address-stable through reconnect",
-            "replacement generations advance strictly and remain fenced after ready-close races",
-            "reconnect retains the exact existing native v1 attach payload and capability pair",
-            "only an SSH descriptor adds the execution-host capability",
-            "late superseded callbacks cannot replace or close the current transport",
-            "a current-generation protocol failure retires the transport and remains reconnectable",
-            "stream-ID exhaustion replaces the generation before recycling an ID"
-          ]
-        },
-        {
           "file": "src/main/browser/browser-network-deferred-socket.test.ts",
           "assertions": [
             "destroy before source attachment emits one close and destroys a late source",
@@ -4975,7 +4807,7 @@
           "date": "2026-08-15",
           "runner": "local",
           "platform": "macos",
-          "command": "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/browser/browser-client-host-attach-request.test.ts src/main/browser/browser-client-network-route-registry.test.ts src/main/browser/paired-runtime-browser-client-host-composition.test.ts src/main/browser/paired-runtime-browser-client-host.test.ts src/main/browser/paired-runtime-browser-client-host-reconnect.test.ts src/main/browser/paired-runtime-browser-host-lease.test.ts src/main/browser/paired-runtime-browser-host-lease-reconnect.test.ts src/main/browser/browser-host-lease-reconnect-delay.test.ts src/main/browser/paired-runtime-browser-network-route.test.ts src/main/runtime/browser-host-command-ledger.test.ts src/main/runtime/browser-host-command-ledger-capacity.test.ts src/main/runtime/browser-host-lease-placement-retirement.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts",
+          "command": "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/browser/browser-client-network-route-registry.test.ts src/main/browser/browser-host-lease-reconnect-delay.test.ts src/main/runtime/browser-host-command-ledger.test.ts src/main/runtime/browser-host-command-ledger-capacity.test.ts src/main/runtime/browser-host-lease-placement-retirement.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts",
           "result": "passed",
           "durationSeconds": 3.61,
           "summary": "On the #14753 tip, sixteen files passed 167 exact terminal navigation/route fencing, retained reconnect grace, placement retirement, attach, command, result, route recovery, admission, and mixed-version protocol assertions. The new composition oracle was 1 failed / 10 passed before implementation because terminal host loss started asynchronous close without first suspending routes or revoking navigation."
@@ -4993,16 +4825,7 @@
           "date": "2026-08-15",
           "runner": "local",
           "platform": "macos",
-          "command": "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/paired-runtime-browser-host-lease-reconnect.test.ts",
-          "result": "passed",
-          "durationSeconds": 7.89,
-          "summary": "On origin/main@5b7f44278a, two files passed 16 authenticated per-device/global browser-host admission, shared wait reservation, exact socket-counter release, bounded initial runtime_busy retry, explicit-close cleanup, and reconnect-grace authority-preservation tests."
-        },
-        {
-          "date": "2026-08-15",
-          "runner": "local",
-          "platform": "macos",
-          "command": "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/browser/browser-client-host-attach-request.test.ts src/main/browser/browser-client-network-route-registry.test.ts src/main/browser/paired-runtime-browser-client-host-composition.test.ts src/main/browser/paired-runtime-browser-client-host.test.ts src/main/browser/paired-runtime-browser-client-host-reconnect.test.ts src/main/browser/paired-runtime-browser-host-lease.test.ts src/main/browser/paired-runtime-browser-host-lease-reconnect.test.ts src/main/browser/browser-host-lease-reconnect-delay.test.ts src/main/browser/paired-runtime-browser-network-route.test.ts src/main/runtime/browser-host-command-ledger.test.ts src/main/runtime/browser-host-command-ledger-capacity.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts",
+          "command": "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/browser/browser-client-network-route-registry.test.ts src/main/browser/browser-host-lease-reconnect-delay.test.ts src/main/runtime/browser-host-command-ledger.test.ts src/main/runtime/browser-host-command-ledger-capacity.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts",
           "result": "passed",
           "durationSeconds": 7.18,
           "summary": "On origin/main@5b7f44278a, fifteen files passed 159 mixed-version attach, exact authority, bounded admission and recovery, reconnect, route suspension, page-command replay, result-ledger, and authenticated lease tests."
@@ -5011,7 +4834,7 @@
           "date": "2026-08-14",
           "runner": "local",
           "platform": "macos",
-          "command": "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/browser/browser-client-host-attach-request.test.ts src/main/browser/browser-client-network-route-registry.test.ts src/main/browser/paired-runtime-browser-client-host-composition.test.ts src/main/browser/paired-runtime-browser-client-host.test.ts src/main/browser/paired-runtime-browser-client-host-reconnect.test.ts src/main/browser/paired-runtime-browser-host-lease.test.ts src/main/browser/paired-runtime-browser-host-lease-reconnect.test.ts src/main/browser/browser-host-lease-reconnect-delay.test.ts src/main/browser/paired-runtime-browser-network-route.test.ts src/main/runtime/browser-host-command-ledger.test.ts src/main/runtime/browser-host-command-ledger-capacity.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts",
+          "command": "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/browser/browser-client-network-route-registry.test.ts src/main/browser/browser-host-lease-reconnect-delay.test.ts src/main/runtime/browser-host-command-ledger.test.ts src/main/runtime/browser-host-command-ledger-capacity.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts",
           "result": "passed",
           "durationSeconds": 2.23,
           "summary": "Fourteen files passed 150 negotiated same-client reconnect, legacy skew, active takeover, exact authority, immediate route suspension, independently bounded route retry, stable fail-closed SOCKS, ready-before-replay, completed-mutation dedupe, partial-replay delivery recovery, repeated-loss, stale-callback, explicit-revocation, grace cleanup, and deterministic jittered-backoff tests."
@@ -5020,19 +4843,10 @@
           "date": "2026-08-14",
           "runner": "local",
           "platform": "macos",
-          "command": "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/browser/browser-client-host-attach-request.test.ts src/main/browser/browser-client-page-command-executor.test.ts src/main/browser/browser-client-page-command-integration.test.ts src/main/browser/browser-client-page-inventory.test.ts src/main/browser/paired-runtime-browser-client-host-composition.test.ts src/main/browser/paired-runtime-browser-client-host.test.ts src/main/browser/paired-runtime-browser-host-lease.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts src/main/runtime/browser-host-page-reconciliation-plan.test.ts",
+          "command": "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/browser/browser-client-page-command-executor.test.ts src/main/browser/browser-client-page-inventory.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts src/main/runtime/browser-host-page-reconciliation-plan.test.ts",
           "result": "passed",
           "durationSeconds": 7.3,
           "summary": "Eleven files passed 145 exact inventory negotiation, 256-page and 768 KiB atomic bounds, worst-case JSON-escaped inventory identities, deterministic optional-URL compaction, legacy-command preservation when inventory is unencodable, legacy strip, immutable authenticated lease snapshot, strict v1/duplicate/foreign-client rejection, paired-device-bound previous-runtime restart admission, missing and unsolicited echo, create-to-active deduplication, renderer/guest-stale outcome-unknown classification, normalized URL bounds, composition sampling, RPC retention, and reconciliation tests."
-        },
-        {
-          "date": "2026-08-14",
-          "runner": "local",
-          "platform": "macos",
-          "command": "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/paired-runtime-browser-client-host.test.ts src/main/browser/paired-runtime-browser-host-lease.test.ts src/main/browser/browser-client-host-command-dispatcher.test.ts",
-          "result": "passed",
-          "durationSeconds": 0.8,
-          "summary": "Fifty tests passed synchronous authority activation, hard 16/256 result bounds, exact transport-close-before-handler-abort ordering, cleanup rejection with guaranteed abort, same-socket result settlement, exact page retirement and forgetting, and late non-cooperative retirement settlement. The broader runtime/browser/shared run passed 9,711 tests with 24 existing skips."
         },
         {
           "date": "2026-08-14",
@@ -5047,15 +4861,6 @@
           "date": "2026-08-14",
           "runner": "local",
           "platform": "macos",
-          "command": "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-client-host-command-dispatcher.test.ts",
-          "result": "passed",
-          "durationSeconds": 0.2,
-          "summary": "Sixteen tests passed immutable lease/command/result snapshots, exact-authority FIFO dispatch, payload-matched duplicate replay, transactional bounded admission, create dependency failure, stale and forgotten-generation fencing, scheduler replacement, retired-cache release, per-page and global cached-result expiry, pre-abort shared retirement publication, deduplicated/reentrant joining, cancellation, and bounded close."
-        },
-        {
-          "date": "2026-08-14",
-          "runner": "local",
-          "platform": "macos",
           "command": "pnpm exec vitest run --config config/vitest.config.ts src/main/runtime/browser-host-command-ledger.test.ts src/main/runtime/browser-host-command-ledger-capacity.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts",
           "result": "passed",
           "durationSeconds": 1.88,
@@ -5065,7 +4870,7 @@
           "date": "2026-08-14",
           "runner": "local",
           "platform": "macos",
-          "command": "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/shared/ws-outbound-backpressure-queue.test.ts src/shared/remote-runtime-client.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts src/main/browser/paired-runtime-browser-host-lease.test.ts src/main/browser/paired-runtime-browser-network-route.test.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/browser/browser-network-tunnel-client-memory-budget.test.ts src/main/browser/browser-network-tunnel-session.test.ts src/main/browser/browser-network-tunnel-session-aggregate-memory.test.ts src/main/browser/browser-network-tunnel-outbound-memory-budget.test.ts src/main/browser/remote-browser-socks-server.test.ts",
+          "command": "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/shared/ws-outbound-backpressure-queue.test.ts src/shared/remote-runtime-client.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/browser/browser-network-tunnel-client-memory-budget.test.ts src/main/browser/browser-network-tunnel-session.test.ts src/main/browser/browser-network-tunnel-session-aggregate-memory.test.ts src/main/browser/browser-network-tunnel-outbound-memory-budget.test.ts src/main/browser/remote-browser-socks-server.test.ts",
           "result": "passed",
           "durationSeconds": 3.9,
           "summary": "Sixteen files passed 154 bounded page-command negotiation, legacy ready/revoked compatibility, exact authority, unnegotiated and stale-command delivery, lease, tunnel, memory, flow-control, SOCKS, and paired E2EE tests."
@@ -5083,7 +4888,7 @@
           "date": "2026-08-14",
           "runner": "local",
           "platform": "macos",
-          "command": "pnpm exec vitest run --config config/vitest.config.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/browser/browser-network-deferred-socket.test.ts src/main/browser/browser-network-execution-route.test.ts src/main/browser/paired-runtime-browser-network-route.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts src/main/browser/ssh-browser-network-execution-route.test.ts src/main/browser/system-ssh-socks-client-socket.test.ts src/main/ssh/system-ssh-dynamic-forward-process.test.ts src/shared/browser-client-host-protocol.test.ts src/shared/browser-network-capabilities.test.ts src/main/ssh/system-ssh-forward-process.test.ts src/main/ssh/ssh-system-fallback.test.ts src/main/ssh/ssh-port-forward.test.ts",
+          "command": "pnpm exec vitest run --config config/vitest.config.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/browser/browser-network-deferred-socket.test.ts src/main/browser/browser-network-execution-route.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts src/main/browser/ssh-browser-network-execution-route.test.ts src/main/browser/system-ssh-socks-client-socket.test.ts src/main/ssh/system-ssh-dynamic-forward-process.test.ts src/shared/browser-client-host-protocol.test.ts src/shared/browser-network-capabilities.test.ts src/main/ssh/system-ssh-forward-process.test.ts src/main/ssh/ssh-system-fallback.test.ts src/main/ssh/ssh-port-forward.test.ts",
           "result": "passed",
           "durationSeconds": 2.6,
           "summary": "Thirteen files passed 142 structural route-key, native-shape, live lease-bound SSH grant, startup cancellation, diagnostic redaction, deferred-socket release, capability negotiation, exact SSH authority and client, ssh2 forwarding, standalone system-SSH dynamic-forward, active-probe cleanup, static-forward option reuse, internal SOCKS domain, and exact release tests."
@@ -5101,7 +4906,7 @@
           "date": "2026-08-14",
           "runner": "local",
           "platform": "macos",
-          "command": "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/shared/ws-outbound-backpressure-queue.test.ts src/shared/remote-runtime-client.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts src/main/browser/paired-runtime-browser-host-lease.test.ts src/main/browser/paired-runtime-browser-network-route.test.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/browser/browser-network-tunnel-client-memory-budget.test.ts src/main/browser/browser-network-tunnel-session.test.ts src/main/browser/browser-network-tunnel-session-aggregate-memory.test.ts src/main/browser/browser-network-tunnel-outbound-memory-budget.test.ts src/main/browser/remote-browser-socks-server.test.ts",
+          "command": "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/shared/ws-outbound-backpressure-queue.test.ts src/shared/remote-runtime-client.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/browser/browser-network-tunnel-client-memory-budget.test.ts src/main/browser/browser-network-tunnel-session.test.ts src/main/browser/browser-network-tunnel-session-aggregate-memory.test.ts src/main/browser/browser-network-tunnel-outbound-memory-budget.test.ts src/main/browser/remote-browser-socks-server.test.ts",
           "result": "passed",
           "durationSeconds": 7.7,
           "summary": "Sixteen files passed 131 route, lease, aggregate application/encrypted/native memory, exact release, bounded-drain, stable-listener and protocol-failure reconnect, v1 reattach compatibility, generation/stream-ID fencing, SOCKS, and real paired E2EE tests; the full runtime-RPC suite separately passed 1,349 tests with one skip."
@@ -5110,7 +4915,7 @@
           "date": "2026-08-14",
           "runner": "local",
           "platform": "macos",
-          "command": "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts src/main/browser/paired-runtime-browser-host-lease.test.ts src/main/browser/paired-runtime-browser-network-route.test.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/browser/browser-network-tunnel-session.test.ts src/main/browser/remote-browser-socks-server.test.ts",
+          "command": "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/browser/browser-network-tunnel-session.test.ts src/main/browser/remote-browser-socks-server.test.ts",
           "result": "passed",
           "durationSeconds": 6.9,
           "summary": "Eleven files passed 73 admission, lease, route-generation, bidirectional retained-byte/chunk, pending-open/rate, exact-release, SOCKS, and real paired E2EE tests; the full runtime-RPC suite separately passed 1,347 tests with one skip."
@@ -5119,7 +4924,7 @@
           "date": "2026-08-14",
           "runner": "local",
           "platform": "macos",
-          "command": "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts src/main/browser/paired-runtime-browser-host-lease.test.ts src/main/browser/paired-runtime-browser-network-route.test.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/browser/browser-network-tunnel-session.test.ts src/main/browser/remote-browser-socks-server.test.ts",
+          "command": "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/browser/browser-network-tunnel-session.test.ts src/main/browser/remote-browser-socks-server.test.ts",
           "result": "passed",
           "durationSeconds": 3.4,
           "summary": "Eleven files passed 67 lease, reserved long-poll and host admission, token-safe placement retirement, authority, capability, route-generation, adversarial-revocation, lifecycle, flow-control, SOCKS, and real paired E2EE tests."
@@ -5137,7 +4942,7 @@
           "date": "2026-08-14",
           "runner": "local",
           "platform": "macos",
-          "command": "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/browser/paired-runtime-browser-network-route.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts",
+          "command": "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts",
           "result": "passed",
           "durationSeconds": 4.7,
           "summary": "Five files passed 19 source-flow, settled-consumption, chunk-bound, ordered-close, readiness-deadline, cleanup-failure, binary-routing, attach-authorization, and real paired-runtime E2EE SOCKS-to-HTTP tests."
@@ -5472,13 +5277,12 @@
       "invariant": "A prepared route page binds its opaque authority to one exact main-observed renderer WebContents while that page generation is active or retiring. Before requesting a blank guest, the production command executor must retain the exact execution-host route, verify its key, and prepare the route/profile partition for one still-current renderer generation. Main sends the approved opaque partition and exact page generation, but no target URL, through one bounded request admitted against the exact current renderer object and document generation; only a schema-valid reply from that same object, request, operation, and page generation can settle it. Preload accepts requests only in the top frame, binds outcomes to the admitted request, fails overflow and unavailable subscribers within a bounded interval, and fences callbacks replaced by a newer document subscriber. Renderer retains each blank webview under one non-React document host keyed by the exact partition, page ID, and generation, never reparents it, and holds an attached or process-lost generation until exact destruction. Renderer replacement, WebContents-ID reuse, abort, timeout, malformed reply, disposal, and process loss fence pending work without admitting a late reply. Renderer-document replacement retires before commit, while blocked external navigation is ignored and failed or cancelled provisional navigation restores only the exact surviving frame. A WebContents whose Electron Session has belonged to a prepared route partition is quarantined synchronously after generic guest policy installation, including when page authority disappears between will-attach and did-attach. It must be a live blank webview owned by the exact renderer WebContents. Nonblank navigation remains denied until main matches the exact partition, browser page, page-host generation, guest WebContents, renderer WebContents, and opaque live page authority, then issues a separate grant. Every later navigation rechecks the same opaque guest incarnation and page authority, so reusing a logical tuple or WebContents ID cannot revive a stale guest. Releasing that authority, losing or destroying the guest process, or losing its owning renderer before, during, or after registration synchronously fences pending authority admission, ends exact logical authority, revokes navigation, and closes any attached guest through the same retirement barrier. Failed, aborted, or retired creation attempts revoke the exact guest and renderer mount before releasing the Session and route, attempt every safe cleanup, and never clear or admit a replacement generation after uncertain cleanup. Session and route release require exact guest destruction proof; an ambiguous mount outcome retains them. If close is delayed or fails, the partition stays outside attachment admission and route policies remain installed until the exact destroyed acknowledgement. Route popups remain denied throughout. Active and retiring page maps and pending renderer requests are bounded, stale callbacks cannot retire or clear replacements, and non-route browser guests retain existing behavior.",
       "oracle": "Prepare a page for one renderer and require authority lookup and registration by a sibling renderer to fail; reject owner replacement while the generation is active or retiring, then lose the owning renderer before guest registration and require only its prepared pages to retire. Pause partition setup, lose the owner, and require its waiter to fail without authority; add a live sibling waiter to the same pending setup and require only that waiter to admit; exceed the configured waiter cap and require immediate refusal. Make policy cleanup throw in the first of two owned partitions and require the sweep to retire both without restoring admission. Through the production executor, retain one exact route, prepare its partition, mount blank on one current renderer, register and grant the exact guest in order, then load only its normalized HTTP(S) URL. Queue renderer requests before subscription, replace one subscriber, overflow both request and page budgets, race attachment with retirement, delay guest identity until DOM readiness, lose the guest renderer, and require exact bounded settlement without reparenting or cross-partition collision. Under real Electron, require the main bridge to accept only the actual main-frame reply, match the positive renderer WebContents ID to did-attach-webview, destroy it on retirement, and reject and remove a denied unprepared guest. Reject a mismatched route, stale renderer or page generation, and file URL without touching Chromium. Abort or fail registration after mount and require exact guest, renderer, Session, and route cleanup in that order; make renderer cleanup reject but require destruction before later release, and keep the generation fenced from replacement. Make guest retirement fail or mount outcome ambiguous and require every safe cleanup while Session and route remain retained. Destroy a guest spontaneously before command cleanup, reuse its WebContents identity, and require the old opaque claim not to retire the replacement while the replacement claim still can. Attach a blank route guest and require nonblank navigation plus every popup to be denied. Reject a wrong renderer, wrong page generation, nonblank initial document, wrong WebContents type, destroyed guest, and excess attachment; delay or fail its close and require navigation and popups to remain denied. Register the exact prepared tuple and prove navigation remains denied until a second grant; then allow repeated HTTP(S) navigation while continuing to deny file navigation and popups. Release logical page authority with delayed guest close; require immediate navigation revocation, one exact close, no partition admission, no policy cleanup, and same-tuple preparation refusal until destroyed acknowledgement. Make destroyed inspection throw and require retirement plus navigation to remain fail-closed until the explicit destroyed event. Acknowledge destruction, require one policy cleanup, reprepare the tuple, replay stale acknowledgement, and prove the replacement remains admitted. Make retirement startup throw and require policy plus capacity to remain fail-closed. Retire two pages sharing one partition and require cleanup only after both exact acknowledgements. Emit guest render-process-gone and destroyed, and emit owning-renderer process loss through the main-window boundary; require exact logical retirement, close, and grant revocation while unrelated renderer guests and prepared pages survive. Reject retirement for the wrong opaque authority. Reprepare after ordinary release, require a new opaque authority, deny the stale guest, and admit an exact replacement. Destroy a registered guest under real destroyed state, verify best-effort listener release, replay stale cleanup, and prove its replacement remains grantable. Mutate caller input after registration and prove main-owned authority is unchanged. Attach a normal browser Session and require no route-registry mutation.",
       "commands": [
-        "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-client-page-command-executor.test.ts src/main/browser/browser-client-page-command-integration.test.ts src/main/browser/browser-client-page-renderer-bridge.test.ts src/main/browser/browser-client-page-renderer-lifecycle.electron.test.ts src/main/browser/browser-client-page-renderer-runtime.test.ts src/main/browser/browser-route-session-registry.test.ts src/main/browser/browser-route-webcontents-registry.test.ts src/preload/browser-client-page-renderer-requests.test.ts src/renderer/src/components/browser-pane/browser-client-page-retained-registry.test.ts src/renderer/src/components/browser-pane/browser-client-page-renderer-installation.test.ts src/main/window/createMainWindow.test.ts src/main/window/renderer-document-navigation.test.ts",
-        "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-client-page-command-executor.test.ts src/main/browser/browser-client-page-command-integration.test.ts src/main/browser/browser-client-page-renderer-bridge.test.ts src/main/browser/browser-client-page-renderer-runtime.test.ts src/main/browser/browser-route-session-registry.test.ts src/main/browser/browser-route-webcontents-registry.test.ts src/main/window/createMainWindow.test.ts src/main/window/renderer-document-navigation.test.ts",
+        "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-client-page-command-executor.test.ts src/main/browser/browser-client-page-renderer-bridge.test.ts src/main/browser/browser-client-page-renderer-lifecycle.electron.test.ts src/main/browser/browser-client-page-renderer-runtime.test.ts src/main/browser/browser-route-session-registry.test.ts src/main/browser/browser-route-webcontents-registry.test.ts src/preload/browser-client-page-renderer-requests.test.ts src/renderer/src/components/browser-pane/browser-client-page-retained-registry.test.ts src/renderer/src/components/browser-pane/browser-client-page-renderer-installation.test.ts src/main/window/createMainWindow.test.ts src/main/window/renderer-document-navigation.test.ts",
+        "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-client-page-command-executor.test.ts src/main/browser/browser-client-page-renderer-bridge.test.ts src/main/browser/browser-client-page-renderer-runtime.test.ts src/main/browser/browser-route-session-registry.test.ts src/main/browser/browser-route-webcontents-registry.test.ts src/main/window/createMainWindow.test.ts src/main/window/renderer-document-navigation.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-client-page-reconciliation-adapters.test.ts src/main/browser/browser-route-prepared-page-rekey.test.ts"
       ],
       "testFiles": [
         "src/main/browser/browser-client-page-command-executor.test.ts",
-        "src/main/browser/browser-client-page-command-integration.test.ts",
         "src/main/browser/browser-client-page-reconciliation-adapters.test.ts",
         "src/main/browser/browser-client-page-renderer-bridge.test.ts",
         "src/main/browser/browser-client-page-renderer-lifecycle.electron.test.ts",
@@ -5501,12 +5305,6 @@
             "abort, failed registration, ambiguous mount, and retirement attempt every safe exact cleanup without releasing network resources before destruction proof or admitting a replacement after failure",
             "close racing creation cannot retain a late page, cleanly absent creates remain forgettable, and unresolved cleanup stays generation-fenced",
             "navigation fencing revokes retained exact claims once and rejects late in-flight creation before guest registration or grant"
-          ]
-        },
-        {
-          "file": "src/main/browser/browser-client-page-command-integration.test.ts",
-          "assertions": [
-            "a fresh new-authority dispatcher reclaims an old-authority executor page while real route Session and WebContents registries preserve exact cleanup"
           ]
         },
         {
@@ -5609,7 +5407,7 @@
           "date": "2026-08-15",
           "runner": "local",
           "platform": "macos",
-          "command": "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-client-page-command-executor.test.ts src/main/browser/browser-client-page-command-integration.test.ts src/main/browser/browser-client-page-renderer-bridge.test.ts src/main/browser/browser-client-page-renderer-lifecycle.electron.test.ts src/main/browser/browser-client-page-renderer-runtime.test.ts src/main/browser/browser-route-session-registry.test.ts src/main/browser/browser-route-webcontents-registry.test.ts src/preload/browser-client-page-renderer-requests.test.ts src/renderer/src/components/browser-pane/browser-client-page-retained-registry.test.ts src/renderer/src/components/browser-pane/browser-client-page-renderer-installation.test.ts src/main/window/createMainWindow.test.ts src/main/window/renderer-document-navigation.test.ts",
+          "command": "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-client-page-command-executor.test.ts src/main/browser/browser-client-page-renderer-bridge.test.ts src/main/browser/browser-client-page-renderer-lifecycle.electron.test.ts src/main/browser/browser-client-page-renderer-runtime.test.ts src/main/browser/browser-route-session-registry.test.ts src/main/browser/browser-route-webcontents-registry.test.ts src/preload/browser-client-page-renderer-requests.test.ts src/renderer/src/components/browser-pane/browser-client-page-retained-registry.test.ts src/renderer/src/components/browser-pane/browser-client-page-renderer-installation.test.ts src/main/window/createMainWindow.test.ts src/main/window/renderer-document-navigation.test.ts",
           "result": "passed",
           "durationSeconds": 1.22,
           "summary": "On the candidate atop #14753, twelve files passed 132 exact opaque-claim navigation revocation, in-flight create fencing, revocation-error cleanup, retained guest destruction separation, route Session, renderer bridge/registry, Electron lifecycle, and main-window document assertions."
@@ -5618,7 +5416,7 @@
           "date": "2026-08-14",
           "runner": "local",
           "platform": "macos",
-          "command": "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-client-page-command-executor.test.ts src/main/browser/browser-client-page-command-integration.test.ts src/main/browser/browser-client-page-renderer-bridge.test.ts src/main/browser/browser-client-page-renderer-runtime.test.ts src/main/browser/browser-route-session-registry.test.ts src/main/browser/browser-route-webcontents-registry.test.ts src/main/window/createMainWindow.test.ts src/main/window/renderer-document-navigation.test.ts",
+          "command": "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-client-page-command-executor.test.ts src/main/browser/browser-client-page-renderer-bridge.test.ts src/main/browser/browser-client-page-renderer-runtime.test.ts src/main/browser/browser-route-session-registry.test.ts src/main/browser/browser-route-webcontents-registry.test.ts src/main/window/createMainWindow.test.ts src/main/window/renderer-document-navigation.test.ts",
           "result": "passed",
           "durationSeconds": 0.8,
           "summary": "Eight files and 174 tests passed deterministic route retention, trusted-renderer create ordering, exact renderer WebContents and main-frame-document fencing, subframe and stale-frame rejection, wrong-page and wrong-operation rejection, timeout/send/collision settlement, renderer-document replacement retirement, blocked external and same-document preservation, failed provisional restoration, stale same-URL failure rejection during a live replacement, concurrent failure plus blocked replacement convergence, production IPC wiring, composed real Session/WebContents registry lifecycle, abort and cleanup fencing, Session-index and prepared-owner fencing, bounded pending waiters, late/rejected route-WebContents quarantine, opaque-authority and process-loss fencing, fail-closed shared-partition release barriers, exact registration and navigation, popup denial, and main-window ordering tests."
@@ -5627,7 +5425,7 @@
           "date": "2026-08-14",
           "runner": "local",
           "platform": "macos",
-          "command": "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-client-page-command-executor.test.ts src/main/browser/browser-client-page-command-integration.test.ts src/main/browser/browser-client-page-renderer-bridge.test.ts src/main/browser/browser-client-page-renderer-lifecycle.electron.test.ts src/main/browser/browser-client-page-renderer-runtime.test.ts src/main/browser/browser-route-session-registry.test.ts src/main/browser/browser-route-webcontents-registry.test.ts src/preload/browser-client-page-renderer-requests.test.ts src/renderer/src/components/browser-pane/browser-client-page-retained-registry.test.ts src/renderer/src/components/browser-pane/browser-client-page-renderer-installation.test.ts src/main/window/createMainWindow.test.ts src/main/window/renderer-document-navigation.test.ts",
+          "command": "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-client-page-command-executor.test.ts src/main/browser/browser-client-page-renderer-bridge.test.ts src/main/browser/browser-client-page-renderer-lifecycle.electron.test.ts src/main/browser/browser-client-page-renderer-runtime.test.ts src/main/browser/browser-route-session-registry.test.ts src/main/browser/browser-route-webcontents-registry.test.ts src/preload/browser-client-page-renderer-requests.test.ts src/renderer/src/components/browser-pane/browser-client-page-retained-registry.test.ts src/renderer/src/components/browser-pane/browser-client-page-renderer-installation.test.ts src/main/window/createMainWindow.test.ts src/main/window/renderer-document-navigation.test.ts",
           "result": "passed",
           "durationSeconds": 2.7,
           "summary": "Twelve files and 199 tests passed the existing main authority gate plus top-frame preload queueing, bounded outcomes, exact retained renderer tuples, delayed guest-ID readiness, idempotent retirement, resource budgets, process-loss fencing, and real Electron main-frame reply, blank attachment, denial, and destruction lifecycle."
@@ -5694,8 +5492,8 @@
       "oracle": "Create through the normal renderer-store action with client hosting enabled. Require client placement, one client-owned guest at the fixture URL, zero server-owned guests, no remote-browser frame, a visible retained marker, and a browser.snapshot marker from the same remote page. Disable the setting and require that guest to survive; create another page and require one server-owned guest, zero matching client guests, and a visible server screencast. Delay renderer publication after tabCreate acknowledgement and require one exact bounded subscription to materialize the page without polling or cleanup. Reject a client create and require no server fallback. Omit placement or capabilities and require no client-host RPC. During replacement, admit close-first only for negotiated reconciliation of imported inventory; ordinary close-first and navigate-first remain rejected. Run the same placement oracle against headed and headless paired hosts, plus deterministic native, SSH, WSL, folder, worktree, reconnect, retirement, and browserless-host contracts.",
       "commands": [
         "pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/runtime/web-runtime-session-browser-client-placement.test.ts src/renderer/src/runtime/web-runtime-session-browser-create-failure.test.ts src/main/runtime/orca-runtime-browser-client-hosted.test.ts src/main/runtime/runtime-browser-client-page-creation.test.ts src/main/runtime/browser-host-page-reconciliation-orchestration.test.ts src/main/runtime/browser-host-command-ledger.test.ts",
-        "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/shared/remote-runtime-client.test.ts src/main/runtime/browser-host-capability-selection.test.ts src/main/runtime/rpc/methods/browser-tab-create-schema.test.ts src/main/ipc/runtime-environment-browser-client-host-handler.test.ts",
-        "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/paired-runtime-browser-network-route.test.ts src/main/browser/browser-network-execution-route.test.ts src/main/browser/wsl-browser-network-execution-route.test.ts src/main/browser/wsl-browser-network-relay-launch.test.ts src/main/runtime/runtime-browser-network-execution-host.test.ts",
+        "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/shared/remote-runtime-client.test.ts src/main/runtime/browser-host-capability-selection.test.ts src/main/runtime/rpc/methods/browser-tab-create-schema.test.ts",
+        "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-network-execution-route.test.ts src/main/browser/wsl-browser-network-execution-route.test.ts src/main/browser/wsl-browser-network-relay-launch.test.ts src/main/runtime/runtime-browser-network-execution-host.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-screencast-lifecycle.test.ts src/main/browser/browser-screencast-stream.test.ts src/main/runtime/orca-runtime-browser-screencast-fanout.test.ts",
         "ORCA_RUN_DOCKER_SSH_BROWSER_E2E=1 pnpm exec vitest run --config config/vitest.config.ts tests/e2e/ssh-browser-network-execution-route.docker.unit.test.ts",
         "Manual iOS 26.5 simulator: pair current mobile code to packaged Orca 1.4.184; create Browser; navigate to https://example.com; require one visible Example Domain tab on the server-hosted surface",
@@ -5712,8 +5510,6 @@
         "src/shared/remote-runtime-client.test.ts",
         "src/main/runtime/browser-host-capability-selection.test.ts",
         "src/main/runtime/rpc/methods/browser-tab-create-schema.test.ts",
-        "src/main/ipc/runtime-environment-browser-client-host-handler.test.ts",
-        "src/main/browser/paired-runtime-browser-network-route.test.ts",
         "src/main/browser/browser-network-execution-route.test.ts",
         "src/main/browser/wsl-browser-network-execution-route.test.ts",
         "src/main/browser/wsl-browser-network-relay-launch.test.ts",
@@ -8102,9 +7898,7 @@
         },
         {
           "file": "src/relay/pty-handler-spawn-admission.test.ts",
-          "assertions": [
-            "strict relay inspection rejects a missing PTY"
-          ]
+          "assertions": ["strict relay inspection rejects a missing PTY"]
         },
         {
           "file": "src/renderer/src/runtime/runtime-terminal-inspection.test.ts",
@@ -8419,9 +8213,7 @@
         },
         {
           "file": "src/renderer/src/components/sidebar/AddRepoDialogStepContent.test.tsx",
-          "assertions": [
-            "paired runtime browsing renders the in-app host filesystem browser"
-          ]
+          "assertions": ["paired runtime browsing renders the in-app host filesystem browser"]
         },
         {
           "file": "src/renderer/src/components/sidebar/AddRepoStartSteps.test.tsx",

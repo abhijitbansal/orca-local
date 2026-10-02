@@ -33,18 +33,7 @@ export function createBrowserProfileListActions(
             undefined,
             { timeoutMs: 15_000 }
           )
-          // Why: client-hosted imports never touch the server, so the server's
-          // records can't carry the "imported from Chrome" badge — this desktop
-          // remembers what it imported into each environment's jar and overlays it.
-          const clientImportSources = await window.api.browser
-            .sessionClientRouteImportSources?.({ environmentId: runtimeEnvironmentId })
-            .catch(() => ({}))
-          const profiles = result.profiles.map((profile) =>
-            !profile.source && clientImportSources?.[profile.id]
-              ? { ...profile, source: clientImportSources[profile.id] }
-              : profile
-          )
-          set((s) => profileListByHostUpdate(s, profiles, hostId))
+          set((s) => profileListByHostUpdate(s, result.profiles, hostId))
         } catch {
           set((s) => profileListByHostUpdate(s, [], hostId))
         }

@@ -87,57 +87,6 @@ describe('createBrowserSlice runtime guard', () => {
     })
   })
 
-  // Why: the picker must offer the machine the import will read from, or a headless remote leaves
-  // it empty (feature unreachable) or offers profile names that only exist on the remote.
-  it('lists this desktop’s browsers when the environment’s pages are client-hosted', async () => {
-    const store = createTestStore()
-    store.setState({ settings: settingsWithRuntime('env-1') })
-    mockApi.browser.sessionDetectBrowsersForClientHost.mockResolvedValueOnce([
-      { family: 'chrome', label: 'Google Chrome', profiles: [], selectedProfile: 'Default' }
-    ])
-
-    await store.getState().fetchDetectedBrowsers()
-
-    expect(mockApi.browser.sessionDetectBrowsersForClientHost).toHaveBeenCalledWith({
-      environmentId: 'env-1'
-    })
-    expect(runtimeEnvironmentCall).not.toHaveBeenCalledWith(
-      expect.objectContaining({ method: 'browser.profileDetectBrowsers' })
-    )
-    expect(store.getState().detectedBrowsers).toEqual([
-      { family: 'chrome', label: 'Google Chrome', profiles: [], selectedProfile: 'Default' }
-    ])
-    expect(store.getState().detectedBrowsersHost).toEqual({ machine: 'client', hostLabel: 'env-1' })
-  })
-
-  it('imports client-hosted logins on this desktop instead of the headless server', async () => {
-    const store = createTestStore()
-    store.setState({ settings: settingsWithRuntime('env-1') })
-    mockApi.browser.sessionImportFromBrowserForClientHost.mockResolvedValueOnce({
-      ok: true,
-      profileId: 'default',
-      summary: { totalCookies: 3, importedCookies: 3, skippedCookies: 0, domains: [] }
-    })
-
-    const result = await store.getState().importCookiesFromBrowser('default', 'chrome', 'Default')
-
-    expect(mockApi.browser.sessionImportFromBrowserForClientHost).toHaveBeenCalledWith({
-      environmentId: 'env-1',
-      profileId: 'default',
-      browserFamily: 'chrome',
-      browserProfile: 'Default'
-    })
-    expect(runtimeEnvironmentCall).not.toHaveBeenCalledWith(
-      expect.objectContaining({ method: 'browser.profileImportFromBrowser' })
-    )
-    expect(result).toMatchObject({
-      ok: true,
-      executionHostId: 'runtime:env-1',
-      executionMachine: 'client',
-      executionRemoteEnvironment: true
-    })
-  })
-
   it('uses local browser IPC when no runtime environment is active', async () => {
     const store = createTestStore()
     mockApi.browser.sessionListProfiles.mockResolvedValueOnce([

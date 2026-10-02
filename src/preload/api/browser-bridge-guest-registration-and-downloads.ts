@@ -66,8 +66,6 @@ export const browserGuestRegistrationAndDownloadsApi = {
   }): void => ipcRenderer.send('browser:reportViewportScrollState', args),
   setAnnotationViewportBridge: (args): Promise<boolean> =>
     ipcRenderer.invoke('browser:setAnnotationViewportBridge', args),
-  publishClientPageMetadata: (args) =>
-    ipcRenderer.invoke('browser:publishClientPageMetadata', args),
   onGuestLoadFailed: (
     callback: (args: {
       browserPageId: string

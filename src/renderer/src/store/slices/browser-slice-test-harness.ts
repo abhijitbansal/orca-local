@@ -14,9 +14,7 @@ export type BrowserMockApi = {
     sessionDeleteProfile: Mock
     sessionImportCookies: Mock
     sessionDetectBrowsers: Mock
-    sessionDetectBrowsersForClientHost: Mock
     sessionImportFromBrowser: Mock
-    sessionImportFromBrowserForClientHost: Mock
     sessionClearDefaultCookies: Mock
     notifyActiveTabChanged: Mock
   }
@@ -31,11 +29,7 @@ export function createBrowserMockApi(runtimeEnvironmentTransportCall: Mock): Bro
       sessionDeleteProfile: vi.fn().mockResolvedValue(false),
       sessionImportCookies: vi.fn().mockResolvedValue({ ok: false, reason: 'canceled' }),
       sessionDetectBrowsers: vi.fn().mockResolvedValue([]),
-      // Why: null means this desktop hosts no pages for the server, so the RPC path runs.
-      sessionDetectBrowsersForClientHost: vi.fn().mockResolvedValue(null),
       sessionImportFromBrowser: vi.fn().mockResolvedValue({ ok: false, reason: 'canceled' }),
-      // Why: null means this desktop hosts no pages for the server, so the RPC path runs.
-      sessionImportFromBrowserForClientHost: vi.fn().mockResolvedValue(null),
       sessionClearDefaultCookies: vi.fn().mockResolvedValue(false),
       notifyActiveTabChanged: vi.fn().mockResolvedValue(undefined)
     },

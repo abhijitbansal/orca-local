@@ -171,9 +171,6 @@ vi.mock('../ipc/doc-preview-grant-ipc', () => ({ registerDocPreviewGrantHandlers
 vi.mock('../browser/browser-route-session-runtime', () => ({
   configureRouteSessionsForOrcaProfile: vi.fn()
 }))
-vi.mock('../browser/paired-runtime-browser-client-host-runtime', () => ({
-  configurePairedRuntimeBrowserClientHostsForOrcaProfile: vi.fn()
-}))
 vi.mock('../browser/browser-route-partition-storage-runtime', () => ({
   collectOrphanedBrowserRoutePartitionStorage: vi.fn(async () => {})
 }))

@@ -1,8 +1,5 @@
 import { BrowserWindow, ipcMain } from 'electron'
 import { browserSessionRegistry } from '../browser/browser-session-registry'
-import { importCookiesIntoClientRoutePartition } from '../browser/browser-client-route-cookie-import'
-import { clientRouteCookieImportSources } from '../browser/client-route-cookie-import-source-store'
-import { getPairedRuntimeBrowserClientRouteIdentity } from '../browser/paired-runtime-browser-client-host-runtime'
 import { isTrustedBrowserRenderer } from './browser-renderer-trust'
 import {
   pickCookieFile,
@@ -130,48 +127,7 @@ export function registerBrowserSessionProfileHandlers(): void {
   })
 
   ipcMain.removeHandler('browser:session:detectBrowsers')
-  ipcMain.removeHandler('browser:session:detectBrowsersForClientHost')
   ipcMain.removeHandler('browser:session:importFromBrowser')
-  ipcMain.removeHandler('browser:session:importFromBrowserForClientHost')
-
-  // Why: client-hosted pages render on this desktop, so their logins must be
-  // detected and imported here -- the remote runtime is usually headless.
-  ipcMain.handle(
-    'browser:session:importFromBrowserForClientHost',
-    async (
-      event,
-      args: {
-        environmentId: string
-        profileId: string
-        browserFamily: string
-        browserProfile?: string
-      }
-    ): Promise<BrowserCookieImportResult | null> => {
-      if (!isTrustedBrowserRenderer(event.sender)) {
-        return { ok: false, reason: 'Not authorized' }
-      }
-      return importCookiesIntoClientRoutePartition({
-        environmentId: args.environmentId,
-        browserProfileId: args.profileId,
-        browserFamily: args.browserFamily,
-        browserProfile: args.browserProfile
-      })
-    }
-  )
-
-  ipcMain.removeHandler('browser:session:clientRouteImportSources')
-
-  // Why: the server's profile records can't know what this desktop imported into
-  // its client-hosted jars; the settings view overlays these onto the RPC list.
-  ipcMain.handle(
-    'browser:session:clientRouteImportSources',
-    (event, args: { environmentId: string }) => {
-      if (!isTrustedBrowserRenderer(event.sender) || typeof args?.environmentId !== 'string') {
-        return {}
-      }
-      return clientRouteCookieImportSources(args.environmentId)
-    }
-  )
 
   ipcMain.handle('browser:session:detectBrowsers', (event): DetectedBrowserPickerEntry[] => {
     if (!isTrustedBrowserRenderer(event.sender)) {
@@ -179,21 +135,6 @@ export function registerBrowserSessionProfileHandlers(): void {
     }
     return detectedBrowserPickerEntries()
   })
-
-  // Why: the picker must list the machine the import will actually read from, and for a
-  // client-hosted environment that is this desktop — never the (usually headless) remote.
-  ipcMain.handle(
-    'browser:session:detectBrowsersForClientHost',
-    (event, args: { environmentId: string }): DetectedBrowserPickerEntry[] | null => {
-      if (!isTrustedBrowserRenderer(event.sender)) {
-        return []
-      }
-      if (!getPairedRuntimeBrowserClientRouteIdentity(args.environmentId)) {
-        return null
-      }
-      return detectedBrowserPickerEntries()
-    }
-  )
 
   ipcMain.handle(
     'browser:session:importFromBrowser',
