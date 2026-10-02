@@ -109,9 +109,6 @@ function formatCommandFlagHelp(flag: string, commandPath: string[]): string {
   if (command === 'linear list-issues' && flag === 'limit') {
     return '--limit <n>            Max issues to return; omit to return every match'
   }
-  if (command === 'artifacts list' && flag === 'cursor') {
-    return '--cursor <cursor>      Opaque cursor returned by a previous artifacts page'
-  }
   if (command === 'orchestration worker-read' && flag === 'cursor') {
     return '--cursor <cursor>      Opaque cursor returned by a previous worker-read page'
   }

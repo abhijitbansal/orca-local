@@ -1,11 +1,11 @@
 ---
 name: orca-cli
 description: >-
-  Operate Orca-managed worktrees, folder contexts, terminals, repos, automations, artifacts,
+  Operate Orca-managed worktrees, folder contexts, terminals, repos, automations,
   skill sharing, worktree comments, and Orca's embedded browser through the `orca` CLI. Use
   when the user says "$orca-cli", "Orca worktree", "child worktree", "spawn codex/claude in a
   worktree", "read/wait/send Orca terminal", "handoff" / "handover" / "give this to another
-  agent", "Orca browser", "orca artifacts", or "share skills". Prefer it over raw git
+  agent", "Orca browser", or "share skills". Prefer it over raw git
   worktree, ad hoc PTYs, or Computer Use when Orca state is involved. Use Computer Use only
   when a visible window needs GUI control that a CLI, filesystem, or API cannot do.
 ---
@@ -183,23 +183,6 @@ Terminal rules:
 - For long output, use cursor reads. After a limited tail preview, page from `oldestCursor`; after a cursor read, continue with `nextCursor` while `limited` is true and `nextCursor !== latestCursor`.
 - `--direction horizontal` splits left/right. `--direction vertical` splits top/bottom.
 
-## Artifacts
-
-Artifacts publish HTML or Markdown files through the signed-in Orca account. Anyone can view
-the share URL; creating, listing, updating, and deleting need the active profile signed in.
-
-**Publishing is off by default and only a human can turn it on.** `share` and `update` need a
-device-wide capability the user grants in the desktop app under Settings → Artifacts ("Allow
-publishing public artifact links"). It applies to every caller on the device, agent or human.
-There is no CLI or RPC way to grant it. `list`, `unshare`, and `delete` are never gated, so old
-links stay auditable and revocable.
-
-A denied share fails with `artifact_sharing_disabled` before any upload. Do not retry; the
-answer will not change until a human acts. Tell the user to turn the setting on and re-run, or
-deliver the file locally if they decline.
-
-The `artifacts` commands are in `references/publishing.md`. Load it before publishing a link.
-
 ## Built-In Browser
 
 The built-in browser is the tab surface embedded in Orca and scoped to a worktree. It is not Chrome, Safari, or Orca's own app UI. For external Chrome/Safari/webviews or Orca app chrome/settings, use the Computer Use skill/tool only when the task requires OS/window-level control. Use `orca-cli` for Orca's embedded pages and a page-automation tool such as Playwright or CDP for external pages. Desktop control asked for by name is `ORCA computer ...`, never a browser command.
@@ -244,5 +227,4 @@ This guide covers worktrees, terminals, and handoffs on its own. At a gate below
 | --------------------------------------------------------------------------------------------------------------- | -------------------------------- |
 | Driving Orca's embedded browser: navigation, snapshots, refs, tabs, concurrent pages, or `browser_*` recoveries | `references/browser.md`          |
 | Creating, editing, running, or inspecting scheduled automations                                                 | `references/automations.md`      |
-| Publishing or revoking an artifact link                                                                         | `references/publishing.md`       |
 | Mobile emulator taps, gestures, typing, buttons, camera, or permissions                                         | invoke the `orca-emulator` skill |

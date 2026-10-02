@@ -143,7 +143,6 @@ export function supportsBrowserPageFlag(commandPath: string[]): boolean {
   if (
     [
       'account',
-      'artifacts',
       'automations',
       'project',
       'repo',

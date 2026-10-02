@@ -35,7 +35,6 @@ import {
   AiVaultPrepareSessionResumeParams,
   AiVaultSessionTitlesParams
 } from './ai-vault-params'
-import { ArtifactsDeleteParams, ListOptions, SourceRequest, WriteRequest } from './artifacts-params'
 import {
   AutomationCreate,
   AutomationId,
@@ -599,13 +598,6 @@ export const RPC_PARAMS_BY_METHOD = {
   'aiVault.searchSessions': AiVaultSearchRequestSchema,
   'aiVault.searchStatus': AiVaultSearchStatusRequestSchema,
   'aiVault.setSearchEnabled': AiVaultSetSearchEnabledParamsSchema,
-  'artifacts.delete': ArtifactsDeleteParams,
-  'artifacts.getPublishedLink': SourceRequest,
-  'artifacts.list': ListOptions,
-  'artifacts.publish': WriteRequest,
-  'artifacts.share': WriteRequest,
-  'artifacts.unshare': SourceRequest,
-  'artifacts.update': WriteRequest,
   'automation.create': AutomationCreate,
   'automation.delete': AutomationId,
   'automation.list': AutomationList,

@@ -16,14 +16,21 @@ import {
   artifactContentByteLength,
   artifactWriteRequestByteLength
 } from '../../shared/artifacts'
+import type { ArtifactWriteRequest } from '../../shared/artifacts'
 import {
   bestEffortFsyncDirectorySync,
   fsyncFileSync,
   hardenSecurePath
 } from '../../shared/secure-file'
 import { getOrcaProfileDirectory } from '../orca-profiles/profile-storage-paths'
-import type { ArtifactWriteBody } from './artifact-cloud-request'
 import type { ArtifactShareScope } from './artifact-share-record-store'
+
+export type ArtifactWriteBody = {
+  content: string
+  contentType: ArtifactWriteRequest['contentType']
+  fileName: string
+  title?: string
+}
 
 export const MAX_PENDING_ARTIFACT_CREATES = 32
 export const MAX_ARTIFACT_CREATE_INTENT_BYTES = ARTIFACT_MAX_REQUEST_BYTES + 128 * 1024

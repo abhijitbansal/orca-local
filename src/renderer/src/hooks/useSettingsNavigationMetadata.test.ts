@@ -82,7 +82,7 @@ describe('settings navigation metadata', () => {
     expect(ids({ isWebClient: true, isLinearConnected: true })).toContain('linear')
   })
 
-  it('places Automations, Artifacts, and Share Skills first under Workflows', () => {
+  it('places Automations and Share Skills first under Workflows', () => {
     const sections = buildSettingsNavigationMetadata({
       isMac: false,
       isWindows: false,
@@ -90,7 +90,6 @@ describe('settings navigation metadata', () => {
       repos: [repo]
     })
     const automations = sections.find((section) => section.id === 'automations')
-    const artifacts = sections.find((section) => section.id === 'artifacts')
     const shareSkills = sections.find((section) => section.id === 'share-skills')
     const workflowIds = sections
       .filter((section) => section.group === 'workflows')
@@ -98,14 +97,9 @@ describe('settings navigation metadata', () => {
 
     expect(automations?.group).toBe('workflows')
     expect(automations?.searchEntries[0]?.title).toBe('Show Automations Button')
-    expect(artifacts?.group).toBe('workflows')
-    expect(artifacts?.badge).toBe('Beta')
-    expect(artifacts?.description).toBe(
-      'Share HTML and Markdown files with your team and manage their public links.'
-    )
     expect(shareSkills).toMatchObject({ group: 'workflows', badge: 'Beta' })
     expect(shareSkills?.searchEntries[0]?.title).toBe('Show Skills button')
-    expect(workflowIds.slice(0, 3)).toEqual(['automations', 'artifacts', 'share-skills'])
+    expect(workflowIds.slice(0, 2)).toEqual(['automations', 'share-skills'])
   })
 
   it('places the Orca account in Set Up on desktop only', () => {
