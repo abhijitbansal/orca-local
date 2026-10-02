@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { act, cleanup, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { getDefaultSettings } from '../../../../shared/constants'
 import { AccountsPane } from './AccountsPane'
@@ -15,7 +15,6 @@ const fake = vi.hoisted(() => ({
     tokenFresh: false,
     error: null
   })),
-  cursorRefresh: vi.fn(async () => {}),
   cursorUsage: { updatedAt: 0 },
   status: vi.fn(async () => ({
     signedIn: false,
@@ -26,7 +25,6 @@ const fake = vi.hoisted(() => ({
   })),
   pending: vi.fn(async () => null),
   subscribe: vi.fn(() => vi.fn()),
-  refresh: vi.fn(async () => {}),
   write: vi.fn(),
   watcher: vi.fn(() => ({ close: vi.fn() })),
   grokUsage: { updatedAt: 0 }
@@ -51,8 +49,6 @@ vi.mock('@/store', () => ({
         grok: fake.grokUsage
       },
       runtimeEnvironments: [],
-      refreshRateLimits: fake.cursorRefresh,
-      refreshGrokRateLimits: fake.refresh,
       recordFeatureInteraction: fake.write,
       fetchSettings: fake.write
     })
@@ -162,21 +158,19 @@ it.each([false, true])(
     expect(fake.subscribe.mock.calls.length).toBe(subscriptionsAfterMount)
   }
 )
-it('preserves explicit Grok refresh and real hide/reopen status reads', async () => {
+it('preserves real hide/reopen Grok status reads', async () => {
   fake.query = 'grok'
   const props = { settings: getDefaultSettings('/synthetic'), updateSettings: fake.write }
   const view = render(<AccountsPane {...props} />)
   await act(async () => {})
-  fireEvent.click(screen.getByRole('button', { name: 'Refresh usage' }))
-  await act(async () => {})
-  expect(fake.refresh).toHaveBeenCalledTimes(1)
-  expect(fake.status).toHaveBeenCalledTimes(2)
+  expect(screen.queryByRole('button', { name: 'Refresh usage' })).toBeNull()
+  expect(fake.status).toHaveBeenCalledTimes(1)
   fake.query = 'codex'
   await act(async () => view.rerender(<AccountsPane {...props} />))
   expect(screen.queryByText('Grok (xAI)', { exact: true })).toBeNull()
   fake.query = 'grok'
   await act(async () => view.rerender(<AccountsPane {...props} />))
-  expect(fake.status).toHaveBeenCalledTimes(3)
+  expect(fake.status).toHaveBeenCalledTimes(2)
   expect(fake.write).not.toHaveBeenCalled()
 })
 
@@ -236,14 +230,12 @@ it.each([false, true])(
   }
 )
 
-it('keeps Cursor refresh driven by usage updates and genuine reopen', async () => {
+it('keeps Cursor status reads driven by usage updates and genuine reopen', async () => {
   fake.query = 'cursor'
   const props = { settings: getDefaultSettings('/synthetic'), updateSettings: fake.write }
   const view = render(<AccountsPane {...props} />)
   await act(async () => {})
-  fireEvent.click(screen.getByRole('button', { name: 'Refresh usage' }))
-  await act(async () => {})
-  expect(fake.cursorRefresh).toHaveBeenCalledTimes(1)
+  expect(screen.queryByRole('button', { name: 'Refresh usage' })).toBeNull()
   expect(fake.cursorStatus).toHaveBeenCalledTimes(1)
   fake.cursorUsage = { updatedAt: 1 }
   await act(async () => view.rerender(<AccountsPane {...props} />))

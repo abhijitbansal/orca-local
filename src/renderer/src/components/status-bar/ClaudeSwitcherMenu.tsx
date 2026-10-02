@@ -65,7 +65,6 @@ export function ClaudeSwitcherMenu({
   const fetchSettings = useAppStore((s) => s.fetchSettings)
   const recordFeatureInteraction = useAppStore((s) => s.recordFeatureInteraction)
   const refreshClaudeRateLimitsForTarget = useAppStore((s) => s.refreshClaudeRateLimitsForTarget)
-  const fetchInactiveClaudeAccountUsage = useAppStore((s) => s.fetchInactiveClaudeAccountUsage)
   const inactiveClaudeAccounts = useAppStore((s) => s.rateLimits.inactiveClaudeAccounts)
   const claudeTarget = useAppStore((s) => s.rateLimits.claudeTarget)
   const settings = useAppStore((s) => s.settings)
@@ -121,14 +120,9 @@ export function ClaudeSwitcherMenu({
     }
   }, [])
 
-  // Why: fetch inactive-account usage only on switcher expansion; remote-owned accounts have no local cache to fill.
   const handleAccountsExpandedToggle = useCallback((): void => {
-    const nextExpanded = !accountsExpanded
-    setAccountsExpanded(nextExpanded)
-    if (nextExpanded && !hasActiveRuntimeEnvironment) {
-      void fetchInactiveClaudeAccountUsage()
-    }
-  }, [accountsExpanded, fetchInactiveClaudeAccountUsage, hasActiveRuntimeEnvironment])
+    setAccountsExpanded((expanded) => !expanded)
+  }, [])
 
   const handleSelectAccount = async (
     accountId: string | null,

@@ -1,32 +1,16 @@
-import { useState } from 'react'
-import { CalendarClock, ExternalLink, RefreshCw, Sparkles } from 'lucide-react'
+import { CalendarClock, ExternalLink, Sparkles } from 'lucide-react'
 import { translate } from '@/i18n/i18n'
 import { useAppStore } from '../../store'
 import { Button } from '../ui/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 import { StatCard } from './StatCard'
 import { formatUpdatedAt } from './usage-formatters'
 
 export function GrokUsagePane(): React.JSX.Element {
   const grok = useAppStore((s) => s.rateLimits.grok)
   const grokAuthConfigured = useAppStore((s) => s.rateLimits.grokAuthConfigured)
-  const refreshGrokRateLimits = useAppStore((s) => s.refreshGrokRateLimits)
   const openSettingsPage = useAppStore((s) => s.openSettingsPage)
   const openSettingsTarget = useAppStore((s) => s.openSettingsTarget)
   const recordFeatureInteraction = useAppStore((s) => s.recordFeatureInteraction)
-  // Why: settled snapshots keep their status during refetches (no 'fetching'
-  // repaint), so manual-refresh feedback must be renderer-local, matching the
-  // StatusBar refresh button.
-  const [isRefreshing, setIsRefreshing] = useState(false)
-
-  const handleRefresh = (): void => {
-    if (isRefreshing) {
-      return
-    }
-    setIsRefreshing(true)
-    void refreshGrokRateLimits().finally(() => setIsRefreshing(false))
-  }
-
   const openGrokAccounts = (): void => {
     openSettingsTarget({ pane: 'accounts', repoId: null, sectionId: 'accounts-grok' })
     openSettingsPage()
@@ -70,7 +54,6 @@ export function GrokUsagePane(): React.JSX.Element {
     grok?.weekly && typeof grok.weekly.usedPercent === 'number'
       ? Math.round(grok.weekly.usedPercent)
       : null
-  const isFetching = isRefreshing || grok?.status === 'fetching'
 
   return (
     <div
@@ -88,29 +71,6 @@ export function GrokUsagePane(): React.JSX.Element {
                 })
               : ''}
           </p>
-        </div>
-        <div className="flex shrink-0 items-center gap-2 self-start">
-          <TooltipProvider delayDuration={250}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon-xs"
-                  onClick={handleRefresh}
-                  disabled={isFetching}
-                  aria-label={translate(
-                    'auto.components.stats.GrokUsagePane.i0j1k2l3m4',
-                    'Refresh Grok usage'
-                  )}
-                >
-                  <RefreshCw className={`size-3.5 ${isFetching ? 'animate-spin' : ''}`} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" sideOffset={6}>
-                {translate('auto.components.stats.GrokUsagePane.d4f5a6b7c8', 'Refresh')}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
         </div>
       </div>
 

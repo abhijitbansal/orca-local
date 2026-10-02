@@ -4,13 +4,11 @@ import '@testing-library/jest-dom/vitest'
 
 import React from 'react'
 import { cleanup, render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { AppState } from '../../store'
 import { createEmptyRateLimitState } from '../../../../shared/rate-limit-state-factory'
 
 const storeMocks = vi.hoisted(() => ({
-  refreshGrokRateLimits: vi.fn(),
   openSettingsPage: vi.fn(),
   openSettingsTarget: vi.fn(),
   recordFeatureInteraction: vi.fn()
@@ -33,7 +31,6 @@ const mockStoreState = {
     },
     grokAuthConfigured: true
   }),
-  refreshGrokRateLimits: storeMocks.refreshGrokRateLimits,
   openSettingsPage: storeMocks.openSettingsPage,
   openSettingsTarget: storeMocks.openSettingsTarget,
   recordFeatureInteraction: storeMocks.recordFeatureInteraction
@@ -68,28 +65,16 @@ vi.mock('@/i18n/i18n', () => ({
 import { GrokUsagePane } from './GrokUsagePane'
 
 describe('GrokUsagePane', () => {
-  beforeEach(() => {
-    storeMocks.refreshGrokRateLimits.mockResolvedValue(undefined)
-  })
-
   afterEach(() => {
     cleanup()
     vi.clearAllMocks()
   })
 
-  it('does not refresh all providers just from opening the Grok tab', () => {
+  it('renders the weekly usage without a manual refresh control', () => {
     render(<GrokUsagePane />)
 
     expect(screen.getByTestId('grok-usage-pane')).toBeInTheDocument()
-    expect(storeMocks.refreshGrokRateLimits).not.toHaveBeenCalled()
-  })
-
-  it('refreshes usage only from the explicit refresh button', async () => {
-    const user = userEvent.setup()
-    render(<GrokUsagePane />)
-
-    await user.click(screen.getByRole('button', { name: 'Refresh Grok usage' }))
-
-    expect(storeMocks.refreshGrokRateLimits).toHaveBeenCalledTimes(1)
+    expect(screen.getByText('42%')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Refresh Grok usage' })).not.toBeInTheDocument()
   })
 })

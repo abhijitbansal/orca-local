@@ -20,7 +20,6 @@ import type { ProviderRateLimits } from '../../../../shared/rate-limit-types'
 const markLiveCodexSessionsForRestart = vi.fn(async () => {})
 const toastSuccess = vi.fn()
 const toastError = vi.fn()
-const fetchInactiveCodexAccountUsage = vi.fn(async () => {})
 const fetchSettings = vi.fn(async () => {})
 const reauthenticate = vi.fn(async (_args: unknown) => codexSnapshot(null))
 
@@ -154,7 +153,6 @@ vi.mock('../../store', () => {
     updateSettings: vi.fn(),
     recordFeatureInteraction: vi.fn(),
     refreshCodexRateLimitsForTarget: vi.fn(),
-    fetchInactiveCodexAccountUsage,
     rateLimits: {
       inactiveCodexAccounts: [
         { accountId: 'account-2', isFetching: false, rateLimits: unavailableUsage }

@@ -45,13 +45,7 @@ export type MuseUsageApi = UsageProviderApi<MuseUsageSnapshot, MuseUsageBreakdow
 
 export type RateLimitsApi = {
   get: () => Promise<RateLimitState>
-  refresh: () => Promise<RateLimitState>
   refreshCodexForTarget: (target: RateLimitRuntimeTarget) => Promise<RateLimitState>
   refreshClaudeForTarget: (target: RateLimitRuntimeTarget) => Promise<RateLimitState>
-  setPollingInterval: (ms: number) => Promise<void>
-  fetchInactiveClaudeAccounts: () => Promise<void>
-  fetchInactiveCodexAccounts: () => Promise<void>
-  refreshMiniMax: () => Promise<RateLimitState>
-  refreshGrok: () => Promise<RateLimitState>
   onUpdate: (callback: (state: RateLimitState) => void) => () => void
 }

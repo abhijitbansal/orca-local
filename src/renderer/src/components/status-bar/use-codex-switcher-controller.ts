@@ -42,7 +42,6 @@ export function useCodexSwitcherController() {
   const [isSwitching, setIsSwitching] = useState(false)
   const [reauthenticatingAccountId, setReauthenticatingAccountId] = useState<string | null>(null)
   const mountedRef = useRef(true)
-  const accountsExpandedRef = useRef(accountsExpanded)
   // Why: Radix item-select is separate from the nested button click, so stopPropagation alone won't prevent the row switch.
   const suppressNextAccountSelectRef = useRef(false)
   const suppressNextAccountSelect = useCallback(() => {
@@ -56,7 +55,6 @@ export function useCodexSwitcherController() {
   const fetchSettings = useAppStore((s) => s.fetchSettings)
   const recordFeatureInteraction = useAppStore((s) => s.recordFeatureInteraction)
   const refreshCodexRateLimitsForTarget = useAppStore((s) => s.refreshCodexRateLimitsForTarget)
-  const fetchInactiveCodexAccountUsage = useAppStore((s) => s.fetchInactiveCodexAccountUsage)
   const inactiveCodexAccounts = useAppStore((s) => s.rateLimits.inactiveCodexAccounts)
   const codexTarget = useAppStore((s) => s.rateLimits.codexTarget)
   const settings = useAppStore((s) => s.settings)
@@ -98,10 +96,6 @@ export function useCodexSwitcherController() {
       mountedRef.current = false
     }
   }, [])
-
-  useEffect(() => {
-    accountsExpandedRef.current = accountsExpanded
-  }, [accountsExpanded])
 
   useEffect(() => {
     // Why: the roster mounts this switcher on demand, while the sync key covers
@@ -175,8 +169,6 @@ export function useCodexSwitcherController() {
   ): Promise<void> =>
     signInCodexAccount(accountId, target, {
       accountState,
-      accountsExpandedRef,
-      fetchInactiveCodexAccountUsage,
       fetchSettings,
       isSwitching,
       mountedRef,
@@ -210,13 +202,8 @@ export function useCodexSwitcherController() {
   }, [])
 
   const handleAccountsExpandedToggle = useCallback((): void => {
-    const nextExpanded = !accountsExpanded
-    setAccountsExpanded(nextExpanded)
-    if (nextExpanded && !hasActiveRuntimeEnvironment) {
-      // Why: fetch inactive-account usage only on switcher expansion; remote-owned accounts have no local cache to fill.
-      void fetchInactiveCodexAccountUsage()
-    }
-  }, [accountsExpanded, fetchInactiveCodexAccountUsage, hasActiveRuntimeEnvironment])
+    setAccountsExpanded((expanded) => !expanded)
+  }, [])
 
   const selectedRuntimeKey = getCodexStatusRuntimeKey(
     normalizeCodexStatusRuntimeTarget(accountState, toCodexStatusRuntimeTarget(codexTarget))
