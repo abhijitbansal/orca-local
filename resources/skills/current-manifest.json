@@ -74,24 +74,6 @@
       ]
     },
     {
-      "name": "orca-per-workspace-env",
-      "sourcePath": "skills/orca-per-workspace-env",
-      "releaseRevision": 6,
-      "packageDigest": "103f0671da111c9ad3def6c46da8d432e656878b840e6cc742219f4a3a4dbceb",
-      "gitTreeSha": "58dfb5dc3ad287a6a42625f9d15c7c0c3dfd02ec",
-      "files": [
-        {
-          "path": "SKILL.md",
-          "size": 2257,
-          "executable": false,
-          "classification": "text",
-          "exactSha256": "c005d126a13d2913351472f07690f1c1a660d4f286e2a5f21864aee294f436ce",
-          "textNormalizedSha256": "c005d126a13d2913351472f07690f1c1a660d4f286e2a5f21864aee294f436ce",
-          "identitySha256": "c005d126a13d2913351472f07690f1c1a660d4f286e2a5f21864aee294f436ce"
-        }
-      ]
-    },
-    {
       "name": "orchestration",
       "sourcePath": "skills/orchestration",
       "releaseRevision": 29,

@@ -19,11 +19,3 @@ it('preserves verification distinctions and emulator cleanup', () => {
     expect(readGuide(name)).toContain('Run `kill` when you are done')
   }
 })
-
-it('preserves paid approvals and provision retry authority', () => {
-  const text = readGuide('orca-per-workspace-env')
-  expect(text).toContain(
-    'Get an explicit OK before each paid step: the base snapshot, the auth snapshot, and `--provision`'
-  )
-  expect(text).toContain('One OK covers the whole `--provision` fix-and-rerun loop')
-})
