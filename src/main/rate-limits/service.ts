@@ -1,10 +1,7 @@
 import type { BrowserWindow } from 'electron'
 import type { ClaudeStatusLineRateLimits } from '../../shared/claude-statusline-rate-limits'
 import type { RateLimitState } from '../../shared/rate-limit-types'
-import { hasMiniMaxApiKey } from '../minimax/minimax-api-key-store'
-import { hasMiniMaxSessionCookie } from '../minimax/minimax-cookie-store'
 import { mapClaudeUsageWindow } from './claude-usage-window'
-import { readGrokAuthSession } from './grok-auth'
 import {
   LIVE_CLAUDE_INGEST_DEDUPE_MS,
   isSameUsageWindow,
@@ -86,10 +83,11 @@ export class RateLimitService {
   getState(): RateLimitState {
     return {
       ...this.state,
-      minimaxCookieConfigured: hasMiniMaxSessionCookie(),
-      minimaxApiKeyConfigured: hasMiniMaxApiKey(),
+      // Why: no vendor is polled any more, so a configured credential would only pin a permanent loading skeleton.
+      minimaxCookieConfigured: false,
+      minimaxApiKeyConfigured: false,
       opencodeGoApiKeyConfigured: false,
-      grokAuthConfigured: readGrokAuthSession().status === 'ok',
+      grokAuthConfigured: false,
       cursorAuthConfigured: false,
       claudeTarget: this.claudeFetchTarget,
       codexTarget: this.codexFetchTarget,
@@ -121,6 +119,8 @@ export class RateLimitService {
 
   async refreshClaudeForTarget(target?: ClaudeAccountSelectionTarget): Promise<RateLimitState> {
     this.claudeFetchTarget = normalizeClaudeAccountSelectionTarget(target)
+    // Why: posts from the outgoing account's sessions must not land on the incoming account's bar mid-switch.
+    this.claudeAuthSnapshot = null
     // Why: live windows belong to the previous account; the next statusline post repopulates the bar.
     this.updateState({ ...this.state, claude: null })
     await this.captureClaudeAuthSnapshot()

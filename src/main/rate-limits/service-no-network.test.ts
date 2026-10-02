@@ -2,9 +2,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { netFetchMock } = vi.hoisted(() => ({ netFetchMock: vi.fn() }))
 vi.mock('electron', () => ({ net: { fetch: netFetchMock } }))
-vi.mock('../minimax/minimax-cookie-store', () => ({ hasMiniMaxSessionCookie: () => false }))
-vi.mock('../minimax/minimax-api-key-store', () => ({ hasMiniMaxApiKey: () => false }))
-vi.mock('./grok-auth', () => ({ readGrokAuthSession: () => ({ status: 'missing' }) }))
 
 import type { ClaudeRuntimeAuthPreparation } from '../claude-accounts/runtime-auth-service'
 import { RateLimitService } from './service'
@@ -71,5 +68,31 @@ describe('RateLimitService (local-only)', () => {
       sevenDay: null
     })
     expect(service.getState().claude).toBeNull()
+  })
+
+  it('drops posts from the outgoing account once the target changes and the resolver has not answered', async () => {
+    const service = new RateLimitService()
+    service.setClaudeAuthPreparationResolver(async () => authPreparation('/tmp/claude-a'))
+    await service.refreshClaudeForTarget(HOST_TARGET)
+    // The next account's resolver never settles, so only the cleared snapshot can stop old posts.
+    service.setClaudeAuthPreparationResolver(() => new Promise(() => {}))
+    void service.refreshClaudeForTarget(HOST_TARGET)
+    service.ingestLiveClaudeRateLimits({
+      configDir: '/tmp/claude-a',
+      fiveHour: { used_percentage: 40, resets_at: Math.floor(Date.now() / 1000) + 60 },
+      sevenDay: null
+    })
+    expect(service.getState().claude).toBeNull()
+  })
+
+  it('never reports vendor credentials as configured, so no provider shows a loading skeleton', () => {
+    const state = new RateLimitService().getState()
+    expect(state).toMatchObject({
+      minimaxCookieConfigured: false,
+      minimaxApiKeyConfigured: false,
+      opencodeGoApiKeyConfigured: false,
+      grokAuthConfigured: false,
+      cursorAuthConfigured: false
+    })
   })
 })

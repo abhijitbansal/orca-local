@@ -156,7 +156,9 @@ export function getVisibleUsageProvider(
   if (isProviderConfigured(provider)) {
     return provider
   }
-  if (!hasUsageProviderSettingsForProvider(providerId, settings)) {
+  // Why: only Claude is fed locally (statusline hook); every other provider is never fetched, so a pending
+  // skeleton for it would never resolve.
+  if (providerId !== 'claude' || !hasUsageProviderSettingsForProvider(providerId, settings)) {
     return null
   }
   return provider ?? createPendingProviderSnapshot(providerId)
