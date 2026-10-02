@@ -241,19 +241,10 @@ export class ClaudeRuntimeAuthSync extends ClaudeRuntimeAuthPreparationService {
       this.skipNextReadBackForAccountId = null
     }
 
-    // Why: rotate+persist the single-use token to managed storage before materializing (else runtime gets a stale token that fails invalid_grant); skip while a live PTY owns the creds since refreshing would double-rotate it (invalidating one copy) — read-back preserves its refresh instead.
-    const liveClaudePtys = hasLiveClaudePtys()
-    if (liveClaudePtys && isOauthTokenExpiring(credentialsJson)) {
+    // Why: this build never rotates tokens itself; a live or expiring token is handed to the CLI as-is and
+    // read back after the CLI refreshes it (the read-back path above preserves its rotation).
+    if (hasLiveClaudePtys() && isOauthTokenExpiring(credentialsJson)) {
       this.managedRefreshDeferredByLivePtyAccountId = activeAccount.id
-    }
-    if (!liveClaudePtys) {
-      const refreshed = await this.refreshManagedAccountTokenIfNeeded(
-        activeAccount,
-        credentialsJson
-      )
-      if (refreshed) {
-        credentialsJson = refreshed
-      }
     }
 
     const paths = this.pathResolver.getRuntimePaths()
