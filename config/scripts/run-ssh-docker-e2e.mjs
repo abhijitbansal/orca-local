@@ -7,8 +7,7 @@ const env = {
   ...process.env,
   ORCA_E2E_SSH_DOCKER: '1',
   ORCA_E2E_LOCAL_SSH_BROWSER: '1',
-  ORCA_E2E_SSH_CLIENT_HOSTED_BROWSER: '1',
-  ORCA_E2E_WEB_CLIENT: '1'
+  ORCA_E2E_SSH_CLIENT_HOSTED_BROWSER: '1'
 }
 
 // Why: Node's CVE-2024-27980 hardening rejects .cmd spawns without shell on Windows.

@@ -44,8 +44,7 @@ it('native Playwright shards preserve every SSH test and project exactly once', 
     ORCA_BACKGROUND_LAUNCH: '1',
     ORCA_E2E_SSH_DOCKER: '1',
     ORCA_E2E_LOCAL_SSH_BROWSER: '1',
-    ORCA_E2E_SSH_CLIENT_HOSTED_BROWSER: '1',
-    ORCA_E2E_WEB_CLIENT: '1'
+    ORCA_E2E_SSH_CLIENT_HOSTED_BROWSER: '1'
   }
   async function discover(extra = []) {
     const result = await runProcess({

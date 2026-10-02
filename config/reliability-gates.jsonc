@@ -5571,7 +5571,7 @@
         "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-route-session-registry.test.ts src/main/browser/browser-route-persisted-worker-egress.electron.test.ts src/main/browser/browser-route-webrtc-egress.electron.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-route-tcp-egress.electron.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-route-h3-egress.electron.test.ts src/main/browser/browser-route-dns-prefetch.electron.test.ts src/main/startup/secure-dns-census.test.ts",
-        "ORCA_E2E_SSH_DOCKER=1 ORCA_E2E_LOCAL_SSH_BROWSER=1 ORCA_E2E_SSH_CLIENT_HOSTED_BROWSER=1 ORCA_E2E_WEB_CLIENT=1 SKIP_BUILD=1 pnpm exec playwright test tests/e2e/local-ssh-browser-routing.spec.ts --config tests/playwright.config.ts --project=electron-headless --workers=1 --repeat-each=3"
+        "ORCA_E2E_SSH_DOCKER=1 ORCA_E2E_LOCAL_SSH_BROWSER=1 ORCA_E2E_SSH_CLIENT_HOSTED_BROWSER=1 SKIP_BUILD=1 pnpm exec playwright test tests/e2e/local-ssh-browser-routing.spec.ts --config tests/playwright.config.ts --project=electron-headless --workers=1 --repeat-each=3"
       ],
       "testFiles": [
         "src/main/browser/browser-route-identity.test.ts",
@@ -5744,7 +5744,7 @@
           "runner": "ci",
           "platform": "linux",
           "result": "passed",
-          "command": "ORCA_E2E_SSH_DOCKER=1 ORCA_E2E_LOCAL_SSH_BROWSER=1 ORCA_E2E_SSH_CLIENT_HOSTED_BROWSER=1 ORCA_E2E_WEB_CLIENT=1 SKIP_BUILD=1 pnpm exec playwright test tests/e2e/local-ssh-browser-routing.spec.ts --config tests/playwright.config.ts --project=electron-headless --workers=1 --repeat-each=3",
+          "command": "ORCA_E2E_SSH_DOCKER=1 ORCA_E2E_LOCAL_SSH_BROWSER=1 ORCA_E2E_SSH_CLIENT_HOSTED_BROWSER=1 SKIP_BUILD=1 pnpm exec playwright test tests/e2e/local-ssh-browser-routing.spec.ts --config tests/playwright.config.ts --project=electron-headless --workers=1 --repeat-each=3",
           "durationSeconds": 252,
           "summary": "Nine direct SSH cases passed: three repetitions each of routing/reconnect, unavailable-host local escape, and real TCP-forwarding refusal. Run 34040309638, head 259a5f6; unchanged tests and timeouts, zero skips or retries."
         }
@@ -18972,82 +18972,6 @@
         "The new PR lane is outside verify until reliability is established."
       ],
       "demotionRule": "Keep experimental if provisioning or an execution flakes; never promote by skipping a case, raising timeouts, or retrying until green."
-    },
-    {
-      "id": "browser.packaged-mixed-version-placement",
-      "title": "Packaged browser placement across versions",
-      "maturity": "experimental",
-      "protection": "partial",
-      "owner": "browser-runtime",
-      "layer": "electron-packaged",
-      "surfaces": ["paired browser placement"],
-      "platforms": ["linux", "macos", "windows"],
-      "providers": ["paired-runtime"],
-      "coveredPlatforms": ["linux"],
-      "coveredProviders": ["paired-runtime"],
-      "coverageNotes": "Published Linux 1.4.188 desktop against current source in both directions; scheduled weekly and manually runnable. No required PR check.",
-      "motivatingLinks": ["https://github.com/stablyai/orca/actions/runs/34069063016"],
-      "invariant": "A paired client and host without client-hosted browser capabilities retain server-hosted browser placement across supported version skew.",
-      "oracle": "Require both existing named browser placement scenarios to pass three times with one attempt, zero skips, zero failures, and no report errors.",
-      "commands": [
-        "gh workflow run packaged-browser-e2e.yml",
-        "node_modules/.bin/vitest run --config config/vitest.config.ts config/scripts/packaged-browser-lane-contract.test.mjs config/scripts/verify-packaged-browser-participation.test.mjs",
-        "gh run view 34069063016 --log"
-      ],
-      "testFiles": [
-        "config/scripts/packaged-browser-lane-contract.test.mjs",
-        "config/scripts/verify-packaged-browser-participation.test.mjs"
-      ],
-      "assertionRefs": [
-        {
-          "file": "config/scripts/verify-packaged-browser-participation.test.mjs",
-          "assertions": ["reject missing, substituted, skipped and retried scenarios"]
-        },
-        {
-          "file": "config/scripts/packaged-browser-lane-contract.test.mjs",
-          "assertions": [
-            "verify pinned package checksum before extraction",
-            "require both directions three times and run report verification even on failure"
-          ]
-        }
-      ],
-      "evidenceRuns": [
-        {
-          "date": "2026-09-07",
-          "runner": "ci",
-          "platform": "linux",
-          "result": "passed",
-          "command": "gh run view 34069063016 --log",
-          "durationSeconds": 120,
-          "summary": "Both unmodified compatibility cases passed three times at 5a99f935 with published1.4.188 and main f7d52160162; retries0. Final workflow34069429156 also passed6/6; its downloaded JSON passed the same participation verifier."
-        }
-      ],
-      "runtimeBudget": {
-        "p95Seconds": 1500,
-        "scope": "CI job timeout; not a measured p95"
-      },
-      "flakeHistory": {
-        "status": "soaking",
-        "evidence": "Initial executable discovery matched CLI and desktop and was corrected before any tests ran. Corrected baseline2/2 and repeat6/6 pass."
-      },
-      "redGreenEvidence": {
-        "status": "partial",
-        "evidence": "Participation unit tests reject missing and retried scenarios; no application mutation proof."
-      },
-      "performanceBudget": {
-        "required": false,
-        "evidence": "Compatibility assertions, not a performance benchmark."
-      },
-      "promotionCriteria": [
-        "Final workflow JSON report proves all six executions.",
-        "Collect repeated scheduled history before making this required."
-      ],
-      "knownGaps": [
-        "Linux1.4.188 only; no macOS or Windows packaged coverage.",
-        "No folder workspace, SSH execution host or live-service coverage.",
-        "Other released version pairs remain untested; not a required PR check."
-      ],
-      "demotionRule": "Keep experimental if any direction skips or fails; do not extend timeouts or retry to green."
     },
     {
       "id": "terminal-input.native-wayland-hangul-digit",

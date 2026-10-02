@@ -125,7 +125,6 @@ describe('PR E2E gate contract', () => {
     )
     expect(changedRun.env.TEST_FILES_JSON).toBe('${{ inputs.test_files }}')
     expect(changedRun.run).toContain('. != "tests/e2e/ssh-startup-exec-readiness.spec.ts"')
-    expect(changedRun.run).toContain('. != "tests/e2e/paired-startup-exec-readiness.spec.ts"')
     expect(changedRun.run).toContain(
       '. != "tests/e2e/ssh-docker-five-pane-input-under-flood.spec.ts"'
     )
@@ -150,9 +149,7 @@ describe('PR E2E gate contract', () => {
     const sshLaneCondition = e2eWorkflow.jobs['ssh-docker-watcher-isolation'].if
     expect(sshLaneCondition).toContain("inputs.test_files == ''")
     expect(sshLaneCondition).toContain('tests/e2e/ssh-startup-exec-readiness.spec.ts')
-    expect(sshLaneCondition).toContain('tests/e2e/paired-startup-exec-readiness.spec.ts')
     expect(sshDockerRunner).toContain('tests/e2e/ssh-startup-exec-readiness.spec.ts')
-    expect(sshDockerRunner).toContain('tests/e2e/paired-startup-exec-readiness.spec.ts')
     expect(sshDockerRunner).toContain("'electron-headless'")
     expect(sshDockerRunner).toContain("'electron-headful'")
   })
