@@ -982,8 +982,6 @@
         "artifactsDescription": "HTML および Markdown ファイルをチームと共有し、パブリックリンクを管理します。",
         "automationsTitle": "自動化",
         "automationsDescription": "Agent の作業をスケジュールし、自動化をサイドバーに表示するかどうかを選択します。",
-        "shareSkillsTitle": "スキルを共有する",
-        "shareSkillsDescription": "非公開リンクを使用してスキルを共有してください。持っている人なら誰でもインストールできます。",
         "floatingWorkspaceWebDescription": "グローバルターミナルと markdown タブ。"
       },
       "useAppMenuPaste": {
@@ -11400,8 +11398,6 @@
           "keywordRuns": "走る"
         },
         "shareSkills": {
-          "title": "スキルを共有する",
-          "description": "非公開リンクを使用してスキルを共有してください。持っている人なら誰でもインストールできます。",
           "allowAgentPublishing": "Agent と Orca CLI がスキルリンクを公開できるようにする",
           "allowAgentPublishingDescription": "コマンドが明示的に指定されたインストール済みスキルを公開できるようにします。スキルフォルダーにはスクリプト、設定、またはシークレットを含めることができるため、これはデフォルトではオフになっています。",
           "allowAgentPublishingWebDescription": "デスクトップのみ。この設定を変更するには、ホストデバイスで [設定] → [スキルの共有] を開きます。",

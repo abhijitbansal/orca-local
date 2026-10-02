@@ -57,7 +57,7 @@ describe('settings navigation metadata', () => {
     )
   })
 
-  it('places Automations and Share Skills first under Workflows', () => {
+  it('places Automations and Skills first under Workflows', () => {
     const sections = buildSettingsNavigationMetadata({
       isMac: false,
       isWindows: false,
@@ -72,7 +72,8 @@ describe('settings navigation metadata', () => {
 
     expect(automations?.group).toBe('workflows')
     expect(automations?.searchEntries[0]?.title).toBe('Show Automations Button')
-    expect(shareSkills).toMatchObject({ group: 'workflows', badge: 'Beta' })
+    expect(shareSkills).toMatchObject({ group: 'workflows', title: 'Skills' })
+    expect(shareSkills?.badge).toBeUndefined()
     expect(shareSkills?.searchEntries[0]?.title).toBe('Show Skills button')
     expect(workflowIds.slice(0, 2)).toEqual(['automations', 'share-skills'])
   })

@@ -82,11 +82,10 @@ export function renderShareSkillsSettingsSection(
   return (
     <SettingsSection
       id="share-skills"
-      title={translate('auto.components.settings.shareSkills.title', 'Share Skills')}
-      badge="Beta"
+      title={translate('auto.components.settings.shareSkills.skillsTitle', 'Skills')}
       description={translate(
-        'auto.components.settings.shareSkills.description',
-        'Share your skills with an unlisted link. Anyone who has it can install them.'
+        'auto.components.settings.shareSkills.skillsDescription',
+        'Choose whether the Skills shortcut appears in the sidebar.'
       )}
       searchEntries={navigation.getSectionSearchEntries('share-skills')}
     >

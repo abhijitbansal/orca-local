@@ -1081,8 +1081,6 @@
         "artifactsDescription": "Partagez des fichiers HTML et Markdown avec votre équipe et gérez leurs liens publics.",
         "automationsTitle": "Automatisations",
         "automationsDescription": "Planifiez le travail des agents et choisissez si Automatisations apparaît dans la barre latérale.",
-        "shareSkillsTitle": "Partage de skills",
-        "shareSkillsDescription": "Partagez vos skills avec un lien non répertorié. Toute personne qui l'a peut les installer.",
         "floatingWorkspaceWebDescription": "Onglets globaux de terminal et de markdown."
       },
       "useAppMenuPaste": {
@@ -11471,8 +11469,6 @@
           "off": "Désactivé"
         },
         "shareSkills": {
-          "title": "Partage de skills",
-          "description": "Partagez vos skills avec un lien non répertorié. Toute personne qui l'a peut les installer.",
           "allowAgentPublishing": "Autoriser les agents et la CLI Orca à publier des liens de skills",
           "allowAgentPublishingDescription": "Permet aux commandes de publier des skills installées nommées explicitement. Les dossiers de skills peuvent contenir des scripts, de la configuration ou des secrets, c'est donc désactivé par défaut.",
           "allowAgentPublishingWebDescription": "Bureau uniquement. Ouvrez Paramètres → Partage de skills sur l'appareil hôte pour modifier ce paramètre.",

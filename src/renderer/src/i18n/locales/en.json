@@ -1108,9 +1108,9 @@
         "artifactsDescription": "Share HTML and Markdown files with your team and manage their public links.",
         "automationsTitle": "Automations",
         "automationsDescription": "Schedule agent work and choose whether Automations appears in the sidebar.",
-        "shareSkillsTitle": "Share Skills",
-        "shareSkillsDescription": "Share your skills with an unlisted link. Anyone who has it can install them.",
-        "floatingWorkspaceWebDescription": "Global terminal and markdown tabs."
+        "floatingWorkspaceWebDescription": "Global terminal and markdown tabs.",
+        "skillsTitle": "Skills",
+        "skillsDescription": "Choose whether the Skills shortcut appears in the sidebar."
       },
       "useAppMenuPaste": {
         "pasteTooLarge": "Paste is too large."
@@ -11593,8 +11593,6 @@
           "refreshAccounts": "Refresh GitHub accounts"
         },
         "shareSkills": {
-          "title": "Share Skills",
-          "description": "Share your skills with an unlisted link. Anyone who has it can install them.",
           "allowAgentPublishing": "Allow agents and the Orca CLI to publish skill links",
           "allowAgentPublishingDescription": "Let commands publish explicitly named installed skills. Skill folders can contain scripts, configuration, or secrets, so this is off by default.",
           "allowAgentPublishingWebDescription": "Desktop only. Open Settings → Share Skills on the host device to change this setting.",
@@ -11638,7 +11636,9 @@
           "keywordBundle": "bundle",
           "keywordLink": "link",
           "keywordUnlisted": "unlisted",
-          "keywordRevoke": "revoke"
+          "keywordRevoke": "revoke",
+          "skillsTitle": "Skills",
+          "skillsDescription": "Choose whether the Skills shortcut appears in the sidebar."
         },
         "bitbucket": {
           "credentials": {

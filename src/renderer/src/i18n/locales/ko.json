@@ -982,8 +982,6 @@
         "automationsDescription": "에이전트 작업을 예약하고 사이드바에 자동화 표시 여부를 선택합니다.",
         "artifactsTitle": "아티팩트",
         "artifactsDescription": "팀과 HTML 및 Markdown 파일을 공유하고 공개 링크를 관리하세요.",
-        "shareSkillsTitle": "스킬 공유",
-        "shareSkillsDescription": "비공개 링크로 기술을 공유하세요. 가지고 있는 사람이라면 누구나 설치할 수 있습니다.",
         "floatingWorkspaceWebDescription": "전역 터미널 및 markdown 탭."
       },
       "useAppMenuPaste": {
@@ -11400,8 +11398,6 @@
           "keywordUpload": "업로드"
         },
         "shareSkills": {
-          "title": "스킬 공유",
-          "description": "비공개 링크로 기술을 공유하세요. 가지고 있는 사람이라면 누구나 설치할 수 있습니다.",
           "allowAgentPublishing": "에이전트와 Orca CLI가 기술 링크를 게시하도록 허용",
           "allowAgentPublishingDescription": "명령이 명시적으로 명명된 설치된 기술을 게시하도록 허용합니다. 스킬 폴더에는 스크립트, 구성 또는 비밀이 포함될 수 있으므로 기본적으로 꺼져 있습니다.",
           "allowAgentPublishingWebDescription": "데스크탑 전용. 이 설정을 변경하려면 호스트 장치에서 설정 → 스킬 공유를 엽니다.",

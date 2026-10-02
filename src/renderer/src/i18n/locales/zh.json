@@ -982,8 +982,6 @@
         "artifactsDescription": "与您的团队共享 HTML 和 Markdown 文件并管理他们的公共链接。",
         "automationsTitle": "自动化",
         "automationsDescription": "安排代理工作并选择自动化是否显示在侧栏中。",
-        "shareSkillsTitle": "分享技能",
-        "shareSkillsDescription": "通过未列出的链接分享您的技能。任何拥有它的人都可以安装它们。",
         "floatingWorkspaceWebDescription": "全局终端和 Markdown 选项卡。"
       },
       "useAppMenuPaste": {
@@ -11400,8 +11398,6 @@
           "keywordRuns": "运行"
         },
         "shareSkills": {
-          "title": "分享技能",
-          "description": "通过未列出的链接分享您的技能。任何拥有它的人都可以安装它们。",
           "allowAgentPublishing": "允许代理和 Orca CLI 发布技能链接",
           "allowAgentPublishingDescription": "让命令发布明确命名的已安装技能。技能文件夹可以包含脚本、配置或机密，因此默认情况下此功能处于关闭状态。",
           "allowAgentPublishingWebDescription": "仅限桌面。在主机设备上打开“设置”→“共享技能”以更改此设置。",

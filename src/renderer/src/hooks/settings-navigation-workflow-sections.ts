@@ -40,17 +40,16 @@ export function buildWorkflowSettingsSections(
     },
     {
       id: 'share-skills',
-      title: translate('auto.hooks.useSettingsNavigationMetadata.shareSkillsTitle', 'Share Skills'),
+      title: translate('auto.hooks.useSettingsNavigationMetadata.skillsTitle', 'Skills'),
       description: translate(
-        'auto.hooks.useSettingsNavigationMetadata.shareSkillsDescription',
-        'Share your skills with an unlisted link. Anyone who has it can install them.'
+        'auto.hooks.useSettingsNavigationMetadata.skillsDescription',
+        'Choose whether the Skills shortcut appears in the sidebar.'
       ),
       // Why: the sidebar entry and the page header both use BookOpen for
       // skills, so the settings row that opens them matches.
       icon: BookOpen,
       searchEntries: getShareSkillsSettingsSearchEntries(),
-      group: 'workflows',
-      badge: translate('auto.hooks.useSettingsNavigationMetadata.40d80bad8a', 'Beta')
+      group: 'workflows'
     },
     {
       id: 'session-history',
