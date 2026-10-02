@@ -74,9 +74,14 @@ describe('feature wall schemas', () => {
   it('accepts only known tile ids for tile click telemetry', () => {
     expect(
       eventSchemas.feature_wall_tile_clicked.safeParse({
-        tile_id: 'tile-03'
+        tile_id: 'tile-04'
       }).success
     ).toBe(true)
+    expect(
+      eventSchemas.feature_wall_tile_clicked.safeParse({
+        tile_id: 'tile-03'
+      }).success
+    ).toBe(false)
     expect(
       eventSchemas.feature_wall_tile_clicked.safeParse({
         tile_id: 'tile-99'

@@ -1,7 +1,6 @@
 export type FeatureWallTileId =
   | 'tile-01'
   | 'tile-02'
-  | 'tile-03'
   | 'tile-04'
   | 'tile-05'
   | 'tile-06'
@@ -34,7 +33,6 @@ export type FeatureWallTile =
 export const FEATURE_WALL_MEDIA_TILE_IDS = [
   'tile-01',
   'tile-02',
-  'tile-03',
   'tile-04',
   'tile-05',
   'tile-06',
@@ -78,18 +76,6 @@ export const FEATURE_WALL_TILES: readonly FeatureWallTile[] = [
     recordedAtPath: 'tile-02.recorded-at.json',
     owner: 'terminal',
     docsUrl: 'https://www.onorca.dev/docs/terminal'
-  },
-  {
-    id: 'tile-03',
-    kind: 'media',
-    title: 'GitHub & Linear, native',
-    caption:
-      'Find connected GitHub or Linear work in Tasks, open its context, and start workspaces without switching tools.',
-    gifPath: 'tile-03.gif',
-    posterPath: 'tile-03.poster.jpg',
-    recordedAtPath: 'tile-03.recorded-at.json',
-    owner: 'task-integrations',
-    docsUrl: 'https://www.onorca.dev/docs/review/linear'
   },
   {
     id: 'tile-04',

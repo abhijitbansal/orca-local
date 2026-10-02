@@ -38,7 +38,6 @@ describe('getFeatureWallCompletionProgress', () => {
       })
     )
 
-    expect(progress.workflowDone.tasks).toBe(false)
     expect(progress.workflowDone['agents-orchestration']).toBe(false)
     expect(progress.workflowDone.workbench).toBe(false)
     expect(progress.workflowDone.review).toBe(false)
@@ -46,18 +45,6 @@ describe('getFeatureWallCompletionProgress', () => {
     expect(progress.workbenchStepDone.browser).toBe(false)
     expect(progress.reviewStepDone['pr-view']).toBe(false)
     expect(progress.reviewStepDone.ship).toBe(false)
-  })
-
-  it('completes tasks once the user visits Tasks', () => {
-    expect(getFeatureWallCompletionProgress(completionInput()).workflowDone.tasks).toBe(false)
-
-    expect(
-      getFeatureWallCompletionProgress(
-        completionInput({
-          visitedWorkflows: new Set<FeatureWallWorkflowId>(['tasks'])
-        })
-      ).workflowDone.tasks
-    ).toBe(true)
   })
 
   it('requires both visiting orchestration and detecting the skill before completing the step', () => {
@@ -191,9 +178,9 @@ describe('getFeatureWallCompletionProgress', () => {
 
 describe('normalizeFeatureWallVisitedWorkflows', () => {
   it('keeps persisted workflow visits and drops duplicates or unknown ids', () => {
-    expect(normalizeFeatureWallVisitedWorkflows(['workspaces', 'tasks', 'tasks', 'bogus'])).toEqual(
-      ['workspaces', 'tasks']
-    )
+    expect(
+      normalizeFeatureWallVisitedWorkflows(['workspaces', 'review', 'review', 'tasks', 'bogus'])
+    ).toEqual(['workspaces', 'review'])
   })
 })
 

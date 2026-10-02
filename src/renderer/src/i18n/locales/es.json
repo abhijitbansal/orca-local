@@ -10878,15 +10878,6 @@
             "d1a7f15876": "Generar mensaje de commit con IA",
             "cd8a3a39d7": "3 commits por delante"
           },
-          "TasksAnimatedVisual": {
-            "efba6f77eb": "Leyendo issue #",
-            "b68c92fbdc": "Iniciar workspace",
-            "4331c4d0f8": "Abierto",
-            "b13375617e": "El selector de worktree trunca los nombres",
-            "72f9e516a3": "pulsando",
-            "fe47c9c9e8": "Workspace listo",
-            "61ffda7601": "Creando workspace"
-          },
           "WorkbenchAnimatedVisual": {
             "633a91e358": "Pensando…",
             "932c4b3a97": ">",

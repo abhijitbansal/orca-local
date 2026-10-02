@@ -18,10 +18,7 @@ import { scheduleSecretProtectionGapReport } from '../host/deferred-secret-prote
 import { initSshHostKeyStoreFile } from '../ssh/ssh-host-key-store'
 import { neutralizeLegacyTerminalShimDir } from '../pty/legacy-terminal-shim-dir'
 import { createWindowsShellPathHydration } from './windows-shell-path-hydration'
-import {
-  configureWindowsHostGitEnvironmentReadiness,
-  setDefaultWslDistroOverride
-} from '../git/runner'
+import { configureWindowsHostGitEnvironmentReadiness } from '../git/runner'
 import { wslHookRelayManager } from '../agent-hooks/wsl-hook-relay-manager'
 import {
   attachClaudeLivePtyPersistence,
@@ -212,8 +209,6 @@ export async function initializeReadyFoundation(): Promise<void> {
     store.getSettings().electronHttp1CompatibilityMode === true,
     profile.profile.id
   )
-  // Why: apply initial fallback WSL distro from store settings for global git/CLI calls.
-  setDefaultWslDistroOverride(store.getSettings().terminalWindowsWslDistro ?? null)
   store.onSettingsChanged((updates, settings) => {
     if ('electronHttp1CompatibilityMode' in updates) {
       writeHttp1CompatibilityMarker(
@@ -221,10 +216,6 @@ export async function initializeReadyFoundation(): Promise<void> {
         settings.electronHttp1CompatibilityMode === true,
         profile.profile.id
       )
-    }
-    if ('terminalWindowsWslDistro' in updates) {
-      // Why: synchronize fallback WSL distro updates to runner.
-      setDefaultWslDistroOverride(settings.terminalWindowsWslDistro ?? null)
     }
     if (
       ('terminalWindowsShell' in updates || 'terminalWindowsPowerShellImplementation' in updates) &&

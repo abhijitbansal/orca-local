@@ -970,15 +970,6 @@
             "8ab622e4d6": "notes",
             "8df4d52b68": "pr-view"
           },
-          "TasksAnimatedVisual": {
-            "4331c4d0f8": "Open",
-            "61ffda7601": "Creating workspace",
-            "72f9e516a3": "pressing",
-            "b13375617e": "Worktree picker truncates names",
-            "b68c92fbdc": "Start workspace",
-            "efba6f77eb": "Reading issue #",
-            "fe47c9c9e8": "Workspace ready"
-          },
           "agents": {
             "orchestration": {
               "orchestration": {

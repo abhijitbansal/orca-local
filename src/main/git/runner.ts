@@ -11,7 +11,6 @@
 // Re-exported for existing importers; lightweight consumers should import from './exec-error' to avoid this heavy module.
 export { extractExecError, parseRetryAfterMs } from './exec-error'
 
-export { setDefaultWslDistroOverride } from './command-runner/wsl-command-resolution'
 export {
   awaitWindowsHostGitEnvironmentReady,
   configureWindowsHostGitEnvironmentReadiness

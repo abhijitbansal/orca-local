@@ -2617,19 +2617,6 @@ html.native-shell .app-layout {
   }
 }
 
-/* Why: smooth reveal for the Tasks-tile workspace card so it eases in once the
-   workspace flips from "Creating" to "Ready" instead of popping in. */
-@keyframes tasks-workspace-in {
-  0% {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 /* Why: orchestrator → child connector arrows. Faint dashed strokes drawn in
    JS so endpoints follow the real card geometry as cards animate between
    phase 1 (parent + nested child) and phase 2 (parent + spawned peer). */

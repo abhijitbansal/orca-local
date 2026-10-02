@@ -155,7 +155,6 @@ export type RequestKind = z.infer<typeof requestKindSchema>
 export const featureWallTileIdSchema = z.enum([
   'tile-01',
   'tile-02',
-  'tile-03',
   'tile-04',
   'tile-05',
   'tile-06',
@@ -171,7 +170,6 @@ export const featureWallOpenSourceSchema = z.enum(['help_menu', 'popup', 'onboar
 export type FeatureWallOpenSourceTelemetry = z.infer<typeof featureWallOpenSourceSchema>
 
 export const featureWallWorkflowIdSchema = z.enum([
-  'tasks',
   'workspaces',
   'agents-orchestration',
   'workbench',

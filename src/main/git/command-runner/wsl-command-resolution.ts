@@ -1,4 +1,4 @@
-import { getDefaultWslDistro, parseWslPath, type WslPathInfo } from '../../wsl'
+import { parseWslPath, type WslPathInfo } from '../../wsl'
 import {
   buildWslCapturedLoginShellCommand,
   buildWslExecArgs,
@@ -35,21 +35,6 @@ export type ResolvedCommand = {
   termination?: WslProcessGroupTermination
 }
 
-let defaultWslDistroOverride: string | null = null
-
-// Why: allow host commands fallback to route through the user's pinned WSL distro when host execution fails.
-export function setDefaultWslDistroOverride(distro: string | null): void {
-  defaultWslDistroOverride = distro
-}
-
-export function resolveDefaultWslCli(
-  command: 'gh' | 'glab',
-  args: string[]
-): ResolvedCommand | null {
-  const distro = defaultWslDistroOverride ?? getDefaultWslDistro()
-  return distro ? resolveCommand(command, args, undefined, distro) : null
-}
-
 /**
  * Resolve whether a command invocation should be routed through wsl.exe.
  *
@@ -81,8 +66,7 @@ export function resolveCommand(
     return { binary: command, args, cwd, wsl: null, wslMode: null }
   }
 
-  // Why: global gh callers (rate_limit, listAccessibleProjects) have no cwd to derive a distro from; a distro hint still routes through wsl.exe.
-  // TODO(wsl-default-distro): no default-distro setting yet, so override-less global gh callers fall back to host gh.exe (ENOENT on WSL-only installs).
+  // Why: a distro hint without a cwd still routes through wsl.exe.
   const cwdWsl = cwd ? parseWslPath(cwd) : null
   const wsl: WslPathInfo | null =
     cwdWsl ?? (wslDistroOverride ? { distro: wslDistroOverride, linuxPath: '' } : null)
