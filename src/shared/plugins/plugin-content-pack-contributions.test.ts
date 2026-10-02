@@ -39,6 +39,14 @@ describe('content-pack manifest contributions', () => {
     expect(parsed.contributes.keybindings[0]?.key).toBe('Mod+Alt+T')
   })
 
+  it('still accepts a third-party manifest that targets the removed view.tasks action', () => {
+    expect(
+      parsePluginManifest(
+        manifest({ commands: [{ id: 'open-tasks', title: 'Open tasks', action: 'view.tasks' }] })
+      )
+    ).toMatchObject({ ok: true })
+  })
+
   it('defaults every contribution registry to an empty array', () => {
     const parsed = pluginManifestSchema.parse(manifest({}))
 

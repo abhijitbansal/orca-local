@@ -1,6 +1,6 @@
 import {
   pluginCommandKeybindingActionId,
-  type PluginCommandAliasActionId
+  type PluginCommandActionId
 } from '../../shared/plugins/plugin-command-actions'
 import { getKeybindingConflictIdentity, type KeybindingOverrides } from '../../shared/keybindings'
 import type {
@@ -24,7 +24,7 @@ export type PluginCommandRegistration = {
   id: string
   title: string
   context: 'global' | 'worktree'
-  handler: { type: 'built-in'; action: PluginCommandAliasActionId } | { type: 'worker' }
+  handler: { type: 'built-in'; action: PluginCommandActionId } | { type: 'worker' }
   keybindings: PluginCommandKeybinding[]
 }
 
@@ -142,7 +142,7 @@ function registrationsForManifest(
     handler:
       command.action === undefined
         ? { type: 'worker' as const }
-        : { type: 'built-in' as const, action: command.action as PluginCommandAliasActionId },
+        : { type: 'built-in' as const, action: command.action as PluginCommandActionId },
     keybindings: keybindingsForCommand(command, bindingsByCommand.get(command.id) ?? [])
   }))
 }

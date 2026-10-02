@@ -217,4 +217,15 @@ describe('PluginMarketplaceService', () => {
     await expect(service.listSources()).resolves.toEqual([])
     await expect(service.listPlugins()).resolves.toEqual([])
   })
+
+  it('lets the user remove a legacy persisted official source', async () => {
+    const service = new PluginMarketplaceService({
+      pluginsDataDir: await tempRoot(),
+      fetcher: async () => fetched({ name: 'Orca Plugins', owner: 'stablyai', plugins: [] })
+    })
+    const added = await service.addSource(source('https://github.com/stablyai/orca-plugins.git'))
+
+    await expect(service.removeSource(added.id)).resolves.toBe(true)
+    await expect(service.listSources()).resolves.toEqual([])
+  })
 })

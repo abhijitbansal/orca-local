@@ -40,6 +40,20 @@ describe('plugin command execution', () => {
     expect(invokeCommand).not.toHaveBeenCalled()
   })
 
+  it('treats a removed built-in action as a no-op instead of failing', async () => {
+    const dispatcher = vi.fn(() => false)
+    const invokeCommand = vi.fn()
+    unregister = registerAppCommandDispatcher(dispatcher)
+    Object.assign(window, { api: { plugins: { invokeCommand } } })
+
+    await expect(
+      executePluginCommand(command({ type: 'built-in', action: 'view.tasks' }), 'plugin-palette')
+    ).resolves.toBeUndefined()
+
+    expect(dispatcher).not.toHaveBeenCalled()
+    expect(invokeCommand).not.toHaveBeenCalled()
+  })
+
   it('routes worker commands through the authenticated preload binding', async () => {
     const invokeCommand = vi.fn().mockResolvedValue({ ok: true })
     Object.assign(window, { api: { plugins: { invokeCommand } } })

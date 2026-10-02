@@ -8,7 +8,7 @@ import type { PluginLockfile } from '../../shared/plugins/plugin-install-lockfil
 import { isInvalidDiscoveredPlugin } from './plugin-discovery'
 import type { PluginService } from './plugin-service'
 import { listPluginVmRecipeCommands } from '../../shared/plugins/plugin-vm-recipe-artifact'
-import type { PluginCommandAliasActionId } from '../../shared/plugins/plugin-command-actions'
+import type { PluginCommandActionId } from '../../shared/plugins/plugin-command-actions'
 import {
   isOfficialMarketplaceGitSource,
   isOfficialOrganizationGitSource,
@@ -61,7 +61,7 @@ export type PluginListEntry = {
     id: string
     title: string
     context: 'global' | 'worktree'
-    handler: { type: 'built-in'; action: PluginCommandAliasActionId } | { type: 'worker' }
+    handler: { type: 'built-in'; action: PluginCommandActionId } | { type: 'worker' }
     keybindings: { key: string; when: 'global' | 'worktree' }[]
   }[]
   hasWorker: boolean
