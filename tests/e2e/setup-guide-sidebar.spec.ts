@@ -281,8 +281,6 @@ async function seedCompletedSetupExceptCapabilityReadiness(page: Page): Promise<
       },
       preflightStatusChecked: true,
       preflightStatusLoading: false,
-      linearStatus: { connected: false, viewer: null },
-      linearStatusChecked: true,
       repos: [primaryRepo, secondaryRepo],
       activeRepoId: primaryRepo.id,
       worktreesByRepo: {

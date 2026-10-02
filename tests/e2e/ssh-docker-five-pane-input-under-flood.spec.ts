@@ -74,10 +74,10 @@ test.describe('five SSH panes under simultaneous output', () => {
     await expect(visibleTerminals).toHaveCount(5)
 
     for (let round = 0; round < 2; round++) {
-      await orcaPage.evaluate(() => window.__store!.getState().setActiveView('tasks'))
+      await orcaPage.evaluate(() => window.__store!.getState().setActiveView('automations'))
       await expect
         .poll(() => orcaPage.evaluate(() => window.__store!.getState().activeView))
-        .toBe('tasks')
+        .toBe('automations')
       await expect(visibleTerminals).toHaveCount(0)
       await orcaPage.evaluate(() => window.__store!.getState().setActiveView('terminal'))
       await expect(visibleTerminals).toHaveCount(5)

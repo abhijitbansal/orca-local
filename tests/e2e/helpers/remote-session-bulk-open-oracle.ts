@@ -180,7 +180,7 @@ export async function runBulkOpenFreezeOracle(
   const worktreeIds = [...new Set(sessions.map((s) => s.worktreeId))]
 
   // Leave terminal view so panes can park / go inactive while flooding.
-  await page.evaluate(() => window.__store?.getState().setActiveView('tasks'))
+  await page.evaluate(() => window.__store?.getState().setActiveView('automations'))
   await page.evaluate(
     () =>
       new Promise<void>((resolve) => {

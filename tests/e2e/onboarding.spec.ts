@@ -23,7 +23,6 @@ type OnboardingState = {
 }
 
 const SKIP_TO_PROJECT_SETUP_BUTTON = /^Skip to project setup$/i
-const TASK_SOURCES_HEADING = /Set up GitHub tasks/i
 const WINDOWS_TERMINAL_HEADING = /Set Windows terminal defaults/i
 const ADD_PROJECT_DIALOG_HEADING = /Add (?:a server project|a project|another project)/i
 
@@ -112,7 +111,7 @@ async function continueFromPostNotificationsToRepo(page: Page): Promise<void> {
   if (await page.getByRole('heading', { name: ADD_PROJECT_DIALOG_HEADING }).isVisible()) {
     return
   }
-  await continueThroughOptionalTaskSourcesAndWindowsTerminal(page)
+  await continueThroughOptionalWindowsTerminal(page)
   await expect(page.getByRole('heading', { name: /Set up notifications/i })).toBeVisible()
   await expectOnboardingProgress(page, /^[345] of [345]$/)
   await expect(onboardingFooterButton(page, /^Add your first project\b/)).toBeVisible()
@@ -120,16 +119,7 @@ async function continueFromPostNotificationsToRepo(page: Page): Promise<void> {
   await expectAddProjectDialog(page)
 }
 
-async function continueThroughOptionalTaskSourcesAndWindowsTerminal(page: Page): Promise<void> {
-  const taskSourcesVisible = await page
-    .getByRole('heading', { name: TASK_SOURCES_HEADING })
-    .waitFor({ state: 'visible', timeout: 1_000 })
-    .then(() => true)
-    .catch(() => false)
-  if (taskSourcesVisible) {
-    await expectOnboardingProgress(page, /^3 of [45]$/)
-    await continueOnboarding(page)
-  }
+async function continueThroughOptionalWindowsTerminal(page: Page): Promise<void> {
   const windowsTerminalVisible = await page
     .getByRole('heading', { name: WINDOWS_TERMINAL_HEADING })
     .waitFor({ state: 'visible', timeout: 1_000 })
@@ -144,7 +134,7 @@ async function continueThroughOptionalTaskSourcesAndWindowsTerminal(page: Page):
 
 async function continueFromThemeToNotifications(page: Page): Promise<void> {
   await continueOnboarding(page)
-  await continueThroughOptionalTaskSourcesAndWindowsTerminal(page)
+  await continueThroughOptionalWindowsTerminal(page)
 }
 
 test.describe('Onboarding flow', () => {
@@ -260,7 +250,7 @@ test.describe('Onboarding flow', () => {
     await expect
       .poll(async () => (await getSettings(orcaPage)).theme, { timeout: 5_000 })
       .toBe(oppositeTheme)
-    await continueThroughOptionalTaskSourcesAndWindowsTerminal(orcaPage)
+    await continueThroughOptionalWindowsTerminal(orcaPage)
     await expectOnboardingProgress(orcaPage, /^[345] of [345]$/)
     await expect
       .poll(async () => [3, 4].includes((await getOnboardingState(orcaPage)).lastCompletedStep), {

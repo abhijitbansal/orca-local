@@ -102,7 +102,7 @@ test.describe('R2 Docker SSH bulk-open freeze', () => {
       }
 
       // Leave the workspace view so panes go inactive while flooding.
-      await orcaPage.evaluate(() => window.__store?.getState().setActiveView('tasks'))
+      await orcaPage.evaluate(() => window.__store?.getState().setActiveView('automations'))
       await orcaPage.waitForTimeout(4_000)
 
       const hiddenProbe = await startRendererLagProbe(orcaPage)
@@ -127,7 +127,7 @@ test.describe('R2 Docker SSH bulk-open freeze', () => {
         const started = performance.now()
         const state = window.__store?.getState()
         const view = state?.activeView
-        state?.setActiveView(view === 'tasks' ? 'terminal' : 'tasks')
+        state?.setActiveView(view === 'automations' ? 'terminal' : 'automations')
         await new Promise<void>((r) =>
           requestAnimationFrame(() => requestAnimationFrame(() => r()))
         )

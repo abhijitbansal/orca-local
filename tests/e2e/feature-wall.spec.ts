@@ -102,9 +102,7 @@ test.describe('Feature tour modal', () => {
           }
         },
         preflightStatusChecked: true,
-        preflightStatusLoading: false,
-        linearStatus: { connected: false, viewer: null },
-        linearStatusChecked: true
+        preflightStatusLoading: false
       })
       store.getState().openModal('feature-wall', { source: 'help_menu' })
     })
@@ -186,10 +184,6 @@ test.describe('Feature tour modal', () => {
       ({ ipcMain }, preflightStatus) => {
         ipcMain.removeHandler('preflight:check')
         ipcMain.handle('preflight:check', () => preflightStatus)
-        ipcMain.removeHandler('linear:status')
-        ipcMain.handle('linear:status', () => ({ connected: false, viewer: null }))
-        ipcMain.removeHandler('jira:status')
-        ipcMain.handle('jira:status', () => ({ connected: false, viewer: null }))
       },
       {
         git: { installed: true },
@@ -230,11 +224,7 @@ test.describe('Feature tour modal', () => {
         throw new Error('window.__store is not available')
       }
       // Seed through the status actions so each result gets the current execution context.
-      await Promise.all([
-        store.getState().refreshPreflightStatus({ force: true }),
-        store.getState().checkLinearConnection(true),
-        store.getState().checkJiraConnection()
-      ])
+      await store.getState().refreshPreflightStatus({ force: true })
       store.getState().openModal('feature-wall', { source: 'help_menu' })
     })
 

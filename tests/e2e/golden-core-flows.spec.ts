@@ -20,7 +20,6 @@ import {
 
 const tempRoots: string[] = []
 const SORTABLE_TAB = '[data-testid="sortable-tab"]'
-const TASK_SOURCES_HEADING = /Set up GitHub tasks|Connect your task sources/i
 const WINDOWS_TERMINAL_HEADING = /Set Windows terminal defaults/i
 const ONBOARDING_ADVANCE_LABEL = /^Continue\b|^Add your first project\b/
 test.describe.configure({ mode: 'serial' })
@@ -145,14 +144,6 @@ async function chooseNotificationSound(page: Page): Promise<void> {
 }
 
 async function continueThroughOptionalSetupToNotifications(page: Page): Promise<void> {
-  const taskSourcesVisible = await page
-    .getByRole('heading', { name: TASK_SOURCES_HEADING })
-    .waitFor({ state: 'visible', timeout: 1_000 })
-    .then(() => true)
-    .catch(() => false)
-  if (taskSourcesVisible) {
-    await continueOnboarding(page)
-  }
   const windowsTerminalVisible = await page
     .getByRole('heading', { name: WINDOWS_TERMINAL_HEADING })
     .waitFor({ state: 'visible', timeout: 1_000 })
@@ -166,14 +157,6 @@ async function continueThroughOptionalSetupToNotifications(page: Page): Promise<
 
 async function continueFromNotificationsToAddProject(page: Page): Promise<void> {
   await continueOnboarding(page)
-  const taskSourcesVisible = await page
-    .getByRole('heading', { name: TASK_SOURCES_HEADING })
-    .waitFor({ state: 'visible', timeout: 1_000 })
-    .then(() => true)
-    .catch(() => false)
-  if (taskSourcesVisible) {
-    await continueOnboarding(page)
-  }
   const windowsTerminalVisible = await page
     .getByRole('heading', { name: WINDOWS_TERMINAL_HEADING })
     .waitFor({ state: 'visible', timeout: 1_000 })
