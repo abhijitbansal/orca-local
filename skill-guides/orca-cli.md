@@ -193,7 +193,7 @@ The commands, snapshot and ref rules, page affinity, and `browser_*` recoveries 
 
 ## Agent Session Search
 
-`ORCA search` runs a full-text search over the agent sessions indexed on one Orca host: this machine, or the paired server named by `--environment` or `--pairing-code`. There is no all-computers search.
+`ORCA search` runs a full-text search over the agent sessions indexed on this Orca host. There is no all-computers search.
 
 Common commands:
 
@@ -203,7 +203,6 @@ ORCA search "resolveTerminalPath" --scope conversation --json
 ORCA search "blank restore" --agent codex --since 2026-09-01T00:00:00Z --json
 ORCA search "blank restore" --path /abs/worktree --sort newest --limit 50 --json
 ORCA search "blank restore" --cursor <cursor> --json
-ORCA search "blank restore" --environment <environmentId> --json
 ORCA search "blank restore" --fresh --debug --json
 ORCA search --index-status --json
 ```

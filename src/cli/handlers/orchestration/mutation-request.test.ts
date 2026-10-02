@@ -210,7 +210,7 @@ describe('callOrchestrationMutation runtime_unavailable retry', () => {
         })
       })
       servers.add(server)
-      const client = new RuntimeClient(userDataPath, 5_000, null, null, 'orca')
+      const client = new RuntimeClient(userDataPath, 5_000, 'orca')
       const call = callOrchestrationMutation(
         client,
         new Map(),

@@ -1,5 +1,5 @@
 import type { SkillDiscoveryResult } from '../../shared/skills'
-import type { CommandHandler, HandlerContext } from '../dispatch'
+import type { CommandHandler } from '../dispatch'
 import { printResult } from '../format'
 import { RuntimeClientError } from '../runtime-client'
 
@@ -8,8 +8,8 @@ type InstalledSkillSummary = Pick<
   'id' | 'name' | 'description' | 'providers' | 'sourceKind' | 'sourceLabel'
 >
 
-function rejectForwardedSkillFilesystem(ctx: HandlerContext, command: string): void {
-  if (!process.env.ORCA_CLI_CWD && !ctx.client.isRemote) {
+function rejectForwardedSkillFilesystem(command: string): void {
+  if (!process.env.ORCA_CLI_CWD) {
     return
   }
   throw new RuntimeClientError(
@@ -43,7 +43,7 @@ function formatInstalledSkills(skills: InstalledSkillSummary[]): string {
 
 export const SKILL_SHARING_HANDLERS: Record<string, CommandHandler> = {
   'skills installed': async (ctx) => {
-    rejectForwardedSkillFilesystem(ctx, 'installed')
+    rejectForwardedSkillFilesystem('installed')
     const response = await ctx.client.call<SkillDiscoveryResult>('skills.discover', {
       cwd: ctx.cwd
     })

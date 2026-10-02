@@ -5,16 +5,12 @@ const {
   runtimeClientConstructorMock,
   serveOrcaAppMock,
   getDefaultUserDataPathMock,
-  addEnvironmentFromPairingCodeMock,
-  listEnvironmentsMock,
   spawnMock
 } = vi.hoisted(() => ({
   callMock: vi.fn(),
   runtimeClientConstructorMock: vi.fn(),
   serveOrcaAppMock: vi.fn(),
   getDefaultUserDataPathMock: vi.fn(() => '/tmp/orca-user-data'),
-  addEnvironmentFromPairingCodeMock: vi.fn(),
-  listEnvironmentsMock: vi.fn(),
   spawnMock: vi.fn()
 }))
 
@@ -27,13 +23,6 @@ vi.mock('./runtime-client', async () => {
     getDefaultUserDataPathMock
   })
 })
-
-vi.mock('./runtime/environments', () => ({
-  addEnvironmentFromPairingCode: addEnvironmentFromPairingCodeMock,
-  listEnvironments: listEnvironmentsMock,
-  removeEnvironment: vi.fn(),
-  resolveEnvironment: vi.fn()
-}))
 
 vi.mock('child_process', async () => {
   const { createChildProcessModuleMock } = await import('./index-test-harness.js')
@@ -251,19 +240,6 @@ describe('command aliases dispatch to the canonical handler', () => {
     )
     expect(rm.aliases).toContainEqual(['worktree', 'remove'])
   })
-
-  it('keeps `agent-context` local when remote environment variables are set', async () => {
-    vi.stubEnv('ORCA_PAIRING_CODE', 'pairing-code')
-    vi.stubEnv('ORCA_ENVIRONMENT', 'stale-environment')
-    try {
-      await main(['agent-context', '--json'], '/tmp/repo')
-
-      expect(process.exitCode).not.toBe(1)
-      expect(callMock).not.toHaveBeenCalled()
-    } finally {
-      vi.unstubAllEnvs()
-    }
-  })
 })
 
 describe('unknown command surfaces a suggestion', () => {
@@ -340,21 +316,6 @@ describe('unknown command surfaces a suggestion', () => {
     expect(callMock).not.toHaveBeenCalled()
     logSpy.mockRestore()
   })
-
-  it.each(['environment', 'pairing-code'])(
-    'rejects --%s without a selector before runtime construction',
-    async (flag) => {
-      runtimeClientConstructorMock.mockClear()
-
-      await main([`--${flag}`, 'worktree', 'list'], '/tmp/repo')
-
-      expect(process.exitCode).toBe(1)
-      const stderr = errorSpy.mock.calls.map((call) => String(call[0])).join('\n')
-      expect(stderr).toContain(`Flag --${flag} requires a value.`)
-      expect(runtimeClientConstructorMock).not.toHaveBeenCalled()
-      expect(callMock).not.toHaveBeenCalled()
-    }
-  )
 })
 
 describe('unknown help command surfaces a suggestion', () => {

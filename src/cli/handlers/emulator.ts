@@ -242,7 +242,7 @@ export const EMULATOR_HANDLERS: Record<string, CommandHandler> = {
     const apkPath = resolveRepoPathArgument(
       getRequiredStringFlag(flags, 'path'),
       cwd,
-      client.isRemote,
+      false,
       'Remote emulator install'
     )
     const res = await client.call('emulator.install', {

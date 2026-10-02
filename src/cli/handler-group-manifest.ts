@@ -189,14 +189,7 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
   },
   {
     name: 'environment',
-    keys: [
-      'host name',
-      'host list',
-      'environment add',
-      'environment list',
-      'environment show',
-      'environment rm'
-    ],
+    keys: ['host name', 'host list'],
     load: async () => (await import('./handlers/environment.js')).ENVIRONMENT_HANDLERS
   },
   {

@@ -53,9 +53,8 @@ describe('serve-mode-argv', () => {
       ['C:\\Program Files\\Orca\\Orca.exe', '--squirrel-firstrun'],
       ['C:\\Program Files\\Orca\\Orca.exe', 'orca://worktree/serve'],
       ['/opt/orca/orca-ide', '/home/u/serve'],
-      // `--pairing-code` takes the next token, so its value is never the subcommand.
-      ['/opt/orca/orca-ide', '--pairing-code', 'serve'],
-      ['/opt/orca/orca-ide', '--environment=serve'],
+      // `--proxy-server` takes the next token, so its value is never the subcommand.
+      ['/opt/orca/orca-ide', '--proxy-server', 'serve'],
       ['/opt/orca/orca-ide', '--', 'serve'],
       ['/opt/orca/orca-ide', 'Serve']
     ]) {
@@ -114,7 +113,7 @@ describe('serve-mode-argv', () => {
       'serve',
       '--serve',
       '--json',
-      '--pairing-code',
+      '--proxy-server',
       '--user-data-dir',
       '--',
       '-h',

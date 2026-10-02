@@ -14,7 +14,6 @@ const { connect, tryReadMetadata } = vi.hoisted(() => ({
 vi.mock('node:net', () => ({ createConnection: connect }))
 vi.mock('./metadata', () => ({ tryReadMetadata, readMetadata: tryReadMetadata }))
 vi.mock('./launch', () => ({ launchOrcaApp: vi.fn() }))
-vi.mock('./runtime-remote-pairing', () => ({ resolveRemotePairing: () => null }))
 
 const metadata: RuntimeMetadata = {
   runtimeId: 'runtime-test',
@@ -124,7 +123,7 @@ describe('runtime access denied', () => {
   })
 
   it('does not launch or poll Orca when the initial status is denied', async () => {
-    const pending = new RuntimeClient('/test', 1000, null, null).openOrca()
+    const pending = new RuntimeClient('/test', 1000).openOrca()
     failConnect('EPERM')
 
     await expect(pending).rejects.toMatchObject({ code: 'runtime_access_denied' })

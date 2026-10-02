@@ -1,21 +1,15 @@
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { callMock, remoteMock } = vi.hoisted(() => ({
-  callMock: vi.fn(),
-  remoteMock: vi.fn(() => false)
+const { callMock } = vi.hoisted(() => ({
+  callMock: vi.fn()
 }))
 
 vi.mock('../runtime-client', async () => {
   class RuntimeClient {
-    readonly isRemote: boolean
     call = callMock
     getCliStatus = vi.fn()
     openOrca = vi.fn()
-
-    constructor() {
-      this.isRemote = remoteMock()
-    }
   }
 
   // Why: re-export the REAL error classes; format.ts narrows with `instanceof`
@@ -35,7 +29,6 @@ describe('orca emulator CLI handlers', () => {
   beforeEach(() => {
     vi.restoreAllMocks()
     callMock.mockReset()
-    remoteMock.mockReturnValue(false)
     vi.spyOn(console, 'log').mockImplementation(() => {})
     vi.spyOn(console, 'error').mockImplementation(() => {})
     process.exitCode = undefined
@@ -127,39 +120,6 @@ describe('orca emulator CLI handlers', () => {
       { device: 'device-1', worktree: 'repo-1::/repo/project ', focus: false },
       { timeoutMs: 180_000 }
     )
-  })
-
-  it('rejects relative APK paths for remote runtimes', async () => {
-    remoteMock.mockReturnValue(true)
-
-    await main(
-      ['emulator', 'install', 'build/app.apk', '--pairing-code', 'remote', '--worktree', 'all'],
-      '/repo/project'
-    )
-
-    expect(callMock).not.toHaveBeenCalled()
-    expect(vi.mocked(console.error).mock.calls[0][0]).toContain(
-      'Remote emulator install requires --path to be an absolute path on the remote server.'
-    )
-    expect(process.exitCode).toBe(1)
-  })
-
-  it('preserves absolute server APK paths for remote runtimes', async () => {
-    remoteMock.mockReturnValue(true)
-    queueFixtures(callMock, okFixture('req_install', { ok: true }))
-
-    await main(
-      ['emulator', 'install', 'C:\\tmp\\app.apk', '--pairing-code', 'remote', '--worktree', 'all'],
-      '/repo/project'
-    )
-
-    expect(callMock).toHaveBeenCalledWith('emulator.install', {
-      path: 'C:\\tmp\\app.apk',
-      reinstall: false,
-      device: undefined,
-      emulator: undefined,
-      worktree: undefined
-    })
   })
 
   it('allows device-wide permission reset without package or permission', async () => {

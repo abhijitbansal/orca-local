@@ -4,7 +4,6 @@ const callMock = vi.fn()
 
 vi.mock('../runtime-client', () => {
   class RuntimeClient {
-    readonly isRemote = false
     call = callMock
     getCliStatus = vi.fn()
     openOrca = vi.fn()

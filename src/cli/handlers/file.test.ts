@@ -4,19 +4,9 @@ const callMock = vi.fn()
 
 vi.mock('../runtime-client', () => {
   class RuntimeClient {
-    readonly isRemote: boolean
     call = callMock
     getCliStatus = vi.fn()
     openOrca = vi.fn()
-
-    constructor(
-      _userDataPath?: string,
-      _requestTimeoutMs?: number,
-      remotePairingCode?: string | null,
-      environmentSelector?: string | null
-    ) {
-      this.isRemote = Boolean(remotePairingCode || environmentSelector)
-    }
   }
 
   class RuntimeClientError extends Error {
@@ -395,26 +385,6 @@ describe('orca file CLI handlers', () => {
     })
   })
 
-  it('sends caller to a paired remote server, and all with --focus', async () => {
-    const opened = { worktree: 'wt-1', relativePath: 'src/App.tsx', kind: 'text', opened: true }
-    queueFixtures(callMock, okFixture('req_open', opened), okFixture('req_open_focus', opened))
-    const remote = ['--worktree', 'id:wt-1', '--pairing-code', 'remote-runtime']
-
-    await main(['file', 'open', 'src/App.tsx', ...remote], '/tmp/elsewhere')
-    await main(['file', 'open', 'src/App.tsx', ...remote, '--focus'], '/tmp/elsewhere')
-
-    expect(callMock).toHaveBeenNthCalledWith(1, 'files.open', {
-      worktree: 'id:wt-1',
-      relativePath: 'src/App.tsx',
-      navigation: 'caller'
-    })
-    expect(callMock).toHaveBeenNthCalledWith(2, 'files.open', {
-      worktree: 'id:wt-1',
-      relativePath: 'src/App.tsx',
-      navigation: 'all'
-    })
-  })
-
   it('moves the view once for open-changed --focus, on the first tab that opens', async () => {
     queueFixtures(
       callMock,
@@ -479,20 +449,6 @@ describe('orca file CLI handlers', () => {
       staged: false,
       navigation: 'caller'
     })
-  })
-
-  it('requires an explicit worktree for remote file commands', async () => {
-    const priorExitCode = process.exitCode
-
-    await main(['file', 'open-changed', '--pairing-code', 'remote-runtime'], '/tmp/repo/src')
-
-    expect(callMock).not.toHaveBeenCalled()
-    expect(vi.mocked(console.error).mock.calls[0][0]).toContain(
-      'Remote file commands require --worktree'
-    )
-    expect(process.exitCode).toBe(1)
-
-    process.exitCode = priorExitCode
   })
 
   it('rejects --mode without a value before cwd inference or RPC calls', async () => {

@@ -1,7 +1,6 @@
 import { join } from 'node:path'
 import type { CommandHandler } from '../dispatch'
 import { printResult } from '../format'
-import { rejectRemoteSelectionFlags } from '../remote-selection-flag-rejection'
 import {
   RuntimeClientError,
   type RuntimeClient,
@@ -174,8 +173,7 @@ async function setAgentHooksEnabled(
 }
 
 export const AGENT_HOOK_HANDLERS: Record<string, CommandHandler> = {
-  'agent hooks prepare-codex': async ({ client, flags }) => {
-    rejectRemoteHookSelection(flags)
+  'agent hooks prepare-codex': async ({ client }) => {
     if (!process.env.WSL_DISTRO_NAME?.trim()) {
       // Why a no-op: native pane wrappers from builds up to v1.4.216 still call it; delete once no supported build's wrapper does.
       return
@@ -194,8 +192,7 @@ export const AGENT_HOOK_HANDLERS: Record<string, CommandHandler> = {
       // Best effort: old or unavailable runtimes must not block Codex launch.
     }
   },
-  'agent hooks status': async ({ json, flags }) => {
-    rejectRemoteHookSelection(flags)
+  'agent hooks status': async ({ json }) => {
     const { getManagedAgentHookStatuses } =
       await import('../../main/agent-hooks/managed-agent-hook-controls.js')
     const result: AgentHookCommandResult = {
@@ -206,21 +203,12 @@ export const AGENT_HOOK_HANDLERS: Record<string, CommandHandler> = {
     }
     printResult(localSuccess(result), json, formatAgentHookCommandResult)
   },
-  'agent hooks off': async ({ client, json, flags }) => {
-    rejectRemoteHookSelection(flags)
+  'agent hooks off': async ({ client, json }) => {
     const result = await setAgentHooksEnabled(client, false)
     printResult(localSuccess(result), json, formatAgentHookCommandResult)
   },
-  'agent hooks on': async ({ client, json, flags }) => {
-    rejectRemoteHookSelection(flags)
+  'agent hooks on': async ({ client, json }) => {
     const result = await setAgentHooksEnabled(client, true)
     printResult(localSuccess(result), json, formatAgentHookCommandResult)
   }
-}
-
-function rejectRemoteHookSelection(flags: ReadonlyMap<string, string | boolean>): void {
-  rejectRemoteSelectionFlags(
-    flags,
-    'agent hooks; run this command on the machine whose hooks you want to manage.'
-  )
 }

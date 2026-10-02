@@ -21,13 +21,10 @@ export const MALFORMED_CURSOR_MESSAGE =
  */
 function createCliSessionSearch(client: RuntimeClient) {
   let lastEnvelope: RuntimeRpcSuccess<unknown> | undefined
-  const search = createSessionSearchClient(
-    async (method, params) => {
-      lastEnvelope = await client.call(method, params)
-      return lastEnvelope.result
-    },
-    client.isRemote ? 'relay' : 'runtime'
-  )
+  const search = createSessionSearchClient(async (method, params) => {
+    lastEnvelope = await client.call(method, params)
+    return lastEnvelope.result
+  }, 'runtime')
   // Why `client`: an answer synthesised from a refusal had no successful call, so
   // no runtime produced it and none of its identifiers may be claimed here.
   const envelope = <TResult>(result: TResult): RuntimeRpcSuccess<TResult> =>

@@ -7,7 +7,6 @@ import type { CommandHandler, HandlerContext } from '../dispatch'
 import { printResult } from '../format'
 import { RuntimeClientError } from '../runtime-client'
 import { stripElectronRunAsNode } from '../runtime/launch'
-import { rejectRemoteSelectionFlags } from '../remote-selection-flag-rejection'
 import {
   deleteActiveClaudeKeychainCredentialsStrict,
   readActiveClaudeKeychainCredentialsStrict,
@@ -273,20 +272,6 @@ async function addCodexAccount({ client, cwd, json }: HandlerContext): Promise<v
   printResult(result, json, (state) => formatAccountsBlock('Codex', state))
 }
 
-/**
- * Rejects the runtime-selector flags instead of ignoring them. shouldIgnoreRemoteSelection
- * pins account commands to the local runtime, so honoring `--environment homelab`
- * silently would target the laptop rather than the host the user named — the exact
- * mistake this feature exists to avoid. A `--help` note does not reach someone who
- * already typed the flag.
- */
-function rejectAccountRemoteSelectionFlags(ctx: HandlerContext, command: string): void {
-  rejectRemoteSelectionFlags(
-    ctx.flags,
-    `\`${command}\`. Run it on the host whose accounts you want to manage.`
-  )
-}
-
 async function assertAccountImportSupported({ client }: HandlerContext): Promise<void> {
   const status = await client.call<RuntimeStatus>('status.get')
   if (!status.result.capabilities?.includes(ACCOUNT_IMPORT_RUNTIME_CAPABILITY)) {
@@ -316,14 +301,12 @@ export const ACCOUNT_HANDLERS: Record<string, CommandHandler> = {
         `Unsupported --agent "${agent}". Use "claude" or "codex".`
       )
     }
-    rejectAccountRemoteSelectionFlags(ctx, 'orca account add')
     // Why: fail on runtime version skew before burning a full OAuth round trip.
     await assertAccountImportSupported(ctx)
     await ctx.client.call('accounts.list', { refreshUsage: false })
     await (agent === 'claude' ? addClaudeAccount(ctx) : addCodexAccount(ctx))
   },
   'account list': async (ctx) => {
-    rejectAccountRemoteSelectionFlags(ctx, 'orca account list')
     const { client, json } = ctx
     // Why: this command renders no usage numbers, so skip the forced provider
     // refresh — it is one serial network round-trip per managed account.

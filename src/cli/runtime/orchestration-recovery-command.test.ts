@@ -88,8 +88,6 @@ describe('orchestration recovery command identity', () => {
   })
 
   it.each([
-    ['split', ['orchestration', 'send', '--pairing-code', 'secret', '--subject', 'status']],
-    ['equals', ['orchestration', 'send', '--pairing-code=secret', '--subject', 'status']],
     [
       'dispatch split',
       ['orchestration', 'send', '--dispatch-capability', 'secret', '--subject', 'status']

@@ -5,16 +5,12 @@ const {
   runtimeClientConstructorMock,
   serveOrcaAppMock,
   getDefaultUserDataPathMock,
-  addEnvironmentFromPairingCodeMock,
-  listEnvironmentsMock,
   spawnMock
 } = vi.hoisted(() => ({
   callMock: vi.fn(),
   runtimeClientConstructorMock: vi.fn(),
   serveOrcaAppMock: vi.fn(),
   getDefaultUserDataPathMock: vi.fn(() => '/tmp/orca-user-data'),
-  addEnvironmentFromPairingCodeMock: vi.fn(),
-  listEnvironmentsMock: vi.fn(),
   spawnMock: vi.fn()
 }))
 
@@ -27,13 +23,6 @@ vi.mock('./runtime-client', async () => {
     getDefaultUserDataPathMock
   })
 })
-
-vi.mock('./runtime/environments', () => ({
-  addEnvironmentFromPairingCode: addEnvironmentFromPairingCodeMock,
-  listEnvironments: listEnvironmentsMock,
-  removeEnvironment: vi.fn(),
-  resolveEnvironment: vi.fn()
-}))
 
 vi.mock('child_process', async () => {
   const { createChildProcessModuleMock } = await import('./index-test-harness.js')
@@ -49,8 +38,6 @@ describe('orca cli worktree awareness', () => {
     callMock,
     serveOrcaAppMock,
     getDefaultUserDataPathMock,
-    addEnvironmentFromPairingCodeMock,
-    listEnvironmentsMock,
     spawnMock
   })
 
@@ -529,59 +516,6 @@ describe('orca cli worktree awareness', () => {
     })
   })
 
-  it('rejects implicit remote terminal create instead of resolving from client cwd', async () => {
-    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const priorExitCode = process.exitCode
-
-    await main(
-      ['terminal', 'create', '--pairing-code', 'remote-runtime', '--json'],
-      '/tmp/client/repo/src'
-    )
-
-    expect(callMock).not.toHaveBeenCalled()
-    expect([...logSpy.mock.calls, ...errSpy.mock.calls].flat().join('\n')).toContain(
-      'Remote terminal create requires --worktree'
-    )
-    expect(process.exitCode).toBe(1)
-
-    process.exitCode = priorExitCode
-  })
-
-  it('sends explicit remote terminal create worktree selectors unchanged', async () => {
-    queueFixtures(
-      callMock,
-      okFixture('req_terminal_create', {
-        terminal: {
-          handle: 'term_1',
-          worktreeId: 'repo-1::/srv/orca/feature',
-          title: 'Server terminal'
-        }
-      })
-    )
-    vi.spyOn(console, 'log').mockImplementation(() => {})
-
-    await main(
-      [
-        'terminal',
-        'create',
-        '--worktree',
-        'id:repo-1::/srv/orca/feature',
-        '--pairing-code',
-        'remote-runtime',
-        '--json'
-      ],
-      '/tmp/client/repo/src'
-    )
-
-    expect(callMock).toHaveBeenCalledWith('terminal.create', {
-      worktree: 'id:repo-1::/srv/orca/feature',
-      command: undefined,
-      title: undefined,
-      focus: false
-    })
-  })
-
   it('exits nonzero when terminal wait returns an unsatisfied blocked result', async () => {
     process.env.ORCA_TERMINAL_HANDLE = 'term_worker'
     callMock.mockResolvedValueOnce({
@@ -621,43 +555,5 @@ describe('orca cli worktree awareness', () => {
     expect(process.exitCode).toBe(1)
 
     process.exitCode = priorExitCode
-  })
-
-  it('does not force remote Codex terminal creates through a local renderer path', async () => {
-    queueFixtures(
-      callMock,
-      okFixture('req_terminal_create', {
-        terminal: {
-          handle: 'term_1',
-          worktreeId: 'repo-1::/srv/orca/feature',
-          title: 'Codex'
-        }
-      })
-    )
-    vi.spyOn(console, 'log').mockImplementation(() => {})
-
-    await main(
-      [
-        'terminal',
-        'create',
-        '--worktree',
-        'id:repo-1::/srv/orca/feature',
-        '--command',
-        'codex',
-        '--title',
-        'Codex',
-        '--pairing-code',
-        'remote-runtime',
-        '--json'
-      ],
-      '/tmp/client/repo/src'
-    )
-
-    expect(callMock).toHaveBeenCalledWith('terminal.create', {
-      worktree: 'id:repo-1::/srv/orca/feature',
-      command: 'codex',
-      title: 'Codex',
-      focus: false
-    })
   })
 })

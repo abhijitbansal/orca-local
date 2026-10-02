@@ -114,7 +114,7 @@ export const PROJECT_HANDLERS: Record<string, CommandHandler> = {
     const hostId = getRequiredHostId(flags)
     // An SSH host's filesystem is not the CLI's, so resolving a relative path against the client
     // cwd would register a path that names the wrong machine.
-    const pathIsOffClient = client.isRemote || getSshTargetIdForExecutionHost(hostId) !== null
+    const pathIsOffClient = getSshTargetIdForExecutionHost(hostId) !== null
     const args: ProjectHostSetupExistingFolderArgs = {
       projectId: getRequiredStringFlag(flags, 'project'),
       hostId,
@@ -135,12 +135,7 @@ export const PROJECT_HANDLERS: Record<string, CommandHandler> = {
       projectId: getRequiredStringFlag(flags, 'project'),
       hostId: getRequiredHostId(flags),
       url: getRequiredStringFlag(flags, 'url'),
-      destination: resolveRepoPathArgument(
-        rawDestination,
-        cwd,
-        client.isRemote,
-        'Project setup clone'
-      ),
+      destination: resolveRepoPathArgument(rawDestination, cwd, false, 'Project setup clone'),
       displayName: getOptionalStringFlag(flags, 'display-name')
     }
     const result = await callProjectHostSetup<{ result: ProjectHostSetupResult }>(
@@ -164,7 +159,7 @@ export const PROJECT_HANDLERS: Record<string, CommandHandler> = {
       path:
         path === undefined
           ? undefined
-          : resolveRepoPathArgument(path, cwd, client.isRemote, 'Project setup create'),
+          : resolveRepoPathArgument(path, cwd, false, 'Project setup create'),
       kind: getOptionalRepoKind(flags),
       displayName: getOptionalStringFlag(flags, 'display-name'),
       worktreeBasePath: getOptionalStringFlag(flags, 'worktree-base-path'),
@@ -188,7 +183,7 @@ export const PROJECT_HANDLERS: Record<string, CommandHandler> = {
         path:
           path === undefined
             ? undefined
-            : resolveRepoPathArgument(path, cwd, client.isRemote, 'Project setup update'),
+            : resolveRepoPathArgument(path, cwd, false, 'Project setup update'),
         worktreeBasePath: getOptionalStringFlag(flags, 'worktree-base-path'),
         gitUsername: getOptionalStringFlag(flags, 'git-username'),
         kind: getOptionalRepoKind(flags),

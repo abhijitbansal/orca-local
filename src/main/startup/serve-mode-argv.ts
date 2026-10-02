@@ -20,9 +20,7 @@ const CLI_TO_SERVE_VALUE_FLAG = new Map<string, string>()
 export const VALUE_TAKING_FLAGS = new Set([
   '--disable-features',
   '--user-data-dir',
-  '--proxy-server',
-  '--environment',
-  '--pairing-code'
+  '--proxy-server'
 ])
 
 // Why: a CLI-form `serve` is not a serve launch when help was asked for. The AppImage redirect

@@ -10,11 +10,6 @@ import {
 } from './args'
 import { readOrcaCliVersion } from './cli-version'
 import { dispatch } from './dispatch'
-import {
-  assertEnvironmentSelectorResolvable,
-  resolveHostFlagEnvironmentId
-} from './execution-host-flag'
-import { listSshTargets } from './host-selector-alternatives'
 import { reportCliError } from './cli-error'
 import { printHelp } from './help'
 import type { RuntimeClient } from './runtime-client'
@@ -27,23 +22,7 @@ export { buildCurrentWorktreeSelector, normalizeWorktreeSelector } from './selec
 
 const COMMAND_PATHS = COMMAND_SPECS.flatMap((spec) => specPaths(spec))
 
-function shouldIgnoreRemoteSelection(commandPath: string[]): boolean {
-  return (
-    commandPath[0] === 'account' ||
-    commandPath[0] === 'environment' ||
-    // Why: `host list` answers "what can this machine target, and with what flag". Half of that
-    // answer (paired servers) is read from this machine's own pairing store and cannot be routed,
-    // so routing the other half produced one listing describing two machines at once.
-    commandPath.join(' ') === 'host list' ||
-    commandPath[0] === 'serve' ||
-    commandPath[0] === 'agent' ||
-    commandPath[0] === 'agent-context' ||
-    commandPath[0] === 'profile'
-  )
-}
-
-// Why: the RuntimeClient graph is 153 of the CLI's 199 eager modules (zod via
-// shared/pairing, ws + tweetnacl via websocket-transport). Loading it here
+// Why: the RuntimeClient graph is most of the CLI's eager modules. Loading it here
 // rather than at module scope means --help, `help <cmd>`, and command/flag
 // errors — which all return before this call — never pay for it. Awaited
 // before dispatch so `ctx.client` stays a synchronous getter.
@@ -115,55 +94,6 @@ export async function main(
       parsed.flags
     )
     const RuntimeClientClass = await loadRuntimeClientClass()
-    const ignoreRemoteSelection = shouldIgnoreRemoteSelection(parsed.commandPath)
-    const pairingCode = ignoreRemoteSelection ? null : parsed.flags.get('pairing-code')
-    const environmentSelector = ignoreRemoteSelection ? null : parsed.flags.get('environment')
-    // Why: only the explicit flag is asserted eagerly. An ambient ORCA_ENVIRONMENT is background
-    // config, and failing local-only commands because of a stale one would be a regression; the
-    // explicit flag means the caller named that machine, so a bad name should fail immediately
-    // with the cross-kind hint rather than a bare store error at first use.
-    const listSshTargetsForSuggestion = async (): Promise<{ id: string; label: string }[]> =>
-      listSshTargets(new RuntimeClientClass(undefined, undefined, null, null))
-    if (typeof environmentSelector === 'string') {
-      await assertEnvironmentSelectorResolvable(environmentSelector, listSshTargetsForSuggestion)
-    }
-    // Why: --host runtime:<id> names a paired server, not a filter over this
-    // runtime's rows, so it has to pick the connection before the client exists.
-    // An ambient ORCA_ENVIRONMENT is checked for disagreement too — silently
-    // retargeting a mutation to another server is the bug this flag already had.
-    // An ambient pairing code cannot be resolved to an id to compare, so the
-    // explicit flag simply wins there.
-    const hostEnvironmentId = ignoreRemoteSelection
-      ? null
-      : await resolveHostFlagEnvironmentId(parsed.flags, {
-          // Why: only consulted when the name missed, and against this machine's own runtime —
-          // SSH targets are registered there, not in the paired server we failed to find.
-          listSshTargets: listSshTargetsForSuggestion,
-          pairingCode: typeof pairingCode === 'string' ? pairingCode : null,
-          environmentSelector:
-            typeof environmentSelector === 'string'
-              ? { value: environmentSelector, label: '--environment' }
-              : process.env.ORCA_ENVIRONMENT
-                ? { value: process.env.ORCA_ENVIRONMENT, label: 'ORCA_ENVIRONMENT' }
-                : null
-        })
-    // Why: --host runtime:<name> is canonicalized to the environment's id so downstream host-id
-    // comparisons against stored rows still match; rewrite the flag once, here, rather than
-    // resolving the name again at every consumer.
-    if (hostEnvironmentId !== null) {
-      parsed.flags.set('host', `runtime:${hostEnvironmentId}`)
-    }
-    // Why: pass `null` (not `undefined`) when remote selection is suppressed
-    // so the RuntimeClient default parameter does not re-activate the
-    // ORCA_PAIRING_CODE / ORCA_ENVIRONMENT env-var fallback for commands
-    // that must run locally (environment / serve).
-    const suppressed = ignoreRemoteSelection ? null : undefined
-    // An explicit --host runtime:<id> outranks an ambient pairing code or environment.
-    const remotePairingCode =
-      hostEnvironmentId !== null ? null : typeof pairingCode === 'string' ? pairingCode : suppressed
-    const remoteEnvironment =
-      hostEnvironmentId ??
-      (typeof environmentSelector === 'string' ? environmentSelector : suppressed)
     let client: RuntimeClient | undefined
     await dispatch(parsed.commandPath, {
       flags: parsed.flags,
@@ -172,8 +102,6 @@ export async function main(
         client ??= new RuntimeClientClass(
           undefined,
           undefined,
-          remotePairingCode,
-          remoteEnvironment,
           resolveOrchestrationCliExecutable(),
           argv
         )
@@ -196,7 +124,7 @@ async function runClaudeTeams(argv: string[], cwd: string): Promise<void> {
   try {
     // Why: everything after `orca claude-teams` belongs to Claude Code, not
     // Orca's own flag parser, so new Claude flags work without Orca changes.
-    const client = new (await loadRuntimeClientClass())(undefined, undefined, null, null)
+    const client = new (await loadRuntimeClientClass())()
     await dispatch(['claude-teams'], {
       flags: new Map(),
       client,

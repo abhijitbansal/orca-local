@@ -58,7 +58,7 @@ function expectPromptRetryBlockedJson(error: unknown, requestId: string): void {
 
 describe('RuntimeClient orchestration recovery identity', () => {
   it('rejects a worker-start timeout whose client grace would overflow timers', () => {
-    const client = new RuntimeClient(undefined, 60_000, null, null, 'orca')
+    const client = new RuntimeClient(undefined, 60_000, 'orca')
     const resolve = (
       client as unknown as {
         resolveMethodTimeoutMs: (method: string, params?: unknown) => number
@@ -109,7 +109,7 @@ describe('RuntimeClient orchestration recovery identity', () => {
     await new Promise<void>((resolve) => server.listen(endpoint, resolve))
     writeRuntimeConnection(userDataPath, endpoint, 'runtime-1')
 
-    const client = new RuntimeClient(userDataPath, 500, null, null, 'orca')
+    const client = new RuntimeClient(userDataPath, 500, 'orca')
     try {
       await client.call('orchestration.workerStart', { task: 'task_1' })
       throw new Error('expected worker-start failure')
@@ -172,7 +172,7 @@ describe('RuntimeClient orchestration recovery identity', () => {
     await new Promise<void>((resolve) => server.listen(endpoint, resolve))
     writeRuntimeConnection(userDataPath, endpoint, 'runtime-current')
 
-    const client = new RuntimeClient(userDataPath, 500, null, null, 'orca')
+    const client = new RuntimeClient(userDataPath, 500, 'orca')
     const error = await client
       .call(
         'terminal.send',
@@ -212,7 +212,7 @@ describe('RuntimeClient orchestration recovery identity', () => {
     await new Promise<void>((resolve) => server.listen(endpoint, resolve))
     writeRuntimeConnection(userDataPath, endpoint, 'runtime-current')
 
-    const client = new RuntimeClient(userDataPath, 200, null, null, 'orca')
+    const client = new RuntimeClient(userDataPath, 200, 'orca')
     const error = await client
       .call(
         'terminal.send',
@@ -265,7 +265,7 @@ describe('RuntimeClient orchestration recovery identity', () => {
     await new Promise<void>((resolve) => server.listen(endpoint, resolve))
     writeRuntimeConnection(userDataPath, endpoint, 'runtime-after-downgrade')
 
-    const client = new RuntimeClient(userDataPath, 500, null, null, 'orca')
+    const client = new RuntimeClient(userDataPath, 500, 'orca')
     const error = await client
       .call(
         'terminal.send',
@@ -305,7 +305,7 @@ describe('RuntimeClient orchestration recovery identity', () => {
     await new Promise<void>((resolve) => server.listen(endpoint, resolve))
     writeRuntimeConnection(userDataPath, endpoint, 'runtime-after-downgrade')
 
-    const client = new RuntimeClient(userDataPath, 500, null, null, 'orca')
+    const client = new RuntimeClient(userDataPath, 500, 'orca')
     const error = await client
       .call(
         'terminal.send',
@@ -346,7 +346,7 @@ describe('RuntimeClient orchestration recovery identity', () => {
     await new Promise<void>((resolve) => server.listen(endpoint, resolve))
     writeRuntimeConnection(userDataPath, endpoint, 'runtime-legacy')
 
-    const client = new RuntimeClient(userDataPath, 500, null, null, 'orca')
+    const client = new RuntimeClient(userDataPath, 500, 'orca')
     const error = await client
       .call(
         'terminal.send',

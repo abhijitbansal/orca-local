@@ -5,16 +5,12 @@ const {
   runtimeClientConstructorMock,
   serveOrcaAppMock,
   getDefaultUserDataPathMock,
-  addEnvironmentFromPairingCodeMock,
-  listEnvironmentsMock,
   spawnMock
 } = vi.hoisted(() => ({
   callMock: vi.fn(),
   runtimeClientConstructorMock: vi.fn(),
   serveOrcaAppMock: vi.fn(),
   getDefaultUserDataPathMock: vi.fn(() => '/tmp/orca-user-data'),
-  addEnvironmentFromPairingCodeMock: vi.fn(),
-  listEnvironmentsMock: vi.fn(),
   spawnMock: vi.fn()
 }))
 
@@ -28,13 +24,6 @@ vi.mock('./runtime-client', async () => {
   })
 })
 
-vi.mock('./runtime/environments', () => ({
-  addEnvironmentFromPairingCode: addEnvironmentFromPairingCodeMock,
-  listEnvironments: listEnvironmentsMock,
-  removeEnvironment: vi.fn(),
-  resolveEnvironment: vi.fn()
-}))
-
 vi.mock('child_process', async () => {
   const { createChildProcessModuleMock } = await import('./index-test-harness.js')
   return createChildProcessModuleMock(spawnMock)
@@ -42,7 +31,7 @@ vi.mock('child_process', async () => {
 
 import { main } from './index'
 import { okFixture, queueFixtures } from './test-fixtures'
-import { pairRuntimeEnvironment, useWorktreeAwarenessEnvironment } from './index-test-harness'
+import { useWorktreeAwarenessEnvironment } from './index-test-harness'
 
 const TERMINAL_ROW = {
   handle: 'term_1',
@@ -65,16 +54,13 @@ describe('omittedHostIds selector annotation', () => {
     callMock,
     serveOrcaAppMock,
     getDefaultUserDataPathMock,
-    addEnvironmentFromPairingCodeMock,
-    listEnvironmentsMock,
     spawnMock
   })
 
-  it('marks a stale runtime host that no caller can select', async () => {
+  it('marks a runtime host that no caller can select', async () => {
     // Why: `omittedHostIds` is built from the runtime's own bookkeeping, so it names `runtime:`
-    // ids for servers that are no longer paired. An agent looping over the list to complete a
+    // ids for servers this build cannot reach. An agent looping over the list to complete a
     // partial listing hard-errors on those — 6 of 9 in the recorded QA run.
-    pairRuntimeEnvironment(listEnvironmentsMock, 'env-paired', 'm4air')
     queueFixtures(
       callMock,
       okFixture('req_terminal_list', {
@@ -97,13 +83,12 @@ describe('omittedHostIds selector annotation', () => {
       'runtime:env-retired'
     ])
     expect(printed.result.hostScope.omittedHostSelectors).toEqual([
-      { hostId: 'runtime:env-paired', selector: '--environment m4air' },
+      { hostId: 'runtime:env-paired', selector: null },
       { hostId: 'runtime:env-retired', selector: null }
     ])
   })
 
   it('says which omitted hosts are not selectable in the human listing', async () => {
-    pairRuntimeEnvironment(listEnvironmentsMock, 'env-paired', 'm4air')
     queueFixtures(
       callMock,
       okFixture('req_terminal_list', {
@@ -121,12 +106,11 @@ describe('omittedHostIds selector annotation', () => {
     await main(['terminal', 'list'], '/tmp/repo')
 
     const printed = String(logSpy.mock.calls[0]?.[0])
-    expect(printed).toContain('runtime:env-paired (--environment m4air)')
+    expect(printed).toContain('runtime:env-paired (not selectable from this machine)')
     expect(printed).toContain('runtime:env-retired (not selectable from this machine)')
   })
 
   it('resolves an omitted SSH host against the targets the runtime actually knows', async () => {
-    listEnvironmentsMock.mockReturnValue([])
     queueFixtures(
       callMock,
       okFixture('req_terminal_list', {
@@ -151,7 +135,6 @@ describe('omittedHostIds selector annotation', () => {
   it('never keeps a host id out of omittedHostIds', async () => {
     // Why: filtering the unreachable ones would shrink what the listing admits it did not cover.
     // The gap is real whether or not this machine can name the host that owns it.
-    listEnvironmentsMock.mockReturnValue([])
     queueFixtures(
       callMock,
       okFixture('req_terminal_list', {
@@ -192,13 +175,10 @@ describe('worktree listings report their host coverage', () => {
     callMock,
     serveOrcaAppMock,
     getDefaultUserDataPathMock,
-    addEnvironmentFromPairingCodeMock,
-    listEnvironmentsMock,
     spawnMock
   })
 
   it('prints a host column and the scope line for `worktree list`', async () => {
-    listEnvironmentsMock.mockReturnValue([])
     queueFixtures(
       callMock,
       okFixture('req_worktree_list', {

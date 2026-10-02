@@ -148,15 +148,8 @@ export const TERMINAL_HANDLERS: Record<string, CommandHandler> = {
     printResult(result, json, formatTerminalRename)
   },
   'terminal create': async ({ flags, client, cwd, json }) => {
-    if (client.isRemote && !flags.has('worktree')) {
-      throw new RuntimeClientError(
-        'invalid_argument',
-        'Remote terminal create requires --worktree because the client cwd cannot identify a server worktree.'
-      )
-    }
     const command = getOptionalStringFlag(flags, 'command')
-    const useRendererBackedInteractiveTerminal =
-      !client.isRemote && shouldUseRendererBackedInteractiveTerminal(command)
+    const useRendererBackedInteractiveTerminal = shouldUseRendererBackedInteractiveTerminal(command)
     const focus = flags.get('focus') === true
     const shell = getOptionalStringFlag(flags, 'shell')
     if (shell !== undefined) {

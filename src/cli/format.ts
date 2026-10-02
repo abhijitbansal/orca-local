@@ -52,8 +52,6 @@ export {
 } from './automation-format'
 export type { AutomationListPayload, AutomationShowPayload } from './automation-format'
 export {
-  formatEnvironment,
-  formatEnvironmentList,
   formatMemorySnapshot,
   formatRepoList,
   formatRepoRefs,
@@ -76,7 +74,7 @@ export function printResult<TResult>(
 }
 
 export type HostListEntry = {
-  kind: 'local' | 'ssh' | 'environment'
+  kind: 'local' | 'ssh'
   name: string
   id: string
   selector: string
@@ -91,8 +89,7 @@ export type HostListEntry = {
 export function formatHostList(result: { hosts: HostListEntry[] }): string {
   const kindLabel: Record<HostListEntry['kind'], string> = {
     local: 'local',
-    ssh: 'ssh target',
-    environment: 'orca server'
+    ssh: 'ssh target'
   }
   return result.hosts
     .map(
@@ -126,9 +123,6 @@ function formatHostConnection(host: HostListEntry): string {
 
 export function formatCliStatus(status: CliStatusResult): string {
   return [
-    ...(status.target && status.target.kind === 'environment'
-      ? [`target: environment ${status.target.environment}`]
-      : []),
     `appRunning: ${status.app.running}`,
     `pid: ${status.app.pid ?? 'none'}`,
     `desktopWindowStatus: ${status.app.desktopWindowStatus ?? 'unknown'}`,

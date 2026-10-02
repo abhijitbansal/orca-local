@@ -6,16 +6,12 @@ const {
   runtimeClientConstructorMock,
   serveOrcaAppMock,
   getDefaultUserDataPathMock,
-  addEnvironmentFromPairingCodeMock,
-  listEnvironmentsMock,
   spawnMock
 } = vi.hoisted(() => ({
   callMock: vi.fn(),
   runtimeClientConstructorMock: vi.fn(),
   serveOrcaAppMock: vi.fn(),
   getDefaultUserDataPathMock: vi.fn(() => '/tmp/orca-user-data'),
-  addEnvironmentFromPairingCodeMock: vi.fn(),
-  listEnvironmentsMock: vi.fn(),
   spawnMock: vi.fn()
 }))
 
@@ -28,13 +24,6 @@ vi.mock('./runtime-client', async () => {
     getDefaultUserDataPathMock
   })
 })
-
-vi.mock('./runtime/environments', () => ({
-  addEnvironmentFromPairingCode: addEnvironmentFromPairingCodeMock,
-  listEnvironments: listEnvironmentsMock,
-  removeEnvironment: vi.fn(),
-  resolveEnvironment: vi.fn()
-}))
 
 vi.mock('child_process', async () => {
   const { createChildProcessModuleMock } = await import('./index-test-harness.js')
@@ -50,8 +39,6 @@ describe('orca cli worktree awareness', () => {
     callMock,
     serveOrcaAppMock,
     getDefaultUserDataPathMock,
-    addEnvironmentFromPairingCodeMock,
-    listEnvironmentsMock,
     spawnMock
   })
 
@@ -232,28 +219,6 @@ describe('orca cli worktree awareness', () => {
       )
     }
   )
-
-  it('rejects remote `worktree current` without listing worktrees from client cwd', async () => {
-    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const priorExitCode = process.exitCode
-
-    await main(
-      ['worktree', 'current', '--pairing-code', 'remote-runtime', '--json'],
-      '/tmp/repo/src'
-    )
-
-    expect(callMock).not.toHaveBeenCalled()
-    expect([...logSpy.mock.calls, ...errSpy.mock.calls].flat().join('\n')).toContain(
-      'current is a local cwd shortcut and cannot be resolved against a remote runtime.'
-    )
-    expect([...logSpy.mock.calls, ...errSpy.mock.calls].flat().join('\n')).toContain(
-      'id:<repo-id>::<path>'
-    )
-    expect(process.exitCode).toBe(1)
-
-    process.exitCode = priorExitCode
-  })
 
   it('uses the resolved enclosing worktree for other worktree consumers', async () => {
     queueFixtures(

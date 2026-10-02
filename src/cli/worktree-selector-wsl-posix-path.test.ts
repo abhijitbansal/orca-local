@@ -21,7 +21,7 @@ function worktreeRecord(path: string): RuntimeWorktreeRecord {
   return { id: `repo::${path}`, path } as RuntimeWorktreeRecord
 }
 
-function makeClient(paths: readonly string[], isRemote = false) {
+function makeClient(paths: readonly string[]) {
   const call = vi.fn(async (method: string) => {
     if (method !== 'worktree.list') {
       throw new Error(`unexpected method ${method}`)
@@ -30,7 +30,8 @@ function makeClient(paths: readonly string[], isRemote = false) {
       result: { worktrees: paths.map(worktreeRecord), totalCount: paths.length, truncated: false }
     }
   })
-  return { client: { isRemote, call } as unknown as RuntimeClient, call }
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the selector path reads only `client.call`.
+  return { client: { call } as unknown as RuntimeClient, call }
 }
 
 afterEach(() => {
@@ -112,19 +113,6 @@ describe('normalizeWorktreeSelectorForCaller in a WSL shell (#16628)', () => {
     await expect(
       normalizeWorktreeSelectorForCaller(selector, uncPath(UBUNTU, '/home/neil'), client)
     ).resolves.toBe(selector)
-    expect(call).not.toHaveBeenCalled()
-  })
-
-  it('leaves a remote runtime alone, whose worktrees the caller cwd cannot name', async () => {
-    const { client, call } = makeClient([uncPath(UBUNTU, LINUX_PATH)], true)
-
-    await expect(
-      normalizeWorktreeSelectorForCaller(
-        `path:${LINUX_PATH}`,
-        uncPath(UBUNTU, '/home/neil'),
-        client
-      )
-    ).resolves.toBe(`path:${LINUX_PATH}`)
     expect(call).not.toHaveBeenCalled()
   })
 })

@@ -5,16 +5,12 @@ const {
   runtimeClientConstructorMock,
   serveOrcaAppMock,
   getDefaultUserDataPathMock,
-  addEnvironmentFromPairingCodeMock,
-  listEnvironmentsMock,
   spawnMock
 } = vi.hoisted(() => ({
   callMock: vi.fn(),
   runtimeClientConstructorMock: vi.fn(),
   serveOrcaAppMock: vi.fn(),
   getDefaultUserDataPathMock: vi.fn(() => '/tmp/orca-user-data'),
-  addEnvironmentFromPairingCodeMock: vi.fn(),
-  listEnvironmentsMock: vi.fn(),
   spawnMock: vi.fn()
 }))
 
@@ -27,13 +23,6 @@ vi.mock('./runtime-client', async () => {
     getDefaultUserDataPathMock
   })
 })
-
-vi.mock('./runtime/environments', () => ({
-  addEnvironmentFromPairingCode: addEnvironmentFromPairingCodeMock,
-  listEnvironments: listEnvironmentsMock,
-  removeEnvironment: vi.fn(),
-  resolveEnvironment: vi.fn()
-}))
 
 vi.mock('child_process', async () => {
   const { createChildProcessModuleMock } = await import('./index-test-harness.js')
@@ -49,15 +38,13 @@ import {
   workspaceDestinationFixtures,
   worktreeListFixture
 } from './test-fixtures'
-import { pairRuntimeEnvironment, useWorktreeAwarenessEnvironment } from './index-test-harness'
+import { useWorktreeAwarenessEnvironment } from './index-test-harness'
 
 describe('orca cli worktree awareness', () => {
   useWorktreeAwarenessEnvironment({
     callMock,
     serveOrcaAppMock,
     getDefaultUserDataPathMock,
-    addEnvironmentFromPairingCodeMock,
-    listEnvironmentsMock,
     spawnMock
   })
 
@@ -130,87 +117,6 @@ describe('orca cli worktree awareness', () => {
       dtstart: expect.any(Number),
       destination: { selector: { kind: 'self' } }
     })
-  })
-
-  it('resolves project and host flags for automation create', async () => {
-    pairRuntimeEnvironment(listEnvironmentsMock, 'gpu')
-    queueFixtures(
-      callMock,
-      okFixture('req_project_setups', {
-        setups: [
-          {
-            id: 'setup-local',
-            projectId: 'github:stablyai/orca',
-            hostId: 'local',
-            repoId: 'repo-local',
-            path: '/tmp/orca',
-            displayName: 'Orca',
-            setupState: 'ready',
-            setupMethod: 'legacy-repo',
-            createdAt: 1,
-            updatedAt: 1
-          },
-          {
-            id: 'setup-gpu',
-            projectId: 'github:stablyai/orca',
-            hostId: 'runtime:gpu',
-            repoId: 'repo-gpu',
-            path: '/srv/orca',
-            displayName: 'Orca',
-            setupState: 'ready',
-            setupMethod: 'legacy-repo',
-            createdAt: 1,
-            updatedAt: 1
-          }
-        ]
-      }),
-      ...localRepoDestinationFixtures('repo-gpu'),
-      okFixture('req_automation_create', {
-        automation: { id: 'auto-1', name: 'GPU review' }
-      })
-    )
-    vi.spyOn(console, 'log').mockImplementation(() => {})
-
-    await main(
-      [
-        'automations',
-        'create',
-        '--name',
-        'GPU review',
-        '--trigger',
-        'daily',
-        '--prompt',
-        'Review open changes',
-        '--provider',
-        'codex',
-        '--project',
-        'github:stablyai/orca',
-        '--host',
-        'runtime:gpu',
-        '--json'
-      ],
-      '/tmp/repo'
-    )
-
-    expect(runtimeClientConstructorMock).toHaveBeenCalledWith(null, 'gpu')
-    expect(callMock).toHaveBeenNthCalledWith(1, 'projectHostSetup.list')
-    expect(callMock).toHaveBeenNthCalledWith(
-      3,
-      'automation.create',
-      expect.objectContaining({
-        repo: 'id:repo-gpu',
-        runContext: {
-          kind: 'workspace-run',
-          projectId: 'github:stablyai/orca',
-          hostId: 'runtime:gpu',
-          projectHostSetupId: 'setup-gpu',
-          repoId: 'repo-gpu',
-          path: '/srv/orca'
-        },
-        workspace: undefined,
-        workspaceMode: 'new_per_run'
-      })
-    )
   })
 
   it('resolves project-host-setup flags for automation edit with explicit run context', async () => {

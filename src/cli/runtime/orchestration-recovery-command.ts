@@ -79,9 +79,7 @@ export function buildOrchestrationRecoveryCommand(
 
 export function recoverableOrchestrationArgs(args: readonly string[]): string[] | undefined {
   const containsCredential = args.some((arg) =>
-    ['--pairing-code', '--dispatch-capability'].some(
-      (flag) => arg === flag || arg.startsWith(`${flag}=`)
-    )
+    ['--dispatch-capability'].some((flag) => arg === flag || arg.startsWith(`${flag}=`))
   )
   if (containsCredential) {
     return undefined

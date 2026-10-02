@@ -6,10 +6,11 @@ const successMeta = { runtimeId: 'runtime-1' }
 function context(
   call: ReturnType<typeof vi.fn>,
   flags = new Map<string, string | boolean>(),
-  options: { isRemote?: boolean; json?: boolean } = {}
+  options: { json?: boolean } = {}
 ) {
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the handlers under test read only `client.call`, `cwd`, `flags` and `json`.
   return {
-    client: { call, isRemote: options.isRemote ?? false },
+    client: { call },
     cwd: '/repo',
     flags,
     json: options.json ?? false
