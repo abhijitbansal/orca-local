@@ -6,6 +6,9 @@ Architecture: [`docs/reference/local-only-architecture.md`](../reference/local-o
 
 ## Outcome
 
+> **Status:** Spec A is complete, but the fork is **not yet fully local-only**. You chose loopback-only with SSH removed, and the SSH and remote-runtime network paths stay until Spec B lands. They are listed under "Known gaps and Spec B scope" below: SSH relay deploy, pinned Node downloads, `storage.googleapis.com` skill-transfer rails, and the outbound dial to user-paired remote runtimes.
+
+
 Orca's own code no longer talks to a cloud service, and nothing on the network can reach it:
 
 - **No inbound path.** The runtime WebSocket listener, the paired web client, mobile pairing, the cloud relay, `orca serve` / `orcad` network mode and the `orca://` deep-link handler are gone. A runtime launch of the built app shows only `127.0.0.1` sockets (see "Runtime acceptance" below).
@@ -89,6 +92,12 @@ The app was built and launched hidden (`ORCA_BACKGROUND_LAUNCH=1`) with an isola
 - `lsof` on the whole process tree shows only `127.0.0.1` LISTEN and ESTABLISHED sockets. Two belong to Playwright's debug ports and one is Orca's loopback helper. There are no wildcard or non-loopback sockets.
 - The CSP is present. Blob workers and WebAssembly work, a renderer `fetch('https://example.com')` is blocked, and there are no page errors.
 - `orca status --json` over the local Unix socket returns `ok: true`, with the runtime `ready` and `connected`, so the CLI works without the WebSocket listener.
+
+### Packaging (the documented install path)
+
+`rm -rf out`, then `pnpm install:release`, then `pnpm build:mac`. All three succeed and produce arm64 and x64 DMG and zip files. The bundle has no `app-update.yml` and no registered URL scheme. Its `app.asar` (3,050 entries) contains no posthog, electron-updater, octokit or Linear code and no web or mobile output. The runtime check above was re-run against this fresh build with the same result.
+
+On this machine the build needed `ORCA_COMPUTER_MACOS_SIGN_IDENTITY=- CSC_IDENTITY_AUTO_DISCOVERY=false`. The login keychain holds two identical "Apple Development" certificates, which makes `codesign` ambiguous. This is unrelated to this branch.
 
 ## Behaviour changes you will notice
 
