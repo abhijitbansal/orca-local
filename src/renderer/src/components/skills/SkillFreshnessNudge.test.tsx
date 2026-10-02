@@ -14,7 +14,6 @@ const mocks = vi.hoisted(() => ({
   updateSettings: vi.fn(),
   toastInfo: vi.fn(),
   toastDismiss: vi.fn(),
-  requestDialog: vi.fn(),
   settingsLoaded: true,
   canUseLocalSkillFreshness: true,
   freshnessEnabled: true,
@@ -80,10 +79,6 @@ vi.mock('sonner', () => ({
   toast: { info: mocks.toastInfo, dismiss: mocks.toastDismiss }
 }))
 
-vi.mock('./skill-freshness-update-dialog', () => ({
-  requestSkillFreshnessUpdateDialog: mocks.requestDialog
-}))
-
 vi.mock('@/store', () => {
   const state = () => ({
     settings: mocks.settingsLoaded ? { dismissedSkillFreshnessNudges: mocks.dismissed } : null,
@@ -127,7 +122,6 @@ describe('SkillFreshnessNudge', () => {
     mocks.toastInfo.mockReset()
     mocks.toastInfo.mockReturnValue('freshness-toast')
     mocks.toastDismiss.mockReset()
-    mocks.requestDialog.mockReset()
   })
 
   afterEach(async () => {
@@ -146,17 +140,6 @@ describe('SkillFreshnessNudge', () => {
     const options = mocks.toastInfo.mock.calls[0]?.[1]
     expect(options.duration).toBe(Number.POSITIVE_INFINITY)
     expect(options.onAutoClose).toBeUndefined()
-    expect(mocks.updateSettings).not.toHaveBeenCalled()
-  })
-
-  it('opens the update dialog on action click without persisting a dismissal', async () => {
-    await renderNudge()
-
-    const options = mocks.toastInfo.mock.calls[0]?.[1]
-    options.action.onClick()
-    options.onDismiss()
-
-    expect(mocks.requestDialog).toHaveBeenCalledTimes(1)
     expect(mocks.updateSettings).not.toHaveBeenCalled()
   })
 

@@ -3,7 +3,6 @@
 # it is the migration worklist for routing these calls through run-process.ts.
 cli/handlers/account.ts
 cli/handlers/core.ts
-cli/handlers/skills.ts
 cli/runtime/launch.ts
 main/agent-hooks/managed-hook-owner-identity.ts
 main/agent-hooks/managed-hook-runtime.ts

@@ -31,7 +31,6 @@
 src/cli/handlers/account.ts
 src/cli/handlers/core.ts
 src/cli/handlers/interactive-login-interruption.ts
-src/cli/handlers/skills.ts
 src/cli/runtime/launch.ts
 src/cli/runtime/serve-update-supervisor.ts
 src/main/agent-hooks/managed-hook-owner-identity.ts
@@ -131,7 +130,6 @@ src/main/pty/posix-pty-foreground-group.ts
 src/main/pty/windows-environment-path.ts
 src/main/runtime/tls-certificate.ts
 src/main/runtime/windows-default-route-interfaces.ts
-src/main/skills/skill-update-run.ts
 src/main/ssh/ssh-connection.ts
 src/main/ssh/ssh-proxy-command.ts
 src/main/ssh/ssh-remote-cli-host-passthrough.ts

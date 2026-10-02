@@ -32,11 +32,7 @@ import type {
   SkillSharePublishOperation,
   SkillShareResolvedOperation
 } from '../../shared/skill-sharing-contract'
-import type {
-  SkillFreshnessInventory,
-  SkillUpdateRun,
-  SkillUpdateStartResult
-} from '../../shared/skill-freshness'
+import type { SkillFreshnessInventory } from '../../shared/skill-freshness'
 import type { PreloadApi } from '../api-types'
 
 export const skillsApi = {
@@ -44,11 +40,6 @@ export const skillsApi = {
     ipcRenderer.invoke('skills:discover', target),
   freshnessInventory: (): Promise<SkillFreshnessInventory> =>
     ipcRenderer.invoke('skills:freshnessInventory'),
-  startUpdateRun: (names: string[]): Promise<SkillUpdateStartResult> =>
-    ipcRenderer.invoke('skills:startUpdateRun', names),
-  cancelUpdateRun: (): Promise<void> => ipcRenderer.invoke('skills:cancelUpdateRun'),
-  acknowledgeUpdateRun: (): Promise<void> => ipcRenderer.invoke('skills:acknowledgeUpdateRun'),
-  getUpdateRun: (): Promise<SkillUpdateRun> => ipcRenderer.invoke('skills:getUpdateRun'),
   prepareShare: (input: {
     skillIds: string[]
     bundleName: string
@@ -121,10 +112,5 @@ export const skillsApi = {
       callback(progress)
     ipcRenderer.on('skills:shareProgress', listener)
     return () => ipcRenderer.removeListener('skills:shareProgress', listener)
-  },
-  onUpdateRun: (callback: (run: SkillUpdateRun) => void): (() => void) => {
-    const listener = (_event: Electron.IpcRendererEvent, run: SkillUpdateRun): void => callback(run)
-    ipcRenderer.on('skills:updateRun', listener)
-    return () => ipcRenderer.removeListener('skills:updateRun', listener)
   }
 } satisfies PreloadApi['skills']

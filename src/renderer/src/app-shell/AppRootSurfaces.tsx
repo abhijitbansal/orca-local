@@ -7,7 +7,6 @@ import NewWorkspaceComposerModal from '../components/NewWorkspaceComposerModal'
 import { CrashReportDialog } from '../components/crash-report/CrashReportDialog'
 import { MarkdownTemplatePicker } from '../components/editor/MarkdownTemplatePicker'
 import RecentTabSwitcher from '../components/tab-bar/RecentTabSwitcher'
-import { SkillFreshnessUpdateDialog } from '../components/skills/SkillFreshnessUpdateDialog'
 import { NativeChatResumeOnRestartModal } from '../components/NativeChatResumeOnRestartModal'
 import { TelemetryFirstLaunchSurface } from '../components/TelemetryFirstLaunchSurface'
 import { ZoomOverlay } from '../components/ZoomOverlay'
@@ -341,10 +340,6 @@ export function AppRootSurfaces(props: {
       ) : null}
       <OverlayBoundary boundaryId="overlay.recent-tab-switcher" resetKey={activeView}>
         <RecentTabSwitcher />
-      </OverlayBoundary>
-      {/* Why: hosts a live terminal pane needing the link-routing preference context; mounting outside crashes it. */}
-      <OverlayBoundary boundaryId="overlay.skill-freshness-update-dialog">
-        <SkillFreshnessUpdateDialog />
       </OverlayBoundary>
       <Suspense fallback={null}>
         <OverlayBoundary boundaryId="overlay.remote-server-update-dialog">

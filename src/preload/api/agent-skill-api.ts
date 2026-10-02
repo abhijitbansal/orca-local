@@ -26,11 +26,7 @@ import type {
   SkillSharePublishOperation,
   SkillShareResolvedOperation
 } from '../../shared/skill-sharing-contract'
-import type {
-  SkillFreshnessInventory,
-  SkillUpdateRun,
-  SkillUpdateStartResult
-} from '../../shared/skill-freshness'
+import type { SkillFreshnessInventory } from '../../shared/skill-freshness'
 
 import type {
   SkillDeletePlan,
@@ -41,10 +37,6 @@ import type {
 export type SkillsApi = {
   discover: (target?: SkillDiscoveryTarget) => Promise<SkillDiscoveryResult>
   freshnessInventory: () => Promise<SkillFreshnessInventory>
-  startUpdateRun: (names: string[]) => Promise<SkillUpdateStartResult>
-  cancelUpdateRun: () => Promise<void>
-  acknowledgeUpdateRun: () => Promise<void>
-  getUpdateRun: () => Promise<SkillUpdateRun>
   prepareShare: (input: {
     skillIds: string[]
     bundleName: string
@@ -89,5 +81,4 @@ export type SkillsApi = {
   listWslDistros: (environmentId?: string) => Promise<string[]>
   onInstallProgress: (callback: (progress: SkillInstallProgress) => void) => () => void
   onShareProgress: (callback: (progress: SkillShareProgress) => void) => () => void
-  onUpdateRun: (callback: (run: SkillUpdateRun) => void) => () => void
 }

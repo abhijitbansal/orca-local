@@ -189,28 +189,7 @@ function verifySkillsCliRuntime(outDir, artifactRoot = dirname(outDir), options 
     }
   }
 
-  const install = parseJson(
-    'skills install --dry-run',
-    runCli(absoluteOutDir, [
-      'skills',
-      'install',
-      '--skill',
-      'orca-cli',
-      '--agent',
-      'codex',
-      '--dry-run',
-      '--json'
-    ])
-  )
-  const update = parseJson(
-    'skills update --dry-run',
-    runCli(absoluteOutDir, ['skills', 'update', '--skill', 'orca-cli', '--dry-run', '--json'])
-  )
-  if (install.executed !== false || update.executed !== false) {
-    throw new Error('[verify-skills-cli-runtime] a dry-run reported execution')
-  }
-
-  return { closureFiles: closure.length, commands: 5 }
+  return { closureFiles: closure.length, commands: 3 }
 }
 
 if (require.main === module) {

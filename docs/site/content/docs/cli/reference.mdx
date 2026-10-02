@@ -285,7 +285,7 @@ Run `orca linear --help` or `orca skills get orca-linear` for the version-matche
 
 ## Skills (local, no runtime required)
 
-List bundled guides, print a version-matched guide, or install/update hybrid skill packages without the desktop Settings UI:
+List bundled guides or print a version-matched guide:
 
 ```bash
 orca skills list
@@ -293,12 +293,7 @@ orca skills get orca-cli
 orca skills get orchestration --references
 orca skills get orchestration --reference recovery-and-cleanup
 orca skills get orchestration --full
-orca skills install --skill orca-cli --skill orchestration
-orca skills install --all --dry-run
-orca skills update --all
 ```
-
-`install` / `update` shell out to the same `npx skills` commands Settings uses. They do not contact the Orca runtime. See [Orca skills](/docs/cli/skills#keep-skills-up-to-date).
 
 ## Account (host-local runtime)
 
