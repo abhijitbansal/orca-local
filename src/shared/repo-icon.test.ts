@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type * as ImageDataUriModule from './image-data-uri'
-import { githubAvatarIcon, githubAvatarSlug, sanitizeRepoIcon } from './repo-icon'
+import { sanitizeRepoIcon } from './repo-icon'
 
 // Why a module mock: `validateRasterImageDataUri` is the leaf that base64-decodes an inline icon's
 // header, so counting its invocations is the direct measure of what re-hydrating a repo costs.
@@ -40,43 +40,6 @@ describe('sanitizeRepoIcon', () => {
     expect(sanitizeRepoIcon({ type: 'emoji', emoji: '🚀' })).toEqual({
       type: 'emoji',
       emoji: '🚀'
-    })
-    expect(
-      sanitizeRepoIcon({
-        type: 'image',
-        src: 'https://github.com/stablyai.png?size=64',
-        source: 'github',
-        label: 'stablyai/orca'
-      })
-    ).toEqual({
-      type: 'image',
-      src: 'https://github.com/stablyai.png?size=64',
-      source: 'github',
-      label: 'stablyai/orca'
-    })
-    expect(
-      sanitizeRepoIcon({
-        type: 'image',
-        src: 'https://github.acme.test/stablyai.png?size=64',
-        source: 'github',
-        label: 'stablyai/orca'
-      })
-    ).toEqual({
-      type: 'image',
-      src: 'https://github.acme.test/stablyai.png?size=64',
-      source: 'github',
-      label: 'stablyai/orca'
-    })
-    expect(
-      sanitizeRepoIcon({
-        type: 'image',
-        src: 'https://www.google.com/s2/favicons?domain=example.com&sz=64',
-        source: 'favicon'
-      })
-    ).toEqual({
-      type: 'image',
-      src: 'https://www.google.com/s2/favicons?domain=example.com&sz=64',
-      source: 'favicon'
     })
     expect(
       sanitizeRepoIcon({
@@ -153,55 +116,23 @@ describe('sanitizeRepoIcon', () => {
         source: 'file'
       })
     ).toBeUndefined()
+  })
+
+  it('drops remote image sources entirely', () => {
     expect(
       sanitizeRepoIcon({
         type: 'image',
-        src: 'https://example.com/nested/icon.png',
-        source: 'github'
+        src: 'https://www.google.com/s2/favicons?domain=example.com&sz=64',
+        source: 'favicon'
       })
     ).toBeUndefined()
     expect(
       sanitizeRepoIcon({
         type: 'image',
-        src: 'https://user@example.com/icon.png',
+        src: 'https://github.com/acme.png?size=64',
         source: 'github'
       })
     ).toBeUndefined()
-  })
-
-  it('builds hosted avatar URLs only from a valid host value', () => {
-    expect(
-      githubAvatarIcon({ owner: 'acme', repo: 'widgets', host: 'GitHub.Acme.Test:8443' })
-    ).toMatchObject({ src: 'https://github.acme.test:8443/acme.png?size=64' })
-    // Explicit default port 443 is canonical for an HTTPS host: accept it
-    // (serialized without the port) rather than falling back to github.com.
-    expect(
-      githubAvatarIcon({ owner: 'acme', repo: 'widgets', host: 'ghe.example:443' })
-    ).toMatchObject({ src: 'https://ghe.example/acme.png?size=64' })
-    expect(
-      githubAvatarIcon({ owner: 'acme', repo: 'widgets', host: 'github.com@evil.example' })
-    ).toMatchObject({ src: 'https://github.com/acme.png?size=64' })
-  })
-})
-
-describe('githubAvatarSlug', () => {
-  const upstream = { owner: 'upstream-org', repo: 'rocket' }
-
-  it('keeps the upstream owner for a same-name fork, case-insensitively', () => {
-    expect(githubAvatarSlug({ owner: 'acme', repo: 'rocket' }, upstream)).toEqual(upstream)
-    expect(githubAvatarSlug({ owner: 'acme', repo: 'RocKet' }, upstream)).toEqual(upstream)
-  })
-
-  it('keeps the fork own owner once it has been renamed', () => {
-    const origin = { owner: 'acme', repo: 'rocket-pro' }
-    expect(githubAvatarSlug(origin, upstream)).toEqual(origin)
-  })
-
-  it('falls back to whichever identity is known', () => {
-    const origin = { owner: 'acme', repo: 'rocket-pro' }
-    expect(githubAvatarSlug(origin, null)).toEqual(origin)
-    expect(githubAvatarSlug(null, upstream)).toEqual(upstream)
-    expect(githubAvatarSlug(null, undefined)).toBeNull()
   })
 })
 

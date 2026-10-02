@@ -57,9 +57,7 @@ describe('detectRepoIcon', () => {
       JSON.stringify({ homepage: 'https://example.com' })
     )
 
-    await expect(
-      detectRepoIcon({ repoPath, kind: 'folder', executionHostId: 'local' })
-    ).resolves.toEqual({
+    await expect(detectRepoIcon({ repoPath, executionHostId: 'local' })).resolves.toEqual({
       type: 'image',
       src: `data:image/png;base64,${PNG_1X1_BASE64}`,
       source: 'file',
@@ -75,9 +73,7 @@ describe('detectRepoIcon', () => {
       Buffer.from(PNG_1X1_BASE64, 'base64')
     )
 
-    await expect(
-      detectRepoIcon({ repoPath, kind: 'folder', executionHostId: 'local' })
-    ).resolves.toEqual({
+    await expect(detectRepoIcon({ repoPath, executionHostId: 'local' })).resolves.toEqual({
       type: 'image',
       src: `data:image/png;base64,${PNG_1X1_BASE64}`,
       source: 'file',
@@ -91,30 +87,11 @@ describe('detectRepoIcon', () => {
     await mkdir(join(repoPath, 'public'), { recursive: true })
     await writeFile(join(repoPath, 'public', 'icon.webp'), Buffer.from(webpBase64, 'base64'))
 
-    await expect(
-      detectRepoIcon({ repoPath, kind: 'folder', executionHostId: 'local' })
-    ).resolves.toEqual({
+    await expect(detectRepoIcon({ repoPath, executionHostId: 'local' })).resolves.toEqual({
       type: 'image',
       src: `data:image/webp;base64,${webpBase64}`,
       source: 'file',
       label: 'public/icon.webp'
-    })
-  })
-
-  it('uses a package homepage favicon when no local icon file exists', async () => {
-    const repoPath = await makeTempRepoDir()
-    await writeFile(
-      join(repoPath, 'package.json'),
-      JSON.stringify({ homepage: 'https://app.example.com/docs' })
-    )
-
-    await expect(
-      detectRepoIcon({ repoPath, kind: 'folder', executionHostId: 'local' })
-    ).resolves.toEqual({
-      type: 'image',
-      src: 'https://www.google.com/s2/favicons?domain=app.example.com&sz=64',
-      source: 'favicon',
-      label: 'Website favicon'
     })
   })
 
@@ -127,9 +104,7 @@ describe('detectRepoIcon', () => {
       Buffer.from(PNG_1X1_BASE64, 'base64')
     )
 
-    await expect(
-      detectRepoIcon({ repoPath, kind: 'folder', executionHostId: 'local' })
-    ).resolves.toEqual({
+    await expect(detectRepoIcon({ repoPath, executionHostId: 'local' })).resolves.toEqual({
       type: 'image',
       src: `data:image/png;base64,${PNG_1X1_BASE64}`,
       source: 'file',
@@ -149,9 +124,7 @@ describe('detectRepoIcon', () => {
       Buffer.from(PNG_1X1_BASE64, 'base64')
     )
 
-    await expect(
-      detectRepoIcon({ repoPath, kind: 'folder', executionHostId: 'local' })
-    ).resolves.toEqual({
+    await expect(detectRepoIcon({ repoPath, executionHostId: 'local' })).resolves.toEqual({
       type: 'image',
       src: `data:image/png;base64,${PNG_1X1_BASE64}`,
       source: 'file',
@@ -171,9 +144,7 @@ describe('detectRepoIcon', () => {
       Buffer.from(PNG_1X1_BASE64, 'base64')
     )
 
-    await expect(
-      detectRepoIcon({ repoPath, kind: 'folder', executionHostId: 'local' })
-    ).resolves.toBeUndefined()
+    await expect(detectRepoIcon({ repoPath, executionHostId: 'local' })).resolves.toBeUndefined()
   })
 
   it('does not resolve declared icon hrefs outside the repo', async () => {
@@ -183,9 +154,7 @@ describe('detectRepoIcon', () => {
     await writeFile(join(parentPath, 'outside.png'), Buffer.from(PNG_1X1_BASE64, 'base64'))
     await writeFile(join(repoPath, 'index.html'), '<link rel="icon" href="../outside.png">')
 
-    await expect(
-      detectRepoIcon({ repoPath, kind: 'folder', executionHostId: 'local' })
-    ).resolves.toBeUndefined()
+    await expect(detectRepoIcon({ repoPath, executionHostId: 'local' })).resolves.toBeUndefined()
   })
 
   it('returns no icon for an SSH-hosted repo whose filesystem provider is missing', async () => {
@@ -199,7 +168,7 @@ describe('detectRepoIcon', () => {
     )
 
     await expect(
-      detectRepoIcon({ repoPath, kind: 'folder', executionHostId: 'ssh:not-connected' })
+      detectRepoIcon({ repoPath, executionHostId: 'ssh:not-connected' })
     ).resolves.toBeUndefined()
   })
 
@@ -207,29 +176,9 @@ describe('detectRepoIcon', () => {
     const repoPath = await makeTempRepoDir()
     await writeFile(join(repoPath, 'favicon.png'), Buffer.from(PNG_1X1_BASE64, 'base64'))
 
-    await expect(
-      detectRepoIcon({ repoPath, kind: 'folder', executionHostId: 'local' })
-    ).resolves.toMatchObject({ source: 'file', label: 'favicon.png' })
-  })
-
-  it('routes each SSH host to its own filesystem provider', async () => {
-    const repoPath = await makeTempRepoDir()
-    // On disk on this machine, so a host-blind probe would answer with this one for both hosts.
-    await writeFile(join(repoPath, 'favicon.png'), Buffer.from(PNG_1X1_BASE64, 'base64'))
-    registerHomepageHost('m4air', 'https://m4air.example.com')
-    registerHomepageHost('openclaw', 'https://openclaw.example.com')
-
-    await expect(
-      detectRepoIcon({ repoPath, kind: 'folder', executionHostId: 'ssh:m4air' })
-    ).resolves.toMatchObject({
-      source: 'favicon',
-      src: expect.stringContaining('m4air.example.com')
-    })
-    await expect(
-      detectRepoIcon({ repoPath, kind: 'folder', executionHostId: 'ssh:openclaw' })
-    ).resolves.toMatchObject({
-      source: 'favicon',
-      src: expect.stringContaining('openclaw.example.com')
+    await expect(detectRepoIcon({ repoPath, executionHostId: 'local' })).resolves.toMatchObject({
+      source: 'file',
+      label: 'favicon.png'
     })
   })
 
@@ -242,7 +191,7 @@ describe('detectRepoIcon', () => {
     const nested = registerHomepageHost('nested-1', 'https://nested.example.com')
 
     await expect(
-      detectRepoIcon({ repoPath, kind: 'folder', executionHostId: 'runtime:env-a' })
+      detectRepoIcon({ repoPath, executionHostId: 'runtime:env-a' })
     ).resolves.toBeUndefined()
     expect(nested.stat).not.toHaveBeenCalled()
   })
@@ -254,25 +203,7 @@ describe('detectRepoIcon', () => {
       cwd: repoPath
     })
 
-    await expect(
-      detectRepoIcon({ repoPath, kind: 'git', executionHostId: 'local' })
-    ).resolves.toBeUndefined()
-  })
-
-  it('skips code-host package homepages for GitHub remotes', async () => {
-    const repoPath = await makeTempRepoDir()
-    await writeFile(
-      join(repoPath, 'package.json'),
-      JSON.stringify({ homepage: 'https://github.com/stablyai/orca' })
-    )
-    await gitExecFileAsync(['init'], { cwd: repoPath })
-    await gitExecFileAsync(['remote', 'add', 'origin', 'https://github.com/stablyai/orca.git'], {
-      cwd: repoPath
-    })
-
-    await expect(
-      detectRepoIcon({ repoPath, kind: 'git', executionHostId: 'local' })
-    ).resolves.toBeUndefined()
+    await expect(detectRepoIcon({ repoPath, executionHostId: 'local' })).resolves.toBeUndefined()
   })
 
   it('stores a null upstream marker for git repos without a resolved fork parent', async () => {

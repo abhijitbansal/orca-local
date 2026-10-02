@@ -5,9 +5,6 @@ import {
   type ExecutionHostId
 } from '../shared/execution-host'
 import type { Repo } from '../shared/repo-types'
-import { githubAvatarIcon, type RepoIcon } from '../shared/repo-icon'
-import { isUnresolvedSshHostAlias } from '../shared/git-remote-host-alias'
-import { getProjectProviderIdentity } from '../shared/project-host-setup-projection'
 import { getStoredRepoExecutionHostId } from './repo-execution-host'
 import { probeGitRemoteIdentity } from './repo-git-remote-identity'
 
@@ -28,7 +25,7 @@ type RepoIdentityStore = {
   getRepo?(id: string, hostId?: ExecutionHostId): Repo | undefined
   updateRepo(
     id: string,
-    updates: Pick<Partial<Repo>, 'gitRemoteIdentity' | 'repoIcon'>,
+    updates: Pick<Partial<Repo>, 'gitRemoteIdentity'>,
     hostId?: ExecutionHostId
   ): Repo | null
 }
@@ -100,33 +97,6 @@ function shouldWriteProbedIdentity(current: Repo, probed: Repo['gitRemoteIdentit
   return !!probed && probed.canonicalKey !== existing.canonicalKey
 }
 
-function getAutomaticGitHubIconRefresh(
-  current: Repo,
-  probed: NonNullable<Repo['gitRemoteIdentity']>
-): RepoIcon | undefined {
-  if (
-    (current.upstream?.owner && current.upstream.repo) ||
-    current.repoIcon?.type !== 'image' ||
-    current.repoIcon.source !== 'github'
-  ) {
-    return undefined
-  }
-  const identity = getProjectProviderIdentity({
-    upstream: null,
-    repoIcon: undefined,
-    gitRemoteIdentity: probed
-  })
-  if (!identity || (identity.host && isUnresolvedSshHostAlias(identity.host))) {
-    return undefined
-  }
-  const icon = githubAvatarIcon(identity)
-  return icon.type === 'image' &&
-    current.repoIcon.src === icon.src &&
-    current.repoIcon.label === icon.label
-    ? undefined
-    : icon
-}
-
 function writeIdentity(
   store: RepoIdentityStore,
   snapshot: Repo,
@@ -141,17 +111,11 @@ function writeIdentity(
     return false
   }
   const writeRemote = shouldWriteProbedIdentity(current, gitRemoteIdentity)
-  const icon = gitRemoteIdentity
-    ? getAutomaticGitHubIconRefresh(current, gitRemoteIdentity)
-    : undefined
   // The row's own host, not the probe's: the store matches this argument against the row's stamp,
   // so a `runtime:` row probed locally is only addressable here under that stamp.
   const storeHostId = getRepoExecutionHostId(snapshot)
-  const update = (updates: Pick<Partial<Repo>, 'gitRemoteIdentity' | 'repoIcon'>): Repo | null => {
+  const update = (updates: Pick<Partial<Repo>, 'gitRemoteIdentity'>): Repo | null => {
     return store.updateRepo(snapshot.id, updates, storeHostId)
-  }
-  if (icon) {
-    return !!update({ ...(writeRemote ? { gitRemoteIdentity } : {}), repoIcon: icon })
   }
   return writeRemote && !!update({ gitRemoteIdentity })
 }

@@ -29,9 +29,6 @@ export function RepositoryIconPicker({
 
   const currentIconLabel = useMemo(() => {
     if (repo.repoIcon?.type === 'image') {
-      if (repo.repoIcon.source === 'github') {
-        return 'GitHub avatar'
-      }
       return repo.repoIcon.label ?? 'Custom image'
     }
     if (repo.repoIcon?.type === 'emoji') {

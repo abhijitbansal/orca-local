@@ -3335,11 +3335,7 @@
           "c90b858573": "text-amber-700 dark:text-amber-300"
         },
         "RepositoryIconPicker": {
-          "2b7d27b93c": "Use {{value0}} repo color",
-          "39da8a10bf": "Use GitHub Avatar",
-          "7da623abcc": "Used by default — GitHub always provides one, even when the owner hasn't set a custom image.",
-          "d71df44587": "Failed to resolve the GitHub repo.",
-          "f79972271a": "No GitHub remote found for this repo."
+          "2b7d27b93c": "Use {{value0}} repo color"
         },
         "RepositoryPane": {
           "createPendingSetup": "Track setup",
