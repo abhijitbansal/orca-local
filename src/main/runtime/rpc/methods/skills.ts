@@ -29,11 +29,6 @@ import {
 import { SKILL_INSTALL_RESULT_V2_CAPABILITY } from '../../../../shared/skill-install-capability'
 import type { OrcaRuntimeService } from '../../orca-runtime'
 import {
-  AGENT_SKILL_SHARING_UNSUPPORTED_ENVIRONMENT_CODE,
-  AgentSkillShareRequestSchema,
-  AgentSkillSharingError
-} from '../../../../shared/agent-skill-sharing-contract'
-import {
   SkillsCancelInstallParams,
   SkillsDiscoverParams,
   SkillsGetInstallProgressParams
@@ -98,31 +93,6 @@ export const SKILL_METHODS = [
         resolveDiscoveryTarget(params.target ?? {}, runtime),
         skillDeleteDependencies(runtime)
       )
-  }),
-  defineMethod({
-    name: 'skills.share',
-    params: AgentSkillShareRequestSchema,
-    handler: async (params, { runtime, signal, clientKind }) => {
-      runtime.assertAgentSkillSharingAllowed()
-      if (clientKind !== undefined) {
-        throw new AgentSkillSharingError(
-          AGENT_SKILL_SHARING_UNSUPPORTED_ENVIRONMENT_CODE,
-          'Publishing skills through a paired client is not supported. Run the command from Orca on the machine that stores the skills.'
-        )
-      }
-      const resolvedTarget = resolveDiscoveryTarget(params.target ?? {}, runtime)
-      if (resolvedTarget.kind !== 'native-host') {
-        throw new AgentSkillSharingError(
-          AGENT_SKILL_SHARING_UNSUPPORTED_ENVIRONMENT_CODE,
-          'Publishing skills from a forwarded WSL session is not supported yet. Run the command from Orca on the machine that stores the skills.'
-        )
-      }
-      const discovered = await discoverSkillsOnTarget(resolvedTarget, runtime.listRepos(), {
-        providerRootOverrides: await runtime.resolveSkillDiscoveryProviderRoots(resolvedTarget),
-        refresh: true
-      })
-      return runtime.publishDiscoveredSkillsFromAgent(params, discovered.skills, signal)
-    }
   }),
   defineMethod({
     name: 'skills.install',

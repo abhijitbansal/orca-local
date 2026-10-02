@@ -104,7 +104,7 @@ describe('settings navigation metadata', () => {
       'Share HTML and Markdown files with your team and manage their public links.'
     )
     expect(shareSkills).toMatchObject({ group: 'workflows', badge: 'Beta' })
-    expect(shareSkills?.searchEntries[0]?.title).toBe('Unlisted skill links')
+    expect(shareSkills?.searchEntries[0]?.title).toBe('Show Skills button')
     expect(workflowIds.slice(0, 3)).toEqual(['automations', 'artifacts', 'share-skills'])
   })
 

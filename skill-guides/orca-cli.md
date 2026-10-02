@@ -198,7 +198,7 @@ A denied share fails with `artifact_sharing_disabled` before any upload. Do not 
 answer will not change until a human acts. Tell the user to turn the setting on and re-run, or
 deliver the file locally if they decline.
 
-The `artifacts` commands, and the separate default-off permission for publishing installed skills, are in `references/publishing.md`. Load it before publishing either kind of link; a skill folder can hold scripts, configuration, or credentials.
+The `artifacts` commands are in `references/publishing.md`. Load it before publishing a link.
 
 ## Built-In Browser
 
@@ -244,5 +244,5 @@ This guide covers worktrees, terminals, and handoffs on its own. At a gate below
 | --------------------------------------------------------------------------------------------------------------- | -------------------------------- |
 | Driving Orca's embedded browser: navigation, snapshots, refs, tabs, concurrent pages, or `browser_*` recoveries | `references/browser.md`          |
 | Creating, editing, running, or inspecting scheduled automations                                                 | `references/automations.md`      |
-| Publishing or revoking an artifact link, or publishing installed skills                                         | `references/publishing.md`       |
+| Publishing or revoking an artifact link                                                                         | `references/publishing.md`       |
 | Mobile emulator taps, gestures, typing, buttons, camera, or permissions                                         | invoke the `orca-emulator` skill |

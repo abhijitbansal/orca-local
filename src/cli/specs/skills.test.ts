@@ -31,16 +31,4 @@ describe('skill command specs', () => {
       expect.arrayContaining(['reference', 'references'])
     )
   })
-
-  it('requires explicit selectors for sharing and exposes no bulk or path flag', () => {
-    const flags = effectiveAllowedFlags(spec('skills share'))
-
-    expect(flags).toContain('skill')
-    expect(flags).toContain('bundle-name')
-    expect(flags).not.toContain('all')
-    expect(flags).not.toContain('path')
-    expect(formatCommandHelp(spec('skills share'))).toContain(
-      'Only discovered skill directories can be selected'
-    )
-  })
 })

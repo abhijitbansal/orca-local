@@ -716,16 +716,6 @@ describe('createUISlice space navigation', () => {
     expect(store.getState().worktreeNavHistoryIndex).toBe(2)
   })
 
-  it('records a Skills visit when opening a shared skill link', () => {
-    const store = createUIStore()
-
-    store.getState().openSkillShare('share-1')
-    store.getState().openSkillsSharedLinks()
-
-    expect(store.getState().worktreeNavHistory).toEqual(['skills'])
-    expect(store.getState().worktreeNavHistoryIndex).toBe(0)
-  })
-
   it('opens and restores Artifacts when its sidebar shortcut is hidden', () => {
     const store = createUIStore()
     store.setState({ settings: { ...getDefaultSettings('/tmp'), showArtifactsButton: false } })

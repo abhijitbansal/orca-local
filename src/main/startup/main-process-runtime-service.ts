@@ -26,7 +26,6 @@ import { mainProcessState as state } from './main-process-state'
 import { prepareCodexRuntimeHomeForLaunch } from './codex-launch-preparation'
 import type { RuntimeDesktopWindowStatus } from '../../shared/runtime-types'
 import { ArtifactCloudService } from '../artifacts/artifact-cloud-service'
-import { SkillCloudService } from '../skills/skill-cloud-service'
 import { isArtifactSharingEnabled } from '../../shared/artifact-sharing-gate'
 import {
   AgentStatusObservedPaneIdentities,
@@ -184,7 +183,6 @@ export function configureRuntimeServices(runtime: OrcaRuntimeService): void {
       isArtifactSharingEnabled(state.store?.getSettings())
     )
   )
-  runtime.setSkillCloudService(new SkillCloudService(app.getPath('userData')))
   runtime.setAccountServices({ claudeAccounts, codexAccounts, rateLimits })
   runtime.setCommitMessageAgentEnvironmentResolvers({
     // Why: Codex hooks/auth live in Orca's managed runtime home even for the default path, so every launch must resolve CODEX_HOME via runtime-home.
