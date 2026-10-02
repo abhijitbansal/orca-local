@@ -311,11 +311,7 @@ import {
   UpdatePaneLayout,
   WorktreeTabSelector
 } from './session-tabs-schemas-params'
-import {
-  SkillsCancelInstallParams,
-  SkillsDiscoverParams,
-  SkillsGetInstallProgressParams
-} from './skills-params'
+import { SkillsDiscoverParams } from './skills-params'
 import {
   DictationChunk,
   DictationHandle,
@@ -396,18 +392,11 @@ import {
   WorktreeSortOrder,
   WorktreeTeardownMissingTerminalsParams
 } from './worktree-params'
-import { SkillBundleInstallRequestSchema } from '../skill-bundle-install-contract'
 import { SkillDeleteRequestSchema } from '../skill-delete-contract'
 import {
   SkillInstallPreviewRequestSchema,
-  SkillInstallRequestSchema,
   SkillRemoveRequestSchema
 } from '../skill-install-contract'
-import {
-  SkillUploadBeginRequestSchema,
-  SkillUploadChunkRequestSchema,
-  SkillUploadCommitRequestSchema
-} from '../skill-upload-session-contract'
 
 // Why: the host parses params with these schemas, so a client that matches this map
 // matches the dispatcher. Clients must import it for types only — parsing a params
@@ -795,20 +784,12 @@ export const RPC_PARAMS_BY_METHOD = {
   'settings.update': SettingsUpdate,
   'settings.updatePRBotAuthorOverride': PRBotAuthorOverrideUpdate,
   'settings.updateTerminalQuickCommands': TerminalQuickCommandsUpdate,
-  'skills.beginUpload': SkillUploadBeginRequestSchema,
-  'skills.cancelInstall': SkillsCancelInstallParams,
-  'skills.cancelUpload': SkillUploadCommitRequestSchema,
-  'skills.commitUpload': SkillUploadCommitRequestSchema,
   'skills.delete': SkillDeleteRequestSchema,
   'skills.discover': SkillsDiscoverParams,
-  'skills.getInstallProgress': SkillsGetInstallProgressParams,
-  'skills.install': SkillInstallRequestSchema,
-  'skills.installBundle': SkillBundleInstallRequestSchema,
   'skills.listManagedInstalls': null,
   'skills.previewDelete': SkillDeleteRequestSchema,
   'skills.previewInstall': SkillInstallPreviewRequestSchema,
   'skills.removeInstall': SkillRemoveRequestSchema,
-  'skills.uploadChunk': SkillUploadChunkRequestSchema,
   'speech.dictation.cancel': DictationHandle,
   'speech.dictation.chunk': DictationChunk,
   'speech.dictation.finish': DictationHandle,

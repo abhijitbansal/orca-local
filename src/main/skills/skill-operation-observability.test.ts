@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -7,7 +7,6 @@ import type {
   SkillBundleInstallResult
 } from '../../shared/skill-bundle-install-contract'
 import type { SkillInstallRequest, SkillInstallResult } from '../../shared/skill-install-contract'
-import { SKILL_PACKAGE_CONTENT_TYPE } from '../../shared/skill-package-manifest'
 import { collectBundle } from '../observability/bundle'
 import { _resetTracerForTests, setActiveSink, type TracerSink } from '../observability/tracer'
 import {
@@ -17,7 +16,6 @@ import {
   startSkillPhaseOperation
 } from './skill-operation-observability'
 import { createSkillPackageArchive } from './skill-package-creation'
-import { downloadSkillPackageGrant } from './skill-package-download'
 import { reconcileSkillProviderPlacement } from './skill-placement-reconciliation'
 import { settleObservedSkillTransactionRecovery } from './skill-transaction-recovery-observability'
 
@@ -262,25 +260,6 @@ describe('skill operation observability', () => {
       packageId: 'observed-package',
       versionId: 'observed-version'
     })
-    const archive = readFileSync(archivePath)
-    const fetcher: typeof fetch = async () =>
-      new Response(Uint8Array.from(archive), {
-        headers: {
-          'content-type': SKILL_PACKAGE_CONTENT_TYPE,
-          'content-length': String(archive.length)
-        }
-      })
-    const downloaded = await downloadSkillPackageGrant({
-      url: 'https://storage.test/package',
-      expiresAt: '2030-01-01T00:00:00Z',
-      expectedArchiveSha256: created.archiveSha256,
-      expectedCompressedBytes: created.compressedBytes,
-      temporaryRoot: join(directory, 'private-downloads'),
-      allowedOrigins: ['https://storage.test'],
-      requireHttps: true,
-      fetcher
-    })
-    await downloaded.cleanup()
 
     const providerRoot = join(directory, 'private-provider')
     const placement = await reconcileSkillProviderPlacement({
@@ -294,7 +273,6 @@ describe('skill operation observability', () => {
     expect(placement?.status).toBe('installed')
     const serialized = JSON.stringify(sink.records)
     expect(serialized).toContain('skill.package')
-    expect(serialized).toContain('skill.download')
     expect(serialized).toContain('skill.placement')
     expect(serialized).toContain('fileCount')
     expect(serialized).not.toContain(source)

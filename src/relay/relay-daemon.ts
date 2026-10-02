@@ -13,7 +13,6 @@ import {
   publishRelayEndpointCredential,
   restrictWindowsRelayEndpointCredential
 } from './relay-endpoint-credential-publication'
-import { SKILL_RELAY_CAPABILITIES } from './skill-install-handler'
 import { publishRelayPid } from './relay-pid-publication'
 
 export async function runRelayDaemon(options: RelayLaunchOptions): Promise<void> {
@@ -150,7 +149,6 @@ function registerRelayStatus(
   startedAt: number
 ): void {
   primaryChannel.dispatcher.onRequest('relay.status', async () => ({
-    capabilities: SKILL_RELAY_CAPABILITIES,
     pid: process.pid,
     uptimeMs: Date.now() - startedAt,
     detached: options.detached,

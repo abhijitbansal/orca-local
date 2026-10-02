@@ -198,10 +198,6 @@ export function registerSkillInstallManagementIpcHandlers(runtime: OrcaRuntimeSe
       if (!environmentId) {
         return { status: 'ok' as const, value: await runtime.listManagedSkillInstalls() }
       }
-      if (environmentId.startsWith('ssh:')) {
-        const value = await runtime.listManagedSkillInstalls(environmentId.slice('ssh:'.length))
-        return { status: 'ok' as const, value }
-      }
       const userDataPath = app.getPath('userData')
       if (!(await supportsSkillRuntimeManagement(userDataPath, environmentId))) {
         return { status: 'unsupported' as const, message: SKILL_INSTALL_UPDATE_REQUIRED_MESSAGE }

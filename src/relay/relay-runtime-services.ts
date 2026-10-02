@@ -21,7 +21,6 @@ import { createRelayAiVaultService } from './ai-vault-service-factory'
 import { registerRelayPluginHostCallHandlers } from './plugin-host-call-handler'
 import { SshPtyConsumerSessionAdapter } from './ssh-pty-consumer-session-adapter'
 import { RelayPtySourcePublication } from './relay-pty-source-publication'
-import { SkillInstallHandler } from './skill-install-handler'
 import { relayLogLine } from './relay-diagnostic-log'
 import { remoteCliRequestTimeoutMs } from './remote-cli-timeout'
 
@@ -31,7 +30,6 @@ export class RelayRuntimeServices {
   readonly ptySourcePublication: RelayPtySourcePublication
   readonly fsHandler: FsHandler
   readonly gitHandler: GitHandler
-  readonly skillInstallHandler: SkillInstallHandler
   private readonly responseStreams: GitResponseStreamRegistry
   private readonly aiVaultService: ReturnType<typeof createRelayAiVaultService> | null
   private readonly sessionSearch: { dispose(): void } | null
@@ -76,7 +74,6 @@ export class RelayRuntimeServices {
     )
     this.gitHandler = new GitHandler(dispatcher, context, watchRegistry, responseStreams)
     const preflightHandler = new PreflightHandler(dispatcher)
-    this.skillInstallHandler = new SkillInstallHandler(dispatcher)
     const externalAutomationsHandler = new ExternalAutomationsHandler(dispatcher)
     const portScanHandler = new PortScanHandler(dispatcher)
     const agentExecHandler = new AgentExecHandler(dispatcher)
@@ -102,7 +99,6 @@ export class RelayRuntimeServices {
     })
     this.registeredHandlers = [
       preflightHandler,
-      this.skillInstallHandler,
       externalAutomationsHandler,
       portScanHandler,
       agentExecHandler,
@@ -131,11 +127,6 @@ export class RelayRuntimeServices {
     const fileStreams = this.fsHandler.disposeFileStreams().catch((error: unknown) => {
       failures.push(error)
     })
-    await this.skillInstallHandler.dispose().catch((error) => {
-      relayLogLine(
-        `[relay] Skill upload cleanup failed: ${error instanceof Error ? error.message : String(error)}`
-      )
-    })
     await this.aiVaultService?.dispose().catch((error) => {
       relayLogLine(
         `[relay] AI Vault sidecar shutdown failed: ${error instanceof Error ? error.message : String(error)}`
@@ -143,7 +134,7 @@ export class RelayRuntimeServices {
     })
     await responses
     await fileStreams
-    // Why: an unclosed fd defers shutdown so the next attempt retries it; skill/AI Vault
+    // Why: an unclosed fd defers shutdown so the next attempt retries it; AI Vault
     // cleanup stays log-and-continue until the T2 lifecycle port.
     if (failures.length > 0) {
       throw new AggregateError(failures, 'relay_owned_process_shutdown_incomplete')

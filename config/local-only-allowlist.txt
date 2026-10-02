@@ -25,10 +25,7 @@ src/shared/mobile-relay-pairing-fixtures.ts:forbidden-host
 # JWT claim namespace key read from a local Codex auth file, not a request URL.
 src/main/codex-accounts/codex-auth-identity.ts:forbidden-host
 # ---- Spec B: temporary rows for code that later Spec B units delete. Remove each row with its file; B0.2 strips this block. ----
-# B4 skill-transfer rails and the pinned Node download (storage.googleapis.com, nodejs.org/dist).
-src/relay/skill-install-handler.ts:forbidden-host
-src/main/runtime/runtime-skill-install-commands.ts:forbidden-host
-src/main/skills/skill-ssh-package-transfer.ts:forbidden-host
+# B4 pinned Node download (nodejs.org/dist).
 src/shared/node-runtime-pin.ts:forbidden-host
 # B5 end-to-end encryption for paired runtimes (tweetnacl).
 src/shared/e2ee-crypto.ts:forbidden-import

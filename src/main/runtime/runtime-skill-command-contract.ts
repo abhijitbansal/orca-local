@@ -1,39 +1,18 @@
 import type { ExecutionHostId } from '../../shared/execution-host'
 import type {
   SkillBundleInstallPreview,
-  SkillBundleInstallPreviewRequest,
-  SkillBundleInstallProgress,
-  SkillBundleInstallRequest,
-  SkillBundleInstallResult
+  SkillBundleInstallPreviewRequest
 } from '../../shared/skill-bundle-install-contract'
-import type {
-  SkillUploadBeginRequest,
-  SkillUploadChunkRequest
-} from '../../shared/skill-upload-session-contract'
-import type { IPtyProvider } from '../providers/types'
-import type { SkillUploadSessionService } from '../skills/skill-upload-session-service'
 import type { RuntimeSkillCommands } from './runtime-skill-command-surface'
 import type {
   ManagedSkillInstall,
   SkillInstallPreview,
   SkillInstallPreviewRequest,
-  SkillInstallRequest,
   SkillInstallResult,
   SkillProviderRootOverrides,
   SkillRemoveRequest
 } from './runtime-skill-types'
 export type RuntimeSkillCommandSurface = {
-  installSharedSkillRequest(
-    request: SkillInstallRequest,
-    signal?: AbortSignal
-  ): Promise<SkillInstallResult>
-  installSharedSkillBundleRequest(
-    request: SkillBundleInstallRequest,
-    signal?: AbortSignal,
-    onProgress?: (progress: SkillBundleInstallProgress) => void
-  ): Promise<SkillBundleInstallResult>
-  getSharedSkillInstallProgress(operationId: string): SkillBundleInstallProgress | null
-  cancelSharedSkillInstall(operationId: string): boolean
   previewSharedSkillInstallRequest(
     request: SkillInstallPreviewRequest
   ): Promise<SkillInstallPreview>
@@ -41,19 +20,11 @@ export type RuntimeSkillCommandSurface = {
     request: SkillBundleInstallPreviewRequest
   ): Promise<SkillBundleInstallPreview>
   removeSharedSkillInstallRequest(request: SkillRemoveRequest): Promise<SkillInstallResult>
-  listManagedSkillInstalls(connectionId?: string): Promise<ManagedSkillInstall[]>
-  skillInstallDestinationUsesSsh(destination: SkillInstallRequest['destination']): Promise<boolean>
+  listManagedSkillInstalls(): Promise<ManagedSkillInstall[]>
   resolveSkillDiscoveryProviderRoots(target: {
     kind: 'native-host' | 'wsl'
     distro?: string
   }): Promise<SkillProviderRootOverrides>
-  beginSkillUpload(request: SkillUploadBeginRequest): ReturnType<SkillUploadSessionService['begin']>
-  appendSkillUploadChunk(
-    request: SkillUploadChunkRequest
-  ): ReturnType<SkillUploadSessionService['append']>
-  commitSkillUpload(uploadId: string): ReturnType<SkillUploadSessionService['commit']>
-  cancelSkillUpload(uploadId: string): ReturnType<SkillUploadSessionService['cancel']>
-  disposeSkillUploadSessions(): Promise<void>
 }
 
 export function installRuntimeSkillCommandSurface(
@@ -95,7 +66,6 @@ export type RuntimeSkillCommandHost = {
   resolveProjectRuntimeForWorktree?(
     worktreeId: string
   ): { status: string; runtime?: { kind: string; distro?: string } } | undefined
-  getSshProvider(connectionId: string): IPtyProvider | undefined
   getClaudeConfigDirectory?(
     target: { runtime: 'host' } | { runtime: 'wsl'; wslDistro: string }
   ): string | null

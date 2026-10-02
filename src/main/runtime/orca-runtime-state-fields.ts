@@ -175,7 +175,6 @@ export class OrcaRuntimeWithStateFields extends OrcaRuntimeWithFileCommands {
       showManagedWorktree: (selector) => this.showManagedWorktree(selector),
       resolveProjectRuntimeForWorktree: (worktreeId) =>
         this.resolveProjectRuntimeForWorktree(worktreeId),
-      getSshProvider: (connectionId) => this.getSshProviderFn?.(connectionId),
       getClaudeConfigDirectory: (target) => this.accounts.getClaudeConfigDirectory(target),
       skillTransactionRecovery: (deps?.skillTransactionRecovery ?? Promise.resolve()).catch(
         (error) => {

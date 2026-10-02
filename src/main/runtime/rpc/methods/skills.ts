@@ -10,29 +10,14 @@ import {
 import type { SkillDiscoveryTargetSchema } from '../../../../shared/skills'
 import {
   SkillInstallPreviewRequestSchema,
-  SkillInstallRequestSchema,
   SkillRemoveRequestSchema
 } from '../../../../shared/skill-install-contract'
-import {
-  SkillBundleInstallProgressSchema,
-  SkillBundleInstallRequestSchema
-} from '../../../../shared/skill-bundle-install-contract'
-import {
-  SkillUploadBeginRequestSchema,
-  SkillUploadChunkRequestSchema,
-  SkillUploadCommitRequestSchema
-} from '../../../../shared/skill-upload-session-contract'
 import {
   discoverSkillsOnTarget,
   resolveSkillDiscoveryTarget
 } from '../../../skills/skill-discovery-target'
-import { SKILL_INSTALL_RESULT_V2_CAPABILITY } from '../../../../shared/skill-install-capability'
 import type { OrcaRuntimeService } from '../../orca-runtime'
-import {
-  SkillsCancelInstallParams,
-  SkillsDiscoverParams,
-  SkillsGetInstallProgressParams
-} from '../../../../shared/rpc-contract/skills-params'
+import { SkillsDiscoverParams } from '../../../../shared/rpc-contract/skills-params'
 
 /** Exported so the delete plan's root rebuild resolves its target exactly the
  *  way `skills.discover` resolved the scan's — including WSL. */
@@ -95,46 +80,6 @@ export const SKILL_METHODS = [
       )
   }),
   defineMethod({
-    name: 'skills.install',
-    params: SkillInstallRequestSchema,
-    handler: async (params, { runtime, signal, clientCapabilities }) => {
-      const result = await runtime.installSharedSkillRequest(params, signal)
-      if (
-        result.status === 'cancelled' &&
-        !clientCapabilities?.includes(SKILL_INSTALL_RESULT_V2_CAPABILITY)
-      ) {
-        return {
-          ...result,
-          status: 'failed' as const,
-          errorCategory: result.failure?.code ?? 'skill-install-cancelled',
-          failure: undefined
-        }
-      }
-      return result
-    }
-  }),
-  defineMethod({
-    name: 'skills.installBundle',
-    params: SkillBundleInstallRequestSchema,
-    handler: (params, { runtime, signal }) =>
-      runtime.installSharedSkillBundleRequest(params, signal)
-  }),
-  defineMethod({
-    name: 'skills.cancelInstall',
-    params: SkillsCancelInstallParams,
-    handler: (params, { runtime }) => ({
-      cancelled: runtime.cancelSharedSkillInstall(params.operationId)
-    })
-  }),
-  defineMethod({
-    name: 'skills.getInstallProgress',
-    params: SkillsGetInstallProgressParams,
-    handler: (params, { runtime }) => {
-      const progress = runtime.getSharedSkillInstallProgress(params.operationId)
-      return progress ? SkillBundleInstallProgressSchema.parse(progress) : null
-    }
-  }),
-  defineMethod({
     name: 'skills.previewInstall',
     params: SkillInstallPreviewRequestSchema,
     handler: (params, { runtime }) => runtime.previewSharedSkillInstallRequest(params)
@@ -148,25 +93,5 @@ export const SKILL_METHODS = [
     name: 'skills.listManagedInstalls',
     params: null,
     handler: (_params, { runtime }) => runtime.listManagedSkillInstalls()
-  }),
-  defineMethod({
-    name: 'skills.beginUpload',
-    params: SkillUploadBeginRequestSchema,
-    handler: (params, { runtime }) => runtime.beginSkillUpload(params)
-  }),
-  defineMethod({
-    name: 'skills.uploadChunk',
-    params: SkillUploadChunkRequestSchema,
-    handler: (params, { runtime }) => runtime.appendSkillUploadChunk(params)
-  }),
-  defineMethod({
-    name: 'skills.commitUpload',
-    params: SkillUploadCommitRequestSchema,
-    handler: (params, { runtime }) => runtime.commitSkillUpload(params.uploadId)
-  }),
-  defineMethod({
-    name: 'skills.cancelUpload',
-    params: SkillUploadCommitRequestSchema,
-    handler: (params, { runtime }) => runtime.cancelSkillUpload(params.uploadId)
   })
 ]

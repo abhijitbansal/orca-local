@@ -32,6 +32,7 @@ vi.mock('../skills/skill-runtime-capability', () => ({
 
 vi.mock('../wsl', () => ({ listWslDistrosAsync: vi.fn(async () => []) }))
 
+import { SKILL_INSTALL_UPDATE_REQUIRED_MESSAGE } from '../../shared/skill-install-capability'
 import { registerSkillInstallManagementIpcHandlers } from './skill-install-management-ipc-handlers'
 
 type IpcHandler = (_event: unknown, value: unknown) => Promise<unknown>
@@ -124,5 +125,20 @@ describe('skill install management IPC', () => {
       status: 'ok',
       value: { skills: expect.arrayContaining([expect.objectContaining({ name: 'skill-16' })]) }
     })
+  })
+
+  it('fails closed for an ssh environment id instead of listing a remote host', async () => {
+    supportsManagementMock.mockResolvedValue(false)
+    const listManagedSkillInstalls = vi.fn(async () => [])
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the handler only calls listManagedSkillInstalls on this runtime stub.
+    registerSkillInstallManagementIpcHandlers({ listManagedSkillInstalls } as never)
+    const handler = handlers.get('skills:listManagedInstalls')
+    expect(handler).toBeDefined()
+
+    await expect(handler!(null, 'ssh:host-1')).resolves.toEqual({
+      status: 'unsupported',
+      message: SKILL_INSTALL_UPDATE_REQUIRED_MESSAGE
+    })
+    expect(listManagedSkillInstalls).not.toHaveBeenCalled()
   })
 })

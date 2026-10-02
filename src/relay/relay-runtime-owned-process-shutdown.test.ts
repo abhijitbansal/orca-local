@@ -4,18 +4,16 @@ import { RelayRuntimeServices } from './relay-runtime-services'
 afterEach(() => vi.restoreAllMocks())
 
 function fixture() {
-  const skill = vi.fn(async () => {})
   const vault = vi.fn(async () => {})
   const responses = vi.fn(async () => {})
   const fileStreams = vi.fn(async () => {})
   // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: disposeOwnedProcesses only reads the owners stubbed here.
   const runtime = Object.assign(Object.create(RelayRuntimeServices.prototype), {
-    skillInstallHandler: { dispose: skill },
     aiVaultService: { dispose: vault },
     responseStreams: { disposeAllAndWait: responses },
     fsHandler: { disposeFileStreams: fileStreams }
   }) as RelayRuntimeServices
-  return { runtime, skill, vault, responses, fileStreams }
+  return { runtime, vault, responses, fileStreams }
 }
 
 it.each(['responses', 'fileStreams'] as const)(
@@ -49,15 +47,13 @@ it('rejects stream drain failures after attempting every owner and supports retr
     message: 'relay_owned_process_shutdown_incomplete',
     errors: [responseError, fileError]
   })
-  expect(f.skill).toHaveBeenCalledOnce()
   expect(f.vault).toHaveBeenCalledOnce()
   await expect(f.runtime.disposeOwnedProcesses()).resolves.toBeUndefined()
 })
 
-it('keeps skill and AI Vault cleanup failures log-and-continue', async () => {
+it('keeps AI Vault cleanup failures log-and-continue', async () => {
   const f = fixture()
   vi.spyOn(process.stderr, 'write').mockReturnValue(true)
-  f.skill.mockRejectedValueOnce(new Error('skill cleanup failed'))
   f.vault.mockRejectedValueOnce(new Error('vault cleanup failed'))
   await expect(f.runtime.disposeOwnedProcesses()).resolves.toBeUndefined()
   expect(f.responses).toHaveBeenCalledOnce()

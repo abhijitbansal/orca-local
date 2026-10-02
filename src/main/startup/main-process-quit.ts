@@ -208,7 +208,6 @@ function installWillQuitHandler(): void {
       state.museUsage?.flush()
     ]).then(() => {})
     const browserClientHostShutdown = shutdownPairedRuntimeBrowserClientHosts()
-    const skillUploadShutdown = state.runtime?.disposeSkillUploadSessions() ?? Promise.resolve()
     // Why: capture pid/runtimeId synchronously (before any await) so a later teardown path can't null them out mid-chain.
     const ownedPid = process.pid
     const ownedRuntimeId = state.runtime?.getRuntimeId()
@@ -243,7 +242,6 @@ function installWillQuitHandler(): void {
       { name: 'local-ssh-browser-routes', promise: localSshRouteShutdown },
       { name: 'ssh', promise: sshShutdown },
       { name: 'plugin-hosts', promise: pluginHostShutdown },
-      { name: 'skill-uploads', promise: skillUploadShutdown },
       { name: 'grok-hooks', promise: grokHookCleanup },
       { name: 'ref-maintenance', promise: refMaintenanceShutdown },
       { name: 'codex-backfill-recovery', promise: codexBackfillRecoveryShutdown },
