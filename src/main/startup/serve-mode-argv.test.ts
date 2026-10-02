@@ -25,19 +25,6 @@ describe('serve-mode-argv', () => {
     expect(findServeSubcommandIndex(['app', '--user-data-dir', '/tmp/x', 'serve'])).toBe(3)
   })
 
-  it('skips a space-separated Chromium switch value while locating serve', () => {
-    const argv = ['/AppRun', '--disable-features', 'Vulkan', 'serve', '--project-root', '/srv/repo']
-    expect(findServeSubcommandIndex(argv)).toBe(3)
-    expect(normalizeServeModeArgv(argv)).toEqual([
-      '/AppRun',
-      '--disable-features',
-      'Vulkan',
-      '--serve',
-      '--serve-project-root',
-      '/srv/repo'
-    ])
-  })
-
   it('refuses a help launch instead of starting a server', () => {
     // Why: `--help` is not a serve flag, so it used to be swallowed and the launch started a
     // runtime server. The AppImage redirect routes help to the CLI.
@@ -53,18 +40,9 @@ describe('serve-mode-argv', () => {
       expect(normalizeServeModeArgv(argv)).toEqual(argv)
     }
     // A directory named `help` is a value, not a help request.
-    expect(argvRequestsServeMode(['/AppRun', 'serve', '--project-root', 'help'])).toBe(true)
+    expect(argvRequestsServeMode(['/AppRun', 'serve', '--user-data-dir', 'help'])).toBe(true)
     // Past an operator's terminator nothing is reinterpreted, help flags included.
     expect(argvRequestsServeMode(['/AppRun', 'serve', '--', '--help'])).toBe(true)
-  })
-
-  it('does not turn `--recipe-json=false` into recipe-json', () => {
-    // Why: the CLI reads serve booleans as `=== true`, so `=false` is not recipe-json there either.
-    expect(normalizeServeModeArgv(['/AppRun', 'serve', '--recipe-json=false'])).toEqual([
-      '/AppRun',
-      '--serve',
-      '--recipe-json=false'
-    ])
   })
 
   it('leaves real GUI launch argv alone', () => {
@@ -91,26 +69,6 @@ describe('serve-mode-argv', () => {
     expect(argvRequestsServeMode(['app', 'status', 'serve'])).toBe(false)
   })
 
-  it('rewrites CLI-form serve flags into --serve* form', () => {
-    expect(
-      normalizeServeModeArgv([
-        '/AppRun',
-        'serve',
-        '--json',
-        '--recipe-json',
-        '--project-root',
-        '/srv/repo'
-      ])
-    ).toEqual([
-      '/AppRun',
-      '--serve',
-      '--serve-json',
-      '--serve-recipe-json',
-      '--serve-project-root',
-      '/srv/repo'
-    ])
-  })
-
   it('keeps Electron-injected Chromium switches while normalizing direct serve', () => {
     expect(
       normalizeServeModeArgv([
@@ -124,46 +82,6 @@ describe('serve-mode-argv', () => {
       '--disable-features=FedCm,DirectSockets',
       '--serve',
       '--serve-json'
-    ])
-  })
-
-  it('leaves already-normalized argv unchanged', () => {
-    // Why every value flag: the CLI's own `orca serve` spawns the app with exactly this shape
-    // (serveOrcaApp), and the rewrite runs over it too — a bad mapping would drop a flag here.
-    const argv = [
-      'orca',
-      '--serve',
-      '--serve-json',
-      '--serve-recipe-json',
-      '--serve-project-root',
-      '/srv/repo'
-    ]
-    expect(normalizeServeModeArgv(argv)).toEqual(argv)
-  })
-
-  it('splits `--flag=value` CLI form, which getServeOptions cannot read', () => {
-    expect(normalizeServeModeArgv(['/AppRun', 'serve', '--project-root=/srv/repo'])).toEqual([
-      '/AppRun',
-      '--serve',
-      '--serve-project-root',
-      '/srv/repo'
-    ])
-  })
-
-  it('keeps equals-form values that start with a flag marker intact', () => {
-    expect(normalizeServeModeArgv(['/AppRun', 'serve', '--project-root=--odd'])).toEqual([
-      '/AppRun',
-      '--serve',
-      '--serve-project-root=--odd'
-    ])
-  })
-
-  it('translates serve flags in the mixed `--serve --project-root` form', () => {
-    expect(normalizeServeModeArgv(['orca', '--serve', '--project-root', '/srv/repo'])).toEqual([
-      'orca',
-      '--serve',
-      '--serve-project-root',
-      '/srv/repo'
     ])
   })
 
@@ -183,19 +101,18 @@ describe('serve-mode-argv', () => {
 
   it('passes args after `--` through verbatim', () => {
     expect(
-      normalizeServeModeArgv(['/AppRun', 'serve', '--json', '--', '--project-root', '1'])
-    ).toEqual(['/AppRun', '--serve', '--serve-json', '--', '--project-root', '1'])
+      normalizeServeModeArgv(['/AppRun', 'serve', '--json', '--', '--user-data-dir', '1'])
+    ).toEqual(['/AppRun', '--serve', '--serve-json', '--', '--user-data-dir', '1'])
   })
 
   it('never disagrees with itself about whether a launch is serve mode', () => {
     // Why exhaustive: index.ts asks `argvRequestsServeMode` and then reads `--serve` out of the
     // rewrite. If the two halves consume values differently one can swallow the `serve` token the
     // other is rewriting, and the launch boots a desktop window with every serve flag dropped —
-    // #12677 again. Found by fuzzing `--project-root --project-root serve` and `--project-root -- serve`.
+    // #12677 again. Found by fuzzing `--user-data-dir --user-data-dir serve` and `--user-data-dir -- serve`.
     const alphabet = [
       'serve',
       '--serve',
-      '--project-root',
       '--json',
       '--pairing-code',
       '--user-data-dir',
@@ -203,8 +120,7 @@ describe('serve-mode-argv', () => {
       '-h',
       'help',
       'value',
-      '--project-root=1',
-      '--recipe-json=false'
+      '--user-data-dir=1'
     ]
     const disagreements: string[][] = []
     const walk = (tail: string[]): void => {

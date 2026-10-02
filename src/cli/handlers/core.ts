@@ -3,7 +3,6 @@ import type { CommandHandler } from '../dispatch'
 import { formatCliStatus, formatStatus, printResult } from '../format'
 import { RuntimeClientError, serveOrcaApp } from '../runtime-client'
 import { stripElectronRunAsNode } from '../runtime/launch'
-import { getServeOptionValidationError } from '../../shared/serve-option-validation'
 
 function envRecord(): Record<string, string> {
   // Why: the `orca` launcher runs Orca's Electron binary as Node, so this CLI
@@ -81,23 +80,8 @@ export const CORE_HANDLERS: Record<string, CommandHandler> = {
     const result = await client.openOrca()
     printResult(result, json, formatCliStatus)
   },
-  serve: async ({ flags, json }) => {
-    const projectRootValue = flags.get('project-root')
-    const projectRoot = typeof projectRootValue === 'string' ? projectRootValue : null
-    const recipeJson = flags.get('recipe-json') === true
-    const validationError = getServeOptionValidationError({
-      recipeJson,
-      projectRoot
-    })
-    if (validationError) {
-      throw new RuntimeClientError('invalid_argument', validationError)
-    }
-    const exitCode = await serveOrcaApp({
-      json,
-      recipeJson,
-      projectRoot
-    })
-    process.exitCode = exitCode
+  serve: async ({ json }) => {
+    process.exitCode = await serveOrcaApp({ json })
   },
   status: async ({ client, json }) => {
     const result = await client.getCliStatus()

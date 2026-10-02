@@ -8,12 +8,9 @@ const SERVE_FLAG = '--serve'
 
 // Why Map, not a record: `'toString' in {}` is true, so an object lookup turns a
 // stray `serve toString` positional into a function spliced onto argv.
-const CLI_TO_SERVE_FLAG = new Map([
-  ['--json', '--serve-json'],
-  ['--recipe-json', '--serve-recipe-json']
-])
+const CLI_TO_SERVE_FLAG = new Map([['--json', '--serve-json']])
 
-const CLI_TO_SERVE_VALUE_FLAG = new Map([['--project-root', '--serve-project-root']])
+const CLI_TO_SERVE_VALUE_FLAG = new Map<string, string>()
 
 /**
  * Flags that consume the next argv token as a value (CLI-form + Electron passthrough).
@@ -21,8 +18,6 @@ const CLI_TO_SERVE_VALUE_FLAG = new Map([['--project-root', '--serve-project-roo
  * read as the subcommand. Include switches that may arrive in either argv shape.
  */
 export const VALUE_TAKING_FLAGS = new Set([
-  ...CLI_TO_SERVE_VALUE_FLAG.keys(),
-  '--serve-project-root',
   '--disable-features',
   '--user-data-dir',
   '--proxy-server',
@@ -130,9 +125,6 @@ export function normalizeServeModeArgv(argv: readonly string[]): string[] {
     // Why: keep the internal argv shape canonical even though getServeOptions accepts both forms.
     const eq = token.indexOf('=')
     const name = eq === -1 ? token : token.slice(0, eq)
-    // Why only the bare form: the CLI reads its serve booleans as `flags.get(name) === true`
-    // (src/cli/handlers/core.ts), so `--recipe-json=false` is NOT recipe-json there. Translating it
-    // anyway would drop the value; passing it through matches the CLI.
     const booleanFlag = eq === -1 ? CLI_TO_SERVE_FLAG.get(name) : undefined
     if (booleanFlag) {
       next.push(booleanFlag)

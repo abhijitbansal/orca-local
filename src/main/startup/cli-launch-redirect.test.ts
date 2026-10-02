@@ -187,7 +187,7 @@ describe('CLI launch redirect: command form', () => {
   it('does not treat a serve option value as a help request', () => {
     expect(
       getCliLaunchArgs(
-        [linux.execPath, 'serve', '--project-root', 'help'],
+        [linux.execPath, 'serve', '--user-data-dir', 'help'],
         linux.cliEntryPath,
         linuxOptions
       )

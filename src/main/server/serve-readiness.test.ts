@@ -91,26 +91,6 @@ describe('ServeReadinessPublisher', () => {
     )
   })
 
-  it('preserves the recipe JSON contract', () => {
-    expect(renderServeReadiness(ready, { mode: 'recipe-json', projectRoot: '/workspace' })).toBe(
-      '{"schemaVersion":1,"pairingCode":"orca://pair?code=secret","projectRoot":"/workspace"}'
-    )
-  })
-
-  it('fails recipe output with the unavailable reason and guidance', () => {
-    const unavailable: ServeReadiness = {
-      ...ready,
-      pairing: {
-        available: false,
-        reason: 'websocket_unavailable',
-        guidance: 'Choose an unused --port.'
-      }
-    }
-    expect(() =>
-      renderServeReadiness(unavailable, { mode: 'recipe-json', projectRoot: '/workspace' })
-    ).toThrow('websocket_unavailable. Choose an unused --port.')
-  })
-
   it('omits the health block entirely when a host does not report one', () => {
     const payload = JSON.parse(renderServeReadiness(ready, { mode: 'json' }))
     // Why absent rather than a null/empty object: a reader must be able to tell "this host

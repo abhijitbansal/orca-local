@@ -59,26 +59,10 @@ describe('orca cli worktree awareness', () => {
 
     await main(['serve', '--json'], '/tmp/repo')
 
-    expect(serveOrcaAppMock).toHaveBeenCalledWith({
-      json: true,
-      recipeJson: false,
-      projectRoot: null
-    })
+    expect(serveOrcaAppMock).toHaveBeenCalledWith({ json: true })
   })
 
-  it('starts a recipe JSON headless server for VM recipes', async () => {
-    serveOrcaAppMock.mockResolvedValue(0)
-
-    await main(['serve', '--project-root', '/workspace/repo', '--recipe-json'], '/tmp/repo')
-
-    expect(serveOrcaAppMock).toHaveBeenCalledWith({
-      json: false,
-      recipeJson: true,
-      projectRoot: '/workspace/repo'
-    })
-  })
-
-  it('rejects recipe JSON output without a project root', async () => {
+  it('rejects the removed --recipe-json flag as unknown', async () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
     const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const priorExitCode = process.exitCode
@@ -86,9 +70,7 @@ describe('orca cli worktree awareness', () => {
     await main(['serve', '--recipe-json'], '/tmp/repo')
 
     expect(serveOrcaAppMock).not.toHaveBeenCalled()
-    expect([...logSpy.mock.calls, ...errSpy.mock.calls].flat().join('\n')).toContain(
-      'Recipe JSON output requires --project-root.'
-    )
+    expect([...logSpy.mock.calls, ...errSpy.mock.calls].flat().join('\n')).toMatch(/recipe-json/)
     expect(process.exitCode).toBe(1)
 
     process.exitCode = priorExitCode
