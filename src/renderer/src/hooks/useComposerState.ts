@@ -31,7 +31,6 @@ import type {
 
 export type UseComposerStateOptions = {
   initialRepoId?: string
-  initialEphemeralVmRecipeId?: string
   initialProjectGroupId?: string
   initialName?: string
   initialPrompt?: string

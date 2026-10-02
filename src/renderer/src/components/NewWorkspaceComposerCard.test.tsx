@@ -193,7 +193,7 @@ const pnpmInstallSetupConfig = {
   kind: 'setup' as const
 }
 
-const vmRecipeHostOptions: ProjectHostSetupOption[] = [
+const hostOptions: ProjectHostSetupOption[] = [
   localReadyHostOption,
   {
     kind: 'ready',
@@ -827,70 +827,15 @@ describe('NewWorkspaceComposerCard folder task source mode', () => {
     expect(storeMocks.openSettingsTarget).not.toHaveBeenCalled()
   })
 
-  it('shows VM recipes inside the run target picker', () => {
+  it('selects an existing host from the run target picker', () => {
     const hostChanges: string[] = []
-    const recipeChanges: (string | null)[] = []
     current = renderCard({
-      projectHostSetupOptions: vmRecipeHostOptions,
+      projectHostSetupOptions: hostOptions,
       selectedProjectHostSetupId: 'setup-local',
-      onProjectHostSetupChange: (setupId) => hostChanges.push(setupId),
-      ephemeralVmRecipes: [
-        {
-          id: 'vercel',
-          name: 'Vercel Sandbox',
-          create: './scripts/orca-vm/vercel.start.sh',
-          destroy: './scripts/orca-vm/vercel.cleanup.sh',
-          destroyDisabled: false
-        }
-      ] as never,
-      onEphemeralVmRecipeChange: (recipeId) => recipeChanges.push(recipeId)
+      onProjectHostSetupChange: (setupId) => hostChanges.push(setupId)
     })
 
     expect(current.container.textContent).toContain('Run on')
-    expect(current.container.textContent).not.toContain('VM recipe')
-
-    openRunTargetPicker(current.container)
-
-    expect(document.body.textContent).toContain('Per-Workspace Environment')
-    const ephemeralVmItem = [
-      ...document.body.querySelectorAll<HTMLElement>('[role="option"]')
-    ].find((item) => item.textContent?.includes('Per-Workspace Environment'))
-    expect(ephemeralVmItem).toBeTruthy()
-    act(() => ephemeralVmItem?.click())
-
-    const recipeItem = [...document.body.querySelectorAll<HTMLElement>('[role="option"]')].find(
-      (item) => item.textContent?.includes('Vercel Sandbox')
-    )
-    expect(recipeItem).toBeTruthy()
-    act(() => recipeItem?.click())
-
-    expect(recipeChanges).toEqual(['vercel'])
-    expect(hostChanges).toEqual([])
-  })
-
-  it('clears the selected VM recipe when an existing host is selected', () => {
-    const hostChanges: string[] = []
-    const recipeChanges: (string | null)[] = []
-    current = renderCard({
-      projectHostSetupOptions: vmRecipeHostOptions,
-      selectedProjectHostSetupId: 'setup-local',
-      onProjectHostSetupChange: (setupId) => hostChanges.push(setupId),
-      ephemeralVmRecipes: [
-        {
-          id: 'vercel',
-          name: 'Vercel Sandbox',
-          create: './scripts/orca-vm/vercel.start.sh',
-          destroyDisabled: true
-        }
-      ] as never,
-      selectedEphemeralVmRecipeId: 'vercel',
-      onEphemeralVmRecipeChange: (recipeId) => recipeChanges.push(recipeId)
-    })
-
-    const runTargetShell = current.container.querySelector<HTMLElement>(
-      'div[data-run-target-combobox-root="true"]'
-    )
-    expect(runTargetShell?.textContent).toContain('Per-Workspace Environment')
     openRunTargetPicker(current.container)
 
     const builderItem = [...document.body.querySelectorAll<HTMLElement>('[role="option"]')].find(
@@ -900,7 +845,6 @@ describe('NewWorkspaceComposerCard folder task source mode', () => {
     act(() => builderItem?.click())
 
     expect(hostChanges).toEqual(['setup-builder'])
-    expect(recipeChanges).toEqual([null])
   })
 })
 

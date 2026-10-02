@@ -28,7 +28,6 @@ export type FeatureInteractionId =
   | 'agent-browser-use'
   | 'agent-orchestration-setup'
   | 'agent-orchestration'
-  | 'ephemeral-vm-setup'
   | 'mobile-emulator-agent-setup'
   | 'ai-commit-generation'
   | 'claude-account-switching'
@@ -97,7 +96,6 @@ export const FEATURE_INTERACTIONS = [
   { id: 'workspace-creation', interaction: 'workspace creation flow opened' },
   { id: 'agent-browser-setup', interaction: 'Agent Browser Use setup enabled or opened' },
   { id: 'agent-browser-use', interaction: 'agent browser runtime method used' },
-  { id: 'ephemeral-vm-setup', interaction: 'Ephemeral VMs setup opened or scaffold prompt copied' },
   {
     id: 'agent-orchestration-setup',
     interaction: 'Agent Orchestration setup enabled or opened'

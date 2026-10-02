@@ -24,7 +24,6 @@ import type { WorkspaceSource as WorkspaceCreateTelemetrySource } from '../../..
 
 export type ComposerTargetStoreModel = {
   initialRepoId: string | undefined
-  initialEphemeralVmRecipeId: string | undefined
   initialName: string
   initialPrompt: string
   initialLinkedWorkItem: LinkedWorkItemSummary | null

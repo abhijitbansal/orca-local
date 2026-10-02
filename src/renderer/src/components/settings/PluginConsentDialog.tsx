@@ -4,7 +4,6 @@ import type { PluginHostListEntry } from '../../../../preload/api-types'
 import { translate } from '@/i18n/i18n'
 import { pluginConsentErrorMessage } from './plugin-error-presentation'
 import { Button } from '../ui/button'
-import { PluginVmRecipeConsentPreview } from './PluginVmRecipeConsentPreview'
 import { PluginKeybindingConsentPreview } from './PluginKeybindingConsentPreview'
 import { PluginConsentProvenance } from './PluginConsentProvenance'
 import { pluginCapabilityDescription } from './plugin-capability-presentation'
@@ -52,10 +51,7 @@ function trustTier(plugin: PluginHostListEntry): string {
 }
 
 function hasInstructionalContent(plugin: PluginHostListEntry): boolean {
-  return (
-    (plugin.vmRecipes?.length ?? 0) > 0 ||
-    plugin.commands.some((command) => command.keybindings.length > 0)
-  )
+  return plugin.commands.some((command) => command.keybindings.length > 0)
 }
 
 /** Short one-word trust label for the header chip; the single warning below
@@ -222,7 +218,6 @@ export function PluginConsentDialog({
               </span>
             </div>
             <PluginKeybindingConsentPreview commands={plugin.commands} />
-            <PluginVmRecipeConsentPreview recipes={plugin.vmRecipes ?? []} />
             {error ? <p className="text-xs text-destructive">{error}</p> : null}
             <DialogFooter>
               <Button

@@ -4,7 +4,6 @@ import type { PendingWorktreeCreation } from '@/lib/pending-worktree-creation'
 import { makeWorktree } from './worktrees-slice-test-fixtures'
 import {
   createTestStore,
-  mockApi,
   resetRemoteRuntimeMocks,
   resetWorktreeSliceModuleMemory
 } from './worktrees-slice-test-harness'
@@ -172,70 +171,6 @@ describe('pending worktree creation state', () => {
 
     store.getState().removePendingWorktreeCreation('c2')
     expect(store.getState().activePendingCreationId).toBeNull()
-  })
-
-  it('removePendingWorktreeCreation cancels active VM provisioning', () => {
-    const store = createTestStore()
-    store.getState().beginPendingWorktreeCreation(
-      makePendingCreation('c1', {
-        phase: 'provisioning-vm'
-      })
-    )
-
-    store.getState().removePendingWorktreeCreation('c1')
-
-    expect(mockApi.ephemeralVm.cancelProvision).toHaveBeenCalledWith({ provisionId: 'c1' })
-    expect(store.getState().pendingWorktreeCreations.c1).toBeUndefined()
-  })
-
-  it('removePendingWorktreeCreation cleans up a provisioned-root setup and VM runtime', async () => {
-    const store = createTestStore()
-    const deleteProjectHostSetup = vi.mocked(store.getState().deleteProjectHostSetup)
-    deleteProjectHostSetup.mockResolvedValue({ setup: { id: 'setup-1' } } as never)
-    store.getState().beginPendingWorktreeCreation(
-      makePendingCreation('c1', {
-        phase: 'fetching',
-        request: {
-          ...makePendingCreation('c1').request,
-          ephemeralVmRuntimeId: 'runtime-1',
-          ephemeralVmCheckoutMode: 'provisioned-root',
-          workspaceRunContext: {
-            kind: 'workspace-run',
-            projectId: 'project-1',
-            hostId: 'ssh:runtime-ssh-1',
-            projectHostSetupId: 'setup-1',
-            repoId: 'repo-1',
-            path: '/workspace/repo'
-          }
-        }
-      })
-    )
-
-    store.getState().removePendingWorktreeCreation('c1')
-
-    expect(deleteProjectHostSetup).toHaveBeenCalledWith({ setupId: 'setup-1' })
-    await vi.waitFor(() =>
-      expect(mockApi.ephemeralVm.cleanup).toHaveBeenCalledWith({ runtimeId: 'runtime-1' })
-    )
-    expect(store.getState().pendingWorktreeCreations.c1).toBeUndefined()
-  })
-
-  it('removePendingWorktreeCreation can drop a completed VM creation without cleanup', () => {
-    const store = createTestStore()
-    store.getState().beginPendingWorktreeCreation(
-      makePendingCreation('c1', {
-        phase: 'fetching',
-        request: {
-          ...makePendingCreation('c1').request,
-          ephemeralVmRuntimeId: 'runtime-1'
-        }
-      })
-    )
-
-    store.getState().removePendingWorktreeCreation('c1', { cleanupVm: false })
-
-    expect(mockApi.ephemeralVm.cleanup).not.toHaveBeenCalled()
-    expect(store.getState().pendingWorktreeCreations.c1).toBeUndefined()
   })
 
   it('setActivePendingWorktreeCreation ignores unknown ids but always accepts null', () => {

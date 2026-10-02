@@ -56,11 +56,6 @@ export type ComposerStoreActions = {
       startupDraft?: string
       nameWasGenerated?: boolean
       parentWorktreeId?: string
-      provisionedRoot?: {
-        runtimeId: string
-        executionHostId: ExecutionHostId
-        expectedPath: string
-      }
     }
   ) => Promise<CreateWorktreeResult>
   updateRepo: (

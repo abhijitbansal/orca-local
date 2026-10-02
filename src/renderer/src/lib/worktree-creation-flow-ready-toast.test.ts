@@ -4,16 +4,12 @@ import type {
   WorktreeCreationRequest
 } from '@/lib/pending-worktree-creation'
 import type { CreateWorktreeResult } from '../../../shared/worktree/create-types'
-import type * as EphemeralVmWorktreeCreationModule from '@/lib/ephemeral-vm-worktree-creation'
 
 type ReadyToastCall = { message: string; onClick: () => void }
 
-const { readyToast, attachVmRuntime } = vi.hoisted(() => {
+const { readyToast } = vi.hoisted(() => {
   const calls: ReadyToastCall[] = []
-  return {
-    readyToast: { calls },
-    attachVmRuntime: vi.fn<() => Promise<void>>(async () => {})
-  }
+  return { readyToast: { calls } }
 })
 
 type NavigationState = {
@@ -102,15 +98,6 @@ vi.mock('sonner', () => ({
       readyToast.calls.push({ message, onClick: options.action.onClick })
     })
   }
-}))
-
-vi.mock('@/lib/ephemeral-vm-workspace-target', () => ({
-  prepareEphemeralVmWorkspaceTarget: vi.fn()
-}))
-
-vi.mock('@/lib/ephemeral-vm-worktree-creation', async (importOriginal) => ({
-  ...(await importOriginal<typeof EphemeralVmWorktreeCreationModule>()),
-  attachEphemeralVmRuntimeToWorkspace: attachVmRuntime
 }))
 
 import { activateAndRevealWorktree } from '@/lib/worktree-activation'
@@ -224,20 +211,6 @@ describe('a creation that finishes after the user moved on (#9944)', () => {
     expect(queueWorkspaceActivationTerminalFocus).toHaveBeenCalledWith('wt-1', {
       primaryTabId: null
     })
-    expect(readyToast.calls).toHaveLength(0)
-  })
-
-  it('does not toast a creation cancelled after the workspace was created', async () => {
-    // Cancel lands while the created workspace is still being wired up, past the post-create cancel check.
-    attachVmRuntime.mockImplementationOnce(async () => {
-      store.removePendingWorktreeCreation('creation-1')
-    })
-    const finish = await submitCreate()
-    finish()
-    await vi.waitFor(() => expect(attachVmRuntime).toHaveBeenCalledTimes(1))
-    await new Promise((resolve) => setTimeout(resolve, 0))
-
-    expect(activateAndRevealWorktree).not.toHaveBeenCalled()
     expect(readyToast.calls).toHaveLength(0)
   })
 

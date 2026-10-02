@@ -44,26 +44,20 @@ async function runCreateAttempt(
   attempt: WorktreeCreateAttempt,
   target: RuntimeTarget
 ): Promise<CreateAttemptOutcome> {
-  const provisionedRoot = request.options?.provisionedRoot
   const create = async (
     parentWorkspace: WorktreeCreateAttempt['parentWorkspace']
   ): Promise<CreateWorktreeResult> =>
-    provisionedRoot
-      ? await window.api.worktrees.adoptProvisionedRoot({
-          ...buildLocalWorktreeCreateArgs(request, { ...attempt, parentWorkspace }),
-          ...provisionedRoot
-        })
-      : target.kind === 'local'
-        ? // Why local can still reject on the parent: paired web clients route this API to their host.
-          await window.api.worktrees.create(
-            buildLocalWorktreeCreateArgs(request, { ...attempt, parentWorkspace })
-          )
-        : await callRuntimeRpc<CreateWorktreeResult>(
-            target,
-            'worktree.create',
-            buildRuntimeWorktreeCreateParams(request, { ...attempt, parentWorkspace }),
-            { timeoutMs: 10 * 60_000 }
-          )
+    target.kind === 'local'
+      ? // Why local can still reject on the parent: paired web clients route this API to their host.
+        await window.api.worktrees.create(
+          buildLocalWorktreeCreateArgs(request, { ...attempt, parentWorkspace })
+        )
+      : await callRuntimeRpc<CreateWorktreeResult>(
+          target,
+          'worktree.create',
+          buildRuntimeWorktreeCreateParams(request, { ...attempt, parentWorkspace }),
+          { timeoutMs: 10 * 60_000 }
+        )
   try {
     return { result: await create(attempt.parentWorkspace), droppedParent: false }
   } catch (error) {
@@ -180,9 +174,6 @@ export function createCreateWorktree(
           WORKTREE_LINKED_WORK_ITEM_CONTEXT_RUNTIME_CAPABILITY,
           'Update the remote runtime to link Jira'
         )
-      }
-      if (options?.provisionedRoot && target.kind !== 'local') {
-        throw new Error('Provisioned-root recipes currently require a direct SSH connection.')
       }
       for (let attempt = 0; attempt < CLIENT_WORKTREE_CREATE_MAX_ATTEMPTS; attempt += 1) {
         try {

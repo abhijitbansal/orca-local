@@ -9,9 +9,6 @@ export type ComposerCardSourceProps = Pick<
   | 'selectedRepoIsGit'
   | 'projectHostSetupOptions'
   | 'selectedProjectHostSetupId'
-  | 'ephemeralVmRecipes'
-  | 'selectedEphemeralVmRecipeId'
-  | 'ephemeralVmRecipeError'
   | 'name'
   | 'branchNameOverride'
   | 'parentWorktreeId'
@@ -60,7 +57,6 @@ export type ComposerCardActionProps = {
   onRepoChange: ComposerModel['handleRepoChange']
   onProjectChange: ComposerModel['handleProjectChange']
   onProjectHostSetupChange: ComposerModel['handleProjectHostSetupChange']
-  onEphemeralVmRecipeChange: ComposerModel['setSelectedEphemeralVmRecipeId']
   repoBackedSearchRepos?: ComposerModel['eligibleRepos']
   repoBackedSourcesDisabled?: boolean
   allowSmartNameAddProject?: boolean

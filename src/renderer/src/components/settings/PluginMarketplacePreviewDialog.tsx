@@ -74,19 +74,6 @@ function contributionSummary(
       )
     },
     {
-      key: 'vmRecipes',
-      count: contributes.vmRecipes.length,
-      one: translate(
-        'auto.components.settings.PluginMarketplacePreviewDialog.vmRecipesOne',
-        '1 VM recipe'
-      ),
-      many: translate(
-        'auto.components.settings.PluginMarketplacePreviewDialog.vmRecipes',
-        '{{value0}} VM recipes',
-        { value0: contributes.vmRecipes.length }
-      )
-    },
-    {
       key: 'panels',
       count: contributes.panels.length,
       one: translate(

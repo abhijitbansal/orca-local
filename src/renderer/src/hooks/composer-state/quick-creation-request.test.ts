@@ -6,7 +6,6 @@ function createInput(
 ): QuickCreationRequestInput {
   return {
     repoId: 'repo-1',
-    ephemeralVmRecipe: undefined,
     indeterminateProgress: false,
     taskSourceContext: null,
     linkedWorkItem: null,

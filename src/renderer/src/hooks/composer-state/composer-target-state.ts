@@ -39,7 +39,6 @@ export function useComposerTargetState(
     activeRepoId: composerTargetStore.activeRepoId,
     eligibleRepos: composerTargetStore.eligibleRepos,
     hostOptions: composerTargetStore.hostOptions,
-    initialEphemeralVmRecipeId: composerTargetStore.initialEphemeralVmRecipeId,
     projectGroups: composerTargetStore.projectGroups,
     projectHostSetups: composerTargetStore.projectHostSetups,
     projects: composerTargetStore.projects,

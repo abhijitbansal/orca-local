@@ -2,10 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { GlobalSettings } from '../../../../shared/global-settings-types'
 import type { PublicKnownRuntimeEnvironment } from '../../../../shared/runtime-environments'
 import { useAppStore } from '@/store'
-import { cn } from '@/lib/utils'
 import { SearchableSetting } from './SearchableSetting'
-import { EphemeralVmRuntimesSection } from './EphemeralVmRuntimesSection'
-import { CloudVmSetupGuide } from './CloudVmSetupGuide'
 import {
   getRuntimeEnvironmentsSearchEntry,
   getWebRuntimeEnvironmentsSearchEntry
@@ -196,7 +193,6 @@ export function RuntimeEnvironmentsPane({
     >
       <RuntimeServerWorkflowPicker
         visibleWorkflow={visibleWorkflow}
-        onCloseAddServerForm={closeAddServerForm}
         onWorkflowChange={setWorkflow}
       />
 
@@ -231,11 +227,6 @@ export function RuntimeEnvironmentsPane({
         onDisconnect={(environment) => void disconnectEnvironment(environment)}
         onRemove={openRemoveDialog}
       />
-
-      <div className={cn('space-y-5 pt-2', visibleWorkflow !== 'cloud-vm' && 'hidden')}>
-        <CloudVmSetupGuide />
-        <EphemeralVmRuntimesSection active={visibleWorkflow === 'cloud-vm'} />
-      </div>
 
       <RuntimeActiveServerSection
         visible={visibleWorkflow === 'connect'}

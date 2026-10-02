@@ -29,7 +29,6 @@ import { NewWorkspaceComposerFooter } from './new-workspace/NewWorkspaceComposer
 import { NewWorkspaceComposerNameSection } from './new-workspace/NewWorkspaceComposerNameSection'
 import { NewWorkspaceComposerProjectSection } from './new-workspace/NewWorkspaceComposerProjectSection'
 import {
-  EMPTY_EPHEMERAL_VM_RECIPES,
   EMPTY_PROJECT_HOST_SETUP_OPTIONS,
   EMPTY_PROJECT_OPTIONS,
   type NeedsProjectHostOption,
@@ -81,7 +80,6 @@ export default function NewWorkspaceComposerCard(
   } = props
   const projectOptions = props.projectOptions ?? EMPTY_PROJECT_OPTIONS
   const projectHostSetupOptions = props.projectHostSetupOptions ?? EMPTY_PROJECT_HOST_SETUP_OPTIONS
-  const ephemeralVmRecipes = props.ephemeralVmRecipes ?? EMPTY_EPHEMERAL_VM_RECIPES
   const { isFileDragOver, dragHandlers } = useComposerFileDragOver()
   const openModal = useAppStore((state) => state.openModal)
   const activeModal = useAppStore((state) => state.activeModal)
@@ -127,9 +125,7 @@ export default function NewWorkspaceComposerCard(
     }
   }, [hasSetLocationOption])
   const shouldShowRunTargetPicker =
-    readyProjectHostSetupOptions.length > 0 ||
-    ephemeralVmRecipes.length > 0 ||
-    needsSetupProjectHostSetupOptions.length > 0
+    readyProjectHostSetupOptions.length > 0 || needsSetupProjectHostSetupOptions.length > 0
   const sshStatusLabel = selectedRepoSshStatus
     ? getSshStatusLabel(selectedRepoSshStatus)
     : translate('auto.components.NewWorkspaceComposerCard.notConnected', 'Not connected')
@@ -304,7 +300,6 @@ export default function NewWorkspaceComposerCard(
           disabled={sparseEditing}
           projectOptions={projectOptions}
           projectHostSetupOptions={projectHostSetupOptions}
-          ephemeralVmRecipes={ephemeralVmRecipes}
           projectDescriptionId={projectDescriptionId}
           onAddProject={handleAddProject}
           focusNameInput={focusNameInput}

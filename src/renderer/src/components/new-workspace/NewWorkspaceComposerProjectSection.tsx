@@ -6,7 +6,6 @@ import ProjectCombobox from '@/components/new-workspace/ProjectCombobox'
 import RunTargetCombobox from '@/components/new-workspace/RunTargetCombobox'
 import { translate } from '@/i18n/i18n'
 import type {
-  EphemeralVmRecipeOption,
   NeedsProjectHostOption,
   NewWorkspaceComposerCardProps
 } from './new-workspace-composer-card-props'
@@ -27,9 +26,6 @@ type NewWorkspaceComposerProjectSectionProps = Pick<
   | 'selectedRepoConnectInProgress'
   | 'onConnectSelectedRepo'
   | 'selectedProjectHostSetupId'
-  | 'onEphemeralVmRecipeChange'
-  | 'selectedEphemeralVmRecipeId'
-  | 'ephemeralVmRecipeError'
 > & {
   disabled?: boolean
   projectDescriptionId: string
@@ -37,7 +33,6 @@ type NewWorkspaceComposerProjectSectionProps = Pick<
   focusNameInput: () => void
   shouldShowRunTargetPicker: boolean
   projectHostSetupOptions: NewWorkspaceComposerCardProps['projectHostSetupOptions']
-  ephemeralVmRecipes: EphemeralVmRecipeOption[]
   handleProjectHostSetupChange: (setupId: string) => void
   handleAddSshHost: () => void
   handleAddRemoteServer: () => void
@@ -65,14 +60,10 @@ export function NewWorkspaceComposerProjectSection({
   projectHostSetupOptions,
   selectedProjectHostSetupId,
   handleProjectHostSetupChange,
-  ephemeralVmRecipes,
-  selectedEphemeralVmRecipeId = null,
-  onEphemeralVmRecipeChange,
   handleAddSshHost,
   handleAddRemoteServer,
   handleConnectRunTargetHost,
   handleSetLocation,
-  ephemeralVmRecipeError,
   selectedRepoRequiresConnection,
   selectedRepoConnectionId,
   selectedRepoConnectInProgress,
@@ -151,22 +142,12 @@ export function NewWorkspaceComposerProjectSection({
             hostOptions={projectHostSetupOptions ?? []}
             hostValue={selectedProjectHostSetupId ?? null}
             onHostChange={handleProjectHostSetupChange}
-            recipes={ephemeralVmRecipes}
-            recipeValue={selectedEphemeralVmRecipeId}
-            onRecipeChange={onEphemeralVmRecipeChange}
             onAddSshHost={handleAddSshHost}
             onAddRemoteServer={handleAddRemoteServer}
             onConnectHost={handleConnectRunTargetHost}
             onSetLocation={handleSetLocation}
           />
-          {ephemeralVmRecipeError ? (
-            <p className="whitespace-pre-line text-[11px] text-destructive">
-              {ephemeralVmRecipeError}
-            </p>
-          ) : null}
         </div>
-      ) : ephemeralVmRecipeError ? (
-        <p className="whitespace-pre-line text-[11px] text-destructive">{ephemeralVmRecipeError}</p>
       ) : null}
       {selectedRepoRequiresConnection && selectedRepoConnectionId ? (
         <div

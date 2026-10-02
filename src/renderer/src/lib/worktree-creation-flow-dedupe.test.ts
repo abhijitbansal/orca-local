@@ -46,10 +46,6 @@ vi.mock('sonner', () => ({
   toast: { error: vi.fn(), success: vi.fn() }
 }))
 
-vi.mock('@/lib/ephemeral-vm-workspace-target', () => ({
-  prepareEphemeralVmWorkspaceTarget: vi.fn()
-}))
-
 import { runBackgroundWorktreeCreation } from './worktree-creation-flow'
 
 function makeRequest(overrides: Partial<WorktreeCreationRequest> = {}): WorktreeCreationRequest {

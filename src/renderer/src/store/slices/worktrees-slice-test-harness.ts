@@ -68,7 +68,6 @@ export const forgetRemovedForExecutionHostMock = vi.fn<
 export const mockApi = {
   worktrees: {
     create: stubMock(),
-    adoptProvisionedRoot: stubMock(),
     prefetchCreateBase: stubMock().mockResolvedValue(undefined),
     list: worktreeListMock,
     listDetected: listDetectedMock,
@@ -103,11 +102,6 @@ export const mockApi = {
       ok: true,
       result: { stoppedWorktreeIds: [] }
     })
-  },
-  ephemeralVm: {
-    cancelProvision: stubMock().mockResolvedValue({ cancelled: true }),
-    cleanup: stubMock().mockResolvedValue({}),
-    listRuntimes: stubMock().mockResolvedValue([])
   }
 }
 
@@ -222,5 +216,4 @@ export function createLocalLineageTestStore(lineage: WorktreeLineage) {
 export function resetWorktreeSliceModuleMemory() {
   resetAuthoritativelyRemovedWorktreeMemoryForTests()
   mockApi.worktrees.create.mockReset()
-  mockApi.worktrees.adoptProvisionedRoot.mockReset()
 }

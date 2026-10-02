@@ -2,15 +2,13 @@ import { ChevronDown } from 'lucide-react'
 import { translate } from '@/i18n/i18n'
 import { cn } from '@/lib/utils'
 
-export type RemoteServerWorkflow = 'connect' | 'cloud-vm'
+export type RemoteServerWorkflow = 'connect'
 
 export function RuntimeServerWorkflowPicker({
   visibleWorkflow,
-  onCloseAddServerForm,
   onWorkflowChange
 }: {
   visibleWorkflow: RemoteServerWorkflow
-  onCloseAddServerForm: () => void
   onWorkflowChange: (workflow: RemoteServerWorkflow) => void
 }): React.JSX.Element {
   return (
@@ -34,17 +32,6 @@ export function RuntimeServerWorkflowPicker({
               'auto.components.settings.RuntimeEnvironmentsPane.connectWorkflowHelp',
               'This app joins another machine'
             )
-          ],
-          [
-            'cloud-vm',
-            translate(
-              'auto.components.settings.RuntimeEnvironmentsPane.cloudVmWorkflow',
-              'Cloud VM'
-            ),
-            translate(
-              'auto.components.settings.RuntimeEnvironmentsPane.cloudVmWorkflowHelp',
-              'Manage recipe-created cloud machines'
-            )
           ]
         ] as const
       ).map(([value, label, description]) => (
@@ -53,9 +40,6 @@ export function RuntimeServerWorkflowPicker({
           type="button"
           aria-pressed={visibleWorkflow === value}
           onClick={() => {
-            if (value !== 'connect') {
-              onCloseAddServerForm()
-            }
             onWorkflowChange(value)
           }}
           className={cn(

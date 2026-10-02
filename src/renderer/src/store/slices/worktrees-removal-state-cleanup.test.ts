@@ -171,39 +171,6 @@ describe('removeWorktree state cleanup', () => {
     })
   })
 
-  it('purges the orphaned project that pointed at a destroyed runtime-owned SSH target', async () => {
-    const store = createTestStore()
-    const wt = makeWorktree({ id: 'repo1::/path/wt1', repoId: 'repo1', path: '/path/wt1' })
-    const orphanedSetup = {
-      id: 'setup-runtime-ssh',
-      hostId: 'ssh:runtime-ssh-orca-1'
-    } as unknown as AppState['projectHostSetups'][number]
-    const userSshSetup = {
-      id: 'setup-user-ssh',
-      hostId: 'ssh:my-server'
-    } as unknown as AppState['projectHostSetups'][number]
-    const deleteProjectHostSetup = vi.fn().mockResolvedValue(null)
-    store.setState({
-      worktreesByRepo: { repo1: [wt] },
-      projectHostSetups: [orphanedSetup, userSshSetup],
-      deleteProjectHostSetup
-    } as unknown as Partial<AppState>)
-    mockApi.ephemeralVm.listRuntimes.mockResolvedValueOnce([
-      {
-        id: 'runtime-1',
-        workspaceId: 'repo1::/path/wt1',
-        cleanupStatus: 'not_started',
-        sshTargetId: 'runtime-ssh-orca-1'
-      }
-    ])
-
-    await store.getState().removeWorktree({ id: 'repo1::/path/wt1', executionHostId: null })
-
-    // Only the orphaned runtime-owned project setup is purged; the user's SSH project is untouched.
-    expect(deleteProjectHostSetup).toHaveBeenCalledTimes(1)
-    expect(deleteProjectHostSetup).toHaveBeenCalledWith({ setupId: 'setup-runtime-ssh' })
-  })
-
   it('cleans up editorDrafts for files in the removed worktree', async () => {
     const store = createTestStore()
     const wt = makeWorktree({ id: 'repo1::/path/wt1', repoId: 'repo1', path: '/path/wt1' })

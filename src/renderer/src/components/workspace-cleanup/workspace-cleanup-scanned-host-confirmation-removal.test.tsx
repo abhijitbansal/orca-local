@@ -183,8 +183,7 @@ describe('workspace cleanup scanned host confirmation removal', () => {
           recordRemovalSnapshotPrune: vi.fn().mockResolvedValue(undefined)
         },
         pty: { kill: vi.fn().mockResolvedValue(undefined) },
-        runtimeEnvironments: { call: vi.fn() },
-        ephemeralVm: { listRuntimes: vi.fn().mockResolvedValue([]), cleanup: vi.fn() }
+        runtimeEnvironments: { call: vi.fn() }
       }
     })
     useAppStore.setState({

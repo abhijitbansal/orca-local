@@ -32,7 +32,7 @@ describe('sidebar worktree activation', () => {
     expect(mocks.activateAndRevealFolderWorkspace).not.toHaveBeenCalled()
   })
 
-  it('does not defer non-VM slept worktree selection behind terminal wake work', async () => {
+  it('does not defer slept worktree selection behind terminal wake work', async () => {
     await activateWorktreeFromSidebar('wt-slept')
 
     // Why: setActiveWorktree already defers terminal prep where needed. The
@@ -42,30 +42,6 @@ describe('sidebar worktree activation', () => {
       navigationIntent: 'user-open',
       revealInSidebar: false
     })
-  })
-
-  it('switches immediately while an ephemeral runtime wake is pending', async () => {
-    let resolveResume: ((value: null) => void) | undefined
-    const resumeWorkspace = vi.fn(
-      () =>
-        new Promise<null>((resolve) => {
-          resolveResume = resolve
-        })
-    )
-    vi.stubGlobal('window', {
-      api: { ephemeralVm: { resumeWorkspace } }
-    })
-
-    const activation = activateWorktreeFromSidebar('wt-vm')
-
-    expect(mocks.activateAndRevealWorktree).toHaveBeenCalledWith('wt-vm', {
-      navigationIntent: 'user-open',
-      revealInSidebar: false
-    })
-    expect(resumeWorkspace).toHaveBeenCalledWith({ workspaceId: 'wt-vm' })
-
-    resolveResume?.(null)
-    await activation
   })
 
   it('routes folder workspace activation through the guarded folder path', async () => {

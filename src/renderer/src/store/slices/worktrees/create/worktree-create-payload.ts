@@ -1,5 +1,4 @@
 import type { CreateWorktreeArgs } from '../../../../../../shared/worktree/create-types'
-import type { ExecutionHostId } from '../../../../../../shared/execution-host'
 import type { WorkspaceKey } from '../../../../../../shared/folder-workspace-types'
 import type { TaskSourceContext } from '../../../../../../shared/task-source-context'
 import type { WorkspaceLinkedItem } from '../../../../../../shared/worktree/types'
@@ -16,11 +15,6 @@ export type CreateWorktreeCallOptions = {
   displayNameKind?: CreateWorktreeArgs['displayNameKind']
   /** Parent picked in the composer. Sets sidebar nesting only; ignored if it no longer exists. */
   parentWorktreeId?: string
-  provisionedRoot?: {
-    runtimeId: string
-    executionHostId: ExecutionHostId
-    expectedPath: string
-  }
 }
 
 /** Everything `createWorktree` received, packed once so both transports read from the same record.
