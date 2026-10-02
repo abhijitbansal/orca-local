@@ -76,3 +76,25 @@ describe('machine name setting', () => {
     expect(normalizeLegacyProfile({ machineName: 'x'.repeat(300) }).machineName).toHaveLength(255)
   })
 })
+
+describe('retired cloud speech settings', () => {
+  it('drops a persisted OpenAI model selection and key flag but keeps other voice settings', () => {
+    const normalized = normalizeLegacyProfile({
+      voice: {
+        enabled: true,
+        sttModel: 'openai-gpt-4o-transcribe',
+        openAiApiKeyConfigured: true,
+        language: 'de'
+      }
+    })
+    expect(normalized.voice?.sttModel).toBe('')
+    expect('openAiApiKeyConfigured' in (normalized.voice ?? {})).toBe(false)
+    expect(normalized.voice?.enabled).toBe(true)
+    expect(normalized.voice?.language).toBe('de')
+  })
+
+  it('keeps a persisted local model selection', () => {
+    const normalized = normalizeLegacyProfile({ voice: { sttModel: 'whisper-tiny' } })
+    expect(normalized.voice?.sttModel).toBe('whisper-tiny')
+  })
+})

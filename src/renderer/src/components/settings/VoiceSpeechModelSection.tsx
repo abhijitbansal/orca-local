@@ -13,7 +13,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '../ui/dropdown-menu'
-import { Cloud, Download, Trash2, Loader2, ChevronDown, Check } from 'lucide-react'
+import { Download, Trash2, Loader2, ChevronDown, Check } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { translate } from '@/i18n/i18n'
 
 function describeSpeechModelDownloadError(error: unknown): string {
@@ -28,7 +29,6 @@ type VoiceSpeechModelSectionProps = {
   catalog: SpeechModelManifest[]
   modelStates: SpeechModelState[]
   onUpdateVoiceSettings: (updates: Partial<VoiceSettings>) => void
-  onOpenOpenAiDialog: (modelId: string) => void
   onRefreshModelStates: () => void
 }
 
@@ -37,7 +37,6 @@ export function VoiceSpeechModelSection({
   catalog,
   modelStates,
   onUpdateVoiceSettings,
-  onOpenOpenAiDialog,
   onRefreshModelStates
 }: VoiceSpeechModelSectionProps): React.JSX.Element {
   const [pendingDeleteModelIds, setPendingDeleteModelIds] = useState<Set<string>>(() => new Set())
@@ -58,8 +57,8 @@ export function VoiceSpeechModelSection({
           {selectedModel && selectedIsReady
             ? `${selectedModel.label} — ${selectedModel.description}`
             : translate(
-                'auto.components.settings.VoicePane.e24f7d43d2',
-                'Select a speech model. Local models run offline; cloud models require an API key.'
+                'auto.components.settings.VoicePane.speechModelHint',
+                'Select a speech model. Models run offline on this device.'
               )}
         </p>
       </div>
@@ -84,7 +83,6 @@ export function VoiceSpeechModelSection({
             const isDownloading =
               mState?.status === 'downloading' || mState?.status === 'extracting'
             const isActive = voiceSettings.sttModel === manifest.id
-            const isCloud = manifest.provider === 'openai'
             const deletePending = pendingDeleteModelIds.has(manifest.id)
             const sizeMb = manifest.sizeBytes ? Math.round(manifest.sizeBytes / 1_000_000) : null
 
@@ -95,8 +93,6 @@ export function VoiceSpeechModelSection({
                 onSelect={(event) => {
                   if (isReady) {
                     onUpdateVoiceSettings({ sttModel: manifest.id })
-                  } else if (isCloud) {
-                    onOpenOpenAiDialog(manifest.id)
                   } else if (!isDownloading) {
                     // Why: download progress appears in this menu, so starting one should not dismiss it.
                     event.preventDefault()
@@ -113,29 +109,23 @@ export function VoiceSpeechModelSection({
                     )
                   }
                 }}
-                className={`group flex items-center gap-2.5 py-2.5 ${
-                  !isCloud && !isReady && !isDownloading ? 'opacity-50' : ''
-                }`}
+                className="group flex items-center gap-2.5 py-2.5"
               >
                 <span className="flex size-4 shrink-0 items-center justify-center">
                   {isActive && isReady ? (
                     <Check className="size-3.5" />
                   ) : isDownloading ? (
                     <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
-                  ) : isCloud ? (
-                    <Cloud className="size-3.5 text-muted-foreground" />
                   ) : null}
                 </span>
-                <div className="min-w-0 flex-1">
+                <div className={cn('min-w-0 flex-1', !isReady && !isDownloading && 'opacity-50')}>
                   <div className="flex items-center gap-1.5">
                     <span className="text-sm font-medium">{manifest.label}</span>
-                    {!isCloud && (
-                      <span className="text-[10px] px-1 py-px rounded-full leading-none bg-muted text-muted-foreground">
-                        {manifest.streaming
-                          ? translate('auto.components.settings.VoicePane.d504ab05f0', 'streaming')
-                          : translate('auto.components.settings.VoicePane.8f4d2a51d7', 'offline')}
-                      </span>
-                    )}
+                    <span className="text-[10px] px-1 py-px rounded-full leading-none bg-muted text-muted-foreground">
+                      {manifest.streaming
+                        ? translate('auto.components.settings.VoicePane.d504ab05f0', 'streaming')
+                        : translate('auto.components.settings.VoicePane.8f4d2a51d7', 'offline')}
+                    </span>
                     {manifest.recommended && (
                       <span className="text-[10px] px-1 py-px rounded-full leading-none bg-status-success-background text-status-success">
                         {translate('auto.components.settings.VoicePane.1ba81c0ff0', 'recommended')}
@@ -149,20 +139,18 @@ export function VoiceSpeechModelSection({
                               'Extracting...'
                             )
                           : `${Math.round(mState.progress * 100)}%`
-                        : isCloud
-                          ? null
-                          : translate(
-                              'auto.components.settings.VoicePane.91980ce124',
-                              '{{value0}} MB',
-                              { value0: sizeMb }
-                            )}
+                        : translate(
+                            'auto.components.settings.VoicePane.91980ce124',
+                            '{{value0}} MB',
+                            { value0: sizeMb }
+                          )}
                     </span>
                   </div>
                   <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">
                     {manifest.description}
                   </p>
                 </div>
-                {!isCloud && isReady ? (
+                {isReady ? (
                   <Button
                     type="button"
                     variant="ghost"
@@ -217,7 +205,7 @@ export function VoiceSpeechModelSection({
                       <Trash2 className="size-3" />
                     )}
                   </Button>
-                ) : !isCloud && !isReady && !isDownloading ? (
+                ) : !isDownloading ? (
                   <span className="shrink-0 p-1 text-muted-foreground can-hover:opacity-0 group-hover:opacity-100 transition-opacity">
                     <Download className="size-3" />
                   </span>

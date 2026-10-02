@@ -1,7 +1,5 @@
 import { Worker } from 'node:worker_threads'
 import { getCatalogModel } from './model-catalog'
-import { OpenAiTranscriptionSession } from './openai-transcription-client'
-import { readOpenAiSpeechApiKey } from './openai-api-key-store'
 import type { SttEventSink } from './stt-service'
 import type { SttSessionState } from './stt-session-state'
 import {
@@ -32,7 +30,7 @@ export async function startSttDictation(
     }
     return
   }
-  if ((state.worker || state.cloudSession) && state.activeOwner && state.activeOwner !== owner) {
+  if (state.worker && state.activeOwner && state.activeOwner !== owner) {
     throw new Error('dictation_already_active')
   }
   state.starting = true
@@ -67,27 +65,6 @@ async function startSttSession(
     throw new Error(`Unknown model: ${modelId}`)
   }
 
-  if (manifest.provider === 'openai') {
-    if (state.worker) {
-      const existingWorker = state.worker
-      await stopSttDictation(state, owner, { cancelStarting: false })
-      await teardownSttWorker(state, existingWorker)
-    }
-    const modelState = await state.modelManager.getModelState(modelId)
-    if (modelState.status !== 'ready') {
-      throw new Error(`Model not ready: ${modelState.status}`)
-    }
-    state.cloudSession = new OpenAiTranscriptionSession(modelId, readOpenAiSpeechApiKey)
-    state.activeModelId = modelId
-    state.activeHotwordsFilePath = undefined
-    state.eventSink = sink
-    sink({ type: 'ready' })
-    return
-  }
-
-  if (state.cloudSession) {
-    await stopSttDictation(state, owner, { cancelStarting: false })
-  }
   const reusableWorker = state.worker
   if (
     reusableWorker &&

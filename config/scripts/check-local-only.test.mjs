@@ -50,6 +50,18 @@ describe('scanLocalOnly', () => {
     ])
   })
 
+  it('flags the OpenAI API hostname in source', () => {
+    const v = scanLocalOnly({
+      rootDir: base({
+        'src/main/a.ts': 'const u = "https://api.openai.com/v1/audio/transcriptions"\n'
+      }),
+      allowlist: new Set()
+    })
+    expect(v).toEqual([
+      { file: 'src/main/a.ts', line: 1, rule: 'forbidden-host', match: 'api.openai.com' }
+    ])
+  })
+
   it('ignores test files and fixtures', () => {
     const root = base({
       'src/main/a.test.ts': 'https://us.i.posthog.com',

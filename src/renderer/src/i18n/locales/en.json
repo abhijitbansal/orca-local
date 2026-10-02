@@ -6685,25 +6685,6 @@
           "76e02467b8": "Change Custom File",
           "d3756cf5bc": "disabled"
         },
-        "OpenAiTranscriptionKeyDialog": {
-          "fa83512e48": "Save Key",
-          "07b26f2742": "Clear Key",
-          "d246b2bdb3": "Local runtime keys are stored in ~/.orca using Electron encrypted storage when available.",
-          "c3380e4ca5": "sk-...",
-          "2f797018f0": "API key configured",
-          "16015322f9": "API Key",
-          "07ed3e512e": "Audio is sent to OpenAI only when an OpenAI speech model is selected.",
-          "439e91879e": "OpenAI Transcription"
-        },
-        "OpenAiTranscriptionSettingsRow": {
-          "85c589cd61": "Add API key",
-          "ae2df8f511": "Disconnect OpenAI API key",
-          "a622bc3b37": "Replace key",
-          "3b0ab3fc0b": "Connected",
-          "27e0cb656d": "OpenAI Transcription",
-          "893790e13b": "Add an OpenAI API key before selecting cloud speech-to-text models.",
-          "b59b9b2b51": "API key configured for cloud speech-to-text models."
-        },
         "OpenInMenuSetting": {
           "03b00b1f64": "Custom app",
           "c1d817e027": "Added",
@@ -7751,17 +7732,12 @@
           "0121960365": "Enable Voice Dictation",
           "366e1b4f36": "to dictate text into any focused pane.",
           "4465596675": "Press",
-          "62d2a84d31": "Failed to clear OpenAI API key",
-          "37aba8bb63": "OpenAI API key cleared",
-          "8572bbb537": "Failed to save OpenAI API key",
-          "506df81ba6": "OpenAI API key saved",
           "91980ce124": "{{value0}} MB",
           "61a16c8141": "Extracting...",
           "b6536a1d12": "extracting",
           "8f4d2a51d7": "offline",
           "d504ab05f0": "streaming",
           "fbe5990716": "Select Model",
-          "e24f7d43d2": "Select a speech model. Local models run offline; cloud models require an API key.",
           "174da92062": "Hold",
           "118b3c2dee": "Toggle",
           "901985625d": "toggle",
@@ -7769,7 +7745,7 @@
           "f9a9cf6928": "Microphone permission is required before enabling voice dictation.",
           "1eac933202": "Opened macOS Privacy & Security. Enable dictation again after granting access.",
           "cd9fe37556": "Microphone permission granted",
-          "openAiKeyName": "Your OpenAI transcription key"
+          "speechModelHint": "Select a speech model. Models run offline on this device."
         },
         "WorktreeSymlinksSection": {
           "1c1e35b219": "Remove {{value0}}",
@@ -9493,15 +9469,11 @@
         "voice": {
           "pane": {
             "search": {
-              "f6e0dfa61c": "cloud",
-              "2d206de105": "api key",
-              "04c25a6fb0": "openai",
               "b9dee49cd7": "download",
               "10d45a9fce": "stt",
               "3d8b853963": "speech",
               "080202facb": "model",
               "7640ed9848": "voice",
-              "56defcd6c3": "Select a local or cloud speech-to-text model to use for dictation.",
               "7e62cd7c41": "Speech Model",
               "931b1a9e53": "push to talk",
               "064a9bd94a": "hold",
@@ -9514,14 +9486,13 @@
               "698376a38d": "Master toggle for voice dictation features.",
               "20574cbc72": "Enable Voice Dictation",
               "322d457a0d": "transcription",
-              "dcc7846641": "Configure the OpenAI API key used for cloud speech-to-text models.",
-              "ebfd0b32e5": "OpenAI Transcription",
               "microphoneTitle": "Microphone",
               "microphoneDescription": "Choose which input device voice dictation uses.",
               "micInput": "input",
               "micDevice": "device",
               "micAirpods": "airpods",
-              "micDefault": "system default"
+              "micDefault": "system default",
+              "speechModelDescription": "Select a local speech-to-text model to use for dictation."
             }
           }
         },

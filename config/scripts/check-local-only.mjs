@@ -17,7 +17,8 @@ export const FORBIDDEN_HOSTS = [
   'api.linear.app',
   'api.anthropic.com',
   'console.anthropic.com',
-  'chatgpt.com/backend-api'
+  'chatgpt.com/backend-api',
+  'api.openai.com'
 ]
 export const FORBIDDEN_MODULES = [
   'posthog-node',

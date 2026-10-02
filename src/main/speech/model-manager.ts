@@ -8,7 +8,6 @@ import type {
   SpeechModelStatus
 } from '../../shared/speech-types'
 import { SPEECH_MODEL_CATALOG, getCatalogModel, isLocalSpeechModel } from './model-catalog'
-import { hasOpenAiSpeechApiKey } from './openai-api-key-store'
 import {
   getSpeechModelCacheDirCandidates,
   migrateSpeechModelCacheIfNeeded,
@@ -95,13 +94,6 @@ export class ModelManager extends SpeechModelDownloadTransport {
     const manifest = getCatalogModel(modelId)
     if (!manifest) {
       return { id: modelId, status: 'error', error: 'Unknown model' }
-    }
-
-    if (manifest.provider === 'openai') {
-      return {
-        id: modelId,
-        status: hasOpenAiSpeechApiKey() ? 'ready' : 'not-downloaded'
-      }
     }
 
     const modelDir = this.getModelDir(modelId)

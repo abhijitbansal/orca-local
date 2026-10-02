@@ -3688,8 +3688,6 @@
       "src/main/speech/model-manager-stream-cleanup.test.ts": 77,
       "src/main/speech/model-manager-windows-path.test.ts": 242,
       "src/main/speech/model-manager.test.ts": 140,
-      "src/main/speech/openai-api-key-store.test.ts": 53,
-      "src/main/speech/openai-transcription-client.test.ts": 51,
       "src/main/speech/speech-model-deletion.test.ts": 158,
       "src/main/speech/speech-model-download-response.test.ts": 62,
       "src/main/speech/stt-offline-audio-chunker.test.ts": 155,

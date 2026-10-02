@@ -1,19 +1,12 @@
-import { UnsealedCredentialNotice } from './UnsealedCredentialNotice'
-import type { SecretAtRestProtection } from '../../../../shared/secret-at-rest-protection'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { GlobalSettings } from '../../../../shared/global-settings-types'
 import { getDefaultVoiceSettings } from '../../../../shared/constants'
 import type { SpeechModelManifest, VoiceSettings } from '../../../../shared/speech-types'
-import { Separator } from '../ui/separator'
 import { toast } from 'sonner'
 import { useAppStore } from '@/store'
-import { OpenAiTranscriptionKeyDialog } from './OpenAiTranscriptionKeyDialog'
-import { OpenAiTranscriptionSettingsRow } from './OpenAiTranscriptionSettingsRow'
 import { handleVoiceDictationToggle } from './voice-dictation-toggle'
 import { VoiceDictationSettingsSection } from './VoiceDictationSettingsSection'
 import { VoiceSpeechModelSection } from './VoiceSpeechModelSection'
-import { matchesSettingsSearch } from './settings-search'
-import { getOpenaiTranscriptionSearchEntry } from './voice-pane-search'
 import { translate } from '@/i18n/i18n'
 
 export { handleVoiceDictationToggle }
@@ -30,19 +23,11 @@ export function VoicePane({ settings, updateSettings }: VoicePaneProps): React.J
   const modelStates = useAppStore((s) => s.modelStates)
   const refreshModelStates = useAppStore((s) => s.refreshModelStates)
   const markFeatureTipsSeen = useAppStore((s) => s.markFeatureTipsSeen)
-  const settingsSearchQuery = useAppStore((s) => s.settingsSearchQuery ?? '')
   const [catalog, setCatalog] = useState<SpeechModelManifest[]>([])
   const [permissionPending, setPermissionPending] = useState(false)
-  const [openAiDialogOpen, setOpenAiDialogOpen] = useState(false)
-  const [openAiApiKeyDraft, setOpenAiApiKeyDraft] = useState('')
-  const [openAiKeyPending, setOpenAiKeyPending] = useState(false)
-  const [openAiKeyProtection, setOpenAiKeyProtection] = useState<SecretAtRestProtection | null>(
-    null
-  )
-  const [pendingCloudModelId, setPendingCloudModelId] = useState<string | null>(null)
   const mountedRef = useRef(true)
   // Why: every write here is a read-modify-write of the whole voice object, and the
-  // writers are async (key status probe, save/clear key). Merging onto the render-time
+  // writers are async (e.g. the microphone permission request). Merging onto the render-time
   // snapshot would resurrect settings that changed while the IPC was in flight — e.g.
   // reverting `enabled` to false and leaving the microphone picker permanently disabled.
   // Written in an effect, not during render: the async writers all run post-commit.
@@ -78,23 +63,10 @@ export function VoicePane({ settings, updateSettings }: VoicePaneProps): React.J
         }
       })
       .catch(() => {})
-    void window.api.speech
-      .getOpenAiApiKeyStatus()
-      .then((status) => {
-        if (cancelled) {
-          return
-        }
-        setOpenAiKeyProtection(status.protection)
-        if (status.configured !== voiceSettings.openAiApiKeyConfigured) {
-          updateVoiceSettings({ openAiApiKeyConfigured: status.configured })
-          refreshModelStates()
-        }
-      })
-      .catch(() => {})
     return () => {
       cancelled = true
     }
-  }, [refreshModelStates, updateVoiceSettings, voiceSettings.openAiApiKeyConfigured])
+  }, [refreshModelStates])
 
   useEffect(() => {
     const cleanup = window.api.speech.onDownloadProgress(() => {
@@ -143,81 +115,6 @@ export function VoicePane({ settings, updateSettings }: VoicePaneProps): React.J
     })
   }
 
-  const selectedModel = catalog.find((m) => m.id === voiceSettings.sttModel)
-  const showOpenAiSettingsRow =
-    voiceSettings.openAiApiKeyConfigured ||
-    selectedModel?.provider === 'openai' ||
-    (settingsSearchQuery.trim() !== '' &&
-      matchesSettingsSearch(settingsSearchQuery, getOpenaiTranscriptionSearchEntry()))
-
-  const openOpenAiDialog = (modelId: string | null = null): void => {
-    setPendingCloudModelId(modelId)
-    setOpenAiApiKeyDraft('')
-    setOpenAiDialogOpen(true)
-  }
-
-  const saveOpenAiApiKey = async (): Promise<void> => {
-    setOpenAiKeyPending(true)
-    try {
-      await window.api.speech.saveOpenAiApiKey(openAiApiKeyDraft)
-      updateVoiceSettings({
-        openAiApiKeyConfigured: true,
-        sttModel: pendingCloudModelId ?? voiceSettings.sttModel
-      })
-      await refreshModelStates()
-      setOpenAiDialogOpen(false)
-      setOpenAiApiKeyDraft('')
-      setPendingCloudModelId(null)
-      toast.success(
-        translate('auto.components.settings.VoicePane.506df81ba6', 'OpenAI API key saved')
-      )
-    } catch (err) {
-      toast.error(
-        err instanceof Error
-          ? err.message
-          : translate(
-              'auto.components.settings.VoicePane.8572bbb537',
-              'Failed to save OpenAI API key'
-            )
-      )
-    } finally {
-      if (mountedRef.current) {
-        setOpenAiKeyPending(false)
-      }
-    }
-  }
-
-  const clearOpenAiApiKey = async (): Promise<void> => {
-    setOpenAiKeyPending(true)
-    try {
-      await window.api.speech.clearOpenAiApiKey()
-      updateVoiceSettings({
-        openAiApiKeyConfigured: false,
-        sttModel: selectedModel?.provider === 'openai' ? '' : voiceSettings.sttModel
-      })
-      await refreshModelStates()
-      setOpenAiDialogOpen(false)
-      setOpenAiApiKeyDraft('')
-      setPendingCloudModelId(null)
-      toast.success(
-        translate('auto.components.settings.VoicePane.37aba8bb63', 'OpenAI API key cleared')
-      )
-    } catch (err) {
-      toast.error(
-        err instanceof Error
-          ? err.message
-          : translate(
-              'auto.components.settings.VoicePane.62d2a84d31',
-              'Failed to clear OpenAI API key'
-            )
-      )
-    } finally {
-      if (mountedRef.current) {
-        setOpenAiKeyPending(false)
-      }
-    }
-  }
-
   return (
     <div ref={handlePaneRef} className="space-y-1">
       <VoiceDictationSettingsSection
@@ -232,38 +129,7 @@ export function VoicePane({ settings, updateSettings }: VoicePaneProps): React.J
         catalog={catalog}
         modelStates={modelStates}
         onUpdateVoiceSettings={updateVoiceSettings}
-        onOpenOpenAiDialog={openOpenAiDialog}
         onRefreshModelStates={refreshModelStates}
-      />
-
-      {showOpenAiSettingsRow && (
-        <>
-          <Separator />
-          <UnsealedCredentialNotice
-            protection={openAiKeyProtection}
-            credentialName={translate(
-              'auto.components.settings.VoicePane.openAiKeyName',
-              'Your OpenAI transcription key'
-            )}
-          />
-          <OpenAiTranscriptionSettingsRow
-            configured={voiceSettings.openAiApiKeyConfigured}
-            disabled={openAiKeyPending}
-            onConfigure={() => openOpenAiDialog(null)}
-            onClear={() => void clearOpenAiApiKey()}
-          />
-        </>
-      )}
-
-      <OpenAiTranscriptionKeyDialog
-        open={openAiDialogOpen}
-        configured={voiceSettings.openAiApiKeyConfigured}
-        apiKeyDraft={openAiApiKeyDraft}
-        pending={openAiKeyPending}
-        onOpenChange={setOpenAiDialogOpen}
-        onApiKeyDraftChange={setOpenAiApiKeyDraft}
-        onSave={() => void saveOpenAiApiKey()}
-        onClear={() => void clearOpenAiApiKey()}
       />
     </div>
   )

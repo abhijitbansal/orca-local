@@ -11,6 +11,7 @@ import { normalizeNativeChatShellEnvironmentVariables } from '../../../shared/na
 import { stripRetiredGlobalSettings } from '../applying-settings/terminal-settings-migrations'
 import { readLegacySidekickFlag } from '../applying-settings/onboarding-normalization'
 import { normalizeMachineName } from '../../../shared/machine-name'
+import type { VoiceSettings } from '../../../shared/speech-types'
 import type { PersistedState } from '../../../shared/persisted-state-types'
 import type { PreparedLoadedTerminalSettings } from './prepare-loaded-terminal-settings'
 import type { PreparedLoadedProfileSettings } from './prepare-loaded-profile-settings'
@@ -142,9 +143,23 @@ export function normalizeLoadedGlobalSettings(
       migratedSourceControlAi,
       parsed.settings?.commitMessageAi ?? defaults.settings.commitMessageAi
     ),
-    voice: {
-      ...getDefaultVoiceSettings(),
-      ...parsed.settings?.voice
-    }
+    voice: normalizeLoadedVoiceSettings(parsed.settings?.voice)
   }
+}
+
+// Why: builds before local-only could select a cloud (OpenAI) speech model and persisted its API-key flag.
+// Those values must hydrate to "no model selected" instead of pointing dictation at a removed provider.
+type PersistedVoiceSettings = Partial<VoiceSettings> & {
+  openAiApiKeyConfigured?: boolean
+}
+
+function normalizeLoadedVoiceSettings(
+  persisted: PersistedVoiceSettings | undefined
+): VoiceSettings {
+  const defaults = getDefaultVoiceSettings()
+  const { openAiApiKeyConfigured: _retiredFlag, ...kept } = persisted ?? {}
+  const voice: VoiceSettings = { ...defaults, ...kept }
+  return typeof voice.sttModel === 'string' && voice.sttModel.startsWith('openai-')
+    ? { ...voice, sttModel: defaults.sttModel }
+    : voice
 }

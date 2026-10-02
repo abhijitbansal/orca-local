@@ -122,27 +122,6 @@ export const SPEECH_MODEL_CATALOG: SpeechModelManifest[] = [
     ...getSpeechModelDownloadMetadata('sense-voice-zh-en-ja-ko-yue'),
     sampleRate: 16000,
     streaming: false
-  },
-  {
-    id: 'openai-gpt-4o-mini-transcribe',
-    label: 'GPT-4o mini Transcribe',
-    description:
-      'Cloud transcription with strong accuracy and low cost. Requires an OpenAI API key.',
-    type: 'openai',
-    provider: 'openai',
-    language: 'multilingual',
-    sampleRate: 16000,
-    streaming: false
-  },
-  {
-    id: 'openai-gpt-4o-transcribe',
-    label: 'GPT-4o Transcribe',
-    description: 'Cloud transcription with higher accuracy. Requires an OpenAI API key.',
-    type: 'openai',
-    provider: 'openai',
-    language: 'multilingual',
-    sampleRate: 16000,
-    streaming: false
   }
 ]
 

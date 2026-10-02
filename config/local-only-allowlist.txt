@@ -22,3 +22,5 @@ src/main/ports/local-workspace-port-address.ts:wildcard-bind
 src/relay/port-scan-handler.ts:wildcard-bind
 # Remote-runtime pairing fixtures; removed with remote runtimes in Spec B.
 src/shared/mobile-relay-pairing-fixtures.ts:forbidden-host
+# JWT claim namespace key read from a local Codex auth file, not a request URL.
+src/main/codex-accounts/codex-auth-identity.ts:forbidden-host

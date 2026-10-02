@@ -15,7 +15,6 @@ import { describe, expect, it } from 'vitest'
 // and update the count.
 const AUDITED_GLOBAL_FETCH_LINES = new Map<string, number>([
   // HTTP call sites — body consumed or cancelled on every path, including !ok
-  ['main/speech/openai-transcription-client.ts', 1],
   // Main HTTP port: one type declaration plus the Node fallback call. The fallback
   // returns the Response to its caller without inspecting it, so the consume/cancel
   // obligation stays with the caller — unchanged from when those callers used
