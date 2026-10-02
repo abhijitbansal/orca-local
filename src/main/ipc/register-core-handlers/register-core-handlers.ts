@@ -9,12 +9,6 @@ import { registerFilesystemHandlers } from '../filesystem'
 import type { CommitMessageAgentEnvironmentResolvers } from '../../text-generation/commit-message-agent-environment'
 import { registerFilesystemWatcherHandlers } from '../filesystem-watcher'
 import { registerUsageProviderHandlers } from '../usage-provider-handlers'
-import { registerGitHubHandlers } from '../github'
-import { registerGitLabHandlers } from '../gitlab'
-import { registerHostedReviewHandlers } from '../hosted-review'
-import { registerLinearHandlers } from '../linear'
-import { registerJiraHandlers } from '../jira'
-import { registerBitbucketHandlers } from '../bitbucket'
 import { registerCrashReportingHandlers } from '../crash-reporting'
 import { registerExportHandlers } from '../export'
 import { registerStatsHandlers } from '../stats'
@@ -150,12 +144,6 @@ export function registerCoreHandlers(
   registerGrokAccountHandlers()
   registerCursorAccountHandlers()
   registerRateLimitHandlers(rateLimits)
-  registerGitHubHandlers(store, stats)
-  registerGitLabHandlers(store)
-  registerHostedReviewHandlers(store, stats)
-  registerLinearHandlers()
-  registerJiraHandlers()
-  registerBitbucketHandlers()
   if (crashReports) {
     registerCrashReportingHandlers(crashReports)
   }

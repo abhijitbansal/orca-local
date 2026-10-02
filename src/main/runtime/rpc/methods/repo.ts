@@ -1,7 +1,7 @@
 import { defineMethod } from '../core'
 import { PROJECT_RUNTIME_METHODS } from './project-runtime-rpc-methods'
 import { FOLDER_WORKSPACE_METHODS } from './folder-workspace'
-import { RepoSelector } from './github-repo-target-schemas'
+import { RepoSelector } from '../../../../shared/rpc-contract/repo-selector-params'
 import {
   projectRepoResultVisibilityForClient,
   projectRepoVisibilityForClient

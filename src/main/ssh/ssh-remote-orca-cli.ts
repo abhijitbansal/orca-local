@@ -26,7 +26,6 @@ import {
   resolveRemoteCliHandle
 } from './ssh-remote-cli-args'
 import { buildRemoteCliError } from './ssh-remote-cli-error-response'
-import { getRemoteLinearHelp, tryDispatchRemoteLinearCli } from './ssh-remote-linear-cli'
 import {
   getRemoteOrchestrationPayload,
   resolveRemoteOrchestrationSender
@@ -105,17 +104,11 @@ async function runLegacyRemoteOrcaCli(
   passthroughFailure: HostCliUnavailableError
 ): Promise<RemoteOrcaCliResult> {
   const dispatcher = new RpcDispatcher({ runtime, methods: ALL_RPC_METHODS })
-  const help = getRemoteLinearHelp(parsed)
-  if (help) {
-    return { stdout: `${help}\n`, stderr: '', exitCode: 0 }
-  }
-
   try {
     const response = await dispatchRemoteCli(
       dispatcher,
       parsed,
       request.env,
-      request.stdin,
       passthroughFailure.message,
       request.runtimeAuthority
     )
@@ -145,7 +138,6 @@ async function dispatchRemoteCli(
   dispatcher: RpcDispatcher,
   parsed: ParsedRemoteCli,
   env: Record<string, string>,
-  stdin: string | undefined,
   passthroughFailureReason: string,
   runtimeAuthority: RemoteOrcaCliRequest['runtimeAuthority']
 ): Promise<RpcResponse> {
@@ -162,10 +154,6 @@ async function dispatchRemoteCli(
         ? randomUUID()
         : undefined),
     orchestrationCompatibilityEvidence
-  }
-  const linearResponse = await tryDispatchRemoteLinearCli(dispatcher, parsed, env, stdin)
-  if (linearResponse) {
-    return linearResponse
   }
   switch (command) {
     case 'status': {

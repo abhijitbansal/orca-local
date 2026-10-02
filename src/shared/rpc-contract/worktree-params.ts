@@ -188,31 +188,3 @@ export const WorktreeForceDeleteBranch = WorktreeSelector.extend({
     .transform((v) => (typeof v === 'string' ? v : ''))
     .pipe(z.string().min(1, 'Missing expected branch head'))
 })
-
-export const WorktreeResolvePrBase = z.object({
-  repo: z
-    .unknown()
-    .transform((v) => (typeof v === 'string' ? v : ''))
-    .pipe(z.string().min(1, 'Missing repo selector')),
-  prNumber: z
-    .unknown()
-    .transform((v) => (typeof v === 'number' && Number.isFinite(v) ? v : 0))
-    .pipe(z.number().int().positive('Missing PR number')),
-  headRefName: OptionalString,
-  baseRefName: OptionalString,
-  isCrossRepository: OptionalBoolean
-})
-
-export const WorktreeResolveMrBase = z.object({
-  repo: z
-    .unknown()
-    .transform((v) => (typeof v === 'string' ? v : ''))
-    .pipe(z.string().min(1, 'Missing repo selector')),
-  mrIid: z
-    .unknown()
-    .transform((v) => (typeof v === 'number' && Number.isFinite(v) ? v : 0))
-    .pipe(z.number().int().positive('Missing MR number')),
-  sourceBranch: OptionalString,
-  targetBranch: OptionalString,
-  isCrossRepository: OptionalBoolean
-})

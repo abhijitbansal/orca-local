@@ -6,7 +6,6 @@ import {
   addWorktreeMock,
   removeWorktreeMock,
   resolveDefaultBaseRefWithLocalGitMock,
-  getDefaultRemoteMock,
   getBranchConflictKindMock,
   getPRForBranchMock,
   getEffectiveHooksMock,
@@ -420,54 +419,6 @@ describe('registerWorktreeHandlers', () => {
       false,
       { wslDistro: 'Ubuntu' }
     )
-  })
-
-  it('routes PR base git calls through the selected WSL project runtime', async () => {
-    setPlatform('win32')
-    store.getProjects.mockReturnValue([
-      {
-        id: 'project-1',
-        displayName: 'repo',
-        badgeColor: '#000',
-        sourceRepoIds: ['repo-1'],
-        localWindowsRuntimePreference: { kind: 'wsl', distro: 'Ubuntu' },
-        createdAt: 0,
-        updatedAt: 0
-      }
-    ])
-    gitExecFileAsyncMock.mockImplementation(async (args: string[]) => {
-      if (args[0] === 'rev-parse') {
-        return { stdout: 'def456\n', stderr: '' }
-      }
-      return { stdout: '', stderr: '' }
-    })
-
-    const result = await handlers['worktrees:resolvePrBase'](null, {
-      repoId: 'repo-1',
-      prNumber: 42,
-      headRefName: 'feature/add-feature',
-      isCrossRepository: false
-    })
-
-    expect(gitExecFileAsyncMock).toHaveBeenCalledWith(
-      [
-        'fetch',
-        'origin',
-        '+refs/heads/feature/add-feature:refs/remotes/origin/feature/add-feature'
-      ],
-      { cwd: '/workspace/repo', wslDistro: 'Ubuntu' }
-    )
-    expect(gitExecFileAsyncMock).toHaveBeenCalledWith(
-      ['rev-parse', '--verify', 'origin/feature/add-feature'],
-      { cwd: '/workspace/repo', wslDistro: 'Ubuntu' }
-    )
-    expect(getDefaultRemoteMock).toHaveBeenCalledWith('/workspace/repo', { wslDistro: 'Ubuntu' })
-    expect(result).toMatchObject({
-      baseBranch: 'def456',
-      headSha: 'def456',
-      branchNameOverride: 'feature/add-feature',
-      pushTarget: { remoteName: 'origin', branchName: 'feature/add-feature' }
-    })
   })
 
   it('lists detected worktrees through the selected WSL project runtime', async () => {

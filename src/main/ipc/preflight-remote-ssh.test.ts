@@ -7,9 +7,6 @@ const {
   hydrateShellPathMock,
   mergePathSegmentsMock,
   getActiveMultiplexerMock,
-  getBitbucketAuthStatusMock,
-  getAzureDevOpsAuthStatusMock,
-  getGiteaAuthStatusMock,
   resolveCliCommandsMock,
   isCommandOnLocalPathMock,
   mergePersistedWindowsPathAsyncMock,
@@ -21,9 +18,6 @@ const {
   hydrateShellPathMock: vi.fn(),
   mergePathSegmentsMock: vi.fn(),
   getActiveMultiplexerMock: vi.fn(),
-  getBitbucketAuthStatusMock: vi.fn(),
-  getAzureDevOpsAuthStatusMock: vi.fn(),
-  getGiteaAuthStatusMock: vi.fn(),
   resolveCliCommandsMock: vi.fn(),
   isCommandOnLocalPathMock: vi.fn(),
   mergePersistedWindowsPathAsyncMock: vi.fn(),
@@ -74,18 +68,6 @@ vi.mock('../ssh/ssh-target-registry', () => ({
   getActiveMultiplexer: getActiveMultiplexerMock
 }))
 
-vi.mock('../bitbucket/client', () => ({
-  getBitbucketAuthStatus: getBitbucketAuthStatusMock
-}))
-
-vi.mock('../azure-devops/client', () => ({
-  getAzureDevOpsAuthStatus: getAzureDevOpsAuthStatusMock
-}))
-
-vi.mock('../gitea/client', () => ({
-  getGiteaAuthStatus: getGiteaAuthStatusMock
-}))
-
 import { registerPreflightHandlers } from './preflight'
 import { resetPreflightMocks, type HandlerMap } from './preflight-test-harness'
 
@@ -101,9 +83,6 @@ describe('preflight', () => {
         hydrateShellPathMock,
         mergePathSegmentsMock,
         getActiveMultiplexerMock,
-        getBitbucketAuthStatusMock,
-        getAzureDevOpsAuthStatusMock,
-        getGiteaAuthStatusMock,
         resolveCliCommandsMock,
         isCommandOnLocalPathMock,
         mergePersistedWindowsPathAsyncMock,

@@ -1,18 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { REVIEW_HEAD_FETCH_TIMEOUT_MS } from '../../shared/review-head-tracking-ref'
 import {
   handleMock,
   removeHandlerMock,
   listWorktreesMock,
-  getPullRequestPushTargetMock,
   gitExecFileAsyncMock
 } from './worktrees-test-module-mocks'
 import { handlers, setupWorktreeHandlers, store } from './worktrees-test-harness'
-import {
-  ORIGIN_HEAD_COMPONENT,
-  ORIGIN_REMOTE_URL,
-  makeWorktreeMeta
-} from './worktrees-test-fixtures'
+import { makeWorktreeMeta } from './worktrees-test-fixtures'
 import type { WorktreeRuntimeStub } from './worktrees-test-runtime-stub'
 
 const WORKTREE_HANDLER_CHANNELS = [
@@ -26,8 +20,6 @@ const WORKTREE_HANDLER_CHANNELS = [
   'worktrees:create',
   'worktrees:adoptProvisionedRoot',
   'worktrees:prefetchCreateBase',
-  'worktrees:resolvePrBase',
-  'worktrees:resolveMrBase',
   'worktrees:remove',
   'worktrees:forgetLocal',
   'worktrees:forceDeletePreservedBranch',
@@ -131,11 +123,6 @@ describe('registerWorktreeHandlers', () => {
 
   beforeEach(() => {
     runtimeStub = setupWorktreeHandlers()
-  })
-
-  it('clears the GitLab MR base handler before re-registering IPC handlers', () => {
-    expect(removeHandlerMock).toHaveBeenCalledWith('worktrees:resolveMrBase')
-    expect(handlers['worktrees:resolveMrBase']).toBeDefined()
   })
 
   it('clears the branch rename failure-output handler before re-registering IPC handlers', () => {
@@ -554,111 +541,5 @@ describe('registerWorktreeHandlers', () => {
         }
       })
     )
-  })
-
-  it('threads explicit origin preference into dual-remote PR head resolution', async () => {
-    store.getRepo.mockReturnValue({
-      id: 'repo-1',
-      path: '/workspace/repo',
-      displayName: 'repo',
-      badgeColor: '#000',
-      addedAt: 0,
-      issueSourcePreference: 'origin',
-      worktreeBaseRef: null
-    })
-    getPullRequestPushTargetMock.mockResolvedValue({
-      pushTarget: {
-        remoteName: 'pr-prateek-orca',
-        branchName: 'prateek/fix-sidebar-agents-toggle',
-        remoteUrl: 'git@github.com:prateek/orca.git'
-      }
-    })
-    gitExecFileAsyncMock.mockImplementation(async (args: string[]) => {
-      if (args[0] === 'remote' && args[1] === 'get-url') {
-        const url =
-          args[2] === 'origin' ? ORIGIN_REMOTE_URL : 'git@github.com:org/upstream-repo.git'
-        return { stdout: `${url}\n`, stderr: '' }
-      }
-      if (args[0] === 'remote') {
-        return { stdout: 'origin\nupstream\n', stderr: '' }
-      }
-      if (args[0] === 'rev-parse') {
-        return { stdout: 'abc123\n', stderr: '' }
-      }
-      return { stdout: '', stderr: '' }
-    })
-
-    const result = await handlers['worktrees:resolvePrBase'](null, {
-      repoId: 'repo-1',
-      prNumber: 1738,
-      headRefName: 'prateek/fix-sidebar-agents-toggle',
-      isCrossRepository: true
-    })
-
-    expect(gitExecFileAsyncMock).toHaveBeenCalledWith(
-      [
-        'fetch',
-        '--no-tags',
-        'origin',
-        `+refs/pull/1738/head:refs/orca/pull/${ORIGIN_HEAD_COMPONENT}/1738`
-      ],
-      { cwd: '/workspace/repo', timeout: REVIEW_HEAD_FETCH_TIMEOUT_MS }
-    )
-    expect(gitExecFileAsyncMock).not.toHaveBeenCalledWith(
-      ['remote', 'get-url', 'upstream'],
-      expect.anything()
-    )
-    expect(getPullRequestPushTargetMock).toHaveBeenCalledWith(
-      '/workspace/repo',
-      1738,
-      null,
-      {},
-      'origin'
-    )
-    expect(result).toMatchObject({
-      baseBranch: 'abc123',
-      headSha: 'abc123',
-      branchNameOverride: 'prateek/fix-sidebar-agents-toggle',
-      pushTarget: {
-        remoteName: 'pr-prateek-orca',
-        branchName: 'prateek/fix-sidebar-agents-toggle',
-        remoteUrl: 'git@github.com:prateek/orca.git'
-      }
-    })
-  })
-
-  it('returns the same-repo PR head SHA and exact branch override when resolving a PR base', async () => {
-    gitExecFileAsyncMock.mockImplementation(async (args: string[]) => {
-      if (args[0] === 'rev-parse') {
-        return { stdout: 'def456\n', stderr: '' }
-      }
-      return { stdout: '', stderr: '' }
-    })
-
-    const result = await handlers['worktrees:resolvePrBase'](null, {
-      repoId: 'repo-1',
-      prNumber: 42,
-      headRefName: 'feature/add-feature',
-      isCrossRepository: false
-    })
-
-    expect(gitExecFileAsyncMock).toHaveBeenCalledWith(
-      [
-        'fetch',
-        'origin',
-        '+refs/heads/feature/add-feature:refs/remotes/origin/feature/add-feature'
-      ],
-      { cwd: '/workspace/repo' }
-    )
-    expect(gitExecFileAsyncMock).toHaveBeenCalledWith(
-      ['rev-parse', '--verify', 'origin/feature/add-feature'],
-      { cwd: '/workspace/repo' }
-    )
-    expect(result).toMatchObject({
-      baseBranch: 'def456',
-      headSha: 'def456',
-      branchNameOverride: 'feature/add-feature',
-      pushTarget: { remoteName: 'origin', branchName: 'feature/add-feature' }
-    })
   })
 })

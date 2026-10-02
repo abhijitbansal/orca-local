@@ -8,8 +8,6 @@ export {
   WorktreeListParams,
   WorktreePsParams,
   WorktreeRemove,
-  WorktreeResolveMrBase,
-  WorktreeResolvePrBase,
   WorktreeSelector,
   WorktreeSet,
   WorktreeSortOrder,

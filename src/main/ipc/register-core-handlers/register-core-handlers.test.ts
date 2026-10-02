@@ -7,7 +7,6 @@ const {
   registerCliHandlersMock,
   registerPreflightHandlersMock,
   registerUsageProviderHandlersMock,
-  registerGitHubHandlersMock,
   registerStatsHandlersMock,
   registerMemoryHandlersMock,
   registerNotebookHandlersMock,
@@ -45,11 +44,6 @@ const {
   setTrustedBrowserRendererWebContentsIdMock,
   registerFilesystemWatcherHandlersMock,
   registerAppHandlersMock,
-  registerLinearHandlersMock,
-  registerJiraHandlersMock,
-  registerBitbucketHandlersMock,
-  registerGitLabHandlersMock,
-  registerHostedReviewHandlersMock,
   registerExportHandlersMock,
   registerCodexConfigSyncHandlersMock,
   registerOnboardingHandlersMock,
@@ -72,7 +66,6 @@ const {
   registerCliHandlersMock: vi.fn(),
   registerPreflightHandlersMock: vi.fn(),
   registerUsageProviderHandlersMock: vi.fn(),
-  registerGitHubHandlersMock: vi.fn(),
   registerStatsHandlersMock: vi.fn(),
   registerMemoryHandlersMock: vi.fn(),
   registerNotebookHandlersMock: vi.fn(),
@@ -110,11 +103,6 @@ const {
   setTrustedBrowserRendererWebContentsIdMock: vi.fn(),
   registerFilesystemWatcherHandlersMock: vi.fn(),
   registerAppHandlersMock: vi.fn(),
-  registerLinearHandlersMock: vi.fn(),
-  registerJiraHandlersMock: vi.fn(),
-  registerBitbucketHandlersMock: vi.fn(),
-  registerGitLabHandlersMock: vi.fn(),
-  registerHostedReviewHandlersMock: vi.fn(),
   registerExportHandlersMock: vi.fn(),
   registerCodexConfigSyncHandlersMock: vi.fn(),
   registerOnboardingHandlersMock: vi.fn(),
@@ -181,10 +169,6 @@ vi.mock('../preflight', () => ({
 
 vi.mock('../usage-provider-handlers', () => ({
   registerUsageProviderHandlers: registerUsageProviderHandlersMock
-}))
-
-vi.mock('../github', () => ({
-  registerGitHubHandlers: registerGitHubHandlersMock
 }))
 
 vi.mock('../export', () => ({
@@ -358,26 +342,6 @@ vi.mock('../terminal-render-desync-evidence', () => ({
   registerTerminalRenderDesyncEvidenceHandler: registerTerminalRenderDesyncEvidenceHandlerMock
 }))
 
-vi.mock('../linear', () => ({
-  registerLinearHandlers: registerLinearHandlersMock
-}))
-
-vi.mock('../jira', () => ({
-  registerJiraHandlers: registerJiraHandlersMock
-}))
-
-vi.mock('../bitbucket', () => ({
-  registerBitbucketHandlers: registerBitbucketHandlersMock
-}))
-
-vi.mock('../gitlab', () => ({
-  registerGitLabHandlers: registerGitLabHandlersMock
-}))
-
-vi.mock('../hosted-review', () => ({
-  registerHostedReviewHandlers: registerHostedReviewHandlersMock
-}))
-
 vi.mock('../native-chat', () => ({
   registerNativeChatHandlers: registerNativeChatHandlersMock
 }))
@@ -401,7 +365,6 @@ describe('registerCoreHandlers', () => {
     registerCliHandlersMock.mockReset()
     registerPreflightHandlersMock.mockReset()
     registerUsageProviderHandlersMock.mockReset()
-    registerGitHubHandlersMock.mockReset()
     registerStatsHandlersMock.mockReset()
     registerMemoryHandlersMock.mockReset()
     registerNotebookHandlersMock.mockReset()
@@ -436,11 +399,6 @@ describe('registerCoreHandlers', () => {
     setTrustedBrowserRendererWebContentsIdMock.mockReset()
     registerFilesystemWatcherHandlersMock.mockReset()
     registerAppHandlersMock.mockReset()
-    registerLinearHandlersMock.mockReset()
-    registerJiraHandlersMock.mockReset()
-    registerBitbucketHandlersMock.mockReset()
-    registerGitLabHandlersMock.mockReset()
-    registerHostedReviewHandlersMock.mockReset()
     registerExportHandlersMock.mockReset()
     registerDashboardPopoutHandlersMock.mockReset()
     registerTerminalPreviewHandlersMock.mockReset()
@@ -529,12 +487,6 @@ describe('registerCoreHandlers', () => {
     expect(registerGrokAccountHandlersMock).toHaveBeenCalled()
     expect(registerCursorAccountHandlersMock).toHaveBeenCalled()
     expect(registerRateLimitHandlersMock).toHaveBeenCalledWith(rateLimits)
-    expect(registerGitHubHandlersMock).toHaveBeenCalledWith(store, stats)
-    expect(registerLinearHandlersMock).toHaveBeenCalled()
-    expect(registerJiraHandlersMock).toHaveBeenCalled()
-    expect(registerBitbucketHandlersMock).toHaveBeenCalled()
-    expect(registerGitLabHandlersMock).toHaveBeenCalledWith(store)
-    expect(registerHostedReviewHandlersMock).toHaveBeenCalledWith(store, stats)
     expect(registerStatsHandlersMock).toHaveBeenCalledWith(stats)
     expect(registerMemoryHandlersMock).toHaveBeenCalledWith(store)
     expect(registerNotebookHandlersMock).toHaveBeenCalledWith(store)
