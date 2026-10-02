@@ -68,7 +68,7 @@ function resetPreflightMocks(): void {
 
 // Why: the status shape no longer carries forge CLIs, so `variant` only gives each fixture a distinct identity.
 function makeStatus(variant: boolean): PreflightStatus {
-  return { git: { installed: variant }, gh: { installed: false, authenticated: false } }
+  return { git: { installed: variant } }
 }
 
 function makeRepo(overrides: Partial<Repo> & { id: string; path: string }): Repo {

@@ -29,13 +29,6 @@ import type { EphemeralVmApi } from './api/ephemeral-vm-api'
 import type { ExportApi, FilesystemApi } from './api/filesystem-api'
 import type { GitInspectionApi } from './api/git-inspection-api'
 import type { GitOperationApi } from './api/git-operation-api'
-import type { GithubAccountApi } from './api/github-account-api'
-import type { GithubPullRequestApi } from './api/github-pull-request-api'
-import type { GithubWorkItemApi } from './api/github-work-item-api'
-import type { GitLabApi } from './api/gitlab-api'
-import type { BitbucketApi, HostedReviewApi } from './api/hosted-review-api'
-import type { JiraApi } from './api/jira-api'
-import type { LinearApi } from './api/linear-api'
 import type { NativeChatApi } from './api/native-chat-api'
 import type { OnboardingApi } from './api/onboarding-api'
 import type { OrcaProfileApi } from './api/orca-profile-api'
@@ -83,12 +76,6 @@ export type PreloadApi = {
   pty: PtyApi
   crashReports: CrashReportsApi
   export: ExportApi
-  gh: Merged<GithubPullRequestApi & GithubWorkItemApi & GithubAccountApi>
-  hostedReview: HostedReviewApi
-  gl: GitLabApi
-  bitbucket: BitbucketApi
-  linear: LinearApi
-  jira: JiraApi
   telemetryTrack: TelemetryApi['telemetryTrack']
   telemetrySetOptIn: TelemetryApi['telemetrySetOptIn']
   diagnostics: DiagnosticsApi

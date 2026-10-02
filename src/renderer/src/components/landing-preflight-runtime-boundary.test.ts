@@ -10,8 +10,6 @@ const invalidate = vi.fn()
 
 const status = (overrides: Partial<PreflightStatus> = {}): PreflightStatus => ({
   git: { installed: true },
-  // Why: the preload status type still carries `gh` until the preflight contract is narrowed.
-  gh: { installed: false, authenticated: false },
   ...overrides
 })
 

@@ -43,10 +43,6 @@ export const worktreesApi = {
 
   prefetchCreateBase: (args) => ipcRenderer.invoke('worktrees:prefetchCreateBase', args),
 
-  resolvePrBase: (args) => ipcRenderer.invoke('worktrees:resolvePrBase', args),
-
-  resolveMrBase: (args) => ipcRenderer.invoke('worktrees:resolveMrBase', args),
-
   remove: (args) => ipcRenderer.invoke('worktrees:remove', args),
 
   forgetLocal: (args) => ipcRenderer.invoke('worktrees:forgetLocal', args),

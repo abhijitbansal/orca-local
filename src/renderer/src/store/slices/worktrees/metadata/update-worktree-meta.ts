@@ -1,7 +1,6 @@
 import type { WorktreeSlice } from '../../worktree-helpers'
 import type { WorktreeSliceGet, WorktreeSliceSet } from '../listing/worktree-slice-types'
 import { translate } from '@/i18n/i18n'
-import { isPositiveHostedReviewNumber } from '../../../../../../shared/hosted-review'
 import { displayNameUpdatePinsLabel } from '../../../../../../shared/worktree/display-name-provenance'
 import { parseWorkspaceKey } from '../../../../../../shared/workspace-scope'
 import { applyWorktreeUpdates, getRepoIdFromWorktreeId } from '../../worktree-helpers'
@@ -15,16 +14,10 @@ import {
   hasHostedReviewLinkUpdates
 } from './hosted-review-link-mutation'
 import { normalizeHostedReviewLinkReplacementUpdates } from './hosted-review-link-update-normalization'
-import {
-  getHostedReviewPushTargetLookup,
-  resolveGitHubReviewPushTarget
-} from './hosted-review-push-target'
+import { getHostedReviewPushTargetLookup } from './hosted-review-push-target'
 import { persistWorktreeMeta } from './worktree-meta-persist'
 import { isRuntimeSelectorNotFoundError } from '../listing/runtime-worktree-rpc-errors'
-import {
-  settingsForWorktreeOwner,
-  trySettingsForWorktreeOwner
-} from '../listing/worktree-owner-settings'
+import { settingsForWorktreeOwner } from '../listing/worktree-owner-settings'
 
 export function createUpdateWorktreeMeta(
   set: WorktreeSliceSet,
@@ -69,26 +62,6 @@ export function createUpdateWorktreeMeta(
       }
     }
     const normalizedUpdates = normalizeHostedReviewLinkReplacementUpdates(updates, existingWorktree)
-    // Why: manual PR linking supplies only the number; resolve the head branch so Push targets the review branch.
-    const linkedPrForPushTarget = isPositiveHostedReviewNumber(normalizedUpdates.linkedPR)
-      ? normalizedUpdates.linkedPR
-      : null
-    // Why: an ambiguous owner must not throw past this update's { ok, error } contract — skip the lookup instead.
-    const pushTargetOwnerSettings =
-      linkedPrForPushTarget !== null &&
-      normalizedUpdates.pushTarget === undefined &&
-      existingWorktree &&
-      !existingWorktree.pushTarget
-        ? trySettingsForWorktreeOwner(get(), worktreeId, executionHostId)
-        : null
-    const resolvedPushTarget =
-      pushTargetOwnerSettings && existingWorktree && linkedPrForPushTarget !== null
-        ? await resolveGitHubReviewPushTarget(
-            pushTargetOwnerSettings,
-            existingWorktree.repoId,
-            linkedPrForPushTarget
-          )
-        : undefined
     const existingHostedReviewPushTargetLookup = existingWorktree
       ? getHostedReviewPushTargetLookup(existingWorktree)
       : null
@@ -99,7 +72,6 @@ export function createUpdateWorktreeMeta(
     const shouldClearStaleHostedReviewPushTarget =
       Boolean(existingWorktree?.pushTarget) &&
       normalizedUpdates.pushTarget === undefined &&
-      resolvedPushTarget === undefined &&
       existingHostedReviewPushTargetLookup !== null &&
       existingHostedReviewPushTargetLookup.key !== nextHostedReviewPushTargetLookup?.key
     const worktreeForUpdate = get().getKnownWorktreeById(worktreeId, executionHostId)
@@ -112,11 +84,9 @@ export function createUpdateWorktreeMeta(
       'displayName' in normalizedUpdates
         ? { displayNameIsPinned: displayNameUpdatePinsLabel(normalizedUpdates.displayName) }
         : {}
-    const targetEnriched = resolvedPushTarget
-      ? { ...normalizedUpdates, ...displayNameProvenance, pushTarget: resolvedPushTarget }
-      : shouldClearStaleHostedReviewPushTarget
-        ? { ...normalizedUpdates, ...displayNameProvenance, pushTarget: undefined }
-        : { ...normalizedUpdates, ...displayNameProvenance }
+    const targetEnriched = shouldClearStaleHostedReviewPushTarget
+      ? { ...normalizedUpdates, ...displayNameProvenance, pushTarget: undefined }
+      : { ...normalizedUpdates, ...displayNameProvenance }
     const renameCleared =
       'displayName' in targetEnriched
         ? {

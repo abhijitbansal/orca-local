@@ -7,24 +7,6 @@ export const preflightApi = {
     force?: boolean
   }): Promise<{
     git: { installed: boolean }
-    gh: { installed: boolean; authenticated: boolean }
-    glab?: { installed: boolean; authenticated: boolean }
-    bitbucket?: { configured: boolean; authenticated: boolean; account: string | null }
-    azureDevOps?: {
-      configured: boolean
-      authenticated: boolean
-      account: string | null
-      baseUrl: string | null
-      tokenConfigured: boolean
-    }
-    gitea?: {
-      configured: boolean
-      authenticated: boolean
-      account: string | null
-      baseUrl: string | null
-      tokenConfigured: boolean
-    }
-    linear: { connected: boolean }
   }> => ipcRenderer.invoke('preflight:check', args),
   detectAgents: (args?: PreflightRuntimeContext): Promise<string[]> =>
     ipcRenderer.invoke('preflight:detectAgents', args),

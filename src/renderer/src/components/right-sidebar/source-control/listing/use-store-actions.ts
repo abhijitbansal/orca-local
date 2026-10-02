@@ -28,7 +28,6 @@ export function useSourceControlStoreActions() {
       clearDiffCommentsForFile: state.clearDiffCommentsForFile,
       commitMessageGenerationRecords,
       deleteDiffComment: state.deleteDiffComment,
-      ensureHostedReviewPushTarget: state.ensureHostedReviewPushTarget,
       fastForwardBranch: state.fastForwardBranch,
       fetchBranch: state.fetchBranch,
       fetchUpstreamStatus: state.fetchUpstreamStatus,

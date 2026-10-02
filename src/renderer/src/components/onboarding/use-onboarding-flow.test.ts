@@ -125,20 +125,14 @@ describe('local-only onboarding', () => {
   it('always skips the integrations step', () => {
     expect(
       shouldSkipIntegrationsStep({
-        git: { installed: true },
-        gh: { installed: false, authenticated: false }
+        git: { installed: true }
       })
     ).toBe(true)
     expect(shouldSkipIntegrationsStep(null)).toBe(true)
   })
 
   it('reports the task sources as unavailable', () => {
-    expect(
-      getGitHubTaskSourceStatus(
-        { git: { installed: true }, gh: { installed: true, authenticated: true } },
-        false
-      )
-    ).toBe('not_installed')
+    expect(getGitHubTaskSourceStatus({ git: { installed: true } }, false)).toBe('not_installed')
     expect(getLinearTaskSourceStatus({ connected: true }, true)).toBe('not_connected')
   })
 })

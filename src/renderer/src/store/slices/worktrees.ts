@@ -31,7 +31,6 @@ import {
 } from './worktrees/teardown/worktree-delete-state'
 import { createForceDeletePreservedBranch } from './worktrees/teardown/force-delete-preserved-branch'
 import { createUpdateWorktreeMeta } from './worktrees/metadata/update-worktree-meta'
-import { createEnsureHostedReviewPushTarget } from './worktrees/metadata/hosted-review-push-target-ensure'
 import { createUpdateWorktreesMeta } from './worktrees/metadata/update-worktrees-meta'
 import { createSetWorktreesPinnedAndReveal } from './worktrees/session/worktree-pin-reveal'
 import {
@@ -97,7 +96,6 @@ export const createWorktreeSlice: StateCreator<AppState, [], [], WorktreeSlice> 
   forceDeletePreservedBranch: createForceDeletePreservedBranch(set, get),
   clearWorktreeDeleteState: createClearWorktreeDeleteState(set, get),
   updateWorktreeMeta: createUpdateWorktreeMeta(set, get),
-  ensureHostedReviewPushTarget: createEnsureHostedReviewPushTarget(set, get),
   updateWorktreesMeta: createUpdateWorktreesMeta(set, get),
   setWorktreesPinnedAndReveal: createSetWorktreesPinnedAndReveal(set, get),
   markWorktreeUnread: createMarkWorktreeUnread(set, get),

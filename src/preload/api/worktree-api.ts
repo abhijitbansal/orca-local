@@ -35,8 +35,6 @@ import type { WorkspaceLineage, WorktreeLineage } from '../../shared/worktree/li
 import type { WorktreeMeta } from '../../shared/worktree/meta-types'
 import type {
   DetectedWorktreeListResult,
-  GitHubPrStartPoint,
-  GitPushTarget,
   Worktree,
   WorktreeHeadIdentity
 } from '../../shared/worktree/types'
@@ -70,25 +68,6 @@ export type WorktreeApi = {
     callback: (data: { creationId?: string; phase: 'fetching' | 'creating' }) => void
   ) => () => void
   prefetchCreateBase: (args: { repoId: string; baseBranch?: string }) => Promise<void>
-  resolvePrBase: (args: {
-    repoId: string
-    prNumber: number
-    headRefName?: string
-    baseRefName?: string
-    isCrossRepository?: boolean
-  }) => Promise<GitHubPrStartPoint | { error: string }>
-  /** GitLab parallel of resolvePrBase. For same-project MRs returns
-   *  `<remote>/<source_branch>`; for fork MRs fetches
-   *  refs/merge-requests/<iid>/head and returns the SHA. */
-  resolveMrBase: (args: {
-    repoId: string
-    mrIid: number
-    sourceBranch?: string
-    targetBranch?: string
-    isCrossRepository?: boolean
-  }) => Promise<
-    { baseBranch: string; compareBaseRef?: string; pushTarget?: GitPushTarget } | { error: string }
-  >
   remove: (args: {
     worktreeId: string
     hostId?: ExecutionHostId

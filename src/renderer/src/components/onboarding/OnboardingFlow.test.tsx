@@ -133,8 +133,7 @@ describe('OnboardingFlow', () => {
   it('drops the skipped integrations step from the stepper on Windows', () => {
     vi.stubGlobal('navigator', { userAgent: 'Windows' })
     useAppStore.setState({
-      // Why: the preload status type still carries `gh` until the preflight contract is narrowed.
-      preflightStatus: { git: { installed: true }, gh: { installed: false, authenticated: false } },
+      preflightStatus: { git: { installed: true } },
       preflightStatusChecked: true
     })
 
@@ -157,8 +156,7 @@ describe('OnboardingFlow', () => {
 
   it('always skips the integrations step', () => {
     useAppStore.setState({
-      // Why: the preload status type still carries `gh` until the preflight contract is narrowed.
-      preflightStatus: { git: { installed: true }, gh: { installed: false, authenticated: false } },
+      preflightStatus: { git: { installed: true } },
       preflightStatusChecked: true
     })
 

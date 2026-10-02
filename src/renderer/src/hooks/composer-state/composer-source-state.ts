@@ -167,13 +167,9 @@ export function useComposerSourceState(
   const gitlabProviderSelection = useGitLabProviderSelection({
     applyLinkedGitLabWorkItem: sourceIdentityActions.applyLinkedGitLabWorkItem,
     branchAutoNameRef: target.asyncComposerState.branchAutoNameRef,
-    eligibleRepos: target.composerTargetStore.eligibleRepos,
-    handleBaseBranchMrSelect: branchStartPointActions.handleBaseBranchMrSelect,
     isProjectGroupTarget: target.runtimeTargetSelection.isProjectGroupTarget,
     lastAutoNameRef: target.asyncComposerState.lastAutoNameRef,
     name: target.sourceContextState.name,
-    selectedRepo: target.runtimeTargetSelection.selectedRepo,
-    setBaseBranch: target.workspaceIdentityState.setBaseBranch,
     setBranchNameOverride: target.workspaceIdentityState.setBranchNameOverride,
     setBranchNameOverridePreservesNameEdits:
       target.workspaceIdentityState.setBranchNameOverridePreservesNameEdits,
@@ -186,9 +182,7 @@ export function useComposerSourceState(
     setLinkedTaskSourceContext: target.sourceContextState.setLinkedTaskSourceContext,
     setLinkedWorkItem: target.sourceContextState.setLinkedWorkItem,
     setName: target.sourceContextState.setName,
-    setPushTarget: target.workspaceIdentityState.setPushTarget,
-    setStartFromResetHint: target.workspaceIdentityState.setStartFromResetHint,
-    settings: target.composerTargetStore.settings
+    setStartFromResetHint: target.workspaceIdentityState.setStartFromResetHint
   })
   const workItemSourceActions = useWorkItemSourceActions({
     branchAutoNameRef: target.asyncComposerState.branchAutoNameRef,

@@ -57,7 +57,7 @@ describe('useSourceControlStoreActions store subscriptions', () => {
     mount(<Probe />)
 
     // Why 2: `pullRequestGenerationRecords` and `commitMessageGenerationRecords` are the only
-    // entries that are state; the other 34 are actions read through getState().
+    // entries that are state; the other 33 are actions read through getState().
     expect(listenerCount() - baseline).toBe(2)
 
     unmount()
@@ -138,7 +138,7 @@ describe('useSourceControlStoreActions store subscriptions', () => {
       (key) => typeof returned[key] === 'function'
     )
 
-    expect(returnedActionKeys.length).toBe(34)
+    expect(returnedActionKeys.length).toBe(33)
     for (const key of returnedActionKeys) {
       expect(returned[key]).toBe(state[key])
     }
