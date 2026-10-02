@@ -133,11 +133,12 @@ downloads.
 Scans non-test sources under `src/`, `package.json`, and every
 `config/electron-builder*.config.cjs`:
 
-- `forbidden-host`: a cloud hostname in a source line (`onorca.dev`, `posthog.com`, `api.github.com`, `uploads.github.com`, `github.com/stablyai/orca`, `gitlab.com/api`, `api.bitbucket.org`, `dev.azure.com`, `atlassian.net`, `api.linear.app`, `api.anthropic.com`, `console.anthropic.com`, `chatgpt.com/backend-api`, `api.openai.com`).
-- `forbidden-import`: an import of `posthog-node`, `posthog-js`, `electron-updater`, `@octokit/*`, `@sentry/*`.
+- `forbidden-host`: a cloud hostname in a source line (`onorca.dev`, `posthog.com`, `api.github.com`, `uploads.github.com`, `github.com/stablyai/orca`, `gitlab.com/api`, `api.bitbucket.org`, `dev.azure.com`, `atlassian.net`, `api.linear.app`, `api.anthropic.com`, `console.anthropic.com`, `chatgpt.com/backend-api`, `api.openai.com`, `nodejs.org/dist`, `storage.googleapis.com`).
+- `forbidden-import`: an import of `posthog-node`, `posthog-js`, `electron-updater`, `@octokit/*`, `@sentry/*`, `ssh2` (and `ssh2/*`, `ssh2-*`), `tweetnacl`. Type-only imports (`import type … from 'ssh2'`) are exempt, which is what keeps `@types/ssh2` for the managed hook installers.
 - `forbidden-dependency`: the same names in `package.json`.
 - `builder-publish` / `builder-protocols`: an electron-builder `publish` (other than `null`) or `protocols` entry.
 - `wildcard-bind`: see above.
+- Allowlist rows are `path:rule` or `path:rule:match`; the three-segment form exempts one dependency name.
 
 ## Local telemetry
 

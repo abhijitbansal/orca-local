@@ -18,15 +18,26 @@ export const FORBIDDEN_HOSTS = [
   'api.anthropic.com',
   'console.anthropic.com',
   'chatgpt.com/backend-api',
-  'api.openai.com'
+  'api.openai.com',
+  'nodejs.org/dist',
+  'storage.googleapis.com'
 ]
+// Entries ending in '/' or '-' are prefixes; every other entry matches the bare name or a subpath.
 export const FORBIDDEN_MODULES = [
   'posthog-node',
   'posthog-js',
   'electron-updater',
   '@octokit/',
-  '@sentry/'
+  '@sentry/',
+  'ssh2',
+  'ssh2-',
+  'tweetnacl'
 ]
+export function isForbiddenModule(name) {
+  return FORBIDDEN_MODULES.some((m) =>
+    m.endsWith('/') || m.endsWith('-') ? name.startsWith(m) : name === m || name.startsWith(`${m}/`)
+  )
+}
 const SCANNED_ROOTS = ['src']
 const SCANNED_EXTENSIONS = /\.(?:ts|tsx|mts|cts|js|mjs|cjs)$/
 const SKIPPED_FILE = /(?:\.(?:test|spec)\.[cm]?[jt]sx?|-test-harness\.tsx?)$/
@@ -44,6 +55,20 @@ const SKIPPED_DIRS = new Set([
 const WILDCARD_BIND =
   /(?:\b(?:host|hostname|bindHost|address)\s*[:=]\s*|\.(?:listen|bind)\([^)]*,\s*)['"](?:0\.0\.0\.0|::)['"]/
 const MODULE_SPECIFIER = /(?:from\s*|import\(\s*|require\(\s*)['"]([^'"]+)['"]/g
+// `import type … from 'x'` is erased by TypeScript and loads nothing at runtime. The specifier
+// clause is matched exactly (`* as x`, an identifier, or one brace block) so a multi-line type
+// import is recognised without letting the match run into a later value import.
+const TYPE_ONLY_IMPORT =
+  /\b(?:import|export)\s+type\s+(?:\*\s+as\s+\w+|\w+|\{[^}]*\})\s*from\s*['"]([^'"]+)['"]/g
+
+function typeOnlyImportKeys(text) {
+  const keys = new Set()
+  for (const match of text.matchAll(TYPE_ONLY_IMPORT)) {
+    const line = text.slice(0, match.index + match[0].length).split('\n').length
+    keys.add(`${line}:${match[1]}`)
+  }
+  return keys
+}
 
 function collect(dir, found) {
   let entries
@@ -69,28 +94,28 @@ function collect(dir, found) {
 function scanSource(rootDir, file) {
   const rel = path.relative(rootDir, file).split(path.sep).join('/')
   const violations = []
-  readFileSync(file, 'utf8')
-    .split('\n')
-    .forEach((text, index) => {
-      const line = index + 1
-      for (const host of FORBIDDEN_HOSTS) {
-        if (text.includes(host)) {
-          violations.push({ file: rel, line, rule: 'forbidden-host', match: host })
-        }
+  const source = readFileSync(file, 'utf8')
+  const typeOnly = typeOnlyImportKeys(source)
+  source.split('\n').forEach((text, index) => {
+    const line = index + 1
+    for (const host of FORBIDDEN_HOSTS) {
+      if (text.includes(host)) {
+        violations.push({ file: rel, line, rule: 'forbidden-host', match: host })
       }
-      for (const [, specifier] of text.matchAll(MODULE_SPECIFIER)) {
-        const forbidden = FORBIDDEN_MODULES.find(
-          (m) => specifier === m || specifier.startsWith(m.endsWith('/') ? m : `${m}/`)
-        )
-        if (forbidden) {
-          violations.push({ file: rel, line, rule: 'forbidden-import', match: specifier })
-        }
+    }
+    for (const [, specifier] of text.matchAll(MODULE_SPECIFIER)) {
+      if (typeOnly.has(`${line}:${specifier}`)) {
+        continue
       }
-      const wildcard = WILDCARD_BIND.exec(text)
-      if (wildcard) {
-        violations.push({ file: rel, line, rule: 'wildcard-bind', match: wildcard[0] })
+      if (isForbiddenModule(specifier)) {
+        violations.push({ file: rel, line, rule: 'forbidden-import', match: specifier })
       }
-    })
+    }
+    const wildcard = WILDCARD_BIND.exec(text)
+    if (wildcard) {
+      violations.push({ file: rel, line, rule: 'wildcard-bind', match: wildcard[0] })
+    }
+  })
   return violations
 }
 
@@ -102,9 +127,7 @@ function scanPackage(rootDir) {
     ...pkg.optionalDependencies
   })
   return names
-    .filter((name) =>
-      FORBIDDEN_MODULES.some((m) => name === m || (m.endsWith('/') && name.startsWith(m)))
-    )
+    .filter((name) => isForbiddenModule(name))
     .map((name) => ({ file: 'package.json', line: 0, rule: 'forbidden-dependency', match: name }))
 }
 
@@ -155,7 +178,9 @@ export function scanLocalOnly({ rootDir, allowlist }) {
     ...sources.flatMap((file) => scanSource(rootDir, file)),
     ...scanPackage(rootDir),
     ...scanBuilders(rootDir)
-  ].filter((v) => !allowlist.has(`${v.file}:${v.rule}`))
+  ].filter(
+    (v) => !allowlist.has(`${v.file}:${v.rule}`) && !allowlist.has(`${v.file}:${v.rule}:${v.match}`)
+  )
 }
 
 export function main(rootDir = process.cwd()) {
