@@ -98,8 +98,6 @@ let registered = false
 
 type CoreHandlerLifecycleOptions = {
   onBeforeRelaunch?: () => void | Promise<void>
-  onOrcaProfileAuthMutation?: () => void
-  onBeforeOrcaProfileSignOut?: () => void
   getAdditionalAiVaultCodexHomePaths?: () => readonly string[]
   prepareAiVaultSessionResume?: (
     args: AiVaultPrepareSessionResumeArgs
@@ -193,9 +191,7 @@ export function registerCoreHandlers(
   }
   registerTelemetryHandlers(store)
   registerOrcaProfileHandlers(store, {
-    onBeforeRelaunch: lifecycleOptions.onBeforeRelaunch,
-    onAuthMutation: lifecycleOptions.onOrcaProfileAuthMutation,
-    onBeforeSignOut: lifecycleOptions.onBeforeOrcaProfileSignOut
+    onBeforeRelaunch: lifecycleOptions.onBeforeRelaunch
   })
   registerBrowserHandlers()
   registerShellHandlers(store)

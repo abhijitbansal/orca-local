@@ -4,21 +4,13 @@ import { relaunchApp, type AppRelaunchReason } from '../app-relaunch'
 import type {
   CreateLocalOrcaProfileArgs,
   CreateLocalOrcaProfileResult,
-  CreateCloudLinkedOrcaProfileArgs,
-  CreateCloudLinkedOrcaProfileResult,
   FindOrcaProfileProjectsByPathArgs,
   FindOrcaProfileProjectsByPathResult,
   OrcaProfileListResult,
-  RefreshCurrentOrcaProfileAuthResult,
   SwitchOrcaProfileArgs,
   SwitchOrcaProfileResult,
   TransferOrcaProfileProjectArgs,
-  TransferOrcaProfileProjectResult,
-  ConnectCurrentOrcaProfileResult,
-  OrcaProfileAuthStatus,
-  SelectOrcaProfileOrgArgs,
-  SelectOrcaProfileOrgResult,
-  SignOutCurrentOrcaProfileResult
+  TransferOrcaProfileProjectResult
 } from '../../shared/orca-profiles'
 import {
   createLocalOrcaProfile,
@@ -26,10 +18,6 @@ import {
   seedNewOrcaProfileTelemetryConsent,
   setActiveOrcaProfile
 } from '../orca-profiles/profile-index-store'
-import {
-  cloudSessionIdentity,
-  recordCloudSessionIdentityMutation
-} from '../orca-profiles/profile-cloud-session-mutation'
 import { getProfileUserDataPath } from '../orca-profiles/profile-storage-paths'
 import { isMultiProfileUiEnabled } from '../orca-profiles/profile-ui-scope'
 import { transferOrcaProfileProject } from '../orca-profiles/profile-project-transfer'
@@ -40,23 +28,10 @@ import {
   flushActiveProfileBeforeRelaunch
 } from '../orca-profiles/profile-persistence-deadline'
 import { normalizeExecutionHostId } from '../../shared/execution-host'
-import {
-  createCloudLinkedOrcaProfile,
-  connectCurrentOrcaProfile,
-  getCurrentOrcaProfileAuthStatus,
-  refreshCurrentOrcaProfileAuth,
-  selectCurrentOrcaProfileOrg,
-  signOutCurrentOrcaProfile
-} from '../orca-profiles/profile-cloud-service'
-import { registerOrcaProfileOrgMemberHandlers } from './orca-profile-org-members-handlers'
-import { onOrcaCloudSessionInvalidated } from '../orca-profiles/profile-cloud-session-invalidation'
-import { broadcastOrcaProfileAuthStatusChanged } from './orca-profile-auth-status-broadcast'
 import { transferProjectArgsFromUnknown } from './orca-profile-project-transfer-args'
 
 type RegisterOrcaProfileHandlersOptions = {
   onBeforeRelaunch?: () => void | Promise<void>
-  onAuthMutation?: () => void
-  onBeforeSignOut?: () => void
 }
 
 function profileIdFromArgs(args: unknown): string {
@@ -101,30 +76,6 @@ function findProjectsByPathArgsFromUnknown(args: unknown): FindOrcaProfileProjec
   }
 }
 
-function orgIdFromUnknown(args: unknown): string {
-  if (!args || typeof args !== 'object') {
-    throw new Error('invalid_orca_profile_org_selection')
-  }
-  const orgId = (args as SelectOrcaProfileOrgArgs).orgId?.trim()
-  if (!orgId) {
-    throw new Error('invalid_orca_profile_org_selection')
-  }
-  return orgId
-}
-
-function createCloudLinkedProfileArgsFromUnknown(args: unknown): CreateCloudLinkedOrcaProfileArgs {
-  if (!args || typeof args !== 'object') {
-    return {}
-  }
-  const candidate = args as CreateCloudLinkedOrcaProfileArgs
-  const orgId = typeof candidate.orgId === 'string' ? candidate.orgId.trim() : undefined
-  const name = typeof candidate.name === 'string' ? candidate.name.trim() : undefined
-  return {
-    ...(orgId ? { orgId } : {}),
-    ...(name ? { name } : {})
-  }
-}
-
 async function runBeforeProfileRelaunch(
   onBeforeRelaunch?: () => void | Promise<void>
 ): Promise<void> {
@@ -162,16 +113,6 @@ export function registerOrcaProfileHandlers(
     multiProfileUi: isMultiProfileUiEnabled()
   }))
 
-  ipcMain.handle('orcaProfiles:authStatus', (): OrcaProfileAuthStatus =>
-    getCurrentOrcaProfileAuthStatus(getProfileUserDataPath())
-  )
-
-  // Why: a background refresh can revoke the session with no renderer request in
-  // flight, so push the change instead of waiting for the next pane to ask.
-  // Why not options.onAuthMutation: that hook drives the relay coordinator, which
-  // is the caller that just failed the refresh — re-entering it here would be a loop.
-  onOrcaCloudSessionInvalidated(broadcastOrcaProfileAuthStatusChanged)
-
   ipcMain.handle(
     'orcaProfiles:createLocal',
     (_event, args?: CreateLocalOrcaProfileArgs): CreateLocalOrcaProfileResult => {
@@ -190,17 +131,6 @@ export function registerOrcaProfileHandlers(
         return { status: 'already-active' }
       }
 
-      const activeProfile = current.profiles.find(
-        (profile) => profile.id === current.activeProfileId
-      )
-      if (activeProfile?.cloud) {
-        // Why: profile selection changes the expected identity synchronously;
-        // stale refresh saves must fail even before relaunch teardown finishes.
-        recordCloudSessionIdentityMutation(
-          cloudSessionIdentity(activeProfile.id, activeProfile.cloud),
-          getProfileUserDataPath()
-        )
-      }
       // Why: the current profile must be persisted before the global index
       // points startup at the target profile.
       // Switching leaves source files intact; relaunch cleanup still needs its live writer.
@@ -270,68 +200,4 @@ export function registerOrcaProfileHandlers(
         getProfileUserDataPath()
       )
   )
-
-  ipcMain.handle(
-    'orcaProfiles:connectCurrent',
-    async (): Promise<ConnectCurrentOrcaProfileResult> => {
-      const result = await connectCurrentOrcaProfile(getProfileUserDataPath())
-      if (result.status === 'connected') {
-        options.onAuthMutation?.()
-      }
-      return result
-    }
-  )
-
-  ipcMain.handle(
-    'orcaProfiles:createCloudLinked',
-    async (
-      _event,
-      rawArgs?: CreateCloudLinkedOrcaProfileArgs
-    ): Promise<CreateCloudLinkedOrcaProfileResult> => {
-      const result = await createCloudLinkedOrcaProfile(
-        getProfileUserDataPath(),
-        createCloudLinkedProfileArgsFromUnknown(rawArgs)
-      )
-      if (result.status === 'created') {
-        seedNewOrcaProfileTelemetryConsent(result.profile.id, store.getSettings().telemetry)
-        options.onAuthMutation?.()
-      }
-      return result
-    }
-  )
-
-  ipcMain.handle(
-    'orcaProfiles:refreshAuth',
-    async (): Promise<RefreshCurrentOrcaProfileAuthResult> => {
-      const result = await refreshCurrentOrcaProfileAuth(getProfileUserDataPath())
-      if (result.status === 'refreshed') {
-        options.onAuthMutation?.()
-      }
-      return result
-    }
-  )
-
-  ipcMain.handle(
-    'orcaProfiles:signOutCurrent',
-    async (): Promise<SignOutCurrentOrcaProfileResult> => {
-      options.onBeforeSignOut?.()
-      return signOutCurrentOrcaProfile(getProfileUserDataPath())
-    }
-  )
-
-  ipcMain.handle(
-    'orcaProfiles:selectOrg',
-    async (_event, rawArgs: SelectOrcaProfileOrgArgs): Promise<SelectOrcaProfileOrgResult> => {
-      const result = await selectCurrentOrcaProfileOrg(
-        getProfileUserDataPath(),
-        orgIdFromUnknown(rawArgs)
-      )
-      if (result.status === 'selected') {
-        options.onAuthMutation?.()
-      }
-      return result
-    }
-  )
-
-  registerOrcaProfileOrgMemberHandlers()
 }
