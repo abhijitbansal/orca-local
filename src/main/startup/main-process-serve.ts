@@ -1,4 +1,3 @@
-import { notifyServeSupervisorReady } from '../serve-update-handoff'
 import { mainProcessState as state } from './main-process-state'
 import { getServeOptions, type ServeOptions } from './serve-options'
 
@@ -24,5 +23,4 @@ export async function printServeReady(options: ServeOptions): Promise<void> {
     },
     { mode: options.json ? 'json' : 'human' }
   )
-  notifyServeSupervisorReady(runtime.getRuntimeId())
 }

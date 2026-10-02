@@ -78,7 +78,6 @@ vi.mock('./configure-process', () => ({
   optOutOfHiddenPageWakeUpThrottling: vi.fn(),
   patchPackagedProcessPath: vi.fn()
 }))
-vi.mock('../serve-update-handoff', () => ({ installServeSupervisorDisconnectQuit: vi.fn() }))
 vi.mock('./main-process-error-guards', () => ({
   installUncaughtPipeErrorGuard: vi.fn(),
   installUnhandledRejectionLogging: vi.fn()

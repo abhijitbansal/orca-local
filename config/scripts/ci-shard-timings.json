@@ -3580,8 +3580,6 @@
       "src/main/runtime/worktree-teardown.test.ts": 1806,
       "src/main/runtime/worktree-terminal-mutation-lock.test.ts": 104,
       "src/main/runtime/zcode-readiness-transcript.test.ts": 3116,
-      "src/main/serve-update-handoff.app-environment.test.ts": 860,
-      "src/main/serve-update-handoff.test.ts": 42,
       "src/main/server/serve-readiness.test.ts": 67,
       "src/main/server/serve-stdout-boundary.test.ts": 39,
       "src/main/shell-prompt-readiness-probe.test.ts": 55,

@@ -2,17 +2,8 @@ import { spawn as spawnProcess, type SpawnOptions } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { runProcessSync } from '../../shared/child-process/run-process'
-import {
-  SERVE_UPDATE_HANDOFF_PATH_ENV,
-  getServeUpdateHandoffPath
-} from '../../shared/serve-update-handoff'
-import { getDefaultUserDataPath } from './metadata'
 import { getMacAppBundlePath } from './mac-app-update-bundle'
-import {
-  readServeUpdateHandoffSync,
-  resumeInterruptedServeUpdate,
-  superviseForegroundServe
-} from './serve-update-supervisor'
+import { superviseForegroundServe } from './serve-foreground-supervisor'
 import { RuntimeClientError } from './types'
 
 const USER_NAMESPACE_PROBE_TIMEOUT_MS = 2_000
@@ -79,42 +70,14 @@ export function serveOrcaApp(args: { json?: boolean } = {}): Promise<number> {
     childArgs.push('--serve-json')
   }
 
-  const handoffPath = getMacAppBundlePath(executable)
-    ? getServeUpdateHandoffPath(getDefaultUserDataPath())
-    : null
-  const childEnv = stripElectronRunAsNode(process.env)
-  if (handoffPath) {
-    childEnv[SERVE_UPDATE_HANDOFF_PATH_ENV] = handoffPath
-  }
   const spawnOptions: SpawnOptions = {
     detached: false,
     cwd: resolveAppRoot(),
-    stdio: handoffPath ? ['inherit', 'inherit', 'inherit', 'ipc'] : 'inherit',
+    stdio: 'inherit',
     ...getExecutableSpawnOptions(executable),
-    env: childEnv
+    env: stripElectronRunAsNode(process.env)
   }
-  const interruptedHandoff = handoffPath ? readServeUpdateHandoffSync(handoffPath) : null
-  if (interruptedHandoff?.phase === 'install-requested') {
-    // Why: the node-mode CLI is not an NSRunningApplication, so it can retain launchd ownership while ShipIt swaps the app.
-    return resumeInterruptedServeUpdate({
-      executable,
-      childArgs,
-      spawnOptions,
-      spawnChild: spawnProcess,
-      handoffPath: handoffPath!,
-      handoff: interruptedHandoff
-    })
-  }
-  const child = spawnProcess(executable, childArgs, spawnOptions)
-  return superviseForegroundServe({
-    executable,
-    childArgs,
-    spawnOptions,
-    spawnChild: spawnProcess,
-    child,
-    handoffPath,
-    expectedHandoff: null
-  })
+  return superviseForegroundServe(spawnProcess(executable, childArgs, spawnOptions))
 }
 
 export function getExecutableAppArgs(executable: string): string[] {

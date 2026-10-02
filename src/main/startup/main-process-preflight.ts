@@ -17,7 +17,6 @@ import {
   patchPackagedProcessPath,
   optOutOfHiddenPageWakeUpThrottling
 } from './configure-process'
-import { installServeSupervisorDisconnectQuit } from '../serve-update-handoff'
 import {
   installUncaughtPipeErrorGuard,
   installUnhandledRejectionLogging
@@ -289,13 +288,6 @@ function initializeMainProcessPreflight(options: MainProcessPreflightOptions): b
   installDevParentDisconnectQuit(shouldCoupleToDevParent)
   installDevParentWatchdog(shouldCoupleToDevParent)
   installDevParentSignalQuit(shouldCoupleToDevParent)
-  // Why not at module scope with the other lifetime couplings (#16761): this resolves the handoff
-  // path, so it throws until setAppEnvironment() above installs the accessor — which killed every
-  // `orca serve` process before it could listen. After initDataPath() specifically, so the
-  // path-equality check against the CLI's env var uses the dir captured before app.setName().
-  // Safe to defer, and must stay synchronous: no 'disconnect' can be delivered until this module
-  // finishes evaluating, so moving this behind an await would open a real orphan window.
-  installServeSupervisorDisconnectQuit(state.isServeMode)
   // Why here: initDataPath above gives the canonical userData path for the record file; the write
   // itself lands for the next launch (see macos-press-and-hold-default.ts).
   applyMacPressAndHoldDefaultAtStartup(getCanonicalUserDataPath())
