@@ -82,24 +82,7 @@ test.describe('Feature tour modal', () => {
       }
       store.setState({
         preflightStatus: {
-          git: { installed: true },
-          gh: { installed: true, authenticated: false },
-          glab: { installed: false, authenticated: false },
-          bitbucket: { configured: false, authenticated: false, account: null },
-          azureDevOps: {
-            configured: false,
-            authenticated: false,
-            account: null,
-            baseUrl: null,
-            tokenConfigured: false
-          },
-          gitea: {
-            configured: false,
-            authenticated: false,
-            account: null,
-            baseUrl: null,
-            tokenConfigured: false
-          }
+          git: { installed: true }
         },
         preflightStatusChecked: true,
         preflightStatusLoading: false
@@ -186,24 +169,7 @@ test.describe('Feature tour modal', () => {
         ipcMain.handle('preflight:check', () => preflightStatus)
       },
       {
-        git: { installed: true },
-        gh: { installed: true, authenticated: true },
-        glab: { installed: false, authenticated: false },
-        bitbucket: { configured: false, authenticated: false, account: null },
-        azureDevOps: {
-          configured: false,
-          authenticated: false,
-          account: null,
-          baseUrl: null,
-          tokenConfigured: false
-        },
-        gitea: {
-          configured: false,
-          authenticated: false,
-          account: null,
-          baseUrl: null,
-          tokenConfigured: false
-        }
+        git: { installed: true }
       }
     )
     await orcaPage.evaluate(async () => {

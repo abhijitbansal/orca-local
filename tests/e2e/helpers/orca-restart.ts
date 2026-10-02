@@ -159,10 +159,12 @@ export function createRestartSession(
   const launch = async (options?: LaunchOptions): Promise<LaunchedOrca> => {
     const app = await electron.launch({
       args: getOrcaElectronLaunchArgs(mainPath, headful),
-      env: {
-        ...homeIsolation.env,
-        ...options?.extraEnv
-      }
+      // Why: Playwright's env type rejects undefined values that ProcessEnv spreads can carry.
+      env: Object.fromEntries(
+        Object.entries({ ...homeIsolation.env, ...options?.extraEnv }).filter(
+          (entry): entry is [string, string] => entry[1] !== undefined
+        )
+      )
     })
     // Why: attach before firstWindow — the main-process daemon guard and the
     // plugin-system startup metrics can both emit before the renderer is ready.
