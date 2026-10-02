@@ -5,13 +5,14 @@ description: What Orca records in its local usage file, what it never records, a
 
 import { ImagePlaceholder } from '@/components/docs/prose'
 
-This page describes the anonymous product-usage record this fork keeps on your machine, what it never records, and how to turn it off. **Nothing is uploaded.** The record is a file on disk, and no code in the app sends it, reads it back over a socket, or contacts a telemetry service.
+This page describes the anonymous product-usage record this fork keeps on your machine, what it never records, and how to turn it off. **Nothing is uploaded.** The record is a file on disk, and no code in the app sends it, reads it back over a socket, or contacts a telemetry service. Orca's own code makes no connection to a cloud service at all, apart from the short list of exceptions in [the architecture notes](../../../reference/local-only-architecture.md) (your git CLI against your own remotes, the embedded browser pane, links handed to your OS browser, downloads you start yourself, and SSH).
 
 ## Summary
 
 - **Local only.** Events are appended to `telemetry.ndjson` in the `logs` folder of Orca's data directory (on macOS, `~/Library/Application Support/Orca/logs/`). The file is size-capped and rotated: 10 MB per file, 10 files, oldest deleted. It is readable only by your user account.
 - **Anonymous.** Events are keyed by a random ID stored locally on your machine. No account, email, IP address, or user name is recorded.
 - **No content.** Orca never records file contents, prompts, agent output, terminal output, repo names, branch names, URLs, paths, or commit messages.
+- **On by default for new installs.** If you installed Orca before the usage record existed, nothing is written until you answer the in-app prompt. A new install starts with it on.
 - **Off when:** you turn off **Keep a Local Usage Record** in Settings, or `DO_NOT_TRACK=1` or `ORCA_TELEMETRY_DISABLED=1` is set, or Orca detects a CI environment. When it is off, nothing is written.
 
 ## What is recorded
@@ -48,9 +49,9 @@ You can disable the local record in three ways. Any one of them is sufficient; t
   src="/docs/privacy-toggle.png"
   caption="Settings → Privacy — toggle 'Keep a local usage record' off to stop writing it."
 />
-2. **`DO_NOT_TRACK=1`** — community-standard environment variable. Stops writing for that launch.
-Unsetting it restores your stored preference on the next launch. 3. **`ORCA_TELEMETRY_DISABLED=1`**
-— Orca-specific kill switch with the same semantics as `DO_NOT_TRACK`.
+
+2. **`DO_NOT_TRACK=1`** — community-standard environment variable. Stops writing for that launch. Unsetting it restores your stored preference on the next launch.
+3. **`ORCA_TELEMETRY_DISABLED=1`** — Orca-specific kill switch with the same semantics as `DO_NOT_TRACK`.
 
 ## Where the data goes
 

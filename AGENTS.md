@@ -72,7 +72,7 @@ Always use the primary working directory (the worktree) for all file reads and e
 
 ## Cross-Platform Support
 
-Orca targets macOS, Linux, and Windows. Keep all platform-dependent behavior behind runtime checks:
+Orca targets macOS, Linux, and Windows. All code, commands, and scripts must be compatible with macOS, Linux, and Windows. Keep all platform-dependent behavior behind runtime checks:
 
 - **Keyboard shortcuts**: Never hardcode `e.metaKey`. Use a platform check (`navigator.userAgent.includes('Mac')`) to pick `metaKey` on Mac and `ctrlKey` on Linux/Windows. Electron menu accelerators should use `CmdOrCtrl`.
 - **Shortcut labels in UI**: Display `⌘` / `⇧` on Mac and `Ctrl+` / `Shift+` on other platforms.
@@ -132,4 +132,4 @@ When adding or changing a Git command:
 
 ## Git Providers
 
-Orca's GitHub, GitLab, Bitbucket, Azure DevOps, Gitea, Jira and Linear integrations, and the `gh`/`glab` runners, are removed in this fork. Source control goes through the git CLI only (fetch, push, clone against the user's own remotes). Do not reintroduce a provider API call; see the local-only architecture doc above.
+Provider API integrations (GitHub, GitLab, Bitbucket, Azure DevOps, Gitea, Jira, Linear) and the `gh`/`glab` runners are removed in this fork. Source control goes through the git CLI (fetch, push, clone against the user's own remotes, whichever host serves them). Do not reintroduce a provider API call; see the local-only architecture doc above.

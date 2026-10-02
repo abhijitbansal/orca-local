@@ -26,7 +26,7 @@ Design and plan: `docs/local-only/2026-10-01-local-only-spec-a-design.md` and
   - the PTY daemon socket
   - loopback-only helpers: the agent-hook HTTP server, the browser CDP proxy, and the label proxy
 
-  There is no `orca://` protocol handler, no cloud relay socket, and no pairing.
+  There is no `orca://` protocol handler, no cloud relay socket, and no inbound pairing.
 
 - **I3, telemetry.** Events keep their schema validation and consent gate. The transport is a local JSONL file under `userData`. No code reads that file over a socket.
 
@@ -60,7 +60,8 @@ box by Spec B code), not on this machine:
 | Relay agent-hook HTTP server | `src/relay/agent-hook-server.ts:155` (`listen` at `:176`)    | `127.0.0.1` on the remote box. |
 
 Test-only listeners (not shipped behavior, all `127.0.0.1`): the
-`browser-route-*-fixture.ts` and `browser-session-ua-wire-probe-server.ts` files in
+`browser-route-*-fixture.ts`, `browser-route-tcp-egress-socks-recorder.ts` and
+`browser-session-ua-wire-probe-server.ts` files in
 `src/main/browser/`, `src/main/ssh/ssh-hostile-host-local-sshd.ts`,
 `src/main/orcad/__fixtures__/fake-orcad-electron-sidecar.cjs`, and
 `src/shared/remote-runtime-shared-control-test-server.ts:65` (a standalone
@@ -74,8 +75,14 @@ There is no runtime WebSocket listener. `ws-transport.ts` and
 connections only over the Unix socket or named pipe. The guard's `wildcard-bind`
 rule fails on any `host`/`hostname`/`bindHost`/`address` of `0.0.0.0` or `::`, or a
 `.listen(`/`.bind(` call with such a host argument. The
-`websocket-server-loopback-bind` ratchet test still pins every
-`new WebSocketServer(` to an explicit loopback host.
+`websocket-server-loopback-bind` ratchet test
+(`config/scripts/websocket-server-loopback-bind.test.ts`) scans the whole tree for
+`new WebSocketServer(` constructions and fails on any whose options it cannot read
+or that bind a port without an explicit `host`. Its wildcard pin is 0 and its
+allowlist (`config/scripts/__fixtures__/websocket-server-wildcard-bind-allowlist.txt`)
+is empty. A floor on the number of recognized constructions keeps the scanner from
+going blind. Constructions with `noServer: true` or an attached `server` have no port
+of their own to bind.
 
 ## Remaining egress exceptions
 
@@ -108,16 +115,25 @@ Every entry carries a justification comment. The categories:
 - **Help, docs and issue links** opened with `shell.openExternal`: the sidebar help menu, the link-routing dialog, the terminal error toast, the feature-wall tile and workflow data.
 - **Share-usage card text** and the `x.com` intent opened in the OS browser.
 - **Strings only**: CLI help examples, a code comment link, and a pasteable install command Orca never runs.
+- **Identifier strings only**: the `https://api.openai.com/auth` JWT claim key read from a local Codex auth file (`codex-auth-identity.ts`), never a request URL.
 - **Proxy resolution only**: `session.resolveProxy(url)` classifies a URL and never connects (`src/main/network/proxy-settings.ts`).
 - **Port-scan address classification**, not a listener bind (`local-workspace-port-address.ts`, `relay/port-scan-handler.ts`).
 - **Remote-runtime pairing fixtures**, removed with remote runtimes in Spec B.
+
+### CI workflows
+
+`.github/workflows/docs.yml` is left in place. Its release gate and
+production deploy jobs are gated on `github.repository == 'stablyai/orca'`, so it
+never deploys from this fork. The
+downloads-badge workflow and its assets were removed because this fork ships no
+downloads.
 
 ### Guard rules (`check-local-only.mjs`)
 
 Scans non-test sources under `src/`, `package.json`, and every
 `config/electron-builder*.config.cjs`:
 
-- `forbidden-host`: a cloud hostname in a source line (`onorca.dev`, `posthog.com`, `api.github.com`, `uploads.github.com`, `github.com/stablyai/orca`, `gitlab.com/api`, `api.bitbucket.org`, `dev.azure.com`, `atlassian.net`, `api.linear.app`, `api.anthropic.com`, `console.anthropic.com`, `chatgpt.com/backend-api`).
+- `forbidden-host`: a cloud hostname in a source line (`onorca.dev`, `posthog.com`, `api.github.com`, `uploads.github.com`, `github.com/stablyai/orca`, `gitlab.com/api`, `api.bitbucket.org`, `dev.azure.com`, `atlassian.net`, `api.linear.app`, `api.anthropic.com`, `console.anthropic.com`, `chatgpt.com/backend-api`, `api.openai.com`).
 - `forbidden-import`: an import of `posthog-node`, `posthog-js`, `electron-updater`, `@octokit/*`, `@sentry/*`.
 - `forbidden-dependency`: the same names in `package.json`.
 - `builder-publish` / `builder-protocols`: an electron-builder `publish` (other than `null`) or `protocols` entry.
@@ -145,6 +161,7 @@ Scans non-test sources under `src/`, `package.json`, and every
 - **U10, git providers:** GitHub/GitLab/Bitbucket/Azure DevOps/Gitea/Jira/Linear handlers, IPC, RPC, CLI, store slices and renderer panels, `gh`/`glab` runners, hosted reviews. The git CLI stays.
 - **U11, renderer remote loads:** website-favicon, GitHub-avatar and Google favicon-service icon sources; a strict CSP on the native renderer shells.
 - **U12, cloud directory:** `cloud/`, its CI workflows, and lint/format ignore entries.
+- **Cloud speech-to-text:** the OpenAI (GPT-4o transcribe) provider, its API-key store, IPC, preload and settings UI. Local speech models and their downloads stay. A persisted selection of a removed cloud model hydrates to no model selected.
 
 ## Known residuals and Spec B scope
 
@@ -155,7 +172,6 @@ Reachable network surface this spec deliberately leaves, or has not yet removed:
 - **orcad and serve-update handoff.** `orca serve` / `orcad` network mode is gone; `orca serve --recipe-json` and the SSH orcad deploy paths are runtime-dead but their code remains until Spec B.
 - **SSH relay and skill-transfer rails**, including `src/main/ssh/runtime-archive-download.ts` and `pinned-runtime-materializer.ts`, which download from the network when an SSH host needs a runtime.
 - **VM recipe guides** (`skill-guides/`, ephemeral-VM code under `src/main/ephemeral-vm-*`) that name vendor APIs.
-- **OpenAI cloud transcription.** `src/main/speech/openai-transcription-client.ts` posts audio to `api.openai.com` when the user supplies an API key and picks an OpenAI transcription model. It is opt-in, but it is outside I1's five exceptions and not covered by a guard host rule. Treat it as a follow-up decision.
 - **Dead persisted settings keys** (for example `starNag*`, update UI fields, cloud-linked profile fields, mobile pairing settings, `groupBy: 'pr'`, `activeView` of `'artifacts'`/`'tasks'`) are kept so state from an upstream build hydrates without a crash; each falls back to its default.
 - **Browser pane is unrestricted by design.** Anything the user loads in it, including its network traffic, is outside the invariants.
 - **Agent CLIs** that Orca spawns reach their vendors on their own.

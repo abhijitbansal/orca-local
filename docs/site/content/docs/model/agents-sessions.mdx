@@ -44,14 +44,14 @@ Dashboard cards show a host badge for SSH workspaces. Hover or focus the badge t
 The board toolbar includes:
 
 - **Search** — worktree, project, or agent name (result count shows when a query or filter is active)
-- **Filter** — multi-select **Project**, **Workspace status**, and **PR / MR status** (Open, Draft, Merged, Closed, No review)
+- **Filter** — multi-select **Project** and **Workspace status**
 - Removable filter chips and **Clear all filters**
 
 ### Cards
 
 - **Header** — agent icon, session **conversation name** (rename, generated title, AI Vault / agent session title, or fallback to the worktree name), state glyph
 - **Preview** — last user / agent message when available; otherwise the task summary
-- **Footer** — project icon, worktree name (when the header already shows a session name), and age; cached review state when present. Workspace status stays in the toolbar filter only — cards no longer show a per-worktree status dot.
+- **Footer** — project icon, worktree name (when the header already shows a session name), and age. Workspace status stays in the toolbar filter only — cards no longer show a per-worktree status dot.
 - **Needs You** cards tint amber (and can show the pending question summary); **Done** cards tint green; other states stay neutral so tint means “look here”
 - Click a card to open/focus that agent’s live terminal
 - Nested Codex/Claude subagents can appear as expandable children under the parent row

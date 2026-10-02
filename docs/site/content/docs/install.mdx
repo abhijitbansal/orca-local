@@ -14,7 +14,8 @@ You need Node.js 24, [pnpm](https://pnpm.io) 12, and git. From a checkout of the
 ```bash
 pnpm install
 
-# macOS
+# macOS (builds x64 and arm64, so install both CPU variants first)
+pnpm install:release
 pnpm build:mac
 
 # Linux
@@ -41,7 +42,7 @@ Orca never checks for updates and never contacts a release server. To update:
 1. Add the upstream remote once: `git remote add upstream https://github.com/stablyai/orca.git`.
 1. Fetch and merge the release you want, resolve conflicts, and rebuild.
 
-The full procedure, including a per-file conflict playbook, is in `docs/reference/local-only-upstream-sync.md` in the repo. Your worktree data stays where it is across rebuilds, and older builds keep working against it.
+The full procedure, including a per-file conflict playbook, is in `docs/reference/local-only-upstream-sync.md` in the repo. Your worktree data stays where it is across rebuilds.
 
 <Callout title="Staying on a version">
   Because nothing updates itself, an installed build stays exactly as built until you rebuild.

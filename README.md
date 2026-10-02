@@ -16,7 +16,7 @@
   Run Codex, ClaudeCode, OpenCode or Pi side-by-side — each in its own worktree, tracked in one place.
 </p>
 
-> **Local-only fork.** This fork of [stablyai/orca](https://github.com/stablyai/orca) runs entirely on your machine. There are no cloud accounts, no mobile app, no auto-update, no telemetry upload, and no network listener. Anonymous product events, when you allow them, are written to a local file and never sent anywhere. Git works through your own `git` CLI against your own remotes. The invariants, the sockets that remain, and the few places that still reach the network are in [docs/reference/local-only-architecture.md](docs/reference/local-only-architecture.md). To take a new upstream release, see [docs/reference/local-only-upstream-sync.md](docs/reference/local-only-upstream-sync.md).
+> **Local-only fork.** This fork of [stablyai/orca](https://github.com/stablyai/orca) runs entirely on your machine. There are no cloud accounts, no mobile app, no auto-update, no telemetry upload, and no network listener. A local usage record, on by default for new installs and off with one switch, is written to a file and never sent anywhere. Git works through your own `git` CLI against your own remotes. The invariants, the sockets that remain, and the few places that still reach the network are in [docs/reference/local-only-architecture.md](docs/reference/local-only-architecture.md). To take a new upstream release, see [docs/reference/local-only-upstream-sync.md](docs/reference/local-only-upstream-sync.md).
 
 ## Features
 
@@ -183,7 +183,8 @@ This fork ships no prebuilt downloads, no Homebrew cask, and no auto-update. Bui
 ```bash
 pnpm install
 
-# macOS
+# macOS (builds x64 and arm64, so install both CPU variants first)
+pnpm install:release
 pnpm build:mac
 
 # Linux
@@ -201,7 +202,7 @@ The documentation under `docs/site/content/docs/` is upstream's docs site. This 
 
 ## Privacy
 
-Orca makes no connection of its own to a cloud service. Product events are validated, gated on your consent in Settings, and appended to `telemetry.ndjson` under the app's `logs` folder, size-capped and never uploaded. See [Privacy & telemetry](docs/site/content/docs/telemetry.mdx) and [the architecture notes](docs/reference/local-only-architecture.md). The agent CLIs you run in Orca (Claude Code, Codex, ...) talk to their own vendors; that traffic is theirs.
+Orca's own code makes no connection to a cloud service, apart from the exceptions listed in [the architecture notes](docs/reference/local-only-architecture.md): your git CLI against your own remotes, the embedded browser pane, links handed to your OS browser, speech-model and scrcpy downloads you start yourself, and SSH. A local usage record is on by default for new installs: validated product events are appended to `telemetry.ndjson` under the app's `logs` folder, size-capped and never uploaded. Turn it off in Settings → Privacy, or launch with `ORCA_TELEMETRY_DISABLED=1`. See [Privacy & telemetry](docs/site/content/docs/telemetry.mdx). The agent CLIs you run in Orca (Claude Code, Codex, ...) talk to their own vendors; that traffic is theirs.
 
 ---
 

@@ -16,7 +16,7 @@
   Lancez Codex, Claude Code, OpenCode ou Pi côte à côte — chacun dans son propre worktree, le tout suivi au même endroit.
 </p>
 
-> **Fork 100 % local.** Ce fork de [stablyai/orca](https://github.com/stablyai/orca) s'exécute entièrement sur votre machine. Il n'y a ni compte cloud, ni app mobile, ni mise à jour automatique, ni envoi de télémétrie, ni écoute réseau. Les événements produit anonymes, si vous les autorisez, sont écrits dans un fichier local et ne sont envoyés nulle part. Git fonctionne via votre propre CLI `git` avec vos propres dépôts distants. Les invariants, les sockets restants et les rares endroits qui accèdent encore au réseau sont décrits dans [docs/reference/local-only-architecture.md](../reference/local-only-architecture.md). Pour intégrer une nouvelle version amont, voir [docs/reference/local-only-upstream-sync.md](../reference/local-only-upstream-sync.md).
+> **Fork 100 % local.** Ce fork de [stablyai/orca](https://github.com/stablyai/orca) s'exécute entièrement sur votre machine. Il n'y a ni compte cloud, ni app mobile, ni mise à jour automatique, ni envoi de télémétrie, ni écoute réseau. Un relevé d'usage local, activé par défaut sur les nouvelles installations et désactivable d'un seul réglage, est écrit dans un fichier et n'est envoyé nulle part. Git fonctionne via votre propre CLI `git` avec vos propres dépôts distants. Les invariants, les sockets restants et les rares endroits qui accèdent encore au réseau sont décrits dans [docs/reference/local-only-architecture.md](../reference/local-only-architecture.md). Pour intégrer une nouvelle version amont, voir [docs/reference/local-only-upstream-sync.md](../reference/local-only-upstream-sync.md).
 
 ## Fonctionnalités
 
@@ -182,7 +182,8 @@ Ce fork ne fournit ni téléchargement précompilé, ni cask Homebrew, ni mise �
 ```bash
 pnpm install
 
-# macOS
+# macOS (compile x64 et arm64 : installez d'abord les deux variantes de CPU)
+pnpm install:release
 pnpm build:mac
 
 # Linux
@@ -198,7 +199,7 @@ Pour lancer depuis les sources sans empaqueter, utilisez `pnpm dev`. Les modalit
 
 ## Confidentialité
 
-Orca n'ouvre aucune connexion de lui-même vers un service cloud. Les événements produit sont validés, soumis à votre consentement dans les Réglages, puis ajoutés à `telemetry.ndjson` dans le dossier `logs` de l'app, avec une taille plafonnée et sans jamais être envoyés. Voir [Confidentialité et télémétrie](../site/content/docs/telemetry.mdx) et les [notes d'architecture](../reference/local-only-architecture.md). Les CLI d'agents que vous lancez dans Orca (Claude Code, Codex, ...) contactent leurs propres éditeurs ; ce trafic leur appartient.
+Le code propre d'Orca n'ouvre aucune connexion vers un service cloud, hormis les exceptions listées dans les [notes d'architecture](../reference/local-only-architecture.md) : votre CLI `git` vers vos propres dépôts distants, le volet navigateur intégré, les liens confiés au navigateur du système, les téléchargements de modèles vocaux et de scrcpy que vous lancez vous-même, et SSH. Un relevé d'usage local est activé par défaut sur les nouvelles installations : les événements produit validés sont ajoutés à `telemetry.ndjson` dans le dossier `logs` de l'app, avec une taille plafonnée et sans jamais être envoyés. Désactivez-le dans Réglages → Confidentialité ou lancez avec `ORCA_TELEMETRY_DISABLED=1`. Voir [Confidentialité et télémétrie](../site/content/docs/telemetry.mdx). Les CLI d'agents que vous lancez dans Orca (Claude Code, Codex, ...) contactent leurs propres éditeurs ; ce trafic leur appartient.
 
 ---
 

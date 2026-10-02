@@ -16,7 +16,7 @@
   Codex, Claude Code, OpenCode, Pi를 나란히 실행하세요. — 각 에이전트는 자체 worktree에서 실행되고 한곳에서 추적됩니다.
 </p>
 
-> **로컬 전용 포크.** 이 저장소는 [stablyai/orca](https://github.com/stablyai/orca)의 포크로, 모든 것이 내 컴퓨터에서만 실행됩니다. 클라우드 계정, 모바일 앱, 자동 업데이트, 텔레메트리 업로드, 네트워크 리스너가 없습니다. 익명 제품 이벤트는 허용한 경우에만 로컬 파일에 기록되며 어디로도 전송되지 않습니다. Git은 내 `git` CLI로 내 원격 저장소에 직접 접근합니다. 불변 조건, 남아 있는 소켓, 아직 네트워크에 접근하는 몇몇 위치는 [docs/reference/local-only-architecture.md](../reference/local-only-architecture.md)에, 새 업스트림 릴리스를 가져오는 방법은 [docs/reference/local-only-upstream-sync.md](../reference/local-only-upstream-sync.md)에 있습니다.
+> **로컬 전용 포크.** 이 저장소는 [stablyai/orca](https://github.com/stablyai/orca)의 포크로, 모든 것이 내 컴퓨터에서만 실행됩니다. 클라우드 계정, 모바일 앱, 자동 업데이트, 텔레메트리 업로드, 네트워크 리스너가 없습니다. 로컬 사용 기록은 새로 설치하면 기본으로 켜져 있고 스위치 하나로 끌 수 있으며, 파일에만 기록될 뿐 어디로도 전송되지 않습니다. Git은 내 `git` CLI로 내 원격 저장소에 직접 접근합니다. 불변 조건, 남아 있는 소켓, 아직 네트워크에 접근하는 몇몇 위치는 [docs/reference/local-only-architecture.md](../reference/local-only-architecture.md)에, 새 업스트림 릴리스를 가져오는 방법은 [docs/reference/local-only-upstream-sync.md](../reference/local-only-upstream-sync.md)에 있습니다.
 
 ## 기능
 
@@ -182,7 +182,8 @@ diff의 어느 줄에든 코멘트를 남기고 에이전트에게 바로 보내
 ```bash
 pnpm install
 
-# macOS
+# macOS (x64와 arm64를 모두 빌드하므로 먼저 두 CPU용 의존성을 설치)
+pnpm install:release
 pnpm build:mac
 
 # Linux
@@ -198,7 +199,7 @@ pnpm build:win
 
 ## 개인정보
 
-Orca는 클라우드 서비스에 직접 연결하지 않습니다. 제품 이벤트는 검증된 뒤 설정의 동의 여부에 따라 앱 `logs` 폴더의 `telemetry.ndjson`에 추가되며, 크기 제한이 있고 업로드되지 않습니다. 자세한 내용은 [개인정보 및 텔레메트리](../site/content/docs/telemetry.mdx)와 [아키텍처 문서](../reference/local-only-architecture.md)를 참고하세요. Orca에서 실행하는 에이전트 CLI(Claude Code, Codex 등)는 각자의 벤더에 연결하며, 그 트래픽은 Orca의 범위 밖입니다.
+Orca 자체 코드는 [아키텍처 문서](../reference/local-only-architecture.md)에 나열된 예외를 제외하고 클라우드 서비스에 연결하지 않습니다. 예외는 내 원격 저장소에 대한 `git` CLI, 내장 브라우저 창, OS 브라우저로 넘기는 링크, 직접 시작하는 음성 모델과 scrcpy 다운로드, 그리고 SSH입니다. 새로 설치하면 로컬 사용 기록이 기본으로 켜져 있습니다. 검증된 제품 이벤트가 앱 `logs` 폴더의 `telemetry.ndjson`에 추가되며, 크기 제한이 있고 업로드되지 않습니다. 설정 → 개인정보에서 끄거나 `ORCA_TELEMETRY_DISABLED=1`로 실행하면 꺼집니다. 자세한 내용은 [개인정보 및 텔레메트리](../site/content/docs/telemetry.mdx)를 참고하세요. Orca에서 실행하는 에이전트 CLI(Claude Code, Codex 등)는 각자의 벤더에 연결하며, 그 트래픽은 Orca의 범위 밖입니다.
 
 ---
 
