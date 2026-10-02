@@ -121,9 +121,6 @@
       "hostUnresolved": "The host couldn't find this file's workspace. It may have been removed, or the host may not know about it yet. Retry, or close this tab from the tab strip."
     }
   },
-  "githubChecks": {
-    "retrying": "Retrying…"
-  },
   "settings": {
     "appearance": {
       "language": {
@@ -261,13 +258,6 @@
       "task": "Task",
       "automation": "Run"
     },
-    "linearIssue": {
-      "createLabel": "Create worktree from Linear issue {{value0}}: {{value1}}",
-      "pendingLabel": "Create worktree from Linear issue {{value0}}",
-      "loadingLabel": "Loading Linear issue {{value0}}",
-      "createHint": "Create worktree from Linear issue",
-      "loadingHint": "Loading Linear issue…"
-    },
     "renderCapOverflow": "{{value0}} more",
     "seeMore": "See more",
     "filter": {
@@ -368,15 +358,6 @@
           "checkRunDetailsUnavailable": "No details are available for this check.",
           "checkRunDetailsLoadFailed": "Failed to load check details.",
           "checkRunDetailsRepoUnavailable": "Repository details are unavailable for this check."
-        },
-        "github": {
-          "f129c42773": "GitHub did not return the new comment.",
-          "683a21264b": "Row has no owner/repo/number.",
-          "83f9b126ad": "Issue Type can only be set on Issues.",
-          "f963485d37": "Row not found",
-          "a967f23983": "Project view not loaded",
-          "87020f6605": "Row has no owner/repo/number — cannot patch underlying item",
-          "d49ef4b944": "Failed to save issue-source preference"
         },
         "sparse": {
           "presets": {
@@ -872,34 +853,6 @@
           }
         }
       },
-      "linear": {
-        "usage": {
-          "examples": {
-            "readTicket": "Read the linked ticket",
-            "postUpdate": "Post a progress update",
-            "moveState": "Move the ticket forward",
-            "attachPr": "Attach the review link",
-            "triageFollowups": "Triage and create follow-ups",
-            "readTicketSummary": "Pull the linked Linear issue's full context before starting work.",
-            "readTicketPrompt": "Use {{value0}} to read the linked Linear issue for this worktree, then summarize the goal and acceptance criteria before you start.",
-            "postUpdateSummary": "Comment progress or a completion summary back to the Linear issue.",
-            "postUpdatePrompt": "Use {{value0}} to post a completion update on the linked Linear issue with what changed and how it was verified.",
-            "moveStateSummary": "Advance the Linear workflow state as the work progresses.",
-            "moveStatePrompt": "Use {{value0}} to move the linked Linear issue to In Review now that the change is ready.",
-            "attachPrSummary": "Link the pull or merge request to the Linear issue when you open it.",
-            "attachPrPrompt": "Use {{value0}} to attach this pull or merge request to the linked Linear issue.",
-            "triageFollowupsSummary": "Set assignee, priority, or estimate, and file parented follow-up tickets.",
-            "triageFollowupsPrompt": "Use {{value0}} to triage the linked Linear issue — set priority and estimate — and create a parented follow-up ticket for the deferred cleanup."
-          }
-        },
-        "issue": {
-          "workspace": {
-            "open": {
-              "4f2c1d8a3b": "Unable to open the workspace attached to this issue."
-            }
-          }
-        }
-      },
       "codex": {
         "session": {
           "restart": {
@@ -1099,13 +1052,9 @@
         "devSearchKeywordError": "error",
         "devSearchKeywordNotification": "notification",
         "projectHostsSummary": "{{value0}} hosts",
-        "linearTitle": "Linear",
-        "linearDescription": "How Linear works in Orca, setup checklist, agent skill, and example prompts.",
         "pluginsTitle": "Plugins",
         "pluginsDescription": "Install and manage experimental Orca plugins.",
         "tasksDescription": "Connect providers, install the Linear skill, and choose what appears in Tasks.",
-        "artifactsTitle": "Artifacts",
-        "artifactsDescription": "Share HTML and Markdown files with your team and manage their public links.",
         "automationsTitle": "Automations",
         "automationsDescription": "Schedule agent work and choose whether Automations appears in the sidebar.",
         "floatingWorkspaceWebDescription": "Global terminal and markdown tabs.",
@@ -1182,308 +1131,74 @@
       },
       "GitHubItemDialog": {
         "3ab6ac0fc8": "Preview and edit the selected GitHub issue or pull request.",
-        "3cd5ae5b7b": "No files changed.",
-        "filesUnavailable": "Couldn't load changed files.",
-        "filesRetry": "Retry",
-        "999b5ad7d9": "Files",
-        "4bd1f5b055": "Checks",
-        "e30a5470c9": "Conversation",
-        "474c59b4b3": "Close · Esc",
-        "45af57999b": "Close preview",
-        "3fdf777817": "Open on GitHub",
-        "c43fe79ee0": "Copy GitHub link",
-        "0caac1a18f": "Start workspace from PR",
-        "8223320f8d": "updated",
-        "10ef1afb8e": "· updated",
         "55962099bc": "opened this issue",
-        "0ab4664a8b": "Start workspace from issue",
-        "36182aa57f": "Start new workspace",
-        "fe6ff12dc2": "More issue workspace actions",
         "726db41722": "Open workspace",
-        "84855fedd0": "Open workspace attached to issue",
         "b7bf31b8de": "Failed to sync viewed state with GitHub.",
         "c0253318d6": "Unable to sync viewed state for this pull request.",
-        "5fea151559": "Failed to copy GitHub link",
-        "2e77dc2053": "GitHub link copied",
-        "2ef631437e": "Unable to open the workspace attached to this issue.",
-        "bf43425540": "Comment",
-        "0a73f59e85": "Send comment",
-        "c5c117270e": "Add a comment…",
-        "082515176a": "Failed to add comment",
-        "c6f37a563d": "+ Assignee",
-        "f41ec96c13": "+ Label",
         "ab050dffec": "Closed",
         "dc1ca081a8": "Open",
-        "2e4d806c92": "Workspace",
-        "886a64b081": "None yet",
-        "4ba0132f37": "Edit labels",
-        "217e55d87c": "Labels",
-        "c67de9e2fe": "No one assigned",
-        "76adcf5fe2": "Edit assignees",
-        "83ac703dda": "Assignees",
-        "00ccdf9b5a": "Status",
-        "2aa9acdf34": "Edit labels on GitHub",
         "e52bed9264": "No checks reported yet",
-        "90020cc1f3": "This pull request has no reported checks yet.",
         "ecffebc251": "No checks found",
-        "checkOpenInBrowser": "Open in browser",
         "744197c84d": "No inline output is available for this check.",
-        "08d072664d": "Jobs",
-        "96d8f36798": "Annotations",
         "485609c4f2": "check #",
-        "0f478f5efa": "Completed",
-        "4812814bc8": "Started",
-        "9c3ba11a05": "Status:",
         "934d87ab96": "Loading check details…",
         "71c11aff84": "Rerun all checks",
         "e31651a224": "Rerun failed checks",
-        "1b56e28faa": "Rerun",
         "f4b1292569": "Start the default AI agent on these checks",
-        "9a1004fc76": "Refresh checks",
         "03e542fcfe": "Failed to start an AI agent for the broken checks: {{value0}}",
         "28986b3747": "Started an AI agent for the broken checks.",
         "1690fd7f4a": "No broken checks to fix.",
         "9e7c221b8d": "Failed to rerun checks",
         "e463ec935f": "Check reruns requested",
-        "ddafe851e1": "Check rerun requested",
         "0bbdc673c1": "Failed to refresh checks",
         "e7007aa1d8": "Unable to refresh checks without a repository path.",
-        "675bc0d638": "Cancel",
-        "a18f669c7a": "{{value0}} {{value1}} reaction{{value2}}",
-        "53fe19aefc": "Open GitHub merge box",
         "a2495e4784": "Pull request",
-        "ce360fc318": "Failed to disable auto-merge",
-        "825a8fb8cd": "Failed to enable auto-merge",
-        "4b390bd50d": "Auto-merge disabled",
-        "a35ea5a0f6": "Auto-merge enabled",
-        "aba792c8b3": "Failed to merge pull request",
         "dbe5e2448e": "Pull request merged",
-        "a27ee5ca1a": "This will update the pull request on GitHub.",
-        "03d7216d62": "{{value0}} PR #{{value1}}?",
-        "e9b7cb7d17": "Failed to {{value0}} PR",
         "bd3b4492a0": "Pull request reopened",
-        "9f88657c4e": "Pull request closed",
-        "b6f1b7adbd": "This will reopen the pull request on GitHub.",
-        "de45fedf7b": "This will close the pull request on GitHub.",
-        "5a94f3d0e9": "No comments yet.",
-        "1506916c09": "Comments",
-        "9b9cb55994": "No description provided.",
-        "52b20b56f7": "Description",
-        "4d555d3796": "Edit description",
-        "9df4e74bdf": "Save",
         "0ae387d8ca": "by",
-        "228e2f59d3": "Resolved",
-        "a154ec5224": "Open comment on GitHub",
-        "bca8eb39ac": "Reply to comment",
-        "68cb993d61": "resolved",
-        "10f4ff5be8": "Reply posted.",
         "745c9089ec": "Unable to reply without a repository path.",
-        "58c73cb0d8": "Failed to update description.",
-        "5221548274": "Description updated.",
-        "06c06e58ba": "Show more lines below",
-        "307c98e8e3": "Show {{value0}} more lines above",
-        "5664681624": "Show more lines above",
-        "b1574e8ac2": "Reset code context",
-        "d43736d09c": "Code context controls",
         "bd7be7b1fd": "comment L",
-        "db61d76cd5": "Loading code context…",
-        "f2d02cdf8c": "files viewed",
-        "1257d1435d": "Show file tree",
         "a341343303": "Review comment added.",
-        "d1fa2cf888": "Unable to comment without the PR head SHA.",
         "829674460a": "Diff unavailable because the PR commit SHAs are missing.",
         "af924014f8": "Viewed",
         "2d89a38d9d": "{{value0}} {{value1}} as viewed",
-        "70e84e3d0b": "No matching reviewers.",
-        "1ffce94a8b": "Everyone else",
-        "c2b21818e1": "Suggestions",
-        "a98433e73d": "Loading...",
-        "b0b7344684": "Request up to 15 reviewers",
         "934add88b6": "Reviewer",
-        "bb42774171": "Type or choose a user",
-        "36f9ac4a47": "No reviewers requested.",
         "8b15a5e91c": "Remove reviewer {{value0}}",
-        "6a45771d47": "Loading reviewers",
-        "dc8a092c57": "Reviewers",
-        "e3243d9376": "Recently edited these files",
         "8c45901789": "Request reviewer {{value0}}",
         "fedc09eeb9": "Unrequest reviewer {{value0}}",
-        "73487fb975": "Failed to remove reviewer",
-        "2e69540652": "Reviewers removed",
-        "69515bff81": "Reviewer removed",
-        "b4af16bf43": "No repo context available for this pull request.",
-        "c42d942b75": "Failed to request reviewer",
-        "c016e4bac3": "Reviewers requested",
         "ea985e657f": "Reviewer requested",
-        "12e761610e": "You can request up to 15 reviewers",
-        "94ab23a9f9": "Enter a reviewer",
-        "3853476a97": "GitHub item",
-        "68796dafa0": "pr",
-        "b1157c78ff": "sheet",
-        "038b3d39b1": "Copied",
-        "04539beb48": "issue",
         "773ff70035": "unknown",
-        "3e544d966d": "Issue",
-        "88fd82474d": "page",
-        "e517b4d641": "closed",
-        "d0a05e73f5": "compact",
-        "7d42606f66": "Annotation",
         "2511f44bb7": "Fix broken checks",
         "9157d48ddb": "Fix checks",
-        "06482d6190": "Unable to create a fix workspace automatically.",
-        "f64dd90102": "Reply",
-        "5752c25aff": "Posting…",
         "ec5c4b3ab2": "Reopen PR",
-        "21860b58d0": "Close pull request",
         "5932578f51": "Merge requires a registered local repo",
-        "ce8a85d209": "default",
         "924c2fe05e": "destructive",
-        "e2bf3e41a9": "comment",
-        "28d0d3374f": "thread",
-        "080d071d48": "Reply to @{{value0}}",
-        "86f809e2ce": "Reply in this review thread",
-        "136542c9ba": ":L{{value0}}",
-        "283699bc82": "Failed to post reply.",
-        "d1c0dad471": "-L{{value0}}",
-        "31770bef03": "Side by Side",
         "6e43a16435": "Inline",
-        "d00a0a7f8f": "Collapse All",
-        "3c19ec3069": "Expand All",
-        "b0b09778c8": "Failed to add review comment.",
-        "16c1abe76c": "Mark viewed",
-        "ba8e329d92": "Unmark viewed",
-        "3f79ffc8b7": "Open the PR details to view current reviewers.",
-        "5c1c973855": "Remove reviewer",
-        "commentTooLarge": "Comment is too large to submit safely.",
-        "timeline": {
-          "completed": "as completed",
-          "notPlanned": "as not planned",
-          "someone": "someone",
-          "assigned": "assigned",
-          "unassigned": "unassigned",
-          "mentioned": "mentioned this",
-          "in": "in",
-          "closed": "closed this",
-          "reopened": "reopened this",
-          "moved": "moved this",
-          "from": "from",
-          "to": "to",
-          "activity": "Activity",
-          "noActivity": "No activity yet."
-        },
-        "checkActionRequiredHint": "This check needs a manual action on GitHub (for example, approving the workflow run) before merging is unblocked.",
-        "e15a8b77ef": "No inline details are available for this check.",
-        "e45324fbed": "Failed to load check details.",
-        "dcb3c546fe": "Retry",
-        "85a2b66f54": "Open files on GitHub",
-        "86d84a17ca": "Add a review comment",
-        "d9fa90b625": "Failed to load diff.",
-        "4aecf121e7": "Close",
-        "8812225174": "Reopen",
-        "09d67a0f9b": "Failed to close pull request",
-        "88809e79db": "Failed to reopen pull request",
-        "00f55cc17b": "Repository access is unavailable for this pull request."
+        "ba8e329d92": "Unmark viewed"
       },
       "GitLabItemDialog": {
-        "65e784c1f1": "Reopen",
-        "a199eb364b": "Close",
-        "16b3412570": "Merge",
-        "131865e231": "Create workspace",
-        "f2e64d1c20": "Open in GitLab",
-        "84012fa8fb": "Comment",
-        "c08e1d5a57": "Comment on {{value0}}{{value1}}…",
         "f11e3e7675": "No pipeline runs for this MR.",
-        "808b1ca1ba": "No changed files.",
-        "007423f585": "Diff content unavailable.",
         "a7eb4f4916": "from",
-        "21f8dde18a": "Inline comment",
         "7a7204417f": "Line",
-        "ceb08a733d": "File",
-        "85a8170279": "No comments yet.",
-        "14423484db": "No description.",
-        "da4174b00f": "Edit",
-        "93f79a3fc1": "Save",
-        "f72fad3b16": "Cancel",
-        "717b706849": "Loading labels",
-        "3c0b6ccca7": "bug, backend",
-        "dde24ade55": "Labels",
-        "908d8d2a73": "Description",
-        "89f3f19368": "Title",
-        "7a2117129a": "Add",
-        "05939e977d": "Add reviewer",
-        "474b50d988": "No reviewers.",
         "1b19cdc510": "Remove reviewer {{value0}}",
-        "cb55b0390f": "Manage",
-        "4f9313984d": "Reviewers",
         "02cbe2de44": "Pipeline",
-        "be3d291837": "Files",
-        "c996e2962c": "Conversation",
-        "b3c156dd51": "Refresh",
         "9bfb4a24d7": "by",
-        "30c97083c2": "GitLab work item detail",
         "e089f62594": "Merged MR !{{value0}}",
         "865ea2703e": "Reopened MR !{{value0}}",
         "9b11cd233f": "Closed MR !{{value0}}",
-        "60c13320c4": "Inline comment added",
         "ffdd9a78e1": "MR diff refs are unavailable for inline comments.",
         "00d0d25825": "File, line, and comment are required.",
-        "ceaf7c30c7": "Reviewer id is unavailable for this GitLab user.",
-        "f7cb495a12": "Retried {{value0}}",
         "98718490e4": "MR title is required.",
-        "d600c2619a": "Loading log",
-        "028bde664e": "Hide",
-        "2f9b27f838": "Job log",
-        "032ae1312b": "Open job in GitLab",
-        "fa3e042203": "Retry",
-        "f23ea85341": "resolved",
-        "4186685c78": "reopen",
-        "cae2712a23": "close",
-        "881e522e04": "merge",
-        "6de8ce0cc6": "{{value0}} required",
-        "22511537d2": "Approved",
         "00f3bab87b": " of {{value0}} required",
-        "11384f99aa": "number",
-        "40c56b95e2": "{{value0}} approval{{value1}} remaining",
-        "3a051b8ade": "Work item",
-        "32f8bef818": "No log output.",
-        "4168eb2c51": "Resolve",
-        "commentTooLarge": "Comment is too large to submit safely.",
-        "gitlabActionFailed": "GitLab action failed."
+        "4168eb2c51": "Resolve"
       },
       "JiraIssueWorkspace": {
-        "b0b92666c9": "Comment",
-        "a585fd204e": "Add a Jira comment...",
-        "2441be6f9f": "Start workspace",
-        "9178090e26": "No comments yet.",
-        "5cd09beaf9": "Retry",
-        "9a980b06b9": "Comments",
-        "c4889a47e4": "No description provided.",
-        "0f3c07a901": "backend, bug",
-        "aee97b6913": "Labels",
-        "444865b4a8": "Title",
-        "0b6b5646ed": "Unassigned",
-        "51bed73f88": "No priority",
-        "7a96985ca0": "Close",
         "76513c7898": "Close Jira issue preview",
         "857bd2f88f": "Preview, edit, and start work from the selected issue.",
-        "0cc62bd690": "Copy prompt",
-        "80efa101c5": "Copy suggested branch name",
-        "38839801e8": "Copy key",
-        "779bb91ee0": "Copy URL",
-        "69da9a208c": "Open in Jira",
-        "fa132c8aed": "Failed to add comment.",
-        "ea21952aa3": "Failed to update Jira issue.",
-        "6c41a9bcea": "Failed to copy {{value0}}",
-        "2ff69a3545": "{{value0}} copied",
         "666cfdd835": "Unknown",
-        "9ebee71962": "labels",
-        "def3d0e824": "title",
-        "b8e2079d96": "assignee",
-        "54649eaeab": "+ Assignee",
         "2a829a2f00": "priority",
         "693be070d0": "transition",
-        "ef21405c6d": "Jira issue",
-        "commentTooLarge": "Comment is too large to submit safely."
+        "ef21405c6d": "Jira issue"
       },
       "Landing": {
         "76a95f7f47": "Create",
@@ -1505,115 +1220,21 @@
       },
       "LinearIssueMarkdownDescriptionEditor": {
         "d9c47069ef": "Markdown",
-        "a7301a11f3": "save",
-        "632096eb1c": "Link",
-        "340160f4e8": "Remove link",
-        "9eaf02ac01": "Quote",
-        "e2a0267c8c": "Checklist",
-        "d6b2f3d35b": "Numbered list",
-        "c82917e06e": "Bullet list",
-        "ad1869bd54": "Inline code",
         "28fd951b83": "Strike",
         "5666b4493d": "Italic",
-        "caa88f50d0": "Bold",
-        "dddaa7a0a6": "Heading 2",
-        "e3f741d258": "Heading 1",
-        "68a41d5665": "Body text",
-        "7c52151156": "Issue description formatting",
-        "5c16ec8f14": "Link URL",
-        "4f2fddc2b7": "No description provided."
-      },
-      "LinearIssueTextEditor": {
-        "947ba2d6f4": "to save",
-        "04d73b72dc": "Issue title",
-        "e8ff595db3": "Failed to update {{value0}}",
-        "1e08a1ec80": "Title is required",
-        "00fa439dc7": "title",
-        "75294b07d1": "description"
+        "caa88f50d0": "Bold"
       },
       "LinearIssueWorkspace": {
         "ad5dec37b7": "Preview, edit, and start work from the selected issue.",
         "c23e79e5c0": "Actions",
-        "b0eac92d85": "Retry",
-        "fabbd3f974": "updated the issue ·",
-        "543970c87a": "Activity",
-        "df4c86ed12": "Close",
-        "7a4997d8bb": "Close Linear issue preview",
-        "e1e0a9bca9": "Start workspace",
-        "30a7f56c0a": "Start workspace from issue",
-        "30c1242f3a": "Copy identifier",
-        "9e3c49beb8": "Copy issue identifier",
-        "9a9a884236": "Copy URL",
-        "97c19a84f1": "Copy Linear URL",
-        "f63ef94ea8": "Issues",
-        "f6c6381593": "Copy prompt",
-        "5d670ec8dc": "Copy suggested branch name",
-        "937ba6ad9a": "Loading projects",
-        "db3f269d98": "Search projects",
-        "b51276c8d6": "Project",
-        "8b5b593053": "Failed to update project",
-        "f9d4ef9807": "Project updated",
-        "38b80780c2": "Failed to load projects",
-        "42589845bc": "Create",
-        "c182e02de5": "Sub-issue title",
-        "8c55d6696a": "Add sub-issues",
-        "b25e453c9d": "Failed to create sub-issue",
-        "aeed19d003": "Created {{value0}}",
-        "9a1317cdd3": "Failed to load sub-issue",
-        "9bcbaa2737": "Failed to copy {{value0}}",
-        "7835483c43": "{{value0}} copied",
-        "61f424f8ca": "Linear issue",
         "ca8778c124": "Unknown",
-        "8a33c85e9c": "Someone",
-        "f5a6b38a14": "sheet",
-        "65239a714b": "Linear",
-        "af6e02c44a": "page",
-        "76ffd3c937": "Search for a project to add.",
-        "c11b4e3cc2": "No projects found.",
-        "519c3587f3": "Add to project",
-        "openAttachedWorkspace": "Open workspace attached to issue",
-        "openWorkspace": "Open workspace",
-        "openOnLinear": "Open on Linear",
-        "moreWorkspaceActions": "More issue workspace actions",
-        "startNewWorkspace": "Start new workspace",
-        "workspaceSection": "Workspace",
-        "noWorkspaceYet": "None yet"
+        "8a33c85e9c": "Someone"
       },
       "LinearItemDrawer": {
-        "04008e6c46": "Start workspace from issue",
-        "a4fcc57522": "No comments yet.",
-        "fde849b2b6": "Comments",
-        "9dc54172db": "Close · Esc",
-        "0190b760c1": "Open on Linear",
-        "04a442f796": "Preview and edit the selected Linear issue.",
-        "d369841269": "Send comment",
-        "2fcff829a8": "Add a comment…",
-        "2820f0f0f0": "Leave a comment...",
-        "6ab35eafd5": "Failed to add comment",
-        "367f828482": "No labels found",
-        "cddd9b04a7": "Loading labels",
-        "23886c7eec": "Add label",
-        "7f7b89b631": "Labels: {{value0}}",
-        "b2376d0179": "Loading members",
-        "866316f22c": "Unassigned",
-        "b5675b0694": "Save",
-        "ceeb8c6153": "Clear",
         "fbb90300e2": "Custom estimate",
         "780ea6ed89": "No states found",
         "59b6cd3706": "Loading states",
-        "64bfffc4dd": "Labels",
-        "dd304de85a": "Properties",
-        "0be31fef8e": "Estimate must be a non-negative integer",
-        "48e17e8cbd": "Unknown",
-        "858d0630da": "Close preview",
-        "39883467f4": "Linear issue",
-        "fda549766e": "{{value0}} to comment",
-        "d71cd3003e": "+ Assignee",
-        "commentTooLarge": "Comment is too large to submit safely.",
-        "openAttachedWorkspace": "Open workspace attached to issue",
-        "openWorkspace": "Open workspace",
-        "moreWorkspaceActions": "More issue workspace actions",
-        "startNewWorkspace": "Start new workspace"
+        "48e17e8cbd": "Unknown"
       },
       "NewWorkspaceComposerCard": {
         "reuseExistingBranch": "Reuse branch",
@@ -2249,28 +1870,10 @@
         "useIssueNumber": "Use issue #{{value0}}",
         "noMatchingIssuesLoaded": "No matching issues loaded.",
         "editReviewersWithCurrent": "Edit reviewers: {{value0}}",
-        "linearEmptyAttributeFilter": "No issues match the selected filters. Clear a filter or try different criteria.",
-        "linearEmptyUnfilteredScope": "No issues in this workspace scope. Try searching or adjusting teams.",
-        "linearFetchMore": "Fetch more",
-        "jiraSortAscending": "ascending",
-        "jiraSortDescending": "descending",
-        "jiraSortBy": "Sort by",
-        "jiraToggleSortDirection": "Sort {{value0}}",
         "75a38d7df8": "GitHub data is temporarily unavailable. Its API may be down, rate-limited, or unreachable. Please try again shortly.",
-        "noGithubSourceDetected": "No GitHub source detected for",
-        "noGithubSourceDetectedHint": "it may have no GitHub remote, or the source could not be resolved.",
-        "jiraLinkSourceUnavailable": "Couldn’t link this Jira issue. Reconnect Jira or pick the matching site, then try again.",
         "loadPageUnreachable": "Page {{value0}} is beyond what GitHub search can return.",
         "loadPageFailed": "Page {{value0}} could not be loaded from GitHub.",
-        "loadPageNoMoreResults": "No more results on page {{value0}}.",
-        "linearHasWorktreeLoadFailed": "Unable to load Linear issues linked to an Orca workspace.",
-        "linearHasWorktreePartialLoadFailed": "Some Linear issues linked to an Orca workspace could not be loaded. Refresh to try again.",
-        "linearHasWorktreeSearchPlaceholder": "Filter issues linked to an Orca workspace...",
-        "linearModeHasWorktree": "Has Workspace",
-        "linearModeHasWorktreeTooltip": "Linear tickets linked to an Orca workspace",
-        "linearEmptyHasWorktree": "No Linear tickets are linked to an Orca workspace yet. Start work from a Linear issue to see it here.",
-        "linearOpenAttachedWorkspace": "Open workspace attached to {{value0}}",
-        "linearWorktreesColumn": "Workspaces"
+        "loadPageNoMoreResults": "No more results on page {{value0}}."
       },
       "Terminal": {
         "73768427cf": "Close",
@@ -2350,288 +1953,74 @@
         "pr": {
           "merge": {
             "state": {
-              "a80132573b": "GitHub is still computing this pull request merge status",
-              "f958920f3a": "Checking",
               "9bd983ce8f": "GitHub says this PR can merge, but checks are still running",
               "4e2507176b": "Checks pending",
               "1432ecff30": "GitHub says this PR can merge, but some checks failed",
               "87fa36ac83": "Checks failed",
-              "1766eb46ba": "GitHub reports this pull request is blocked",
               "bf5e4c6c92": "Blocked",
-              "c614e2660a": "Update the branch before merging",
               "039c072f94": "Behind",
-              "b37d45bca9": "GitHub reports merge conflicts",
-              "7e8bbe3cd7": "Conflicts",
-              "09896aad26": "Merge status is unavailable for this PR",
-              "bd4f27b50e": "Merge",
-              "35ec24bc43": "This base branch uses GitHub merge queue",
               "b289646bcd": "GitHub reports requested changes on this pull request",
-              "c606463dc2": "Changes requested",
-              "a20db875ed": "GitHub requires review approval before this pull request can merge",
-              "1f8eb81c0e": "Approval required",
-              "f03028e055": "This pull request is still a draft",
-              "ec8e2cebaa": "Draft",
-              "820fd21663": "This pull request is closed",
-              "4f976d3450": "Closed",
-              "62eb8d39da": "This pull request is already merged",
-              "83ecdbb4a6": "Merged",
-              "331ebe1170": "Add this pull request to the GitHub merge queue",
-              "b169f943e1": "Merge when ready",
-              "62703b1dc4": "GitHub auto-merge is enabled for this pull request",
-              "48d75ae118": "Disable auto-merge",
               "a5b66afb58": "Checks passed",
-              "fbd4f57f0a": "Checks passed. Merge eligibility will be checked again before merging.",
-              "4ab19a62ef": "Enable auto-merge",
-              "8f6cb3772f": "Merge this pull request automatically once requirements are met"
+              "fbd4f57f0a": "Checks passed. Merge eligibility will be checked again before merging."
             }
           }
         },
         "project": {
-          "ColumnResizeHandle": {
-            "1304289353": "Resize column"
-          },
-          "GhAuthErrorHelp": {
-            "7e800068d8": "Reload",
-            "baa006f9af": "Docs",
-            "3fefeebde4": "Copy refresh command",
-            "9c2da6353b": "Copy login command",
-            "b436c586d1": "Copy command",
-            "8a7f6bf5dc": "Failed to copy",
-            "224c9d0ae8": "Copied to clipboard",
-            "891a7d4616": "Unset for this shell",
-            "fd17b3019f": "Unset (PowerShell, persistent)",
-            "ae43542893": "Find where it’s set",
-            "df636f5886": "Check if it’s set (PowerShell)"
-          },
           "ProjectCell": {
             "4b5b871da8": "No labels in this repo.",
-            "2219e945ef": "Loading…",
             "54cac64427": "Row has no repo slug.",
-            "8ae56a88a6": "Labels",
-            "f7cdb78efb": "Assignees",
-            "ebde486e3c": "Clear",
-            "191905e20e": "Current & upcoming",
-            "e17bb96881": "Completed",
-            "943b3dadc9": "This repo has no Issue Types.",
-            "c7b059cf07": "Issue type",
-            "c5f949e489": "Issue",
             "8d669084f6": "Restricted",
-            "6efdc0d920": "Draft",
-            "d0d0e13a5a": "PR",
             "af5d8c912a": "Restricted item",
-            "bb7ebc11e3": "Add number",
-            "9cb1a0c984": "Add text",
-            "2e26a06c70": "Add label",
-            "36341ffc66": "Assign",
-            "e369bf4fec": "Select",
             "ffeff79861": "PULL_REQUEST"
           },
-          "ProjectGroupHeader": {
-            "82a22d2079": "Current",
-            "244c9e7d06": "All"
-          },
-          "ProjectItemSlugDialog": {
-            "e55a5c4e68": "Project row preview.",
-            "4450efea9c": "GitHub item"
-          },
           "ProjectPicker": {
-            "96739284c3": "Paste a project URL below to reach missing ones.",
             "9b36829267": "No views found.",
-            "72a05c04a6": "Loading views…",
-            "9bf55fa1e8": "Choose a view",
-            "a51b3337ab": "← Back",
-            "8ab5447c64": "Pin",
-            "5009ffc2f3": "Remove pin",
-            "fce99a24a7": "Add",
-            "5113ecc298": "Add by URL or owner/number",
-            "7b6d39627e": "Loading…",
-            "b787682111": "Browse all",
-            "ba0ab9a117": "Browse all (loading…)",
-            "b3044b7a25": "Recent",
-            "707843206c": "Pinned",
-            "f492e1b539": "Search projects",
-            "44b2c6326b": "Failed to load views: {{value0}}",
-            "ab1a2c357d": "Roadmap (unsupported)",
-            "d34ef9b554": "Board (unsupported)",
-            "43a88ae574": "BOARD_LAYOUT",
-            "1a2b8e512e": "Table",
-            "cafb908f34": "TABLE_LAYOUT"
+            "b3044b7a25": "Recent"
           },
           "ProjectRow": {
-            "75b5d816e3": "Start work",
-            "e12be8b4d4": "Open in GitHub",
             "c3b81ddea2": "DRAFT_ISSUE"
           },
-          "ProjectViewList": {
-            "989f81dc2a": "Columns",
-            "f949f5b2b7": "Configure columns",
-            "eddfc7a794": "Sort by {{value0}}",
-            "4f57d2e0b1": "No items match this view's filter."
-          },
           "ProjectViewWrapper": {
-            "463f1205c0": "Loading project view",
-            "23b87ba9f7": "Open in GitHub",
             "4d2a77a119": "File feature request",
-            "1bf8c01c8b": "Switch to a Table view to work with this project in Orca.",
-            "55de4fb57a": "{{value0}}. {{value1}} File a feature request at {{value2}}.",
-            "2edf5e7e77": "{{value0}} — Orca doesn't support {{value1}} project views yet. File a feature request at {{value2}}.",
-            "7245c3d7ac": "Clear search",
-            "c5bc7ec007": "View filter: {{value0}}",
-            "840c268665": "Add repo",
-            "dffa899f36": "Cancel",
-            "7037c8f5f1": "Repository not in Orca",
-            "512fc171d6": "Choose a project to get started.",
-            "71fb69926c": "Refresh",
-            "a8fa0d2bf5": "Refreshing",
-            "fd15491034": "Open view in GitHub",
-            "22df63c393": "Sub-issue data is unavailable for your token.",
             "067119985c": "GitHub search, e.g. assignee:@me is:open",
             "1850fceac8": "{{value0}}/{{value1}} isn't added to Orca. Add it to start work, or open in GitHub.",
-            "1aa7c952b9": "Project view",
-            "f352abf7c3": "Repository list is updating.",
-            "1ce21b8cff": "This item is outside the selected repositories.",
-            "030de75bc5": "This item matches multiple selected repositories."
-          },
-          "slug": {
-            "dialog": {
-              "AssigneesEditor": {
-                "529fec247b": "Loading…",
-                "98914e6b36": "Assignees:",
-                "94a4e6e4fa": "none"
-              },
-              "Comments": {
-                "fd5cccd138": "Comment",
-                "1c95937c8b": "Write a comment…",
-                "c0e576e96b": "Cancel",
-                "c3e829b4d9": "Save",
-                "463d030ae4": "Delete",
-                "8564f58542": "Edit",
-                "5f104bf855": "No comments yet.",
-                "commentTooLarge": "Comment is too large to submit safely."
-              },
-              "LabelsEditor": {
-                "34dd57d6c8": "Loading…",
-                "a7b182fcda": "Labels:",
-                "1a5366b5be": "none"
-              },
-              "SlugDialogBody": {
-                "598ad6a517": "Comments",
-                "41169e41fb": "Add a description…",
-                "a91735d19f": "Cancel",
-                "e64f6c3eff": "Save",
-                "e4ef8281e9": "Loading…",
-                "ae98897edf": "Close",
-                "69caf40ae8": "Open in GitHub",
-                "7c302f8174": "Untitled"
-              }
-            }
-          },
-          "ProjectRoadmap": {
-            "be52f7b6db": "This roadmap view has no date or iteration field to place items on, so Orca is listing them instead.",
-            "6405e036e0": "Month",
-            "f2b1cabef7": "Quarter",
-            "b6afc6fe45": "Year",
-            "343888b143": "Placed by {{value0}}",
-            "6a088a5da1": "{{value0}} without dates",
-            "86eebd6020": "Today",
-            "0bb1c1bc07": "Timeline zoom",
-            "e304235879": "Item",
-            "e077c79083": "No dates"
-          },
-          "ProjectRoadmapBar": {
-            "cd68ccc17a": "{{value0}} — {{value1}}",
-            "7d1220d979": "Restricted item"
-          },
-          "ProjectPickerPanels": {
-            "04ec212ccb": "Roadmap",
-            "9fe1ac868c": "Unsupported"
-          },
-          "ProjectViewStates": {
-            "ac83c45672": "Switch to a Table or Roadmap view to work with this project in Orca.",
-            "e4cc8b14f2": "Orca renders table and roadmap project views. This view uses a layout it cannot render yet.",
-            "3b9c1d5e47": "This view has no items yet.",
-            "7e4a2f80c6": "Recently added items can take a while to appear."
+            "1aa7c952b9": "Project view"
           }
         },
         "GitHubMarkdownComposer": {
-          "015b4e607d": "Cancel",
           "e3bd59143c": "Insert",
-          "f24783f470": "https://...",
-          "ec6310b731": "Use an http:// or https:// image URL.",
           "b7e4a1c902": "Paste, drop, or click to add files",
           "8f1c2d4e6a": "Nothing to preview",
           "c91f0a2b14": "Write",
-          "d82b1e3f05": "Preview",
-          "imageUrlTooLarge": "Image URL is too large."
+          "d82b1e3f05": "Preview"
         },
         "IssueSourceSelector": {
-          "d6aeb2012b": "Showing issues from",
-          "787c970baf": "Issue source",
           "643d7e9496": "upstream",
           "51d1608920": "Origin",
-          "cdc9bd64fa": "compact",
-          "30b2c9df91": "Upstream"
+          "cdc9bd64fa": "compact"
         },
         "PRFilterDropdowns": {
-          "979be3cf6b": "Assignee",
           "b27b7e526c": "Review from",
           "7f1ba66c3e": "Reviewed by",
           "9d0f2eda6d": "Label",
           "01f3f3d161": "Author",
-          "13b3ac0a84": "Status",
-          "79c54552f7": "Filters",
-          "8a2ffbf9b3": "Remove {{value0}} filter",
           "19bb6f115f": "reviewed-by"
         },
-        "PRFilterPickers": {
-          "fdf387297c": "Clear (",
-          "472c12ae03": "Clear",
-          "2d1f58eda6": "Use"
-        },
         "PRFilterSections": {
-          "a00830d3f7": "No users",
-          "0103e1cb18": "Reviewed by",
-          "94b42b0edf": "Review requested",
-          "de26e2eb06": "No labels",
-          "458ea3602b": "No authors",
-          "b69fa4fa20": "Back",
-          "30ebb6ca44": "Clear all filters",
-          "8177eda37e": "Filter",
-          "ea3416d646": "Assignee",
           "b1d9fdea08": "Label",
           "24754c44ad": "Author",
-          "764a0b4ce1": "Status",
           "f0cf6dd591": "off",
           "1e9b5244f2": "on",
-          "b930de7194": "Draft only",
-          "e0002f1eba": "selected",
           "2b2f019091": "Any state",
-          "0fd3249e2e": "Closed",
-          "d78b60b5c2": "Open",
-          "bd162b7d5a": "Merged",
-          "2e639b84fa": "reviewer",
           "712c5abdbf": "label",
-          "4e50c7bc03": "assignee",
-          "7bf3a6e5ac": "author",
-          "66256a73b3": "status",
-          "3ce4d5e96e": "prs"
+          "7bf3a6e5ac": "author"
         },
         "github": {
           "rate": {
             "limit": {
               "display": {
-                "5509443543": "Loading GitHub API budget…",
-                "34973d4695": "GitHub API budget is unavailable.",
-                "d12d3d6f33": "Refresh GitHub API budget",
-                "d5e5de9070": "Orca uses REST, Search, and GraphQL through the GitHub CLI.",
-                "58c5f88216": "GitHub API Budget",
                 "6da1858354": "left · resets in",
                 "f42790d150": "of",
-                "01f7323e58": "GraphQL API",
-                "1daf0f22a9": "GraphQL",
-                "1f2f28a4de": "Search API",
-                "c377a4f06a": "Search",
-                "c392c749a6": "REST API",
                 "bb227706a6": "REST",
                 "budget_scope_prefix": "Budget scope"
               }
@@ -2649,11 +2038,8 @@
           "f2a8c1d903": "Failed to reopen issue",
           "a1b2c3d4e5": "Add a comment",
           "c5c117270e": "Add your comment here, be kind",
-          "f6a7b8c9d0": "Close issue",
           "b1c2d3e4f5": "Reopen issue",
-          "0a73f59e85": "Send comment",
-          "bf43425540": "Comment",
-          "commentTooLarge": "Comment is too large to submit safely."
+          "0a73f59e85": "Send comment"
         },
         "GitHubWorkItemAssigneePopoverContent": {
           "cddd9b04a7": "Loading assignees",
@@ -2668,7 +2054,6 @@
         },
         "githubIssueCloseReasons": {
           "completed": {
-            "label": "Close as completed",
             "description": "Done, closed, fixed, resolved"
           },
           "notPlanned": {
@@ -2679,29 +2064,14 @@
             "label": "Close as duplicate",
             "description": "Duplicate of another issue"
           }
-        },
-        "CommentReactions": {
-          "addReaction": "Add reaction",
-          "removeNamedReaction": "Remove {{value0}} reaction",
-          "addNamedReaction": "Add {{value0}} reaction"
         }
       },
       "linear": {
         "api": {
           "key": {
             "dialog": {
-              "834a52c084": "Verifying...",
-              "f8f704a019": "Cancel",
-              "e603ee9156": "Workspace API settings",
-              "dc7ccb0f7c": "Personal API keys",
-              "e3100b36b9": "If member API keys are blocked, ask a workspace admin to allow them from workspace API settings.",
-              "d56d3629f4": "Prefer full access when Orca should show every team the account can access in that workspace. Restricted keys only expose permitted teams, and private teams require the key owner to have access.",
-              "af52a6227f": "Create a Personal API key from Account > Security & Access.",
               "edec49dfae": "lin_api_...",
-              "7d498f653c": "Personal API key",
-              "57a66522c8": "connecting",
-              "c9889a09f8": "Use Linear to choose the intended workspace before creating the key.",
-              "e689a4d0a6": "error"
+              "57a66522c8": "connecting"
             }
           }
         },
@@ -2713,61 +2083,24 @@
         "project": {
           "view": {
             "surfaces": {
-              "8bbecb2510": "None",
-              "e1fa97d21d": "Select a project to view its overview.",
-              "1748d3b9af": "Labels",
               "65bda65159": "Members",
-              "c5f79616c3": "Teams",
-              "25a2196732": "Target",
-              "3fb6473111": "Start",
               "111bef9aa8": "Lead",
               "3be47aed6f": "Priority",
               "f5ef24cf46": "Health",
-              "9ddb58edbd": "Status",
-              "0a6a5a7dd6": "Latest update",
               "c8db98b73b": "Resources",
-              "bb1405eff8": "Milestones",
-              "5d99315fb8": "Planning",
               "3ad562bdf4": "scoped issues",
               "563501f191": "Progress",
-              "bb5664d456": "No project description.",
-              "7b147907dc": "Linear",
-              "a9785c7158": "Refresh",
-              "ee3d2caabd": "Issues",
-              "5f79bc76b0": "Back to projects",
-              "aac9a4afc6": "Open in Linear",
               "7616c986c6": "Open {{value0}} issues",
-              "93e1f6bfca": "Loading",
-              "98730088a6": ". Search or open Linear for the full set.",
               "06b887d622": "Showing first",
-              "2c4b1c2c08": "number",
-              "f2cc1e0ff6": "Linear / Projects",
-              "906b5e4cb8": "Linear / Projects / {{value0}}",
-              "85607ff793": "Project",
               "20b9d09b7d": "Unknown",
               "f059181bd9": "Private",
-              "27d91cb1a6": "Shared",
-              "9f0f51fd9e": "Create or save views in Linear, then refresh.",
-              "f4c79cff5f": "Review the workspace error below, then refresh.",
-              "ef90b21366": "No views found",
-              "c0a50f96a4": "Unable to load views",
-              "df4bd63c1d": "Unassigned",
-              "30402d2c6e": "Try search or refresh.",
-              "a2f31c4cd6": "No Linear projects found",
-              "c9b6e9f90d": "Unable to load Linear projects"
+              "ef90b21366": "No views found"
             }
           }
         },
         "scope": {
           "selector": {
-            "91c8871dad": "Add team access",
-            "7783361266": "All teams",
-            "e1ae6bebb0": "Teams",
-            "a14ce4df2b": "All workspaces",
-            "05baa5ae90": "Workspace",
-            "89f6580dbf": "Search teams...",
-            "b3488fad3c": "No teams were fetched. Access can depend on key scope, private-team membership, archived teams, permissions, or a fetch failure.",
-            "405b33c378": "No fetched teams match your search."
+            "89f6580dbf": "Search teams..."
           }
         }
       },
@@ -3054,7 +2387,6 @@
             "c8f2e1a4b9": "Take back this terminal",
             "c44659e09f": "Phone driving",
             "7cffad954c": "Collapse",
-            "3eed73394f": "Your keyboard is paused",
             "faa367dc74": "Your phone left this at phone size",
             "54f7d6f69d": "Take back all terminals",
             "b3d8e1f42a": "Restore this terminal",
@@ -4409,7 +3741,6 @@
         "SkillFreshnessRow": {
           "statusUpdateAvailable": "Update available",
           "statusCantUpdate": "Skipped",
-          "cantUpdateReason": "Orca left this skill out of the update command.",
           "skippedReasonUnrecognized": "The copy here doesn’t match the official version — it may be modified, or a different skill with the same name. Orca left it out of the update so it won’t overwrite it. Remove it if you want Orca to update this skill.",
           "skippedReasonReadOnly": "This copy is in a read-only location, so Orca left it out of the update. Change its permissions to let Orca update it.",
           "skippedReasonInaccessible": "Orca couldn’t read this copy, so it left the skill out of the update.",
@@ -4482,13 +3813,6 @@
           "scanIoError": "Orca could not read this plugin path.",
           "scanIssueLimit": "Orca found too many skipped plugin folders to list individually."
         },
-        "SkillUpdateResultRows": {
-          "stillOutdated": "Still out of date after the update ran."
-        },
-        "SkillUpdateRow": {
-          "oneLocation": "1 location",
-          "manyLocations": "{{value0}} locations"
-        },
         "SkillFreshnessStatusPill": {
           "updateAvailable": "Update available",
           "upToDate": "Up to date",
@@ -4498,54 +3822,9 @@
           "checking": "Checking...",
           "checkFailed": "Check failed"
         },
-        "SkillShareDialog": {
-          "reconnect": "Reconnect your Orca account before sharing.",
-          "unconfigured": "Connect an Orca Cloud account before sharing.",
-          "prepareFailed": "Could not prepare this skill for sharing.",
-          "peopleRequired": "Select at least one teammate.",
-          "publishCancelled": "Upload cancelled. The prepared copy is still available to retry.",
-          "publishFailed": "Could not publish this skill. The prepared copy is still available to retry.",
-          "copied": "Share link copied",
-          "preparing": "Preparing preview…",
-          "ready": "Skill link ready",
-          "title": "Share skill",
-          "readyDescription": "Recipients authenticate with Orca before they can inspect or install it.",
-          "newVersionDescription": "Review the exact files, then publish an immutable version to the existing Cloud package.",
-          "description": "Review the exact files, choose who can access them, then publish an immutable version.",
-          "0f07fa2a79": "Publish skill",
-          "7aa4ba0dba": "Publish new version",
-          "3a51d0f34f": "Cancel upload",
-          "e9d652ae3d": "Cancelling…",
-          "30985d4fc0": "Cancel",
-          "3af85f6add": "Done",
-          "readyDescriptionV2": "Anyone with this unlisted link can inspect and install the skills.",
-          "descriptionV2": "Review the exact files, then publish an immutable version behind an unlisted link.",
-          "publishBundle": "Publish bundle",
-          "cancelRequestFailed": "Orca could not send the cancellation request. The upload may still finish."
-        },
         "SkillCard": {
           "d25a1b8ae6": "Share skill",
           "01c5a16e01": "Select {{value0}}"
-        },
-        "SkillCloudManagementActions": {
-          "ed753624c0": "Delete Cloud package",
-          "640bc6b92e": "Confirm package deletion",
-          "6b6adf68c1": "Delete selected Cloud version",
-          "bbec37d8f8": "Confirm version deletion",
-          "7a80285dad": "Unshare",
-          "0ac5c175fd": "Confirm unshare",
-          "9e6bd31487": "No active share links.",
-          "c7f2b69122": "Unsharing blocks future installs. Copies already installed on any machine remain there.",
-          "8cac3b9362": "Active links",
-          "cc8e4ef6ba": "Save access",
-          "eb603f7888": "outside the current roster will be preserved.",
-          "3d346ddce8": "existing recipient",
-          "2b8c569ea7": "Current organization",
-          "2552c12fea": "Access",
-          "505cd6105c": "Cloud sharing controls",
-          "linkCopied": "Share link copied",
-          "activeLinkBearerDescription": "Anyone with an active link can inspect and install the skills. Revoking blocks future access but leaves installed copies unchanged.",
-          "copyLink": "Copy link"
         },
         "SkillInstallDialog": {
           "39acb9e8f4": "Install skill",
@@ -4629,40 +3908,6 @@
           "search": "Search workspaces...",
           "empty": "No workspaces found."
         },
-        "SkillShareReviewContent": {
-          "e3caf6baeb": "Revoking this link blocks future access. It does not remove copies already installed on recipients’ machines.",
-          "6d6233a3a4": "Copy link",
-          "0142581727": "Uploading…",
-          "ad940367a5": "Validating and publishing…",
-          "bf02d6ed9e": "What changed in this version?",
-          "f0c0411549": "Release notes",
-          "4895d3e0ee": "No teammates are available.",
-          "8188f5d765": "can access the link.",
-          "fe204e06f0": "the organization",
-          "0cd4b3e396": "Everyone currently in",
-          "f25429e266": "Selected people",
-          "0a49d901ab": "Organization",
-          "6817a7f6f8": "Skill access",
-          "c15d90c10b": "A connected Orca Cloud account is required.",
-          "266527d295": "Publishing as {{value0}}{{value1}}.",
-          "78d863235c": "Access",
-          "b3b1d4b911": "SHA-256",
-          "77f636eac3": "executable",
-          "8edd32622f": "scripts",
-          "3121f44358": "files",
-          "2dca0b720b": "Publish new skill version",
-          "01c5a17e01": "{{value0}} skills",
-          "01c5a17e02": "Review included skills",
-          "01c5a17e03": "{{value0}} files · {{value1}}",
-          "unlistedLinkTitle": "Unlisted link",
-          "unlistedPublishingAs": "Publishing as {{value0}}. Anyone with the link can inspect and install these skills.",
-          "unlistedLinkDetails": "The link is not searchable or listed publicly. Revoke it to block future access; installed copies remain.",
-          "bundleReady": "Skill bundle link ready",
-          "publishBundleVersion": "Publish new skill bundle version",
-          "shareBundle": "Share skill bundle",
-          "publishingLink": "Publishing link…",
-          "verifyingPackage": "Verifying package…"
-        },
         "SkillBundleInstallFlow": {
           "01c5a13e01": "Close",
           "01c5a13e02": "Cancel installation",
@@ -4704,17 +3949,6 @@
           "01c5a11e15": "{{value0}} unchanged",
           "01c5a11e16": "{{value0}} updates",
           "01c5a11e17": "{{value0}} conflicts"
-        },
-        "SkillShareSelectionControls": {
-          "01c5a15e05": "Share {{value0}} skills",
-          "01c5a15e01": "Cancel sharing",
-          "01c5a15e02": "Share skills",
-          "01c5a15e03": "{{value0}} selected",
-          "01c5a15e04": "Select all results",
-          "01c5a15e06": "Open this skill on its owning machine to share it.",
-          "01c5a15e07": "Install this skill before sharing it.",
-          "01c5a15e08": "Only home and workspace skills can be shared.",
-          "01c5a15e09": "A skill with this name is already selected from another source."
         },
         "SkillManagedInstallList": {
           "86c76cb262": "{{count}} skill bundle"
@@ -4780,28 +4014,6 @@
         "host": {
           "local": "This machine",
           "remote": "Connected runtime"
-        },
-        "share": {
-          "fileExecutable": "executable",
-          "fileScript": "script",
-          "reviewFiles": "Review files that can run",
-          "reviewSkills": "Review included skills",
-          "releaseNotesVersion": "Release notes",
-          "releaseNotesOptional": "Add release notes (optional)",
-          "releaseNotesFirst": "Describe this release",
-          "readyDescription": "Copy the link to share it.",
-          "newVersionDescription": "Publishes an immutable version to the existing package.",
-          "description": "Publishes an immutable version behind an unlisted link.",
-          "accessSummary": "Anyone with the link can install this. It is not listed anywhere, and revoking it blocks new installs — not copies already installed. Publishing as {{value0}}.",
-          "manageLinks": "Manage or revoke this link in Settings",
-          "scriptOne": "{{count}} script",
-          "scriptOther": "{{count}} scripts",
-          "executableOne": "{{count}} executable",
-          "executableOther": "{{count}} executables",
-          "noExecutableContent": "No scripts or executables",
-          "newVersionDescriptionPlain": "Adds a new version to the existing link.",
-          "accessSummaryShort": "Unlisted link — anyone with it can install this. Publishing as {{value0}}.",
-          "accessSummaryPlain": "Unlisted link — anyone with it can install this."
         },
         "install": {
           "authorizing": "Authorizing package access…",
@@ -4872,19 +4084,6 @@
           "agents": "Agents",
           "updated": "Updated",
           "copy": "Copy"
-        },
-        "SkillSharedLinkRow": {
-          "contentsUnavailable": "Could not load what this link contains.",
-          "loading": "Loading contents…",
-          "deleteFailed": "Orca could not delete this from the Cloud.",
-          "deleted": "Deleted from the Cloud",
-          "confirmDelete": "Confirm delete",
-          "moreActions": "More actions for {{name}}",
-          "deletePackage": "Delete from the Cloud"
-        },
-        "SkillSharedLinksView": {
-          "loading": "Loading shared links…",
-          "noMatches": "No links match this search."
         },
         "SkillsSharedLinksHeader": {
           "back": "Back to skills",
@@ -5297,7 +4496,6 @@
           "0ccba862b8": "Open GitHub tasks",
           "fee535205b": "Tasks",
           "d599269755": "Hide from sidebar",
-          "artifacts": "Artifacts",
           "skills": "Skills"
         },
         "SidebarRepositoryFilterSection": {
@@ -5655,10 +4853,6 @@
           "2174f17011": "Save",
           "61d6f612cf": "Saving...",
           "a0d191b7a7": "Edit issue links, pull request links, and notes for this workspace.",
-          "gitlabDescription": "Edit issue links, merge request links, and notes for this workspace.",
-          "gitlabMR": "GitLab MR",
-          "gitlabPlaceholder": "MR ! or GitLab URL",
-          "gitlabHelp": "Paste a merge request URL, or enter a number. Leave blank to remove the link.",
           "issueLinksDescription": "Edit the issue link and notes for this workspace."
         },
         "WorktreeOpenInMenu": {
@@ -5954,36 +5148,6 @@
           "3c4d5e6f7a": "Manage host…",
           "6e7f8a9b0c": "Remove host…"
         },
-        "LinearAgentSkillSetupPrompt": {
-          "modalTitle": "Enable Linear ticket access",
-          "modalDescription": "Install the Linear skill from a terminal.",
-          "modalPrompt": "Enable agents to read and edit the attached Linear ticket.",
-          "dontShowAgain": "Don't show again",
-          "missingBoth": "Orca CLI and Linear agent skill are missing.",
-          "missingSkill": "Linear agent skill is missing.",
-          "title": "Set up Linear agent skill",
-          "remoteCopy": "This installs host setup; remote agent environments may need separate setup.",
-          "hostCopy": "Install it for host agent handoffs from linked Linear work.",
-          "dismiss": "Dismiss Linear agent skill setup",
-          "setup": "Set up",
-          "recheck": "Re-check",
-          "panelTitle": "Linear agent skill",
-          "panelDescription": "Install the host agent skill for linked Linear task handoffs.",
-          "terminalTitle": "Install Linear agent skill",
-          "terminalAria": "Linear agent skill installer terminal",
-          "successTitle": "Linear ticket access is ready",
-          "successDescription": "Agents can now read and update linked Linear tickets from this workspace.",
-          "successDescriptionWsl": "WSL agents can now use linked Linear tickets from this workspace.",
-          "successDescriptionRemote": "Host agents can now use linked Linear tickets. Remote agent environments may still need their own setup.",
-          "successStatus": "Linear ticket access ready",
-          "done": "Done",
-          "wslCopy": "Install it for WSL agent handoffs from linked Linear work.",
-          "wslLabel": "WSL default",
-          "toastMissingSkill": "Linear skill is missing",
-          "toastInstallSkillDescription": "Install the Linear skill to enable your agents to read and edit Linear tasks through the Orca CLI.",
-          "toastRemoteDescription": "{{value0}} Remote agent environments may need their own setup.",
-          "toastWslDescription": "{{value0}} This setup runs in the selected WSL agent runtime."
-        },
         "FolderWorkspaceComposerDialog": {
           "connectFailed": "Failed to connect to project.",
           "noRepos": "Add a Git project under this folder to attach GitHub or GitLab tasks.",
@@ -6085,8 +5249,6 @@
           "serverNamePlaceholder": "Dev box",
           "pairingCode": "Pairing code",
           "pairingCodePlaceholder": "orca://pair?code=...",
-          "pairingHelpPrefix": "Run",
-          "pairingCommand": "orca serve --pairing-address <host>",
           "pairingHelpSuffix": "on the server and paste the printed pairing URL.",
           "sshImportAlreadySynced": "~/.ssh/config already in sync.",
           "sshImportSynced": "Added {{value0}} host{{value1}} to Orca.",
@@ -7490,27 +6652,10 @@
           "b2fd62ea75": "Default device for new emulator tabs and agent attach commands. Auto-select prefers an already running device."
         },
         "MobileNetworkInterfaceSection": {
-          "63d5e4ae1e": "Regenerate the QR code and scan it from the Orca mobile app.",
-          "87985ba6f5": "In this Network Interface menu, choose the Tailscale address, usually a 100.x.y.z IP.",
-          "1f7c26d36a": "Sign in to the same tailnet on both devices.",
-          "668016be7a": "on your computer and phone.",
-          "1dc87a7fbc": "Tailscale",
-          "51d29927eb": "Install",
-          "9fc5d203ff": "Orca Mobile connects directly to this computer. To use it away from the same LAN, put your computer and phone on the same private overlay network, then generate the QR code with that network address selected.",
-          "39fad211d9": "Connect outside your Wi-Fi with a tailnet",
-          "a9db5d771d": "Refresh network interfaces",
-          "d536b5e20d": "Choose which network address to advertise in the QR code. Use your LAN address for same-network pairing, or an overlay network address (Tailscale, ZeroTier) for cross-network access.",
-          "406a35121c": "Network Interface",
-          "c541f67790": "Generate QR Code",
-          "1e64659126": "Regenerate"
-        },
-        "MobilePane": {
-          "relayDegradedNotice": "Relay couldn’t be reached — this code only works on your LAN or Tailscale. Regenerate to try again."
+          "1dc87a7fbc": "Tailscale"
         },
         "MobileSettingsPane": {
-          "9a3c280e49": "GitHub Releases",
-          "b0088412a1": "or the Android APK from",
-          "c8491c17ef": "Control Orca from your phone by scanning a QR code. Beta / early preview - expect bugs and breaking changes. Get the iOS app from the"
+          "b0088412a1": "or the Android APK from"
         },
         "NotificationsPane": {
           "906b4afebf": "Send Test Notification",
@@ -8068,7 +7213,6 @@
           "17bdee4ff1": "Discard unsaved Git AI Author changes?",
           "084d8fac5b": "Privacy & Security",
           "23931df7e8": "Remote Hosts",
-          "mobile_group": "Mobile",
           "8bd117d669": "Interface",
           "e1578cd4bc": "Workflows",
           "9abb9be3bc": "Set Up",
@@ -8077,8 +7221,6 @@
           "65358016ea": "Discard",
           "dev": "Dev Tools",
           "devDescription": "Dev-only tools for exercising UI states.",
-          "linearTitle": "Linear",
-          "linearDescription": "How Linear works in Orca, setup checklist, agent skill, and example prompts.",
           "tasksDescription": "Connect providers, install the Linear skill, and choose what appears in Tasks."
         },
         "SettingsFormControls": {
@@ -8334,14 +7476,6 @@
           "retryConnection": "Try again",
           "openIntegrations": "Integrations",
           "connectInIntegrations": "Set up in Integrations",
-          "connectJiraTitle": "Connect Jira",
-          "connectJiraDescription": "Add a Jira Cloud site or self-hosted instance with an API token or PAT.",
-          "manageJira": "Manage keys",
-          "addJira": "Add Jira access",
-          "githubDescription": "Browse GitHub issues and start workspaces from them.",
-          "gitlabDescription": "Browse GitLab issues and start workspaces from them.",
-          "linearDescription": "Connect Linear, install the agent skill, and show it in Tasks.",
-          "jiraDescription": "Connect Jira Cloud or self-hosted Jira and show it in Tasks.",
           "setupTitle": "Task management setup",
           "setupDescription": "Finish connect + visibility for each provider in one place. Linear also needs the agent skill so coding agents can read and update tickets. At least one provider must stay visible.",
           "incompleteBannerTitle": "Some visible providers still need setup",
@@ -8349,8 +7483,7 @@
           "providersDescription": "Each card walks through connection (and skill, for Linear) plus whether it appears in Tasks.",
           "integrationsHint": "Credentials for all providers also live under",
           "integrationsLink": "Integrations",
-          "skillHint": ". After Linear is connected, usage examples stay under Settings → Linear.",
-          "incompleteBannerBodyWithLinear": "Hide providers you do not use, or expand a card and finish its steps. For Linear: API access, the agent skill, and Show in Tasks."
+          "skillHint": ". After Linear is connected, usage examples stay under Settings → Linear."
         },
         "TerminalAppearanceSection": {
           "a14a427ae4": "Thickness of the pane divider line.",
@@ -9684,33 +8817,9 @@
         "jira": {
           "integration": {
             "card": {
-              "8ff73fef62": "Jira tokens are encrypted by the active runtime and stored locally. Re-entering the same site URL and email replaces that site's API token.",
-              "9046a20d4c": "Disconnect {{value0}}",
-              "eaffa454e9": "Update",
-              "cec06a0f79": "Testing…",
-              "ab350991b8": "Verified",
-              "d914d7ab70": "Verifying…",
-              "5936977fcd": "Cancel",
-              "1666f8d562": "Create an Atlassian API token",
-              "1ab7f551f3": "Atlassian API token",
-              "09d310e42d": "you@example.com",
-              "27dae4ab60": "https://example.atlassian.net",
-              "a28f417220": "Connect Jira",
-              "9bb34706ca": "Connected",
-              "efaab83c5d": "Add site",
               "09742875cd": "Jira",
-              "255bfe98ec": "Test",
-              "5fb1562315": "error",
               "3df81cb0ac": "ok",
-              "2e8bb790fd": "Connect",
-              "33a8b261ee": "Update credentials",
-              "d5c5b47bb9": "update",
-              "fb854902d9": "connecting",
-              "9a9f8d4910": "Connect Jira Cloud to browse, create, and link issues.",
-              "74f3063026": "{{value0}} site{{value1}} connected",
-              "statusConnected": "Connected",
-              "statusNotConnected": "Not connected",
-              "jiraTokenName": "Your Jira API token"
+              "fb854902d9": "connecting"
             }
           }
         },
@@ -10528,8 +9637,7 @@
                 "2d60ec7921": "Connect a Jira Cloud site with an API token, or a self-hosted Jira with a personal access token or username and password. Credentials are sent to the selected remote runtime and stored there with runtime-supported encryption.",
                 "977e360b71": "Connect a Jira Cloud site with an API token, or a self-hosted Jira with a personal access token or username and password. Credentials are stored locally and encrypted when local runtime storage supports it.",
                 "statusConnected": "Connected",
-                "statusNotConnected": "Not connected",
-                "linearTokenName": "Your Linear API token"
+                "statusNotConnected": "Not connected"
               }
             }
           }
@@ -10784,11 +9892,6 @@
           "devOnly": "Dev only",
           "orcaCloud": "Orca Cloud",
           "orcaCloudDescription": "Dev-only preview of first-party cloud sign-in. Hidden in production; in dev it also appears in the sidebar account switcher once ORCA_CLOUD_API_URL and ORCA_CLOUD_CLIENT_ID are set.",
-          "orcaCloudStatus": "Status",
-          "orcaCloudSignOut": "Sign out",
-          "orcaCloudConnect": "Connect profile",
-          "orcaCloudRefresh": "Refresh status",
-          "orcaCloudNotConfigured": "Set ORCA_CLOUD_API_URL and ORCA_CLOUD_CLIENT_ID to preview Orca Cloud sign-in in this dev build.",
           "deleteAnywayClicked": "Delete Anyway clicked"
         },
         "EphemeralVmRecipeRow": {
@@ -10875,35 +9978,6 @@
           "singular": "Global saves won't change 1 repository with its own recipe.",
           "tooltipTitle": "Repository overrides"
         },
-        "linear": {
-          "agent": {
-            "skill": {
-              "install": {
-                "cta": {
-                  "copiedCommand": "Copied command.",
-                  "copyFailed": "Failed to copy command.",
-                  "skillLabel": "Agent skill:",
-                  "checking": "Checking...",
-                  "installed": "Installed",
-                  "notInstalled": "Not installed",
-                  "recheck": "Re-check",
-                  "installedDescription": "Agent skill installed. To update it, run:",
-                  "description": "Let agents read and edit Linear tasks. Full guided setup (connect + skill + visibility) is under Settings → Task Sources.",
-                  "copyCommand": "Copy command"
-                }
-              },
-              "search": {
-                "title": "Linear",
-                "description": "Linear skill status, usage examples, and links to Task Sources setup.",
-                "linear": "linear",
-                "tickets": "tickets",
-                "issues": "issues",
-                "skill": "skill",
-                "orcaLinear": "orca-linear"
-              }
-            }
-          }
-        },
         "GrokAccountsSection": {
           "a1b2c3d4e5": "Grok (xAI)",
           "f6e5d4c3b2": "Shows weekly credit usage from your Grok CLI sign-in (session file ~/.grok/auth.json).",
@@ -10932,44 +10006,12 @@
           "567633ff50": "Right-click pastes the clipboard into the terminal. Control-click to open the context menu.",
           "c64497148a": "Right-click pastes the clipboard. Control-click opens the context menu."
         },
-        "MobileRelayStatusSection": {
-          "registered": "Registered",
-          "connecting": "Connecting",
-          "reconnecting": "Reconnecting",
-          "offline": "Offline",
-          "title": "Orca Relay",
-          "automatic": "Connect from anywhere when a phone is paired",
-          "signInPrompt": "Sign in on this desktop to connect from anywhere",
-          "directStillAvailable": "LAN and Tailscale connections remain available.",
-          "directNeedsNoAccount": "LAN and Tailscale pairing still work without an account.",
-          "signIn": "Sign in",
-          "unavailable": "Unavailable",
-          "standby": "Standby — no relay devices"
-        },
-        "MobileRelayBetaAvailability": {
-          "about": "About the Orca Relay beta",
-          "beta": "Beta",
-          "availability": "Available on",
-          "testFlight": "TestFlight",
-          "androidApk": "Android APK"
-        },
         "SkillUsageExampleDialog": {
           "copiedPrompt": "Copied example prompt.",
           "copyFailed": "Failed to copy prompt.",
           "copyExampleAria": "Copy {{value0}} example prompt",
           "done": "Done",
           "copyPrompt": "Copy prompt"
-        },
-        "LinearAgentSkillPane": {
-          "title": "Linear",
-          "description": "How Linear works in Orca: browse issues, start linked workspaces, and let agents update tickets with /orca-linear.",
-          "skillTitle": "Linear skill",
-          "howToUse": "Example prompts",
-          "howToUseDescription": "Click a card to copy a prompt. Use these in a Linear-linked worktree after the skill is installed.",
-          "terminalTitle": "Linear skill setup",
-          "terminalAriaLabel": "Linear skill install terminal",
-          "manageConnectionHint": "Review connected Linear workspaces and API keys in",
-          "manageConnectionLink": "Integrations"
         },
         "EditorFontFamilySetting": {
           "title": "Editor Font Family",
@@ -11288,46 +10330,7 @@
           }
         },
         "LinearAgentSkillGuide": {
-          "setupConnectTitle": "1. Connect Linear",
-          "setupConnectBody": "Personal API key so Orca can list issues and open linked workspaces.",
-          "manageKeys": "Manage keys",
-          "addAccess": "Add access",
-          "setupSkillTitle": "2. Install the agent skill",
-          "setupSkillBody": "Gives coding agents /orca-linear for reading, updates, triage, and attaching pull or merge requests.",
-          "setupVisibleTitle": "3. Show Linear in Tasks",
-          "setupVisibleBody": "Keeps Linear in the Tasks source picker and sidebar shortcuts.",
-          "openTaskSources": "Task Sources",
-          "setupTitle": "Setup checklist",
-          "setupBody": "All three are required for the full Tasks + agent loop. First-time path is also under Task Sources.",
-          "setupReady": "All set",
-          "setupProgress": "{{done}} of {{total}} ready",
-          "notesTitle": "Good to know",
-          "notesIntro": "Quick reminders once Linear is connected and the skill is installed.",
-          "noteLinkedTitle": "Start from a Linear issue",
-          "noteLinkedBody": "Ticket actions work best in a worktree created from Tasks so the issue stays linked as context.",
-          "noteSlashTitle": "Mention /orca-linear",
-          "noteSlashBody": "In chat, use /orca-linear (or ask in plain language) so the agent loads the skill for that turn.",
-          "noteKeysTitle": "Keys follow the runtime",
-          "noteKeysBody": "API keys and workspaces are stored for the active runtime.",
-          "noteVisibilityTitle": "Hiding ≠ disconnect",
-          "noteVisibilityBody": "Hiding Linear in Task Sources only removes it from the picker. It does not remove your key or skill.",
-          "setupChecking": "Checking…",
           "setupUnverified": "Cannot verify"
-        },
-        "TaskSourceLinearSetup": {
-          "connectTitle": "Connect Linear",
-          "connectDescription": "Add a Personal API key so Orca can browse issues and open workspaces with ticket context.",
-          "manageAccess": "Manage keys",
-          "addAccess": "Add Linear access",
-          "connectedHint": "Workspaces and keys are stored for the active runtime. You can add more access any time.",
-          "recheck": "Re-check connection",
-          "skillTitle": "Install Linear agent skill",
-          "skillDescription": "Gives agents /orca-linear to read tickets, post updates, move states, and attach pull or merge requests.",
-          "skillBlocked": "Connect Linear first, then install the skill for agents.",
-          "skillPanelTitle": "Linear skill",
-          "terminalTitle": "Linear skill setup",
-          "terminalAriaLabel": "Linear skill install terminal",
-          "showDescription": "Include Linear in the Tasks page source picker and sidebar shortcuts."
         },
         "TaskSourceProviderCard": {
           "statusChecking": "Checking…",
@@ -11416,76 +10419,6 @@
           "openManageSessions": "Open Manage Sessions",
           "title": "macOS permission grants aren’t reaching terminals"
         },
-        "artifacts": {
-          "enable": "Enable Artifacts",
-          "enableDescription": "Add Artifacts to the sidebar so you can open and delete shared files.",
-          "account": "Orca account",
-          "connected": "Connected",
-          "signInRequired": "Sign in is required to upload and manage artifacts.",
-          "signIn": "Sign in to Orca",
-          "title": "Artifacts",
-          "description": "Share HTML and Markdown files with your team and manage their public links.",
-          "howToTitle": "How to use Artifacts",
-          "howToDescription": "Publish HTML or Markdown files as public links, then share them with your team.",
-          "shareStepTitle": "Choose a file to share",
-          "shareStepDescription": "Open an HTML or Markdown file and select Share as artifact, or ask an agent to share it.",
-          "linkStepTitle": "Copy the public link",
-          "linkStepDescription": "After publishing, copy the link and send it to your team.",
-          "manageStepTitle": "Manage it in Orca",
-          "manageStepDescription": "Open Artifacts from the sidebar to preview or remove links.",
-          "openArtifacts": "Open Artifacts",
-          "openArtifactsDescription": "View and delete links shared through your account.",
-          "showButton": "Show Artifacts Button",
-          "showButtonDescription": "Show the Artifacts shortcut in the sidebar.",
-          "openArtifactsDescriptionV2": "Preview, copy, and manage links shared through your account.",
-          "signInTitle": "Sign in to share artifacts",
-          "signInDescription": "Use your Orca account to upload artifacts and manage their public links.",
-          "signInAgain": "Sign in again",
-          "enableStepTitle": "Enable artifact sharing",
-          "enableStepWebDescription": "Open Settings → Artifacts in the Orca desktop app on the host device and enable publishing.",
-          "enableStepDescription": "Turn on “Allow publishing public artifact links” above.",
-          "allowPublishing": "Allow publishing public artifact links",
-          "allowPublishingWebDescription": "Desktop only. Open Settings → Artifacts on the host device to change this setting.",
-          "allowPublishingDescription": "Publish HTML and Markdown files as links anyone with the URL can open. Existing links remain until you delete them from Artifacts.",
-          "howToDescriptionDisabled": "Enable artifact sharing above to publish HTML or Markdown files as public links.",
-          "allowPublishingSearchDescription": "Allow Orca to publish HTML and Markdown files as public links.",
-          "keywordArtifacts": "artifacts",
-          "keywordShare": "share",
-          "keywordPublish": "publish",
-          "keywordPublic": "public",
-          "keywordPermission": "permission",
-          "keywordHtml": "HTML",
-          "keywordMarkdown": "Markdown",
-          "keywordUpload": "upload"
-        },
-        "orcaAccount": {
-          "connected": "Connected",
-          "reconnectRequired": "Your session expired. Sign in again to use cloud features.",
-          "unavailable": "Orca sign-in is unavailable in this build.",
-          "signedOut": "Sign in to extend Orca with cloud features, including Artifacts and Orca Relay.",
-          "checking": "Checking account status…",
-          "account": "Orca account",
-          "signOut": "Sign out",
-          "signInAgain": "Sign in again",
-          "signIn": "Sign in to Orca",
-          "title": "Orca Account",
-          "description": "Share work instantly and reach your desktop from Orca Mobile wherever you are.",
-          "searchDescription": "Sign in or out of the account used by Artifacts and Orca Relay.",
-          "benefitsTitle": "Included with your account",
-          "artifactsTitle": "Artifact sharing",
-          "artifactsDescription": "Publish HTML and Markdown files, then manage every shared link from Orca.",
-          "relayTitle": "Orca Relay",
-          "relayDescription": "Connect Orca Mobile to this desktop across cellular or any Wi-Fi.",
-          "skillsTitle": "Skill sharing",
-          "skillsDescription": "Share one skill or a whole set behind an unlisted link, and install them on any machine you use.",
-          "keywordAccount": "account",
-          "keywordLogin": "login",
-          "keywordLogout": "logout",
-          "keywordSignIn": "sign in",
-          "keywordSignOut": "sign out",
-          "keywordRelay": "relay",
-          "keywordCloud": "cloud"
-        },
         "automations": {
           "showButton": "Show Automations Button",
           "showButtonDescription": "Show the Automations shortcut in the sidebar.",
@@ -11511,120 +10444,12 @@
           "auto": "Agent",
           "off": "Off"
         },
-        "RepositoryGitHubAccountSection": {
-          "unsupported": "This runtime’s GitHub CLI is too old for account binding (needs gh ≥ 2.40).",
-          "capabilityUnknown": "Could not determine whether this runtime’s GitHub CLI supports account binding. Retry.",
-          "envToken": "Environment-token accounts cannot be bound. Use a keyring login.",
-          "invalidBinding": "That GitHub account binding is invalid.",
-          "unavailable": "That GitHub account is unavailable on this runtime.",
-          "saveFailed": "Could not save the GitHub account binding.",
-          "title": "GitHub Account",
-          "description": "Use a specific gh login for this project’s GitHub issue and pull request calls.",
-          "longDescription": "Orca injects a short-lived token from the selected keyring login into each gh call for this project. Project View stays on the ambient login.",
-          "retry": "Retry",
-          "selectLabel": "Account",
-          "ambient": "Default (ambient gh login)",
-          "unavailableOption": "{{user}} @ {{host}} (unavailable)",
-          "capabilityBlocked": "Binding is unavailable until this runtime’s GitHub CLI supports `gh auth token --user` (gh ≥ 2.40).",
-          "capabilityUnknownHint": "Could not determine GitHub CLI account-binding support on this runtime. Clear the binding or retry.",
-          "notEnforced": "Saved, but not enforced by this runtime (mixed-version host).",
-          "refreshAccounts": "Refresh GitHub accounts"
-        },
         "shareSkills": {
-          "allowAgentPublishing": "Allow agents and the Orca CLI to publish skill links",
-          "allowAgentPublishingDescription": "Let commands publish explicitly named installed skills. Skill folders can contain scripts, configuration, or secrets, so this is off by default.",
-          "allowAgentPublishingWebDescription": "Desktop only. Open Settings → Share Skills on the host device to change this setting.",
-          "selectTitle": "Select one or more skills",
-          "selectDescription": "Open Skills, choose Share skills, and select the skills to bundle behind one link.",
-          "reviewTitle": "Review and publish",
-          "reviewDescription": "Review included files, scripts, and executables before uploading the immutable bundle.",
-          "copyTitle": "Copy the unlisted link",
-          "copyDescription": "Anyone with the link can inspect and install all or selected skills without signing in.",
-          "manageTitle": "Manage or revoke links",
-          "manageDescription": "Revoking blocks future access. Skills already installed on another machine remain there.",
-          "linkTitle": "Unlisted skill links",
-          "linkDescription": "Shared bundles are not searchable or listed in Orca. The link is the credential, so send it only to people you trust.",
-          "signInTitle": "Sign in to share skills",
-          "signInWebDescription": "Publishing and link management are available in the Orca desktop app.",
-          "signInDescription": "Use your Orca account to publish bundles and manage their links. Recipients do not need an account.",
-          "signInAgain": "Sign in again",
-          "signIn": "Sign in to Orca",
-          "howToTitle": "How to share skills",
-          "howToDescription": "Publish one skill or a bundle such as a collection of 30 skills behind one link.",
-          "openSkills": "Open Skills",
-          "openSkillsDescription": "Publish a bundle, install from a link, or manage installed and shared skills.",
-          "searchDescription": "Share your skills with an unlisted link. Anyone who has it can install them.",
-          "linksReconnect": "Sign in again to manage shared links.",
-          "linksUnavailable": "Shared links are unavailable right now.",
-          "linkCopied": "Share link copied",
-          "linkRevoked": "Link revoked",
-          "revokeFailed": "Orca could not revoke this link.",
-          "activeLinks": "Active shared links",
-          "activeLinksDescription": "Only people with a link can open it. Unshare a link to block future inspection and installs.",
-          "refreshLinks": "Refresh",
-          "noActiveLinks": "No active links. Publish a skill bundle from Skills to create one.",
-          "copyLink": "Copy link",
-          "confirmUnshare": "Confirm unshare",
-          "unshare": "Unshare",
           "showButton": "Show Skills button",
           "showButtonDescription": "Show the Skills shortcut in the sidebar.",
-          "manageInSkills": "Manage in Skills",
           "keywordSkills": "skills",
-          "keywordShare": "share",
-          "keywordBundle": "bundle",
-          "keywordLink": "link",
-          "keywordUnlisted": "unlisted",
-          "keywordRevoke": "revoke",
           "skillsTitle": "Skills",
           "skillsDescription": "Choose whether the Skills shortcut appears in the sidebar."
-        },
-        "bitbucket": {
-          "credentials": {
-            "dialog": {
-              "connectFailed": "Connection failed",
-              "title": "Connect Bitbucket",
-              "description": "Use a Bitbucket Cloud credential to browse pull requests and build statuses. Orca verifies it before saving.",
-              "remoteRuntime": "Bitbucket credentials saved here are stored on this local machine only. Set ORCA_BITBUCKET_* environment variables on the remote runtime instead.",
-              "environmentManaged": "Bitbucket is already configured through ORCA_BITBUCKET_* environment variables, which take precedence. Unset them to save a credential in Orca.",
-              "authModeLabel": "Bitbucket authentication method",
-              "modeBasic": "Email & API token",
-              "modeToken": "Access token",
-              "accessToken": "Access token",
-              "accessTokenPlaceholder": "Repository, project, or workspace access token",
-              "email": "Atlassian account email",
-              "emailPlaceholder": "you@example.com",
-              "apiToken": "API token",
-              "apiTokenPlaceholder": "Atlassian API token",
-              "baseUrl": "API base URL (optional)",
-              "baseUrlPlaceholder": "https://api.bitbucket.org/2.0",
-              "tokenHint": "Repository, project, and workspace access tokens are created from the matching Bitbucket settings page and need read access to pull requests.",
-              "basicHint": "Create an Atlassian API token for your account, then pair it with the email address that owns it.",
-              "docsLink": "Bitbucket API token docs",
-              "storageNote": "Stored on this machine with encrypted storage when the OS keychain is available. ORCA_BITBUCKET_* environment variables always take precedence over what you save here.",
-              "cancel": "Cancel",
-              "verifying": "Verifying...",
-              "connect": "Connect"
-            }
-          },
-          "integration": {
-            "card": {
-              "description": "Pull requests and build statuses for Bitbucket Cloud.",
-              "edit": "Edit credentials",
-              "connect": "Connect",
-              "accountUnknown": "Bitbucket Cloud",
-              "authModeToken": "Access token",
-              "authModeBasic": "Email & API token",
-              "disconnect": "Disconnect Bitbucket",
-              "envManaged": "Configured via environment variables. Unset the ORCA_BITBUCKET_* variables to manage this credential in Orca.",
-              "storedAuthFailed": "The saved Bitbucket credential could not authenticate. Edit it, or check that the token still has pull request access.",
-              "storedCredential": "Saved in Orca on this machine. ORCA_BITBUCKET_* environment variables take precedence when set.",
-              "notConfigured": "Connect a Bitbucket Cloud account with an Atlassian API token or an access token. ORCA_BITBUCKET_* environment variables work too and take precedence.",
-              "disconnectFailed": "Could not remove the saved Bitbucket credential.",
-              "statusLoadFailed": "Could not check for a saved Bitbucket credential.",
-              "replaceCredentials": "Add or replace credentials",
-              "credentialName": "Your Bitbucket credential"
-            }
-          }
         },
         "GlobalWorktreeVisibilitySourcesSetting": {
           "saveFailed": "Could not save visibility defaults.",
@@ -11746,11 +10571,7 @@
               "branch": "Sync Branch"
             },
             "7e4b2a19c0": "Could not resolve the GitHub PR to reply on.",
-            "430f1a62d4": "Could not resolve the selected thread on the host.",
-            "updateReactionFailed": "Failed to update reaction.",
-            "gitlabMoreActions": "More MR actions",
-            "gitlabUnlink": "Unlink MR",
-            "gitlabLinkAnother": "Link another MR"
+            "430f1a62d4": "Could not resolve the selected thread on the host."
           },
           "CreatePullRequestDialog": {
             "2bc1b4345e": "Cancel",
@@ -13051,41 +11872,6 @@
             "notAuthorized": "Couldn't open log — path not authorized.",
             "alreadyEditable": "Log is already open for editing."
           },
-          "github": {
-            "refresh": {
-              "error": {
-                "copy": {
-                  "580025e7b7": "GitHub is unavailable",
-                  "01c85b5770": "GitHub's API is temporarily unavailable. This panel reloads automatically once it recovers.",
-                  "d1a9f2b165": "Can't reach GitHub",
-                  "7d01d42a3a": "GitHub is unreachable right now. Check your connection, then try again shortly.",
-                  "e9d681894a": "GitHub rate limit reached",
-                  "8c77434d6f": "GitHub is rate-limiting requests. This panel refreshes once the limit resets.",
-                  "79aa06bb2c": "Couldn't refresh. GitHub's API is temporarily unavailable. Showing the last known status.",
-                  "6ec12cee0c": "Couldn't refresh. GitHub is unreachable right now. Showing the last known status.",
-                  "de088015e8": "Couldn't refresh. GitHub is rate-limiting requests. Showing the last known status.",
-                  "d9dd7c6687": "Couldn't refresh from GitHub. Showing the last known status."
-                }
-              }
-            },
-            "pr": {
-              "stack": {
-                "confirmation": {
-                  "84f6f5b9eb": "Included: {{numbers}}. ",
-                  "541984b2eb": "Queue through #{{pr}}?",
-                  "4809f55cdb": "{{included}}GitHub will add {{count}} pull request to the merge queue together. The queue chooses the merge method and may merge them in separate groups.",
-                  "be8f2621be": "{{included}}GitHub will add {{count}} pull requests to the merge queue together. The queue chooses the merge method and may merge them in separate groups.",
-                  "92ca033e72": "Queue {{count}} PR",
-                  "478a527b15": "Queue {{count}} PRs",
-                  "1feef35ca4": "Merge through #{{pr}}?",
-                  "c3e036c99f": "{{included}}GitHub will merge {{count}} pull request atomically using {{method}}. If it cannot merge, nothing will be merged.",
-                  "369aba4b32": "{{included}}GitHub will merge {{count}} pull requests atomically using {{method}}. If any cannot merge, none will.",
-                  "493c78f521": "Merge {{count}} PR",
-                  "eb7051d268": "Merge {{count}} PRs"
-                }
-              }
-            }
-          },
           "PluginPanel": {
             "unavailable": "This plugin panel is no longer available.",
             "loading": "Loading plugin panel...",
@@ -13398,18 +12184,9 @@
             "searchBranches": "Search branches",
             "searchLinear": "Search Linear issues",
             "workspaceName": "Workspace name",
-            "loadingJira": "Loading Jira issue…",
-            "jiraDisconnected": "Connect Jira in Settings to link this issue",
-            "jiraSiteNotConnected": "This Jira site is not connected",
-            "jiraRuntimeUpdate": "Update the remote runtime to link Jira",
-            "jiraReadFailed": "Couldn’t load this Jira issue",
-            "chooseJiraAccount": "Choose a Jira account",
-            "jiraLoaded": "Jira issue loaded",
             "openSettings": "Settings",
-            "retryJira": "Retry",
             "searchJira": "Search Jira issues or paste an issue URL",
             "jiraMode": "Jira",
-            "jiraSelectBindFailed": "Couldn’t link this Jira issue. Pick the matching site or reconnect Jira, then try again.",
             "emoji": "Emoji",
             "loadingLinearIssue": "Loading Linear issue…"
           },
@@ -13429,33 +12206,8 @@
         }
       },
       "mobile": {
-        "MobileHero": {
-          "bb0074ce11": "Pairing QR code",
-          "ca85e595a7": "No interfaces found",
-          "79d2f480da": "Network interface to advertise",
-          "7af266b80d": "Install QR code",
-          "relayDegradedNotice": "Relay couldn’t be reached — this code only works on your LAN or Tailscale."
-        },
         "MobilePage": {
-          "1b4509a8a1": "paired",
-          "c5909374cf": "intro"
-        },
-        "MobilePageToolbar": {
-          "a4f8c2d91e": "Hide from sidebar",
-          "b7e3d1c84a": "Show in sidebar"
-        },
-        "mobile": {
-          "platform": {
-            "copy": {
-              "2a532d6fd7": "Scan with your Android camera to download the latest APK from GitHub Releases.",
-              "432db52b73": "Scan with your iPhone camera to open the App Store."
-            }
-          }
-        },
-        "slides": {
-          "WorktreeListSlide": {
-            "c5ad56786d": "spinner"
-          }
+          "1b4509a8a1": "paired"
         }
       },
       "gitlab": {
@@ -13463,15 +12215,8 @@
           "rate": {
             "limit": {
               "display": {
-                "ebc0e8ecf1": "Loading GitLab API budget...",
-                "a2d3d1fdde": "GitLab API budget is unavailable.",
-                "a2f68645ac": "Refresh GitLab API budget",
-                "2f9c16d6c3": "Orca uses REST through the GitLab CLI.",
-                "14e144f7a7": "GitLab API Budget",
                 "3e2c982cfa": "left, resets in",
                 "ea8ad0bae8": "of",
-                "0a891e8935": "REST API",
-                "953f7c6062": "This GitLab host did not return rate-limit headers.",
                 "budget_scope_prefix": "Budget scope"
               }
             }
@@ -13910,7 +12655,6 @@
             "33b650af52": "Connect where your team tracks work. Orca starts workspaces with the issue title, link, and context already attached.",
             "5b3577a492": "connected for review status",
             "list_end": ", and ",
-            "list_pair": " and ",
             "list_mid": ", ",
             "code_host_tasks_summary": "issues available as tasks · add Linear or Jira if your team plans work there",
             "code_host_tasks_caption": "Your code host's issues also work as tasks.",
@@ -15902,36 +14646,15 @@
       "jira": {
         "connect": {
           "dialog": {
-            "63ce735809": "Connect",
             "4a2ab52781": "Verifying…",
-            "79e7aaed39": "Cancel",
             "fdd26d81cc": "Atlassian account settings",
             "8090504a3e": "Create a token in",
             "7b3967c12f": "Atlassian API token",
             "3d81bf3ab3": "API token",
-            "e91b9a4073": "you@example.com",
             "2849ddb295": "Atlassian email",
-            "70fcd360c4": "https://example.atlassian.net",
             "e176f9d0c5": "Jira Cloud site URL",
             "d785c42b8b": "Use a Jira Cloud site URL, Atlassian email, and API token to browse issues.",
-            "8388bdea2b": "Connect Jira site",
-            "2e2b69e48e": "Use a self-hosted Jira base URL and a personal access token to browse issues.",
-            "b67e919bd5": "Jira instance type",
-            "17787d6e4b": "Atlassian Cloud",
-            "bc7a831773": "Self-hosted",
-            "3489e186d6": "Jira site URL",
-            "cbc27fa599": "https://jira.example.com",
-            "730d973bae": "Personal access token",
-            "8b9c7b9e7b": "Jira personal access token",
-            "ccfb086d3e": "Create a personal access token in your Jira profile under Personal Access Tokens.",
-            "1d947a07ab": "Use a self-hosted Jira base URL, username, and password to browse issues.",
-            "f49708c369": "Jira authentication method",
-            "84a810dd0e": "Username & password",
-            "8d1223fa5c": "Username",
-            "be9eba0a1b": "username",
-            "70035652d7": "Password",
-            "c50abbf340": "Jira account password",
-            "d8737db691": "Use your Jira Server or Data Center account username and password."
+            "8388bdea2b": "Connect Jira site"
           }
         }
       },
@@ -16057,103 +14780,19 @@
               "page": {
                 "gitlab": {
                   "filters": {
-                    "e157d7ce4d": "MRs",
-                    "2328f6a40c": "My Todos"
+                    "e157d7ce4d": "MRs"
                   }
                 }
               }
             }
           },
           "dialogs": {
-            "new": {
-              "github": {
-                "issue": {
-                  "dialog": {
-                    "e02508846c": "this repository"
-                  }
-                }
-              },
-              "linear": {
-                "issue": {
-                  "dialog": {
-                    "dialogTitle": "New Linear issue",
-                    "dialogDescription": "Create a Linear issue for the selected team."
-                  }
-                }
-              }
-            },
             "task": {
               "page": {
                 "connect": {
                   "dialogs": {
                     "353c7dc71d": "Update access"
                   }
-                }
-              }
-            }
-          },
-          "github": {
-            "github": {
-              "detail": {
-                "host": {
-                  "8d5cde4770": "Pull requests",
-                  "312ca15778": "GitHub list"
-                }
-              },
-              "issue": {
-                "label": {
-                  "selector": {
-                    "2a1862c470": "Loading labels…"
-                  }
-                }
-              },
-              "work": {
-                "item": {
-                  "row": {
-                    "draftPullRequest": "Draft pull request",
-                    "pullRequest": "Pull request",
-                    "issue": "Issue"
-                  }
-                }
-              }
-            }
-          },
-          "hooks": {
-            "use": {
-              "task": {
-                "page": {
-                  "jira": {
-                    "create": {
-                      "dialog": {
-                        "jiraRequiredFieldsLoadFailed": "Failed to load required Jira fields."
-                      }
-                    }
-                  },
-                  "linear": {
-                    "active": {
-                      "collection": {
-                        "d8b3cd9488": "Project: {{value0}}",
-                        "68462f8b29": "View: {{value0}}"
-                      }
-                    }
-                  },
-                  "session": {
-                    "resume": {
-                      "savedLinearProjectMissing": "Saved Linear project was not found.",
-                      "savedLinearProjectRestoreFailed": "Failed to restore saved Linear project.",
-                      "savedLinearViewMissing": "Saved Linear view was not found.",
-                      "savedLinearViewRestoreFailed": "Failed to restore saved Linear view."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "linear": {
-            "linear": {
-              "connect": {
-                "empty": {
-                  "3e00e8ebd4": "Loading Linear"
                 }
               }
             }
@@ -16166,7 +14805,6 @@
         "noMatchingGitHubWorkTitle": "No matching GitHub work",
         "changeQueryDescription": "Change the query or clear it.",
         "noGitLabIssuesTitle": "No GitLab issues",
-        "noGitLabIssuesDescription": "No GitLab issues match this filter.",
         "noGitLabMrsTitle": "No GitLab merge requests",
         "noGitLabMrsDescription": "No GitLab MRs match this filter.",
         "noGitLabWorkTitle": "No GitLab work",
@@ -16184,38 +14822,6 @@
         "contextMenu": {
           "copy": "Copy"
         }
-      },
-      "linear-issue-attribute-filter-dropdowns": {
-        "removeFilter": "Remove {{value0}} filter",
-        "teamRequired": "Select a team to load status, assignees, and labels for this workspace.",
-        "filters": "Filters",
-        "allWorkspacesTitle": "Select one workspace",
-        "allWorkspacesBody": "Status, assignee, and label filters use ids from a single Linear workspace. Choose one workspace to filter by those attributes.",
-        "optionsFromTeam": "Options from {{team}}",
-        "clearAll": "Clear all filters",
-        "partialCoverage": "partial",
-        "partialCoverageTitle": "Some teams may be left out of this filter. Open Filters for details."
-      },
-      "linear-issue-attribute-filter-coverage-notice": {
-        "statusPartialTeamCoverage": "Filtering {{value0}} of {{value1}} team statuses — issues from the remaining teams are not included.",
-        "labelsPartialTeamCoverage": "Filtering {{value0}} of {{value1}} team labels — issues from the remaining teams are not included.",
-        "statusAtIdLimit": "Filtering the most this can carry: {{value0}} team statuses. Rows picked past that are left out.",
-        "labelsAtIdLimit": "Filtering the most this can carry: {{value0}} team labels. Rows picked past that are left out."
-      },
-      "linear-issue-attribute-filter-sections": {
-        "status": "Status",
-        "priority": "Priority",
-        "assignee": "Assignee",
-        "unassigned": "Unassigned",
-        "labels": "Labels",
-        "countSelected": "{{count}} selected",
-        "partialCoverageMarker": "· partial",
-        "selected": "selected",
-        "searchPriority": "Filter priority…",
-        "searchStatus": "Filter status…",
-        "searchLabels": "Filter labels…",
-        "searchAssignee": "Filter assignee…",
-        "back": "Back"
       },
       "browser-pane": {
         "markup": {
@@ -16281,118 +14887,9 @@
         "streamCapabilityUnsupported": "The selected runtime does not support remote browser streaming."
       },
       "artifacts": {
-        "ArtifactsPage": {
-          "signInAgain": "Sign in to Orca again to load artifacts.",
-          "loadFailed": "Could not load artifacts.",
-          "deleteTitle": "Delete artifact?",
-          "deleteDescription": "“{{name}}” will no longer be available at its public link.",
-          "delete": "Delete",
-          "deleteFailed": "Could not delete the artifact.",
-          "title": "Artifacts",
-          "refresh": "Refresh",
-          "signInHeading": "Sign in to Orca",
-          "signInCopy": "Sign in to view and manage artifacts shared through your account.",
-          "signIn": "Sign in to Orca",
-          "empty": "No shared artifacts",
-          "emptyCopy": "Open an HTML or Markdown file and select Share as artifact, or ask your agent to share it.",
-          "openArtifact": "Open artifact",
-          "deleteArtifact": "Delete artifact",
-          "moreAvailable": "More artifacts are available",
-          "moreAvailableCopy": "Load the next page to continue.",
-          "loadMoreFailed": "Could not load more artifacts.",
-          "publishingOff": "Publishing is turned off",
-          "publishingOffCopy": "Nothing on this device can create a public artifact link yet. Allow publishing in Settings → Artifacts, then share from an open HTML or Markdown file or ask your agent.",
-          "openArtifactsSettings": "Open Settings → Artifacts",
-          "retry": "Retry",
-          "reconnectHeading": "Sign in to Orca again",
-          "reconnectCopy": "Sign in again to view and manage the artifacts shared through your account.",
-          "signInAgainAction": "Sign in again",
-          "unconfiguredCopy": "Orca account sign-in is not configured on this machine yet.",
-          "openAccountSettings": "Open account settings"
-        },
-        "copySuccess": "Artifact link copied",
-        "copyFailed": "Could not copy artifact link",
-        "copyLink": "Copy link",
-        "openInBrowser": "Open in browser",
-        "preview": "Artifact preview",
-        "previewUnavailable": "Preview unavailable",
-        "previewUnavailableDescription": "Open this artifact in your browser to view it.",
-        "actions": "Artifact actions",
-        "ArtifactActions": {
-          "more": "More artifact actions"
-        },
-        "ArtifactCollection": {
-          "loadMore": "Load more",
-          "noMatches": "No matches"
-        },
-        "ArtifactDetailHeader": {
-          "publicLink": "Anyone with this link can view it",
-          "close": "Close"
-        },
-        "updatedAt": "Updated {{when}}",
-        "updatedRecently": "recently",
-        "expiryUnknown": "Expiry unknown",
-        "expired": "Link expired",
-        "expires": "Link expires {{when}}",
         "ArtifactPublishButton": {
-          "a4a49da6af": "Share as artifact",
-          "confirmTitle": "Share as artifact",
-          "confirmDescription": "This publishes the current file at a link anyone with the URL can view.",
-          "accountTitle": "Orca account",
-          "accountDescription": "Sign in to create and manage this link.",
-          "signInAgain": "Sign in again",
-          "signIn": "Sign in",
-          "publishingOffTitle": "Artifact sharing is off",
-          "publishingOffDescription": "Learn about public links and enable sharing in Settings.",
-          "openSettings": "Open Artifacts settings",
-          "sharing": "Sharing…",
-          "sharePublicLink": "Generate link",
-          "publishedDescription": "Anyone with this link can view the shared file.",
-          "checkingLink": "Checking for an existing link…",
-          "checkFailed": "Could not check for an existing link.",
-          "tryAgain": "Try again"
-        },
-        "artifact-publish-flow": {
-          "9a078a0c65": "Artifact sharing is unavailable",
-          "bba20daa6d": "Sign in to Orca and try again.",
-          "54b1805328": "Could not share artifact",
-          "430019efd0": "Artifact shared",
-          "2fc727c831": "Artifact updated",
-          "5cb4f5ec36": "Copy link",
-          "fbb5018602": "This file is empty.",
-          "6112db5a1c": "This artifact is too large to share.",
-          "e2ed5acd8c": "Orca couldn't read this file. Open it from a workspace and try again.",
-          "6d475e9b25": "Only local HTML and Markdown files can be shared as artifacts.",
-          "29a406be09": "Artifacts must contain text."
-        },
-        "ArtifactPublishedLinkPanel": {
-          "copyLink": "Copy link",
-          "openLink": "Open link",
-          "updating": "Updating…",
-          "update": "Update shared content"
-        },
-        "ArtifactDetailDrawer": {
-          "description": "Preview and manage this shared artifact."
-        },
-        "ArtifactListSearchField": {
-          "label": "Search artifacts",
-          "placeholder": "Search...",
-          "clear": "Clear search"
-        },
-        "ArtifactListTableHeader": {
-          "name": "Name",
-          "type": "Type",
-          "size": "Size",
-          "updated": "Updated",
-          "expires": "Expires",
-          "actions": "Actions"
-        },
-        "ArtifactsPageSkeleton": {
-          "loading": "Loading artifacts"
-        },
-        "expiredCompact": "Expired",
-        "typeMarkdown": "Markdown",
-        "typeHtml": "HTML"
+          "a4a49da6af": "Share as artifact"
+        }
       },
       "BrowserCookieImportMachineNotice": {
         "clientLabel": "Browsers on this device",
@@ -16498,17 +14995,6 @@
       },
       "webRuntimeSession": {
         "remoteHostDisconnected": "The workspace is not connected to a remote Orca host."
-      },
-      "gitlabJobTraceClient": {
-        "loadFailed": "Failed to load the GitLab job log.",
-        "emptyTrace": "No log is available for this GitLab job.",
-        "timedOut": "Timed out loading the GitLab job log."
-      },
-      "githubCheckDetailsTimeout": {
-        "timedOut": "Timed out loading check details."
-      },
-      "gitlabIpcTimeout": {
-        "timedOut": "Timed out talking to GitLab."
       }
     },
     "ssh": {
@@ -16569,11 +15055,6 @@
           "managePullRequests": "Read, comment on, and merge pull requests without leaving Orca"
         }
       }
-    },
-    "jiraUserPicker": {
-      "select": "Select {{value0}}",
-      "search": "Search users",
-      "empty": "No users found"
     },
     "native-chat": {
       "failureWords": {
@@ -16928,7 +15409,6 @@
           "keepsTrying": "Orca keeps trying to load it."
         },
         "reconnecting": "Reconnecting to this chat…",
-        "pairHost": "Pair a host to view agent chat history.",
         "notAgent": {
           "title": "No conversation here",
           "subtitle": "This terminal is not running a recognized coding agent."
