@@ -713,13 +713,6 @@
         "distroMissing": "選択した WSL ディストリビューションは利用できません。利用可能なものを選ぶか、このプロジェクトを Windows に切り替えてください。",
         "wslDefault": "WSL のデフォルト"
       },
-      "sidebarWorktreeActivation": {
-        "wakeEphemeralVmFailed": "一時的なVMワークスペースの起動に失敗しました"
-      },
-      "ephemeralVmWorkspaceTarget": {
-        "projectRootRegistrationFailed": "レシピによって作成されたプロジェクトルートをランタイムに登録できませんでした。",
-        "provisionedRootRequiresSsh": "現在、プロビジョニングされたルートレシピには直接 SSH 接続が必要です。"
-      },
       "blocked": {
         "notification": {
           "fallback": {
@@ -766,9 +759,6 @@
         "unavailable": "構造化 Agent セッションはまだ利用できません。しばらくしてから再試行してください。",
         "gone": "このチャットはこのホスト上に存在しないため、ここで再度開くことはできません。",
         "hostCannotOpen": "Orca が更新されるまで、このチャットを再度開くことはできません。"
-      },
-      "ephemeralVmWorktreeCreation": {
-        "sparseCheckoutUnsupported": "プロビジョニングされたルートレシピはスパースチェックアウトをサポートしません。"
       },
       "worktreeJumpNavigation": {
         "filteredNotice": "このワークツリーはサイドバーフィルターによって非表示になります。ワークスペースが開かれましたが、スペースに表示されません。"
@@ -1160,13 +1150,8 @@
         "reuseExistingBranchHint": "既存のブランチから新規ブランチを作成せず、そのブランチをチェックアウトします。",
         "createMultiple": "さらに作成",
         "waitForSetupBeforeAgent": "セットアップが完了するまで待ってから Agent を開始してください",
-        "destroyDisabled": "破壊は無効です",
-        "destroyConfigured": "設定されたものを破棄する",
-        "noDestroyConfigured": "破壊しない",
-        "ephemeralVm": "ワークスペースごとの環境",
         "chooseRunTarget": "ターゲットを選択",
         "noRunTargets": "このプロジェクトには実行ターゲットが準備されていません。",
-        "perWorkspaceEnvHint": "レシピからオンデマンド環境をプロビジョニングする",
         "branchName": "ブランチ名",
         "branchNamePlaceholder": "feature/my-branch",
         "connectTimedOut": "接続がタイムアウトしました。バックグラウンドで接続が続いている可能性があります。",
@@ -1957,10 +1942,7 @@
             "ed2a664f8b": "ワークツリーを作成できませんでした",
             "a3346fc6ed": "ワークツリーの作成をキャンセルする",
             "532aea14ce": "キャンセル",
-            "767951265d": "ワークツリーの作成中に問題が発生しました。",
-            "vmProvisioningTitle": "VMのプロビジョニング",
-            "cancelProvisioning": "キャンセル",
-            "vmProvisioningLogEmpty": "レシピの出力を待っています…"
+            "767951265d": "ワークツリーの作成中に問題が発生しました。"
           }
         }
       },
@@ -6922,8 +6904,6 @@
           "troubleshootStepAddress": "「別のデバイス」を選び、Tailscale または LAN アドレスを選択します。",
           "troubleshootStepRegenerate": "新規アクセスリンクを生成し、ここでは最新のリンクだけを使います。",
           "troubleshootTunnel": "SSH ローカルフォワードを使う場合は、「ホストに接続」に戻ってループバックリンクを貼り付け、「詳細」で「SSH トンネルを使用しています」を有効にします。",
-          "cloudVmWorkflow": "クラウド VM",
-          "cloudVmWorkflowHelp": "レシピで作成したクラウドマシンを管理",
           "serverWorkspaceWindowClosed": "ワークスペースウィンドウを閉じた",
           "serverRuntimeUnavailable": "Orca は利用できません",
           "serverRuntimeUnavailableDescription": "SSH トランスポートは接続されていますが、Orca ランタイムが応答しませんでした。ホストがまだ実行中の可能性があります。",
@@ -9631,78 +9611,6 @@
           "orcaCloud": "Orca Cloud",
           "deleteAnywayClicked": "とにかく削除をクリックしました"
         },
-        "EphemeralVmRecipeRow": {
-          "useInWorkspace": "ワークスペースでの使用"
-        },
-        "EphemeralVmRuntimesSection": {
-          "cleanupFailed": "クリーンアップに失敗しました",
-          "cleanupRunning": "クリーンアップ実行中",
-          "cleanupDisabled": "クリーンアップが無効になっています",
-          "running": "実行中",
-          "failed": "失敗",
-          "loadFailed": "一時的な VM ランタイムを読み込めませんでした。",
-          "cleanupFailedToast": "一時的な VM ランタイムをクリーンアップできませんでした。",
-          "markedCleaned": "一時的な VM ランタイムをクリーン済みとしてマークしました。",
-          "cleaned": "一時的な VM ランタイムをクリーンアップしました。",
-          "copiedCleanupCommand": "クリーンアップコマンドをコピーしました。",
-          "copiedCleanupPayload": "クリーンアップ用ペイロードをコピーしました。",
-          "copyCleanupFailed": "クリーンアップコマンドをコピーできませんでした。",
-          "title": "一時的な VM ランタイム",
-          "description": "レシピで作成されたランタイムはワークスペースに紐づいています。クラッシュ、作成失敗、手動リカバリの後に残った古いエントリをクリーンアップします。",
-          "refresh": "一時的な VM ランタイムを更新する",
-          "loading": "一時的な VM ランタイムを確認しています…",
-          "empty": "一時的な VM ランタイムにはクリーンアップが必要ありません。",
-          "copyCleanup": "コマンドをコピー",
-          "retry": "クリーンアップを再試行します",
-          "cleanup": "クリーンアップ",
-          "cloudVmLoadFailed": "クラウド VM ランタイムを読み込めませんでした。",
-          "cloudVmCleanupFailedToast": "クラウド VM ランタイムをクリーンアップできませんでした。",
-          "cloudVmMarkedCleaned": "クラウド VM ランタイムをクリーンアップ済みとして記録しました。",
-          "cloudVmCleaned": "クラウド VM ランタイムをクリーンアップしました。",
-          "cloudVmTitle": "クラウド VM ランタイム",
-          "cloudVmRefresh": "クラウド VM ランタイムを更新",
-          "cloudVmLoading": "クラウド VM ランタイムを確認中…",
-          "cloudVmEmptyWithSetup": "クラウド VM ランタイムはまだありません。環境レシピを使用してワークスペースから作成してください。",
-          "stoppingCleanup": "停止中…",
-          "stopCleanup": "クリーンアップを停止する",
-          "cleanupStopped": "クリーンアップが停止されました",
-          "stopCleanupFailed": "Cloud VM のクリーンアップを停止できませんでした。"
-        },
-        "ephemeralVms": {
-          "search": {
-            "description": "リポジトリ所有のレシピが各ワークスペースに独自のオンデマンドの使い捨て環境を与える方法を学びましょう。",
-            "cloudVmTitle": "クラウド VM",
-            "keywordVm": "vm",
-            "keywordSandbox": "サンドボックス",
-            "keywordCloud": "雲",
-            "keywordRecipe": "レシピ",
-            "keywordEphemeral": "一時的な"
-          }
-        },
-        "EphemeralVmsPane": {
-          "loadError": "レシピを読み込めませんでした。",
-          "copyError": "プロンプトをコピーできませんでした。",
-          "skillDescription": "リポジトリが所有する環境レシピをセットアップ、構築、認証、および検証します。",
-          "whatTitle": "スキルが何をするのか、あなたと一緒に",
-          "whatScaffold": "Orca サーバーまたは SSH 経由で接続されているプロバイダーのレシピとスクリプトを作成します。",
-          "whatBuild": "再利用可能な基本イメージを構築し、Agent をサインインします。",
-          "whatValidate": "ワークスペースを作成できるようにそれを検証します。",
-          "promptHint": "どのワークスペースでも、Agent に次のように尋ねます。",
-          "copy": "コピー",
-          "copied": "コピーしました",
-          "recipes": "レシピ",
-          "recipesHelp": "orca.yaml と有効なプラグインのレシピがここに表示され、ワークスペースを起動できます。",
-          "checking": "レシピを確認中…",
-          "none": "レシピはまだ見つかりません。",
-          "cloudVmSkillTitle": "クラウド VM セットアップスキル",
-          "cloudVmRefresh": "クラウド VM レシピを更新",
-          "cloudVmTerminalTitle": "クラウド VM のセットアップ",
-          "cloudVmTerminalAriaLabel": "クラウド VM スキルインストールターミナル"
-        },
-        "ephemeralVmsExperimentalSetting": {
-          "description": "リポジトリが所有するオンデマンド環境のセットアップコントロールとワークスペース実行ターゲットを示します。",
-          "cloudVmToggleLabel": "クラウド VM を切り替える"
-        },
         "SourceControlActionRepoOverrideNote": {
           "agent": "Agent",
           "agentArgs": "CLI 引数",
@@ -9918,8 +9826,6 @@
           "commands": "{{value0}}つのコマンド",
           "keybindingsOne": "1つのキーボードショートカット",
           "keybindings": "{{value0}}つのキーボードショートカット",
-          "vmRecipesOne": "1つのVMレシピ",
-          "vmRecipes": "{{value0}}つのVMレシピ",
           "panelsOne": "1つのパネル",
           "panels": "{{value0}}つのパネル",
           "eventsOne": "1つのイベントサブスクリプション",
@@ -10020,14 +9926,6 @@
           "enableLabel": "{{value0}}を有効にする",
           "invalidPluginError": "プラグインマニフェストまたはインストールされたファイルが無効です。プラグインを修正してから更新してください。"
         },
-        "PluginVmRecipeConsentPreview": {
-          "create": "作成",
-          "suspend": "一時停止",
-          "resume": "再開",
-          "destroy": "破棄",
-          "heading": "VMレシピコマンド",
-          "commandLabel": "{{value0}} · {{value1}}個のコマンド"
-        },
         "pluginError": {
           "installManifestMissing": "読み取り可能なorca-plugin.jsonが見つかりません。プラグインのルートフォルダーを選択してください。",
           "installManifestInvalid": "orca-plugin.jsonが無効です。プラグイン作成者にマニフェストの修正を依頼してください。",
@@ -10099,13 +9997,6 @@
           "notAttempted": "未試行",
           "saveFailed": "ホストを保存できませんでした",
           "saveFailedHelp": "ホストは確認されましたが、Orca はホストを保存できませんでした。名前とローカル設定ストレージを確認して、再試行してください。"
-        },
-        "CloudVmSetupGuide": {
-          "title": "クラウド VM を作成",
-          "description": "クラウド VM は、ワークスペースの作成時に環境レシピから作成されます。",
-          "setupRecipe": "クラウドプロバイダー用の環境レシピをセットアップします。",
-          "createWorkspace": "ワークスペースを作成し、「実行先」でそのレシピを選択します。",
-          "openSetup": "環境レシピをセットアップ"
         },
         "GlobalWorktreeVisibilitySourcesSetting": {
           "saveFailed": "表示設定のデフォルトを保存できませんでした。",
@@ -10180,13 +10071,6 @@
           "keywordSkills": "スキル",
           "skillsTitle": "スキル",
           "skillsDescription": "サイドバーにスキルのショートカットを表示するかどうかを選択します。"
-        },
-        "EphemeralVmCleanupStopDialog": {
-          "title": "掃除をやめますか？",
-          "description": "VM は実行されたままになり、料金が発生する可能性があります。後でクリーンアップを再試行できます。",
-          "cancel": "掃除を続ける",
-          "stopping": "停止中…",
-          "confirm": "クリーンアップを停止する"
         },
         "NativeChatSupportedAgents": {
           "label": "サポートされている Agent:"

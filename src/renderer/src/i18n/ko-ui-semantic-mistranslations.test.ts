@@ -8,8 +8,6 @@ const correctedValues = {
     ') 작업을 요약하는 짧은 이름으로 변경됩니다. Orca가 직접 이름 붙인 브랜치만 이름을 바꾸며, 푸시된 후에는 이름을 바꾸지 않습니다.',
   'auto.components.settings.source.control.action.recipe.options.commitMessage':
     '스테이징된 변경 사항에서 commit 메시지를 생성합니다.',
-  'auto.components.settings.EphemeralVmsPane.whatTitle': '이 스킬로 함께 하는 작업',
-  'auto.components.settings.EphemeralVmsPane.recipes': '레시피',
   'auto.components.right.sidebar.SourceControl.a5e5a11090':
     '모든 변경 사항 취소 실패 — 취소 전에 파일의 스테이징을 해제하지 못했습니다.',
   'auto.components.right.sidebar.SourceControl.6d7f2a47e5': '폴더의 변경 사항 취소',

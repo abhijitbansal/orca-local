@@ -14,14 +14,13 @@ Orca ships **skills** that agents load from their skill directories. Skills are 
 
 ## Bundled Orca skills
 
-| Skill                                               | Use it for                                                    |
-| --------------------------------------------------- | ------------------------------------------------------------- |
-| [`orca-cli`](#orca-cli)                             | Worktrees, terminals, files, automations, embedded browser.   |
-| [`orchestration`](#orchestration)                   | Multi-agent Runs, tasks, supervised workers, messages, gates. |
-| [`computer-use`](#computer-use)                     | Desktop apps via accessibility trees and safe UI actions.     |
-| [`orca-emulator`](#orca-emulator)                   | iOS Simulator control.                                        |
-| [`orca-emulator-android`](#orca-emulator-android)   | Android emulator/device via adb.                              |
-| [`orca-per-workspace-env`](#orca-per-workspace-env) | Per-workspace environment recipes (`orca.yaml`).              |
+| Skill                                             | Use it for                                                    |
+| ------------------------------------------------- | ------------------------------------------------------------- |
+| [`orca-cli`](#orca-cli)                           | Worktrees, terminals, files, automations, embedded browser.   |
+| [`orchestration`](#orchestration)                 | Multi-agent Runs, tasks, supervised workers, messages, gates. |
+| [`computer-use`](#computer-use)                   | Desktop apps via accessibility trees and safe UI actions.     |
+| [`orca-emulator`](#orca-emulator)                 | iOS Simulator control.                                        |
+| [`orca-emulator-android`](#orca-emulator-android) | Android emulator/device via adb.                              |
 
 Copy a skill folder from `skills/<name>/` into your agent's skill directory (for example `~/.claude/skills/`) to make it available to that agent.
 
@@ -69,10 +68,6 @@ Use this when an agent should control an iOS Simulator from inside Orca through 
 ## orca-emulator-android
 
 Use for adb-connected Android AVDs/devices: list/boot, tap/swipe/type, hardware buttons, install/launch, permissions, accessibility tree, logcat. Load details with `orca skills get orca-emulator-android`.
-
-## orca-per-workspace-env
-
-Use when setting up or debugging per-workspace environment recipes in `orca.yaml`. See [Ways to run Orca](/docs/ways-to-run#3-cloud-vms-per-workspace-environments).
 
 ## Discovery sources
 

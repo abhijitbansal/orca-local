@@ -812,13 +812,6 @@
         "distroMissing": "La distro WSL sélectionnée est indisponible. Choisissez une distro disponible ou basculez ce projet sur Windows.",
         "wslDefault": "WSL par défaut"
       },
-      "sidebarWorktreeActivation": {
-        "wakeEphemeralVmFailed": "Échec du réveil de l'espace de travail VM éphémère"
-      },
-      "ephemeralVmWorkspaceTarget": {
-        "projectRootRegistrationFailed": "Échec de l'enregistrement sur le runtime de la racine de projet créée par la recette.",
-        "provisionedRootRequiresSsh": "Les recettes à racine provisionnée nécessitent actuellement une connexion SSH directe."
-      },
       "blocked": {
         "notification": {
           "fallback": {
@@ -860,9 +853,6 @@
       },
       "pluginCommandKeybindings": {
         "group": "Plugins"
-      },
-      "ephemeralVmWorktreeCreation": {
-        "sparseCheckoutUnsupported": "Les recettes à racine provisionnée ne prennent pas en charge le sparse checkout."
       },
       "activateAiVaultStructuredSession": {
         "unavailable": "La session d'agent structuré n'est pas encore disponible. Réessayez dans un instant.",
@@ -1263,13 +1253,8 @@
         "notConnected": "Non connecté",
         "notePasteTooLarge": "Le contenu collé est trop volumineux pour le champ de note.",
         "waitForSetupBeforeAgent": "Attendre la fin du setup avant de démarrer l'agent",
-        "destroyDisabled": "destroy désactivé",
-        "destroyConfigured": "destroy configuré",
-        "noDestroyConfigured": "pas de destroy",
-        "ephemeralVm": "Environnement par espace de travail",
         "chooseRunTarget": "Choisir la cible",
         "noRunTargets": "Aucune cible d'exécution n'est prête pour ce projet.",
-        "perWorkspaceEnvHint": "Provisionner un environnement à la demande depuis une recette",
         "branchName": "Nom de branche",
         "branchNamePlaceholder": "feature/my-branch",
         "connectTimedOut": "La connexion a expiré. Elle se poursuit peut-être en arrière-plan.",
@@ -2060,10 +2045,7 @@
             "ed2a664f8b": "Impossible de créer le worktree",
             "a3346fc6ed": "Annuler la création du worktree",
             "532aea14ce": "Annuler",
-            "767951265d": "Un problème est survenu lors de la création du worktree.",
-            "vmProvisioningTitle": "Provisionnement de la VM",
-            "cancelProvisioning": "Annuler",
-            "vmProvisioningLogEmpty": "En attente de la sortie de la recette…"
+            "767951265d": "Un problème est survenu lors de la création du worktree."
           }
         }
       },
@@ -7041,8 +7023,6 @@
           "troubleshootStepAddress": "Choisissez « Autre appareil » et sélectionnez son adresse Tailscale ou LAN.",
           "troubleshootStepRegenerate": "Générez un nouveau lien d'accès et utilisez ici uniquement le lien le plus récent.",
           "troubleshootTunnel": "Vous utilisez une redirection locale SSH ? Revenez à « Se connecter à un hôte », collez le lien loopback, puis activez « J'utilise un tunnel SSH » sous « Avancé ».",
-          "cloudVmWorkflow": "VM cloud",
-          "cloudVmWorkflowHelp": "Gérer les machines cloud créées par recette",
           "serverWorkspaceWindowClosed": "Fenêtre de l'espace de travail fermée",
           "serverRuntimeUnavailable": "Orque indisponible",
           "serverRuntimeUnavailableDescription": "Le transport SSH est connecté, mais le runtime Orca n'a pas répondu. L'hôte est peut-être toujours en cours d'exécution.",
@@ -9731,78 +9711,6 @@
           "orcaCloud": "Orca Cloud",
           "deleteAnywayClicked": "Supprimer quand même cliqué"
         },
-        "EphemeralVmRecipeRow": {
-          "useInWorkspace": "Utiliser dans l'espace de travail"
-        },
-        "EphemeralVmRuntimesSection": {
-          "cleanupFailed": "Échec du nettoyage",
-          "cleanupRunning": "Nettoyage en cours",
-          "cleanupDisabled": "Nettoyage désactivé",
-          "running": "En cours",
-          "failed": "Échec",
-          "loadFailed": "Impossible de charger les runtimes de VM temporaires.",
-          "cleanupFailedToast": "Impossible de nettoyer le runtime de VM temporaire.",
-          "markedCleaned": "Runtime de VM temporaire marqué comme nettoyé.",
-          "cleaned": "Runtime de VM temporaire nettoyé.",
-          "copiedCleanupCommand": "Commande de nettoyage copiée.",
-          "copiedCleanupPayload": "Contenu de nettoyage copié.",
-          "copyCleanupFailed": "Impossible de copier la commande de nettoyage.",
-          "title": "Runtimes de VM temporaires",
-          "description": "Les runtimes créés par recette appartiennent à l'espace de travail. Nettoyez les entrées obsolètes après un plantage, une création échouée ou une récupération manuelle.",
-          "refresh": "Actualiser les runtimes de VM temporaires",
-          "loading": "Vérification des runtimes de VM temporaires…",
-          "empty": "Aucun runtime de VM temporaire à nettoyer.",
-          "copyCleanup": "Copier la commande",
-          "retry": "Réessayer le nettoyage",
-          "cleanup": "Nettoyage",
-          "cloudVmLoadFailed": "Impossible de charger les runtimes de VM Cloud.",
-          "cloudVmCleanupFailedToast": "Impossible de nettoyer le runtime de VM Cloud.",
-          "cloudVmMarkedCleaned": "Runtime de VM Cloud marqué comme nettoyé.",
-          "cloudVmCleaned": "Runtime de VM Cloud nettoyé.",
-          "cloudVmTitle": "Runtimes de VM Cloud",
-          "cloudVmRefresh": "Actualiser les runtimes de VM Cloud",
-          "cloudVmLoading": "Vérification des runtimes de VM Cloud…",
-          "cloudVmEmptyWithSetup": "Aucun runtime de VM Cloud pour l'instant. Créez-en un depuis un espace de travail avec une recette d'environnement.",
-          "stoppingCleanup": "Arrêt…",
-          "stopCleanup": "Arrêter le nettoyage",
-          "cleanupStopped": "Nettoyage arrêté",
-          "stopCleanupFailed": "Impossible d'arrêter le nettoyage de la VM Cloud."
-        },
-        "ephemeralVms": {
-          "search": {
-            "description": "Découvrez comment les recettes détenues par le dépôt offrent à chaque workspace son propre environnement jetable à la demande.",
-            "cloudVmTitle": "VM cloud",
-            "keywordVm": "machine virtuelle",
-            "keywordSandbox": "bac à sable",
-            "keywordCloud": "nuage",
-            "keywordRecipe": "recette",
-            "keywordEphemeral": "éphémère"
-          }
-        },
-        "EphemeralVmsPane": {
-          "loadError": "Impossible de charger les recettes.",
-          "copyError": "Impossible de copier le prompt.",
-          "skillDescription": "Configure, construit, authentifie et valide les recettes d'environnement détenues par le dépôt.",
-          "whatTitle": "Ce que fait la skill, avec vous",
-          "whatScaffold": "Écrit la recette et les scripts pour votre fournisseur — connecté via un serveur Orca ou SSH.",
-          "whatBuild": "Construit une image de base réutilisable et connecte votre agent.",
-          "whatValidate": "La valide pour que vous puissiez créer un espace de travail dessus.",
-          "promptHint": "Dans n'importe quel espace de travail, demandez à votre agent :",
-          "copy": "Copier",
-          "copied": "Copied",
-          "recipes": "Recettes",
-          "recipesHelp": "Les recettes issues d'orca.yaml et des plugins activés apparaissent ici, prêtes à lancer un espace de travail.",
-          "checking": "Vérification des recettes...",
-          "none": "Aucune recette trouvée pour l'instant.",
-          "cloudVmSkillTitle": "Skill de configuration de VM Cloud",
-          "cloudVmRefresh": "Actualiser les recettes de VM Cloud",
-          "cloudVmTerminalTitle": "Configuration de VM Cloud",
-          "cloudVmTerminalAriaLabel": "Terminal d'installation de la skill VM Cloud"
-        },
-        "ephemeralVmsExperimentalSetting": {
-          "description": "Affiche les contrôles de configuration et les cibles d'exécution espace de travail pour les environnements détenus par le dépôt, à la demande.",
-          "cloudVmToggleLabel": "Activer/désactiver Cloud VM"
-        },
         "SourceControlActionRepoOverrideNote": {
           "agent": "Agent",
           "agentArgs": "Arguments CLI",
@@ -10032,8 +9940,6 @@
           "commands": "{{value0}} commandes",
           "keybindingsOne": "1 raccourci clavier",
           "keybindings": "{{value0}} raccourcis clavier",
-          "vmRecipesOne": "1 recette de VM",
-          "vmRecipes": "{{value0}} recettes de VM",
           "panelsOne": "1 panneau",
           "panels": "{{value0}} panneaux",
           "eventsOne": "1 abonnement aux événements",
@@ -10134,14 +10040,6 @@
           "enableLabel": "Activer {{value0}}",
           "invalidPluginError": "Le manifeste du plugin ou les fichiers installés sont non valides. Corrigez le plugin, puis actualisez."
         },
-        "PluginVmRecipeConsentPreview": {
-          "create": "Créer",
-          "suspend": "Suspendre",
-          "resume": "Reprendre",
-          "destroy": "Détruire",
-          "heading": "Commandes de recette de VM",
-          "commandLabel": "{{value0}} · {{value1}} commande"
-        },
         "pluginError": {
           "installManifestMissing": "Aucun orca-plugin.json lisible trouvé. Choisissez le dossier racine du plugin.",
           "installManifestInvalid": "orca-plugin.json est non valide. Demandez à l'auteur du plugin de corriger le manifeste.",
@@ -10214,13 +10112,6 @@
           "saveFailed": "Impossible d'enregistrer l'hôte",
           "saveFailedHelp": "L'hôte a été vérifié, mais Orca n'a pas pu l'enregistrer. Vérifiez le nom et le stockage local des paramètres, puis réessayez."
         },
-        "CloudVmSetupGuide": {
-          "title": "Créer une VM cloud",
-          "description": "Les VM cloud sont créées à partir de recettes d'environnement lors de la création d'un espace de travail.",
-          "setupRecipe": "Configurez une recette d'environnement pour votre fournisseur cloud.",
-          "createWorkspace": "Créez un espace de travail et sélectionnez cette recette sous Run on.",
-          "openSetup": "Configurer les recettes d'environnement"
-        },
         "VoiceMicrophoneSetting": {
           "systemDefault": "Valeur par défaut du système",
           "unavailable": "indisponible",
@@ -10275,13 +10166,6 @@
           "saveFailed": "Impossible d'enregistrer les valeurs de visibilité par défaut.",
           "updateServer": "Mettez à jour ce serveur pour configurer les sources par défaut.",
           "updateServerDefaults": "Mettez à jour ce serveur pour configurer les visibilités par défaut."
-        },
-        "EphemeralVmCleanupStopDialog": {
-          "title": "Arrêter le nettoyage ?",
-          "description": "La VM peut continuer à tourner et générer des frais. Vous pourrez relancer le nettoyage plus tard.",
-          "cancel": "Continuer le nettoyage",
-          "stopping": "Arrêt…",
-          "confirm": "Arrêter le nettoyage"
         },
         "shortcutDefinitionCatalog": {
           "missionControlConflict": "Bloqué par Mission Control. Remappez ici ou changez-le dans Réglages Système."

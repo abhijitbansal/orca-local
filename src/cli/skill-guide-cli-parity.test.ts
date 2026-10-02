@@ -20,10 +20,6 @@ type Invocation = { file: string; line: number; text: string }
 function guideFiles(directory: string): string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const full = join(directory, entry.name)
-    // Why: transient; this guide documents the removed `orca vm` CLI and is deleted next.
-    if (entry.name.startsWith('orca-per-workspace-env')) {
-      return []
-    }
     if (entry.isDirectory()) {
       return guideFiles(full)
     }

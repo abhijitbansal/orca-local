@@ -2162,16 +2162,6 @@
         "DevToolsPane": {
           "orcaCloud": "Orca Cloud"
         },
-        "EphemeralVmRuntimesSection": {
-          "cleaned": "Cleaned up temporary VM runtime.",
-          "cleanupFailedToast": "Couldn’t clean up temporary VM runtime.",
-          "empty": "No temporary VM runtimes need cleanup.",
-          "loadFailed": "Couldn’t load temporary VM runtimes.",
-          "loading": "Checking temporary VM runtimes…",
-          "markedCleaned": "Marked temporary VM runtime as cleaned.",
-          "refresh": "Refresh temporary VM runtimes",
-          "title": "Temporary VM runtimes"
-        },
         "ExperimentalPane": {
           "0277901cf7": "Adds an Agents entry to the left sidebar with a threaded worktree feed for completed agents, blocking questions, unread state, and worktree creation events. Experimental — the event model and UI may change.",
           "24416f42cd": "Shared paths on worktrees",
