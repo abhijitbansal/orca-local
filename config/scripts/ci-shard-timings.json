@@ -506,7 +506,6 @@
       "src/main/ai-vault/codex-session-root-dedup.test.ts": 116,
       "src/main/ai-vault/local-log-tail-reader.test.ts": 35,
       "src/main/ai-vault/omp-session-root.test.ts": 159,
-      "src/main/ai-vault/opencode-wsl-runtime-preparation.test.ts": 917,
       "src/main/ai-vault/remote-session-content-lines.test.ts": 74,
       "src/main/ai-vault/remote-session-large-transcripts.test.ts": 2163,
       "src/main/ai-vault/remote-session-parse-cache.test.ts": 229,
