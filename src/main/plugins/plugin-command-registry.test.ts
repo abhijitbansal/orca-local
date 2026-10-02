@@ -41,7 +41,7 @@ describe('PluginCommandRegistry', () => {
     const commands = Array.from({ length: 256 }, (_, index) => ({
       id: `command-${index}`,
       title: `Command ${index}`,
-      action: 'view.tasks'
+      action: 'workspace.openBoard'
     }))
     const keys = Array.from(
       { length: 104 },
@@ -81,7 +81,7 @@ describe('PluginCommandRegistry', () => {
   it('records each conflicting owner once instead of every pair', () => {
     const plugins = Array.from({ length: 128 }, (_, index) =>
       commandPlugin(`plugin-${index}`, {
-        commands: [{ id: 'tasks', title: 'Tasks', action: 'view.tasks' }],
+        commands: [{ id: 'tasks', title: 'Tasks', action: 'workspace.openBoard' }],
         keybindings: [{ command: 'tasks', key: 'Mod+Alt+T' }]
       })
     )
@@ -102,8 +102,8 @@ describe('PluginCommandRegistry', () => {
   it('preserves the last conflicting spelling for repeated owners and chord groups', () => {
     const plugin = commandPlugin('repeat', {
       commands: [
-        { id: 'one', title: 'One', action: 'view.tasks' },
-        { id: 'two', title: 'Two', action: 'view.tasks', context: 'worktree' }
+        { id: 'one', title: 'One', action: 'workspace.openBoard' },
+        { id: 'two', title: 'Two', action: 'workspace.openBoard', context: 'worktree' }
       ]
     })
     const registry = new PluginCommandRegistry()
@@ -124,7 +124,7 @@ describe('PluginCommandRegistry', () => {
 
   it('retains pending previews and exposes only approved commands', () => {
     const plugin = commandPlugin('aliases', {
-      commands: [{ id: 'tasks', title: 'Open Tasks', action: 'view.tasks' }],
+      commands: [{ id: 'tasks', title: 'Open Tasks', action: 'workspace.openBoard' }],
       keybindings: [{ command: 'tasks', key: 'mod+alt+t' }]
     })
     const registry = new PluginCommandRegistry()
@@ -137,7 +137,7 @@ describe('PluginCommandRegistry', () => {
         id: 'tasks',
         title: 'Open Tasks',
         context: 'global',
-        handler: { type: 'built-in', action: 'view.tasks' },
+        handler: { type: 'built-in', action: 'workspace.openBoard' },
         keybindings: [{ key: 'Mod+Alt+T', when: 'global' }]
       }
     ])
@@ -166,11 +166,13 @@ describe('PluginCommandRegistry', () => {
 
   it('errors approved plugins whose keybindings overlap', () => {
     const global = commandPlugin('global', {
-      commands: [{ id: 'tasks', title: 'Tasks', action: 'view.tasks' }],
+      commands: [{ id: 'tasks', title: 'Tasks', action: 'workspace.openBoard' }],
       keybindings: [{ command: 'tasks', key: 'Mod+Alt+T', when: 'global' }]
     })
     const worktree = commandPlugin('worktree', {
-      commands: [{ id: 'tasks', title: 'Tasks', context: 'worktree', action: 'view.tasks' }],
+      commands: [
+        { id: 'tasks', title: 'Tasks', context: 'worktree', action: 'workspace.openBoard' }
+      ],
       keybindings: [{ command: 'tasks', key: 'Mod+Alt+T', when: 'worktree' }]
     })
     const registry = new PluginCommandRegistry()
@@ -184,11 +186,11 @@ describe('PluginCommandRegistry', () => {
 
   it('uses saved effective bindings to recover conflicting plugins', () => {
     const first = commandPlugin('first', {
-      commands: [{ id: 'tasks', title: 'Tasks', action: 'view.tasks' }],
+      commands: [{ id: 'tasks', title: 'Tasks', action: 'workspace.openBoard' }],
       keybindings: [{ command: 'tasks', key: 'Mod+Alt+T' }]
     })
     const second = commandPlugin('second', {
-      commands: [{ id: 'tasks', title: 'Tasks', action: 'view.tasks' }],
+      commands: [{ id: 'tasks', title: 'Tasks', action: 'workspace.openBoard' }],
       keybindings: [{ command: 'tasks', key: 'Mod+Alt+T' }]
     })
     const registry = new PluginCommandRegistry()
@@ -208,7 +210,7 @@ describe('PluginCommandRegistry', () => {
   it('rejects conflicting saved bindings within one plugin', () => {
     const plugin = commandPlugin('aliases', {
       commands: [
-        { id: 'tasks', title: 'Tasks', action: 'view.tasks' },
+        { id: 'tasks', title: 'Tasks', action: 'workspace.openBoard' },
         { id: 'sidebar', title: 'Sidebar', action: 'sidebar.left.toggle' }
       ]
     })
@@ -230,11 +232,11 @@ describe('PluginCommandRegistry', () => {
 
   it('detects cross-platform Mod and physical Ctrl conflicts', () => {
     const portable = commandPlugin('portable', {
-      commands: [{ id: 'tasks', title: 'Tasks', action: 'view.tasks' }],
+      commands: [{ id: 'tasks', title: 'Tasks', action: 'workspace.openBoard' }],
       keybindings: [{ command: 'tasks', key: 'Mod+Alt+T' }]
     })
     const physical = commandPlugin('physical', {
-      commands: [{ id: 'tasks', title: 'Tasks', action: 'view.tasks' }],
+      commands: [{ id: 'tasks', title: 'Tasks', action: 'workspace.openBoard' }],
       keybindings: [{ command: 'tasks', key: 'Ctrl+Alt+T' }]
     })
     const registry = new PluginCommandRegistry()
@@ -248,11 +250,15 @@ describe('PluginCommandRegistry', () => {
 
   it('allows the same worktree-only chord after one plugin is disabled', () => {
     const first = commandPlugin('first', {
-      commands: [{ id: 'tasks', title: 'Tasks', context: 'worktree', action: 'view.tasks' }],
+      commands: [
+        { id: 'tasks', title: 'Tasks', context: 'worktree', action: 'workspace.openBoard' }
+      ],
       keybindings: [{ command: 'tasks', key: 'Mod+Alt+T' }]
     })
     const second = commandPlugin('second', {
-      commands: [{ id: 'tasks', title: 'Tasks', context: 'worktree', action: 'view.tasks' }],
+      commands: [
+        { id: 'tasks', title: 'Tasks', context: 'worktree', action: 'workspace.openBoard' }
+      ],
       keybindings: [{ command: 'tasks', key: 'Mod+Alt+T' }]
     })
     const registry = new PluginCommandRegistry()

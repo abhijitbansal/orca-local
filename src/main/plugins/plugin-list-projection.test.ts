@@ -179,7 +179,9 @@ describe('buildPluginList consent identity', () => {
     const commandManifest = pluginManifestSchema.parse({
       ...manifest,
       contributes: {
-        commands: [{ id: 'tasks', title: 'Open Tasks', context: 'worktree', action: 'view.tasks' }],
+        commands: [
+          { id: 'tasks', title: 'Open Tasks', context: 'worktree', action: 'workspace.openBoard' }
+        ],
         keybindings: [{ command: 'tasks', key: 'mod+alt+t' }]
       }
     })
@@ -203,7 +205,7 @@ describe('buildPluginList consent identity', () => {
                 id: 'tasks',
                 title: 'Open Tasks',
                 context: 'worktree',
-                handler: { type: 'built-in', action: 'view.tasks' },
+                handler: { type: 'built-in', action: 'workspace.openBoard' },
                 keybindings: [{ key: 'Mod+Alt+T', when: 'worktree' }]
               }
             ]
@@ -216,7 +218,7 @@ describe('buildPluginList consent identity', () => {
         id: 'tasks',
         title: 'Open Tasks',
         context: 'worktree',
-        handler: { type: 'built-in', action: 'view.tasks' },
+        handler: { type: 'built-in', action: 'workspace.openBoard' },
         keybindings: [{ key: 'Mod+Alt+T', when: 'worktree' }]
       }
     ])

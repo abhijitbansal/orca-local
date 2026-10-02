@@ -4695,7 +4695,8 @@
           "65770ad0f0": "Edita enlaces y notas de GitHub para este espacio de trabajo.",
           "382fd11a3e": "Editar detalles del worktree",
           "2174f17011": "Guardar",
-          "61d6f612cf": "Guardando..."
+          "61d6f612cf": "Guardando...",
+          "issueLinksDescription": "Edita el enlace de la incidencia y las notas de este espacio de trabajo."
         },
         "WorktreeOpenInMenu": {
           "1417fd8380": "Personalizar apps...",

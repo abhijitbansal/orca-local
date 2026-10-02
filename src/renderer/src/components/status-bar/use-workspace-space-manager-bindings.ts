@@ -33,9 +33,6 @@ export function useWorkspaceSpaceManagerBindings() {
   const browserTabsByWorktree = useAppStore((state) => state.browserTabsByWorktree)
   const gitStatusByWorktree = useAppStore((state) => state.gitStatusByWorktree)
   const remoteStatusesByWorktree = useAppStore((state) => state.remoteStatusesByWorktree)
-  const hostedReviewCache = useAppStore((state) => state.hostedReviewCache)
-  const issueCache = useAppStore((state) => state.issueCache)
-  const linearIssueCache = useAppStore((state) => state.linearIssueCache)
   const settings = useAppStore((state) => state.settings)
   const activeWorktreeId = useAppStore((state) => state.activeWorktreeId)
   const activeWorkspaceExecutionHostId = useAppStore(
@@ -87,9 +84,6 @@ export function useWorkspaceSpaceManagerBindings() {
     browserTabsByWorktree,
     gitStatusByWorktree,
     remoteStatusesByWorktree,
-    hostedReviewCache,
-    issueCache,
-    linearIssueCache,
     settings,
     activeWorktreeId,
     activeWorkspaceExecutionHostId,

@@ -17,7 +17,7 @@ type OnboardingTelemetryArgs = {
   persistedThemeRef: { current: GlobalSettings['theme'] }
   preflightStatus: AppState['preflightStatus']
   preflightStatusLoading: boolean
-  linearStatus: AppState['linearStatus']
+  linearStatus: { connected?: boolean }
   linearStatusChecked: boolean
 }
 

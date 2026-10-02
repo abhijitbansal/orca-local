@@ -20,7 +20,6 @@ function createHarness() {
   type Callbacks = Parameters<typeof subscribeRuntimeEnvironmentFromPreload>[2]
   let listener: Parameters<Ipc['on']>[1] | undefined
   const pending: ReturnType<typeof Promise.withResolvers<unknown>>[] = []
-  const issueRead = Promise.withResolvers<null>()
   const ipc: Ipc = {
     invoke: vi.fn((channel) => {
       if (channel !== 'runtimeEnvironments:subscribe') {
@@ -36,7 +35,6 @@ function createHarness() {
     },
     removeListener: vi.fn()
   }
-  const getIssue = vi.fn(() => issueRead.promise)
   const refreshStatus = vi.fn(async () => true)
   let nextId = 0
   vi.stubGlobal('window', {
@@ -45,8 +43,7 @@ function createHarness() {
         subscribe: (args: Args, callbacks: Callbacks) =>
           subscribeRuntimeEnvironmentFromPreload(ipc, args, callbacks, () => `sub-${nextId++}`),
         call: vi.fn(async () => ({ id: 'r', ok: true, result: [] }))
-      },
-      linear: { getIssue }
+      }
     }
   })
   const status = createCompatibleRuntimeStatusResponse()
@@ -70,12 +67,6 @@ function createHarness() {
       }
     ],
     runtimeStatusByEnvironmentId: new Map([['host-a', { status: status.result, checkedAt: 1 }]]),
-    linearIssueCache: {},
-    linearSearchCache: {},
-    linearListCache: {},
-    linearProjectIssueCache: {},
-    linearCustomViewIssueCache: {},
-    checkLinearConnection: vi.fn(async () => {}),
     refreshRuntimeEnvironmentStatus: refreshStatus
   })
   const starts: (() => void)[] = []
@@ -94,7 +85,6 @@ function createHarness() {
   }
   return {
     start,
-    getIssue,
     refreshStatus,
     pending,
     ipc,
@@ -120,35 +110,12 @@ function createHarness() {
       pending.forEach((setup, index) =>
         setup.resolve({ subscriptionId: `sub-${index}`, requestId: 'r' })
       )
-      issueRead.resolve(null)
       for (let index = 0; index < 30; index += 1) {
         await Promise.resolve()
       }
     }
   }
 }
-
-it('does no Linear read dispatch or cache publication after cleanup while setup is pending', async () => {
-  const h = createHarness()
-  let publications = 0
-  const stopCounting = useAppStore.subscribe((state, previous) => {
-    if (state.linearIssueCache !== previous.linearIssueCache) {
-      publications += 1
-    }
-  })
-  try {
-    h.start()()
-    for (let index = 0; index < 100; index += 1) {
-      h.emit(0)
-    }
-    expect(h.getIssue).not.toHaveBeenCalled()
-    expect(publications).toBe(0)
-  } finally {
-    stopCounting()
-    await h.finish()
-  }
-  expect(h.ipc.removeListener).toHaveBeenCalledOnce()
-})
 
 it('does no replay recovery or resubscription after cleanup', async () => {
   const h = createHarness()
@@ -157,23 +124,7 @@ it('does no replay recovery or resubscription after cleanup', async () => {
     h.emit(0, true)
     expect(h.refreshStatus).not.toHaveBeenCalled()
     expect(h.pending).toHaveLength(1)
-    expect(h.getIssue).not.toHaveBeenCalled()
   } finally {
     await h.finish()
   }
-})
-
-it('accepts a fresh bridge early frame while rejecting the previous bridge frame', async () => {
-  const h = createHarness()
-  try {
-    h.start()()
-    h.start()
-    h.emit(0)
-    h.emit(1)
-    expect(h.getIssue).toHaveBeenCalledOnce()
-    expect(h.getIssue).toHaveBeenCalledWith({ id: 'ISSUE-1', workspaceId: 'workspace-a' })
-  } finally {
-    await h.finish()
-  }
-  expect(h.ipc.removeListener).toHaveBeenCalledOnce()
 })

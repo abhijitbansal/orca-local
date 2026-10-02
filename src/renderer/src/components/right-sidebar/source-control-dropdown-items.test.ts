@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { resolveDropdownItems } from './source-control-dropdown-items'
-import type { DropdownActionInputs, DropdownItem } from './source-control-dropdown-item-types'
-import {
-  hasUsableHostedReviewPushTarget,
-  resolveHostedReviewActionUpstreamStatus
-} from './source-control/review/hosted-review-push-target'
+import type { DropdownActionInputs } from './source-control-dropdown-item-types'
 
 // Why: a shared defaults object keeps each case row terse while making the
 // "this is the one knob that differs from the baseline" intent obvious.
@@ -40,8 +36,6 @@ describe('resolveDropdownItems', () => {
       'separator',
       'push',
       'force_push',
-      'create_pr',
-      'push_create_pr',
       'pull',
       'fast_forward',
       'sync',
@@ -215,9 +209,6 @@ describe('resolveDropdownItems', () => {
     )
     expect(byKind.sync.disabled).toBe(true)
     expect(byKind.sync.title).toBe('Use Force Push — remote only has older copies of local commits')
-    expect(byKind.create_pr.hint).toBe('Force Push first')
-    expect(byKind.push_create_pr.label).toBe('Force Push before PR')
-    expect(byKind.push_create_pr.disabled).toBe(false)
   })
 
   it('offers explicit force-push-with-lease for an ordinary ahead branch', () => {
@@ -659,75 +650,5 @@ describe('resolveDropdownItems', () => {
     expect(divergedByKind.fast_forward.title).toBe(
       'Try a fast-forward pull; git may reject local commits'
     )
-  })
-})
-
-// Why: PR #8196 — drive the real push-target resolution the component uses so
-// the whole chain stays regression-proof.
-describe('resolveDropdownItems with an unhydrated linked-review push target', () => {
-  function pipeline(args: {
-    branchName: string
-    upstreamStatus: DropdownActionInputs['upstreamStatus']
-  }): Record<string, DropdownItem> {
-    const canUseHostedReviewPushTarget = hasUsableHostedReviewPushTarget({
-      // pushTarget intentionally omitted: the resolver has not hydrated it yet.
-      hasResolvableHostedReviewPushTargetLink: true,
-      branchName: args.branchName,
-      upstreamStatus: args.upstreamStatus
-    })
-    const upstreamStatus = resolveHostedReviewActionUpstreamStatus({
-      hasHostedReviewLink: true,
-      hasResolvableHostedReviewPushTargetLink: true,
-      hostedReviewState: 'open',
-      isHostedReviewStateLoading: false,
-      canUseHostedReviewPushTarget,
-      upstreamStatus: args.upstreamStatus
-    })
-    const items = resolveDropdownItems(
-      inputs({
-        stagedCount: 1,
-        hasMessage: true,
-        branchCommitsAhead: 7,
-        prState: 'open',
-        upstreamStatus,
-        canPushLinkedReviewWithoutUpstream: canUseHostedReviewPushTarget
-      })
-    )
-    return Object.fromEntries(
-      items.filter((e): e is DropdownItem => e.kind !== 'separator').map((e) => [e.kind, e])
-    )
-  }
-
-  it('enables Push and Force Push when the real upstream is the same-repo review head', () => {
-    const byKind = pipeline({
-      branchName: 'mobile-resume-suspected-fixes',
-      upstreamStatus: {
-        hasUpstream: true,
-        upstreamName: 'origin/mobile-resume-suspected-fixes',
-        ahead: 7,
-        behind: 2
-      }
-    })
-    expect(byKind.push.disabled).toBe(false)
-    expect(byKind.push.title).not.toBe('Linked review branch target is unavailable')
-    expect(byKind.force_push.disabled).toBe(false)
-    expect(byKind.pull.disabled).toBe(false)
-    expect(byKind.sync.disabled).toBe(false)
-    expect(byKind.publish.disabled).toBe(true)
-  })
-
-  it('still blocks Push when the real upstream is an unrelated fork/helper head', () => {
-    const byKind = pipeline({
-      branchName: 'mobile-resume-suspected-fixes',
-      upstreamStatus: {
-        hasUpstream: true,
-        upstreamName: 'origin/helper-branch',
-        ahead: 1,
-        behind: 0
-      }
-    })
-    expect(byKind.push.disabled).toBe(true)
-    expect(byKind.push.title).toBe('Linked review branch target is unavailable')
-    expect(byKind.force_push.disabled).toBe(true)
   })
 })

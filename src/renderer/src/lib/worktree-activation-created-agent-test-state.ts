@@ -56,12 +56,11 @@ function baseSeedState(worktree: Worktree, worktrees: Worktree[]): Partial<Store
     activeTabTypeByWorktree: {},
     activeTabIdByWorktree: {},
     tabBarOrderByWorktree: {},
-    pendingStartupByTabId: {},
     settings: {
       agentCmdOverrides: {},
       setupScriptLaunchMode: 'new-tab'
     } as unknown as StoreState['settings'],
-    refreshGitHubForWorktreeIfStale: vi.fn()
+    pendingStartupByTabId: {}
   }
 }
 

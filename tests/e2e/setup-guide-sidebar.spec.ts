@@ -35,12 +35,6 @@ test.describe('Setup guide sidebar entry', () => {
 
     await startSetupGuideFlashMonitor(orcaPage)
 
-    await setActiveViewForFlashProbe(orcaPage, 'tasks')
-    await expect
-      .poll(async () => getStoreState<string>(orcaPage, 'activeView'), { timeout: 5_000 })
-      .toBe('tasks')
-    await orcaPage.waitForTimeout(500)
-
     await setActiveViewForFlashProbe(orcaPage, 'automations')
     await expect
       .poll(async () => getStoreState<string>(orcaPage, 'activeView'), { timeout: 5_000 })
@@ -67,7 +61,7 @@ test.describe('Setup guide sidebar entry', () => {
 
 async function setActiveViewForFlashProbe(
   page: Page,
-  view: 'tasks' | 'automations' | 'mobile'
+  view: 'automations' | 'mobile'
 ): Promise<void> {
   await page.evaluate((nextView) => {
     // Why: this spec monitors setup-guide visibility during view transitions;

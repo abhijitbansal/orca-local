@@ -14,9 +14,7 @@ function seedWorktree(store: ReturnType<typeof createTestStore>): void {
   seedStore(store, {
     worktreesByRepo: {
       repo1: [makeWorktree({ id: WORKTREE_ID, repoId: 'repo1', path: '/path/wt1' })]
-    },
-    refreshGitHubForWorktree: vi.fn(),
-    refreshGitHubForWorktreeIfStale: vi.fn()
+    }
   })
 }
 

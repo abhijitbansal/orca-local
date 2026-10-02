@@ -73,17 +73,6 @@ vi.mock('@/components/ui/dropdown-menu', () => ({
   )
 }))
 
-const reviewFixture = {
-  provider: 'github' as const,
-  number: 456,
-  title: 'Fix stale GH PR',
-  state: 'open' as const,
-  url: 'https://github.com/acme/orca/pull/456',
-  status: 'success' as const,
-  updatedAt: '2026-05-17T00:00:00.000Z',
-  mergeable: 'MERGEABLE' as const
-}
-
 describe('WorktreeCardDetailsHover interactions', () => {
   let container: HTMLDivElement
   let root: Root
@@ -116,32 +105,6 @@ describe('WorktreeCardDetailsHover interactions', () => {
     writeClipboardText.mockResolvedValue(undefined)
   })
 
-  function renderHover(
-    onUnlinkReview = vi.fn(),
-    onOpenReviewInBrowser?: () => void
-  ): ReturnType<typeof vi.fn> {
-    container = document.createElement('div')
-    root = createRoot(container)
-    act(() => {
-      root.render(
-        <WorktreeCardDetailsHover
-          issue={null}
-          linearIssue={null}
-          review={reviewFixture}
-          comment={null}
-          onEditIssue={vi.fn()}
-          onEditComment={vi.fn()}
-          onOpenReviewInOrca={vi.fn()}
-          onUnlinkReview={onUnlinkReview}
-          onOpenReviewInBrowser={onOpenReviewInBrowser}
-        >
-          <span>Linked PR</span>
-        </WorktreeCardDetailsHover>
-      )
-    })
-    return onUnlinkReview
-  }
-
   function renderEditableHover(onRenameWorkspaceTitle = vi.fn()): ReturnType<typeof vi.fn> {
     container = document.createElement('div')
     root = createRoot(container)
@@ -161,45 +124,6 @@ describe('WorktreeCardDetailsHover interactions', () => {
     })
     return onRenameWorkspaceTitle
   }
-
-  it('defers hover close while the review menu is open', () => {
-    renderHover()
-
-    act(() => {
-      interactionMocks.onHoverOpenChange?.(true)
-      interactionMocks.onReviewMenuOpenChange?.(true)
-      interactionMocks.onHoverOpenChange?.(false)
-    })
-
-    expect(container.querySelector('[data-hover-open]')?.getAttribute('data-hover-open')).toBe(
-      'true'
-    )
-  })
-
-  it('closes the hover after the review menu dismisses a deferred close', () => {
-    renderHover()
-
-    act(() => {
-      interactionMocks.onHoverOpenChange?.(true)
-      interactionMocks.onReviewMenuOpenChange?.(true)
-      interactionMocks.onHoverOpenChange?.(false)
-      interactionMocks.onReviewMenuOpenChange?.(false)
-    })
-
-    expect(container.querySelector('[data-hover-open]')?.getAttribute('data-hover-open')).toBe(
-      'false'
-    )
-  })
-
-  it('omits the review trigger tooltip while the review menu is open', () => {
-    renderHover()
-
-    act(() => {
-      interactionMocks.onReviewMenuOpenChange?.(true)
-    })
-
-    expect(container.textContent).not.toContain('More PR actions')
-  })
 
   it('keeps the hover mounted while the workspace title is being edited', () => {
     renderEditableHover()
@@ -237,125 +161,6 @@ describe('WorktreeCardDetailsHover interactions', () => {
     expect(container.querySelector('[data-hover-open]')?.getAttribute('data-hover-open')).toBe(
       'false'
     )
-  })
-
-  it('invokes unlink and closes the hover from the menu item', () => {
-    const onUnlinkReview = renderHover()
-
-    act(() => {
-      interactionMocks.onHoverOpenChange?.(true)
-      interactionMocks.onReviewMenuOpenChange?.(true)
-    })
-
-    const unlinkButton = Array.from(container.querySelectorAll('button')).find((button) =>
-      button.textContent?.includes('Unlink PR from workspace')
-    )
-
-    act(() => {
-      unlinkButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-    })
-
-    expect(onUnlinkReview).toHaveBeenCalledTimes(1)
-    expect(container.querySelector('[data-hover-open]')?.getAttribute('data-hover-open')).toBe(
-      'false'
-    )
-    expect(
-      container.querySelector('[data-review-menu-open]')?.getAttribute('data-review-menu-open')
-    ).toBe('false')
-  })
-
-  it('copies the review URL and closes the hover from the menu item', async () => {
-    const onUnlinkReview = renderHover()
-
-    act(() => {
-      interactionMocks.onHoverOpenChange?.(true)
-      interactionMocks.onReviewMenuOpenChange?.(true)
-    })
-
-    const copyButton = Array.from(container.querySelectorAll('button')).find((button) =>
-      button.textContent?.includes('Copy link')
-    )
-
-    await act(async () => {
-      copyButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-      await Promise.resolve()
-    })
-
-    expect(writeClipboardText).toHaveBeenCalledWith('https://github.com/acme/orca/pull/456')
-    expect(onUnlinkReview).not.toHaveBeenCalled()
-    expect(toastMocks.success).toHaveBeenCalledWith('PR link copied')
-    expect(container.querySelector('[data-hover-open]')?.getAttribute('data-hover-open')).toBe(
-      'false'
-    )
-    expect(
-      container.querySelector('[data-review-menu-open]')?.getAttribute('data-review-menu-open')
-    ).toBe('false')
-  })
-
-  it('opens the review URL in Orca browser and leaves existing actions independent', () => {
-    const onOpenReviewInBrowser = vi.fn()
-    const onUnlinkReview = renderHover(vi.fn(), onOpenReviewInBrowser)
-
-    act(() => {
-      interactionMocks.onHoverOpenChange?.(true)
-      interactionMocks.onReviewMenuOpenChange?.(true)
-    })
-
-    const browserButton = Array.from(container.querySelectorAll('button')).find((button) =>
-      button.textContent?.includes('Open in Orca browser')
-    )
-
-    act(() => {
-      browserButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-    })
-
-    expect(onOpenReviewInBrowser).toHaveBeenCalledWith('https://github.com/acme/orca/pull/456')
-    expect(onUnlinkReview).not.toHaveBeenCalled()
-    expect(container.querySelector('[data-hover-open]')?.getAttribute('data-hover-open')).toBe(
-      'false'
-    )
-  })
-
-  it('preserves repeated-click behavior by forwarding each browser action', () => {
-    const onOpenReviewInBrowser = vi.fn()
-    renderHover(vi.fn(), onOpenReviewInBrowser)
-
-    act(() => {
-      interactionMocks.onReviewMenuOpenChange?.(true)
-    })
-    const browserButton = Array.from(container.querySelectorAll('button')).find((button) =>
-      button.textContent?.includes('Open in Orca browser')
-    )
-
-    act(() => {
-      browserButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-      browserButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-    })
-
-    expect(onOpenReviewInBrowser).toHaveBeenCalledTimes(2)
-  })
-
-  it('reports clipboard failures without unlinking the review', async () => {
-    writeClipboardText.mockRejectedValueOnce(new Error('clipboard unavailable'))
-    const onUnlinkReview = renderHover()
-
-    act(() => {
-      interactionMocks.onHoverOpenChange?.(true)
-      interactionMocks.onReviewMenuOpenChange?.(true)
-    })
-
-    const copyButton = Array.from(container.querySelectorAll('button')).find((button) =>
-      button.textContent?.includes('Copy link')
-    )
-
-    await act(async () => {
-      copyButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-      await Promise.resolve()
-    })
-
-    expect(writeClipboardText).toHaveBeenCalledWith('https://github.com/acme/orca/pull/456')
-    expect(onUnlinkReview).not.toHaveBeenCalled()
-    expect(toastMocks.error).toHaveBeenCalledWith('Failed to copy link')
   })
 
   it('passes a linked issue URL to the embedded-browser action', () => {

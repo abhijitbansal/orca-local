@@ -30,15 +30,13 @@ export function getWorktreePaletteCreateActionState({
 /**
  * cmdk auto-selects the first item once the controlled value is empty, so a
  * query that matches nothing would leave Create armed for Enter. Creation
- * therefore needs an explicit gesture — a recognized task URL is the one intent
- * allowed to arm itself.
+ * therefore needs an explicit gesture.
  */
 export function isWorktreePaletteCreateActivationAllowed(args: {
-  hasTaskUrlIntent: boolean
   hasCreateName: boolean
   selectionMovedByUser: boolean
 }): boolean {
-  return args.hasTaskUrlIntent || args.hasCreateName || args.selectionMovedByUser
+  return args.hasCreateName || args.selectionMovedByUser
 }
 
 type WorktreePaletteSelectionCandidateEntry = {

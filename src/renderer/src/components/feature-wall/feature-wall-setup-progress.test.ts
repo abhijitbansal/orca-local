@@ -16,7 +16,6 @@ function makeInput(
   return {
     settings: null,
     featureInteractions: {},
-    hasConnectedTaskSource: false,
     browserUseSkillInstalled: false,
     computerUseSkillInstalled: false,
     computerUsePermissionsReady: false,
@@ -49,7 +48,7 @@ describe('getFeatureWallSetupProgress', () => {
     const progress = getFeatureWallSetupProgress(makeInput({ gitRepoCount: 2 }))
 
     expect(progress.stepDone['add-two-repos']).toBe(true)
-    expect(progress.coreTotal).toBe(8)
+    expect(progress.coreTotal).toBe(7)
   })
 
   it('preserves the durable setup step definition order', () => {
@@ -59,7 +58,6 @@ describe('getFeatureWallSetupProgress', () => {
       'notifications',
       'default-agent',
       'agent-capabilities',
-      'task-sources',
       'setup-script',
       'add-two-repos'
     ])
@@ -74,7 +72,6 @@ describe('getFeatureWallSetupProgress', () => {
       'notifications',
       'default-agent',
       'agent-capabilities',
-      'task-sources',
       'setup-script',
       'add-two-repos'
     ])
@@ -100,7 +97,6 @@ describe('getFeatureWallSetupProgress', () => {
           defaultTuiAgent: 'claude',
           notifications: { enabled: true, agentTaskComplete: true }
         } as never,
-        hasConnectedTaskSource: true,
         hasSetupScript: true,
         gitRepoCount: 2,
         browserUseSkillInstalled: true,
@@ -123,7 +119,7 @@ describe('getFeatureWallSetupProgress', () => {
     )
 
     expect(Object.hasOwn(progress.stepDone, 'split-terminal')).toBe(false)
-    expect(progress.coreTotal).toBe(8)
+    expect(progress.coreTotal).toBe(7)
   })
 
   it('marks all active steps complete without historical terminal split interaction', () => {
@@ -139,7 +135,6 @@ describe('getFeatureWallSetupProgress', () => {
         worktreesByRepo: {
           'repo-1': [makeWorktree('main', { isMainWorktree: true }), makeWorktree('worktree-1')]
         },
-        hasConnectedTaskSource: true,
         hasSetupScript: true,
         gitRepoCount: 2,
         browserUseSkillInstalled: true,
@@ -149,7 +144,7 @@ describe('getFeatureWallSetupProgress', () => {
       })
     )
 
-    expect(progress.coreDoneCount).toBe(8)
+    expect(progress.coreDoneCount).toBe(7)
     expect(Object.values(progress.stepDone).every(Boolean)).toBe(true)
   })
 
@@ -217,18 +212,6 @@ describe('getFeatureWallSetupProgress', () => {
 
   it('does not mark the browser step complete without a viewed page', () => {
     expect(getFeatureWallSetupProgress(makeInput()).stepDone.browser).toBe(false)
-  })
-
-  it('marks task sources complete for any supported connected provider', () => {
-    const progress = getFeatureWallSetupProgress(makeInput({ hasConnectedTaskSource: true }))
-
-    expect(progress.stepDone['task-sources']).toBe(true)
-  })
-
-  it('does not mark task sources complete while provider checks are pending', () => {
-    const progress = getFeatureWallSetupProgress(makeInput({ hasConnectedTaskSource: false }))
-
-    expect(progress.stepDone['task-sources']).toBe(false)
   })
 
   it('does not mark agent capabilities complete from setup-start interactions alone', () => {

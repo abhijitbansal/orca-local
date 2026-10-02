@@ -6,11 +6,13 @@ import { useAttachmentDropState } from './attachment-drop-state'
 import { useTargetChangeActions } from './target-change-actions'
 import { useProjectTargetActions } from './project-target-actions'
 import { useBranchStartPointActions } from './branch-start-point-actions'
-import { useGitHubProviderSelection } from './github-provider-selection'
 import { useGitLabProviderSelection } from './gitlab-provider-selection'
 import { useWorkItemSourceActions } from './work-item-source-actions'
 import { useIssueSourceActions } from './issue-source-actions'
 import { useComposerNavigationActions } from './composer-navigation-actions'
+
+// Why: no forge lookup remains, so there is no GitHub item to select from the smart name field.
+function handleSmartGitHubItemSelect(): void {}
 
 export function useComposerSourceState(
   target: ComposerTargetState,
@@ -161,36 +163,7 @@ export function useComposerSourceState(
     smartGitHubPrStartPointSelectionRef:
       target.asyncComposerState.smartGitHubPrStartPointSelectionRef
   })
-  const githubProviderSelection = useGitHubProviderSelection({
-    baseBranchNamesWorkspace: target.workspaceIdentityState.baseBranchNamesWorkspace,
-    applyLinkedWorkItem: external.githubSourceApplication.applyLinkedWorkItem,
-    branchAutoNameRef: target.asyncComposerState.branchAutoNameRef,
-    eligibleRepos: target.composerTargetStore.eligibleRepos,
-    handleBaseBranchPrSelect: branchStartPointActions.handleBaseBranchPrSelect,
-    isProjectGroupTarget: target.runtimeTargetSelection.isProjectGroupTarget,
-    lastAutoNameRef: target.asyncComposerState.lastAutoNameRef,
-    name: target.sourceContextState.name,
-    selectedRepo: target.runtimeTargetSelection.selectedRepo,
-    selectedRepoGitHubSourceContext: target.sourceContextState.selectedRepoGitHubSourceContext,
-    setBaseBranch: target.workspaceIdentityState.setBaseBranch,
-    setBranchNameOverride: target.workspaceIdentityState.setBranchNameOverride,
-    setBranchNameOverridePreservesNameEdits:
-      target.workspaceIdentityState.setBranchNameOverridePreservesNameEdits,
-    setCompareBaseRef: target.workspaceIdentityState.setCompareBaseRef,
-    setForkPushWarning: target.workspaceIdentityState.setForkPushWarning,
-    setLinkedGitLabIssue: target.workspaceIdentityState.setLinkedGitLabIssue,
-    setLinkedGitLabMR: target.workspaceIdentityState.setLinkedGitLabMR,
-    setLinkedIssue: target.workspaceIdentityState.setLinkedIssue,
-    setLinkedPR: target.workspaceIdentityState.setLinkedPR,
-    setLinkedTaskSourceContext: target.sourceContextState.setLinkedTaskSourceContext,
-    setLinkedWorkItem: target.sourceContextState.setLinkedWorkItem,
-    setName: target.sourceContextState.setName,
-    setPushTarget: target.workspaceIdentityState.setPushTarget,
-    setStartFromResetHint: target.workspaceIdentityState.setStartFromResetHint,
-    settings: target.composerTargetStore.settings,
-    smartGitHubPrStartPointSelectionRef:
-      target.asyncComposerState.smartGitHubPrStartPointSelectionRef
-  })
+  const githubProviderSelection = { handleSmartGitHubItemSelect }
   const gitlabProviderSelection = useGitLabProviderSelection({
     applyLinkedGitLabWorkItem: sourceIdentityActions.applyLinkedGitLabWorkItem,
     branchAutoNameRef: target.asyncComposerState.branchAutoNameRef,
@@ -278,9 +251,6 @@ export function useComposerSourceState(
     openSettingsPage: target.composerTargetStore.openSettingsPage,
     openSettingsTarget: target.composerTargetStore.openSettingsTarget,
     selectedProjectGroup: target.initialTargetState.selectedProjectGroup,
-    setActiveRuntimeEnvironmentPreference:
-      target.composerTargetStore.setActiveRuntimeEnvironmentPreference,
-    smartNameJiraSourceContext: target.sourceContextState.smartNameJiraSourceContext,
     sourceIntentBlocksCreate: target.workspaceIdentityState.sourceIntentBlocksCreate,
     updateWorktreeMeta: target.composerTargetStore.updateWorktreeMeta
   })

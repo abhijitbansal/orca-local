@@ -18,7 +18,6 @@ export function useWorkspaceKanbanWorktreeActions(args: {
   boardDragGroups: readonly WorktreeDragGroup[]
   laneFullWorktreeIds: ReadonlyMap<string, readonly string[]>
   laneViews: ReadonlyMap<string, LaneView>
-  maybeSyncTaskStatuses: (worktreeIds: readonly string[], status: WorkspaceStatus) => void
   setSortBy: ReturnType<typeof useAppStore.getState>['setSortBy']
   sortBy: ReturnType<typeof useAppStore.getState>['sortBy']
   updateWorktreeMeta: ReturnType<typeof useAppStore.getState>['updateWorktreeMeta']
@@ -60,7 +59,6 @@ export function useWorkspaceKanbanWorktreeActions(args: {
         { workspaceStatus: status },
         { executionHostId: current.hostId ?? 'local' }
       )
-      args.maybeSyncTaskStatuses([worktreeId], status)
     },
     [args]
   )
@@ -85,7 +83,6 @@ export function useWorkspaceKanbanWorktreeActions(args: {
       }
       recordInteraction()
       void args.updateWorktreesMeta(updates)
-      args.maybeSyncTaskStatuses(changedIds, status)
     },
     [args]
   )
@@ -149,7 +146,6 @@ export function useWorkspaceKanbanWorktreeActions(args: {
       }
       recordInteraction()
       void args.updateWorktreesMeta(changed)
-      args.maybeSyncTaskStatuses(drop.worktreeIds, drop.status)
     },
     [args, shouldWriteDropManualOrder]
   )

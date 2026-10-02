@@ -59,16 +59,6 @@ const getLocalizedFeatureWallSetupChecklistCopyById = createLocalizedCatalog(
         "Install the skills agents use to drive Orca's browser, control your computer, and coordinate multi-step work."
       )
     },
-    'task-sources': {
-      name: translate(
-        'auto.components.feature.wall.feature.wall.setup.checklist.localized.copy.ad342dd4c6',
-        'Connect integrations'
-      ),
-      description: translate(
-        'auto.components.feature.wall.feature.wall.setup.checklist.localized.copy.06fe30fdb0',
-        'Start an agent from a task in one click and keep PR status in view.'
-      )
-    },
     'setup-script': {
       name: translate(
         'auto.components.feature.wall.feature.wall.setup.checklist.localized.copy.eddc532e58',

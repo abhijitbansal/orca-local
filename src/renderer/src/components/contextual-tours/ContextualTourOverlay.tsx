@@ -52,7 +52,6 @@ export function ContextualTourOverlay(): JSX.Element | null {
   const cancelContextualTour = useAppStore((s) => s.cancelContextualTour)
   const detachContextualTourSource = useAppStore((s) => s.detachContextualTourSource)
   const setSidebarOpen = useAppStore((s) => s.setSidebarOpen)
-  const openTaskPage = useAppStore((s) => s.openTaskPage)
   const openModal = useAppStore((s) => s.openModal)
   const openSettingsTarget = useAppStore((s) => s.openSettingsTarget)
   const openSettingsPage = useAppStore((s) => s.openSettingsPage)
@@ -367,7 +366,6 @@ export function ContextualTourOverlay(): JSX.Element | null {
         }
       },
       setSidebarOpen,
-      openTaskPage,
       openModal,
       openClientHostedBrowserSettings: () => {
         openSettingsTarget({

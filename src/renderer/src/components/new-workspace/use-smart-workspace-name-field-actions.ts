@@ -1,18 +1,11 @@
 import { useCallback } from 'react'
 import type React from 'react'
-import { toast } from 'sonner'
-import { translate } from '@/i18n/i18n'
-import { lookupGitHubWorkItemByOwnerRepoForSource } from '@/lib/github-work-item-source-lookup'
 import {
   applyWorkspaceEmojiSuggestion,
   type WorkspaceEmojiReplacement,
   type WorkspaceEmojiSuggestion
 } from '@/lib/workspace-emoji-shortcodes'
-import type { GitHubWorkItem } from '../../../../shared/github/work-item-types'
-import { buildTaskSourceContextFromRepo } from '../../../../shared/task-source-context'
-import { bindJiraIssueSourceContext } from './use-jira-url-source'
-import type { RepoOption, RowEntry } from './smart-workspace-name-field-model'
-import { getRepoSlugCached, sameSlug } from './smart-workspace-repo-slug'
+import type { RowEntry } from './smart-workspace-name-field-model'
 import type { useSmartWorkspaceNameFieldFoundation } from './use-smart-workspace-name-field-foundation'
 import type { useSmartWorkspaceNameFieldPresentation } from './use-smart-workspace-name-field-presentation'
 
@@ -36,12 +29,9 @@ export function useSmartWorkspaceNameFieldActions(
   presentation: Presentation
 ) {
   const {
-    jiraConnectionStatus,
-    jiraSourceContext,
     onBranchSelect,
     onGitHubItemSelect,
     onGitLabItemSelect,
-    onJiraIssueSelect,
     onLinearIssueSelect,
     onValueChange,
     setOpen,
@@ -50,19 +40,9 @@ export function useSmartWorkspaceNameFieldActions(
     cancelLocalInputFocusFrame,
     localInputFocusFrameRef,
     localInputRef,
-    value,
-    crossRepoPrompt,
-    handledCrossRepoUrlRef,
-    debouncedQuery,
-    setGithubLoading,
-    onRepoChange,
-    setCrossRepoPrompt,
-    selectedRepo,
-    allowCrossRepoProjectAdd,
-    addRepo,
-    repoSlugCacheRef
+    value
   } = foundation
-  const { selectJiraAccount, jiraBoundSourceContext, activeEmojiShortcode } = presentation
+  const { selectJiraAccount, activeEmojiShortcode } = presentation
 
   const handleSelect = useCallback(
     (row: RowEntry) => {
@@ -80,38 +60,17 @@ export function useSmartWorkspaceNameFieldActions(
       } else if (row.kind === 'branch') {
         onBranchSelect(row.refName, row.localBranchName)
       } else if (row.kind === 'jira') {
-        const sites = jiraConnectionStatus?.sites ?? []
-        const site =
-          sites.find((candidate) => candidate.id === row.issue.siteId) ??
-          (sites.length === 1 ? sites[0] : null)
-        const sourceContext =
-          jiraBoundSourceContext ??
-          (jiraSourceContext && site
-            ? bindJiraIssueSourceContext(jiraSourceContext, site, row.issue)
-            : null)
-        if (!sourceContext) {
-          toast.error(
-            translate(
-              'auto.components.new.workspace.SmartWorkspaceNameField.jiraSelectBindFailed',
-              'Couldn’t link this Jira issue. Pick the matching site or reconnect Jira, then try again.'
-            )
-          )
-          return
-        }
-        onJiraIssueSelect?.(row.issue, sourceContext)
+        // Why: Jira issues can only be selected through an account-bound source context, which no longer exists.
+        return
       } else {
         onLinearIssueSelect(row.issue)
       }
       setOpen(false)
     },
     [
-      jiraBoundSourceContext,
-      jiraConnectionStatus?.sites,
-      jiraSourceContext,
       onBranchSelect,
       onGitHubItemSelect,
       onGitLabItemSelect,
-      onJiraIssueSelect,
       onLinearIssueSelect,
       onValueChange,
       setOpen,
@@ -147,89 +106,10 @@ export function useSmartWorkspaceNameFieldActions(
     },
     [activeEmojiShortcode, applyEmojiReplacement, value]
   )
-  const acceptGitHubLink = useCallback(
-    async (targetRepo: RepoOption): Promise<void> => {
-      if (!crossRepoPrompt) {
-        return
-      }
-      handledCrossRepoUrlRef.current = debouncedQuery.trim()
-      setGithubLoading(true)
-      try {
-        const sourceContext = buildTaskSourceContextFromRepo({
-          provider: 'github',
-          projectId: targetRepo.id,
-          repo: targetRepo
-        })
-        const item = await lookupGitHubWorkItemByOwnerRepoForSource({
-          repoPath: targetRepo.path,
-          repoId: targetRepo.id,
-          sourceContext,
-          owner: crossRepoPrompt.link.slug.owner,
-          repo: crossRepoPrompt.link.slug.repo,
-          ...(crossRepoPrompt.link.slug.host ? { host: crossRepoPrompt.link.slug.host } : {}),
-          number: crossRepoPrompt.link.number,
-          type: crossRepoPrompt.link.type
-        })
-        if (!item) {
-          return
-        }
-        onRepoChange(targetRepo.id)
-        onGitHubItemSelect({ ...item, repoId: targetRepo.id } as GitHubWorkItem)
-        setOpen(false)
-        setCrossRepoPrompt(null)
-      } finally {
-        setGithubLoading(false)
-      }
-    },
-    [
-      crossRepoPrompt,
-      debouncedQuery,
-      handledCrossRepoUrlRef,
-      onGitHubItemSelect,
-      onRepoChange,
-      setCrossRepoPrompt,
-      setGithubLoading,
-      setOpen
-    ]
-  )
-  const handleUseCurrentRepo = useCallback(async (): Promise<void> => {
-    if (!selectedRepo) {
-      return
-    }
-    setCrossRepoPrompt(null)
-    await acceptGitHubLink(selectedRepo)
-  }, [acceptGitHubLink, selectedRepo, setCrossRepoPrompt])
-  const handleAddMatchingRepo = useCallback(async (): Promise<void> => {
-    if (!crossRepoPrompt || !allowCrossRepoProjectAdd) {
-      return
-    }
-    const added = await addRepo()
-    if (!added) {
-      return
-    }
-    const sourceContext = buildTaskSourceContextFromRepo({
-      provider: 'github',
-      projectId: added.id,
-      repo: added
-    })
-    const slug = await getRepoSlugCached(added, sourceContext, repoSlugCacheRef.current)
-    if (slug && sameSlug(slug, crossRepoPrompt.link.slug)) {
-      await acceptGitHubLink(added)
-    }
-  }, [acceptGitHubLink, addRepo, allowCrossRepoProjectAdd, crossRepoPrompt, repoSlugCacheRef])
-  const dismissCrossRepoPrompt = useCallback((): void => {
-    handledCrossRepoUrlRef.current = debouncedQuery.trim()
-    setCrossRepoPrompt(null)
-  }, [debouncedQuery, handledCrossRepoUrlRef, setCrossRepoPrompt])
-
   return {
     handleSelect,
     openSelectedSource,
     applyEmojiReplacement,
-    handleEmojiSelect,
-    acceptGitHubLink,
-    handleUseCurrentRepo,
-    handleAddMatchingRepo,
-    dismissCrossRepoPrompt
+    handleEmojiSelect
   }
 }

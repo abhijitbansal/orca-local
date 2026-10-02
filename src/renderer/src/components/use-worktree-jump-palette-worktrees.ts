@@ -8,7 +8,6 @@ import {
 import { getStructuredChatWorktreeIds } from '@/components/sidebar/visible-worktree-activity-inputs'
 import { isDefaultBranchWorkspace } from '@/components/sidebar/default-branch-workspace'
 import { sortWorktreesSmart } from '@/components/sidebar/smart-sort'
-import { buildWorktreeChecksReviewIndex } from '@/components/cmd-j/worktree-checks-review-index'
 import { getLiveAgentStatusByWorktreeId, isInactiveWorkspace } from '@/lib/worktree-activity-state'
 import { orderEmptyQueryWorktrees } from '@/lib/order-empty-query-worktrees'
 import {
@@ -21,11 +20,15 @@ import {
   getPairedDeviceIdsByEnvironment,
   isWorkspaceFromOtherDevice
 } from '@/components/sidebar/workspace-creator-visibility'
+import type { HostedReviewInfo } from '../../../shared/hosted-review'
 import type { Worktree } from '../../../shared/worktree/types'
 import { EMPTY_SORTED_WORKTREES } from './worktree-jump-palette-model'
 import { buildWorktreeJumpPaletteDocumentIndex } from './worktree-jump-palette-document-index'
 import { buildWorktreeJumpPaletteWorktreeMaps } from './worktree-jump-palette-worktree-maps'
 import type { WorktreeJumpPaletteWorktreesInput } from './worktree-jump-palette-worktrees-input'
+
+// Why: no forge review state is indexed any more, so no worktree carries a hosted review to match.
+const NO_CHECKS_REVIEWS: ReadonlyMap<Worktree, HostedReviewInfo | null> = new Map()
 
 export function useWorktreeJumpPaletteWorktrees({
   paletteSearchQuery,
@@ -60,8 +63,6 @@ export function useWorktreeJumpPaletteWorktrees({
   hostOptions,
   hostFilterActive,
   prCache,
-  hostedReviewCache,
-  settings,
   issueCache,
   workspacePortScan
 }: WorktreeJumpPaletteWorktreesInput) {
@@ -226,17 +227,6 @@ export function useWorktreeJumpPaletteWorktrees({
     () => buildWorktreeJumpPaletteWorktreeMaps(browserSortedWorktrees),
     [browserSortedWorktrees]
   )
-  const checksReviewByWorktree = useMemo(
-    () =>
-      buildWorktreeChecksReviewIndex({
-        worktrees: allWorktrees,
-        repoByHostIdentity,
-        prCache,
-        hostedReviewCache,
-        settings
-      }),
-    [allWorktrees, hostedReviewCache, prCache, repoByHostIdentity, settings]
-  )
   const worktreeDocuments = useMemo(
     () =>
       buildWorktreeJumpPaletteDocumentIndex({
@@ -248,11 +238,10 @@ export function useWorktreeJumpPaletteWorktrees({
         prCache,
         issueCache,
         workspacePortScan,
-        checksReviewByWorktree
+        checksReviewByWorktree: NO_CHECKS_REVIEWS
       }),
     [
       allWorktrees,
-      checksReviewByWorktree,
       hostFilterActive,
       hostOptions,
       issueCache,
@@ -270,11 +259,9 @@ export function useWorktreeJumpPaletteWorktrees({
         documents: worktreeDocuments,
         repoMap,
         repoMapByHostIdentity: repoByHostIdentity,
-        checksReviewByWorktree,
         context: paletteSearchContext
       }),
     [
-      checksReviewByWorktree,
       paletteSearchQuery,
       paletteSearchContext,
       repoByHostIdentity,

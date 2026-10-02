@@ -2,7 +2,6 @@
 import { act, cleanup, renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { PreflightStatus } from '../../../preload/api-types'
-import type { Repo } from '../../../shared/repo-types'
 import { useAppStore } from '../store'
 import { useLandingPreflightRuntime } from './landing-preflight-runtime'
 
@@ -11,6 +10,7 @@ const invalidate = vi.fn()
 
 const status = (overrides: Partial<PreflightStatus> = {}): PreflightStatus => ({
   git: { installed: true },
+  // Why: the preload status type still carries `gh` until the preflight contract is narrowed.
   gh: { installed: false, authenticated: false },
   ...overrides
 })
@@ -18,16 +18,6 @@ const status = (overrides: Partial<PreflightStatus> = {}): PreflightStatus => ({
 function setDocumentVisibility(state: 'visible' | 'hidden'): void {
   Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => state })
   document.dispatchEvent(new Event('visibilitychange'))
-}
-
-const githubRepo: Repo = {
-  id: 'github',
-  path: '/repos/github',
-  displayName: 'github',
-  badgeColor: '#000000',
-  addedAt: 0,
-  kind: 'git',
-  upstream: { owner: 'orca', repo: 'orca' }
 }
 
 beforeEach(() => {
@@ -116,7 +106,7 @@ describe('landing preflight runtime boundary', () => {
   })
 
   it('stops the 30s preflight poll while hidden and lets the reveal refresh instead', () => {
-    useAppStore.setState({ repos: [githubRepo], preflightStatus: status() })
+    useAppStore.setState({ preflightStatus: status({ git: { installed: false } }) })
     const view = renderHook(() => useLandingPreflightRuntime())
     refresh.mockClear()
 
@@ -139,7 +129,7 @@ describe('landing preflight runtime boundary', () => {
   })
 
   it('keeps one active interval and removes listeners and polling on cleanup', () => {
-    useAppStore.setState({ repos: [githubRepo], preflightStatus: status() })
+    useAppStore.setState({ preflightStatus: status({ git: { installed: false } }) })
     const addEventListener = vi.spyOn(document, 'addEventListener')
     const removeEventListener = vi.spyOn(document, 'removeEventListener')
     const addWindowListener = vi.spyOn(window, 'addEventListener')
@@ -148,7 +138,8 @@ describe('landing preflight runtime boundary', () => {
 
     expect(vi.getTimerCount()).toBe(1)
     act(() => {
-      useAppStore.setState({ repos: [...useAppStore.getState().repos] })
+      const { settings } = useAppStore.getState()
+      useAppStore.setState({ settings: settings ? { ...settings } : settings })
     })
     expect(vi.getTimerCount()).toBe(1)
     act(() => vi.advanceTimersByTime(30_000))

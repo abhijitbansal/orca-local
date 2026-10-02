@@ -5455,7 +5455,8 @@
           "gitlabDescription": "编辑此工作区的问题链接、合并请求链接和注释。",
           "gitlabMR": "亚搏体育appGitLab MR",
           "gitlabPlaceholder": "先生 ！或 GitLab 网址",
-          "gitlabHelp": "粘贴合并请求 URL，或输入数字。留空以删除链接。"
+          "gitlabHelp": "粘贴合并请求 URL，或输入数字。留空以删除链接。",
+          "issueLinksDescription": "编辑此工作区的议题链接和备注。"
         },
         "WorktreeOpenInMenu": {
           "1417fd8380": "自定义应用程序...",

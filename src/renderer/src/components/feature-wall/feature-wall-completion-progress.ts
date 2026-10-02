@@ -31,12 +31,9 @@ export type FeatureWallCompletionProgressInput = {
   completedAgentSteps?: ReadonlySet<AgentsStepId>
   completedWorkbenchSteps?: ReadonlySet<WorkbenchStepId>
   completedReviewSteps?: ReadonlySet<ReviewStepId>
-  hasConnectedTaskSource: boolean
-  isCheckingTaskSources: boolean
   hasUsageAccount: boolean
   orchestrationSkillInstalled: boolean
   browserUseSkillInstalled: boolean
-  githubConfigured: boolean
   aiCommitPrConfigured: boolean
 }
 
@@ -50,9 +47,7 @@ export function getFeatureWallCompletionProgress(
   const reviewVisited = input.visitedWorkflows.has('review')
 
   const workspacesDone = workspacesVisited || input.completedWorkflows?.has('workspaces') === true
-  const tasksDone =
-    input.completedWorkflows?.has('tasks') === true ||
-    (tasksVisited && !input.isCheckingTaskSources && input.hasConnectedTaskSource)
+  const tasksDone = input.completedWorkflows?.has('tasks') === true || tasksVisited
   const usageDone =
     input.completedAgentSteps?.has('usage') === true ||
     (input.visitedAgentSteps.has('usage') && input.hasUsageAccount)
@@ -82,8 +77,7 @@ export function getFeatureWallCompletionProgress(
   const reviewNotesDone =
     input.completedReviewSteps?.has('notes') === true || input.visitedReviewSteps.has('notes')
   const reviewPrViewDone =
-    input.completedReviewSteps?.has('pr-view') === true ||
-    (input.visitedReviewSteps.has('pr-view') && input.githubConfigured)
+    input.completedReviewSteps?.has('pr-view') === true || input.visitedReviewSteps.has('pr-view')
   const reviewShipDone =
     input.completedReviewSteps?.has('ship') === true ||
     (input.visitedReviewSteps.has('ship') && input.aiCommitPrConfigured)

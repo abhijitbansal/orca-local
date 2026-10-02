@@ -5,14 +5,9 @@ import {
   isConnectedRuntimeHostState,
   runtimeHostConnectionStateForEntry
 } from '@/runtime/runtime-host-connection-state'
-import {
-  getLandingPreflightIssues,
-  hasGitHubBackedProject,
-  type PreflightIssue
-} from './landing-preflight-issues'
+import { getLandingPreflightIssues, type PreflightIssue } from './landing-preflight-issues'
 
 export function useLandingPreflightRuntime(): { preflightIssues: PreflightIssue[] } {
-  const repos = useAppStore((s) => s.repos)
   const preflightStatus = useAppStore((s) => s.preflightStatus)
   const refreshPreflightStatus = useAppStore((s) => s.refreshPreflightStatus)
   const invalidatePreflightStatus = useAppStore((s) => s.invalidatePreflightStatus)
@@ -33,15 +28,9 @@ export function useLandingPreflightRuntime(): { preflightIssues: PreflightIssue[
     return `${environmentId}:${runtimeStatus?.connectionGeneration ?? 0}:${reachability}`
   })
 
-  const hasGitHubProject = useMemo(() => hasGitHubBackedProject(repos), [repos])
   const preflightIssues = useMemo(
-    () =>
-      preflightStatus
-        ? getLandingPreflightIssues(preflightStatus, {
-            hasGitHubBackedProject: hasGitHubProject
-          })
-        : [],
-    [preflightStatus, hasGitHubProject]
+    () => (preflightStatus ? getLandingPreflightIssues(preflightStatus) : []),
+    [preflightStatus]
   )
 
   useEffect(() => {

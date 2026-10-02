@@ -44,7 +44,7 @@ describe('plugin panel list loading', () => {
           id: 'tasks',
           title: 'Tasks',
           context: 'global' as const,
-          handler: { type: 'built-in' as const, action: 'view.tasks' },
+          handler: { type: 'built-in' as const, action: 'workspace.openBoard' },
           keybindings: [{ key: 'Mod+Alt+T', when: 'global' as const }]
         }
       ]

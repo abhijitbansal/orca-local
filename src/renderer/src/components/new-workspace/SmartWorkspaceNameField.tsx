@@ -8,7 +8,6 @@ export type {
   SmartWorkspaceNameFieldProps
 } from './smart-workspace-name-field-model'
 export { canUseGitLabSmartSource } from './smart-workspace-provider-availability'
-export { getRepoSlugCached } from './smart-workspace-repo-slug'
 
 export default function SmartWorkspaceNameField(
   props: SmartWorkspaceNameFieldProps

@@ -5600,7 +5600,8 @@
           "gitlabDescription": "Modifiez les liens de problème, les liens de demande de fusion et les notes pour cet espace de travail.",
           "gitlabMR": "GitLabMR",
           "gitlabPlaceholder": "M ! ou URL GitLab",
-          "gitlabHelp": "Collez une URL de demande de fusion ou entrez un numéro. Laissez vide pour supprimer le lien."
+          "gitlabHelp": "Collez une URL de demande de fusion ou entrez un numéro. Laissez vide pour supprimer le lien.",
+          "issueLinksDescription": "Modifiez le lien de l'issue et les notes de cet espace de travail."
         },
         "WorktreeOpenInMenu": {
           "localOnly": "Local uniquement",

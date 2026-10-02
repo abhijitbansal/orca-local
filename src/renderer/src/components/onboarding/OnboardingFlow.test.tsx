@@ -49,8 +49,8 @@ describe('OnboardingFlow', () => {
   })
 
   it.each([
-    [3, 'Set up GitHub tasks'],
-    [4, 'Set up GitHub tasks'],
+    [3, 'Set up notifications'],
+    [4, 'Set up notifications'],
     [5, 'Set up notifications'],
     [9, 'Set up notifications']
   ])(
@@ -72,7 +72,7 @@ describe('OnboardingFlow', () => {
   )
 
   it.each([
-    [3, 'Set up GitHub tasks'],
+    [3, 'Set up notifications'],
     [4, 'Set up notifications'],
     [5, 'Set up notifications'],
     [9, 'Set up notifications']
@@ -115,7 +115,7 @@ describe('OnboardingFlow', () => {
     }
   )
 
-  it('shows the Windows terminal defaults page for Windows users after integrations', () => {
+  it('shows the Windows terminal defaults page for Windows users', () => {
     vi.stubGlobal('navigator', { userAgent: 'Windows' })
 
     const html = renderOnboardingFlow({
@@ -127,16 +127,14 @@ describe('OnboardingFlow', () => {
     })
 
     expect(html).toContain('Set Windows terminal defaults')
-    expect(html).toContain('4 of 5')
+    expect(html).toContain('3 of 4')
   })
 
   it('drops the skipped integrations step from the stepper on Windows', () => {
     vi.stubGlobal('navigator', { userAgent: 'Windows' })
     useAppStore.setState({
-      preflightStatus: {
-        git: { installed: true },
-        gh: { installed: true, authenticated: false }
-      },
+      // Why: the preload status type still carries `gh` until the preflight contract is narrowed.
+      preflightStatus: { git: { installed: true }, gh: { installed: false, authenticated: false } },
       preflightStatusChecked: true
     })
 
@@ -149,7 +147,7 @@ describe('OnboardingFlow', () => {
     })
 
     expect(html).toContain('Set Windows terminal defaults')
-    // Why: integrations is skipped (gh already installed), so it is not a
+    // Why: integrations is always skipped, so it is not a
     // stepper dot at all — the four real steps are agent, theme, Windows
     // terminal, notifications, and Windows terminal is the third of four.
     expect(html).toContain('3 of 4')
@@ -157,12 +155,10 @@ describe('OnboardingFlow', () => {
     expect(html).not.toContain('Integrations')
   })
 
-  it('skips GitHub task setup when the GitHub CLI is already detected', () => {
+  it('always skips the integrations step', () => {
     useAppStore.setState({
-      preflightStatus: {
-        git: { installed: true },
-        gh: { installed: true, authenticated: false }
-      },
+      // Why: the preload status type still carries `gh` until the preflight contract is narrowed.
+      preflightStatus: { git: { installed: true }, gh: { installed: false, authenticated: false } },
       preflightStatusChecked: true
     })
 
@@ -179,38 +175,10 @@ describe('OnboardingFlow', () => {
     expect(html).not.toContain('Set up GitHub tasks')
     expect(html).not.toContain('Connect your task sources')
     expect(html).not.toContain('Point Orca at some code')
-    // Why: with both integrations (gh installed) and Windows terminal (Mac)
+    // Why: with both integrations and Windows terminal (Mac)
     // skipped, the stepper shows only the three real steps — no dead dots.
     expect(html).toContain('3 of 3')
     expect(html).not.toContain('Integrations')
-  })
-
-  it('shows only GitHub on the task setup page when the GitHub CLI is missing', () => {
-    useAppStore.setState({
-      preflightStatus: {
-        git: { installed: true },
-        gh: { installed: false, authenticated: false }
-      },
-      preflightStatusChecked: true
-    })
-
-    const html = renderOnboardingFlow({
-      onboarding: {
-        ...getDefaultOnboardingState(),
-        lastCompletedStep: 2
-      },
-      onOnboardingChange: vi.fn()
-    })
-
-    expect(html).toContain('Set up GitHub tasks')
-    expect(html).toContain('Install the GitHub CLI to:')
-    expect(html).toContain('GitHub')
-    expect(html).not.toContain(
-      '<h3 class="text-[15px] font-semibold leading-tight text-foreground">Linear</h3>'
-    )
-    expect(html).toContain(
-      'Linear, GitLab, Bitbucket, Azure DevOps, Gitea, and Jira live in Settings'
-    )
   })
 
   it('renders onboarding inside a centered modal shell', () => {

@@ -59,7 +59,6 @@ import { useWorkspaceCleanupFacetRows } from './use-workspace-cleanup-facet-rows
 function makeState(): AppState {
   return {
     worktreesByRepo: {},
-    hostedReviewCache: {},
     repos: [],
     settings: {},
     workspaceStatuses: cloneDefaultWorkspaceStatuses(),

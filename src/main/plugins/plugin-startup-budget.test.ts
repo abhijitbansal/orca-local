@@ -41,7 +41,7 @@ function dummyManifest(index: number): PluginManifest {
         {
           id: 'open',
           title: `Open Startup Dummy ${index}`,
-          action: 'view.tasks'
+          action: 'workspace.openBoard'
         }
       ],
       events: [],

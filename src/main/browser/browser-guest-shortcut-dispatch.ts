@@ -191,8 +191,6 @@ export function forwardGuestShortcutInput(
     renderer.send('ui:deleteCurrentWorkspace')
   } else if (action?.type === 'openWorkspaceBoard') {
     renderer.send('ui:openWorkspaceBoard')
-  } else if (action?.type === 'openTasks') {
-    renderer.send('ui:openTasks')
   } else if (action?.type === 'toggleAgentDashboard') {
     renderer.send('ui:toggleAgentDashboard')
   } else if (action?.type === 'openSettings') {

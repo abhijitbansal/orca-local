@@ -26,13 +26,8 @@ import type { Repo } from '../../../shared/repo-types'
 import type { Worktree } from '../../../shared/worktree/types'
 import {
   getPaletteWorktreeExecutionHostId,
-  getPaletteWorktreeIdentity,
-  resolvePaletteRepoForWorktree
+  getPaletteWorktreeIdentity
 } from './palette-repo-resolution'
-import {
-  matchWorktreePaletteTaskUrl,
-  parseCmdJTaskSourceUrl
-} from './worktree-palette-task-url-match'
 import {
   createPaletteSearchContext,
   preparePaletteActivity,
@@ -203,27 +198,8 @@ export function searchWorktreeDocuments(args: WorktreePaletteSearchArgs): Palett
     )
   }
 
-  const taskSourceUrl = parseCmdJTaskSourceUrl(args.query.trim())
   const results: PaletteSearchResult[] = []
   for (const worktree of args.worktrees) {
-    if (taskSourceUrl) {
-      const match = matchWorktreePaletteTaskUrl({
-        worktree,
-        intent: taskSourceUrl,
-        repo: resolvePaletteRepoForWorktree(worktree, args.repoMap, args.repoMapByHostIdentity),
-        review: args.checksReviewByWorktree?.get(worktree)
-      })
-      if (match) {
-        const activity = preparePaletteActivity(worktree.lastActivityAt, context)
-        results.push({
-          ...match,
-          lastActiveAt: activity.timestamp || null,
-          activity
-        })
-      }
-      continue
-    }
-
     const document = args.documents.get(getPaletteWorktreeIdentity(worktree))
     if (!document) {
       continue

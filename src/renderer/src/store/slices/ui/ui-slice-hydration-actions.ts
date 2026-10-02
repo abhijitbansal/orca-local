@@ -53,6 +53,7 @@ import {
   normalizeHydratedVisibleWorkspaceHostIds,
   preserveStringArrayIdentity,
   sanitizeHydratedActiveView,
+  sanitizeHydratedGroupBy,
   sanitizePersistedRepoIds,
   sanitizeExplorerPreferences,
   sanitizeWorkspaceCleanupDismissals,
@@ -116,7 +117,7 @@ export function createUiHydrationActions(set: UISliceSet, _get: UISliceGet): Par
           rightSidebarOpen: typeof ui.rightSidebarOpen === 'boolean' ? ui.rightSidebarOpen : true,
           rightSidebarTab: rightSidebarRoute.rightSidebarTab,
           rightSidebarExplorerView: rightSidebarRoute.rightSidebarExplorerView,
-          groupBy: (ui.groupBy as UISlice['groupBy'] | 'parent') === 'parent' ? 'repo' : ui.groupBy,
+          groupBy: sanitizeHydratedGroupBy(ui.groupBy),
           sortBy,
           // Why: main-process getUI() already normalized this (defaulting to 'manual'); read it through without migrating.
           projectOrderBy: ui.projectOrderBy,

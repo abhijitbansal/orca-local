@@ -1,12 +1,9 @@
-import { useEffect, useMemo } from 'react'
-import { filterAvailableTaskProviders } from '../../../../shared/task-providers'
-import type { ExecutionHostId } from '../../../../shared/execution-host'
+import { useEffect } from 'react'
 import { getMrStateFilters, getSmartWorkspaceNameModes } from './smart-workspace-localized-options'
 import {
   SEARCH_DEBOUNCE_MS,
   type NormalizedSmartWorkspaceNameFieldProps
 } from './smart-workspace-name-field-model'
-import { canUseGitLabSmartSource } from './smart-workspace-provider-availability'
 import { useSmartWorkspaceFieldFocusControls } from './use-smart-workspace-field-focus-controls'
 import type { useSmartWorkspaceNameFieldState } from './use-smart-workspace-name-field-state'
 
@@ -14,32 +11,10 @@ type FieldState = ReturnType<typeof useSmartWorkspaceNameFieldState>
 
 export function useSmartWorkspaceFieldAvailability({
   props,
-  state,
-  repoBackedSearchTargets,
-  preflightStatus,
-  preflightStatusChecked,
-  preflightStatusContextKey,
-  expectedPreflightContextKey,
-  refreshPreflightStatus,
-  linearStatus,
-  linearStatusChecked,
-  checkLinearConnection,
-  jiraSourceConnected
+  state
 }: {
   props: NormalizedSmartWorkspaceNameFieldProps
   state: FieldState
-  repoBackedSearchTargets: {
-    gitlabSourceContext: { hostId?: ExecutionHostId | null } | null
-  }[]
-  preflightStatus: { glab?: { installed?: boolean } } | null
-  preflightStatusChecked: boolean
-  preflightStatusContextKey: string | null
-  expectedPreflightContextKey: string
-  refreshPreflightStatus: () => Promise<void>
-  linearStatus: { connected?: boolean }
-  linearStatusChecked: boolean
-  checkLinearConnection: () => Promise<void>
-  jiraSourceConnected: boolean
 }) {
   const {
     disabled,
@@ -60,7 +35,6 @@ export function useSmartWorkspaceFieldAvailability({
     setGitlabLoading,
     setBranchesLoading,
     setBranchResultsSource,
-    setCrossRepoPrompt,
     setLinearIssues,
     setJiraIssues,
     setLinearLoading,
@@ -72,39 +46,20 @@ export function useSmartWorkspaceFieldAvailability({
   useEffect(() => {
     onActiveSourceModeChange?.(mode)
   }, [mode, onActiveSourceModeChange])
-  const preflightStatusCurrent = preflightStatusContextKey === expectedPreflightContextKey
-  const localGitlabAvailable = preflightStatusCurrent && preflightStatus?.glab?.installed === true
-  const gitlabSourceAvailable = repoBackedSearchTargets.some((target) =>
-    canUseGitLabSmartSource({
-      localGitlabAvailable,
-      repoBackedSourcesDisabled,
-      sourceHostId: target.gitlabSourceContext?.hostId
-    })
-  )
-  const availableTaskProviders = useMemo(
-    () =>
-      filterAvailableTaskProviders(['github', 'gitlab', 'linear'], {
-        gitlabInstalled: gitlabSourceAvailable,
-        linearConnected: linearStatus.connected === true
-      }),
-    [gitlabSourceAvailable, linearStatus.connected]
-  )
-  const linearAvailable = availableTaskProviders.includes('linear')
+  // Why: no forge or tracker integration remains, so only the name and branch sources are available.
+  const gitlabSourceAvailable = false
+  const linearAvailable = false
   const availableModes = getSmartWorkspaceNameModes().filter((item) => {
     if (textOnly) {
       return item.id === 'text'
     }
-    if (item.id === 'github') {
-      return !repoBackedSourcesDisabled
-    }
-    if (item.id === 'gitlab') {
-      return gitlabSourceAvailable
-    }
-    if (item.id === 'linear') {
-      return linearAvailable
-    }
-    if (item.id === 'jira') {
-      return jiraSourceConnected
+    if (
+      item.id === 'github' ||
+      item.id === 'gitlab' ||
+      item.id === 'linear' ||
+      item.id === 'jira'
+    ) {
+      return false
     }
     if (item.id === 'branches') {
       return branchesEnabled && !repoBackedSourcesDisabled
@@ -131,13 +86,11 @@ export function useSmartWorkspaceFieldAvailability({
     setGitlabLoading(false)
     setBranchesLoading(false)
     setBranchResultsSource(null)
-    setCrossRepoPrompt(null)
   }, [
     repoBackedSourcesDisabled,
     setBranches,
     setBranchesLoading,
     setBranchResultsSource,
-    setCrossRepoPrompt,
     setGithubItems,
     setGithubLoading,
     setGitlabItems,
@@ -147,34 +100,11 @@ export function useSmartWorkspaceFieldAvailability({
   const focusControls = useSmartWorkspaceFieldFocusControls({ props, state })
 
   useEffect(() => {
-    if (disabled || textOnly) {
-      return
-    }
-    if (!preflightStatusChecked || !preflightStatusCurrent) {
-      void refreshPreflightStatus()
-    }
-    if (!linearStatusChecked) {
-      void checkLinearConnection()
-    }
-  }, [
-    checkLinearConnection,
-    disabled,
-    linearStatusChecked,
-    preflightStatusChecked,
-    preflightStatusCurrent,
-    refreshPreflightStatus,
-    textOnly
-  ])
-
-  useEffect(() => {
     if (textOnly) {
       if (mode !== 'text') {
         setMode('text')
       }
       setOpen(false)
-      return
-    }
-    if ((mode === 'gitlab' && gitlabSourceAvailable) || (mode === 'linear' && linearAvailable)) {
       return
     }
     if (mode !== 'gitlab' && mode !== 'linear') {
@@ -189,8 +119,6 @@ export function useSmartWorkspaceFieldAvailability({
     setJiraLoading(false)
     setCommandValue('')
   }, [
-    gitlabSourceAvailable,
-    linearAvailable,
     mode,
     setCommandValue,
     setGitlabItems,
@@ -221,14 +149,12 @@ export function useSmartWorkspaceFieldAvailability({
     setLinearLoading(false)
     setJiraLoading(false)
     setCommandValue('')
-    setCrossRepoPrompt(null)
   }, [
     disabled,
     setBranches,
     setBranchesLoading,
     setBranchResultsSource,
     setCommandValue,
-    setCrossRepoPrompt,
     setGithubItems,
     setGithubLoading,
     setGitlabItems,

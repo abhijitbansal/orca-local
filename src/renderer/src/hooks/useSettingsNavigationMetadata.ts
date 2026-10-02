@@ -10,7 +10,6 @@ import {
 } from '@/components/settings/runtime-environments-search'
 import { getTerminalPaneSearchEntries } from '@/components/settings/terminal-search'
 import { isMacUserAgent, isWindowsUserAgent } from '@/components/terminal-pane/pane-helpers'
-import { useLinearProviderConnected } from '@/hooks/useLinearProviderConnected'
 import { getClientCreationActionPolicy } from '@/lib/client-creation-action-policy'
 import type { SettingsNavSection } from '@/lib/settings-navigation-types'
 import { isWebClientLocation } from '@/lib/web-client-location'
@@ -42,7 +41,6 @@ export function buildSettingsNavigationMetadata({
   managedBrowserCreationEnabled = !isWebClient,
   mobileEmulatorCreationEnabled = !isWebClient,
   isDev = import.meta.env.DEV,
-  isLinearConnected = false,
   repos
 }: {
   isMac: boolean
@@ -53,7 +51,6 @@ export function buildSettingsNavigationMetadata({
   managedBrowserCreationEnabled?: boolean
   mobileEmulatorCreationEnabled?: boolean
   isDev?: boolean
-  isLinearConnected?: boolean
   repos: readonly Repo[]
 }): SettingsNavSection[] {
   const terminalPaneSearchEntries = getTerminalPaneSearchEntries({
@@ -79,7 +76,6 @@ export function buildSettingsNavigationMetadata({
     managedBrowserCreationEnabled,
     mobileEmulatorCreationEnabled,
     isDev,
-    isLinearConnected,
     repos
   }
 
@@ -116,7 +112,6 @@ export function useSettingsNavigationMetadata(): SettingsNavSection[] {
   const isMac = isMacUserAgent()
   const isWindows = isWindowsUserAgent()
   const isWebClient = isWebClientLocation()
-  const isLinearConnected = useLinearProviderConnected()
   const windowsTerminalCapabilityOwnerKey = useWindowsTerminalCapabilityOwnerKey(
     settings?.activeRuntimeEnvironmentId
   )
@@ -158,7 +153,6 @@ export function useSettingsNavigationMetadata(): SettingsNavSection[] {
         managedBrowserCreationEnabled,
         mobileEmulatorCreationEnabled,
         isDev: import.meta.env.DEV,
-        isLinearConnected,
         repos
       }),
     // oxlint-disable-next-line react-hooks/exhaustive-deps -- activeLocale is read implicitly by the translate() calls inside buildSettingsNavigationMetadata; without it the memo keeps the previous language's sections.
@@ -170,7 +164,6 @@ export function useSettingsNavigationMetadata(): SettingsNavSection[] {
       isWebClient,
       managedBrowserCreationEnabled,
       mobileEmulatorCreationEnabled,
-      isLinearConnected,
       repos,
       activeLocale
     ]

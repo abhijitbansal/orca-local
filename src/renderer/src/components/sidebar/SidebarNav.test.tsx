@@ -88,17 +88,6 @@ function gitRepo(): Repo {
   }
 }
 
-function folderRepo(): Repo {
-  return {
-    id: 'folder-1',
-    path: '/tmp/folder-1',
-    displayName: 'folder-1',
-    badgeColor: 'gray',
-    addedAt: 1,
-    kind: 'folder'
-  }
-}
-
 function setSidebarState({
   settings = getDefaultSettings('/tmp'),
   repos = [gitRepo()]
@@ -303,14 +292,14 @@ describe('SidebarNav', () => {
     const searchButton = container.querySelector<HTMLButtonElement>(
       'button[aria-label="Search worktrees and browser tabs"]'
     )
-    const tasksButton = getButtonByText(container, 'Tasks')
+    const automationsButton = getButtonByText(container, 'Automations')
 
     expect(nav?.firstElementChild).toBe(searchButton)
     if (!searchButton) {
       throw new Error('worktree palette search button not rendered')
     }
     expect(
-      searchButton.compareDocumentPosition(tasksButton) & Node.DOCUMENT_POSITION_FOLLOWING
+      searchButton.compareDocumentPosition(automationsButton) & Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy()
   })
 
@@ -330,56 +319,5 @@ describe('SidebarNav', () => {
     expect(shortcuts?.textContent).toContain('⌘')
     expect(shortcuts?.textContent).toContain('J')
     expect(searchButton?.querySelector('kbd')).toBeNull()
-  })
-
-  it('keeps task source shortcuts keyboard-reachable and revealed on Tasks row hover or focus', async () => {
-    const container = await renderSidebarNav()
-
-    const tasksButton = getButtonByText(container, 'Tasks')
-    const githubShortcut = tasksButton.parentElement?.querySelector<HTMLButtonElement>(
-      'button[aria-label="Open GitHub tasks"]'
-    )
-    expect(githubShortcut).not.toBeNull()
-    expect(githubShortcut?.tabIndex).toBe(0)
-    expect(tasksButton.contains(githubShortcut ?? null)).toBe(false)
-
-    const shortcuts = githubShortcut?.parentElement
-    expect(shortcuts?.className).toContain('can-hover:opacity-0')
-    expect(shortcuts?.className).toContain('can-hover:group-hover:opacity-100')
-    expect(shortcuts?.className).toContain('can-hover:group-focus-within:opacity-100')
-  })
-
-  it('hides available Tasks from its sidebar context menu', async () => {
-    const container = await renderSidebarNav()
-
-    const tasksButton = getButtonByText(container, 'Tasks')
-
-    const tasksMenu = tasksButton.closest('[data-testid="context-menu"]')
-    expect(tasksMenu).not.toBeNull()
-    await clickButton(getHideButton(tasksMenu as HTMLElement))
-
-    expect(mocks.updateSettings).toHaveBeenCalledWith({ showTasksButton: false })
-  })
-
-  it('keeps Tasks enabled with no git repos so the page can explain the empty state', async () => {
-    setSidebarState({ repos: [folderRepo()] })
-    const container = await renderSidebarNav()
-
-    const tasksButton = getButtonByText(container, 'Tasks')
-    expect(tasksButton.getAttribute('aria-disabled')).toBeNull()
-    expect(tasksButton.disabled).toBe(false)
-    expect(tasksButton.className).not.toContain('opacity-50')
-    expect(
-      tasksButton.parentElement?.querySelector('button[aria-label="Open GitHub tasks"]')
-    ).not.toBeNull()
-
-    await clickButton(tasksButton)
-    expect(mocks.openTaskPage).toHaveBeenCalled()
-
-    const tasksMenu = tasksButton.closest('[data-testid="context-menu"]')
-    expect(tasksMenu).not.toBeNull()
-    await clickButton(getHideButton(tasksMenu as HTMLElement))
-
-    expect(mocks.updateSettings).toHaveBeenCalledWith({ showTasksButton: false })
   })
 })

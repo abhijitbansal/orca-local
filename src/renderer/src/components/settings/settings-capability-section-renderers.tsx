@@ -1,7 +1,6 @@
 import { AccountsPane } from './AccountsPane'
 import { AgentsPane } from './AgentsPane'
 import { ComputerUsePane } from './ComputerUsePane'
-import { LinearAgentSkillPane } from './LinearAgentSkillPane'
 import { OrchestrationPane } from './OrchestrationPane'
 import { VoicePane } from './VoicePane'
 import { SettingsSection } from './SettingsSection'
@@ -81,25 +80,6 @@ export function renderOrchestrationSettingsSection(
       ) : null}
     </SettingsSection>
   )
-}
-
-export function renderLinearSettingsSection(
-  context: SettingsRenderContext
-): React.JSX.Element | null {
-  const { model, navigation, view } = context
-  return model.linearConnected ? (
-    <SettingsSection
-      id="linear"
-      title={translate('auto.components.settings.Settings.linearTitle', 'Linear')}
-      description={translate(
-        'auto.components.settings.Settings.linearDescription',
-        'How Linear works in Orca, setup checklist, agent skill, and example prompts.'
-      )}
-      searchEntries={navigation.getSectionSearchEntries('linear')}
-    >
-      {view.isSectionMounted('linear') ? <LinearAgentSkillPane /> : null}
-    </SettingsSection>
-  ) : null
 }
 
 export function renderDesktopCapabilitySettingsSections(

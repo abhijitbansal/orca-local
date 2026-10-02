@@ -133,21 +133,6 @@ export const AGENT_LAUNCH_CALLER_PROFILES: readonly AgentLaunchCallerProfile[] =
     args: { agent: 'codex', worktreeId: 'wt-1', groupId: 'group-1', launchSource: 'shortcut' }
   },
   {
-    id: 'fix-checks',
-    caller: 'src/renderer/src/lib/fix-checks-agent-launch.ts',
-    args: {
-      agent: 'codex',
-      worktreeId: 'wt-1',
-      groupId: 'group-1',
-      prompt: PROMPT,
-      agentArgs: '--model gpt-5.5',
-      promptDelivery: 'submit-after-ready',
-      launchPlatform: 'darwin',
-      // Caller-supplied, not fixed at the call site: one representative value stands in.
-      launchSource: 'task_page'
-    }
-  },
-  {
     id: 'session-continuation',
     caller: 'src/renderer/src/lib/launch-agent-session-continuation.ts',
     args: {

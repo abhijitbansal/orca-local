@@ -30,13 +30,12 @@ describe('settings setup guide progress', () => {
     const stepDone = {
       'two-worktrees': true,
       notifications: true,
-      'default-agent': true,
-      'task-sources': true
+      'default-agent': true
     } satisfies Partial<Record<FeatureWallSetupStepId, boolean>>
 
     expect(getSettingsSetupGuideProgress({ ready: true, stepDone })).toEqual({
       ready: true,
-      doneCount: 4,
+      doneCount: 3,
       total: FEATURE_WALL_SETUP_STEPS.length,
       firstIncompleteStepId: 'agent-capabilities'
     })

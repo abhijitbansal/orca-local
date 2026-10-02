@@ -157,27 +157,6 @@ describe('WorktreeCard merged PR fallback display', () => {
     prCache = {}
   })
 
-  it('shows cached merged PR when a newer hosted-review miss still matches the worktree head', async () => {
-    prCache = {
-      'repo-1::feature/local-branch': {
-        data: makePRInfo(),
-        fetchedAt: 100
-      }
-    }
-    const { default: WorktreeCard } = await import('./WorktreeCard')
-
-    const markup = renderWorktreeCardMarkup(
-      <WorktreeCard
-        worktree={makeWorktree({ linkedPR: null, head: 'abc123' })}
-        repo={makeRepo()}
-        isActive={false}
-      />
-    )
-
-    expect(markup).toContain('Linked PR #6340')
-    expect(markup).not.toContain('Branch')
-  })
-
   it('suppresses cached merged PR after a newer hosted-review miss when the worktree head moved', async () => {
     prCache = {
       'repo-1::feature/local-branch': {
@@ -223,31 +202,5 @@ describe('WorktreeCard merged PR fallback display', () => {
 
     expect(markup).not.toContain('Linked PR #6340')
     expect(markup).not.toContain('Stale proven merged PR')
-  })
-
-  it('keeps proven merged review visible when the worktree head is a confirmed PR commit', async () => {
-    hostedReviewCache = {
-      'local::repo-1::feature/local-branch': {
-        data: makeHostedReviewInfo({
-          title: 'Confirmed proven merged PR',
-          headSha: 'final-head',
-          confirmedContainedHeadOid: 'behind-head'
-        }),
-        fetchedAt: 200,
-        linkedReviewHintKey: 'github:6340',
-        branchLookupGitHubPRNumber: 6340
-      }
-    }
-    const { default: WorktreeCard } = await import('./WorktreeCard')
-
-    const markup = renderWorktreeCardMarkup(
-      <WorktreeCard
-        worktree={makeWorktree({ linkedPR: null, head: 'behind-head' })}
-        repo={makeRepo()}
-        isActive={false}
-      />
-    )
-
-    expect(markup).toContain('Linked PR #6340')
   })
 })

@@ -1,14 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import type { HostedReviewInfo } from '../../../../shared/hosted-review'
-import type { PRInfo } from '../../../../shared/github/pull-request-types'
 import type { Repo } from '../../../../shared/repo-types'
 import type { Worktree } from '../../../../shared/worktree/types'
-import { getGitHubPRCacheKey } from '@/store/slices/github-cache-key'
-import { getHostedReviewCacheKey } from '@/store/slices/hosted-review-cache-identity'
-import {
-  resolveDashboardCardContext,
-  type DashboardCardContextState
-} from './dashboard-card-context'
+import { resolveDashboardCardContext } from './dashboard-card-context'
 
 const repo: Repo = {
   id: 'repo-1',
@@ -42,141 +35,23 @@ function worktree(overrides: Partial<Worktree> = {}): Worktree {
   }
 }
 
-function review(overrides: Partial<HostedReviewInfo> = {}): HostedReviewInfo {
-  return {
-    provider: 'bitbucket',
-    number: 77,
-    title: 'Review',
-    state: 'open',
-    url: 'https://example.test/review/77',
-    status: 'success',
-    updatedAt: '2026-01-01T00:00:00.000Z',
-    mergeable: 'MERGEABLE',
-    ...overrides
-  }
-}
-
-function state(
-  cachedReview: HostedReviewInfo,
-  linkedReviewHintKey: string
-): DashboardCardContextState {
-  const cacheKey = getHostedReviewCacheKey(repo.path, 'feature', null, repo.id, null, null, true)
-  return {
-    settings: null,
-    hostedReviewCache: {
-      [cacheKey]: { data: cachedReview, fetchedAt: 1, linkedReviewHintKey }
-    },
-    prCache: {}
-  }
-}
-
 describe('resolveDashboardCardContext', () => {
   it.each([
-    ['bitbucket', { linkedBitbucketPR: 77 }],
-    ['azure-devops', { linkedAzureDevOpsPR: 77 }],
-    ['gitea', { linkedGiteaPR: 77 }]
-  ] as const)('uses valid cached %s review metadata', (provider, link) => {
-    expect(
-      resolveDashboardCardContext(
-        state(review({ provider }), `${provider}:77`),
-        repo,
-        worktree(link)
-      ).review
-    ).toEqual({ number: 77, state: 'open' })
+    ['github', { linkedPR: 42 }],
+    ['gitlab', { linkedGitLabMR: 42 }],
+    ['bitbucket', { linkedBitbucketPR: 42 }],
+    ['azure-devops', { linkedAzureDevOpsPR: 42 }],
+    ['gitea', { linkedGiteaPR: 42 }]
+  ] as const)('reports a linked %s review from persisted metadata', (_provider, link) => {
+    expect(resolveDashboardCardContext({}, repo, worktree(link))).toMatchObject({
+      hasReview: true
+    })
   })
 
-  it('keeps validated GitHub PR cache metadata as a fallback', () => {
-    const pr: PRInfo = {
-      number: 42,
-      title: 'GitHub review',
-      state: 'draft',
-      url: 'https://example.test/pull/42',
-      checksStatus: 'pending',
-      updatedAt: '2026-01-01T00:00:00.000Z',
-      mergeable: 'UNKNOWN'
-    }
-    const cacheKey = getGitHubPRCacheKey(repo.path, repo.id, 'feature', null, null, null, true)
+  it('reports no review for a worktree without a linked review', () => {
+    const context = resolveDashboardCardContext({}, repo, worktree())
 
-    expect(
-      resolveDashboardCardContext(
-        {
-          settings: null,
-          hostedReviewCache: {},
-          prCache: { [cacheKey]: { data: pr, fetchedAt: 1 } }
-        },
-        repo,
-        worktree({ linkedPR: 42 })
-      ).review
-    ).toEqual({ number: 42, state: 'draft' })
-  })
-
-  it('omits a matching suppressed GitHub PR and its review-presence signal', () => {
-    const pr: PRInfo = {
-      number: 42,
-      title: 'GitHub review',
-      state: 'open',
-      url: 'https://example.test/pull/42',
-      checksStatus: 'success',
-      updatedAt: '2026-01-01T00:00:00.000Z',
-      mergeable: 'MERGEABLE'
-    }
-    const cacheKey = getGitHubPRCacheKey(repo.path, repo.id, 'feature', null, null, null, true)
-
-    expect(
-      resolveDashboardCardContext(
-        {
-          settings: null,
-          hostedReviewCache: {},
-          prCache: { [cacheKey]: { data: pr, fetchedAt: 1 } }
-        },
-        repo,
-        worktree({ linkedPR: null, suppressedGitHubPR: 42 })
-      )
-    ).toMatchObject({ review: undefined, hasReview: false })
-  })
-
-  it('reports a different discovered PR as review context', () => {
-    const pr: PRInfo = {
-      number: 43,
-      title: 'Next GitHub review',
-      state: 'open',
-      url: 'https://example.test/pull/43',
-      checksStatus: 'success',
-      updatedAt: '2026-01-01T00:00:00.000Z',
-      mergeable: 'MERGEABLE'
-    }
-    const cacheKey = getGitHubPRCacheKey(repo.path, repo.id, 'feature', null, null, null, true)
-
-    expect(
-      resolveDashboardCardContext(
-        {
-          settings: null,
-          hostedReviewCache: {},
-          prCache: { [cacheKey]: { data: pr, fetchedAt: 1 } }
-        },
-        repo,
-        worktree({ linkedPR: null, suppressedGitHubPR: 42 })
-      )
-    ).toMatchObject({ review: { number: 43 }, hasReview: true })
-  })
-
-  it('rejects cached review metadata from the previous linked review', () => {
-    expect(
-      resolveDashboardCardContext(
-        state(review({ number: 12 }), 'bitbucket:12'),
-        repo,
-        worktree({ linkedBitbucketPR: 13 })
-      ).review
-    ).toBeUndefined()
-  })
-
-  it('rejects a merged review after the worktree head advances', () => {
-    expect(
-      resolveDashboardCardContext(
-        state(review({ state: 'merged', headSha: 'merged-head' }), ''),
-        repo,
-        worktree()
-      ).review
-    ).toBeUndefined()
+    expect(context.hasReview).toBe(false)
+    expect(context.review).toBeUndefined()
   })
 })

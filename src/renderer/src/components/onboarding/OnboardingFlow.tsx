@@ -7,7 +7,6 @@ import type { OnboardingState } from '../../../../shared/onboarding-state-types'
 import { AgentStep } from './AgentStep'
 import { ThemeStep } from './ThemeStep'
 import { NotificationStep } from './NotificationStep'
-import { IntegrationsStep } from './IntegrationsStep'
 import { WindowsTerminalStep } from './WindowsTerminalStep'
 import { useOnboardingFlow } from './use-onboarding-flow'
 import { OnboardingSkipConfirmationDialog } from './OnboardingSkipConfirmationDialog'
@@ -329,7 +328,6 @@ export default function OnboardingFlow({
               {currentStep.id === 'notifications' && (
                 <NotificationStep settings={flow.settings} updateSettings={flow.updateSettings} />
               )}
-              {currentStep.id === 'integrations' && <IntegrationsStep />}
               {currentStep.id === 'windows_terminal' && (
                 <WindowsTerminalStep
                   settings={flow.settings}

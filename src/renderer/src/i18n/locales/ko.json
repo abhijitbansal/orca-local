@@ -5455,7 +5455,8 @@
           "gitlabDescription": "이 워크스페이스에 대한 이슈 링크, MR 링크 및 메모를 편집합니다.",
           "gitlabMR": "깃랩 MR",
           "gitlabPlaceholder": "씨 ! 또는 GitLab URL",
-          "gitlabHelp": "MR URL을 붙여넣거나 숫자를 입력하세요. 링크를 제거하려면 비워두세요."
+          "gitlabHelp": "MR URL을 붙여넣거나 숫자를 입력하세요. 링크를 제거하려면 비워두세요.",
+          "issueLinksDescription": "이 워크스페이스의 이슈 링크와 메모를 편집합니다."
         },
         "WorktreeOpenInMenu": {
           "1417fd8380": "앱 맞춤설정...",

@@ -12,7 +12,6 @@ import {
 } from '../components/sidebar/hovered-workspace-delete'
 import { useAppStore } from '../store'
 import type { usePluginCommands } from '@/store/plugin-panels'
-import { isGitRepoKind } from '../../../shared/repo-kind'
 import type {
   KeybindingActionId,
   KeybindingContext,
@@ -240,16 +239,6 @@ export function createAppCommandHandlers(
           useAppStore.getState().setSidebarOpen(true)
           window.dispatchEvent(new CustomEvent(TOGGLE_WORKSPACE_BOARD_EVENT))
         })
-      }
-    ],
-    [
-      'view.tasks',
-      () => {
-        const store = useAppStore.getState()
-        if (activeView === 'settings' || !store.repos.some((repo) => isGitRepoKind(repo))) {
-          return false
-        }
-        return claim('view.tasks', () => store.openTaskPage())
       }
     ],
     [

@@ -17,28 +17,6 @@ vi.mock('@/components/sidebar/CommentMarkdown', () => ({
   default: ({ content }: { content: string }) => content
 }))
 
-vi.mock('@/components/right-sidebar/source-control-fix-split-button', () => ({
-  SourceControlFixSplitButton: () => null
-}))
-
-vi.mock('./check-run-details-fix-with-ai', () => ({
-  useCheckRunDetailsFixWithAI: () => ({
-    canFixWithAI: false,
-    disabledReason: null,
-    isFixing: false,
-    fixPrompt: '',
-    repoId: null,
-    connectionId: null,
-    launchPlatform: null,
-    savedAgentId: null,
-    savedCommandInputTemplate: null,
-    savedAgentArgs: [],
-    saveLaunchActionDefault: vi.fn(),
-    openSourceControlAiSettings: vi.fn(),
-    fixWithAI: vi.fn()
-  })
-}))
-
 afterEach(cleanup)
 
 beforeEach(() => {

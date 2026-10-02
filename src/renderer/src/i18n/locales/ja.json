@@ -5455,7 +5455,8 @@
           "gitlabDescription": "このワークスペースの課題リンク、MR リンク、およびメモを編集します。",
           "gitlabMR": "GitLab MR",
           "gitlabPlaceholder": "氏 ！または GitLab URL",
-          "gitlabHelp": "MR の URL を貼り付けるか、番号を入力します。リンクを削除するには空白のままにします。"
+          "gitlabHelp": "MR の URL を貼り付けるか、番号を入力します。リンクを削除するには空白のままにします。",
+          "issueLinksDescription": "このワークスペースの Issue リンクとメモを編集します。"
         },
         "WorktreeOpenInMenu": {
           "1417fd8380": "アプリをカスタマイズ…",

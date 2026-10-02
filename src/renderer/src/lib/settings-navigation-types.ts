@@ -14,11 +14,9 @@ export type SettingsNavInstallStatus =
 
 const SETTINGS_NAV_TARGETS = [
   'general',
-  'integrations',
   'accounts',
   'browser',
   'git',
-  'tasks',
   'appearance',
   'input',
   'floating-workspace',
@@ -41,7 +39,6 @@ const SETTINGS_NAV_TARGETS = [
   'session-history',
   'share-skills',
   'automations',
-  'linear',
   'setup-guide',
   'servers',
   'mobile-emulator',

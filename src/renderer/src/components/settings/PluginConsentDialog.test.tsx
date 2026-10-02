@@ -207,7 +207,7 @@ describe('PluginConsentDialog', () => {
             id: 'tasks',
             title: 'Open Tasks',
             context: 'global',
-            handler: { type: 'built-in', action: 'view.tasks' },
+            handler: { type: 'built-in', action: 'workspace.openBoard' },
             keybindings: [{ key: 'Mod+P', when: 'global' }]
           }
         ]

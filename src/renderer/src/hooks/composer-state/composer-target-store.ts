@@ -73,7 +73,6 @@ export function useComposerTargetStore(options: ComposerStateInput, decisions: C
       openSettingsTarget: s.openSettingsTarget,
       setActiveRuntimeEnvironmentPreference: s.setActiveRuntimeEnvironmentPreference,
       prefetchWorktreeCreateBase: s.prefetchWorktreeCreateBase,
-      prefetchWorkItems: s.prefetchWorkItems,
       fetchSparsePresets: s.fetchSparsePresets
     }))
   )
@@ -91,7 +90,6 @@ export function useComposerTargetStore(options: ComposerStateInput, decisions: C
     openSettingsTarget,
     setActiveRuntimeEnvironmentPreference,
     prefetchWorktreeCreateBase,
-    prefetchWorkItems,
     fetchSparsePresets
   } = actions
 
@@ -194,7 +192,6 @@ export function useComposerTargetStore(options: ComposerStateInput, decisions: C
     openSettingsTarget,
     setActiveRuntimeEnvironmentPreference,
     prefetchWorktreeCreateBase,
-    prefetchWorkItems,
     fetchSparsePresets,
     repos,
     projects,

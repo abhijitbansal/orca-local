@@ -3,12 +3,7 @@ import { getDefaultUIState } from '../../../shared/constants'
 import { isPluginPanelTabKey } from '../../../shared/plugins/plugin-manifest'
 
 export function normalizeGroupBy(groupBy: unknown): PersistedState['ui']['groupBy'] {
-  if (
-    groupBy === 'none' ||
-    groupBy === 'workspace-status' ||
-    groupBy === 'repo' ||
-    groupBy === 'pr-status'
-  ) {
+  if (groupBy === 'none' || groupBy === 'workspace-status' || groupBy === 'repo') {
     return groupBy
   }
   if (groupBy === 'flat') {

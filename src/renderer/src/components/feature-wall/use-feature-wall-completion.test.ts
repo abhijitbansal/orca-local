@@ -19,12 +19,9 @@ function completionInput(overrides: Partial<CompletionInput> = {}): CompletionIn
     visitedAgentSteps: new Set<AgentsStepId>(),
     visitedWorkbenchSteps: new Set<WorkbenchStepId>(),
     visitedReviewSteps: new Set<ReviewStepId>(),
-    hasConnectedTaskSource: false,
-    isCheckingTaskSources: false,
     hasUsageAccount: false,
     orchestrationSkillInstalled: false,
     browserUseSkillInstalled: false,
-    githubConfigured: false,
     aiCommitPrConfigured: false,
     ...overrides
   }
@@ -34,11 +31,9 @@ describe('getFeatureWallCompletionProgress', () => {
   it('does not complete setup-backed items before the user visits them in the tour', () => {
     const progress = getFeatureWallCompletionProgress(
       completionInput({
-        hasConnectedTaskSource: true,
         hasUsageAccount: true,
         orchestrationSkillInstalled: true,
         browserUseSkillInstalled: true,
-        githubConfigured: true,
         aiCommitPrConfigured: true
       })
     )
@@ -53,20 +48,13 @@ describe('getFeatureWallCompletionProgress', () => {
     expect(progress.reviewStepDone.ship).toBe(false)
   })
 
-  it('completes tasks only after the user visits Tasks and a task source is connected', () => {
-    expect(
-      getFeatureWallCompletionProgress(
-        completionInput({
-          visitedWorkflows: new Set<FeatureWallWorkflowId>(['tasks'])
-        })
-      ).workflowDone.tasks
-    ).toBe(false)
+  it('completes tasks once the user visits Tasks', () => {
+    expect(getFeatureWallCompletionProgress(completionInput()).workflowDone.tasks).toBe(false)
 
     expect(
       getFeatureWallCompletionProgress(
         completionInput({
-          visitedWorkflows: new Set<FeatureWallWorkflowId>(['tasks']),
-          hasConnectedTaskSource: true
+          visitedWorkflows: new Set<FeatureWallWorkflowId>(['tasks'])
         })
       ).workflowDone.tasks
     ).toBe(true)
@@ -159,7 +147,6 @@ describe('getFeatureWallCompletionProgress', () => {
         completionInput({
           visitedWorkflows: new Set<FeatureWallWorkflowId>(['review']),
           visitedReviewSteps: new Set<ReviewStepId>(['notes', 'pr-view', 'ship']),
-          githubConfigured: true,
           aiCommitPrConfigured: true
         })
       ).workflowDone.review

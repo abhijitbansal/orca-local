@@ -63,16 +63,10 @@ export function WorktreeJumpPaletteEntry({
     )
   }
   if (entry.type === 'create-worktree') {
-    const linearPreview = controller.currentLinearIssuePreview
     return (
       <PaletteCreateWorktreeRow
         className="group mx-0.5 mt-1 flex cursor-pointer items-center gap-3 rounded-lg border border-transparent px-3 py-1.5 text-left outline-none transition-[background-color,border-color,box-shadow] data-[selected=true]:border-border data-[selected=true]:bg-accent data-[selected=true]:text-foreground"
         createWorktreeName={controller.createWorktreeName}
-        linearIdentifier={controller.linearIssueUrlIntent?.identifier ?? null}
-        linearIssue={linearPreview?.issue ?? null}
-        linearPending={controller.linearIssueUrlIntent !== null && linearPreview?.loading !== false}
-        showLinearLoadingFeedback={controller.showLinearLoadingFeedback}
-        taskUrlPreview={controller.taskUrlCreatePreview}
         onSelect={controller.handleCreateWorktree}
       />
     )

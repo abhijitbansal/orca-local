@@ -84,11 +84,6 @@ const CASES: GuardCase[] = [
     label: 'tour of total'
   },
   {
-    file: 'components/github/PRFilterSections.tsx',
-    afterFallback: 'Filter',
-    label: 'Filter pull requests'
-  },
-  {
     file: 'components/editor/ConflictComponents.tsx',
     afterFallback: 'Renamed from',
     label: 'Renamed from path'

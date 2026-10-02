@@ -14,7 +14,6 @@ import {
   SetupScriptAction,
   WorkspacesAction
 } from './FeatureWallSetupWorkflowActions'
-import { ConnectIntegrationsList } from './ConnectIntegrationsList'
 import { BrowserAction } from './FeatureWallBrowserAction'
 import {
   SetupBrowserVisual,
@@ -25,7 +24,6 @@ import { AgentStep } from '../onboarding/AgentStep'
 import { NotificationStep } from '../onboarding/NotificationStep'
 import { useAppStore } from '@/store'
 import type { TuiAgent } from '../../../../shared/tui-agent'
-import { getProviderRuntimeContextKey } from '@/lib/provider-runtime-context'
 import { translate } from '@/i18n/i18n'
 
 import { getLocalizedFeatureWallSetupChecklistCopy } from './feature-wall-setup-checklist-localized-copy'
@@ -148,9 +146,6 @@ function SelectedStepAction(props: FeatureWallSetupChecklistProps): React.JSX.El
   if (activeStep.id === 'browser') {
     return <BrowserAction done={activeDone} />
   }
-  if (activeStep.id === 'task-sources') {
-    return <TaskSourcesAction />
-  }
   if (activeStep.id === 'agent-capabilities') {
     return (
       <AgentCapabilitiesSetupAction
@@ -227,31 +222,6 @@ function NotificationAction(): React.JSX.Element {
   return (
     <div className="max-w-3xl">
       <NotificationStep settings={settings} updateSettings={updateSettings} />
-    </div>
-  )
-}
-
-function TaskSourcesAction(): React.JSX.Element {
-  const refreshPreflightStatus = useAppStore((s) => s.refreshPreflightStatus)
-  const checkJiraConnection = useAppStore((s) => s.checkJiraConnection)
-  const checkLinearConnection = useAppStore((s) => s.checkLinearConnection)
-  const settings = useAppStore((s) => s.settings)
-  const providerRuntimeContextKey = getProviderRuntimeContextKey(settings)
-
-  useEffect(() => {
-    void refreshPreflightStatus()
-    void checkJiraConnection()
-    void checkLinearConnection()
-  }, [
-    refreshPreflightStatus,
-    checkJiraConnection,
-    checkLinearConnection,
-    providerRuntimeContextKey
-  ])
-
-  return (
-    <div className="space-y-5">
-      <ConnectIntegrationsList />
     </div>
   )
 }

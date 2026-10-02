@@ -1,8 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { toast } from 'sonner'
 import {
+  getGitHubTaskSourceStatus,
+  getLinearTaskSourceStatus,
   prepareSkippedOnboardingPreferences,
-  remapOpenOnboardingLastCompletedStep
+  remapOpenOnboardingLastCompletedStep,
+  shouldSkipIntegrationsStep
 } from './onboarding-flow-state'
 import { getDefaultOnboardingState } from '../../../../shared/onboarding-defaults'
 
@@ -115,5 +118,27 @@ describe('remapOpenOnboardingLastCompletedStep', () => {
         lastCompletedStep: 7
       })
     ).toBe(5)
+  })
+})
+
+describe('local-only onboarding', () => {
+  it('always skips the integrations step', () => {
+    expect(
+      shouldSkipIntegrationsStep({
+        git: { installed: true },
+        gh: { installed: false, authenticated: false }
+      })
+    ).toBe(true)
+    expect(shouldSkipIntegrationsStep(null)).toBe(true)
+  })
+
+  it('reports the task sources as unavailable', () => {
+    expect(
+      getGitHubTaskSourceStatus(
+        { git: { installed: true }, gh: { installed: true, authenticated: true } },
+        false
+      )
+    ).toBe('not_installed')
+    expect(getLinearTaskSourceStatus({ connected: true }, true)).toBe('not_connected')
   })
 })

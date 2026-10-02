@@ -177,6 +177,18 @@ export function sanitizeHydratedActiveView(value: PersistedUIState['activeView']
   if (!isTopLevelView(value)) {
     return 'terminal'
   }
+  // Why: the Tasks page was removed with the git-provider integrations; a persisted 'tasks' view would restore a blank main pane.
+  if (value === 'tasks') {
+    return 'terminal'
+  }
+  return value
+}
+
+export function sanitizeHydratedGroupBy(value: PersistedUIState['groupBy']): UISlice['groupBy'] {
+  // Why: 'parent' is a retired grouping, and 'pr-status' needs forge data that no longer exists, so both fall back to the project grouping.
+  if (String(value) === 'parent' || value === 'pr-status') {
+    return 'repo'
+  }
   return value
 }
 

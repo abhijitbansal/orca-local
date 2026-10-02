@@ -24,6 +24,9 @@ import {
 
 import { useOnboardingFlowActions } from './use-onboarding-flow-actions'
 import { useOnboardingFlowTelemetry } from './use-onboarding-flow-telemetry'
+
+// Why: no Linear integration remains, so onboarding telemetry always reports it as disconnected.
+const NO_LINEAR_STATUS = { connected: false } as const
 export { STEPS } from './use-onboarding-flow-types'
 export type { StepId, StepNumber } from './use-onboarding-flow-types'
 
@@ -43,8 +46,6 @@ export function useOnboardingFlow(
   const preflightStatusChecked = useAppStore((s) => s.preflightStatusChecked)
   const preflightStatusLoading = useAppStore((s) => s.preflightStatusLoading)
   const refreshPreflightStatus = useAppStore((s) => s.refreshPreflightStatus)
-  const linearStatus = useAppStore((s) => s.linearStatus)
-  const linearStatusChecked = useAppStore((s) => s.linearStatusChecked)
   // Why: renderToStaticMarkup uses Zustand's initial snapshot; the sync read keeps tests and the first client render aligned.
   const effectivePreflightStatus = preflightStatus ?? useAppStore.getState().preflightStatus
 
@@ -248,8 +249,8 @@ export function useOnboardingFlow(
       persistedThemeRef,
       preflightStatus,
       preflightStatusLoading,
-      linearStatus,
-      linearStatusChecked
+      linearStatus: NO_LINEAR_STATUS,
+      linearStatusChecked: true
     })
 
   // Why: auto-pick only on first mount; otherwise re-running would clobber/race the user's own agent selection.

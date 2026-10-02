@@ -2,7 +2,6 @@ import React from 'react'
 import { Button } from '@/components/ui/button'
 import { CommandGroup, CommandItem, CommandList } from '@/components/ui/command'
 import { PopoverContent } from '@/components/ui/popover'
-import { translate } from '@/i18n/i18n'
 import { cn } from '@/lib/utils'
 import { getSmartWorkspaceEmptyHint } from './smart-workspace-source-results'
 import { getRowItemClassName, RowIcon, RowLabel } from './smart-workspace-source-row-content'
@@ -23,10 +22,6 @@ export function renderSmartWorkspaceSourceResults(
     jiraSource,
     loading,
     searchResultRows,
-    linearStatusChecked,
-    linearStatus,
-    showJiraSiteContext,
-    jiraConnectionStatus,
     reserveLinearLoadingResults,
     showLinearUrlLoadingFeedback
   } = controller
@@ -116,14 +111,7 @@ export function renderSmartWorkspaceSourceResults(
           </div>
         ) : searchResultRows.length === 0 && !typedTextActionRow ? (
           <div className="px-3 py-6 text-center text-xs text-muted-foreground">
-            {jiraSource.intent
-              ? null
-              : mode === 'linear' && linearStatusChecked && !linearStatus.connected
-                ? translate(
-                    'auto.components.new.workspace.SmartWorkspaceNameField.3e8bb1176a',
-                    'Connect Linear in Settings to search issues.'
-                  )
-                : getSmartWorkspaceEmptyHint(mode)}
+            {jiraSource.intent ? null : getSmartWorkspaceEmptyHint(mode)}
           </div>
         ) : searchResultRows.length > 0 ? (
           <CommandGroup className="p-1">
@@ -135,17 +123,7 @@ export function renderSmartWorkspaceSourceResults(
                 className={getRowItemClassName(row)}
               >
                 <RowIcon row={row} />
-                <RowLabel
-                  row={row}
-                  jiraSite={
-                    showJiraSiteContext && row.kind === 'jira'
-                      ? (jiraConnectionStatus?.sites?.find(
-                          (site) => site.id === row.issue.siteId
-                        ) ?? null)
-                      : null
-                  }
-                  showJiraSiteContext={showJiraSiteContext}
-                />
+                <RowLabel row={row} />
               </CommandItem>
             ))}
           </CommandGroup>

@@ -7,16 +7,6 @@ import type { Repo } from '../../../../../../shared/repo-types'
 import type { Worktree } from '../../../../../../shared/worktree/types'
 
 describe('getPRGroupKey', () => {
-  it('puts merged PRs in the done group', () => {
-    const prCache = {
-      'repo-1::feature/super-critical': {
-        data: { state: 'merged' }
-      }
-    }
-
-    expect(getPRGroupKey(worktree, repoMap, prCache)).toBe('done')
-  })
-
   it('treats a matching suppressed PR as in progress', () => {
     const prCache = {
       'repo-1::feature/super-critical': {
@@ -27,70 +17,6 @@ describe('getPRGroupKey', () => {
     expect(
       getPRGroupKey({ ...worktree, linkedPR: null, suppressedGitHubPR: 42 }, repoMap, prCache)
     ).toBe('in-progress')
-  })
-
-  it('keeps a different PR in its review-status group', () => {
-    const prCache = {
-      'repo-1::feature/super-critical': {
-        data: { number: 43, state: 'merged' }
-      }
-    }
-
-    expect(
-      getPRGroupKey({ ...worktree, linkedPR: null, suppressedGitHubPR: 42 }, repoMap, prCache)
-    ).toBe('done')
-  })
-
-  it('prefers repo-scoped PR status over stale legacy path-scoped status', () => {
-    const prCache = {
-      '/tmp/orca::feature/super-critical': {
-        data: { state: 'closed' }
-      },
-      'repo-1::feature/super-critical': {
-        data: { state: 'merged' }
-      }
-    }
-
-    expect(getPRGroupKey(worktree, repoMap, prCache)).toBe('done')
-  })
-
-  it('falls back to legacy path-scoped PR status when no repo-scoped entry exists', () => {
-    const prCache = {
-      '/tmp/orca::feature/super-critical': {
-        data: { state: 'closed' }
-      }
-    }
-
-    expect(getPRGroupKey(worktree, repoMap, prCache)).toBe('closed')
-  })
-
-  it('uses local PR cache for a known local repo while a runtime is focused', () => {
-    const prCache = {
-      'repo-1::feature/super-critical': {
-        data: { state: 'merged' }
-      }
-    }
-
-    expect(
-      getPRGroupKey(worktree, repoMap, prCache, {
-        activeRuntimeEnvironmentId: 'env-1'
-      } as never)
-    ).toBe('done')
-  })
-
-  it('uses SSH-scoped PR cache entries instead of local entries for SSH repos', () => {
-    const sshRepo = { ...repo, connectionId: 'ssh-1' }
-    const sshRepoMap = new Map([[sshRepo.id, sshRepo]])
-    const prCache = {
-      'repo-1::feature/super-critical': {
-        data: { state: 'merged' }
-      },
-      'ssh:ssh-1::repo-1::feature/super-critical': {
-        data: { state: 'closed' }
-      }
-    }
-
-    expect(getPRGroupKey(worktree, sshRepoMap, prCache)).toBe('closed')
   })
 })
 

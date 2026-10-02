@@ -5,7 +5,6 @@ import type { DropdownActionInputs, DropdownEntry } from './source-control-dropd
 import { deriveDropdownActionContext } from './source-control-dropdown-action-context'
 import { buildCommitDropdownItems } from './source-control-dropdown-commit-items'
 import { buildRemoteDropdownItems } from './source-control-dropdown-remote-items'
-import { buildHostedReviewDropdownItems } from './source-control-dropdown-review-items'
 
 /**
  * Resolve the chevron dropdown items. Every row is always rendered — disabled with a
@@ -16,7 +15,6 @@ export function resolveDropdownItems(inputs: DropdownActionInputs): DropdownEntr
   const { commit, commitPush, commitSync } = buildCommitDropdownItems(ctx)
   const { push, forcePush, pull, fastForward, sync, rebase, fetch, publish } =
     buildRemoteDropdownItems(ctx)
-  const { createPR, pushCreatePR } = buildHostedReviewDropdownItems(ctx)
   const { conflictOperation, isPullRequestOperationActive, globalBusy } = ctx
 
   const entries: DropdownEntry[] = [
@@ -26,8 +24,6 @@ export function resolveDropdownItems(inputs: DropdownActionInputs): DropdownEntr
     { kind: 'separator', id: 'before-remote' },
     push,
     forcePush,
-    createPR,
-    pushCreatePR,
     pull,
     fastForward,
     sync,

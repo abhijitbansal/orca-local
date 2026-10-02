@@ -1,7 +1,7 @@
 import React from 'react'
 import { Badge } from '@/components/ui/badge'
 import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/components/ui/hover-card'
-import { ExternalLink, MonitorUp, Pencil, StickyNote } from 'lucide-react'
+import { ExternalLink, Pencil, StickyNote } from 'lucide-react'
 import { toast } from 'sonner'
 import { LinearIcon } from '@/components/icons/LinearIcon'
 import { JiraIcon } from '@/components/icons/JiraIcon'
@@ -15,7 +15,6 @@ import { DetailHeader, MetadataActionIcon } from './WorktreeCardMetadataControls
 import { hasWorktreeCardDetails, WorktreeCardMetaBadges } from './WorktreeCardMetaBadges'
 import { LinearStateBadge } from './WorktreeCardMetadataStatusBadges'
 import { useWorktreeCardDetailsHoverControl } from './worktree-card-details-hover-state'
-import { getReviewLabel } from './worktree-review-helpers'
 import type {
   WorktreeCardIssueDisplay,
   WorktreeCardJiraIssueDisplay,
@@ -25,7 +24,6 @@ import type {
   WorktreeCardDetailsHoverProps
 } from './worktree-card-meta-types'
 import { translate } from '@/i18n/i18n'
-import { WorktreeCardReviewDetailSection } from './WorktreeCardReviewDetailSection'
 import { WorktreeCardAutomationDetailSection } from './WorktreeCardAutomationDetailSection'
 import { WorktreeCardCliDetailSection } from './WorktreeCardCliDetailSection'
 import { WorktreeCardIssueDetailSection } from './WorktreeCardIssueDetailSection'
@@ -72,26 +70,14 @@ export function WorktreeCardDetailsHover({
   onWorkspaceTitleEditingChange,
   onEditIssue,
   onEditComment,
-  onOpenGitHubIssueInOrca,
   onOpenIssueInBrowser,
-  onOpenLinearIssueInOrca,
-  onOpenReviewInOrca,
-  onOpenReviewInBrowser,
-  onUnlinkReview,
   onOpenAutomation,
   onOpenAutomationRun,
   hoverControl
 }: WorktreeCardDetailsHoverProps): React.JSX.Element {
   const internalHoverControl = useWorktreeCardDetailsHoverControl()
-  const {
-    hoverOpen,
-    issueMenuOpen,
-    reviewMenuOpen,
-    handleHoverOpenChange,
-    handleIssueMenuOpenChange,
-    handleReviewMenuOpenChange,
-    closeHover
-  } = hoverControl ?? internalHoverControl
+  const { hoverOpen, issueMenuOpen, handleHoverOpenChange, handleIssueMenuOpenChange, closeHover } =
+    hoverControl ?? internalHoverControl
   const [workspaceTitleEditing, setWorkspaceTitleEditing] = React.useState(false)
   const pendingWorkspaceTitleCloseRef = React.useRef(false)
   const handleWorkspaceTitleEditingChange = React.useCallback(
@@ -149,18 +135,6 @@ export function WorktreeCardDetailsHover({
       translate('auto.components.sidebar.WorktreeCardMeta.issueLinkLabel', 'Issue link')
     )
   }, [closeHover, copyLinkedWorkItemLink, issue?.url])
-  const handleCopyReviewLink = React.useCallback((): void => {
-    if (!review?.url) {
-      return
-    }
-    void copyLinkedWorkItemLink(
-      review.url,
-      translate('auto.components.sidebar.WorktreeCardMeta.reviewLinkLabel', '{{value0}} link', {
-        value0: getReviewLabel(review)
-      })
-    )
-  }, [copyLinkedWorkItemLink, review])
-
   const showIdentityHeader = Boolean(branchName || workspaceTitle)
 
   if (
@@ -219,9 +193,6 @@ export function WorktreeCardDetailsHover({
             onIssueMenuOpenChange={handleIssueMenuOpenChange}
             onCopyIssueLink={issue?.url ? handleCopyIssueLink : undefined}
             onEditIssue={onEditIssue}
-            onOpenGitHubIssueInOrca={
-              onOpenGitHubIssueInOrca ? dismissAndRun(onOpenGitHubIssueInOrca) : undefined
-            }
             onOpenIssueInBrowser={
               onOpenIssueInBrowser && issue?.url
                 ? (url: string) => {
@@ -243,17 +214,6 @@ export function WorktreeCardDetailsHover({
                 )}
                 actions={
                   <>
-                    {linearIssue.url && onOpenLinearIssueInOrca && (
-                      <MetadataActionIcon
-                        label={translate(
-                          'auto.components.sidebar.WorktreeCardMeta.2c67730e07',
-                          'Open in Orca'
-                        )}
-                        onClick={dismissAndRun(onOpenLinearIssueInOrca)}
-                      >
-                        <MonitorUp className="size-3" />
-                      </MetadataActionIcon>
-                    )}
                     {linearIssue.url && (
                       <MetadataActionIcon
                         label={translate(
@@ -317,19 +277,6 @@ export function WorktreeCardDetailsHover({
               </WorktreeCardDetailSectionContent>
             </WorktreeCardDetailSection>
           )}
-
-          <WorktreeCardReviewDetailSection
-            review={review}
-            reviewMenuOpen={reviewMenuOpen}
-            onReviewMenuOpenChange={handleReviewMenuOpenChange}
-            onOpenReviewInOrca={onOpenReviewInOrca}
-            onOpenReviewInBrowser={
-              onOpenReviewInBrowser && review?.url ? onOpenReviewInBrowser : undefined
-            }
-            onCopyReviewLink={review?.url ? handleCopyReviewLink : undefined}
-            onUnlinkReview={onUnlinkReview}
-            closeHover={closeHover}
-          />
 
           {automationProvenance && (
             <WorktreeCardAutomationDetailSection

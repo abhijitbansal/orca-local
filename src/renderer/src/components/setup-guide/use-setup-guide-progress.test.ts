@@ -32,7 +32,6 @@ function makeProgress(overrides: Partial<FeatureWallSetupProgress> = {}): Featur
       notifications: false,
       'two-worktrees': false,
       browser: false,
-      'task-sources': false,
       'agent-capabilities': false,
       'setup-script': false
     },

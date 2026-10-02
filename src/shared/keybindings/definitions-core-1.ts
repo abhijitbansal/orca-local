@@ -171,14 +171,6 @@ export const KEYBINDING_DEFINITION_CORE_1: readonly KeybindingDefinition[] = [
     defaultBindings: platformBindings(['Mod+E'])
   },
   {
-    id: 'view.tasks',
-    title: 'Open Tasks',
-    group: 'Global',
-    scope: 'global',
-    searchKeywords: ['shortcut', 'tasks', 'github issues', 'linear'],
-    defaultBindings: platformBindings([])
-  },
-  {
     id: 'sidebar.left.toggle',
     title: 'Toggle Sidebar',
     group: 'Global',

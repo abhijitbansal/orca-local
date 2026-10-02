@@ -55,7 +55,6 @@ export type ComposerTargetStoreModel = {
   openSettingsTarget: ComposerStoreActions['openSettingsTarget']
   setActiveRuntimeEnvironmentPreference: ComposerStoreActions['setActiveRuntimeEnvironmentPreference']
   prefetchWorktreeCreateBase: ComposerStoreActions['prefetchWorktreeCreateBase']
-  prefetchWorkItems: ComposerStoreActions['prefetchWorkItems']
   fetchSparsePresets: ComposerStoreActions['fetchSparsePresets']
   repos: readonly Repo[]
   projects: readonly Project[]

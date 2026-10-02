@@ -367,10 +367,7 @@ describe('createSettingsSlice runtime switching', () => {
       markdownFrontmatterVisible: { '/env-1/repo/stale.md': false },
       editorCursorLine: { '/env-1/repo/stale.md': 4 },
       showDotfilesByWorktree: { 'repo-env-1::/env-1/repo': false },
-      gitIgnoredPathsByWorktree: { 'repo-env-1::/env-1/repo': ['dist/'] },
-      prCache: { '/env-1/repo::main': { data: null, fetchedAt: Date.now() } },
-      linearIssueCache: { 'LIN-1': { data: { id: 'LIN-1' } as never, fetchedAt: Date.now() } },
-      jiraIssueCache: { 'JIRA-1': { data: { key: 'JIRA-1' } as never, fetchedAt: Date.now() } }
+      gitIgnoredPathsByWorktree: { 'repo-env-1::/env-1/repo': ['dist/'] }
     })
 
     await expect(store.getState().setActiveRuntimeEnvironmentPreference('env-2')).resolves.toBe(
@@ -435,15 +432,6 @@ describe('createSettingsSlice runtime switching', () => {
     expect(store.getState().ptyIdsByTabId).toEqual({ tab1: ['remote:env-1@@terminal-a'] })
     expect(store.getState().browserTabsByWorktree).toEqual({
       'repo-env-1::/env-1/repo': [{ id: 'browser-env-1' }]
-    })
-    expect(store.getState().prCache).toEqual({
-      '/env-1/repo::main': expect.objectContaining({ data: null })
-    })
-    expect(store.getState().linearIssueCache).toEqual({
-      'LIN-1': expect.objectContaining({ data: { id: 'LIN-1' } })
-    })
-    expect(store.getState().jiraIssueCache).toEqual({
-      'JIRA-1': expect.objectContaining({ data: { key: 'JIRA-1' } })
     })
   })
 

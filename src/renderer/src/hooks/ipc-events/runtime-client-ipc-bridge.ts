@@ -119,12 +119,7 @@ export function registerRuntimeClientIpcBridge(
       return
     }
     if (event.type === 'linearLinkedIssueUpdated') {
-      void useAppStore
-        .getState()
-        .refreshLinearIssue(event.identifier, event.workspaceId)
-        .catch((error) => {
-          console.error('Failed to refresh updated Linear issue:', error)
-        })
+      // Why: no Linear integration remains; older hosts may still publish this event.
       return
     }
     void ensureRuntimeEventRepoKnown(environmentId, event.repoId)

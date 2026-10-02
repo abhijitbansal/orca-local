@@ -16,8 +16,9 @@ type TaskSourcesGithubStatus = TaskSourcesSnapshotProps['github_status']
 type TaskSourcesLinearStatus = TaskSourcesSnapshotProps['linear_status']
 export type TaskSourcesExitAction = TaskSourcesSnapshotProps['exit_action']
 
-export function shouldSkipIntegrationsStep(status: AppState['preflightStatus']): boolean {
-  return status?.gh.installed === true
+// Why: no forge or tracker integration remains, so there is never anything to connect.
+export function shouldSkipIntegrationsStep(_status: AppState['preflightStatus']): boolean {
+  return true
 }
 
 export function shouldSkipWindowsTerminalStep(isWindows: boolean): boolean {
@@ -55,26 +56,17 @@ export function resolveStepIndex(
 }
 
 export function getGitHubTaskSourceStatus(
-  status: AppState['preflightStatus'],
-  loading: boolean
+  _status: AppState['preflightStatus'],
+  _loading: boolean
 ): TaskSourcesGithubStatus {
-  if (loading || !status) {
-    return 'checking'
-  }
-  if (!status.gh.installed) {
-    return 'not_installed'
-  }
-  return status.gh.authenticated ? 'connected' : 'not_authenticated'
+  return 'not_installed'
 }
 
 export function getLinearTaskSourceStatus(
-  status: AppState['linearStatus'],
-  checked: boolean
+  _status: { connected?: boolean },
+  _checked: boolean
 ): TaskSourcesLinearStatus {
-  if (status.connected) {
-    return 'connected'
-  }
-  return checked ? 'not_connected' : 'checking'
+  return 'not_connected'
 }
 
 type OnboardingStepId = (typeof STEPS)[number]['id']

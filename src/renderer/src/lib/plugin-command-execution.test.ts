@@ -32,11 +32,11 @@ describe('plugin command execution', () => {
     Object.assign(window, { api: { plugins: { invokeCommand } } })
 
     await executePluginCommand(
-      command({ type: 'built-in', action: 'view.tasks' }),
+      command({ type: 'built-in', action: 'workspace.openBoard' }),
       'plugin-palette'
     )
 
-    expect(dispatcher).toHaveBeenCalledWith('view.tasks', 'plugin-palette')
+    expect(dispatcher).toHaveBeenCalledWith('workspace.openBoard', 'plugin-palette')
     expect(invokeCommand).not.toHaveBeenCalled()
   })
 

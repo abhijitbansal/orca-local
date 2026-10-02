@@ -5669,7 +5669,8 @@
           "gitlabDescription": "Edit issue links, merge request links, and notes for this workspace.",
           "gitlabMR": "GitLab MR",
           "gitlabPlaceholder": "MR ! or GitLab URL",
-          "gitlabHelp": "Paste a merge request URL, or enter a number. Leave blank to remove the link."
+          "gitlabHelp": "Paste a merge request URL, or enter a number. Leave blank to remove the link.",
+          "issueLinksDescription": "Edit the issue link and notes for this workspace."
         },
         "WorktreeOpenInMenu": {
           "localOnly": "Local only",

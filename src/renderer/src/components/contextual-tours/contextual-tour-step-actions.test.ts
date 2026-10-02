@@ -2,34 +2,6 @@ import { describe, expect, it, vi } from 'vitest'
 import { performContextualTourStepAction } from './contextual-tour-step-actions'
 
 describe('performContextualTourStepAction', () => {
-  it('opens Tasks after detaching the terminal-owned tour source', () => {
-    const finishTour = vi.fn()
-    const advanceContextualTour = vi.fn()
-    const detachContextualTourSource = vi.fn()
-    const openTaskPage = vi.fn()
-
-    performContextualTourStepAction({
-      action: { kind: 'open-tasks', label: 'Show tasks' },
-      activeTabId: 'tab-1',
-      isLastStep: false,
-      finishTour,
-      advanceContextualTour,
-      detachContextualTourSource,
-      setSidebarOpen: vi.fn(),
-      openTaskPage,
-      openModal: vi.fn(),
-      openClientHostedBrowserSettings: vi.fn(),
-      openWorkspaceComposer: vi.fn(),
-      dispatchTerminalPaneSplit: vi.fn(),
-      schedule: vi.fn()
-    })
-
-    expect(detachContextualTourSource).toHaveBeenCalledTimes(1)
-    expect(openTaskPage).toHaveBeenCalledTimes(1)
-    expect(advanceContextualTour).toHaveBeenCalledTimes(1)
-    expect(finishTour).not.toHaveBeenCalled()
-  })
-
   it('dispatches the terminal-pane split action against the active tab', () => {
     const dispatchTerminalPaneSplit = vi.fn()
 
@@ -41,7 +13,6 @@ describe('performContextualTourStepAction', () => {
       advanceContextualTour: vi.fn(),
       detachContextualTourSource: vi.fn(),
       setSidebarOpen: vi.fn(),
-      openTaskPage: vi.fn(),
       openModal: vi.fn(),
       openClientHostedBrowserSettings: vi.fn(),
       openWorkspaceComposer: vi.fn(),
@@ -69,7 +40,6 @@ describe('performContextualTourStepAction', () => {
       advanceContextualTour,
       detachContextualTourSource,
       setSidebarOpen: vi.fn(),
-      openTaskPage: vi.fn(),
       openModal: vi.fn(),
       openClientHostedBrowserSettings: vi.fn(),
       openWorkspaceComposer,
@@ -97,7 +67,6 @@ describe('performContextualTourStepAction', () => {
       advanceContextualTour: vi.fn(),
       detachContextualTourSource,
       setSidebarOpen: vi.fn(),
-      openTaskPage: vi.fn(),
       openModal: vi.fn(),
       openClientHostedBrowserSettings: vi.fn(),
       openWorkspaceComposer,
@@ -122,7 +91,6 @@ describe('performContextualTourStepAction', () => {
       advanceContextualTour: vi.fn(),
       detachContextualTourSource: vi.fn(),
       setSidebarOpen: vi.fn(),
-      openTaskPage: vi.fn(),
       openModal: vi.fn(),
       openClientHostedBrowserSettings,
       openWorkspaceComposer: vi.fn(),

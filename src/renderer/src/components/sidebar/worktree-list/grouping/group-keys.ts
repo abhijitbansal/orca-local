@@ -3,7 +3,6 @@ import type React from 'react'
 import type { Repo } from '../../../../../../shared/repo-types'
 import type { Worktree } from '../../../../../../shared/worktree/types'
 import { getWorktreeHostIdentity } from '../../../../../../shared/worktree/host-qualified-identity'
-import { branchName } from '../../../../lib/git-utils'
 import {
   ConductorDoneIcon,
   ConductorProgressIcon,
@@ -11,12 +10,7 @@ import {
 } from '../../workspace-status-icons'
 import { UNGROUPED_PROJECT_GROUP_KEY } from '../../../../../../shared/project-groups'
 import type { AppState } from '../../../../store/types'
-import {
-  getGitHubPRCacheKey,
-  getLegacyGitHubPRCacheKey
-} from '../../../../store/slices/github-cache-key'
 import { translate } from '@/i18n/i18n'
-import { isGitHubPRSuppressed } from '../../../../../../shared/worktree/github-pr-suppression'
 
 export type PRGroupKey = 'done' | 'in-review' | 'in-progress' | 'closed'
 
@@ -106,64 +100,13 @@ export function getWorktreeLineageGroupKey(worktree: Pick<Worktree, 'id' | 'host
 }
 
 export function getPRGroupKey(
-  worktree: Worktree,
-  repoMap: Map<string, Repo>,
-  prCache: Record<string, unknown> | null,
-  settings?: AppState['settings']
+  _worktree: Worktree,
+  _repoMap: Map<string, Repo>,
+  _prCache: Record<string, unknown> | null,
+  _settings?: AppState['settings']
 ): PRGroupKey {
-  const repo = repoMap.get(worktree.repoId)
-  const branch = branchName(worktree.branch)
-  const repoScopedCacheKey =
-    repo && branch
-      ? getGitHubPRCacheKey(
-          repo.path,
-          repo.id,
-          branch,
-          settings,
-          repo.connectionId,
-          repo.executionHostId,
-          true
-        )
-      : ''
-  const canUseLegacyPRCache = repo !== undefined && !repo.connectionId && !repo.executionHostId
-  const legacyRepoScopedCacheKey =
-    canUseLegacyPRCache && branch ? getLegacyGitHubPRCacheKey(repo.path, repo.id, branch) : ''
-  const legacyPathScopedCacheKey =
-    canUseLegacyPRCache && branch ? getLegacyGitHubPRCacheKey(repo.path, undefined, branch) : ''
-  // Why: PR refreshes now write repo-id scoped entries; legacy path entries may
-  // still exist from persisted cache, but must not override fresher repo data.
-  const prEntry = prCache
-    ? ((repoScopedCacheKey
-        ? (prCache[repoScopedCacheKey] as
-            | { data?: { number?: number; state?: string } }
-            | undefined)
-        : undefined) ??
-      (legacyRepoScopedCacheKey
-        ? (prCache[legacyRepoScopedCacheKey] as
-            | { data?: { number?: number; state?: string } }
-            | undefined)
-        : undefined) ??
-      (legacyPathScopedCacheKey
-        ? (prCache[legacyPathScopedCacheKey] as
-            | { data?: { number?: number; state?: string } }
-            | undefined)
-        : undefined))
-    : undefined
-  const pr = prEntry?.data
-
-  if (!pr || (typeof pr.number === 'number' && isGitHubPRSuppressed(worktree, pr.number))) {
-    return 'in-progress'
-  }
-  if (pr.state === 'merged') {
-    return 'done'
-  }
-  if (pr.state === 'closed') {
-    return 'closed'
-  }
-  if (pr.state === 'draft') {
-    return 'in-progress'
-  }
-  return 'in-review'
+  // Why: without a forge there is never a PR entry, which the original function mapped to 'in-progress'.
+  return 'in-progress'
 }
 
 /**

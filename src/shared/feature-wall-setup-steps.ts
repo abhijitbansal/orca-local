@@ -4,7 +4,6 @@ export type FeatureWallSetupStepId =
   | 'notifications'
   | 'two-worktrees'
   | 'browser'
-  | 'task-sources'
   | 'agent-capabilities'
   | 'setup-script'
 
@@ -55,12 +54,6 @@ export const FEATURE_WALL_SETUP_STEPS: readonly FeatureWallSetupStep[] = [
     subtitle: 'Give agents Orca skills',
     description:
       "Install the skills agents use to drive Orca's browser, control your computer, and coordinate multi-step work."
-  },
-  {
-    id: 'task-sources',
-    name: 'Connect integrations',
-    subtitle: 'Connect integrations',
-    description: 'Start an agent from a task in one click and keep PR status in view.'
   },
   {
     id: 'setup-script',

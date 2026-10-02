@@ -15,7 +15,6 @@ import { EditorAnimatedVisual } from './EditorAnimatedVisual'
 import { BrowserAnimatedVisual } from './BrowserAnimatedVisual'
 import { AgentsOrchestrationVisual } from './AgentsOrchestrationVisual'
 import { ReviewAnimatedVisual } from './ReviewAnimatedVisual'
-import { GitHubRow, LinearRow } from '../onboarding/IntegrationsStep'
 import { OrchestrationSetupCard } from '../settings/OrchestrationSetupCard'
 import { BrowserUseSkillSetupCard } from './BrowserUseSkillSetupCard'
 import { UsageAccountsCard } from './agents-orchestration/UsageAccountsCard'
@@ -118,32 +117,26 @@ export function FeatureWallBody(props: {
                 : 'max-w-[400px]'
               : 'max-w-[480px]'
   const setupTerminalHeightPx = source === 'onboarding' ? 140 : 240
-  const settingContent = isTasks ? (
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-      <LinearRow compact />
-      <GitHubRow compact />
-    </div>
-  ) : isAgentsStatuses && props.settings ? (
-    <KeepAwakeCard settings={props.settings} updateSettings={props.updateSettings} />
-  ) : isAgentsUsage ? (
-    <UsageAccountsCard onAccountStateChange={onUsageAccountStateChange} />
-  ) : isAgentsOrchestration ? (
-    <OrchestrationSetupCard
-      compact
-      terminalHeightPx={setupTerminalHeightPx}
-      skill={orchestrationSkill}
-    />
-  ) : isWorkbenchBrowser ? (
-    <BrowserUseSkillSetupCard
-      compact
-      terminalHeightPx={setupTerminalHeightPx}
-      skill={browserUseSkill}
-    />
-  ) : isReviewPrView ? (
-    <GitHubRow compact />
-  ) : isReviewShip ? (
-    <AiCommitPrSettingsCard />
-  ) : null
+  const settingContent =
+    isAgentsStatuses && props.settings ? (
+      <KeepAwakeCard settings={props.settings} updateSettings={props.updateSettings} />
+    ) : isAgentsUsage ? (
+      <UsageAccountsCard onAccountStateChange={onUsageAccountStateChange} />
+    ) : isAgentsOrchestration ? (
+      <OrchestrationSetupCard
+        compact
+        terminalHeightPx={setupTerminalHeightPx}
+        skill={orchestrationSkill}
+      />
+    ) : isWorkbenchBrowser ? (
+      <BrowserUseSkillSetupCard
+        compact
+        terminalHeightPx={setupTerminalHeightPx}
+        skill={browserUseSkill}
+      />
+    ) : isReviewShip ? (
+      <AiCommitPrSettingsCard />
+    ) : null
   const shouldUseOnboardingTourZones =
     source === 'onboarding' && hasAnimatedVisual && Boolean(settingContent)
   const shouldStickSetupToBottom = shouldUseOnboardingTourZones

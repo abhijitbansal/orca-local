@@ -68,8 +68,7 @@ describe('selected-host active workspace identity', () => {
           executionHostId: RUNTIME_HOST
         }
       ],
-      worktreesByRepo: { [SAME_REPO_ID]: [local, runtime] },
-      refreshGitHubForWorktreeIfStale: () => undefined
+      worktreesByRepo: { [SAME_REPO_ID]: [local, runtime] }
     })
 
     const selected = useAppStore.getState().getKnownWorktreeById(SAME_WORKTREE_ID, RUNTIME_HOST)

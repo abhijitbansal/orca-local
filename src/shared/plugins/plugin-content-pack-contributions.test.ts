@@ -25,7 +25,7 @@ describe('content-pack manifest contributions', () => {
             id: 'workspace.openTasks',
             title: 'Open tasks',
             context: 'worktree',
-            action: 'view.tasks'
+            action: 'workspace.openBoard'
           }
         ],
         keybindings: [{ command: 'workspace.openTasks', key: 'Mod+Alt+T' }],
@@ -84,7 +84,7 @@ describe('content-pack manifest contributions', () => {
     [
       'invalid chord',
       {
-        commands: [{ id: 'open', title: 'Open', action: 'view.tasks' }],
+        commands: [{ id: 'open', title: 'Open', action: 'workspace.openBoard' }],
         keybindings: [{ command: 'open', key: 'Mod+NotAKey' }]
       },
       'key'
@@ -92,7 +92,9 @@ describe('content-pack manifest contributions', () => {
     [
       'global binding for a worktree command',
       {
-        commands: [{ id: 'open', title: 'Open', context: 'worktree', action: 'view.tasks' }],
+        commands: [
+          { id: 'open', title: 'Open', context: 'worktree', action: 'workspace.openBoard' }
+        ],
         keybindings: [{ command: 'open', key: 'Mod+K', when: 'global' }]
       },
       'command context'
@@ -101,7 +103,7 @@ describe('content-pack manifest contributions', () => {
       'platform-equivalent duplicate chords',
       {
         commands: [
-          { id: 'first', title: 'First', action: 'view.tasks' },
+          { id: 'first', title: 'First', action: 'workspace.openBoard' },
           { id: 'second', title: 'Second', action: 'sidebar.left.toggle' }
         ],
         keybindings: [
@@ -134,7 +136,7 @@ describe('content-pack manifest contributions', () => {
           { locale: 'pt-BR', path: 'pt-br.json' },
           { locale: 'pt-br', path: 'other.json' }
         ],
-        commands: [{ id: 'open', title: 'Open', action: 'view.tasks' }],
+        commands: [{ id: 'open', title: 'Open', action: 'workspace.openBoard' }],
         keybindings: [
           { command: 'open', key: 'Mod+T' },
           { command: 'open', key: 'mod+t' }

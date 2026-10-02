@@ -41,7 +41,6 @@ export type ComposerSourceModel = {
   handleLinkPopoverChange: (open: boolean) => void
   handleNameValueChange: (nextName: string) => void
   handleOpenAgentSettings: () => void
-  handleOpenJiraSettings: () => void
   handleProjectChange: (projectId: string) => void
   handleProjectHostSetupChange: (setupId: string) => void
   handleRemoveLinkedWorkItem: () => void
