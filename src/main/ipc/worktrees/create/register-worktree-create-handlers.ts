@@ -1,9 +1,8 @@
-import { ipcMain, app } from 'electron'
+import { ipcMain } from 'electron'
 import { getLocalWorktreeCatalogVersion } from '../../../local-worktree-scan-generation'
 import type {
   CreateWorktreeArgs,
-  CreateWorktreeResult,
-  AdoptProvisionedRootArgs
+  CreateWorktreeResult
 } from '../../../../shared/worktree/create-types'
 import {
   addWorktreeCreatePhaseAttributes,
@@ -25,11 +24,9 @@ import {
 import { track } from '../../../telemetry/client'
 import { classifyWorkspaceCreateError } from '../../workspace-create-error-classifier'
 import { getCohortAtEmit } from '../../../telemetry/cohort-classifier'
-import { adoptProvisionedRootSshCheckout } from '../../../provisioned-root-ssh-adoption'
 import { normalizeLinkedWorkItemFields } from '../ipc-context-schemas'
 import type { CreateWorktreeArgsWithSystemProvenance } from '../ipc-context-schemas'
 import { createFolderWorkspace } from './folder-workspace-creation'
-import { findExactRepoOwner, isCapturedRepoCurrent } from '../listing/worktree-host-ownership'
 import { requireWorktreeCreateRoute } from '../../../worktree-create-execution-host-route'
 import type { WorktreeIpcContext } from '../worktree-ipc-context'
 
@@ -114,59 +111,6 @@ export function registerWorktreeCreateHandlers(context: WorktreeIpcContext): voi
 
         // Why stamped last: the create's own change notification bumped the generation, so this
         // names the catalog that contains the new worktree.
-        return { ...result, catalogVersion: getLocalWorktreeCatalogVersion(repo.id) }
-      })
-    }
-  )
-
-  ipcMain.handle(
-    'worktrees:adoptProvisionedRoot',
-    async (_event, rawArgs: AdoptProvisionedRootArgs): Promise<CreateWorktreeResult> => {
-      const args = normalizeLinkedWorkItemFields(rawArgs)
-      return withWorktreeSpan({ stage: 'create' }, async () => {
-        const repo = findExactRepoOwner(store, args.repoId, args.executionHostId)
-        if (!repo || isFolderRepo(repo)) {
-          throw new Error('Provisioned-root repository ownership is missing or ambiguous.')
-        }
-        const sourceParse = workspaceSourceSchema.safeParse(args.telemetrySource)
-        const source: WorkspaceSource = sourceParse.success ? sourceParse.data : 'unknown'
-        const automationProvenance = resolveAutomationWorkspaceProvenance({
-          authority: runtime,
-          repoSelector: args.repoId,
-          repo,
-          request: args.automationProvenanceRequest
-        })
-        let result: CreateWorktreeResult
-        try {
-          result = await adoptProvisionedRootSshCheckout({
-            userDataPath: app.getPath('userData'),
-            request: { ...args, automationProvenance },
-            repo,
-            store,
-            isRepoCurrent: () => isCapturedRepoCurrent(store, repo, args.executionHostId)
-          })
-        } catch (error) {
-          releaseAutomationWorkspaceProvenanceRequest(args.automationProvenanceRequest)
-          track('workspace_create_failed', {
-            source,
-            error_class: classifyWorkspaceCreateError(error),
-            ...getCohortAtEmit()
-          })
-          throw error
-        }
-        finishAutomationWorkspaceProvenanceRequest(args.automationProvenanceRequest)
-        track('workspace_created', {
-          source,
-          from_existing_branch: false,
-          ...getCohortAtEmit()
-        })
-        notifyWorktreesChanged(mainWindow, repo.id)
-        options?.onWorktreeLifecycle?.({
-          kind: 'created',
-          worktreeId: result.worktree.id,
-          path: result.worktree.path,
-          branch: result.worktree.branch
-        })
         return { ...result, catalogVersion: getLocalWorktreeCatalogVersion(repo.id) }
       })
     }

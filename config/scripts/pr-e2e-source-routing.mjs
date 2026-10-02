@@ -57,14 +57,6 @@ export const PR_E2E_SOURCE_ROUTES = [
       )
   },
   {
-    id: 'ephemeral-vm-runtime.rollback-readable-sidecar',
-    specs: ['tests/e2e/ephemeral-vm-provisioned-root.spec.ts'],
-    matches: (file) =>
-      /^(?:src\/main\/ephemeral-vm-(?:runtime-(?:service|provisioning-persistence)|failed-start-cleanup)|src\/shared\/(?:ephemeral-vm-runtime-(?:store|feature-store|rollback-projection|runtimes)|ephemeral-vm-recipes|orca-yaml-hook-types))\.ts$/.test(
-        file
-      )
-  },
-  {
     id: 'ssh-terminal-source',
     specs: [
       'tests/e2e/pty-input-write-queue-ssh.spec.ts',

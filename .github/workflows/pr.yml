@@ -215,27 +215,6 @@ jobs:
       - name: Enforce dead design-system classes
         run: pnpm run check:dead-classes
 
-      - name: Check VM runtime rollback compatibility
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-        run: |
-          DIFF_BASE="$(node config/scripts/git-pull-request-diff-base.mjs "$BASE_SHA")"
-          if git diff --quiet "$DIFF_BASE" HEAD -- \
-            src/shared/ephemeral-vm-runtime-store.ts \
-            src/shared/ephemeral-vm-runtime-feature-store.ts \
-            src/shared/ephemeral-vm-runtime-rollback-projection.ts \
-            src/shared/ephemeral-vm-runtimes.ts \
-            src/shared/ephemeral-vm-recipes.ts \
-            src/shared/orca-yaml-hook-types.ts \
-            src/main/ephemeral-vm-runtime-service.ts \
-            src/main/ephemeral-vm-runtime-provisioning-persistence.ts \
-            src/main/ephemeral-vm-failed-start-cleanup.ts; then
-            echo "VM runtime persistence is unchanged."
-            exit 0
-          fi
-          node config/scripts/run-ephemeral-vm-runtime-store-rollback-repro.mjs \
-            config/scripts/ephemeral-vm-runtime-store-cross-version.test.ts
-
       - name: Enforce max-lines ratchet
         run: pnpm run check:max-lines-ratchet
 

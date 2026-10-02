@@ -1,5 +1,4 @@
 import type { WorktreeCatalogVersion } from './catalog-version'
-import type { ExecutionHostId } from '../execution-host'
 import type { ArchiveHookOverride } from './archive-hook-removal-gate'
 import type { WorkspaceSource } from '../workspace-source'
 import type { TaskSourceContext } from '../task-source-context'
@@ -152,13 +151,6 @@ export type CreateWorktreeArgs = {
   creationId?: string
   /** Authorizes the host to mint system-owned automation provenance. */
   automationProvenanceRequest?: AutomationWorkspaceProvenanceRequest
-}
-
-export type AdoptProvisionedRootArgs = CreateWorktreeArgs & {
-  runtimeId: string
-  executionHostId: ExecutionHostId
-  expectedPath: string
-  expectedRefHead?: string
 }
 
 export type CreateWorktreeResult = {

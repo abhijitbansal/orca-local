@@ -42,9 +42,6 @@ const nativeImeSpec = readFileSync(
 const filterStep = prWorkflow.jobs.code_paths.steps.find(
   (step) => step.name === 'Filter changed E2E specs'
 )
-const rollbackStep = prWorkflow.jobs.static_analysis.steps.find(
-  (step) => step.name === 'Check VM runtime rollback compatibility'
-)
 const verifyStep = prWorkflow.jobs.verify.steps.find(
   (step) => step.name === 'Require successful checks'
 )
@@ -397,15 +394,6 @@ describe('PR E2E gate contract', () => {
     expect(
       e2eWorkflow.jobs['ssh-docker-watcher-isolation']['timeout-minutes']
     ).toBeGreaterThanOrEqual(60)
-  })
-
-  it('scopes the VM rollback oracle to the PR range and recipe schema authorities', () => {
-    expect(rollbackStep.run).toMatch(/diff-base\.mjs "\$BASE_SHA"[\s\S]*"\$DIFF_BASE" HEAD --/)
-    expect(rollbackStep.run).toContain('src/shared/ephemeral-vm-recipes.ts')
-    expect(rollbackStep.run).toContain('src/shared/orca-yaml-hook-types.ts')
-    expect(selectPrE2eSpecs(['src/shared/ephemeral-vm-recipes.ts'])).toEqual([
-      'tests/e2e/ephemeral-vm-provisioned-root.spec.ts'
-    ])
   })
 
   it('routes P0 sentinels from their causal sources', () => {

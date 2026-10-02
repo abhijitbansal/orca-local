@@ -211,7 +211,6 @@ function buildCases(isolatedUserData) {
     'environment',
     'agent',
     'agent-context',
-    'vm',
     '--json',
     '--help',
     '--pairing-code',
@@ -393,7 +392,6 @@ const READ_ONLY_FUZZ_TOKENS = new Set([
   'snapshot',
   'status',
   'terminal',
-  'vm',
   'worktree',
   // global flags and hostile strings, which reach no handler at all
   '--json',

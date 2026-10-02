@@ -36,7 +36,6 @@ const WORKTREE_HANDLER_CHANNELS = [
   'worktrees:forgetRemovedForExecutionHost',
   'worktrees:cancelListDetected',
   'worktrees:create',
-  'worktrees:adoptProvisionedRoot',
   'worktrees:prefetchCreateBase',
   'worktrees:remove',
   'worktrees:forgetLocal',

@@ -1,16 +1,13 @@
 import { spawn as spawnProcess, type SpawnOptions } from 'node:child_process'
 import { existsSync } from 'node:fs'
-import { dirname, join, resolve } from 'node:path'
+import { dirname, isAbsolute, join, resolve } from 'node:path'
 import { StringDecoder } from 'node:string_decoder'
 import { runProcessSync } from '../../shared/child-process/run-process'
 import {
   SERVE_UPDATE_HANDOFF_PATH_ENV,
   getServeUpdateHandoffPath
 } from '../../shared/serve-update-handoff'
-import {
-  getEphemeralVmRecipeResultConnection,
-  parseEphemeralVmRecipeResult
-} from '../../shared/ephemeral-vm-recipes'
+import { parsePairingCode } from '../../shared/pairing'
 import { getDefaultUserDataPath } from './metadata'
 import { getMacAppBundlePath } from './mac-app-update-bundle'
 import {
@@ -148,6 +145,28 @@ export function serveOrcaApp(
   })
 }
 
+// Why: transitional stand-in for the removed VM recipe parser; the whole recipe rail goes with B1.3.
+function isOrcaServerRecipeLine(line: string): boolean {
+  try {
+    const parsed: unknown = JSON.parse(line)
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+      return false
+    }
+    if (!('pairingCode' in parsed) || !('projectRoot' in parsed)) {
+      return false
+    }
+    const { pairingCode, projectRoot } = parsed
+    return (
+      typeof pairingCode === 'string' &&
+      parsePairingCode(pairingCode) !== null &&
+      typeof projectRoot === 'string' &&
+      isAbsolute(projectRoot)
+    )
+  } catch {
+    return false
+  }
+}
+
 function waitForRecipeJson(child: ReturnType<typeof spawnProcess>): Promise<number> {
   return new Promise((resolve, reject) => {
     let output = ''
@@ -183,12 +202,7 @@ function waitForRecipeJson(child: ReturnType<typeof spawnProcess>): Promise<numb
       if (!normalizedLine.trim()) {
         return
       }
-      const parsed = parseEphemeralVmRecipeResult(normalizedLine)
-      if (!parsed.ok) {
-        writeIgnoredRecipeStdout()
-        return
-      }
-      if (getEphemeralVmRecipeResultConnection(parsed.result).type !== 'orca-server') {
+      if (!isOrcaServerRecipeLine(normalizedLine)) {
         writeIgnoredRecipeStdout()
         return
       }

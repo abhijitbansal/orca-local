@@ -7,8 +7,7 @@ import { fingerprintPluginConsent } from '../../shared/plugins/plugin-consent-fi
 import { pluginManifestSchema, type PluginManifest } from '../../shared/plugins/plugin-manifest'
 import {
   PLUGIN_PANEL_ENTRY_MAX_BYTES,
-  validateDeclaredPluginArtifacts,
-  validatePluginInstallContent
+  validateDeclaredPluginArtifacts
 } from './plugin-artifact-validation'
 import { hashPluginTree } from './plugin-content-hash'
 import { verifyHashAddressedPluginContent } from './plugin-content-integrity'
@@ -53,19 +52,11 @@ afterEach(async () => {
 describe('declared plugin artifacts', () => {
   it('validates every content-pack file and directory before enablement', async () => {
     const root = await tempRoot()
-    await Promise.all([
-      mkdir(join(root, 'locales')),
-      mkdir(join(root, 'recipes')),
-      writeFile(join(root, 'agent.json'), '{}')
-    ])
-    await Promise.all([
-      writeFile(join(root, 'locales', 'pt-BR.json'), '{}'),
-      writeFile(join(root, 'recipes', 'vm.json'), '{}')
-    ])
+    await Promise.all([mkdir(join(root, 'locales')), writeFile(join(root, 'agent.json'), '{}')])
+    await writeFile(join(root, 'locales', 'pt-BR.json'), '{}')
     const pluginManifest = manifest({
       contributes: {
         languagePacks: [{ locale: 'pt-BR', path: 'locales/pt-BR.json' }],
-        vmRecipes: [{ path: 'recipes/vm.json' }],
         agents: [{ path: 'agent.json' }]
       }
     })
@@ -152,57 +143,6 @@ describe('declared plugin artifacts', () => {
     await expect(validateDeclaredPluginArtifacts(root, pluginManifest)).resolves.toMatchObject({
       ok: false,
       error: expect.stringContaining('artifact limit')
-    })
-  })
-
-  it('parses VM recipes at the immutable install boundary', async () => {
-    const root = await tempRoot()
-    await mkdir(join(root, 'recipes'))
-    await writeFile(
-      join(root, 'recipes', 'invalid.json'),
-      JSON.stringify({
-        schemaVersion: 1,
-        id: 'cloud',
-        name: 'Cloud',
-        create: 'create',
-        suspend: 'suspend'
-      })
-    )
-    const pluginManifest = manifest({
-      contributes: { vmRecipes: [{ path: 'recipes/invalid.json' }] }
-    })
-
-    await expect(validateDeclaredPluginArtifacts(root, pluginManifest)).resolves.toEqual({
-      ok: true
-    })
-    await expect(validatePluginInstallContent(root, pluginManifest)).resolves.toMatchObject({
-      ok: false,
-      error: expect.stringContaining('suspend and resume')
-    })
-  })
-
-  it('rejects duplicate VM recipe ids at the immutable install boundary', async () => {
-    const root = await tempRoot()
-    await mkdir(join(root, 'recipes'))
-    const recipe = JSON.stringify({
-      schemaVersion: 1,
-      id: 'cloud',
-      name: 'Cloud',
-      create: 'create'
-    })
-    await Promise.all([
-      writeFile(join(root, 'recipes', 'one.json'), recipe),
-      writeFile(join(root, 'recipes', 'two.json'), recipe)
-    ])
-    const pluginManifest = manifest({
-      contributes: {
-        vmRecipes: [{ path: 'recipes/one.json' }, { path: 'recipes/two.json' }]
-      }
-    })
-
-    await expect(validatePluginInstallContent(root, pluginManifest)).resolves.toMatchObject({
-      ok: false,
-      error: expect.stringContaining('duplicate VM recipe id "cloud"')
     })
   })
 })

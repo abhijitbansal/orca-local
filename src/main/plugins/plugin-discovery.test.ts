@@ -75,7 +75,7 @@ describe('installed plugin discovery identity', () => {
 })
 
 describe('instructional plugin discovery identity', () => {
-  it('changes dev consent when a VM recipe command changes', async () => {
+  it('changes dev consent when an instructional contribution file changes', async () => {
     const pluginsDir = await tempPluginsDir()
     const devRoot = await tempPluginsDir()
     await mkdir(join(devRoot, 'recipes'))
