@@ -239,7 +239,7 @@ describe('hasUsageProviderSettingsForProvider', () => {
 })
 
 describe('getVisibleUsageProvider', () => {
-  it('shows a pending snapshot only for Claude, the one provider fed locally', () => {
+  it('shows Claude as no data, not fetching, when accounts exist but no statusline post has arrived', () => {
     const claudeAccount = {
       id: 'claude-account-1',
       email: 'dev@example.com',
@@ -255,7 +255,7 @@ describe('getVisibleUsageProvider', () => {
         null,
         usageSettings({ claudeManagedAccounts: [claudeAccount] })
       )
-    ).toMatchObject({ provider: 'claude', status: 'fetching', session: null, weekly: null })
+    ).toMatchObject({ provider: 'claude', status: 'unavailable', session: null, weekly: null })
   })
 
   it('never shows a permanent loading skeleton for providers that are no longer fetched', () => {
@@ -371,11 +371,38 @@ describe('isUsageEmptyState', () => {
     expect(getVisibleUsageProvider('cursor', failing, usageSettings())).toBe(failing)
   })
 
-  it('waits for provider snapshots before showing the setup CTA', () => {
-    expect(isUsageEmptyState(createEmptyRateLimitState(), usageSettings())).toBe(false)
+  it('shows the setup CTA when main reports every provider as null', () => {
+    expect(isUsageEmptyState(createEmptyRateLimitState(), usageSettings())).toBe(true)
   })
 
-  it('treats provider keys omitted by an older main process as pending', () => {
+  it('does not show the setup CTA for null snapshots when Claude accounts exist but no post arrived', () => {
+    expect(
+      isUsageEmptyState(
+        createEmptyRateLimitState(),
+        usageSettings({
+          claudeManagedAccounts: [
+            {
+              id: 'claude-account-1',
+              email: 'dev@example.com',
+              managedAuthPath: '/tmp/claude-account-1',
+              authMethod: 'subscription-oauth',
+              createdAt: 1,
+              updatedAt: 1,
+              lastAuthenticatedAt: 1
+            }
+          ]
+        })
+      )
+    ).toBe(false)
+  })
+
+  it('waits while the Claude payload is missing', () => {
+    expect(
+      isUsageEmptyState({ ...createEmptyRateLimitState(), claude: undefined }, usageSettings())
+    ).toBe(false)
+  })
+
+  it('treats other providers omitted by an older main process as settled', () => {
     expect(
       isUsageEmptyState(
         {
@@ -391,7 +418,7 @@ describe('isUsageEmptyState', () => {
         },
         usageSettings()
       )
-    ).toBe(false)
+    ).toBe(true)
   })
 
   it('does not show the setup CTA while system-default usage snapshots are fetching', () => {
@@ -464,7 +491,7 @@ describe('isUsageEmptyState', () => {
     }
     expect(isUsageEmptyState(settledProviders, usageSettings())).toBe(true)
     expect(isUsageEmptyState({ ...settledProviders, zcode: undefined }, usageSettings())).toBe(true)
-    expect(isUsageEmptyState({ ...settledProviders, zcode: null }, usageSettings())).toBe(false)
+    expect(isUsageEmptyState({ ...settledProviders, zcode: null }, usageSettings())).toBe(true)
   })
 
   it('does not show the setup CTA while checked Antigravity usage is awaiting a snapshot', () => {
