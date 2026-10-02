@@ -97,11 +97,11 @@ export function isTelemetryEnabled(): boolean {
   )
 }
 
-function writeRecord(
+function writeRecord<N extends EventName>(
   client: LocalFileSink,
   common: CommonProps,
-  name: EventName,
-  props: object
+  name: N,
+  props: EventProps<N>
 ): void {
   client.push({
     type: TELEMETRY_RECORD_TYPE,
