@@ -7,7 +7,6 @@ import {
   buildAgentFeatureSkillInstallCommand,
   COMPUTER_USE_SKILL_NAME,
   ORCA_CLI_SKILL_NAME,
-  ORCA_LINEAR_SKILL_NAME,
   ORCHESTRATION_SKILL_NAME
 } from '@/lib/agent-feature-install-commands'
 import { BROWSER_USE_ENABLED_STORAGE_KEY } from '@/lib/browser-use-setup-state'
@@ -30,8 +29,7 @@ import { getOnboardingFeatureSetupAgentRuntime } from './onboarding-feature-setu
 const ALL_SKILL_INSTALL_COMMAND = buildAgentFeatureSkillInstallCommand([
   ORCA_CLI_SKILL_NAME,
   COMPUTER_USE_SKILL_NAME,
-  ORCHESTRATION_SKILL_NAME,
-  ORCA_LINEAR_SKILL_NAME
+  ORCHESTRATION_SKILL_NAME
 ])
 const ORCHESTRATION_ONLY_SKILL_INSTALL_COMMAND = buildAgentFeatureSkillInstallCommand([
   ORCHESTRATION_SKILL_NAME
@@ -95,8 +93,7 @@ describe('onboarding feature setup runner', () => {
     expect(DEFAULT_ONBOARDING_FEATURE_SETUP_SELECTION).toEqual({
       browserUse: true,
       computerUse: true,
-      orchestration: true,
-      linearTickets: false
+      orchestration: true
     })
   })
 
@@ -104,19 +101,18 @@ describe('onboarding feature setup runner', () => {
     const text = buildOnboardingFeatureSetupClipboardText({
       browserUse: true,
       computerUse: true,
-      orchestration: true,
-      linearTickets: true
+      orchestration: true
     })
 
     expect(text).toBe(ALL_SKILL_INSTALL_COMMAND)
     expect(text).toBe(
-      'npx skills add https://github.com/stablyai/orca --skill orca-cli --skill computer-use --skill orchestration --skill orca-linear --global'
+      'npx skills add https://github.com/stablyai/orca --skill orca-cli --skill computer-use --skill orchestration --global'
     )
   })
 
   it('keeps the copied command valid for the WSL target shell', () => {
     const text = buildOnboardingFeatureSetupClipboardText(
-      { browserUse: false, computerUse: false, orchestration: true, linearTickets: false },
+      { browserUse: false, computerUse: false, orchestration: true },
       { runtime: 'wsl', wslDistro: 'Ubuntu', label: 'WSL Ubuntu' }
     )
 
@@ -125,7 +121,7 @@ describe('onboarding feature setup runner', () => {
 
   it('leaves the copied command bare for a host runtime', () => {
     const text = buildOnboardingFeatureSetupClipboardText(
-      { browserUse: false, computerUse: false, orchestration: true, linearTickets: false },
+      { browserUse: false, computerUse: false, orchestration: true },
       { runtime: 'host', label: 'Windows' }
     )
 
@@ -145,7 +141,7 @@ describe('onboarding feature setup runner', () => {
     const deps = createDeps()
 
     await runOnboardingFeatureSetup(
-      { browserUse: false, computerUse: false, orchestration: true, linearTickets: false },
+      { browserUse: false, computerUse: false, orchestration: true },
       deps,
       {
         agentRuntime: { runtime: 'wsl', wslDistro: 'Missing', label: 'WSL Missing' },
@@ -160,21 +156,19 @@ describe('onboarding feature setup runner', () => {
     const selection: OnboardingFeatureSetupSelection = {
       browserUse: true,
       computerUse: false,
-      orchestration: true,
-      linearTickets: true
+      orchestration: true
     }
 
     expect(onboardingFeatureSetupTelemetryFeature('browserUse')).toBe('browser_use')
     expect(onboardingFeatureSetupTelemetrySelection(selection)).toEqual({
       browser_use: true,
       computer_use: false,
-      linear_tickets: true,
       orchestration: true,
       selected_count: 2
     })
     expect(
       onboardingFeatureSetupRunTelemetry(selection, {
-        selectedIds: ['browserUse', 'orchestration', 'linearTickets'],
+        selectedIds: ['browserUse', 'orchestration'],
         skillCommandsCopied: false,
         skillInstallCommand: ORCHESTRATION_ONLY_SKILL_INSTALL_COMMAND,
         computerUsePermissionsOpened: false,
@@ -183,7 +177,6 @@ describe('onboarding feature setup runner', () => {
     ).toEqual({
       browser_use: true,
       computer_use: false,
-      linear_tickets: true,
       orchestration: true,
       selected_count: 2,
       cli_touched: false,
@@ -210,12 +203,12 @@ describe('onboarding feature setup runner', () => {
     })
 
     const result = await runOnboardingFeatureSetup(
-      { browserUse: true, computerUse: true, orchestration: true, linearTickets: true },
+      { browserUse: true, computerUse: true, orchestration: true },
       deps
     )
 
     expect(result).toEqual({
-      selectedIds: ['browserUse', 'computerUse', 'orchestration', 'linearTickets'],
+      selectedIds: ['browserUse', 'computerUse', 'orchestration'],
       skillCommandsCopied: true,
       skillInstallCommand: ALL_SKILL_INSTALL_COMMAND,
       computerUsePermissionsOpened: true,
@@ -233,7 +226,7 @@ describe('onboarding feature setup runner', () => {
   it('installs WSL skills without checking or changing CLI registration', async () => {
     const deps = createDeps()
     const result = await runOnboardingFeatureSetup(
-      { browserUse: false, computerUse: false, orchestration: true, linearTickets: false },
+      { browserUse: false, computerUse: false, orchestration: true },
       deps,
       WSL_RUNTIME_CONTEXT
     )
@@ -245,8 +238,7 @@ describe('onboarding feature setup runner', () => {
     const selection: OnboardingFeatureSetupSelection = {
       browserUse: false,
       computerUse: false,
-      orchestration: true,
-      linearTickets: false
+      orchestration: true
     }
 
     const result = await runOnboardingFeatureSetup(selection, deps)
@@ -266,7 +258,7 @@ describe('onboarding feature setup runner', () => {
     const deps = createDeps()
 
     const result = await runOnboardingFeatureSetup(
-      { browserUse: false, computerUse: false, orchestration: false, linearTickets: false },
+      { browserUse: false, computerUse: false, orchestration: false },
       deps
     )
 
@@ -291,7 +283,7 @@ describe('onboarding feature setup runner', () => {
     })
 
     const result = await runOnboardingFeatureSetup(
-      { browserUse: false, computerUse: false, orchestration: true, linearTickets: false },
+      { browserUse: false, computerUse: false, orchestration: true },
       deps
     )
 
@@ -327,7 +319,7 @@ describe('onboarding feature setup runner', () => {
     })
 
     const result = await runOnboardingFeatureSetup(
-      { browserUse: true, computerUse: true, orchestration: true, linearTickets: true },
+      { browserUse: true, computerUse: true, orchestration: true },
       deps
     )
 
