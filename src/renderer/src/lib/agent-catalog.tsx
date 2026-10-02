@@ -26,7 +26,6 @@ export type AgentCatalogEntry = {
   /** Direct or bundled image URL for agents whose project identity is not represented by a favicon service. */
   iconUrl?: string
   /** Domain for Google's favicon service — used for agents without an SVG icon. */
-  faviconDomain?: string
   /** Homepage/install docs URL, sourced from the README agent badge list. */
   homepageUrl: string
 }
@@ -63,7 +62,6 @@ export const getAgentCatalog = createLocalizedCatalog((): AgentCatalogEntry[] =>
     id: 'grok',
     label: translate('auto.lib.agent.catalog.0baad2d5d2', 'Grok'),
     cmd: 'grok',
-    faviconDomain: 'x.ai',
     homepageUrl: 'https://x.ai/cli'
   },
   {
@@ -88,14 +86,12 @@ export const getAgentCatalog = createLocalizedCatalog((): AgentCatalogEntry[] =>
     id: 'mimo-code',
     label: translate('auto.lib.agent.catalog.mimo_code_label', 'MiMo Code'),
     cmd: 'mimo',
-    faviconDomain: 'mimo.xiaomi.com',
     homepageUrl: 'https://mimo.xiaomi.com/coder'
   },
   {
     id: 'ante',
     label: translate('auto.lib.agent.catalog.da41abbdd4', 'Ante'),
     cmd: 'ante',
-    faviconDomain: 'antigma.ai',
     homepageUrl: 'https://github.com/AntigmaLabs/ante-preview'
   },
   {
@@ -104,14 +100,12 @@ export const getAgentCatalog = createLocalizedCatalog((): AgentCatalogEntry[] =>
     // Why: matches TUI_AGENT_CONFIG.trae.detectCmd, not the ambiguous `trae-cli` — see the Why there.
     cmd: 'traecli',
     // Why: bare `trae.cn` 404s on Google's favicon service.
-    faviconDomain: 'www.trae.cn',
     homepageUrl: 'https://docs.trae.cn/cli_get-started-with-trae-cli'
   },
   {
     id: 'muse',
     label: translate('auto.lib.agent.catalog.muse_label', 'Muse'),
     cmd: 'muse',
-    faviconDomain: 'dev.meta.ai',
     homepageUrl: 'https://dev.meta.ai/docs/muse-code'
   },
   {
@@ -125,14 +119,12 @@ export const getAgentCatalog = createLocalizedCatalog((): AgentCatalogEntry[] =>
     id: 'qoder',
     label: translate('auto.lib.agent.catalog.qoder_label', 'Qoder CLI'),
     cmd: 'qodercli',
-    faviconDomain: 'qoder.com',
     homepageUrl: 'https://docs.qoder.com/cli/overview'
   },
   {
     id: 'zcode',
     label: translate('auto.lib.agent.catalog.zcode_label', 'ZCode'),
     cmd: 'zcode',
-    faviconDomain: 'zcode.z.ai',
     homepageUrl: 'https://zcode.z.ai/en/docs'
   },
   {
@@ -146,29 +138,24 @@ export const getAgentCatalog = createLocalizedCatalog((): AgentCatalogEntry[] =>
     label: translate('auto.lib.agent.catalog.09973b4d84', 'OMP'),
     cmd: 'omp',
     searchAliases: ['oh-my-pi', 'oh my pi'],
-    // Why: no faviconDomain — omp renders the hand-authored OmpIcon glyph, so a
-    // favicon fallback would never be reached.
     homepageUrl: 'https://omp.sh'
   },
   {
     id: 'prime-agent',
     label: translate('auto.lib.agent.catalog.d443a47995', 'Prime Agent'),
     cmd: 'prime-agent',
-    faviconDomain: 'primeintellect.ai',
     homepageUrl: 'https://github.com/PrimeIntellect-ai/prime-agent'
   },
   {
     id: 'gemini',
     label: translate('auto.lib.agent.catalog.12e6baa4f7', 'Gemini'),
     cmd: 'gemini',
-    faviconDomain: 'gemini.google.com',
     homepageUrl: 'https://github.com/google-gemini/gemini-cli'
   },
   {
     id: 'antigravity',
     label: translate('auto.lib.agent.catalog.691dd11789', 'Antigravity'),
     cmd: 'agy',
-    faviconDomain: 'antigravity.google',
     homepageUrl: 'https://antigravity.google/docs/cli-overview'
   },
   {
@@ -181,14 +168,12 @@ export const getAgentCatalog = createLocalizedCatalog((): AgentCatalogEntry[] =>
     id: 'goose',
     label: translate('auto.lib.agent.catalog.8da11d876c', 'Goose'),
     cmd: 'goose',
-    faviconDomain: 'goose-docs.ai',
     homepageUrl: 'https://block.github.io/goose/docs/quickstart/'
   },
   {
     id: 'amp',
     label: translate('auto.lib.agent.catalog.c73c573939', 'Amp'),
     cmd: 'amp',
-    faviconDomain: 'ampcode.com',
     homepageUrl: 'https://ampcode.com/manual#install'
   },
   {
@@ -205,49 +190,42 @@ export const getAgentCatalog = createLocalizedCatalog((): AgentCatalogEntry[] =>
     // the settings pane's "default command" hint aligns with what Orca
     // actually looks for on PATH.
     cmd: 'kiro-cli',
-    faviconDomain: 'kiro.dev',
     homepageUrl: 'https://kiro.dev/docs/cli/'
   },
   {
     id: 'crush',
     label: translate('auto.lib.agent.catalog.9477377a2a', 'Charm'),
     cmd: 'crush',
-    faviconDomain: 'charm.sh',
     homepageUrl: 'https://github.com/charmbracelet/crush'
   },
   {
     id: 'aug',
     label: translate('auto.lib.agent.catalog.5e8eff11b3', 'Auggie'),
     cmd: 'auggie',
-    faviconDomain: 'augmentcode.com',
     homepageUrl: 'https://docs.augmentcode.com/cli/overview'
   },
   {
     id: 'autohand',
     label: translate('auto.lib.agent.catalog.1f8a19e9ad', 'Autohand Code'),
     cmd: 'autohand',
-    faviconDomain: 'autohand.ai',
     homepageUrl: 'https://github.com/autohandai/code-cli'
   },
   {
     id: 'cline',
     label: translate('auto.lib.agent.catalog.cbaf0c2e0b', 'Cline'),
     cmd: 'cline',
-    faviconDomain: 'cline.bot',
     homepageUrl: 'https://docs.cline.bot/cline-cli/overview'
   },
   {
     id: 'codebuff',
     label: translate('auto.lib.agent.catalog.4238b771b5', 'Codebuff'),
     cmd: 'codebuff',
-    faviconDomain: 'codebuff.com',
     homepageUrl: 'https://www.codebuff.com/docs/help/quick-start'
   },
   {
     id: 'freebuff',
     label: translate('auto.lib.agent.catalog.freebuff_label', 'Freebuff'),
     cmd: 'freebuff',
-    faviconDomain: 'freebuff.com',
     homepageUrl: 'https://freebuff.com/cli'
   },
   {
@@ -258,7 +236,6 @@ export const getAgentCatalog = createLocalizedCatalog((): AgentCatalogEntry[] =>
     // matches TUI_AGENT_CONFIG['command-code'].detectCmd and avoids any
     // suggestion that Orca is looking for Windows' built-in `cmd.exe`.
     cmd: 'command-code',
-    faviconDomain: 'commandcode.ai',
     homepageUrl: 'https://commandcode.ai/docs/quickstart'
   },
   {
@@ -267,14 +244,12 @@ export const getAgentCatalog = createLocalizedCatalog((): AgentCatalogEntry[] =>
     // Why: Continue's terminal agent installs as `cn`; `continue` resolves to
     // a shell builtin in common shells and is not a reliable executable hint.
     cmd: 'cn',
-    faviconDomain: 'continue.dev',
     homepageUrl: 'https://docs.continue.dev/guides/cli'
   },
   {
     id: 'cursor',
     label: translate('auto.lib.agent.catalog.667c104cff', 'Cursor'),
     cmd: 'cursor-agent',
-    faviconDomain: 'cursor.com',
     homepageUrl: 'https://cursor.com/cli'
   },
   {
@@ -287,7 +262,6 @@ export const getAgentCatalog = createLocalizedCatalog((): AgentCatalogEntry[] =>
     id: 'kimi',
     label: translate('auto.lib.agent.catalog.28810273af', 'Kimi'),
     cmd: 'kimi',
-    faviconDomain: 'moonshot.cn',
     homepageUrl: 'https://www.kimi.com/code/docs/en/kimi-code-cli/getting-started.html'
   },
   {
@@ -296,7 +270,6 @@ export const getAgentCatalog = createLocalizedCatalog((): AgentCatalogEntry[] =>
     // Why: `uv tool install mistral-vibe` exposes the interactive CLI as
     // `vibe`; the package name is not the executable users put on PATH.
     cmd: 'vibe',
-    faviconDomain: 'mistral.ai',
     homepageUrl: 'https://github.com/mistralai/mistral-vibe'
   },
   {
@@ -305,14 +278,12 @@ export const getAgentCatalog = createLocalizedCatalog((): AgentCatalogEntry[] =>
     // Why: QwenLM/qwen-code installs its CLI executable as `qwen`; the package
     // name is not the binary users put on PATH. Keep `id` for stable identity.
     cmd: 'qwen',
-    faviconDomain: 'qwenlm.github.io',
     homepageUrl: 'https://github.com/QwenLM/qwen-code'
   },
   {
     id: 'rovo',
     label: translate('auto.lib.agent.catalog.4e63c7b956', 'Rovo Dev'),
     cmd: 'rovo',
-    faviconDomain: 'atlassian.com',
     homepageUrl:
       'https://support.atlassian.com/rovo/docs/install-and-run-rovo-dev-cli-on-your-device/'
   },
@@ -320,28 +291,24 @@ export const getAgentCatalog = createLocalizedCatalog((): AgentCatalogEntry[] =>
     id: 'hermes',
     label: translate('auto.lib.agent.catalog.8a9ba743cc', 'Hermes'),
     cmd: 'hermes',
-    faviconDomain: 'nousresearch.com',
     homepageUrl: 'https://hermes-agent.nousresearch.com/docs/'
   },
   {
     id: 'devin',
     label: translate('auto.lib.agent.catalog.fc80296033', 'Devin'),
     cmd: 'devin',
-    faviconDomain: 'devin.ai',
     homepageUrl: 'https://devin.ai/cli'
   },
   {
     id: 'openclaw',
     label: translate('auto.lib.agent.catalog.5dff448636', 'OpenClaw'),
     cmd: 'openclaw',
-    faviconDomain: 'openclaw.ai',
     homepageUrl: 'https://github.com/openclaw/openclaw'
   },
   {
     id: 'codebuddy',
     label: translate('auto.lib.agent.catalog.codebuddy_label', 'CodeBuddy'),
     cmd: 'codebuddy',
-    faviconDomain: 'codebuddy.ai',
     homepageUrl: 'https://www.codebuddy.ai/cli'
   }
 ])
@@ -409,21 +376,6 @@ export function AgentIcon({
     return (
       <img
         src={iconSrc}
-        width={size}
-        height={size}
-        alt=""
-        aria-hidden
-        style={{ borderRadius: 2 }}
-      />
-    )
-  }
-  if (catalogEntry?.faviconDomain) {
-    // Why: agents without a published SVG icon or bundled favicon fall back to
-    // their site favicon via Google's favicon service — same source the README
-    // uses for the agent badge list.
-    return (
-      <img
-        src={`https://www.google.com/s2/favicons?domain=${catalogEntry.faviconDomain}&sz=64`}
         width={size}
         height={size}
         alt=""

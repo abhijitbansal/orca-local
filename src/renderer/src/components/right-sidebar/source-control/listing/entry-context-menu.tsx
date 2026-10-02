@@ -130,7 +130,7 @@ export function SourceControlEntryContextMenu({
                   {entry.target === 'file-manager' ? (
                     <FolderOpen className="size-3.5" />
                   ) : entry.command ? (
-                    <OpenInApplicationIcon application={{ command: entry.command }} size={14} />
+                    <OpenInApplicationIcon size={14} />
                   ) : (
                     <ExternalLink className="size-3.5" />
                   )}
