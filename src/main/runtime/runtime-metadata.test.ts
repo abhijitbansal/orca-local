@@ -1,13 +1,8 @@
-import { mkdtempSync, readdirSync, statSync } from 'node:fs'
+import { mkdtempSync, statSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { getRuntimeMetadataPath } from '../../shared/runtime-bootstrap'
-import { encodePairingOffer } from '../../shared/pairing'
-import {
-  addEnvironmentFromPairingCode,
-  getEnvironmentStorePath
-} from '../../shared/runtime-environment-store'
 import {
   clearRuntimeMetadata,
   clearRuntimeMetadataIfOwned,
@@ -164,30 +159,6 @@ describe('runtime metadata', () => {
 
       expect(metadataMode).toBe(0o600)
       expect(directoryMode).toBe(0o700)
-    }
-  )
-
-  it.runIf(process.platform !== 'win32')(
-    'uses hardened atomic writes for runtime credential stores on Unix',
-    () => {
-      const userDataPath = mkdtempSync(join(tmpdir(), 'orca-runtime-secure-files-'))
-      tempDirs.push(userDataPath)
-
-      addEnvironmentFromPairingCode(userDataPath, {
-        name: 'desk',
-        pairingCode: encodePairingOffer({
-          v: 2,
-          endpoint: 'ws://127.0.0.1:6768',
-          deviceToken: 'device-token',
-          publicKeyB64: Buffer.from(new Uint8Array(32).fill(1)).toString('base64')
-        })
-      })
-
-      for (const path of [getEnvironmentStorePath(userDataPath)]) {
-        expect(statSync(path).mode & 0o777).toBe(0o600)
-      }
-      expect(statSync(userDataPath).mode & 0o777).toBe(0o700)
-      expect(readdirSync(userDataPath).some((entry) => entry.endsWith('.tmp'))).toBe(false)
     }
   )
 })

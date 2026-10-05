@@ -63,9 +63,7 @@ Test-only listeners (not shipped behavior, all `127.0.0.1`): the
 `browser-route-*-fixture.ts`, `browser-route-tcp-egress-socks-recorder.ts` and
 `browser-session-ua-wire-probe-server.ts` files in
 `src/main/browser/`, `src/main/ssh/ssh-hostile-host-local-sshd.ts`,
-`src/main/orcad/__fixtures__/fake-orcad-electron-sidecar.cjs`, and
-`src/shared/remote-runtime-shared-control-test-server.ts:65` (a standalone
-`new WebSocketServer(` that pins `host: '127.0.0.1'`). The other two
+`src/main/orcad/__fixtures__/fake-orcad-electron-sidecar.cjs`. The
 `new WebSocketServer(` sites are `cdp-ws-proxy.ts:58`, which attaches to the
 loopback HTTP server above, and `browser-route-tcp-egress-fixture.ts:224`
 (`noServer: true`, a test fixture).
@@ -118,7 +116,6 @@ Every entry carries a justification comment. The categories:
 - **Identifier strings only**: the `https://api.openai.com/auth` JWT claim key read from a local Codex auth file (`codex-auth-identity.ts`), never a request URL.
 - **Proxy resolution only**: `session.resolveProxy(url)` classifies a URL and never connects (`src/main/network/proxy-settings.ts`).
 - **Port-scan address classification**, not a listener bind (`local-workspace-port-address.ts`, `relay/port-scan-handler.ts`).
-- **Remote-runtime pairing fixtures**, removed with remote runtimes in Spec B.
 
 ### CI workflows
 
@@ -169,7 +166,6 @@ Scans non-test sources under `src/`, `package.json`, and every
 Reachable network surface this spec deliberately leaves, or has not yet removed:
 
 - **Outbound WebSocket dial to paired remote runtimes.** The CLI and desktop can still connect out to a user-paired remote Orca runtime (`src/shared/remote-runtime-*.ts`). Only the listener side is removed. Spec B removes remote runtimes.
-- **`src/shared/pairing.ts`** and its fixtures (`src/shared/mobile-relay-pairing-fixtures.ts`, allowlisted): remote-runtime pairing codec, kept for the dial path above.
 - **orcad and serve-update handoff.** `orca serve` / `orcad` network mode is gone; `orca serve --recipe-json` and the SSH orcad deploy paths are runtime-dead but their code remains until Spec B.
 - **SSH relay and skill-transfer rails**, including `src/main/ssh/runtime-archive-download.ts` and `pinned-runtime-materializer.ts`, which download from the network when an SSH host needs a runtime.
 - **VM recipe guides** (`skill-guides/`, ephemeral-VM code under `src/main/ephemeral-vm-*`) that name vendor APIs.

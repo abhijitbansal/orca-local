@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import { PAIRING_OFFER_VERSION, type PairingOffer } from './pairing'
 
 export const RuntimeAccessEndpointSchema = z.object({
   id: z.string().min(1),
@@ -59,41 +58,6 @@ export const RuntimeEnvironmentStoreSchema = z.object({
 
 export type RuntimeEnvironmentStore = z.infer<typeof RuntimeEnvironmentStoreSchema>
 
-export function createEnvironmentFromPairingOffer(args: {
-  id: string
-  name: string
-  now: number
-  offer: PairingOffer
-  runtimeId?: string | null
-  source?: RuntimeEnvironmentSource
-  connectionDependency?: 'ssh-tunnel'
-}): KnownRuntimeEnvironment {
-  const endpointId = `ws-${args.id}`
-  return KnownRuntimeEnvironmentSchema.parse({
-    id: args.id,
-    name: args.name,
-    createdAt: args.now,
-    updatedAt: args.now,
-    pairingRevision: args.now,
-    ...(args.offer.pairedDeviceId ? { pairedDeviceId: args.offer.pairedDeviceId } : {}),
-    lastUsedAt: null,
-    runtimeId: args.runtimeId ?? null,
-    ...(args.source ? { source: args.source } : {}),
-    ...(args.connectionDependency ? { connectionDependency: args.connectionDependency } : {}),
-    endpoints: [
-      {
-        id: endpointId,
-        kind: 'websocket',
-        label: 'WebSocket',
-        endpoint: args.offer.endpoint,
-        deviceToken: args.offer.deviceToken,
-        publicKeyB64: args.offer.publicKeyB64
-      }
-    ],
-    preferredEndpointId: endpointId
-  })
-}
-
 export function isEphemeralVmRuntimeEnvironment(
   environment: Pick<PublicKnownRuntimeEnvironment, 'source'>
 ): boolean {
@@ -104,20 +68,4 @@ export function isUserManagedRuntimeEnvironment(
   environment: Pick<PublicKnownRuntimeEnvironment, 'source'>
 ): boolean {
   return !isEphemeralVmRuntimeEnvironment(environment)
-}
-
-export function getPreferredPairingOffer(environment: KnownRuntimeEnvironment): PairingOffer {
-  const endpoint =
-    environment.endpoints.find((entry) => entry.id === environment.preferredEndpointId) ??
-    environment.endpoints[0]
-  if (!endpoint) {
-    throw new Error(`Environment ${environment.name} has no access endpoints`)
-  }
-  return {
-    v: PAIRING_OFFER_VERSION,
-    endpoint: endpoint.endpoint,
-    deviceToken: endpoint.deviceToken,
-    publicKeyB64: endpoint.publicKeyB64,
-    ...(environment.pairedDeviceId ? { pairedDeviceId: environment.pairedDeviceId } : {})
-  }
 }

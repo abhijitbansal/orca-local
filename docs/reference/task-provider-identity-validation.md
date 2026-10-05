@@ -36,7 +36,6 @@ Paths below are relative to the repository root. Searches covered production
 
 ## Compatibility evidence and limits
 
-Read `docs/reference/remote-wire-compatibility.md` before changing validation.
 A source search against release tag `v1.4.199` also finds no mobile
 `sourceContext`/`linkedTaskSourceContext` sender; its sole `providerIdentity` use
 is the display-only project target above. The released CLI flag reader also calls

@@ -58,7 +58,6 @@ describe('packaged CLI assets', () => {
     expect([...runtimeResourceTargets]).toEqual(
       expect.arrayContaining([
         join('node_modules', 'ws'),
-        join('node_modules', 'tweetnacl'),
         join('node_modules', 'zod'),
         join('node_modules', 'yaml'),
         join('node_modules', 'jsonc-parser'),

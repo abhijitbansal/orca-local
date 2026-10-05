@@ -284,7 +284,6 @@ module.exports = {
     'out/main/chunks/**',
     'resources/**',
     'node_modules/ws/**',
-    'node_modules/tweetnacl/**',
     'node_modules/zod/**',
     'node_modules/yaml/**'
   ],

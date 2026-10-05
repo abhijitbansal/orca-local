@@ -189,7 +189,7 @@ path, and the hand-rolled check in `runtime-worktree-agent-rows.ts` goes.
 
 `AgentStatusIpcPayload` gains one optional field, `structuredHost`, and the
 `worktree ps` row gains `structuredHostOwned`. Under rule 1 of
-[`remote-wire-compatibility.md`](./remote-wire-compatibility.md) both are safe:
+the former remote wire compatibility rules (optional fields are safe) both are safe:
 an old client ignores them. `worktree ps` rows keep their shape and vocabulary,
 so the mobile app sees no change.
 

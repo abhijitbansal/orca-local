@@ -3,10 +3,10 @@ import type { AgentSessionBackgroundTaskState } from '../../../../shared/agent-s
 import type { AgentChildWorkView } from '../../../../shared/agent-status-child-work-view'
 import {
   AGENT_SESSION_BACKGROUND_TASK_ROW_STOP_CAPABILITY,
-  AGENT_SESSION_BACKGROUND_TASK_STOP_CAPABILITY
+  AGENT_SESSION_BACKGROUND_TASK_STOP_CAPABILITY,
+  type RuntimeCapability
 } from '../../../../shared/protocol-version'
 import { AGENT_SESSION_BACKGROUND_TASK_CHILD_VIEWS_CAPABILITY } from '../../../../shared/agent-session-background-task-child-views-capability'
-import { remoteRuntimeClientCapabilities } from '../../../../shared/remote-runtime-client-capabilities'
 import type { AgentSessionSubscribeInput } from '../../../native-chat/agent-session-wire/structured-agent-session-subscribers'
 import {
   call,
@@ -16,6 +16,16 @@ import {
   SESSION,
   STRUCTURED_CLIENT
 } from './structured-agent-session-rpc.test-fixture'
+
+// The reader capabilities a current client advertises on top of its own.
+function currentClientCapabilities(own: readonly RuntimeCapability[]): RuntimeCapability[] {
+  return [
+    ...own,
+    AGENT_SESSION_BACKGROUND_TASK_STOP_CAPABILITY,
+    AGENT_SESSION_BACKGROUND_TASK_ROW_STOP_CAPABILITY,
+    AGENT_SESSION_BACKGROUND_TASK_CHILD_VIEWS_CAPABILITY
+  ]
+}
 
 beforeEach(installStructuredHostStub)
 afterEach(clearStructuredHostStub)
@@ -27,12 +37,12 @@ const TASKS: AgentSessionBackgroundTaskState = {
 }
 const CURRENT_CLIENT = {
   ...STRUCTURED_CLIENT,
-  clientCapabilities: remoteRuntimeClientCapabilities(STRUCTURED_CLIENT.clientCapabilities)
+  clientCapabilities: currentClientCapabilities(STRUCTURED_CLIENT.clientCapabilities)
 }
 /** Understands a stopless roster, but predates per-row stoppability. */
 const STOP_ONLY_CLIENT = {
   ...STRUCTURED_CLIENT,
-  clientCapabilities: remoteRuntimeClientCapabilities(STRUCTURED_CLIENT.clientCapabilities).filter(
+  clientCapabilities: currentClientCapabilities(STRUCTURED_CLIENT.clientCapabilities).filter(
     (capability) => capability !== AGENT_SESSION_BACKGROUND_TASK_ROW_STOP_CAPABILITY
   )
 }
@@ -198,9 +208,9 @@ describe('child views at the RPC boundary', () => {
   /** Predates child views: reads any roster as live work. */
   const PRE_VIEWS_CLIENT = {
     ...STRUCTURED_CLIENT,
-    clientCapabilities: remoteRuntimeClientCapabilities(
-      STRUCTURED_CLIENT.clientCapabilities
-    ).filter((capability) => capability !== AGENT_SESSION_BACKGROUND_TASK_CHILD_VIEWS_CAPABILITY)
+    clientCapabilities: currentClientCapabilities(STRUCTURED_CLIENT.clientCapabilities).filter(
+      (capability) => capability !== AGENT_SESSION_BACKGROUND_TASK_CHILD_VIEWS_CAPABILITY
+    )
   }
 
   async function historyFor(

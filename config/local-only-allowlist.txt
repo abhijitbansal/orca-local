@@ -20,16 +20,11 @@ src/main/network/proxy-settings.ts:forbidden-host
 # Port-scan address classification, not a listener bind.
 src/main/ports/local-workspace-port-address.ts:wildcard-bind
 src/relay/port-scan-handler.ts:wildcard-bind
-# Remote-runtime pairing fixtures; removed with remote runtimes in Spec B.
-src/shared/mobile-relay-pairing-fixtures.ts:forbidden-host
 # JWT claim namespace key read from a local Codex auth file, not a request URL.
 src/main/codex-accounts/codex-auth-identity.ts:forbidden-host
 # ---- Spec B: temporary rows for code that later Spec B units delete. Remove each row with its file; B0.2 strips this block. ----
 # B4 pinned Node download (nodejs.org/dist).
 src/shared/node-runtime-pin.ts:forbidden-host
-# B5 end-to-end encryption for paired runtimes (tweetnacl).
-src/shared/e2ee-crypto.ts:forbidden-import
-package.json:forbidden-dependency:tweetnacl
 # B6 ssh2 client (value imports; type-only `import type { SFTPWrapper }` sites are exempt by rule).
 src/main/ssh/ssh-agent-identity-filter.ts:forbidden-import
 src/main/ssh/ssh-auth-resolution.ts:forbidden-import

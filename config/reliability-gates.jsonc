@@ -4302,11 +4302,9 @@
         "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-client-page-reconciliation-adapters.test.ts src/main/browser/browser-route-prepared-page-rekey.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-network-capabilities.test.ts src/shared/browser-network-tunnel-protocol.test.ts src/main/browser/browser-network-tunnel-session.test.ts src/main/browser/remote-browser-socks-server.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts",
-        "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-network-tunnel-outbound-memory-budget.test.ts src/main/browser/browser-network-tunnel-client-memory-budget.test.ts src/main/browser/browser-network-tunnel-session-aggregate-memory.test.ts src/shared/ws-outbound-backpressure-queue.test.ts src/shared/remote-runtime-client.test.ts",
-        "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/shared/ws-outbound-backpressure-queue.test.ts src/shared/remote-runtime-client.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/browser/browser-network-tunnel-client-memory-budget.test.ts src/main/browser/browser-network-tunnel-session.test.ts src/main/browser/browser-network-tunnel-session-aggregate-memory.test.ts src/main/browser/browser-network-tunnel-outbound-memory-budget.test.ts src/main/browser/remote-browser-socks-server.test.ts",
+        "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-network-tunnel-outbound-memory-budget.test.ts src/main/browser/browser-network-tunnel-client-memory-budget.test.ts src/main/browser/browser-network-tunnel-session-aggregate-memory.test.ts src/shared/ws-outbound-backpressure-queue.test.ts",
+        "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/shared/ws-outbound-backpressure-queue.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/browser/browser-network-tunnel-client-memory-budget.test.ts src/main/browser/browser-network-tunnel-session.test.ts src/main/browser/browser-network-tunnel-session-aggregate-memory.test.ts src/main/browser/browser-network-tunnel-outbound-memory-budget.test.ts src/main/browser/remote-browser-socks-server.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/browser/browser-network-tunnel-session.test.ts src/main/browser/remote-browser-socks-server.test.ts",
-        "pnpm exec vitest run --config config/vitest.config.ts src/shared/remote-runtime-client.test.ts",
-        "pnpm exec vitest run --config config/vitest.config.ts src/shared/remote-runtime-subscription-request.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-host-lease-reconnect-delay.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/browser/browser-client-network-route-registry.test.ts src/main/browser/browser-host-lease-reconnect-delay.test.ts src/main/runtime/browser-host-command-ledger.test.ts src/main/runtime/browser-host-command-ledger-capacity.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/browser/browser-client-network-route-registry.test.ts src/main/browser/browser-host-lease-reconnect-delay.test.ts src/main/runtime/browser-host-command-ledger.test.ts src/main/runtime/browser-host-command-ledger-capacity.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts",
@@ -4359,8 +4357,6 @@
         "src/main/ssh/ssh-port-forward.test.ts",
         "src/main/browser/remote-browser-socks-server.test.ts",
         "src/main/runtime/rpc/methods/browser-network-tunnel.test.ts",
-        "src/shared/remote-runtime-client.test.ts",
-        "src/shared/remote-runtime-subscription-request.test.ts",
         "src/shared/ws-outbound-backpressure-queue.test.ts",
         "tests/e2e/ssh-browser-network-execution-route.docker.unit.test.ts"
       ],
@@ -4697,25 +4693,6 @@
           ]
         },
         {
-          "file": "src/shared/remote-runtime-subscription-request.test.ts",
-          "assertions": [
-            "nested JSON responses route by exact request ID under reverse-order delivery",
-            "unknown and duplicate response IDs fail the authenticated subscription",
-            "serialization failure consumes no pending capacity and the 33rd concurrent request is rejected",
-            "one timeout rejects every concurrent waiter exactly once and closes the subscription",
-            "queued control bytes release once while native socket ownership remains charged through exact close",
-            "socket-registration and queue-claim denial report terminal failure exactly once"
-          ]
-        },
-        {
-          "file": "src/shared/remote-runtime-client.test.ts",
-          "assertions": [
-            "the authenticated socket binds the optional tunnel capability",
-            "the dedicated outbound queue reports hard overflow instead of dropping a frame",
-            "encrypted queue claims release synchronously while native socket ownership remains charged through exact close"
-          ]
-        },
-        {
           "file": "src/shared/ws-outbound-backpressure-queue.test.ts",
           "assertions": [
             "direct and already-retained queued frames use distinct aggregate admission semantics",
@@ -4774,15 +4751,6 @@
           "date": "2026-08-14",
           "runner": "local",
           "platform": "macos",
-          "command": "pnpm exec vitest run --config config/vitest.config.ts src/shared/remote-runtime-subscription-request.test.ts",
-          "result": "passed",
-          "durationSeconds": 0.4,
-          "summary": "Ten tests passed same-socket nested JSON request delivery, reverse-order exact-ID routing, unknown and duplicate response rejection, 32-request admission, serialization rollback, concurrent timeout teardown, queued/native memory release, and exact-once socket-registration and queue-claim denial."
-        },
-        {
-          "date": "2026-08-14",
-          "runner": "local",
-          "platform": "macos",
           "command": "pnpm exec vitest run --config config/vitest.config.ts src/main/runtime/browser-host-command-ledger.test.ts src/main/runtime/browser-host-command-ledger-capacity.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts",
           "result": "passed",
           "durationSeconds": 1.88,
@@ -4792,7 +4760,7 @@
           "date": "2026-08-14",
           "runner": "local",
           "platform": "macos",
-          "command": "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/shared/ws-outbound-backpressure-queue.test.ts src/shared/remote-runtime-client.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/browser/browser-network-tunnel-client-memory-budget.test.ts src/main/browser/browser-network-tunnel-session.test.ts src/main/browser/browser-network-tunnel-session-aggregate-memory.test.ts src/main/browser/browser-network-tunnel-outbound-memory-budget.test.ts src/main/browser/remote-browser-socks-server.test.ts",
+          "command": "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/shared/ws-outbound-backpressure-queue.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/browser/browser-network-tunnel-client-memory-budget.test.ts src/main/browser/browser-network-tunnel-session.test.ts src/main/browser/browser-network-tunnel-session-aggregate-memory.test.ts src/main/browser/browser-network-tunnel-outbound-memory-budget.test.ts src/main/browser/remote-browser-socks-server.test.ts",
           "result": "passed",
           "durationSeconds": 3.9,
           "summary": "Sixteen files passed 154 bounded page-command negotiation, legacy ready/revoked compatibility, exact authority, unnegotiated and stale-command delivery, lease, tunnel, memory, flow-control, SOCKS, and paired E2EE tests."
@@ -4828,7 +4796,7 @@
           "date": "2026-08-14",
           "runner": "local",
           "platform": "macos",
-          "command": "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/shared/ws-outbound-backpressure-queue.test.ts src/shared/remote-runtime-client.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/browser/browser-network-tunnel-client-memory-budget.test.ts src/main/browser/browser-network-tunnel-session.test.ts src/main/browser/browser-network-tunnel-session-aggregate-memory.test.ts src/main/browser/browser-network-tunnel-outbound-memory-budget.test.ts src/main/browser/remote-browser-socks-server.test.ts",
+          "command": "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/shared/ws-outbound-backpressure-queue.test.ts src/main/runtime/browser-host-lease-registry.test.ts src/main/runtime/rpc/methods/browser-client-host.test.ts src/main/runtime/rpc/methods/browser-network-tunnel.test.ts src/main/browser/browser-network-tunnel-client.test.ts src/main/browser/browser-network-tunnel-client-memory-budget.test.ts src/main/browser/browser-network-tunnel-session.test.ts src/main/browser/browser-network-tunnel-session-aggregate-memory.test.ts src/main/browser/browser-network-tunnel-outbound-memory-budget.test.ts src/main/browser/remote-browser-socks-server.test.ts",
           "result": "passed",
           "durationSeconds": 7.7,
           "summary": "Sixteen files passed 131 route, lease, aggregate application/encrypted/native memory, exact release, bounded-drain, stable-listener and protocol-failure reconnect, v1 reattach compatibility, generation/stream-ID fencing, SOCKS, and real paired E2EE tests; the full runtime-RPC suite separately passed 1,349 tests with one skip."
@@ -4868,15 +4836,6 @@
           "result": "passed",
           "durationSeconds": 4.7,
           "summary": "Five files passed 19 source-flow, settled-consumption, chunk-bound, ordered-close, readiness-deadline, cleanup-failure, binary-routing, attach-authorization, and real paired-runtime E2EE SOCKS-to-HTTP tests."
-        },
-        {
-          "date": "2026-08-14",
-          "runner": "local",
-          "platform": "macos",
-          "command": "pnpm exec vitest run --config config/vitest.config.ts src/shared/remote-runtime-client.test.ts",
-          "result": "passed",
-          "durationSeconds": 3,
-          "summary": "Seventeen authenticated subscription tests passed, including tunnel capability binding and hard outbound-queue overflow rejection."
         },
         {
           "date": "2026-09-06",
@@ -5414,7 +5373,7 @@
       "oracle": "Create through the normal renderer-store action with client hosting enabled. Require client placement, one client-owned guest at the fixture URL, zero server-owned guests, no remote-browser frame, a visible retained marker, and a browser.snapshot marker from the same remote page. Disable the setting and require that guest to survive; create another page and require one server-owned guest, zero matching client guests, and a visible server screencast. Delay renderer publication after tabCreate acknowledgement and require one exact bounded subscription to materialize the page without polling or cleanup. Reject a client create and require no server fallback. Omit placement or capabilities and require no client-host RPC. During replacement, admit close-first only for negotiated reconciliation of imported inventory; ordinary close-first and navigate-first remain rejected. Run the same placement oracle against headed and headless paired hosts, plus deterministic native, SSH, WSL, folder, worktree, reconnect, retirement, and browserless-host contracts.",
       "commands": [
         "pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/runtime/web-runtime-session-browser-client-placement.test.ts src/renderer/src/runtime/web-runtime-session-browser-create-failure.test.ts src/main/runtime/orca-runtime-browser-client-hosted.test.ts src/main/runtime/runtime-browser-client-page-creation.test.ts src/main/runtime/browser-host-page-reconciliation-orchestration.test.ts src/main/runtime/browser-host-command-ledger.test.ts",
-        "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/shared/remote-runtime-client.test.ts src/main/runtime/browser-host-capability-selection.test.ts src/main/runtime/rpc/methods/browser-tab-create-schema.test.ts",
+        "pnpm exec vitest run --config config/vitest.config.ts src/shared/browser-client-host-protocol.test.ts src/main/runtime/browser-host-capability-selection.test.ts src/main/runtime/rpc/methods/browser-tab-create-schema.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-network-execution-route.test.ts src/main/browser/wsl-browser-network-execution-route.test.ts src/main/browser/wsl-browser-network-relay-launch.test.ts src/main/runtime/runtime-browser-network-execution-host.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/main/browser/browser-screencast-lifecycle.test.ts src/main/browser/browser-screencast-stream.test.ts src/main/runtime/orca-runtime-browser-screencast-fanout.test.ts",
         "ORCA_RUN_DOCKER_SSH_BROWSER_E2E=1 pnpm exec vitest run --config config/vitest.config.ts tests/e2e/ssh-browser-network-execution-route.docker.unit.test.ts",
@@ -5429,7 +5388,6 @@
         "src/main/runtime/browser-host-page-reconciliation-orchestration.test.ts",
         "src/main/runtime/browser-host-command-ledger.test.ts",
         "src/shared/browser-client-host-protocol.test.ts",
-        "src/shared/remote-runtime-client.test.ts",
         "src/main/runtime/browser-host-capability-selection.test.ts",
         "src/main/runtime/rpc/methods/browser-tab-create-schema.test.ts",
         "src/main/browser/browser-network-execution-route.test.ts",
@@ -6801,7 +6759,7 @@
       "invariant": "Reconnect, replay, or lifecycle observations from a viewer that negotiated explicit close intent must never kill a live PTY. A capable reasonless close must keep and republish; a legacy paired viewer must retain current-main behavior because its intentional close and cleanup echo are wire-identical. Lifecycle close requires the exact observed publication, terminal, environment, and authoritative liveness, never signals a process, and leaves renderer-owned or partial-split retirement to its owner. Legacy daemon hello and warm reattachment remain non-destructive.",
       "oracle": "Start isolated v25 and v26 daemon generations with one capable-viewer PTY and one legacy-viewer PTY per generation in four target worktrees plus an unaddressed control PTY in a fifth worktree. Route them through the production desktop scanner, runtime, RPC dispatcher, renderer-close relay, and daemon router. First issue sequential reasonless closes from an authenticated capable connection and require refusal, snapshot republish, zero shutdown calls, exact process survival, and post-close I/O. Then issue the byte-identical requests without the negotiated capability and require current-main behavior: two ordered immediate shutdowns, session-killed events, and exact root/descendant death, while capable and control PTYs survive. An observer lists all targets before, between, and after while issuing zero closes. Unit contracts also require in-process reasonless refusal, legacy runtime/mobile compatibility, explicit user closes, encrypted client-auth advertisement, and old-server lifecycle calls never to fall back.",
       "commands": [
-        "pnpm exec vitest run --config config/vitest.config.ts src/main/daemon/daemon-server-kill-attribution.test.ts src/main/runtime/orca-runtime.test.ts src/main/runtime/rpc/runtime-close-attribution-topology.test.ts src/main/runtime/rpc/methods/session-tabs.test.ts src/main/runtime/rpc/methods/session-tabs-schemas.test.ts src/shared/remote-runtime-client.test.ts src/shared/remote-runtime-request-connection.test.ts src/shared/remote-runtime-shared-control-connection.test.ts src/renderer/src/runtime/web-runtime-session.test.ts src/renderer/src/runtime/web-session-close-intent.test.ts src/renderer/src/runtime/web-session-tabs-sync.test.ts src/renderer/src/components/terminal/terminal-tab-actions.test.ts src/renderer/src/components/terminal/terminal-close-incarnation.test.ts src/renderer/src/components/terminal-pane/terminal-parked-tab-watchers.test.ts",
+        "pnpm exec vitest run --config config/vitest.config.ts src/main/daemon/daemon-server-kill-attribution.test.ts src/main/runtime/orca-runtime.test.ts src/main/runtime/rpc/runtime-close-attribution-topology.test.ts src/main/runtime/rpc/methods/session-tabs.test.ts src/main/runtime/rpc/methods/session-tabs-schemas.test.ts src/renderer/src/runtime/web-runtime-session.test.ts src/renderer/src/runtime/web-session-close-intent.test.ts src/renderer/src/runtime/web-session-tabs-sync.test.ts src/renderer/src/components/terminal/terminal-tab-actions.test.ts src/renderer/src/components/terminal/terminal-close-incarnation.test.ts src/renderer/src/components/terminal-pane/terminal-parked-tab-watchers.test.ts",
         "pnpm exec playwright test tests/e2e/daemon-generation-reconnect-safety.spec.ts --config tests/playwright.config.ts --project electron-headless --workers=1",
         "pnpm exec playwright test tests/e2e/daemon-generation-legacy-close-safety.spec.ts --config tests/playwright.config.ts --project electron-headless --workers=1"
       ],
@@ -6811,9 +6769,6 @@
         "src/main/runtime/rpc/runtime-close-attribution-topology.test.ts",
         "src/main/runtime/rpc/methods/session-tabs.test.ts",
         "src/main/runtime/rpc/methods/session-tabs-schemas.test.ts",
-        "src/shared/remote-runtime-client.test.ts",
-        "src/shared/remote-runtime-request-connection.test.ts",
-        "src/shared/remote-runtime-shared-control-connection.test.ts",
         "src/renderer/src/runtime/web-runtime-session.test.ts",
         "src/renderer/src/runtime/web-session-close-intent.test.ts",
         "src/renderer/src/runtime/web-session-tabs-sync.test.ts",
@@ -6853,24 +6808,6 @@
             "the production scanner discovers v21/v22/v23/v24/v25 from v26 and every generation accepts repeated client hellos while every exact daemon, PTY-root, and descendant incarnation remains alive",
             "desktop and two remote profiles repeat lifecycle closes before and after client relaunch with zero session-killed events",
             "shutdown-dispose-failed drops named-pipe authority within the deadline and exact fixture cleanup leaves no process tree"
-          ]
-        },
-        {
-          "file": "src/shared/remote-runtime-client.test.ts",
-          "assertions": [
-            "one-shot and subscription runtime clients remain compatible while sending encrypted client authentication"
-          ]
-        },
-        {
-          "file": "src/shared/remote-runtime-request-connection.test.ts",
-          "assertions": [
-            "the cached paired-desktop request connection advertises close-intent support in encrypted authentication while reusing one socket"
-          ]
-        },
-        {
-          "file": "src/shared/remote-runtime-shared-control-connection.test.ts",
-          "assertions": [
-            "the reconnecting shared-control client advertises close-intent support in encrypted authentication"
           ]
         },
         {
@@ -7744,9 +7681,6 @@
         "pnpm exec vitest run --config config/vitest.config.ts src/main/runtime/rpc/methods/agent-session.test.ts src/renderer/src/runtime/web-runtime-session.test.ts src/renderer/src/runtime/web-session-tabs-sync.test.ts src/renderer/src/runtime/web-session-intent-owner.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/shared/claimed-agent-pty-owner.test.ts src/main/daemon/daemon-pty-adapter.test.ts src/main/providers/ssh-pty-provider-agent-session-create-operation.test.ts src/main/runtime/orca-runtime-agent-session-operation.test.ts src/main/runtime/orca-runtime-terminal-retirement.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-host-session-launch.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-create-handoff.test.ts src/renderer/src/runtime/remote-runtime-session-tabs-inflight.test.ts src/renderer/src/runtime/web-runtime-session.test.ts src/renderer/src/runtime/web-session-tabs-sync.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts tests/e2e/remote-terminal-tab-retirement.unit.test.ts",
-        "pnpm test:repro:remote-agent-session",
-        "pnpm run build:cli && pnpm run build:electron-vite && node config/scripts/remote-agent-session-authority-repro.mjs",
-        "node --check config/scripts/remote-agent-session-process-cleanup.mjs && node config/scripts/remote-agent-session-authority-repro.mjs",
         "pnpm exec electron-vite build --mode e2e",
         "Manual headed paired-server journey: isolated Orca desktop host + separate paired web client + real Codex process + 20-second WebSocket fault + reconnect + explicit stop",
         "pnpm exec vitest run --config config/vitest.config.ts src/main/runtime/orca-runtime.test.ts src/main/runtime/terminal-orphan-owner.test.ts src/main/runtime/terminal-orphan-topology.test.ts src/renderer/src/runtime/web-session-terminal-orphan-recovery.test.ts src/renderer/src/runtime/web-session-terminal-orphan-mixed-version.test.ts src/renderer/src/runtime/web-session-tabs-sync.test.ts --maxWorkers=1",
@@ -7777,8 +7711,6 @@
         "src/renderer/src/runtime/web-runtime-session.test.ts",
         "src/renderer/src/runtime/web-session-tabs-sync.test.ts",
         "src/renderer/src/runtime/web-session-intent-owner.test.ts",
-        "config/scripts/remote-agent-session-authority-repro.mjs",
-        "config/scripts/remote-agent-session-process-cleanup.mjs",
         "tests/e2e/remote-terminal-tab-retirement.unit.test.ts",
         "src/main/runtime/orca-runtime.test.ts",
         "src/main/runtime/terminal-orphan-owner.test.ts",
@@ -7885,20 +7817,6 @@
           ]
         },
         {
-          "file": "config/scripts/remote-agent-session-authority-repro.mjs",
-          "assertions": [
-            "headless focused fresh/resume requests create background host surfaces without a renderer window",
-            "dropped committed responses replay the same operation identity without another tokened agent spawn",
-            "exact terminal/tab/process identity survives retries and stale-write rejection, then retires without restart resurrection while unrelated shells survive until scoped cleanup"
-          ]
-        },
-        {
-          "file": "config/scripts/remote-agent-session-process-cleanup.mjs",
-          "assertions": [
-            "isolated daemon roots and captured descendants are verified dead before profile PID records are removed"
-          ]
-        },
-        {
           "file": "tests/e2e/remote-terminal-tab-retirement.unit.test.ts",
           "assertions": [
             "a durable host exit removes the terminal from two independent viewer mirrors instead of publishing a handle-less phantom",
@@ -7943,15 +7861,6 @@
           "summary": "Five focused files and 140 tests passed on the structural candidate, covering authenticated host presentation normalization, trusted local preservation, fresh/resume viewer intent, same-version response/publication replay, exact split-leaf focus, sibling-first publication, and paired-runtime parity."
         },
         {
-          "date": "2026-07-23",
-          "runner": "local",
-          "platform": "macos",
-          "command": "pnpm test:repro:remote-agent-session",
-          "result": "passed",
-          "durationSeconds": 53.6,
-          "summary": "The build-backed isolated headless serve harness passed over encrypted pairing. Tokened fresh/resume fixture processes were distinguished from unrelated Codex app-server startup probes; response-loss replay, exact spawn identity/count, writable PTYs, unrelated survival, stale rejection, exact PID death, empty restart inventory, and no session resurrection all passed."
-        },
-        {
           "date": "2026-07-22",
           "runner": "manual",
           "platform": "macos",
@@ -7977,15 +7886,6 @@
           "result": "passed",
           "durationSeconds": 7.67,
           "summary": "Ten focused files and 325 tests passed after the final review fixes, covering claim scope, mixed-version Pi/SSH fallback ordering, operation replay, terminal retirement, causal inventory fencing, exact concurrent handoff confirmation, daemon-generation integration, transport behavior, and remote host integration."
-        },
-        {
-          "date": "2026-07-22",
-          "runner": "local",
-          "platform": "macos",
-          "command": "pnpm test:repro:remote-agent-session",
-          "result": "passed",
-          "durationSeconds": 48.63,
-          "summary": "The secondary build-backed headless parity harness passed post-rebase on main@72a2d7bc7 over encrypted WebSocket pairing with independent clients, proving one spawn, retry adoption, durable exit retirement, stale-publication rejection, and no restart resurrection."
         },
         {
           "date": "2026-07-22",
@@ -9264,7 +9164,6 @@
         "pnpm exec vitest run --config config/vitest.config.ts src/main/runtime/orca-runtime.test.ts src/main/runtime/rpc/terminal-multiplex-initial-snapshot-buffering.test.ts src/main/runtime/rpc/terminal-multiplex-snapshot-serialization.test.ts src/main/runtime/rpc/terminal-multiplex-pty-wait-capacity.test.ts src/main/runtime/rpc/terminal-subscribe-buffer.test.ts src/renderer/src/components/terminal-pane/parked-terminal-byte-watcher.test.ts src/renderer/src/components/terminal-pane/terminal-side-effect-facts-handler.test.ts src/renderer/src/components/terminal-pane/pty-connection-hidden-output-restore.test.ts src/renderer/src/components/terminal-pane/pty-connection-parked-ssh-snapshot.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-activation-inventory-fallback.test.ts src/renderer/src/components/terminal-pane/terminal-hidden-view-parking.test.ts src/renderer/src/components/terminal-pane/terminal-hidden-worktree-retention.test.ts src/renderer/src/components/terminal-pane/terminal-parked-tab-watchers.test.ts src/renderer/src/components/terminal-pane/terminal-parked-watcher-reconciliation.test.ts src/renderer/src/components/terminal-pane/terminal-parked-watcher-partial-reconciliation.test.ts src/renderer/src/components/terminal-pane/terminal-parking-e2e-overrides.test.ts src/renderer/src/runtime/remote-runtime-terminal-stall-recovery.test.ts src/renderer/src/runtime/runtime-client-events.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/main/runtime/terminal-subscriber-driven-daemon-attach.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/main/runtime/session-tabs-inventory-publication.test.ts src/main/runtime/rpc/methods/session-tabs-inventory-census-race.test.ts src/main/runtime/rpc/methods/session-tabs.test.ts src/renderer/src/runtime/host-session-mirror-empty-inventory-settle.test.ts src/main/daemon/terminal-host-agent-session.test.ts tests/e2e/session-tabs-empty-inventory-daemon-oracle.unit.test.ts --maxWorkers=1",
-        "pnpm exec vitest run --config config/vitest.config.ts src/shared/remote-runtime-shared-control-connection.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/runtime/remote-runtime-terminal-parse-backpressure.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/main/ipc/pty-ipc-hidden-delivery-gate.test.ts",
         "SKIP_BUILD=1 pnpm exec playwright test tests/e2e/terminal-parked-memory.spec.ts --config tests/playwright.config.ts --project electron-headful --workers=1"
@@ -9305,7 +9204,6 @@
         "src/renderer/src/runtime/remote-runtime-terminal-parse-backpressure.test.ts",
         "src/renderer/src/runtime/runtime-client-events.test.ts",
         "src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-activation-inventory-fallback.test.ts",
-        "src/shared/remote-runtime-shared-control-connection.test.ts",
         "tests/e2e/terminal-parked-memory.spec.ts"
       ],
       "assertionRefs": [
@@ -9545,15 +9443,6 @@
           "result": "passed",
           "durationSeconds": 19.54,
           "summary": "Seventeen focused files passed 1,938 tests with one existing skip, including 128 active streams, retryable rejection at 129, released-slot snapshot recovery, bounded liveness probes, and balanced subscriber cleanup."
-        },
-        {
-          "date": "2026-07-29",
-          "runner": "local",
-          "platform": "macos",
-          "command": "pnpm exec vitest run --config config/vitest.config.ts src/shared/remote-runtime-shared-control-connection.test.ts",
-          "result": "passed",
-          "durationSeconds": 3.16,
-          "summary": "All 27 encrypted shared-control tests passed. The new oracle was red on rc.1-equivalent behavior with the exact Refreshing remote runtime control transport error, then passed with one replacement connection, one delivered host RPC, and zero retained pending bytes."
         }
       ],
       "runtimeBudget": {
@@ -10788,7 +10677,7 @@
         "pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/startup/ssh-startup-reconnect.test.ts src/renderer/src/lib/resolved-worktree-execution-host.test.ts src/renderer/src/components/terminal/background-terminal-worktree-mount.test.ts src/renderer/src/runtime/sync-runtime-graph-scheduling.test.ts src/renderer/src/components/terminal-pane/use-terminal-pane-lifecycle.test.ts src/renderer/src/components/terminal-pane/pty-connection-direct-ssh-spawn-retry.test.ts src/renderer/src/components/terminal-pane/pty-connection-direct-ssh-reattach-retry.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-host-surface-replacement.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-stream-reconnect.test.ts src/renderer/src/runtime/remote-runtime-session-tabs-inflight.test.ts src/renderer/src/runtime/web-session-terminal-handle-events.test.ts src/renderer/src/store/slices/terminal-pty-identity-replacement.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/terminal-pane/pty-transport-reattach-admission.test.ts src/renderer/src/components/terminal-pane/pty-transport-detach-attach-handoff.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/terminal-pane/terminal-error-accumulation.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-attach-subscription.test.ts --reporter=dot",
-        "pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-attach-subscription.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-host-surface-replacement.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-stream-reconnect.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-expired-pane-recovery.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-create-outcome-recovery.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-create-handoff.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-recovery-state.test.ts src/renderer/src/components/terminal-pane/TerminalRemoteRuntimeReconnectBanner.test.tsx src/renderer/src/components/terminal-pane/terminal-remote-runtime-recovery-ui-state.test.ts src/shared/remote-runtime-socket-liveness.test.ts src/shared/remote-runtime-shared-control-connection.test.ts src/shared/remote-runtime-shared-control-socket-generation.test.ts src/shared/remote-runtime-client-error-classification.test.ts src/main/runtime/rpc/methods/terminal-create-idempotency.test.ts",
+        "pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-attach-subscription.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-host-surface-replacement.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-stream-reconnect.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-expired-pane-recovery.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-create-outcome-recovery.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-create-handoff.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-recovery-state.test.ts src/renderer/src/components/terminal-pane/TerminalRemoteRuntimeReconnectBanner.test.tsx src/renderer/src/components/terminal-pane/terminal-remote-runtime-recovery-ui-state.test.ts src/shared/remote-runtime-client-error-classification.test.ts src/main/runtime/rpc/methods/terminal-create-idempotency.test.ts",
         "pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/store/slices/direct-ssh-terminal-retry.test.ts src/renderer/src/store/slices/direct-ssh-pane-detach-ledger.test.ts src/renderer/src/store/slices/direct-ssh-terminal-recovery.test.ts src/renderer/src/store/slices/direct-ssh-terminal-workspace-scope.test.ts src/renderer/src/store/slices/terminals-hydration.test.ts src/renderer/src/store/slices/repos-ssh-host-reconciliation.test.ts src/renderer/src/hooks/direct-ssh-reconnect-coordinator.test.ts src/renderer/src/hooks/direct-ssh-host-hydration.test.ts src/renderer/src/hooks/direct-ssh-state-routing.test.ts src/renderer/src/hooks/remote-workspace-target-sync.test.ts src/renderer/src/app-shell/remote-workspace-unplaced-upload-suppression.test.tsx src/renderer/src/components/terminal-pane/pty-connection-direct-ssh-spawn-retry.test.ts src/renderer/src/components/terminal-pane/pty-connection-direct-ssh-reattach-retry.test.ts src/renderer/src/components/terminal-pane/terminal-pane-tab-detach.test.ts --reporter=dot",
         "pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/hooks/remote-workspace-snapshot-arrival-coordinator.test.ts --reporter=dot",
         "pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/hooks/remote-workspace-target-sync.test.ts src/renderer/src/app-shell/remote-workspace-unplaced-upload-suppression.test.tsx --reporter=dot",
@@ -10825,9 +10714,6 @@
         "src/renderer/src/runtime/remote-runtime-session-tabs-inflight.test.ts",
         "src/renderer/src/runtime/web-session-terminal-handle-events.test.ts",
         "src/renderer/src/store/slices/terminal-pty-identity-replacement.test.ts",
-        "src/shared/remote-runtime-socket-liveness.test.ts",
-        "src/shared/remote-runtime-shared-control-connection.test.ts",
-        "src/shared/remote-runtime-shared-control-socket-generation.test.ts",
         "src/shared/remote-runtime-client-error-classification.test.ts",
         "src/main/runtime/rpc/methods/terminal-create-idempotency.test.ts",
         "src/renderer/src/store/slices/direct-ssh-terminal-retry.test.ts",
@@ -10959,12 +10845,6 @@
           "file": "src/renderer/src/components/terminal-pane/terminal-remote-runtime-recovery-ui-state.test.ts",
           "assertions": [
             "only actionable recovery phases retain UI state and pane closure removes disconnected state"
-          ]
-        },
-        {
-          "file": "src/shared/remote-runtime-socket-liveness.test.ts",
-          "assertions": [
-            "a suspended client receives a fresh probe deadline after resume and post-resume activity clears it"
           ]
         },
         {
@@ -11324,7 +11204,7 @@
           "date": "2026-07-21",
           "runner": "local",
           "platform": "macos",
-          "command": "pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-attach-subscription.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-host-surface-replacement.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-stream-reconnect.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-expired-pane-recovery.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-create-outcome-recovery.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-create-handoff.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-recovery-state.test.ts src/renderer/src/components/terminal-pane/TerminalRemoteRuntimeReconnectBanner.test.tsx src/renderer/src/components/terminal-pane/terminal-remote-runtime-recovery-ui-state.test.ts src/shared/remote-runtime-socket-liveness.test.ts src/shared/remote-runtime-shared-control-connection.test.ts src/shared/remote-runtime-shared-control-socket-generation.test.ts src/shared/remote-runtime-client-error-classification.test.ts src/main/runtime/rpc/methods/terminal-create-idempotency.test.ts",
+          "command": "pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-attach-subscription.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-host-surface-replacement.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-stream-reconnect.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-expired-pane-recovery.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-create-outcome-recovery.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-create-handoff.test.ts src/renderer/src/components/terminal-pane/remote-runtime-pty-recovery-state.test.ts src/renderer/src/components/terminal-pane/TerminalRemoteRuntimeReconnectBanner.test.tsx src/renderer/src/components/terminal-pane/terminal-remote-runtime-recovery-ui-state.test.ts src/shared/remote-runtime-client-error-classification.test.ts src/main/runtime/rpc/methods/terminal-create-idempotency.test.ts",
           "result": "passed",
           "durationSeconds": 5,
           "summary": "Eleven fault-injection and recovery-UI files and 127 tests passed, covering suspended heartbeat clocks, stale socket, PTY, and create generations, canonical pre-ready close recovery with one replacement subscription, cold and repeated PTY reattachment, authoritative health, bounded PTY and terminal-create recovery, post-probe timeout clipping, manually retryable create cutoff, accurate capability-probe failures, same-PTY manual reconnect, pane-state cleanup, fatal error deduplication, stable create identity, cross-process PTY adoption, and fail-closed legacy inventory."

@@ -3,7 +3,6 @@ import {
   RUNTIME_CAPABILITIES,
   WORKTREE_GITHUB_PR_SUPPRESSION_RUNTIME_CAPABILITY
 } from '../protocol-version'
-import { remoteRuntimeClientCapabilities } from '../remote-runtime-client-capabilities'
 import { isGitHubPRSuppressed, normalizeGitHubPRSuppressionUpdate } from './github-pr-suppression'
 
 describe('GitHub PR suppression', () => {
@@ -25,10 +24,7 @@ describe('GitHub PR suppression', () => {
     expect(normalizeGitHubPRSuppressionUpdate(clear)).toBe(clear)
   })
 
-  it('advertises suppression support from hosts and remote clients', () => {
+  it('advertises suppression support from hosts', () => {
     expect(RUNTIME_CAPABILITIES).toContain(WORKTREE_GITHUB_PR_SUPPRESSION_RUNTIME_CAPABILITY)
-    expect(remoteRuntimeClientCapabilities()).toContain(
-      WORKTREE_GITHUB_PR_SUPPRESSION_RUNTIME_CAPABILITY
-    )
   })
 })

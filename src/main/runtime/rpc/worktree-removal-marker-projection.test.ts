@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { WORKTREE_BACKGROUND_REMOVAL_RUNTIME_CAPABILITY } from '../../../shared/protocol-version'
-import { remoteRuntimeClientCapabilities } from '../../../shared/remote-runtime-client-capabilities'
 import type {
   RuntimeWorktreeListResult,
   RuntimeWorktreePsResult
@@ -81,7 +80,7 @@ describe('worktree listings while a checkout is being deleted', () => {
 
   it('leaves the row out for a client that would show it as a normal workspace', () => {
     // An older desktop or web build, the CLI, the phone, and an in-process caller alike.
-    for (const clientCapabilities of [[], undefined, remoteRuntimeClientCapabilities()]) {
+    for (const clientCapabilities of [[], undefined]) {
       const list = projectWorktreeListRemovals(
         listResult(),
         { clientCapabilities },
@@ -97,12 +96,5 @@ describe('worktree listings while a checkout is being deleted', () => {
       expect(ps.worktrees.map((row) => row.worktreeId)).toEqual([keptId])
       expect(ps.totalCount).toBe(1)
     }
-  })
-
-  it('advertises the marker only from the desktop renderer, never the shared remote defaults', () => {
-    // Mobile and the CLI send the shared defaults and have no Deleting affordance to show.
-    expect(remoteRuntimeClientCapabilities()).not.toContain(
-      WORKTREE_BACKGROUND_REMOVAL_RUNTIME_CAPABILITY
-    )
   })
 })
