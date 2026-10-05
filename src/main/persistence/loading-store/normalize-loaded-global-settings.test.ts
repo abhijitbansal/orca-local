@@ -36,6 +36,15 @@ describe('retired Agents sidebar setting', () => {
   })
 })
 
+describe('retired active runtime environment setting', () => {
+  it('drops a persisted activeRuntimeEnvironmentId so the local-only build never targets a paired server', () => {
+    const settings = normalizeLegacyProfile({
+      activeRuntimeEnvironmentId: 'env-from-upstream-build'
+    })
+    expect(settings.activeRuntimeEnvironmentId).toBeNull()
+  })
+})
+
 describe('structured chat shell environment settings', () => {
   it('keeps a valid saved list and an explicit opt-out', () => {
     const normalized = normalizeLegacyProfile({

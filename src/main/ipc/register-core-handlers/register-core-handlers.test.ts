@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const {
   getPathMock,
-  listEnvironmentsMock,
   registerCliHandlersMock,
   registerPreflightHandlersMock,
   registerUsageProviderHandlersMock,
@@ -24,7 +23,6 @@ const {
   setTrustedUIRendererWebContentsIdMock,
   registerFilesystemHandlersMock,
   registerRuntimeHandlersMock,
-  registerRuntimeEnvironmentHandlersMock,
   registerAiVaultHandlersMock,
   registerAiVaultSearchHandlersMock,
   registerOrcaProfileHandlersMock,
@@ -59,7 +57,6 @@ const {
   registerEmulatorVideoStreamHandlersMock
 } = vi.hoisted(() => ({
   getPathMock: vi.fn(() => '/test/user-data'),
-  listEnvironmentsMock: vi.fn(() => []),
   registerCliHandlersMock: vi.fn(),
   registerPreflightHandlersMock: vi.fn(),
   registerUsageProviderHandlersMock: vi.fn(),
@@ -81,7 +78,6 @@ const {
   setTrustedUIRendererWebContentsIdMock: vi.fn(),
   registerFilesystemHandlersMock: vi.fn(),
   registerRuntimeHandlersMock: vi.fn(),
-  registerRuntimeEnvironmentHandlersMock: vi.fn(),
   registerAiVaultHandlersMock: vi.fn(),
   registerAiVaultSearchHandlersMock: vi.fn(),
   registerOrcaProfileHandlersMock: vi.fn(),
@@ -121,10 +117,6 @@ vi.mock('electron', () => ({
     getPath: getPathMock,
     once: vi.fn()
   }
-}))
-
-vi.mock('../../shared/runtime-environment-store', () => ({
-  listEnvironments: listEnvironmentsMock
 }))
 
 vi.mock('../codex-config-sync', () => ({
@@ -268,10 +260,6 @@ vi.mock('../runtime', () => ({
   registerRuntimeHandlers: registerRuntimeHandlersMock
 }))
 
-vi.mock('../runtime-environments', () => ({
-  registerRuntimeEnvironmentHandlers: registerRuntimeEnvironmentHandlersMock
-}))
-
 vi.mock('../ai-vault', () => ({
   registerAiVaultHandlers: registerAiVaultHandlersMock
 }))
@@ -347,8 +335,6 @@ describe('registerCoreHandlers', () => {
   beforeEach(() => {
     getPathMock.mockReset()
     getPathMock.mockReturnValue('/test/user-data')
-    listEnvironmentsMock.mockReset()
-    listEnvironmentsMock.mockReturnValue([])
     registerCliHandlersMock.mockReset()
     registerPreflightHandlersMock.mockReset()
     registerUsageProviderHandlersMock.mockReset()
@@ -370,7 +356,6 @@ describe('registerCoreHandlers', () => {
     setTrustedUIRendererWebContentsIdMock.mockReset()
     registerFilesystemHandlersMock.mockReset()
     registerRuntimeHandlersMock.mockReset()
-    registerRuntimeEnvironmentHandlersMock.mockReset()
     registerAiVaultHandlersMock.mockReset()
     registerOrcaProfileHandlersMock.mockReset()
     registerCodexAccountHandlersMock.mockReset()
@@ -492,16 +477,11 @@ describe('registerCoreHandlers', () => {
     expect(registerEmulatorVideoStreamHandlersMock).toHaveBeenCalled()
     expect(registerFilesystemHandlersMock).toHaveBeenCalledWith(store)
     expect(registerRuntimeHandlersMock).toHaveBeenCalledWith(runtime)
-    expect(registerRuntimeEnvironmentHandlersMock).toHaveBeenCalledWith(store)
     expect(registerAiVaultHandlersMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        getAdditionalCodexHomePaths: getAdditionalAiVaultCodexHomePaths,
-        getActiveRuntimeAiVaultHostInfos: expect.any(Function),
-        scanRuntimeAiVaultSessions: expect.any(Function),
-        prepareRuntimeSessionResume: expect.any(Function)
-      })
+      expect.objectContaining({ getAdditionalCodexHomePaths: getAdditionalAiVaultCodexHomePaths })
     )
-    expect(aiVaultOptions.getActiveRuntimeAiVaultHostInfos()).toEqual([])
+    expect(aiVaultOptions).not.toHaveProperty('scanRuntimeAiVaultSessions')
+    expect(aiVaultOptions).not.toHaveProperty('prepareRuntimeSessionResume')
     expect(registerNativeChatHandlersMock).toHaveBeenCalled()
     expect(registerCliHandlersMock).toHaveBeenCalled()
     expect(registerPreflightHandlersMock).toHaveBeenCalled()

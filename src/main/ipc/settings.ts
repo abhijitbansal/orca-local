@@ -27,7 +27,6 @@ import { normalizeTerminalLineHeight } from '../../shared/terminal-line-height-s
 import { prepareLocalWorktreeRootsForRepos } from '../worktree-root-preparation'
 import { scheduleCurrentWorktreeBaseDirectoryWatcherSync } from './worktree-base-directory-watcher'
 import { applyPRBotAuthorOverride } from '../../shared/pr-bot-author-overrides'
-import { resolveEnvironment } from '../../shared/runtime-environment-store'
 import { haveSameDisabledTuiAgents } from '../../shared/tui-agent-selection'
 import {
   normalizeMobilePairingCustomAddress,
@@ -299,23 +298,6 @@ export function registerSettingsHandlers(
 
     return result
   })
-
-  ipcMain.handle(
-    'settings:set-active-runtime-environment-preference',
-    (event, args: { environmentId?: unknown }): GlobalSettings => {
-      const requestedEnvironmentId = args?.environmentId
-      if (requestedEnvironmentId !== null && typeof requestedEnvironmentId !== 'string') {
-        throw new Error('Invalid Active Server preference')
-      }
-      const requestedId = requestedEnvironmentId?.trim() || null
-      const environmentId =
-        requestedId === null ? null : resolveEnvironment(app.getPath('userData'), requestedId).id
-      return store.updateSettings(
-        { activeRuntimeEnvironmentId: environmentId },
-        { notifyListeners: true, originWebContentsId: event.sender.id }
-      )
-    }
-  )
 
   ipcMain.handle('settings:listFonts', () => {
     return listSystemFontFamilies()

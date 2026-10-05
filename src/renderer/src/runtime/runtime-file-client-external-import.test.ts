@@ -2,8 +2,6 @@ import { describe, expect, it } from 'vitest'
 import { importExternalPathsToRuntime } from './runtime-file-client'
 import {
   fsImportExternalPaths,
-  fsStageExternalPathsForRuntimeUpload,
-  fsUploadExternalFileToRuntime,
   runtimeEnvironmentCall,
   installRuntimeFileClientEnvironment
 } from './runtime-file-client-test-harness'
@@ -48,8 +46,6 @@ describe('runtime file client', () => {
       expectedSshTargetId: 'ssh-1',
       expectedSshConnectionGeneration: 5
     })
-    expect(fsStageExternalPathsForRuntimeUpload).not.toHaveBeenCalled()
-    expect(fsUploadExternalFileToRuntime).not.toHaveBeenCalled()
     expect(runtimeEnvironmentCall).not.toHaveBeenCalled()
   })
 })

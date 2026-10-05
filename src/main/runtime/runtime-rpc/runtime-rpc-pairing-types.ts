@@ -14,17 +14,3 @@ export type OrcaRuntimeRpcServerOptions = {
   // Why: tests may inject inert protocol stages before production authorization registers them.
   methods?: readonly RpcAnyMethodDeclaration[]
 }
-
-export type PairingOfferUnavailableReason =
-  | 'websocket_unavailable'
-  | 'device_registry_unavailable'
-  | 'e2ee_key_unavailable'
-  | 'invalid_advertised_endpoint'
-  | 'relay_mint_failed'
-  | 'network_exposure_failed'
-
-export type PairingOfferUnavailable = {
-  available: false
-  reason: PairingOfferUnavailableReason
-  guidance: string
-}

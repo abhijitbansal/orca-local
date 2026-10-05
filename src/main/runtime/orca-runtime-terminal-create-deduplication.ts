@@ -2,7 +2,6 @@
 import { OrcaRuntimeWithCreateAgentSession } from './orca-runtime-create-agent-session'
 import type { RuntimeTerminalCreate } from '../../shared/runtime-types'
 import { WORKTREE_CREATE_RESULT_TTL_MS } from './orca-runtime-core'
-import { deriveRemoteRuntimeTerminalCreateHandle } from './remote-runtime-terminal-create-identity'
 import { withTimeoutResult } from './runtime-async-boundaries'
 import { PTY_CONTROLLER_LIST_TIMEOUT_MS } from './orca-runtime-postlude'
 import { inferWorktreeIdFromPtyId } from './runtime-worktree-path-identity'
@@ -13,7 +12,7 @@ import type { TuiAgent } from '../../shared/tui-agent'
 
 export class OrcaRuntimeWithTerminalCreateDeduplication extends OrcaRuntimeWithCreateAgentSession {
   async dedupeTerminalCreate(
-    clientIdentity: string,
+    _clientIdentity: string,
     worktreeSelector: string | undefined,
     clientMutationId: string | undefined,
     reconcileExisting: boolean,
@@ -22,40 +21,15 @@ export class OrcaRuntimeWithTerminalCreateDeduplication extends OrcaRuntimeWithC
       preAllocatedHandle: string | undefined
     ) => Promise<RuntimeTerminalCreate>
   ): Promise<RuntimeTerminalCreate> {
+    // Why: reconciling needs the handle a paired client derived for this create, which no longer exists.
+    if (reconcileExisting) {
+      throw new Error('runtime_unavailable')
+    }
     if (!clientMutationId || !worktreeSelector) {
-      if (reconcileExisting) {
-        throw new Error('runtime_unavailable')
-      }
       return await run(worktreeSelector, undefined)
     }
     const workspace = await this.resolveTerminalWorkspaceLaunchScope(worktreeSelector)
-    const canonicalWorktreeSelector = `id:${workspace.id}`
-    const preAllocatedHandle = deriveRemoteRuntimeTerminalCreateHandle(
-      clientIdentity,
-      workspace.id,
-      clientMutationId
-    )
-    return this.terminalCreateIdempotency.run(
-      clientIdentity,
-      workspace.id,
-      clientMutationId,
-      async () => {
-        if (reconcileExisting) {
-          const adopted = await this.reconcileRemoteTerminalCreate(
-            workspace.id,
-            preAllocatedHandle,
-            // Why: an unreachable SSH host vanishes from the aggregate listing, which would read
-            // as absence and respawn over live remote work. Local/folder workspaces have no
-            // connection and keep the aggregate listing.
-            workspace.connectionId ?? null
-          )
-          if (adopted) {
-            return adopted
-          }
-        }
-        return await run(canonicalWorktreeSelector, preAllocatedHandle)
-      }
-    )
+    return await run(`id:${workspace.id}`, undefined)
   }
 
   protected async reconcileRemoteTerminalCreate(

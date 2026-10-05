@@ -1,8 +1,6 @@
-import type { RemoteRuntimeSharedConnectionDiagnostics } from './remote-runtime-shared-control-types'
+import type { RuntimeRemoteControlDiagnostics } from './runtime-session-contracts'
 import type { RuntimeRpcFailure, RuntimeRpcResponse } from './runtime-rpc-envelope'
 import type { RuntimeStatus } from './runtime-types'
-
-export const RUNTIME_HOST_STATUS_CHANNEL = 'runtimeEnvironments:statusChanged'
 
 /** Local client state; never exchanged with the paired host. */
 export type RuntimeHostStatusSnapshot = {
@@ -13,7 +11,7 @@ export type RuntimeHostStatusSnapshot = {
   status: RuntimeStatus | null
   verification: 'checking' | 'verified' | 'unavailable' | 'blocked'
   transport: 'unknown' | 'connecting' | 'ready' | 'disconnected'
-  remoteControl?: RemoteRuntimeSharedConnectionDiagnostics | null
+  remoteControl?: RuntimeRemoteControlDiagnostics | null
   retired?: true
 }
 

@@ -1,8 +1,3 @@
-import type {
-  StagedRuntimeUploadEntry,
-  StagedRuntimeUploadSource
-} from './runtime-upload-staging-contract'
-
 export type ImportSkipReason = 'missing' | 'symlink' | 'permission-denied' | 'unsupported'
 
 export type ResolveDroppedPathsResult = {
@@ -29,8 +24,3 @@ export type ImportItemResult =
       status: 'failed'
       reason: string
     }
-
-// Why: staging crosses IPC to the renderer and back into the streamer, so the
-// shape lives in shared and every layer names the same type.
-export type StagedExternalImportSource = StagedRuntimeUploadSource
-export type StagedExternalImportEntry = StagedRuntimeUploadEntry

@@ -1,5 +1,4 @@
 import {
-  app,
   clipboard,
   ipcMain,
   nativeImage,
@@ -37,7 +36,6 @@ import {
   scheduleLegacyRemoteClipboardFileCleanup,
   writeRemoteFileToClipboard
 } from './clipboard-remote-file-copy'
-import { saveClipboardImageBufferInRuntime } from './clipboard-runtime-image-upload'
 import { readWindowsClipboardImageFileAsPng } from './clipboard-windows-image-file'
 import { readClipboardCopiedFilePaths } from './clipboard-copied-file-paths'
 import { buildClipboardImageThumbnail } from './clipboard-image-thumbnail'
@@ -56,17 +54,9 @@ async function saveClipboardImageBufferForTarget(
   args?: SaveClipboardImageAsTempFileArgs
 ): Promise<string> {
   assertClipboardImageByteLengthWithinLimit(buffer.byteLength)
-  const runtimeEnvironmentId = args?.runtimeEnvironmentId?.trim()
-  // Why (#17679): with a runtime owner, a connectionId names one of the RUNTIME's SSH
-  // connections (nested Remote Server -> SSH), not one this process dialed. Looking it up
-  // in the local provider registry can only miss, so the runtime must perform the save.
-  if (runtimeEnvironmentId) {
-    return saveClipboardImageBufferInRuntime(
-      app.getPath('userData'),
-      runtimeEnvironmentId,
-      buffer,
-      args?.connectionId ?? null
-    )
+  // Why: a runtime owner names a paired server's filesystem, which this build can never reach.
+  if (args?.runtimeEnvironmentId?.trim()) {
+    throw new Error('unsupported_in_local_build: remote Orca runtimes were removed from this build')
   }
   return saveClipboardImageBufferAsTempFile(buffer, args)
 }

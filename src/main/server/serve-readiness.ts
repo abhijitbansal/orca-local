@@ -1,7 +1,13 @@
-import type { PairingOfferUnavailableReason } from '../runtime/runtime-rpc'
 import type { OrcadHealth } from '../orcad/orcad-health'
 
-export type ServePairingUnavailableReason = PairingOfferUnavailableReason | 'disabled_by_operator'
+export type ServePairingUnavailableReason =
+  | 'websocket_unavailable'
+  | 'device_registry_unavailable'
+  | 'e2ee_key_unavailable'
+  | 'invalid_advertised_endpoint'
+  | 'relay_mint_failed'
+  | 'network_exposure_failed'
+  | 'disabled_by_operator'
 
 export type ServePairingReadiness =
   | {

@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import {
-  NATIVE_REMOTE_RUNTIME_CLIENT_CAPABILITIES,
   RUNTIME_CAPABILITIES,
   WORKTREE_GITHUB_PR_SUPPRESSION_RUNTIME_CAPABILITY
 } from '../protocol-version'
@@ -26,11 +25,8 @@ describe('GitHub PR suppression', () => {
     expect(normalizeGitHubPRSuppressionUpdate(clear)).toBe(clear)
   })
 
-  it('advertises suppression support from hosts and native remote clients', () => {
+  it('advertises suppression support from hosts and remote clients', () => {
     expect(RUNTIME_CAPABILITIES).toContain(WORKTREE_GITHUB_PR_SUPPRESSION_RUNTIME_CAPABILITY)
-    expect(NATIVE_REMOTE_RUNTIME_CLIENT_CAPABILITIES).toContain(
-      WORKTREE_GITHUB_PR_SUPPRESSION_RUNTIME_CAPABILITY
-    )
     expect(remoteRuntimeClientCapabilities()).toContain(
       WORKTREE_GITHUB_PR_SUPPRESSION_RUNTIME_CAPABILITY
     )

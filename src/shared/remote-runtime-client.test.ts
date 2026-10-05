@@ -17,8 +17,7 @@ import { MAX_TIMER_DELAY_MS } from './timer-delay'
 import {
   BROWSER_CLIENT_HOST_RUNTIME_CAPABILITY,
   BROWSER_CLIENT_PAGE_METADATA_RUNTIME_CAPABILITY,
-  BROWSER_NETWORK_TUNNEL_RUNTIME_CAPABILITY,
-  ELECTRON_REMOTE_RUNTIME_CLIENT_CAPABILITIES
+  BROWSER_NETWORK_TUNNEL_RUNTIME_CAPABILITY
 } from './protocol-version'
 
 const servers: WebSocketServer[] = []
@@ -322,7 +321,7 @@ describe('sendRemoteRuntimeRequest', () => {
       1000,
       undefined,
       undefined,
-      ELECTRON_REMOTE_RUNTIME_CLIENT_CAPABILITIES
+      [BROWSER_CLIENT_HOST_RUNTIME_CAPABILITY, BROWSER_CLIENT_PAGE_METADATA_RUNTIME_CAPABILITY]
     )
 
     expect(receivedAuth).toMatchObject({

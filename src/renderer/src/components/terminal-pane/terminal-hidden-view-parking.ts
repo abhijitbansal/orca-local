@@ -93,7 +93,6 @@ export type TerminalParkRestorePolicy = {
 }
 
 export {
-  resetPairedRuntimeParkingEnvironmentIdsCacheForTest,
   selectPairedRuntimeParkingEnvironmentIds,
   selectPairedRuntimeParkingEnvironmentIdsFromState
 } from './paired-runtime-parking-capabilities'

@@ -2,10 +2,6 @@
 import { RuntimeRpcShutdown } from './runtime-rpc/runtime-rpc-shutdown'
 import type { OrcaRuntimeRpcServerOptions } from './runtime-rpc/runtime-rpc-pairing-types'
 
-export type {
-  PairingOfferUnavailableReason,
-  PairingOfferUnavailable
-} from './runtime-rpc/runtime-rpc-pairing-types'
 export type { RuntimeLongPollClass } from './runtime-rpc/runtime-rpc-long-poll'
 export { classifyRuntimeLongPoll } from './runtime-rpc/runtime-rpc-long-poll'
 

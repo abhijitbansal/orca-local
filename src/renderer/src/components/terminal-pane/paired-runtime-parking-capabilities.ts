@@ -1,80 +1,15 @@
-import { TERMINAL_PAIRED_PARKING_RUNTIME_CAPABILITY } from '../../../../shared/protocol-version'
-import {
-  isRuntimeHostContactRevoked,
-  lastVerifiedRuntimeStatus,
-  type RuntimeHostStatusSnapshot
-} from '../../../../shared/runtime-host-status'
-
-type PairedRuntimeParkingCapability = { capabilities?: readonly string[] }
-
-type PairedRuntimeParkingCapabilityStatuses = ReadonlyMap<
-  string,
-  {
-    status: PairedRuntimeParkingCapability | null | undefined
-    snapshot?:
-      | ({ status: PairedRuntimeParkingCapability | null } & Pick<
-          RuntimeHostStatusSnapshot,
-          'verification' | 'retired'
-        >)
-      | null
-  }
->
-
-type PairedRuntimeParkingEnvironmentIdsCache = {
-  statuses: PairedRuntimeParkingCapabilityStatuses
-  environmentIds: ReadonlySet<string>
-}
-
-let pairedRuntimeParkingEnvironmentIdsCache: PairedRuntimeParkingEnvironmentIdsCache | null = null
-
-function haveSameEnvironmentIds(left: ReadonlySet<string>, right: ReadonlySet<string>): boolean {
-  if (left.size !== right.size) {
-    return false
-  }
-  for (const environmentId of left) {
-    if (!right.has(environmentId)) {
-      return false
-    }
-  }
-  return true
-}
+// Why: parking a paired PTY needs a host advertising bounded snapshot restore, and this build can
+// never pair with a host, so no environment is ever eligible.
+const NO_PARKING_ENVIRONMENT_IDS: ReadonlySet<string> = new Set()
 
 export function selectPairedRuntimeParkingEnvironmentIds(
-  statuses: PairedRuntimeParkingCapabilityStatuses
+  _statuses?: ReadonlyMap<string, unknown>
 ): ReadonlySet<string> {
-  const cached = pairedRuntimeParkingEnvironmentIdsCache
-  if (cached?.statuses === statuses) {
-    return cached.environmentIds
-  }
-
-  const capable = new Set<string>()
-  for (const [environmentId, entry] of statuses) {
-    // Why last-verified: a capability is a fact about the host's build, so an unverifiable
-    // probe must not unpark its terminals. See docs/reference/ssh-execution-boundary.md.
-    // Why the revoked gate: parking discards the client's only copy of the scrollback against
-    // a host-side restore, so a host that refused us must not keep promising one.
-    if (isRuntimeHostContactRevoked(entry)) {
-      continue
-    }
-    const status = lastVerifiedRuntimeStatus<PairedRuntimeParkingCapability>(entry)
-    if (status?.capabilities?.includes(TERMINAL_PAIRED_PARKING_RUNTIME_CAPABILITY)) {
-      capable.add(environmentId)
-    }
-  }
-  const environmentIds =
-    cached && haveSameEnvironmentIds(cached.environmentIds, capable)
-      ? cached.environmentIds
-      : capable
-  pairedRuntimeParkingEnvironmentIdsCache = { statuses, environmentIds }
-  return environmentIds
+  return NO_PARKING_ENVIRONMENT_IDS
 }
 
-export function selectPairedRuntimeParkingEnvironmentIdsFromState(state: {
-  runtimeStatusByEnvironmentId: PairedRuntimeParkingCapabilityStatuses
+export function selectPairedRuntimeParkingEnvironmentIdsFromState(_state: {
+  runtimeStatusByEnvironmentId: ReadonlyMap<string, unknown>
 }): ReadonlySet<string> {
-  return selectPairedRuntimeParkingEnvironmentIds(state.runtimeStatusByEnvironmentId)
-}
-
-export function resetPairedRuntimeParkingEnvironmentIdsCacheForTest(): void {
-  pairedRuntimeParkingEnvironmentIdsCache = null
+  return NO_PARKING_ENVIRONMENT_IDS
 }

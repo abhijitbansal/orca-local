@@ -254,24 +254,6 @@ describe('terminal-parked-tab-watchers', () => {
     expect(mockStoreState.clearRuntimePaneTitle).toHaveBeenCalledWith(TAB_ID, 1)
   })
 
-  it('starts a fact watcher for snapshot-capable paired PTYs', () => {
-    mockStoreState.runtimeStatusByEnvironmentId.set('env-1', {
-      status: { capabilities: ['terminal.paired-parking.v1'] },
-      checkedAt: Date.now()
-    })
-    capturePanes([
-      { ptyId: 'remote:env-1@@terminal-1', paneId: 1, leafId: LEAF_ID, drivesTabTitle: true }
-    ])
-    syncParked({ tabs: [{ id: TAB_ID, ptyId: 'remote:env-1@@terminal-1' }] })
-
-    expect(startParkedTerminalByteWatcher).toHaveBeenCalledTimes(1)
-    expect(startedWatchers[0].options).toMatchObject({
-      ptyId: 'remote:env-1@@terminal-1'
-    })
-    expect(subscribeToPtyExit).not.toHaveBeenCalled()
-    expect(exitSubscriptions).toEqual([])
-  })
-
   it('starts watchers for SSH PTYs (C1 SSH parking, default on)', () => {
     capturePanes([{ ptyId: 'ssh:conn-1@@pty-1', paneId: 1, leafId: LEAF_ID, drivesTabTitle: true }])
     syncParked({ tabs: [{ id: TAB_ID, ptyId: 'ssh:conn-1@@pty-1' }] })

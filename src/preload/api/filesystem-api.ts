@@ -7,8 +7,7 @@ import type {
 } from '../../shared/filesystem-entry-types'
 import type {
   ImportItemResult,
-  ResolveDroppedPathsResult,
-  StagedExternalImportSource
+  ResolveDroppedPathsResult
 } from '../../shared/filesystem-import-result-types'
 import type {
   LocalLogTailChangedPayload,
@@ -24,7 +23,6 @@ import type {
   PythonEnvironment,
   PythonEnvironments
 } from '../../shared/notebook-kernel-types'
-import type { RuntimeUploadFileStreamRequest } from '../../shared/runtime-upload-staging-contract'
 
 export type ExportApi = {
   htmlToPdf: (args: {
@@ -149,12 +147,6 @@ export type FilesystemApi = {
         ensureDir?: boolean
       } & SshMutationExpectation
     ) => Promise<{ results: ImportItemResult[] }>
-    stageExternalPathsForRuntimeUpload: (args: {
-      sourcePaths: string[]
-    }) => Promise<{ sources: StagedExternalImportSource[] }>
-    uploadExternalFileToRuntime: (
-      args: RuntimeUploadFileStreamRequest
-    ) => Promise<{ byteLength: number }>
     resolveDroppedPathsForAgent: (
       args: {
         paths: string[]

@@ -1,29 +1,12 @@
-import { useAppStore } from '@/store'
-import { TERMINAL_PAIRED_PARKING_RUNTIME_CAPABILITY } from '../../../../../shared/protocol-version'
-import { getRemoteRuntimePtyEnvironmentId } from '@/runtime/runtime-terminal-stream'
 import { REMOTE_PTY_ID_PREFIX } from './pty-connect-limits'
-import {
-  isRuntimeHostContactRevoked,
-  lastVerifiedRuntimeStatus
-} from '../../../../../shared/runtime-host-status'
 
 export function isRemoteRuntimePtyId(ptyId: string | null | undefined): boolean {
   return typeof ptyId === 'string' && ptyId.startsWith(REMOTE_PTY_ID_PREFIX)
 }
 
-export function canRestorePairedParkedTerminal(ptyId: string): boolean {
-  const environmentId = getRemoteRuntimePtyEnvironmentId(ptyId)
-  if (environmentId === null) {
-    return false
-  }
-  // Why last-verified: losing contact mid-reattach would otherwise drop the parked session
-  // and cold-restore a fresh one. See docs/reference/ssh-execution-boundary.md.
-  const entry = useAppStore.getState().runtimeStatusByEnvironmentId.get(environmentId)
-  if (isRuntimeHostContactRevoked(entry)) {
-    return false
-  }
-  const status = lastVerifiedRuntimeStatus(entry)
-  return status?.capabilities?.includes(TERMINAL_PAIRED_PARKING_RUNTIME_CAPABILITY) === true
+// Why: restoring a parked paired terminal needs a paired host, which this build can never reach.
+export function canRestorePairedParkedTerminal(_ptyId: string): boolean {
+  return false
 }
 
 // Why: daemon session IDs use the format `${worktreeId}@@${shortUuid}`.
