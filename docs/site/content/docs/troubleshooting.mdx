@@ -22,27 +22,6 @@ title: Troubleshooting & FAQ
 
 Register the CLI under [Settings → General → Orca CLI](/docs/settings). On macOS it installs a shim into `~/.local/bin`; make sure that's on your shell's `PATH`.
 
-## SSH connects but remote terminals fail
-
-- Confirm the remote has Node and network access for the first-time relay install.
-- On Linux, install a C/C++ toolchain if terminals never spawn: make, g++/clang++, python3 (see [SSH worktrees](/docs/ssh)).
-- Reconnect after installing tools so Orca can reinstall native modules.
-
-## SSH works for files but not “Download Folder”
-
-Folder download needs recursive SFTP transfer. File download may still work on system-SSH-only connections. Use a terminal `tar`/`scp` as a fallback.
-
-## “Open in VS Code” is disabled or Local only
-
-- Use an SSH worktree.
-- Set the Open-in command to VS Code / Insiders, not Cursor or a multi-arg shell command.
-- Refresh SSH targets if the host was removed.
-
-## Kerberos login fails
-
-- Ensure `klist` shows a valid ticket for the host realm.
-- Confirm `GSSAPIAuthentication yes` for that Host in OpenSSH config, then re-import or re-test the target in Settings → SSH.
-
 ## Browser says `browser_no_tab`
 
 No tab is open in the current worktree. Open one with `orca tab create --url ...` or open the browser pane manually and navigate.

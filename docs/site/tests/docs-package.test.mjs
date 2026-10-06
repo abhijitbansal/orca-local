@@ -68,8 +68,8 @@ test('docs package has an isolated, reproducible app contract', async () => {
 test('all customer-facing docs pages and navigation metadata are present', async () => {
   const pages = await walkFiles(contentRoot, '.mdx')
   assert.ok(
-    pages.length >= 50,
-    `expected at least the current 50 docs pages, found ${pages.length}`
+    pages.length >= 47,
+    `expected at least the current 47 docs pages, found ${pages.length}`
   )
 
   for (const relativePath of [
@@ -78,7 +78,6 @@ test('all customer-facing docs pages and navigation metadata are present', async
     'first-session.mdx',
     'agents/supported.mdx',
     'cli/reference.mdx',
-    'ssh.mdx',
     'review/commit-push.mdx',
     'settings.mdx',
     'troubleshooting.mdx'

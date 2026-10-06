@@ -5,7 +5,7 @@ description: What Orca records in its local usage file, what it never records, a
 
 import { ImagePlaceholder } from '@/components/docs/prose'
 
-This page describes the anonymous product-usage record this fork keeps on your machine, what it never records, and how to turn it off. **Nothing is uploaded.** The record is a file on disk, and no code in the app sends it, reads it back over a socket, or contacts a telemetry service. Orca's own code makes no connection to a cloud service at all, apart from the short list of exceptions in [the architecture notes](../../../reference/local-only-architecture.md) (your git CLI against your own remotes, the embedded browser pane, links handed to your OS browser, downloads you start yourself, and SSH).
+This page describes the anonymous product-usage record this fork keeps on your machine, what it never records, and how to turn it off. **Nothing is uploaded.** The record is a file on disk, and no code in the app sends it, reads it back over a socket, or contacts a telemetry service. Orca's own code makes no connection to a cloud service at all, apart from the short list of exceptions in [the architecture notes](../../../reference/local-only-architecture.md) (your git CLI against your own remotes, the embedded browser pane, links handed to your OS browser, and downloads you start yourself).
 
 ## Summary
 
@@ -27,7 +27,6 @@ The categories of behavior recorded:
 - **Agent errors** — a coarse error category and which agent kind was involved. Raw error messages and stack traces are not part of the record; per-incident detail stays in a local diagnostic trace file on your machine.
 - **Settings** — when you toggle one of a small whitelisted set of feature-flag or UX preferences. Orca records which preference changed and whether it's a boolean or an enum, never the raw value of any free-form setting.
 - **Privacy controls** — when you turn the local record on or off.
-- **SSH remote runtime** — once per SSH host per app session, which runtime Orca used to run on that host and why: coarse host facts (operating system, CPU architecture, C library family and glibc minor version, and the host's Node.js major version when Orca runs on it), the category of any refusal, whether a runtime was uploaded, and a coarse duration bucket. Never the hostname, user name, paths, or raw error text.
 
 Fields include fixed enum values, version strings, numeric counts and revisions, and random local IDs. Conversation IDs allow repeated token summaries for the same conversation to be associated; they are pseudonymous. No free-form strings from any UI input are recorded.
 

@@ -94,13 +94,6 @@ const POPULAR_SEARCHES: {
     description:
       "Orca reads each repo's .claude/ and .codex/ config, runs your hooks on worktree create, and surfaces CLAUDE.md / AGENTS.md inline.",
     url: '/docs/agents/hooks-memory'
-  },
-  {
-    breadcrumb: ['Recipes', 'Work on a remote machine over SSH'],
-    title: 'Work on a remote machine over SSH',
-    description:
-      'Point Orca at any SSH target — a dev box, a GPU host, a cloud sandbox — and open remote repos or just folders. Same editor, same diff view, different compute.',
-    url: '/docs/recipes/remote-worktrees'
   }
 ]
 

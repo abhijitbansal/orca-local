@@ -1,11 +1,5 @@
 {
   "title": "Recipes",
   "defaultOpen": true,
-  "pages": [
-    "parallel-agents",
-    "review-ai-diff",
-    "jump-worktrees",
-    "design-mode-fix",
-    "remote-worktrees"
-  ]
+  "pages": ["parallel-agents", "review-ai-diff", "jump-worktrees", "design-mode-fix"]
 }

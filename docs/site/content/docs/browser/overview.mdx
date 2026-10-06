@@ -24,12 +24,6 @@ Every Orca worktree has its own browser. It's a real Chromium window — address
 
 Tabs are filtered per worktree. Switching worktrees restores that worktree's browser tabs and scroll positions.
 
-## Remote workspaces
-
-Under [Settings → Browser → Remote server workspaces](/docs/settings), choose **This device** or **Server (streamed)**. The choice applies to new pages only; it does not move a page that is already open. If a locally rendered remote page cannot start, **Reopen on server** opens a new server-hosted page at its last address (signed-in or form state may differ).
-
-For SSH workspaces, **Browse through SSH workspace hosts** controls whether browser traffic and DNS go through the workspace's SSH host or this device. Downloads from a client-hosted remote page stay on the remote workspace host, and uploads are staged there before the page receives them.
-
 ## Link routing
 
 Under [Settings → Browser → Link Routing](/docs/settings), choose whether http(s) links from the terminal, markdown, and editor open in Orca's per-worktree browser or the system browser.

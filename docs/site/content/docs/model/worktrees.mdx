@@ -68,10 +68,8 @@ The Create Workspace dialog uses type-ahead comboboxes for **Project** and **Run
 
 - Type to filter; Enter commits the armed row.
 - **Project** always keeps **Add a new project** pinned at the bottom — create never dead-ends when the install has no projects yet.
-- **Run on** lists ready hosts and recipes, plus hosts that still need project setup on that machine. On a setup-needed host, choose **Set project location** without leaving the create form, then browse to an existing checkout/folder or clone the Git repository onto that host. Orca selects the newly ready location so you can continue creating the worktree. Disconnected SSH / remote hosts can offer **Connect** without selecting them as the run target. **Add host** stays pinned for SSH targets.
+- **Run on** lists ready hosts and recipes, plus hosts that still need project setup on that machine. On a setup-needed host, choose **Set project location** without leaving the create form, then browse to an existing checkout/folder or clone the Git repository onto that host. Orca selects the newly ready location so you can continue creating the worktree.
 - The **Agent** selector (collapsed or expanded) can **Set as default** for the agent you pick on create, including Blank Terminal.
-
-See [Ways to run Orca](/docs/ways-to-run).
 
 ## Emoji workspace names
 
@@ -106,11 +104,11 @@ You can pin a worktree to the top of its project to keep long-running work in vi
 
 When a worktree has nested child worktrees (for example from orchestration or `worktree create` with a parent), the context menu can also offer **Sleep with Descendants (N)** and **Delete with Descendants…**. Sleep with descendants closes active panels on the selected workspace and every validated nested child in the same project, repo, and host — only workspaces with live terminals or browser tabs are targeted for sleep. Delete with descendants makes the existing cascading delete explicit. Stale lineage links, cycles, and children across host or repo boundaries are excluded.
 
-Double-click a worktree title in the sidebar to rename it inline. Double-clicking elsewhere on the card still opens the full edit dialog. For SSH workspaces whose host is disconnected, the card title row can show an inline reconnect control (see [SSH worktrees](/docs/ssh)).
+Double-click a worktree title in the sidebar to rename it inline. Double-clicking elsewhere on the card still opens the full edit dialog.
 
 ## Resource Manager cleanup
 
-Use **Resource Manager → Clean up workspaces** when you need to review workspaces across your setup before removing them. The list includes local worktrees, main worktrees, folder workspaces, and workspaces on disconnected SSH hosts. Search, filter, or sort the list to inspect each workspace's status, recent activity, size, Git state, and linked review before you select anything for removal.
+Use **Resource Manager → Clean up workspaces** when you need to review workspaces across your setup before removing them. The list includes local worktrees, main worktrees, and folder workspaces. Search, filter, or sort the list to inspect each workspace's status, recent activity, size, Git state, and linked review before you select anything for removal.
 
 ## Preserved branches
 

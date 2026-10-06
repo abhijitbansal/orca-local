@@ -7,7 +7,7 @@ Settings are grouped into panes. Everything here is searchable with `Cmd-,` then
 ## General
 
 - **Orca CLI** — register the bundled command-line tool for shells and agents.
-- **Open in menu** — choose apps on the worktree **Open in** menu. VS Code / Insiders enable **Remote SSH** open for SSH worktrees; other editors remain local-path only.
+- **Open in menu** — choose apps on the worktree **Open in** menu.
 - **UI zoom** — per-install UI scale.
 - **Default new-worktree name** — custom prefix or marine creatures.
 - **Editor Word Wrap** — default wrap for file editors (on by default). Toggle from a file tab's **⋯** menu or `Alt+Z`. Separate from **Diff Word Wrap**.
@@ -36,7 +36,7 @@ Settings are grouped into panes. Everything here is searchable with `Cmd-,` then
 - Warp theme import — bring in your Warp YAML themes with **Import themes from Warp** (auto-discovers Warp's themes folder per OS) or **Import from YAML** for any folder of Warp-format theme files.
 - JIS Yen (¥) to Backslash (\\) for macOS Japanese keyboards.
 - Windows default shell (PowerShell or CMD).
-- **Allow TUI Clipboard Writes (OSC 52)** — **on by default**. Lets Zellij, tmux, Neovim, fzf, Grok (and similar) write the system clipboard over the PTY, including over SSH. Turn off if you prefer the older lockdown.
+- **Allow TUI Clipboard Writes (OSC 52)** — **on by default**. Lets Zellij, tmux, Neovim, fzf, Grok (and similar) write the system clipboard over the PTY. Turn off if you prefer the older lockdown.
 
 ## Quick Commands
 
@@ -60,7 +60,6 @@ Settings are grouped into panes. Everything here is searchable with `Cmd-,` then
 - Default Zoom — zoom level applied to newly opened browser tabs (per-tab adjustments via Cmd-wheel are remembered separately).
 - Design Mode defaults.
 - Devtools opt-in.
-- **Browse through SSH workspace hosts** — send browser traffic and DNS through each workspace's SSH host. Turn it off to browse from this device instead.
 - **Link Routing** — open http(s) links from the terminal, markdown, and editor in Orca's browser or the system browser. Nested **Hold Shift…** inverts that default for one click (`⇧⌘-click` / `Shift+Ctrl+click`). See [Per-worktree browser](/docs/browser/overview#link-routing).
 - **Show terminal link actions** — **on by default**. A plain click on a terminal link opens a compact action popover. Turn off to require `⌘`-click / `Ctrl`-click. See [Terminal → Link actions](/docs/terminal#link-actions).
 - **Default Search Engine** — used when you type non-URL text in the browser address bar or the [new-tab omnibox](/docs/model/quick-open#new-tab-omnibox).
@@ -84,12 +83,6 @@ Settings are grouped into panes. Everything here is searchable with `Cmd-,` then
   - **SenseVoice** — ZH / EN / JA / KO / Cantonese with auto language detection.
   - **Whisper Tiny** — 90+ languages, lower accuracy.
 - While listening, a **Listening…** pill shows a **Stop** control; in toggle mode the tooltip also shows the dictation shortcut.
-
-## SSH
-
-- SSH worktrees, targets, passphrases, default identity file.
-- Advanced: proxy / jump host; **Reuse SSH connection for faster setup** (system OpenSSH multiplexing; default on).
-- Kerberos hosts: `GSSAPIAuthentication` from OpenSSH config drives system OpenSSH auth (see [SSH worktrees](/docs/ssh)).
 
 ## Shortcuts
 
@@ -119,8 +112,7 @@ Settings are grouped into panes. Everything here is searchable with `Cmd-,` then
 ## Plugins (Experimental)
 
 - **Plugin system** — Settings → Plugins. Turn the system on, then review and enable each plugin individually. Nothing runs until you consent.
-- **Marketplaces** — add a git marketplace source, browse plugins, preview capabilities (panels, commands, language packs, VM recipes), install, update, or roll back.
-- Plugin workers always run on this computer; SSH workspace actions still route through Orca.
+- **Marketplaces** — add a git marketplace source, browse plugins, preview capabilities (panels, commands, language packs), install, update, or roll back.
 - Capability and API shapes may change; treat third-party plugins as untrusted software.
 
 ## Experimental
@@ -130,5 +122,4 @@ Settings are grouped into panes. Everything here is searchable with `Cmd-,` then
 - [Agent hibernation](/docs/agents/hibernation) — pause idle background agents and auto-resume them on reopen.
 - **Agent Dashboard** — kanban of Needs You / Working / Done agents (optional Idle), with search and project/workspace filters; open in-window or as a pop-out. **Show idle agents** lives on the dashboard board settings control, not here. See [Agents & sessions](/docs/model/agents-sessions#agent-dashboard).
 - **Chat UI** — optional chat surface on supported agent terminals. See [Chat UI](/docs/agents/native-chat).
-- **Cloud VM** — show setup controls and workspace **Run on** targets for repo-owned, on-demand environments (cloud sandboxes, VMs, or local Docker). Setup guide and recipe install live under this experimental toggle. See [Ways to run Orca](/docs/ways-to-run#3-cloud-vms-per-workspace-environments).
 - Features not yet stable — behavior may change.
