@@ -15,27 +15,6 @@ vi.mock('@/store', () => ({
   useAppStore: (selector: (state: unknown) => unknown) => selector(storeMocks)
 }))
 
-vi.mock('@/components/sidebar/RemoteFileBrowser', () => ({
-  RemoteFileBrowser: ({
-    targetId,
-    onSelect,
-    onCancel
-  }: {
-    targetId?: string
-    onSelect: (path: string) => void
-    onCancel: () => void
-  }) => (
-    <div data-testid="remote-file-browser" data-target={targetId ?? ''}>
-      <button type="button" onClick={() => onSelect('/remote/orca')}>
-        Select remote folder
-      </button>
-      <button type="button" onClick={onCancel}>
-        Cancel browse
-      </button>
-    </div>
-  )
-}))
-
 import { SetProjectLocationDialog } from './SetProjectLocationDialog'
 
 const option: NeedsSetupProjectHostOption = {
@@ -94,8 +73,7 @@ describe('SetProjectLocationDialog', () => {
     expect(screen.getByText('Choose where orca lives on openclaw.')).toBeTruthy()
 
     await user.click(screen.getByRole('button', { name: /Browse folder/ }))
-    await user.click(screen.getByRole('button', { name: 'Browse host filesystem' }))
-    await user.click(screen.getByRole('button', { name: 'Select remote folder' }))
+    await user.type(screen.getByPlaceholderText('/path/to/project/on/host'), '/remote/orca')
     await user.click(screen.getByRole('button', { name: 'Set location' }))
 
     expect(storeMocks.setupProjectExistingFolder).toHaveBeenCalledWith({
@@ -114,8 +92,7 @@ describe('SetProjectLocationDialog', () => {
     const user = renderDialog({ onReady })
 
     await user.click(screen.getByRole('button', { name: /Clone from URL/ }))
-    await user.click(screen.getByRole('button', { name: 'Browse host filesystem' }))
-    await user.click(screen.getByRole('button', { name: 'Select remote folder' }))
+    await user.type(screen.getByPlaceholderText('/destination/on/host'), '/remote/orca')
     await user.click(screen.getByRole('button', { name: 'Clone' }))
 
     expect(storeMocks.setupProjectClone).toHaveBeenCalledWith({
@@ -145,25 +122,6 @@ describe('SetProjectLocationDialog', () => {
       />
     )
     expect(screen.queryByTestId('set-project-location-dialog')).toBeNull()
-  })
-
-  it('backs out of the host browser on Escape instead of discarding the form', async () => {
-    const onClose = vi.fn()
-    const user = renderDialog({ onClose })
-
-    await user.click(screen.getByRole('button', { name: /Browse folder/ }))
-    await user.click(screen.getByRole('button', { name: 'Browse host filesystem' }))
-    expect(screen.getByTestId('remote-file-browser')).toBeTruthy()
-
-    await user.keyboard('{Escape}')
-
-    expect(onClose).not.toHaveBeenCalled()
-    expect(screen.queryByTestId('remote-file-browser')).toBeNull()
-    expect(screen.getByRole('button', { name: 'Set location' })).toBeTruthy()
-
-    // A second Escape, now back on the form, dismisses the dialog as usual.
-    await user.keyboard('{Escape}')
-    expect(onClose).toHaveBeenCalled()
   })
 
   it('does not retarget the composer when a slow clone lands after dismissal', async () => {

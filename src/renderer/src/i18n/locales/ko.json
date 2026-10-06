@@ -760,7 +760,6 @@
     "hooks": {
       "useAutomationDispatchEvents": {
         "59718b120b": "대상 워크스페이스를 더 이상 사용할 수 없습니다.",
-        "16a21d6413": "SSH 재연결에는 대화형 자격 증명이 필요합니다.",
         "386db94f3e": "대상 프로젝트를 더 이상 사용할 수 없습니다.",
         "3ad7d77f57": "대상 워크스페이스가 이 자동화 실행 대상과 다른 호스트에 있습니다.",
         "workspaceHostUnresolved": "대상 워크스페이스는 두 개 이상의 호스트에 걸쳐 있으므로 이 실행에는 사용할 단일 호스트가 없습니다."
@@ -769,7 +768,6 @@
         "7eb3f44ff7": "선택한 agent가 비활성화되었습니다. 생성하기 전에 활성화된 agent를 선택하세요.",
         "b2ead86962": "PR 기반을 해결하지 못했습니다.",
         "3db83fc58a": "이 호스트에 첨부 파일에 사용할 수 있는 프로젝트 경로가 없습니다.",
-        "ba6cb77082": "프로젝트에 연결하지 못했습니다.",
         "chooseOrAddProjectBeforeWorkspace": "워크스페이스를 만들기 전에 프로젝트를 선택하거나 추가하세요.",
         "folderWorkspaceCreateFailedTitle": "폴더 워크스페이스를 만들지 못했습니다",
         "folderWorkspaceCreateFailedMessage": "폴더 워크스페이스를 만들 수 없습니다. 위의 오류 세부 정보를 확인한 뒤 다시 시도하세요.",
@@ -1062,7 +1060,6 @@
         "ab63f25397": "agent 설정 열기",
         "01d1e8f601": "에이전트",
         "0c5d6a479c": "[선택 사항]",
-        "b5a0796911": "연결",
         "dccd26d4e4": "프로젝트 선택",
         "d6b0a96f32": "프로젝트 추가",
         "969a8bff66": "프로젝트",
@@ -1075,7 +1072,6 @@
         "2132b670da": "둘 다",
         "0e587e31fb": "yaml",
         "ac3748dcda": "다음에서 만들기",
-        "f660aa1454": "연결 중",
         "7711ad5122": "로컬 설정 명령",
         "e5db1b0419": "결합된 설정 명령",
         "addProjectBeforeWorkspace": "워크스페이스를 만들기 전에 프로젝트를 추가하세요.",
@@ -3858,8 +3854,7 @@
         "AddProjectFromFolderDialog": {
           "7d1f51678c": "프로젝트 추가",
           "7726a16374": "취소",
-          "046751dbfb": "이 폴더를 별도의 Orca 프로젝트로 추가합니다.",
-          "e643b30398": "원격 프로젝트가 추가되었습니다."
+          "046751dbfb": "이 폴더를 별도의 Orca 프로젝트로 추가합니다."
         },
         "AddRepoCreateStep": {
           "0ae45b8238": "my-project",
@@ -3903,26 +3898,15 @@
           "e52454b7f6": "폴더로 열기"
         },
         "AddRepoRemoteStep": {
-          "5b205b5281": "스캔 중지",
-          "6680289908": "/home/user/project",
-          "ef410aa881": "원격 경로",
-          "df6fbcf880": "구성된 SSH 대상이 없습니다.",
-          "44637f43bd": "SSH 대상",
           "80557be85a": "연결된 SSH 대상을 선택하고 Git 리포지토리 경로를 입력하세요.",
-          "91b93a90a4": "원격 프로젝트 열기",
-          "007651bdf9": "디렉터리로 이동한 후 선택을 클릭하여 선택합니다.",
-          "dd3ff65486": "원격 파일 시스템 찾아보기",
-          "36d427bb66": "원격 프로젝트 추가",
           "35831a7312": "추가 중...",
           "lockedDescription": "{{value0}}의 Git 리포지토리 경로를 입력하세요.",
-          "lockedDisconnected": "{{value0}} 연결이 끊어졌습니다.",
-          "93e0221434": "연결"
+          "lockedDisconnected": "{{value0}} 연결이 끊어졌습니다."
         },
         "AddRepoServerStartStep": {
           "ae990c86a0": "옵션 추가로 돌아가기",
           "e1710bf831": "폴더로 열기",
           "8da4d1a5be": "Git 프로젝트 추가",
-          "ac66a3ed2d": "서버 파일 시스템 찾아보기",
           "92d25420a0": "/home/user/project",
           "867692f505": "서버 경로",
           "423b5d3d31": "선택한 호스트에 이미 있는 Git 리포지토리 또는 폴더를 추가하세요.",
@@ -3933,11 +3917,8 @@
           "a81ffa0a99": "서버에서 생성",
           "a2ea37d549": "원격 Git 리포지토리",
           "47759c9491": "URL에서 복제",
-          "516187414c": "기존 프로젝트 또는 폴더",
-          "0adf083af7": "서버 찾아보기",
           "8efa930eb5": "선택한 호스트에서 다른 프로젝트를 추가하세요.",
-          "39bd249b3a": "프로젝트 추가",
-          "0f8aba944c": "디렉터리로 이동한 후 선택을 클릭하여 선택합니다."
+          "39bd249b3a": "프로젝트 추가"
         },
         "AddRepoStartSteps": {
           "acf895cb42": "Orca를 시작하려면 프로젝트를 추가하세요.",
@@ -3952,16 +3933,12 @@
         },
         "AddRepoSteps": {
           "569326d9cc": "폴더 선택",
-          "a93ef169b5": "서버 파일 시스템 찾아보기",
           "2ce3f6edf8": "/path/to/destination",
           "04a4c4e84a": "클론 위치",
           "b698a4a29d": "https://github.com/user/repo.git",
           "3d4acbe693": "Git URL",
           "5b2ea674b1": "Git URL을 입력하고 복제할 위치를 선택하세요.",
           "c05f88a31f": "URL에서 복제",
-          "fe8e629fe3": "디렉터리로 이동한 후 선택을 클릭하여 선택합니다.",
-          "df8b0e6c22": "원격 프로젝트가 추가되었습니다.",
-          "3e64e8a70d": "연결 실패",
           "32a7256d85": "클론",
           "69f5b5380d": "복제 중...",
           "cloneOnHostDescription": "Git URL을 입력하고 {{value0}}에서 클론할 위치를 선택하세요.",
@@ -3983,8 +3960,7 @@
           "afaf54f245": "상위 폴더 변경",
           "f520f83a97": "서버 파일 시스템 찾아보기",
           "2a20a603a3": "/home/user/projects",
-          "134e37f711": "위치",
-          "b589b77997": "디렉터리로 이동한 후 선택을 클릭하여 선택합니다."
+          "134e37f711": "위치"
         },
         "DeleteWorktreeDialog": {
           "ff2a74ac0e": "그리고",
@@ -4030,7 +4006,6 @@
           "05b33a17a9": "취소",
           "8fba4b8cbb": "이 폴더는 Git repos가 아닙니다. 편집기, terminal, 검색 기능은 제공되지만 Git 기반 기능은 사용할 수 없습니다.",
           "c49fb13492": "이 호스트에 폴더를 추가하지 못했습니다.",
-          "9a766f33ac": "이 경로는 SSH 호스트에서 확인되었습니다.",
           "79fd02cf5f": "이 경로는 {{hostName}}에서 확인되었습니다.",
           "8851b77327": "이 경로는 로컬에서 확인되었습니다."
         },
@@ -4074,13 +4049,7 @@
           "4a64e78822": "저장 중..."
         },
         "RemoteFileBrowser": {
-          "2300612806": "필터링하려면 입력하거나 경로를 입력하세요…",
-          "9e060f5815": "폴더 선택",
-          "f8b1deb1a4": "취소",
-          "51001182e3": "빈 디렉터리",
-          "971d85cc84": "이 호스트에서 프로젝트로 열립니다 · {{value0}}",
-          "00c4235c10": "'{{value0}}'과(와) 일치하는 항목이 없습니다.",
-          "largeInputNoMatches": "이 긴 입력과 일치하는 항목 없음"
+          "971d85cc84": "이 호스트에서 프로젝트로 열립니다 · {{value0}}"
         },
         "RemoveFolderDialog": {
           "4dc5b5065b": "제거",
@@ -4277,10 +4246,6 @@
           "folderPathIdentity": "브랜치 / 폴더 경로",
           "cli": "Orca CLI",
           "workspaceOptions": "워크스페이스 옵션"
-        },
-        "SshTargetRow": {
-          "4677394048": "연결 중…",
-          "75ad429b5d": "연결"
         },
         "WorkspaceKanbanCard": {
           "cefae8983e": "고정됨"
@@ -4622,8 +4587,6 @@
                   "c709860596": "새 프로젝트 만들기",
                   "5f9ffac036": "원격 Git repos 복제",
                   "7edb8ebe24": "URL에서 복제",
-                  "a6c20dca96": "SSH 대상에서 프로젝트 열기",
-                  "3d162cc76f": "원격 프로젝트",
                   "fb4fc5380e": "로컬 프로젝트, Git repo 또는 repos가 많은 폴더",
                   "2281fdc8c7": "폴더 찾아보기",
                   "sshCreateUnavailable": "아직 SSH 호스트에서는 사용할 수 없습니다.",
@@ -4661,16 +4624,6 @@
             "failure": {
               "archive": {
                 "waiver": "무시하고 삭제"
-              }
-            }
-          }
-        },
-        "remote": {
-          "file": {
-            "browser": {
-              "helpers": {
-                "4dbd72a7d7": "{{value0}}은(는) {{value1}}의 디렉터리가 아닙니다.",
-                "be266af66c": "{{value0}}은 {{value1}}의 여러 디렉터리와 일치합니다."
               }
             }
           }
@@ -4835,13 +4788,7 @@
           "local": "로컬",
           "runtime": "서버",
           "ssh": "SSH",
-          "connecting": "연결 중",
-          "connect": "연결",
-          "addSshHost": "SSH 호스트 추가",
-          "addRemoteHost": "원격 호스트 추가",
-          "addRemoteHostTooltip": "로그인할 수 있는 시스템의 경우 SSH를 선택하고 Orca 서버의 경우 원격 서버를 선택합니다.",
-          "addSshHostDetail": "SSH를 통해 기존 머신을 사용합니다.",
-          "addRemoteHostDetail": "SSH 호스트 또는 Orca 서버"
+          "addRemoteHostTooltip": "로그인할 수 있는 시스템의 경우 SSH를 선택하고 Orca 서버의 경우 원격 서버를 선택합니다."
         },
         "sidebarHostOptions": {
           "3e102f111c": "모든 호스트",
@@ -4856,17 +4803,7 @@
           "2b3c4d5e6f": "호스트를 제거하지 못했습니다.",
           "3c4d5e6f7a": "{{value0}}을(를) 제거할까요?",
           "5e6f7a8b9c": "이 컴퓨터에서 저장된 SSH 호스트와 인증 정보를 제거합니다. 원격 파일은 삭제되지 않습니다.",
-          "6f7a8b9c0d": "취소",
-          "8b9c0d1e2f": "호스트 제거",
-          "workspacesFailed": "이 호스트에서 워크트리 {{count}}개를 제거할 수 없었습니다. 재시도할 수 있도록 호스트가 유지되었습니다.",
-          "oneWorkspace": "워크트리 1개",
-          "manyWorkspaces": "워크트리 {{count}}개",
-          "hostHasWorkspacesDefault": "이 컴퓨터에서 {{value0}}과(와) 해당 자격 증명을 제거합니다. {{value1}}은(는) Orca에 남아 있습니다 — 원격 파일은 변경되지 않습니다.",
-          "alsoDeleteRemote": "{{value1}}에서 이러한 {{value0}}도 삭제",
-          "alsoForgetLocal": "Orca에서 이러한 {{value0}}도 제거",
-          "advanced": "고급",
-          "alsoDeleteRemoteHint": "원격 Git 워크트리와 해당 브랜치를 영구적으로 삭제합니다. 이 작업은 되돌릴 수 없습니다.",
-          "alsoForgetLocalHint": "Orca에서만 제거합니다. 원격 파일, 워크트리, 브랜치는 그대로 남아 있습니다."
+          "8b9c0d1e2f": "호스트 제거"
         },
         "HostRenameDialog": {
           "1a2b3c4d5e": "호스트 이름 바꾸기",
@@ -4886,7 +4823,6 @@
           "6b7c8d9e10": "호스트 작업",
           "8d1e2f3a4b": "이름 바꾸기…",
           "63f36455cc": "다시 연결",
-          "59b553e2aa": "연결 해제",
           "2d3e4f5a6b": "연결 확인",
           "3c4d5e6f7a": "호스트 관리…",
           "6e7f8a9b0c": "호스트 제거…"
@@ -4944,71 +4880,14 @@
           "5d1c9f0a82": "취소",
           "3b7e4a1c96": "외부 워크트리 숨기기"
         },
-        "useAddRepoHostSelection": {
-          "connectionFailed": "SSH 연결에 실패했습니다."
-        },
         "AddRemoteHostDialog": {
-          "sshHostRequired": "호스트 또는 SSH 구성 별칭이 필요합니다.",
-          "sshPortInvalid": "포트는 1에서 65535 사이여야 합니다.",
-          "sshRelayGraceInvalid": "Terminal 시간 초과는 60~{{value0}}초 사이여야 합니다.",
-          "sshSaved": "SSH 호스트가 추가되었습니다.",
-          "sshSaveFailed": "SSH 호스트를 추가하지 못했습니다.",
-          "sshTitle": "SSH 호스트 추가",
-          "sshDescription": "SSH를 통해 로그인할 수 있는 영구 머신을 추가합니다.",
-          "cancel": "취소",
-          "saving": "저장 중...",
-          "save": "저장",
-          "label": "레이블",
-          "sshLabelPlaceholder": "Dev box",
-          "sshHost": "호스트 또는 별칭",
-          "sshHostPlaceholder": "deploy@server:22",
-          "username": "사용자 이름",
-          "usernamePlaceholder": "deploy",
-          "port": "포트",
-          "identityFile": "신원 파일",
-          "identityFilePlaceholder": "~/.ssh/id_ed25519 (선택 사항)",
-          "sshImportAlreadySynced": "~/.ssh/config가 이미 동기화되어 있습니다.",
           "sshImportSynced": "{{value0}} 호스트{{value1}}을(를) Orca에 추가했습니다.",
-          "sshImportFailed": "SSH 구성을 가져오지 못했습니다.",
           "sshPersistenceDefault": "이 호스트의 원격 터미널은 종료하거나 릴레이를 재설정할 때까지 계속 실행됩니다.",
           "advanced": "고급",
-          "sshAlreadyExists": "해당 SSH 호스트는 이미 Orca에 있습니다.",
-          "sshConfigPickerLoadFailed": "~/.ssh/config를 읽지 못했습니다.",
-          "sshConfigPickerResolveFailed": "해당 SSH 구성 호스트를 확인하지 못했습니다.",
-          "sshConfigPickerRestartRequired": "Orca를 다시 시작하여 SSH 구성 선택기 업데이트 적용을 완료합니다.",
-          "sshConfigPickerFilled": "{{value0}}에서 채워졌습니다. 리뷰하고 저장하세요.",
-          "sshConfigPickerTitle": "~/.ssh/config에서 선택하세요.",
-          "sshConfigPickerDescription": "양식을 작성할 호스트를 선택하세요. 저장을 클릭할 때까지 아무 것도 저장되지 않습니다.",
-          "sshConfigPickerFilter": "호스트 필터링…",
-          "sshConfigPickerHostsLabel": "SSH 구성 호스트",
-          "sshConfigPickerLoading": "~/.ssh/config를 읽는 중…",
-          "sshConfigPickerEmpty": "~/.ssh/config에 호스트가 없습니다.",
-          "sshConfigPickerNoMatch": "일치하는 호스트가 없습니다.",
-          "sshConfigPickerEmptyHint": "거기에 호스트 항목을 추가하거나 돌아가서 세부 정보를 수동으로 입력하세요.",
-          "sshConfigPickerNoMatchHint": "다른 필터를 사용하거나 돌아가서 수동으로 입력하세요.",
-          "sshConfigPickerMoreResults": "첫 번째 {{value0}} 일치 항목을 표시합니다. 더 많은 정보를 찾으려면 필터 범위를 좁혀보세요.",
-          "sshConfigPickerInOrca": "Orca에서",
-          "sshConfigPickerPreviouslyRemoved": "Orca에서 삭제됨",
-          "sshConfigPickerBulkHint": "대량 동기화는 설정 → SSH에 유지됩니다.",
-          "sshConfigPickerBack": "뒤로",
-          "fillFromSshConfig": "~/.ssh/config…에서 채우기",
-          "sshConfigPickerAddingAll": "호스트 추가 중…",
-          "sshConfigPickerAddAll": "Orca에 모든 {{value0}} 추가",
-          "sshConfigPickerNoNewHosts": "추가할 새 호스트가 없습니다.",
-          "sshConfigPickerAddAllEmpty": "Orca에 모두 추가",
-          "identityFileFromConfigHint": "의도적으로 비워 두기: Orca는 ~/.ssh/config가 {{value0}}을 확인하는 모든 키를 사용합니다. 해당 키만 사용하려면 경로를 입력하세요.",
-          "sshConfigPickerRetry": "다시 시도하세요",
-          "sshConfigPickerResolving": "독서…"
+          "sshConfigPickerBulkHint": "대량 동기화는 설정 → SSH에 유지됩니다."
         },
         "ForgetSshWorkspaceDialog": {
-          "reconnectFailed": "재연결 실패",
-          "forgetBody": "이 작업 공간을 Orca에서만 제거합니다. 파일, Git 워크트리, {{host}}의 브랜치는 그대로 유지됩니다.",
-          "title": "Delete “{{name}}”?",
-          "disconnectedBody": "이 워크트리의 SSH 호스트가 연결되어 있지 않습니다. 재연결하여 원격에서도 삭제하거나 Orca에서만 제거하세요.",
-          "ghostBody": "{{host}}은(는) 더 이상 저장된 SSH 호스트가 아니므로 이 워크스페이스는 라이브 호스트에 연결되어 있지 않습니다. Orca에서 제거만 할 수 있으며, 원격의 파일과 브랜치는 그대로 유지됩니다.",
-          "cancel": "취소",
-          "forget": "Orca에서 제거",
-          "reconnectAndDelete": "재연결 후 삭제"
+          "forget": "Orca에서 제거"
         },
         "MarkdownImageLightbox": {
           "image": "Image",
@@ -5046,19 +4925,6 @@
         "worktreeIssueDisplacement": {
           "3f61c0a8d2": "Linear {{value}}",
           "9c4b7e1f60": "GitHub #{{value}}"
-        },
-        "WorktreeCardSshHostControl": {
-          "connectFailed": "SSH 연결 실패",
-          "removedTooltip": "SSH 호스트가 제거됨 - 다시 연결할 수 없음",
-          "removedName": "SSH 호스트 {{value0}}이(가) 제거되었습니다",
-          "connectedTooltip": "SSH 호스트의 프로젝트",
-          "connectedName": "SSH 호스트 {{value0}}의 프로젝트",
-          "connectingName": "SSH 호스트 {{value0}}에 연결 중",
-          "authFailedName": "SSH 호스트 다시 연결 {{value0}} — 인증 실패",
-          "retryName": "{{value0}}에 대한 SSH 연결 재시도",
-          "connectName": "SSH 호스트 {{value0}}에 연결",
-          "authFailedTooltip": "{{value0}} · 인증 실패",
-          "failedTooltip": "{{value0}} · 연결 실패"
         },
         "preserved": {
           "branch": {

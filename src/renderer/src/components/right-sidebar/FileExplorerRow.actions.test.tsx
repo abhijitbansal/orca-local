@@ -32,6 +32,12 @@ vi.mock('@/runtime/runtime-file-client', async (importOriginal) => {
   }
 })
 
+const runtimeDownloadContext = {
+  settings: { activeRuntimeEnvironmentId: 'runtime-1' },
+  worktreeId: 'wt-1',
+  worktreePath: '/repo'
+}
+
 function setDownloadPlatform(platform: NodeJS.Platform): void {
   ;(
     window as unknown as {
@@ -41,6 +47,7 @@ function setDownloadPlatform(platform: NodeJS.Platform): void {
 }
 
 beforeEach(() => {
+  downloadRuntimeFileMock.mockReset()
   toastErrorMock.mockReset()
   toastSuccessMock.mockReset()
   delete (globalThis as { __ORCA_WEB_CLIENT__?: boolean }).__ORCA_WEB_CLIENT__
@@ -192,34 +199,25 @@ describe('FileExplorerRow collapse folder action', () => {
     expect(toastErrorMock).toHaveBeenCalledWith('Remote connection dropped')
   })
 
-  it('calls the preload download API and shows success only when not canceled', async () => {
-    const downloadFile = vi
-      .fn()
+  it('shows download success only when the save dialog is not canceled', async () => {
+    downloadRuntimeFileMock
       .mockResolvedValueOnce({
         canceled: false,
         destinationPath: '/downloads/renamed\\entry.ts'
       })
       .mockResolvedValueOnce({ canceled: true })
     const openPath = vi.fn().mockResolvedValue(undefined)
-    ;(
-      globalThis as unknown as {
-        window: {
-          api: {
-            fs: { downloadFile: typeof downloadFile }
-            shell: { openPath: typeof openPath }
-          }
-        }
-      }
-    ).window = { api: { fs: { downloadFile }, shell: { openPath } } }
+    vi.stubGlobal('window', { api: { shell: { openPath } } })
     setDownloadPlatform('linux')
 
-    await downloadRemoteFile(fileNode, 'ssh-1')
-    await downloadRemoteFile(fileNode, 'ssh-1')
+    await downloadRemoteFile(fileNode, runtimeDownloadContext)
+    await downloadRemoteFile(fileNode, runtimeDownloadContext)
 
-    expect(downloadFile).toHaveBeenCalledWith({
-      filePath: '/repo/src/index.ts',
-      connectionId: 'ssh-1'
-    })
+    expect(downloadRuntimeFileMock).toHaveBeenCalledWith(
+      runtimeDownloadContext,
+      '/repo/src/index.ts',
+      'index.ts'
+    )
     expect(toastSuccessMock).toHaveBeenCalledTimes(1)
     expect(toastSuccessMock).toHaveBeenCalledWith("Downloaded 'renamed\\entry.ts'", {
       action: {
@@ -236,18 +234,14 @@ describe('FileExplorerRow collapse folder action', () => {
   })
 
   it('reports the saved folder name from a Windows destination path', async () => {
-    const downloadFolder = vi.fn().mockResolvedValue({
+    downloadRuntimeFileMock.mockResolvedValueOnce({
       canceled: false,
       destinationPath: 'C:\\Users\\dev\\Downloads\\src-copy'
     })
-    ;(
-      globalThis as unknown as {
-        window: { api: { fs: { downloadFolder: typeof downloadFolder } } }
-      }
-    ).window = { api: { fs: { downloadFolder } } }
+    vi.stubGlobal('window', { api: {} })
     setDownloadPlatform('win32')
 
-    await downloadRemoteFile(directoryNode, 'ssh-1')
+    await downloadRemoteFile(directoryNode, runtimeDownloadContext)
 
     expect(toastSuccessMock).toHaveBeenCalledWith(
       "Downloaded folder 'src-copy'",
@@ -255,45 +249,8 @@ describe('FileExplorerRow collapse folder action', () => {
     )
   })
 
-  it('calls the preload folder download API for SSH directory rows', async () => {
-    const downloadFolder = vi.fn().mockResolvedValue({
-      canceled: false,
-      destinationPath: '/downloads/src'
-    })
-    const openPath = vi.fn().mockResolvedValue(undefined)
-    ;(
-      globalThis as unknown as {
-        window: {
-          api: {
-            fs: { downloadFolder: typeof downloadFolder }
-            shell: { openPath: typeof openPath }
-          }
-        }
-      }
-    ).window = { api: { fs: { downloadFolder }, shell: { openPath } } }
-    setDownloadPlatform('linux')
-
-    await downloadRemoteFile(directoryNode, 'ssh-1')
-
-    expect(downloadFolder).toHaveBeenCalledWith({
-      dirPath: '/repo/src',
-      connectionId: 'ssh-1'
-    })
-    expect(toastSuccessMock).toHaveBeenCalledWith("Downloaded folder 'src'", {
-      action: {
-        label: 'Open',
-        onClick: expect.any(Function)
-      }
-    })
-    expect(toastErrorMock).not.toHaveBeenCalled()
-  })
-
   it('downloads Remote Host rows through the runtime download path', async () => {
-    const runtimeContext = {
-      settings: { activeRuntimeEnvironmentId: 'runtime-1' },
-      worktreeId: 'wt-1',
-      worktreePath: '/repo'
-    }
+    const runtimeContext = runtimeDownloadContext
     downloadRuntimeFileMock.mockResolvedValueOnce({
       canceled: false,
       destinationPath: '/downloads/index.ts'
@@ -327,12 +284,9 @@ describe('FileExplorerRow collapse folder action', () => {
   })
 
   it('shows a failure toast when remote download fails', async () => {
-    const downloadFile = vi.fn().mockRejectedValue(new Error('Remote connection dropped'))
-    ;(
-      globalThis as unknown as { window: { api: { fs: { downloadFile: typeof downloadFile } } } }
-    ).window = { api: { fs: { downloadFile } } }
+    downloadRuntimeFileMock.mockRejectedValueOnce(new Error('Remote connection dropped'))
 
-    await downloadRemoteFile(fileNode, 'ssh-1')
+    await downloadRemoteFile(fileNode, runtimeDownloadContext)
 
     expect(toastErrorMock).toHaveBeenCalledWith('Remote connection dropped')
     expect(toastSuccessMock).not.toHaveBeenCalled()

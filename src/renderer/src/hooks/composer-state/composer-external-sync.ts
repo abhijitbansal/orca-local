@@ -11,7 +11,7 @@ async function resolvePendingSmartGitHubSubmit(): Promise<PendingSmartGitHubSubm
 }
 
 export function useComposerExternalSync(target: ComposerTargetState): ComposerExternalSyncState {
-  const hostRuntimeEffects = useHostRuntimeEffects({
+  useHostRuntimeEffects({
     commitHookCheckIfCurrent: target.providerRuntimeSync.commitHookCheckIfCurrent,
     connectionId: target.workspaceIdentityState.connectionId,
     createGateMode: target.composerTargetStore.createGateMode,
@@ -21,14 +21,11 @@ export function useComposerExternalSync(target: ComposerTargetState): ComposerEx
     ensureRemoteDetectedAgents: target.workspaceIdentityState.ensureRemoteDetectedAgents,
     ensureRuntimeDetectedAgents: target.workspaceIdentityState.ensureRuntimeDetectedAgents,
     fallbackDefaultAgent: target.workspaceIdentityState.fallbackDefaultAgent,
-    folderTargetConnectionId: target.runtimeTargetSelection.folderTargetConnectionId,
     isRemote: target.workspaceIdentityState.isRemote,
     loadHookCheckForRepo: target.providerRuntimeSync.loadHookCheckForRepo,
     newWorkspaceDraft: target.composerTargetStore.newWorkspaceDraft,
     repoId: target.initialTargetState.repoId,
-    repoIdRef: target.runtimeTargetSelection.repoIdRef,
     runtimeEnvironmentId: target.workspaceIdentityState.runtimeEnvironmentId,
-    selectedRepoConnectionIdRef: target.asyncComposerState.selectedRepoConnectionIdRef,
     selectedRepoExecutionHostId: target.runtimeTargetSelection.selectedRepoExecutionHostId,
     selectedRepoHookContextKey: target.runtimeTargetSelection.selectedRepoHookContextKey,
     selectedRepoIsGit: target.runtimeTargetSelection.selectedRepoIsGit,
@@ -72,7 +69,6 @@ export function useComposerExternalSync(target: ComposerTargetState): ComposerEx
   })
   const githubSubmitResolution = { resolvePendingSmartGitHubSubmit }
   return {
-    hostRuntimeEffects,
     linkedItemLookupEffects,
     githubSourceApplication,
     githubSubmitResolution

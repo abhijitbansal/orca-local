@@ -63,8 +63,6 @@ export function buildComposerCardProps(state: ComposerModel) {
     name,
     normalizedLinkQuery,
     note,
-    onConnectSelectedProjectGroup,
-    onConnectSelectedRepo,
     pathStatusProjectError,
     projectError,
     projectHostSetupOptions,
@@ -224,9 +222,6 @@ export function buildComposerCardProps(state: ComposerModel) {
     selectedRepoConnectInProgress: isProjectGroupTarget
       ? folderTargetConnectInProgress
       : selectedRepoConnectInProgress,
-    onConnectSelectedRepo: isProjectGroupTarget
-      ? onConnectSelectedProjectGroup
-      : onConnectSelectedRepo,
     startFromResetHint: isProjectGroupTarget ? null : startFromResetHint,
     forkPushWarning: isProjectGroupTarget ? null : forkPushWarning,
     note,

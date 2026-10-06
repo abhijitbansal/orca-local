@@ -1,10 +1,8 @@
 import { useState, type ComponentType, type ReactNode } from 'react'
-import { FolderOpen, Globe, Lightbulb, Loader2, Server } from 'lucide-react'
+import { Globe, Lightbulb, Loader2, Server } from 'lucide-react'
 import { DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { RemoteFileBrowser } from './RemoteFileBrowser'
 import { translate } from '@/i18n/i18n'
 
 type AddRepoServerPathStartStepProps = {
@@ -32,39 +30,7 @@ export function AddRepoServerPathStartStep({
   onOpenCloneStep,
   onOpenCreateStep
 }: AddRepoServerPathStartStepProps): React.JSX.Element {
-  const [browsing, setBrowsing] = useState(initialBrowsing)
   const [pathEntryOpen, setPathEntryOpen] = useState(initialBrowsing)
-
-  if (browsing && runtimeEnvironmentId) {
-    return (
-      <>
-        <DialogHeader>
-          <DialogTitle>
-            {translate(
-              'auto.components.sidebar.AddRepoServerStartStep.ac66a3ed2d',
-              'Browse host filesystem'
-            )}
-          </DialogTitle>
-          <DialogDescription>
-            {translate(
-              'auto.components.sidebar.AddRepoServerStartStep.0f8aba944c',
-              'Navigate to a directory and click Select to choose it.'
-            )}
-          </DialogDescription>
-        </DialogHeader>
-        <RemoteFileBrowser
-          runtimeEnvironmentId={runtimeEnvironmentId}
-          initialPath={serverPath || '~'}
-          onSelect={(path) => {
-            onServerPathChange(path)
-            setBrowsing(false)
-            setPathEntryOpen(true)
-          }}
-          onCancel={() => setBrowsing(false)}
-        />
-      </>
-    )
-  }
 
   if (!pathEntryOpen) {
     const disabled = isAddingServerPath || !runtimeEnvironmentId
@@ -88,20 +54,7 @@ export function AddRepoServerPathStartStep({
 
         <div className="space-y-3 pt-2">
           {hostSelector}
-          <div className="grid grid-cols-3 gap-2">
-            <AddRepoServerStartAction
-              icon={FolderOpen}
-              title={translate(
-                'auto.components.sidebar.AddRepoServerStartStep.0adf083af7',
-                'Browse host'
-              )}
-              description={translate(
-                'auto.components.sidebar.AddRepoServerStartStep.516187414c',
-                'Existing project or folder'
-              )}
-              disabled={disabled}
-              onClick={() => setBrowsing(true)}
-            />
+          <div className="grid grid-cols-2 gap-2">
             <AddRepoServerStartAction
               icon={Globe}
               title={translate(
@@ -198,30 +151,6 @@ export function AddRepoServerPathStartStep({
               autoFocus
               spellCheck={false}
             />
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className="h-11 w-11 shrink-0"
-                  onClick={() => setBrowsing(true)}
-                  disabled={isAddingServerPath || !runtimeEnvironmentId}
-                  aria-label={translate(
-                    'auto.components.sidebar.AddRepoServerStartStep.ac66a3ed2d',
-                    'Browse host filesystem'
-                  )}
-                >
-                  <FolderOpen className="size-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="top" sideOffset={4}>
-                {translate(
-                  'auto.components.sidebar.AddRepoServerStartStep.ac66a3ed2d',
-                  'Browse host filesystem'
-                )}
-              </TooltipContent>
-            </Tooltip>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2">

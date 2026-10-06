@@ -1,5 +1,5 @@
 import React from 'react'
-import { FolderPlus, LoaderCircle, PlugZap } from 'lucide-react'
+import { FolderPlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import ProjectCombobox from '@/components/new-workspace/ProjectCombobox'
@@ -21,10 +21,6 @@ type NewWorkspaceComposerProjectSectionProps = Pick<
   | 'projectLabel'
   | 'projectPlaceholder'
   | 'emptyProjectMessage'
-  | 'selectedRepoConnectionId'
-  | 'selectedRepoRequiresConnection'
-  | 'selectedRepoConnectInProgress'
-  | 'onConnectSelectedRepo'
   | 'selectedProjectHostSetupId'
 > & {
   disabled?: boolean
@@ -34,12 +30,8 @@ type NewWorkspaceComposerProjectSectionProps = Pick<
   shouldShowRunTargetPicker: boolean
   projectHostSetupOptions: NewWorkspaceComposerCardProps['projectHostSetupOptions']
   handleProjectHostSetupChange: (setupId: string) => void
-  handleAddSshHost: () => void
   handleConnectRunTargetHost: (option: NeedsProjectHostOption) => Promise<void>
   handleSetLocation: (option: NeedsProjectHostOption) => void
-  sshStatusLabel: string
-  connectButtonLabel: string
-  selectedProjectName: string
 }
 
 export function NewWorkspaceComposerProjectSection({
@@ -59,16 +51,8 @@ export function NewWorkspaceComposerProjectSection({
   projectHostSetupOptions,
   selectedProjectHostSetupId,
   handleProjectHostSetupChange,
-  handleAddSshHost,
   handleConnectRunTargetHost,
-  handleSetLocation,
-  selectedRepoRequiresConnection,
-  selectedRepoConnectionId,
-  selectedRepoConnectInProgress,
-  onConnectSelectedRepo,
-  sshStatusLabel,
-  connectButtonLabel,
-  selectedProjectName
+  handleSetLocation
 }: NewWorkspaceComposerProjectSectionProps): React.JSX.Element {
   return (
     <fieldset disabled={disabled} className="space-y-1">
@@ -140,42 +124,9 @@ export function NewWorkspaceComposerProjectSection({
             hostOptions={projectHostSetupOptions ?? []}
             hostValue={selectedProjectHostSetupId ?? null}
             onHostChange={handleProjectHostSetupChange}
-            onAddSshHost={handleAddSshHost}
             onConnectHost={handleConnectRunTargetHost}
             onSetLocation={handleSetLocation}
           />
-        </div>
-      ) : null}
-      {selectedRepoRequiresConnection && selectedRepoConnectionId ? (
-        <div
-          role="status"
-          aria-live="polite"
-          className="flex items-center justify-between gap-3 rounded-md border border-border/70 bg-muted/35 px-3 py-2"
-        >
-          <div className="min-w-0">
-            <div className="truncate text-xs font-medium text-foreground">
-              {translate('auto.components.NewWorkspaceComposerCard.b5a0796911', 'Connect')}{' '}
-              {selectedProjectName}
-            </div>
-            <div className="mt-0.5 text-[11px] text-muted-foreground">{sshStatusLabel}</div>
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="xs"
-            onClick={() => void onConnectSelectedRepo()}
-            disabled={selectedRepoConnectInProgress}
-            className="shrink-0"
-          >
-            {selectedRepoConnectInProgress ? (
-              <LoaderCircle className="size-3.5 animate-spin" />
-            ) : (
-              <PlugZap className="size-3.5" />
-            )}
-            {selectedRepoConnectInProgress
-              ? translate('auto.components.NewWorkspaceComposerCard.f660aa1454', 'Connecting')
-              : connectButtonLabel}
-          </Button>
         </div>
       ) : null}
     </fieldset>

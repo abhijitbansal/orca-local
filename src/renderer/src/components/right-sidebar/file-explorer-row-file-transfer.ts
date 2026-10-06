@@ -14,21 +14,10 @@ function getLocalDownloadName(destinationPath: string, platform: NodeJS.Platform
 
 export async function downloadRemoteFile(
   node: TreeNode,
-  connectionIdOrRuntimeContext: string | RuntimeFileOperationArgs
+  runtimeContext: RuntimeFileOperationArgs
 ): Promise<void> {
   try {
-    const result =
-      typeof connectionIdOrRuntimeContext === 'string'
-        ? node.isDirectory
-          ? await window.api.fs.downloadFolder({
-              dirPath: node.path,
-              connectionId: connectionIdOrRuntimeContext
-            })
-          : await window.api.fs.downloadFile({
-              filePath: node.path,
-              connectionId: connectionIdOrRuntimeContext
-            })
-        : await downloadRuntimeFile(connectionIdOrRuntimeContext, node.path, node.name)
+    const result = await downloadRuntimeFile(runtimeContext, node.path, node.name)
     // Why: Suppress toasts when the user cancels the native save dialog per design.
     if (result.canceled) {
       return

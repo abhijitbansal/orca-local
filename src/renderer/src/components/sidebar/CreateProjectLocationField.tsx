@@ -1,87 +1,22 @@
-import { Folder, FolderOpen, Pencil } from 'lucide-react'
-import { DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Folder, Pencil } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { RemoteFileBrowser } from './RemoteFileBrowser'
 import { translate } from '@/i18n/i18n'
-
-type CreateProjectParentBrowserProps = {
-  runtimeEnvironmentId?: string | null
-  sshTargetId?: string | null
-  createParent: string
-  onParentChange: (value: string) => void
-  onClose: () => void
-}
-
-export function CreateProjectParentBrowser({
-  runtimeEnvironmentId,
-  sshTargetId,
-  createParent,
-  onParentChange,
-  onClose
-}: CreateProjectParentBrowserProps): React.JSX.Element {
-  return (
-    <>
-      <DialogHeader>
-        <DialogTitle>
-          {translate(
-            'auto.components.sidebar.CreateProjectLocationField.f520f83a97',
-            'Browse host filesystem'
-          )}
-        </DialogTitle>
-        <DialogDescription>
-          {translate(
-            'auto.components.sidebar.CreateProjectLocationField.b589b77997',
-            'Navigate to a directory and click Select to choose it.'
-          )}
-        </DialogDescription>
-      </DialogHeader>
-      {sshTargetId ? (
-        <RemoteFileBrowser
-          targetId={sshTargetId}
-          initialPath={createParent || '~'}
-          onSelect={(path) => {
-            onParentChange(path)
-            onClose()
-          }}
-          onCancel={onClose}
-        />
-      ) : (
-        <RemoteFileBrowser
-          runtimeEnvironmentId={runtimeEnvironmentId as string}
-          initialPath={createParent || '~'}
-          onSelect={(path) => {
-            onParentChange(path)
-            onClose()
-          }}
-          onCancel={onClose}
-        />
-      )}
-    </>
-  )
-}
 
 type CreateProjectLocationFieldProps = {
   createParent: string
   isCreating: boolean
   manualParentEntry: boolean
-  runtimeEnvironmentId?: string | null
-  sshTargetId?: string | null
   onParentChange: (value: string) => void
   onPickParent: () => void
-  onBrowseServer: () => void
 }
 
 export function CreateProjectLocationField({
   createParent,
   isCreating,
   manualParentEntry,
-  runtimeEnvironmentId,
-  sshTargetId,
   onParentChange,
-  onPickParent,
-  onBrowseServer
+  onPickParent
 }: CreateProjectLocationFieldProps): React.JSX.Element {
   return (
     <div className="space-y-1">
@@ -102,30 +37,6 @@ export function CreateProjectLocationField({
             disabled={isCreating}
             spellCheck={false}
           />
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="h-11 w-11 shrink-0"
-                onClick={onBrowseServer}
-                disabled={isCreating || (!runtimeEnvironmentId && !sshTargetId)}
-                aria-label={translate(
-                  'auto.components.sidebar.CreateProjectLocationField.f520f83a97',
-                  'Browse host filesystem'
-                )}
-              >
-                <FolderOpen className="size-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top" sideOffset={4}>
-              {translate(
-                'auto.components.sidebar.CreateProjectLocationField.f520f83a97',
-                'Browse host filesystem'
-              )}
-            </TooltipContent>
-          </Tooltip>
         </div>
       ) : createParent ? (
         <div className="group flex items-center gap-2.5 rounded-md border border-border bg-background/40 h-11 min-w-0 px-3 text-sm">

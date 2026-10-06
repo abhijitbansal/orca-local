@@ -760,7 +760,6 @@
     "hooks": {
       "useAutomationDispatchEvents": {
         "59718b120b": "目标工作区不再可用。",
-        "16a21d6413": "SSH 重新连接需要交互式凭据。",
         "386db94f3e": "目标项目不再可用。",
         "3ad7d77f57": "目标工作区所在的主机与此自动化运行目标不同。",
         "workspaceHostUnresolved": "目标工作区跨越多个主机，因此此运行没有可供使用的单个主机。"
@@ -769,7 +768,6 @@
         "7eb3f44ff7": "所选智能体已禁用。创建之前选择启用的智能体。",
         "b2ead86962": "无法解析 PR 基础引用。",
         "3db83fc58a": "没有可用于附件的远程项目路径。",
-        "ba6cb77082": "无法连接到项目。",
         "chooseOrAddProjectBeforeWorkspace": "创建工作区前，请选择或添加项目。",
         "folderWorkspaceCreateFailedTitle": "文件夹工作区创建失败",
         "folderWorkspaceCreateFailedMessage": "无法创建文件夹工作区。请查看上方错误详情，然后重试。",
@@ -1062,7 +1060,6 @@
         "ab63f25397": "打开智能体设置",
         "01d1e8f601": "智能体",
         "0c5d6a479c": "[可选]",
-        "b5a0796911": "连接",
         "dccd26d4e4": "选择项目",
         "d6b0a96f32": "添加项目",
         "969a8bff66": "项目",
@@ -1075,7 +1072,6 @@
         "2132b670da": "两者",
         "0e587e31fb": "yaml",
         "ac3748dcda": "创建来源",
-        "f660aa1454": "连接中",
         "7711ad5122": "本地设置命令",
         "e5db1b0419": "组合设置命令",
         "addProjectBeforeWorkspace": "在创建工作区之前添加项目。",
@@ -3858,8 +3854,7 @@
         "AddProjectFromFolderDialog": {
           "7d1f51678c": "添加项目",
           "7726a16374": "取消",
-          "046751dbfb": "将此文件夹添加为单独的 Orca 项目。",
-          "e643b30398": "添加了远程项目"
+          "046751dbfb": "将此文件夹添加为单独的 Orca 项目。"
         },
         "AddRepoCreateStep": {
           "0ae45b8238": "my-project",
@@ -3903,26 +3898,15 @@
           "e52454b7f6": "作为文件夹打开"
         },
         "AddRepoRemoteStep": {
-          "5b205b5281": "停止扫描",
-          "6680289908": "/home/user/project",
-          "ef410aa881": "远程路径",
-          "df6fbcf880": "未配置 SSH 目标。",
-          "44637f43bd": "SSH 目标",
           "80557be85a": "选择已连接的 SSH 目标并输入 Git 存储库的路径。",
-          "91b93a90a4": "打开远程项目",
-          "007651bdf9": "导航到目录并单击“选择”以选择它。",
-          "dd3ff65486": "浏览远程文件系统",
-          "36d427bb66": "添加远程项目",
           "35831a7312": "添加...",
           "lockedDescription": "输入 {{value0}} 上 Git 仓库的路径。",
-          "lockedDisconnected": "{{value0}} 已断开连接。",
-          "93e0221434": "连接"
+          "lockedDisconnected": "{{value0}} 已断开连接。"
         },
         "AddRepoServerStartStep": {
           "ae990c86a0": "返回添加选项",
           "e1710bf831": "作为文件夹打开",
           "8da4d1a5be": "添加 Git 项目",
-          "ac66a3ed2d": "浏览服务器文件系统",
           "92d25420a0": "/home/user/project",
           "867692f505": "服务器路径",
           "423b5d3d31": "添加所选运行时服务器上已存在的 Git 存储库或文件夹。",
@@ -3933,11 +3917,8 @@
           "a81ffa0a99": "在服务器上创建",
           "a2ea37d549": "远程 Git 存储库",
           "47759c9491": "从 URL 克隆",
-          "516187414c": "现有项目或文件夹",
-          "0adf083af7": "浏览服务器",
           "8efa930eb5": "从选定的运行时服务器添加另一个项目。",
-          "39bd249b3a": "添加项目",
-          "0f8aba944c": "导航到目录并单击“选择”以选择它。"
+          "39bd249b3a": "添加项目"
         },
         "AddRepoStartSteps": {
           "acf895cb42": "添加一个项目以开始使用 Orca。",
@@ -3952,16 +3933,12 @@
         },
         "AddRepoSteps": {
           "569326d9cc": "选择文件夹",
-          "a93ef169b5": "浏览服务器文件系统",
           "2ce3f6edf8": "/路径/到/目的地",
           "04a4c4e84a": "克隆位置",
           "b698a4a29d": "https://github.com/user/repo.git",
           "3d4acbe693": "git 网址",
           "5b2ea674b1": "输入 Git URL 并选择克隆位置。",
           "c05f88a31f": "从 URL 克隆",
-          "fe8e629fe3": "导航到目录并单击“选择”以选择它。",
-          "df8b0e6c22": "添加了远程项目",
-          "3e64e8a70d": "连接失败",
           "32a7256d85": "克隆",
           "69f5b5380d": "克隆...",
           "cloneOnHostDescription": "输入 Git URL，并选择要在 {{value0}} 上克隆到的位置。",
@@ -3983,8 +3960,7 @@
           "afaf54f245": "更改父文件夹",
           "f520f83a97": "浏览服务器文件系统",
           "2a20a603a3": "/home/user/projects",
-          "134e37f711": "位置",
-          "b589b77997": "导航到目录并单击“选择”以选择它。"
+          "134e37f711": "位置"
         },
         "DeleteWorktreeDialog": {
           "ff2a74ac0e": "和",
@@ -4030,7 +4006,6 @@
           "05b33a17a9": "取消",
           "8fba4b8cbb": "此文件夹不是 Git 存储库。您将拥有编辑器、终端和搜索，但基于 Git 的功能将不可用。",
           "c49fb13492": "添加远程文件夹失败",
-          "9a766f33ac": "已在 SSH 主机上检查此路径。",
           "79fd02cf5f": "已在 {{hostName}} 上检查此路径。",
           "8851b77327": "已在本机检查此路径。"
         },
@@ -4074,13 +4049,7 @@
           "4a64e78822": "保存中..."
         },
         "RemoteFileBrowser": {
-          "2300612806": "键入要搜索的内容或输入路径...",
-          "9e060f5815": "选择文件夹",
-          "f8b1deb1a4": "取消",
-          "51001182e3": "空目录",
-          "971d85cc84": "作为远程项目打开 · {{value0}}",
-          "00c4235c10": "没有匹配“{{value0}}”",
-          "largeInputNoMatches": "没有匹配此长输入的结果"
+          "971d85cc84": "作为远程项目打开 · {{value0}}"
         },
         "RemoveFolderDialog": {
           "4dc5b5065b": "移除",
@@ -4277,10 +4246,6 @@
           "folderPathIdentity": "分支 / 文件夹路径",
           "cli": "Orca CLI",
           "workspaceOptions": "工作区选项"
-        },
-        "SshTargetRow": {
-          "4677394048": "正在连接…",
-          "75ad429b5d": "连接"
         },
         "WorkspaceKanbanCard": {
           "cefae8983e": "已固定"
@@ -4622,8 +4587,6 @@
                   "c709860596": "创建新项目",
                   "5f9ffac036": "克隆远程 Git 存储库",
                   "7edb8ebe24": "从 URL 克隆",
-                  "a6c20dca96": "从 SSH 目标打开项目",
-                  "3d162cc76f": "远程项目",
                   "fb4fc5380e": "本地项目、Git 仓库或包含多个仓库的文件夹",
                   "2281fdc8c7": "浏览文件夹",
                   "sshCreateUnavailable": "SSH 主机暂不可用",
@@ -4661,16 +4624,6 @@
             "failure": {
               "archive": {
                 "waiver": "无论如何删除"
-              }
-            }
-          }
-        },
-        "remote": {
-          "file": {
-            "browser": {
-              "helpers": {
-                "4dbd72a7d7": "{{value0}} 不是 {{value1}} 中的目录",
-                "be266af66c": "{{value0}} 匹配 {{value1}} 中的多个目录"
               }
             }
           }
@@ -4835,13 +4788,7 @@
           "local": "本地",
           "runtime": "服务器",
           "ssh": "SSH",
-          "connecting": "正在连接",
-          "connect": "连接",
-          "addSshHost": "添加 SSH 主机",
-          "addRemoteHost": "添加远程主机",
-          "addRemoteHostTooltip": "可选择能通过 SSH 登录的机器，也可选择运行 Orca 的远程服务器。",
-          "addSshHostDetail": "通过 SSH 使用现有机器。",
-          "addRemoteHostDetail": "SSH 主机或 Orca 服务器"
+          "addRemoteHostTooltip": "可选择能通过 SSH 登录的机器，也可选择运行 Orca 的远程服务器。"
         },
         "sidebarHostOptions": {
           "3e102f111c": "所有主机",
@@ -4856,17 +4803,7 @@
           "2b3c4d5e6f": "删除主机失败",
           "3c4d5e6f7a": "移除 {{value0}}？",
           "5e6f7a8b9c": "这会从此计算机移除保存的 SSH 主机及其凭据。远程文件不会被删除。",
-          "6f7a8b9c0d": "取消",
-          "8b9c0d1e2f": "删除主机",
-          "workspacesFailed": "无法移除此主机的 {{count}} 个工作区。主机已保留，您可以重试。",
-          "oneWorkspace": "1 个工作区",
-          "manyWorkspaces": "{{count}} 个工作区",
-          "hostHasWorkspacesDefault": "从此计算机移除 {{value0}} 及其凭据。其 {{value1}} 保留在 Orca 中 — 远程文件不会被删除。",
-          "alsoDeleteRemote": "同时在 {{value1}} 上删除这些 {{value0}}",
-          "alsoForgetLocal": "同时从 Orca 中移除这些 {{value0}}",
-          "advanced": "高级",
-          "alsoDeleteRemoteHint": "永久删除远程 Git worktree 及其分支。此操作不可撤销。",
-          "alsoForgetLocalHint": "仅从 Orca 中清除。远程文件、worktree 和分支不受影响。"
+          "8b9c0d1e2f": "删除主机"
         },
         "HostRenameDialog": {
           "1a2b3c4d5e": "重命名主机",
@@ -4886,7 +4823,6 @@
           "6b7c8d9e10": "主机操作",
           "8d1e2f3a4b": "重命名…",
           "63f36455cc": "重新连接",
-          "59b553e2aa": "断开连接",
           "2d3e4f5a6b": "检查连接",
           "3c4d5e6f7a": "管理主机…",
           "6e7f8a9b0c": "删除主机..."
@@ -4944,71 +4880,14 @@
           "5d1c9f0a82": "取消",
           "3b7e4a1c96": "隐藏外部工作树"
         },
-        "useAddRepoHostSelection": {
-          "connectionFailed": "SSH 连接失败。"
-        },
         "AddRemoteHostDialog": {
-          "sshHostRequired": "必须填写主机或 SSH 配置别名。",
-          "sshPortInvalid": "端口必须介于 1 到 65535 之间。",
-          "sshRelayGraceInvalid": "终端超时时间必须介于 60 到 {{value0}} 秒之间。",
-          "sshSaved": "已添加 SSH 主机。",
-          "sshSaveFailed": "添加 SSH 主机失败。",
-          "sshTitle": "添加 SSH 主机",
-          "sshDescription": "添加一台可通过 SSH 登录并持久保存的机器。",
-          "cancel": "取消",
-          "saving": "正在保存...",
-          "save": "保存",
-          "label": "标签",
-          "sshLabelPlaceholder": "开发机",
-          "sshHost": "主机或别名",
-          "sshHostPlaceholder": "deploy@server:22",
-          "username": "用户名",
-          "usernamePlaceholder": "deploy",
-          "port": "端口",
-          "identityFile": "身份文件",
-          "identityFilePlaceholder": "~/.ssh/id_ed25519（可选）",
-          "sshImportAlreadySynced": "~/.ssh/config 已同步。",
           "sshImportSynced": "已同步 {{value0}} 个主机{{value1}}。",
-          "sshImportFailed": "导入 SSH 配置失败。",
           "sshPersistenceDefault": "此主机上的远程终端会保持运行，直到你结束它们或重置中继。",
           "advanced": "Advanced",
-          "sshAlreadyExists": "该 SSH 主机已在 Orca 中。",
-          "sshConfigPickerLoadFailed": "无法读取 ~/.ssh/config。",
-          "sshConfigPickerResolveFailed": "无法解析该 SSH 配置主机。",
-          "sshConfigPickerRestartRequired": "重新启动 Orca 以完成应用 SSH 配置选择器更新。",
-          "sshConfigPickerFilled": "从 {{value0}} 开始填充。查看并保存。",
-          "sshConfigPickerTitle": "从 ~/.ssh/config 中选择",
-          "sshConfigPickerDescription": "选择一位主持人来填写表格。单击“保存”之前不会保存任何内容。",
-          "sshConfigPickerFilter": "过滤主机...",
-          "sshConfigPickerHostsLabel": "SSH 配置主机",
-          "sshConfigPickerLoading": "正在读取 ~/.ssh/config...",
-          "sshConfigPickerEmpty": "~/.ssh/config 中没有主机",
-          "sshConfigPickerNoMatch": "没有匹配的主机",
-          "sshConfigPickerEmptyHint": "在那里添加一个主机条目，或者返回并手动输入详细信息。",
-          "sshConfigPickerNoMatchHint": "尝试其他过滤器，或者返回并手动输入。",
-          "sshConfigPickerMoreResults": "显示第一个 {{value0}} 匹配项。缩小过滤范围以找到更多。",
-          "sshConfigPickerInOrca": "在 Orca",
-          "sshConfigPickerPreviouslyRemoved": "从 Orca 中移除",
-          "sshConfigPickerBulkHint": "批量同步位于“设置”→“SSH”中",
-          "sshConfigPickerBack": "返回",
-          "fillFromSshConfig": "从 ~/.ssh/config 填写...",
-          "sshConfigPickerAddingAll": "添加主机...",
-          "sshConfigPickerAddAll": "将所有 {{value0}} 添加到 Orca",
-          "sshConfigPickerNoNewHosts": "无需添加新主机",
-          "sshConfigPickerAddAllEmpty": "全部添加到 Orca",
-          "identityFileFromConfigHint": "故意留空：Orca 使用 ~/.ssh/config 解析为 {{value0}} 的每个密钥。键入一个路径以仅使用该键。",
-          "sshConfigPickerRetry": "重试",
-          "sshConfigPickerResolving": "阅读…"
+          "sshConfigPickerBulkHint": "批量同步位于“设置”→“SSH”中"
         },
         "ForgetSshWorkspaceDialog": {
-          "reconnectFailed": "重新连接失败",
-          "forgetBody": "仅从 Orca 中移除此工作区。文件、Git 工作树和 {{host}} 上的分支保持不变。",
-          "title": "从 Orca 中移除“{{name}}”？",
-          "disconnectedBody": "此工作区的 SSH 主机未连接。重新连接以同时在远程删除，或仅从 Orca 中移除。",
-          "ghostBody": "{{host}} 不再是已保存的 SSH 主机，因此此工作区不再连接到活跃主机。只能从 Orca 中移除 — 远程文件和分支保持不变。",
-          "cancel": "取消",
-          "forget": "从 Orca 中移除",
-          "reconnectAndDelete": "重新连接并删除"
+          "forget": "从 Orca 中移除"
         },
         "MarkdownImageLightbox": {
           "image": "Image",
@@ -5046,19 +4925,6 @@
         "worktreeIssueDisplacement": {
           "3f61c0a8d2": "Linear {{value}}",
           "9c4b7e1f60": "GitHub #{{value}}"
-        },
-        "WorktreeCardSshHostControl": {
-          "connectFailed": "SSH 连接失败",
-          "removedTooltip": "SSH 主机已删除 — 无法重新连接",
-          "removedName": "SSH 主机 {{value0}} 已删除",
-          "connectedTooltip": "SSH 主机上的项目",
-          "connectedName": "SSH 主机 {{value0}} 上的项目",
-          "connectingName": "连接到 SSH 主机 {{value0}}",
-          "authFailedName": "重新连接 SSH 主机 {{value0}} — 身份验证失败",
-          "retryName": "重试 SSH 连接到 {{value0}}",
-          "connectName": "连接到 SSH 主机 {{value0}}",
-          "authFailedTooltip": "{{value0}} · 身份验证失败",
-          "failedTooltip": "{{value0}} · 连接失败"
         },
         "preserved": {
           "branch": {

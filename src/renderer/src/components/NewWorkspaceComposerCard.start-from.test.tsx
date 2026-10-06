@@ -39,10 +39,6 @@ vi.mock('@/components/agent/AgentCombobox', () => ({
   default: () => <button type="button">Agent picker</button>
 }))
 
-vi.mock('@/components/sidebar/AddRemoteHostDialog', () => ({
-  AddRemoteHostDialog: () => null
-}))
-
 vi.mock('@/components/new-workspace/SmartWorkspaceNameField', () => ({
   default: () => <input aria-label="workspace name" />
 }))
@@ -132,7 +128,6 @@ function renderCard(
         selectedRepoSshStatus={null}
         selectedRepoRequiresConnection={false}
         selectedRepoConnectInProgress={false}
-        onConnectSelectedRepo={async () => {}}
         canUseSparseCheckout={false}
         sparsePresets={[]}
         sparseSelectedPresetId={null}

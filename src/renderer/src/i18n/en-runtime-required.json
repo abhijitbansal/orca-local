@@ -148,6 +148,7 @@
         "importExistingFolderOnHost": "Import existing folder",
         "importHostSetup": "Import",
         "importingHostSetup": "Importing...",
+        "notConnected": "Not connected",
         "reconnectSourceLookup": "Reconnect",
         "setupHostExistingFolderHelp": "Link a checkout that already exists there, then create this workspace on that host.",
         "setupHostExistingFolderPlaceholder": "/path/to/project/on/host",
@@ -2858,11 +2859,15 @@
       "sidebar": {
         "AddRemoteHostDialog": {
           "sshConfigPickerBulkHint": "Bulk sync stays in Settings → SSH",
-          "sshConfigPickerDescription": "Pick a host to fill the form. Nothing is saved until you click Save.",
+          "sshImportSynced": "Added {{value0}} host{{value1}} to Orca.",
           "sshPersistenceDefault": "Remote terminals on this host stay alive until you end them or reset the relay."
+        },
+        "AddRepoCreateStep": {
+          "ssh_parent_manual": "Enter an SSH parent path."
         },
         "AddRepoHostSelector": {
           "addRemoteHostTooltip": "Choose SSH for a machine you can log into, or remote server for an Orca server.",
+          "host": "Host",
           "local": "Local",
           "runtime": "Server",
           "ssh": "SSH"
@@ -2873,6 +2878,12 @@
           "5b2e6fe3c8": "Import separately",
           "5f857ba8e6": "in",
           "cf9d382ca1": "Import"
+        },
+        "AddRepoRemoteStep": {
+          "35831a7312": "Adding...",
+          "80557be85a": "Choose a connected SSH target and enter the path to a Git repository.",
+          "lockedDescription": "Enter the path to a Git repository on {{value0}}.",
+          "lockedDisconnected": "{{value0}} is disconnected."
         },
         "AddRepoSteps": {
           "04a4c4e84a": "Clone location"
@@ -2887,11 +2898,23 @@
           "noRepos": "Add a Git project under this folder to attach GitHub or GitLab tasks.",
           "sourceProject": "Task Source"
         },
+        "HostRemoveDialog": {
+          "1a2b3c4d5e": "Removed {{value0}}",
+          "2b3c4d5e6f": "Failed to remove host",
+          "3c4d5e6f7a": "Remove {{value0}}?",
+          "5e6f7a8b9c": "This removes the saved SSH host and its credentials from this computer. Remote files are not deleted.",
+          "8b9c0d1e2f": "Remove host"
+        },
         "HostSectionHeaderMenu": {
-          "63f36455cc": "Reconnect"
+          "63f36455cc": "Reconnect",
+          "6e7f8a9b0c": "Remove host…",
+          "bf07aee59e": "Disconnect failed"
         },
         "NewExternalWorktreesInboxLine": {
           "5e1b8d3f62": "Hide external worktrees permanently"
+        },
+        "NonGitFolderDialog": {
+          "c49fb13492": "Failed to add folder on this host"
         },
         "PreservedBranchBatchReviewDialog": {
           "a0f9863597_one": "Force Delete {{count}} Branch",
@@ -2907,6 +2930,9 @@
           "a1f4c2d8e0": "Manual project order is now the default",
           "b7e3a91c4f": "Drag project headers to reorder, or switch to",
           "e8c1f4a2b9": "in workspace options."
+        },
+        "RemoteFileBrowser": {
+          "971d85cc84": "Opens as a project on this host · {{value0}}"
         },
         "SetupScriptPromptCard": {
           "dcaa645da5": "ok"
@@ -3030,7 +3056,9 @@
             "local": {
               "start": {
                 "actions": {
-                  "a6c20dca96": "Open a project from an SSH target"
+                  "sshBrowseDescription": "Existing Git repository or folder on this SSH host",
+                  "sshBrowseTitle": "Open project on SSH host",
+                  "sshCreateUnavailable": "Not available for SSH hosts yet"
                 }
               }
             }

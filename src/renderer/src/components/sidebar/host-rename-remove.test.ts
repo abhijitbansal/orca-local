@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  applyHostRename,
-  clearHostRename,
-  getHostDisplayLabelOverride,
-  resolveHostRemoval
-} from './host-rename-remove'
+import { applyHostRename, clearHostRename, getHostDisplayLabelOverride } from './host-rename-remove'
 
 describe('host rename helpers', () => {
   it('reads the current display-label override', () => {
@@ -33,22 +28,5 @@ describe('host rename helpers', () => {
     expect(clearHostRename(settings, 'ssh:box')).toEqual({
       'ssh:box': { defaultWorktreeLocation: '/w' }
     })
-  })
-})
-
-describe('resolveHostRemoval', () => {
-  it('resolves an ssh host to its target id', () => {
-    expect(resolveHostRemoval('ssh:box')).toEqual({ kind: 'ssh', targetId: 'box' })
-  })
-
-  it('resolves a runtime host to its environment id', () => {
-    expect(resolveHostRemoval('runtime:env-1')).toEqual({
-      kind: 'runtime',
-      environmentId: 'env-1'
-    })
-  })
-
-  it('returns null for the local host', () => {
-    expect(resolveHostRemoval('local')).toBeNull()
   })
 })

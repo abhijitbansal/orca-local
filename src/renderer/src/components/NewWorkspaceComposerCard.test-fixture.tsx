@@ -97,7 +97,6 @@ export async function renderCard(
         selectedRepoSshStatus={null}
         selectedRepoRequiresConnection={false}
         selectedRepoConnectInProgress={false}
-        onConnectSelectedRepo={async () => {}}
         canUseSparseCheckout={false}
         sparsePresets={[]}
         sparseSelectedPresetId={null}

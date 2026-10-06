@@ -1,10 +1,9 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Folder } from 'lucide-react'
 import { DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { translate } from '@/i18n/i18n'
-import { RemoteFileBrowser } from './RemoteFileBrowser'
 
 type CloneStepProps = {
   cloneUrl: string
@@ -14,7 +13,6 @@ type CloneStepProps = {
   isCloning: boolean
   disableDestinationPicker?: boolean
   runtimeEnvironmentId?: string | null
-  sshTargetId?: string | null
   cloneTargetLabel?: string | null
   onUrlChange: (value: string) => void
   onDestChange: (value: string) => void
@@ -30,16 +28,13 @@ export function CloneStep({
   isCloning,
   disableDestinationPicker = false,
   runtimeEnvironmentId,
-  sshTargetId,
   cloneTargetLabel,
   onUrlChange,
   onDestChange,
   onPickDestination,
   onClone
 }: CloneStepProps): React.JSX.Element {
-  const [browsingDestination, setBrowsingDestination] = useState(false)
-  const isRemoteClone = Boolean(runtimeEnvironmentId || sshTargetId)
-  const canBrowseRemoteDestination = isRemoteClone
+  const isRemoteClone = Boolean(runtimeEnvironmentId)
   const canClone = !!cloneUrl.trim() && !!cloneDestination.trim() && !isCloning
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
@@ -48,45 +43,6 @@ export function CloneStep({
         onClone()
       }
     }
-  }
-
-  if (browsingDestination && (runtimeEnvironmentId || sshTargetId)) {
-    return (
-      <>
-        <DialogHeader>
-          <DialogTitle>
-            {translate('auto.components.sidebar.AddRepoSteps.a93ef169b5', 'Browse host filesystem')}
-          </DialogTitle>
-          <DialogDescription>
-            {translate(
-              'auto.components.sidebar.AddRepoSteps.fe8e629fe3',
-              'Navigate to a directory and click Select to choose it.'
-            )}
-          </DialogDescription>
-        </DialogHeader>
-        {sshTargetId ? (
-          <RemoteFileBrowser
-            targetId={sshTargetId}
-            initialPath={cloneDestination || '~'}
-            onSelect={(path) => {
-              onDestChange(path)
-              setBrowsingDestination(false)
-            }}
-            onCancel={() => setBrowsingDestination(false)}
-          />
-        ) : (
-          <RemoteFileBrowser
-            runtimeEnvironmentId={runtimeEnvironmentId as string}
-            initialPath={cloneDestination || '~'}
-            onSelect={(path) => {
-              onDestChange(path)
-              setBrowsingDestination(false)
-            }}
-            onCancel={() => setBrowsingDestination(false)}
-          />
-        )}
-      </>
-    )
   }
 
   return (
@@ -155,30 +111,13 @@ export function CloneStep({
               variant="outline"
               size="sm"
               className="h-8 px-2 shrink-0"
-              onClick={() => {
-                if (canBrowseRemoteDestination) {
-                  setBrowsingDestination(true)
-                  return
-                }
-                onPickDestination()
-              }}
-              disabled={isCloning || (disableDestinationPicker && !canBrowseRemoteDestination)}
-              title={
-                canBrowseRemoteDestination
-                  ? translate(
-                      'auto.components.sidebar.AddRepoSteps.a93ef169b5',
-                      'Browse host filesystem'
-                    )
-                  : translate('auto.components.sidebar.AddRepoSteps.569326d9cc', 'Choose folder')
-              }
-              aria-label={
-                canBrowseRemoteDestination
-                  ? translate(
-                      'auto.components.sidebar.AddRepoSteps.a93ef169b5',
-                      'Browse host filesystem'
-                    )
-                  : translate('auto.components.sidebar.AddRepoSteps.569326d9cc', 'Choose folder')
-              }
+              onClick={onPickDestination}
+              disabled={isCloning || disableDestinationPicker}
+              title={translate('auto.components.sidebar.AddRepoSteps.569326d9cc', 'Choose folder')}
+              aria-label={translate(
+                'auto.components.sidebar.AddRepoSteps.569326d9cc',
+                'Choose folder'
+              )}
             >
               <Folder className="size-3.5" />
             </Button>

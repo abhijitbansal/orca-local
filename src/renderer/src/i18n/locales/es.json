@@ -629,7 +629,6 @@
     "hooks": {
       "useAutomationDispatchEvents": {
         "59718b120b": "El espacio de trabajo de destino ya no está disponible.",
-        "16a21d6413": "La reconexión SSH requiere credenciales interactivas.",
         "386db94f3e": "El proyecto de destino ya no está disponible.",
         "3ad7d77f57": "El espacio de trabajo de destino está en un host distinto al destino de ejecución de esta automatización."
       },
@@ -637,7 +636,6 @@
         "7eb3f44ff7": "El agente seleccionado está deshabilitado. Elige un agente habilitado antes de crear.",
         "b2ead86962": "No se pudo resolver la base del PR.",
         "3db83fc58a": "No hay ninguna ruta de proyecto remoto disponible para los archivos adjuntos.",
-        "ba6cb77082": "No se pudo conectar al proyecto.",
         "chooseOrAddProjectBeforeWorkspace": "Elige o agrega un proyecto antes de crear un espacio de trabajo.",
         "folderWorkspaceCreateFailedTitle": "No se pudo crear el espacio de trabajo de carpeta",
         "folderWorkspaceCreateFailedMessage": "No se pudo crear el espacio de trabajo de carpeta. Revisa los detalles del error de arriba e inténtalo de nuevo.",
@@ -890,7 +888,6 @@
         "ab63f25397": "Abrir configuración del agente",
         "01d1e8f601": "Agente",
         "0c5d6a479c": "[Opcional]",
-        "b5a0796911": "Conectar",
         "dccd26d4e4": "Elige proyecto",
         "d6b0a96f32": "Agregar proyecto",
         "969a8bff66": "Proyecto",
@@ -903,7 +900,6 @@
         "2132b670da": "ambos",
         "0e587e31fb": "yaml",
         "ac3748dcda": "Crear desde",
-        "f660aa1454": "Conectando",
         "7711ad5122": "Comando de configuración local",
         "e5db1b0419": "Comando de configuración combinado",
         "addProjectBeforeWorkspace": "Agrega un proyecto antes de crear un espacio de trabajo.",
@@ -3332,8 +3328,7 @@
         "AddProjectFromFolderDialog": {
           "7d1f51678c": "Agregar proyecto",
           "7726a16374": "Cancelar",
-          "046751dbfb": "Agrega esta carpeta como un proyecto de Orca separado.",
-          "e643b30398": "Proyecto agregado en host SSH"
+          "046751dbfb": "Agrega esta carpeta como un proyecto de Orca separado."
         },
         "AddRepoCreateStep": {
           "0ae45b8238": "my-project",
@@ -3377,26 +3372,15 @@
           "e52454b7f6": "Abrir como carpeta"
         },
         "AddRepoRemoteStep": {
-          "5b205b5281": "Detener escaneo",
-          "6680289908": "/inicio/usuario/proyecto",
-          "ef410aa881": "Ruta del host",
-          "df6fbcf880": "No hay destinos SSH configurados.",
-          "44637f43bd": "Destino SSH",
           "80557be85a": "Elige un destino SSH conectado e introduce la ruta a un repositorio Git.",
-          "91b93a90a4": "Abrir proyecto en host SSH",
-          "007651bdf9": "Navega hasta un directorio y haz clic en Seleccionar para elegirlo.",
-          "dd3ff65486": "Explorar el sistema de archivos remoto",
-          "36d427bb66": "Agregar proyecto en host SSH",
           "35831a7312": "Agregando...",
           "lockedDescription": "Introduce la ruta a un repositorio Git en {{value0}}.",
-          "lockedDisconnected": "{{value0}} está desconectado.",
-          "93e0221434": "Conectar"
+          "lockedDisconnected": "{{value0}} está desconectado."
         },
         "AddRepoServerStartStep": {
           "ae990c86a0": "Volver a opciones de agregado",
           "e1710bf831": "Abrir como carpeta",
           "8da4d1a5be": "Agregar proyecto Git",
-          "ac66a3ed2d": "Explorar el sistema de archivos del host",
           "92d25420a0": "/inicio/usuario/proyecto",
           "867692f505": "Ruta del host",
           "423b5d3d31": "Agrega un repositorio Git o carpeta que ya exista en el host seleccionado.",
@@ -3407,11 +3391,8 @@
           "a81ffa0a99": "Crear en el servidor",
           "a2ea37d549": "Repositorio remoto de Git",
           "47759c9491": "Clonar desde URL",
-          "516187414c": "Proyecto o carpeta existente",
-          "0adf083af7": "Explorar host",
           "8efa930eb5": "Agrega otro proyecto del host seleccionado.",
-          "39bd249b3a": "Agregar un proyecto",
-          "0f8aba944c": "Navega hasta un directorio y haz clic en Seleccionar para elegirlo."
+          "39bd249b3a": "Agregar un proyecto"
         },
         "AddRepoStartSteps": {
           "87596c1446": "Otras formas de agregar",
@@ -3426,16 +3407,12 @@
         },
         "AddRepoSteps": {
           "569326d9cc": "Elige carpeta",
-          "a93ef169b5": "Explorar el sistema de archivos del host",
           "2ce3f6edf8": "/ruta/al/destino",
           "04a4c4e84a": "Ubicación del clon",
           "b698a4a29d": "https://github.com/user/repo.git",
           "3d4acbe693": "URL de Git",
           "5b2ea674b1": "Introduce la URL de Git y elige dónde clonarla.",
           "c05f88a31f": "Clonar desde URL",
-          "fe8e629fe3": "Navega hasta un directorio y haz clic en Seleccionar para elegirlo.",
-          "df8b0e6c22": "Proyecto agregado en host SSH",
-          "3e64e8a70d": "La conexión falló",
           "32a7256d85": "Clonar",
           "69f5b5380d": "Clonando...",
           "cloneOnHostDescription": "Introduce la URL de Git y elige dónde clonarlo en {{value0}}.",
@@ -3456,8 +3433,7 @@
           "afaf54f245": "Cambiar carpeta padre",
           "f520f83a97": "Explorar el sistema de archivos del host",
           "2a20a603a3": "/home/user/projects",
-          "134e37f711": "Ubicación",
-          "b589b77997": "Navega hasta un directorio y haz clic en Seleccionar para elegirlo."
+          "134e37f711": "Ubicación"
         },
         "DeleteWorktreeDialog": {
           "ff2a74ac0e": "y",
@@ -3503,7 +3479,6 @@
           "05b33a17a9": "Cancelar",
           "8fba4b8cbb": "Esta carpeta no es un repositorio Git. Tendrás editor, terminal y búsqueda, pero las funciones basadas en Git no estarán disponibles.",
           "c49fb13492": "No se pudo agregar la carpeta en este host",
-          "9a766f33ac": "Esta ruta se verificó en el host SSH.",
           "79fd02cf5f": "Esta ruta se verificó en {{hostName}}.",
           "8851b77327": "Esta ruta se verificó localmente."
         },
@@ -3547,13 +3522,7 @@
           "4a64e78822": "Guardando..."
         },
         "RemoteFileBrowser": {
-          "2300612806": "Escribe para filtrar o introducir una ruta...",
-          "9e060f5815": "Seleccionar carpeta",
-          "f8b1deb1a4": "Cancelar",
-          "51001182e3": "Directorio vacío",
-          "971d85cc84": "Se abre como proyecto en este host · {{value0}}",
-          "00c4235c10": "No hay coincidencias para '{{value0}}'",
-          "largeInputNoMatches": "No hay coincidencias para esta entrada larga"
+          "971d85cc84": "Se abre como proyecto en este host · {{value0}}"
         },
         "RemoveFolderDialog": {
           "4dc5b5065b": "Quitar",
@@ -3745,10 +3714,6 @@
           "219ebf1961": "Nombre de rama",
           "folderPathIdentity": "Rama / ruta de carpeta",
           "cli": "Orca CLI"
-        },
-        "SshTargetRow": {
-          "4677394048": "Conectando…",
-          "75ad429b5d": "Conectar"
         },
         "WorkspaceKanbanCard": {
           "cefae8983e": "Fijado"
@@ -4083,8 +4048,6 @@
                   "c709860596": "Crear nuevo proyecto",
                   "5f9ffac036": "Clonar un repositorio Git remoto",
                   "7edb8ebe24": "Clonar desde URL",
-                  "a6c20dca96": "Abrir un proyecto desde un destino SSH",
-                  "3d162cc76f": "Proyecto remoto",
                   "fb4fc5380e": "Proyecto local, repositorio de Git o carpeta con muchos repositorios",
                   "2281fdc8c7": "Explorar carpeta",
                   "sshCreateUnavailable": "Aún no disponible para hosts SSH",
@@ -4113,16 +4076,6 @@
               "0899ebdb28": "Git ya olvidó este espacio de trabajo, pero su directorio todavía está en disco. Usa Forzar eliminación para eliminar el directorio huérfano.",
               "locked": "Este espacio de trabajo está bloqueado por Git. Ejecute git worktree unlock <worktree-path> desde su repositorio, luego intente la eliminación de nuevo.",
               "lockedReason": "Este espacio de trabajo está bloqueado por Git. Git reportó: {{value0}}. Ejecute git worktree unlock <worktree-path> desde su repositorio, luego intente la eliminación de nuevo."
-            }
-          }
-        },
-        "remote": {
-          "file": {
-            "browser": {
-              "helpers": {
-                "4dbd72a7d7": "{{value0}} no es un directorio en {{value1}}",
-                "be266af66c": "{{value0}} coincide con varios directorios en {{value1}}"
-              }
             }
           }
         },
@@ -4267,13 +4220,7 @@
           "local": "Local",
           "runtime": "Servidor",
           "ssh": "SSH",
-          "connecting": "Conectando",
-          "connect": "Conectar",
-          "addSshHost": "Agregar host SSH",
-          "addRemoteHost": "Agregar host remoto",
-          "addRemoteHostTooltip": "Elige SSH para una máquina donde puedas iniciar sesión, o servidor remoto para un servidor de Orca.",
-          "addSshHostDetail": "Usa una máquina existente mediante SSH.",
-          "addRemoteHostDetail": "Host SSH o servidor Orca"
+          "addRemoteHostTooltip": "Elige SSH para una máquina donde puedas iniciar sesión, o servidor remoto para un servidor de Orca."
         },
         "sidebarHostOptions": {
           "3e102f111c": "Todos los hosts",
@@ -4288,17 +4235,7 @@
           "2b3c4d5e6f": "No se pudo quitar el host",
           "3c4d5e6f7a": "¿Quitar {{value0}}?",
           "5e6f7a8b9c": "Esto quita el host SSH guardado y sus credenciales de este equipo. Los archivos remotos no se eliminan.",
-          "6f7a8b9c0d": "Cancelar",
-          "8b9c0d1e2f": "Quitar host",
-          "workspacesFailed": "No se pudieron eliminar {{count}} espacios de trabajo de este anfitrión. El anfitrión se conservó para que pueda reintentar.",
-          "oneWorkspace": "1 espacio de trabajo",
-          "manyWorkspaces": "{{count}} espacios de trabajo",
-          "hostHasWorkspacesDefault": "Elimina {{value0}} y sus credenciales de esta computadora. Sus {{value1}} permanecen en Orca — los archivos remotos no se tocan.",
-          "alsoDeleteRemote": "También eliminar estos {{value0}} en {{value1}}",
-          "alsoForgetLocal": "También eliminar estos {{value0}} de Orca",
-          "advanced": "Avanzado",
-          "alsoDeleteRemoteHint": "Elimina permanentemente los espacios de trabajo Git remotos y sus ramas. Esta acción no se puede deshacer.",
-          "alsoForgetLocalHint": "Solo limpia de Orca. Los archivos, espacios de trabajo y ramas remotas permanecen intactos."
+          "8b9c0d1e2f": "Quitar host"
         },
         "HostRenameDialog": {
           "1a2b3c4d5e": "Renombrar host",
@@ -4318,7 +4255,6 @@
           "6b7c8d9e10": "Acciones de host",
           "8d1e2f3a4b": "Renombrar…",
           "63f36455cc": "Reconectar",
-          "59b553e2aa": "Desconectar",
           "2d3e4f5a6b": "Verificar conexión",
           "3c4d5e6f7a": "Administrar host…",
           "6e7f8a9b0c": "Quitar host…"
@@ -4370,44 +4306,13 @@
           "5d1c9f0a82": "Cancelar",
           "3b7e4a1c96": "Ocultar worktrees externos"
         },
-        "useAddRepoHostSelection": {
-          "connectionFailed": "La conexión SSH falló."
-        },
         "AddRemoteHostDialog": {
-          "sshHostRequired": "Se requiere un host o alias de configuración SSH.",
-          "sshPortInvalid": "El puerto debe estar entre 1 y 65535.",
-          "sshRelayGraceInvalid": "El tiempo de espera del terminal debe estar entre 60 y {{value0}} segundos.",
-          "sshSaved": "Se agregó el host SSH.",
-          "sshSaveFailed": "No se pudo agregar el host SSH.",
-          "sshTitle": "Agregar host SSH",
-          "sshDescription": "Agrega una máquina persistente donde puedas iniciar sesión por SSH.",
-          "cancel": "Cancelar",
-          "saving": "Guardando...",
-          "save": "Guardar",
-          "label": "Etiqueta",
-          "sshLabelPlaceholder": "Dev box",
-          "sshHost": "Host o alias",
-          "sshHostPlaceholder": "deploy@server:22",
-          "username": "Nombre de usuario",
-          "usernamePlaceholder": "deploy",
-          "port": "Puerto",
-          "identityFile": "Archivo de identidad",
-          "identityFilePlaceholder": "~/.ssh/id_ed25519 (opcional)",
-          "sshImportAlreadySynced": "~/.ssh/config ya está sincronizado.",
           "sshImportSynced": "Se sincronizó {{value0}} host{{value1}}.",
-          "sshImportFailed": "No se pudo importar la configuración SSH.",
           "sshPersistenceDefault": "Los terminales remotos en este host seguirán activos hasta que los cierres o restablezcas el relay.",
           "advanced": "Advanced"
         },
         "ForgetSshWorkspaceDialog": {
-          "reconnectFailed": "Error de reconexión",
-          "forgetBody": "Elimina este espacio de trabajo solo de Orca. Los archivos, el worktree de Git y las ramas en {{host}} permanecen intactos.",
-          "title": "¿Eliminar “{{name}}”?",
-          "disconnectedBody": "El host SSH de este espacio de trabajo no está conectado. Reconéctalo para eliminarlo también en el remoto, o elimínalo solo de Orca.",
-          "ghostBody": "{{host}} ya no es un host SSH guardado, por lo que este espacio de trabajo ya no está conectado a un host activo. Solo se puede eliminar de Orca — los archivos y ramas en el remoto permanecen intactos.",
-          "cancel": "Cancelar",
-          "forget": "Eliminar de Orca",
-          "reconnectAndDelete": "Reconectar y eliminar"
+          "forget": "Eliminar de Orca"
         },
         "MarkdownImageLightbox": {
           "image": "Image",

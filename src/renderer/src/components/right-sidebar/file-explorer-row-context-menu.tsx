@@ -139,12 +139,11 @@ export function FileExplorerRowContextMenu({
     }
   }, [activeWorktreeId, node.path])
   const handleDownload = useCallback(() => {
-    const downloadTarget = connectionId || runtimeDownloadContext
-    if (!downloadTarget) {
+    if (!runtimeDownloadContext) {
       return
     }
-    void downloadRemoteFile(node, downloadTarget)
-  }, [connectionId, node, runtimeDownloadContext])
+    void downloadRemoteFile(node, runtimeDownloadContext)
+  }, [node, runtimeDownloadContext])
   const handleCopyFile = useCallback(() => {
     void copyFileToOsClipboard(node, connectionId)
   }, [connectionId, node])

@@ -25,7 +25,6 @@ function entry(
 function deps() {
   return {
     retry: vi.fn<AutomationHostRecoveryDeps['retry']>(),
-    connectSshTarget: vi.fn<AutomationHostRecoveryDeps['connectSshTarget']>(),
     connectRuntimeEnvironment: vi.fn<AutomationHostRecoveryDeps['connectRuntimeEnvironment']>(),
     openSettings: vi.fn<AutomationHostRecoveryDeps['openSettings']>()
   }
@@ -51,13 +50,6 @@ describe('automation host recovery', () => {
     expect(target.retry).toHaveBeenCalledWith(DESKTOP_SSH)
   })
 
-  it('dials the SSH target when the authority is fine', () => {
-    const target = deps()
-    runAutomationHostRecovery('reconnect', DESKTOP_SSH, target)
-    expect(target.connectSshTarget).toHaveBeenCalledWith('t1')
-    expect(target.connectRuntimeEnvironment).not.toHaveBeenCalled()
-  })
-
   it('dials the runtime first when the server itself is unreachable', () => {
     const target = deps()
     // Why: an unreachable server cannot be asked to dial its own SSH target.
@@ -67,7 +59,6 @@ describe('automation host recovery', () => {
       target
     )
     expect(target.connectRuntimeEnvironment).toHaveBeenCalledWith(RUNTIME_ENVIRONMENT_ID)
-    expect(target.connectSshTarget).not.toHaveBeenCalled()
   })
 
   it('re-asks a desktop Self host, which has no transport to dial', () => {

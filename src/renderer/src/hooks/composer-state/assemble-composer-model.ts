@@ -19,7 +19,6 @@ export function assembleComposerModel(
     ...target.asyncComposerState,
     ...target.providerRuntimeSync,
     ...target.derivedComposerState,
-    ...external.hostRuntimeEffects,
     ...external.linkedItemLookupEffects,
     ...external.githubSourceApplication,
     ...external.githubSubmitResolution,

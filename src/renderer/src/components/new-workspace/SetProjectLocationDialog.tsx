@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type RefObject } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Download, FolderOpen } from 'lucide-react'
 import {
   Dialog,
@@ -9,15 +9,13 @@ import {
 } from '@/components/ui/dialog'
 import { translate } from '@/i18n/i18n'
 import { useAppStore } from '@/store'
-import { CreateProjectParentBrowser } from '@/components/sidebar/CreateProjectLocationField'
 import type { NeedsSetupProjectHostOption } from '@/lib/project-host-setup-options'
 import { parseExecutionHostId } from '../../../../shared/execution-host'
 import type { RepoKind } from '../../../../shared/repo-types'
 import { pickLocalProjectLocationFolder } from './pick-local-project-folder'
 import { CloneForm, ExistingFolderForm, LocationActionButton } from './SetProjectLocationForms'
 
-type DialogView = 'choose' | 'existing' | 'clone' | 'browse'
-type BrowseField = 'existing' | 'clone'
+type DialogView = 'choose' | 'existing' | 'clone'
 
 type SetProjectLocationDialogProps = {
   option: NeedsSetupProjectHostOption | null
@@ -44,11 +42,6 @@ export function SetProjectLocationDialog({
     setRenderOption(option)
   }
   const activeOption = option ?? renderOption
-  // Why: Radix dismisses on Escape from a document-capture listener, so the host
-  // browser can never intercept it itself. The body parks a back-out here so
-  // Escape steps out of the browser instead of discarding the half-filled form.
-  const exitHostBrowser = useRef<(() => boolean) | null>(null)
-
   return (
     <Dialog
       open={open}
@@ -58,16 +51,7 @@ export function SetProjectLocationDialog({
         }
       }}
     >
-      <DialogContent
-        data-testid="set-project-location-dialog"
-        className="sm:max-w-lg"
-        onEscapeKeyDown={(event) => {
-          if (exitHostBrowser.current?.()) {
-            // Radix only skips onDismiss when the escape was defaultPrevented.
-            event.preventDefault()
-          }
-        }}
-      >
+      <DialogContent data-testid="set-project-location-dialog" className="sm:max-w-lg">
         {activeOption ? (
           <SetProjectLocationDialogBody
             key={activeOption.id}
@@ -75,7 +59,6 @@ export function SetProjectLocationDialog({
             projectName={projectName}
             projectKind={projectKind}
             defaultCloneUrl={defaultCloneUrl}
-            exitHostBrowser={exitHostBrowser}
             onReady={onReady}
           />
         ) : null}
@@ -89,20 +72,17 @@ function SetProjectLocationDialogBody({
   projectName,
   projectKind,
   defaultCloneUrl,
-  exitHostBrowser,
   onReady
 }: {
   option: NeedsSetupProjectHostOption
   projectName: string
   projectKind: RepoKind
   defaultCloneUrl: string
-  exitHostBrowser: RefObject<(() => boolean) | null>
   onReady: (setupId: string) => void
 }): React.JSX.Element {
   const setupProjectExistingFolder = useAppStore((state) => state.setupProjectExistingFolder)
   const setupProjectClone = useAppStore((state) => state.setupProjectClone)
   const [view, setView] = useState<DialogView>('choose')
-  const [browseField, setBrowseField] = useState<BrowseField>('existing')
   const [setupPath, setSetupPath] = useState('')
   const [setupKind, setSetupKind] = useState<RepoKind>(projectKind)
   const [cloneUrl, setCloneUrl] = useState(defaultCloneUrl)
@@ -122,36 +102,15 @@ function SetProjectLocationDialogBody({
     }
   }, [])
   const parsedHost = parseExecutionHostId(option.hostId)
-  // Remote hosts browse in-dialog; the local host gets the native folder picker.
+  // Why: the native picker returns a client path, so a remote host's path is typed instead.
   const remoteHost =
     parsedHost?.kind === 'ssh' || parsedHost?.kind === 'runtime' ? parsedHost : null
   const canClone = projectKind === 'git'
-  // Both views browse for a path; this is the field each one writes back to.
-  const pathFields: Record<BrowseField, { value: string; set: (path: string) => void }> = {
-    existing: { value: setupPath, set: setSetupPath },
-    clone: { value: cloneDestination, set: setCloneDestination }
-  }
 
-  const browsing = view === 'browse' && remoteHost !== null
-  useEffect(() => {
-    exitHostBrowser.current = browsing
-      ? () => {
-          setView(browseField)
-          return true
-        }
-      : null
-    return () => {
-      exitHostBrowser.current = null
-    }
-  }, [browseField, browsing, exitHostBrowser])
-
-  const openHostBrowser = (field: BrowseField): void => {
+  const openHostBrowser = (setPath: (path: string) => void): void => {
     if (!remoteHost) {
-      void pickLocalProjectLocationFolder(pathFields[field].set)
-      return
+      void pickLocalProjectLocationFolder(setPath)
     }
-    setBrowseField(field)
-    setView('browse')
   }
 
   const handleExistingSubmit = async (): Promise<void> => {
@@ -194,18 +153,6 @@ function SetProjectLocationDialogBody({
     } finally {
       setIsSubmitting(false)
     }
-  }
-
-  if (browsing && remoteHost) {
-    return (
-      <CreateProjectParentBrowser
-        sshTargetId={remoteHost.kind === 'ssh' ? remoteHost.targetId : null}
-        runtimeEnvironmentId={remoteHost.kind === 'runtime' ? remoteHost.environmentId : null}
-        createParent={pathFields[browseField].value}
-        onParentChange={pathFields[browseField].set}
-        onClose={() => setView(browseField)}
-      />
-    )
   }
 
   return (
@@ -270,7 +217,7 @@ function SetProjectLocationDialogBody({
           onBack={() => setView('choose')}
           onPathChange={setSetupPath}
           onKindChange={setSetupKind}
-          onBrowse={() => openHostBrowser('existing')}
+          onBrowse={() => openHostBrowser(setSetupPath)}
           onSubmit={() => void handleExistingSubmit()}
         />
       ) : null}
@@ -282,7 +229,7 @@ function SetProjectLocationDialogBody({
           onBack={() => setView('choose')}
           onCloneUrlChange={setCloneUrl}
           onCloneDestinationChange={setCloneDestination}
-          onBrowse={() => openHostBrowser('clone')}
+          onBrowse={() => openHostBrowser(setCloneDestination)}
           onSubmit={() => void handleCloneSubmit()}
         />
       ) : null}

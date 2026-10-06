@@ -39,7 +39,6 @@ export type ComposerCardSourceProps = Pick<
   | 'selectedRepoSshStatus'
   | 'selectedRepoRequiresConnection'
   | 'selectedRepoConnectInProgress'
-  | 'onConnectSelectedRepo'
   | 'startFromResetHint'
   | 'forkPushWarning'
   | 'setupConfig'

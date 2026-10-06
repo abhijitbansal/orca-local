@@ -760,7 +760,6 @@
     "hooks": {
       "useAutomationDispatchEvents": {
         "59718b120b": "ターゲットワークスペースは使用できなくなりました。",
-        "16a21d6413": "SSH の再接続には対話型の認証情報が必要です。",
         "386db94f3e": "対象のプロジェクトは利用できなくなりました。",
         "3ad7d77f57": "対象ワークスペースは、この自動化実行ターゲットとは別のホスト上にあります。",
         "workspaceHostUnresolved": "ターゲットワークスペースは複数のホストにまたがっているため、この実行では使用する単一のホストがありません。"
@@ -769,7 +768,6 @@
         "7eb3f44ff7": "選択した Agent は無効です。作成する前に、有効な Agent を選択してください。",
         "b2ead86962": "PR ベースを解決できませんでした。",
         "3db83fc58a": "このホスト上に、添付に使用できるプロジェクトパスがありません。",
-        "ba6cb77082": "プロジェクトへの接続に失敗しました。",
         "chooseOrAddProjectBeforeWorkspace": "ワークスペースを作成する前に、プロジェクトを選択または追加してください。",
         "folderWorkspaceCreateFailedTitle": "フォルダーワークスペースを作成できませんでした",
         "folderWorkspaceCreateFailedMessage": "フォルダーワークスペースを作成できませんでした。上のエラー詳細を確認して、もう一度お試しください。",
@@ -1062,7 +1060,6 @@
         "ab63f25397": "Agent 設定を開く",
         "01d1e8f601": "Agent",
         "0c5d6a479c": "[オプション]",
-        "b5a0796911": "接続",
         "dccd26d4e4": "プロジェクトを選択",
         "d6b0a96f32": "プロジェクトを追加",
         "969a8bff66": "プロジェクト",
@@ -1075,7 +1072,6 @@
         "2132b670da": "両方",
         "0e587e31fb": "yaml",
         "ac3748dcda": "作成元",
-        "f660aa1454": "接続中",
         "7711ad5122": "ローカルセットアップコマンド",
         "e5db1b0419": "組み合わせセットアップコマンド",
         "addProjectBeforeWorkspace": "ワークスペースを作成する前にプロジェクトを追加します。",
@@ -3858,8 +3854,7 @@
         "AddProjectFromFolderDialog": {
           "7d1f51678c": "プロジェクトを追加",
           "7726a16374": "キャンセル",
-          "046751dbfb": "このフォルダーを別の Orca プロジェクトとして追加します。",
-          "e643b30398": "リモートプロジェクトが追加されました"
+          "046751dbfb": "このフォルダーを別の Orca プロジェクトとして追加します。"
         },
         "AddRepoCreateStep": {
           "0ae45b8238": "my-project",
@@ -3903,26 +3898,15 @@
           "e52454b7f6": "フォルダーとして開く"
         },
         "AddRepoRemoteStep": {
-          "5b205b5281": "スキャンの停止",
-          "6680289908": "/home/user/project",
-          "ef410aa881": "ホストパス",
-          "df6fbcf880": "SSH ターゲットが設定されていません。",
-          "44637f43bd": "SSH ターゲット",
           "80557be85a": "接続されている SSH ターゲットを選択し、Git リポジトリへのパスを入力します。",
-          "91b93a90a4": "SSH ホスト上のプロジェクトを開く",
-          "007651bdf9": "ディレクトリに移動し、「選択」をクリックして選択します。",
-          "dd3ff65486": "リモートファイルシステムを参照する",
-          "36d427bb66": "リモートプロジェクトを追加",
           "35831a7312": "追加中…",
           "lockedDescription": "{{value0}} 上の Git リポジトリへのパスを入力してください。",
-          "lockedDisconnected": "{{value0}} は切断されています。",
-          "93e0221434": "接続"
+          "lockedDisconnected": "{{value0}} は切断されています。"
         },
         "AddRepoServerStartStep": {
           "ae990c86a0": "オプションの追加に戻る",
           "e1710bf831": "フォルダーとして開く",
           "8da4d1a5be": "Git プロジェクトの追加",
-          "ac66a3ed2d": "ホストのファイルシステムを参照する",
           "92d25420a0": "/home/user/project",
           "867692f505": "ホストパス",
           "423b5d3d31": "選択したホストに既に存在する Git リポジトリまたはフォルダーを追加します。",
@@ -3933,11 +3917,8 @@
           "a81ffa0a99": "ホスト上に作成する",
           "a2ea37d549": "リモート Git repos",
           "47759c9491": "URL からクローン",
-          "516187414c": "既存のプロジェクトまたはフォルダー",
-          "0adf083af7": "ホストを参照する",
           "8efa930eb5": "選択したホストから別のプロジェクトを追加します。",
-          "39bd249b3a": "プロジェクトを追加する",
-          "0f8aba944c": "ディレクトリに移動し、「選択」をクリックして選択します。"
+          "39bd249b3a": "プロジェクトを追加する"
         },
         "AddRepoStartSteps": {
           "acf895cb42": "Orca の使用を開始するには、プロジェクトを追加します。",
@@ -3952,16 +3933,12 @@
         },
         "AddRepoSteps": {
           "569326d9cc": "フォルダーを選択",
-          "a93ef169b5": "ホストのファイルシステムを参照する",
           "2ce3f6edf8": "/path/to/destination",
           "04a4c4e84a": "クローンの場所",
           "b698a4a29d": "https://github.com/user/repo.git",
           "3d4acbe693": "Git URL",
           "5b2ea674b1": "Git URL を入力し、クローンを作成する場所を選択します。",
           "c05f88a31f": "URL からクローン",
-          "fe8e629fe3": "ディレクトリに移動し、「選択」をクリックして選択します。",
-          "df8b0e6c22": "リモートプロジェクトが追加されました",
-          "3e64e8a70d": "接続に失敗しました",
           "32a7256d85": "クローン",
           "69f5b5380d": "クローン作成中…",
           "cloneOnHostDescription": "Git URL を入力し、{{value0}} 上のクローン先を選択してください。",
@@ -3983,8 +3960,7 @@
           "afaf54f245": "親フォルダーを変更する",
           "f520f83a97": "ホストのファイルシステムを参照する",
           "2a20a603a3": "/home/user/projects",
-          "134e37f711": "位置",
-          "b589b77997": "ディレクトリに移動し、「選択」をクリックして選択します。"
+          "134e37f711": "位置"
         },
         "DeleteWorktreeDialog": {
           "ff2a74ac0e": "と",
@@ -4030,7 +4006,6 @@
           "05b33a17a9": "キャンセル",
           "8fba4b8cbb": "このフォルダーは Git リポジトリではありません。エディター、ターミナル、検索は利用できますが、Git ベースの機能は利用できません。",
           "c49fb13492": "このホスト上でのフォルダーの追加に失敗しました",
-          "9a766f33ac": "このパスは SSH ホストでチェックされました。",
           "79fd02cf5f": "このパスは {{hostName}} でチェックされました。",
           "8851b77327": "このパスはローカルでチェックされました。"
         },
@@ -4074,13 +4049,7 @@
           "4a64e78822": "保存中…"
         },
         "RemoteFileBrowser": {
-          "2300612806": "フィルタリングするために入力するか、パスを入力します…",
-          "9e060f5815": "フォルダーを選択",
-          "f8b1deb1a4": "キャンセル",
-          "51001182e3": "空のディレクトリ",
-          "971d85cc84": "このホスト上のプロジェクトとして開きます · {{value0}}",
-          "00c4235c10": "「{{value0}}」に一致するものはありません",
-          "largeInputNoMatches": "この長い入力に一致するものはありません"
+          "971d85cc84": "このホスト上のプロジェクトとして開きます · {{value0}}"
         },
         "RemoveFolderDialog": {
           "4dc5b5065b": "削除",
@@ -4277,10 +4246,6 @@
           "folderPathIdentity": "ブランチ / フォルダーパス",
           "cli": "Orca CLI",
           "workspaceOptions": "ワークスペースのオプション"
-        },
-        "SshTargetRow": {
-          "4677394048": "接続中…",
-          "75ad429b5d": "接続"
         },
         "WorkspaceKanbanCard": {
           "cefae8983e": "ピン留め済み"
@@ -4622,8 +4587,6 @@
                   "c709860596": "新規プロジェクトを作成する",
                   "5f9ffac036": "リモート Git リポジトリのクローンを作成する",
                   "7edb8ebe24": "URL からクローン",
-                  "a6c20dca96": "SSH ターゲットからプロジェクトを開く",
-                  "3d162cc76f": "SSH ホスト上のプロジェクト",
                   "fb4fc5380e": "ローカルプロジェクト、Git リポジトリ、または多数のリポジトリを含むフォルダー",
                   "2281fdc8c7": "フォルダーを参照",
                   "sshCreateUnavailable": "SSH ホストではまだ利用できません",
@@ -4661,16 +4624,6 @@
             "failure": {
               "archive": {
                 "waiver": "とにかく削除"
-              }
-            }
-          }
-        },
-        "remote": {
-          "file": {
-            "browser": {
-              "helpers": {
-                "4dbd72a7d7": "{{value0}} は {{value1}} のディレクトリではありません",
-                "be266af66c": "{{value0}} は {{value1}} の複数のディレクトリと一致します"
               }
             }
           }
@@ -4835,13 +4788,7 @@
           "local": "ローカル",
           "runtime": "サーバー",
           "ssh": "SSH",
-          "connecting": "接続中",
-          "connect": "接続",
-          "addSshHost": "SSH ホストを追加",
-          "addRemoteHost": "リモートホストの追加",
-          "addRemoteHostTooltip": "ログインできるマシンには SSH を選択し、Orca サーバーにはリモートサーバーを選択します。",
-          "addSshHostDetail": "SSH 経由で既存のマシンを使用します。",
-          "addRemoteHostDetail": "SSH ホストまたは Orca サーバー"
+          "addRemoteHostTooltip": "ログインできるマシンには SSH を選択し、Orca サーバーにはリモートサーバーを選択します。"
         },
         "sidebarHostOptions": {
           "3e102f111c": "すべてのホスト",
@@ -4856,17 +4803,7 @@
           "2b3c4d5e6f": "ホストの削除に失敗しました",
           "3c4d5e6f7a": "{{value0}} を削除しますか？",
           "5e6f7a8b9c": "保存済みの SSH ホストとその認証情報を、このコンピュータから削除します。リモートのファイルは削除されません。",
-          "6f7a8b9c0d": "キャンセル",
-          "8b9c0d1e2f": "ホストを削除",
-          "workspacesFailed": "このホストの {{count}} 個のワークスペースを削除できませんでした。ホストは保持されたので、再試行できます。",
-          "oneWorkspace": "1つのワークスペース",
-          "manyWorkspaces": "{{count}} 個のワークスペース",
-          "hostHasWorkspacesDefault": "このコンピュータから {{value0}} とその認証情報を削除します。{{value1}} は Orca に残ります — リモートファイルは変更されません。",
-          "alsoDeleteRemote": "また、{{value1}} のこれらの {{value0}} も削除",
-          "alsoForgetLocal": "また、Orca からこれらの {{value0}} も削除",
-          "advanced": "詳細設定",
-          "alsoDeleteRemoteHint": "リモートの Git ワークツリーとそのブランチを完全に削除します。この操作は取り消せません。",
-          "alsoForgetLocalHint": "Orca からのみ削除します。リモートのファイル、ワークツリー、ブランチはそのまま残ります。"
+          "8b9c0d1e2f": "ホストを削除"
         },
         "HostRenameDialog": {
           "1a2b3c4d5e": "ホスト名を変更",
@@ -4886,7 +4823,6 @@
           "6b7c8d9e10": "ホスト操作",
           "8d1e2f3a4b": "名前を変更…",
           "63f36455cc": "再接続",
-          "59b553e2aa": "切断",
           "2d3e4f5a6b": "接続を確認",
           "3c4d5e6f7a": "ホストを管理…",
           "6e7f8a9b0c": "ホストを削除…"
@@ -4944,71 +4880,14 @@
           "5d1c9f0a82": "キャンセル",
           "3b7e4a1c96": "外部ワークツリーを非表示"
         },
-        "useAddRepoHostSelection": {
-          "connectionFailed": "SSH 接続に失敗しました。"
-        },
         "AddRemoteHostDialog": {
-          "sshHostRequired": "ホストまたは SSH 構成エイリアスが必要です。",
-          "sshPortInvalid": "ポートは 1 ～ 65535 でなければなりません。",
-          "sshRelayGraceInvalid": "ターミナルのタイムアウトは 60 秒から {{value0}} 秒の間である必要があります。",
-          "sshSaved": "SSH ホストが追加されました。",
-          "sshSaveFailed": "SSH ホストの追加に失敗しました。",
-          "sshTitle": "SSH ホストを追加",
-          "sshDescription": "SSH でログインできる永続的なマシンを追加します。",
-          "cancel": "キャンセル",
-          "saving": "保存中…",
-          "save": "保存",
-          "label": "ラベル",
-          "sshLabelPlaceholder": "開発環境",
-          "sshHost": "ホストまたはエイリアス",
-          "sshHostPlaceholder": "deploy@server:22",
-          "username": "ユーザー名",
-          "usernamePlaceholder": "deploy",
-          "port": "ポート",
-          "identityFile": "秘密鍵ファイル",
-          "identityFilePlaceholder": "~/.ssh/id_ed25519 (オプション)",
-          "sshImportAlreadySynced": "~/.ssh/config はすでに同期されています。",
           "sshImportSynced": "{{value0}} ホスト{{value1}} を同期しました。",
-          "sshImportFailed": "SSH 構成のインポートに失敗しました。",
           "sshPersistenceDefault": "このホスト上のリモートターミナルは、終了するかリレーをリセットするまで動作し続けます。",
           "advanced": "詳細設定",
-          "sshAlreadyExists": "その SSH ホストはすでに Orca にあります。",
-          "sshConfigPickerLoadFailed": "~/.ssh/configの読み取りに失敗しました。",
-          "sshConfigPickerResolveFailed": "SSH 構成ホストを解決できませんでした。",
-          "sshConfigPickerRestartRequired": "Orca を再起動して、SSH 構成ピッカーの更新の適用を完了します。",
-          "sshConfigPickerFilled": "{{value0}} から埋められます。確認して保存します。",
-          "sshConfigPickerTitle": "~/.ssh/config から選択します",
-          "sshConfigPickerDescription": "フォームに入力するホストを選択します。 「保存」をクリックするまでは何も保存されません。",
-          "sshConfigPickerFilter": "ホストをフィルタリング…",
-          "sshConfigPickerHostsLabel": "SSH 構成ホスト",
-          "sshConfigPickerLoading": "~/.ssh/config を読み取り中…",
-          "sshConfigPickerEmpty": "~/.ssh/config にホストがありません",
-          "sshConfigPickerNoMatch": "一致するホストがありません",
-          "sshConfigPickerEmptyHint": "そこにホストエントリを追加するか、戻って詳細を手動で入力します。",
-          "sshConfigPickerNoMatchHint": "別のフィルターを試すか、戻って手動で入力してください。",
-          "sshConfigPickerMoreResults": "最初の {{value0}} 一致を表示します。フィルターを絞り込んでさらに検索します。",
-          "sshConfigPickerInOrca": "Orca で",
-          "sshConfigPickerPreviouslyRemoved": "Orca から削除されました",
-          "sshConfigPickerBulkHint": "一括同期は [設定] → [SSH] に残ります",
-          "sshConfigPickerBack": "戻る",
-          "fillFromSshConfig": "~/.ssh/config から入力します…",
-          "sshConfigPickerAddingAll": "ホストを追加中…",
-          "sshConfigPickerAddAll": "すべての {{value0}} を Orca に追加",
-          "sshConfigPickerNoNewHosts": "追加する新規ホストはありません",
-          "sshConfigPickerAddAllEmpty": "すべてを Orca に追加",
-          "identityFileFromConfigHint": "意図的に空のままにします: Orca は ~/.ssh/config が {{value0}} に対して解決するすべてのキーを使用します。そのキーのみを使用するパスを入力します。",
-          "sshConfigPickerRetry": "再試行",
-          "sshConfigPickerResolving": "読む…"
+          "sshConfigPickerBulkHint": "一括同期は [設定] → [SSH] に残ります"
         },
         "ForgetSshWorkspaceDialog": {
-          "reconnectFailed": "再接続に失敗しました",
-          "forgetBody": "このワークスペースを Orca からのみ削除します。ファイル、Git ワークツリー、{{host}}のブランチはそのまま残ります。",
-          "title": "「{{name}}」を削除しますか？",
-          "disconnectedBody": "このワークスペースの SSH ホストが接続されていません。再接続してリモートでも削除するか、Orca からのみ削除してください。",
-          "ghostBody": "{{host}} は保存済みの SSH ホストではなくなったため、このワークスペースは稼働中のホストに接続されていません。Orca から削除することのみ可能です。リモート上のファイルとブランチはそのまま残ります。",
-          "cancel": "キャンセル",
-          "forget": "Orca から削除",
-          "reconnectAndDelete": "再接続して削除"
+          "forget": "Orca から削除"
         },
         "MarkdownImageLightbox": {
           "image": "画像",
@@ -5046,19 +4925,6 @@
         "worktreeIssueDisplacement": {
           "3f61c0a8d2": "リニア {{value}}",
           "9c4b7e1f60": "GitHub #{{value}}"
-        },
-        "WorktreeCardSshHostControl": {
-          "connectFailed": "SSH 接続に失敗しました",
-          "removedTooltip": "SSH ホストが削除されました - 再接続できません",
-          "removedName": "SSH ホスト {{value0}} が削除されました",
-          "connectedTooltip": "SSH ホスト上のプロジェクト",
-          "connectedName": "SSH ホスト {{value0}} 上のプロジェクト",
-          "connectingName": "SSH ホスト {{value0}} に接続しています",
-          "authFailedName": "SSH ホスト {{value0}} を再接続します — 認証が失敗しました",
-          "retryName": "{{value0}} への SSH 接続を再試行します",
-          "connectName": "SSH ホスト {{value0}} に接続します",
-          "authFailedTooltip": "{{value0}} · 認証に失敗しました",
-          "failedTooltip": "{{value0}} · 接続に失敗しました"
         },
         "preserved": {
           "branch": {

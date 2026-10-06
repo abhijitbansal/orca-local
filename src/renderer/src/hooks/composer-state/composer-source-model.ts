@@ -57,8 +57,6 @@ export type ComposerSourceModel = {
   handleSmartLinearIssueSelect: (issue: LinearIssue) => void
   handleSparseSelectPreset: (preset: SparsePreset | null) => void
   insertComposerFolderPaths: (folderPaths: string[]) => void
-  onConnectSelectedProjectGroup: () => Promise<void>
-  onConnectSelectedRepo: () => Promise<void>
   prefetchSshConnectedGeneration: number
   resolvePendingSmartGitHubSubmit: () => Promise<PendingSmartGitHubSubmitResolution>
   selectAddedProjectRepo: (nextRepoId: string) => void

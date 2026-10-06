@@ -849,7 +849,6 @@
     "hooks": {
       "useAutomationDispatchEvents": {
         "59718b120b": "L'espace de travail cible n'est plus disponible.",
-        "16a21d6413": "La reconnexion SSH nécessite des identifiants interactifs.",
         "386db94f3e": "Le projet cible n'est plus disponible.",
         "3ad7d77f57": "L'espace de travail cible se trouve sur un hôte différent de la cible de cette exécution d'automatisation.",
         "workspaceHostUnresolved": "L'espace de travail cible s'étend sur plusieurs hôtes, cette exécution n'a donc aucun hôte unique à utiliser."
@@ -858,7 +857,6 @@
         "7eb3f44ff7": "L'agent sélectionné est désactivé. Choisissez un agent activé avant de créer.",
         "b2ead86962": "Échec de la résolution de la base de la PR.",
         "3db83fc58a": "Aucun chemin de projet n'est disponible sur cet hôte pour les pièces jointes.",
-        "ba6cb77082": "Échec de la connexion au projet.",
         "chooseOrAddProjectBeforeWorkspace": "Choisissez ou ajoutez un projet avant de créer un espace de travail.",
         "folderWorkspaceCreateFailedTitle": "Échec de la création de l'espace de travail de dossier",
         "folderWorkspaceCreateFailedMessage": "L'espace de travail de dossier n'a pas pu être créé. Vérifiez les détails de l'erreur ci-dessus, puis réessayez.",
@@ -1158,7 +1156,6 @@
         "ab63f25397": "Ouvrir les paramètres des agents",
         "01d1e8f601": "Agent",
         "0c5d6a479c": "[Optionnel]",
-        "b5a0796911": "Se connecter",
         "dccd26d4e4": "Choisir le projet",
         "d6b0a96f32": "Ajouter un projet",
         "969a8bff66": "Projet",
@@ -1171,7 +1168,6 @@
         "2132b670da": "les deux",
         "0e587e31fb": "yaml",
         "ac3748dcda": "Créer à partir de",
-        "f660aa1454": "Connexion",
         "7711ad5122": "Commande de setup locale",
         "e5db1b0419": "Commande de setup combinée",
         "runOn": "Exécuter sur",
@@ -3970,8 +3966,7 @@
         "AddProjectFromFolderDialog": {
           "7d1f51678c": "Ajouter un projet",
           "7726a16374": "Annuler",
-          "046751dbfb": "Ajoutez ce dossier comme projet Orca distinct.",
-          "e643b30398": "Projet ajouté sur l'hôte SSH"
+          "046751dbfb": "Ajoutez ce dossier comme projet Orca distinct."
         },
         "AddRepoCreateStep": {
           "0ae45b8238": "my-project",
@@ -3997,13 +3992,7 @@
           "local": "Local",
           "runtime": "Serveur",
           "ssh": "SSH",
-          "connecting": "Connexion",
-          "connect": "Se connecter",
-          "addSshHost": "Ajouter un hôte SSH",
-          "addRemoteHost": "Ajouter un hôte distant",
-          "addRemoteHostTooltip": "Choisissez SSH pour une machine sur laquelle vous pouvez vous connecter, ou serveur distant pour un serveur Orca.",
-          "addSshHostDetail": "Utiliser une machine existante via SSH.",
-          "addRemoteHostDetail": "Hôte SSH ou serveur Orca"
+          "addRemoteHostTooltip": "Choisissez SSH pour une machine sur laquelle vous pouvez vous connecter, ou serveur distant pour un serveur Orca."
         },
         "AddRepoNestedImportStep": {
           "496f68cf8c": "Analyse des dépôts en cours. Cliquez pour arrêter.",
@@ -4028,26 +4017,15 @@
           "e52454b7f6": "Ouvrir comme dossier"
         },
         "AddRepoRemoteStep": {
-          "5b205b5281": "Interrompre l'analyse",
-          "6680289908": "/home/user/project",
-          "ef410aa881": "Chemin sur l'hôte",
-          "df6fbcf880": "Aucune cible SSH configurée.",
-          "44637f43bd": "Cible SSH",
           "80557be85a": "Choisissez une cible SSH connectée et saisissez le chemin vers un dépôt Git.",
-          "91b93a90a4": "Ouvrir un projet sur l'hôte SSH",
-          "007651bdf9": "Naviguez jusqu'à un répertoire et cliquez sur Sélectionner pour le choisir.",
-          "dd3ff65486": "Parcourir le système de fichiers distant",
-          "36d427bb66": "Ajouter un projet sur l'hôte SSH",
           "35831a7312": "Ajout...",
           "lockedDescription": "Saisissez le chemin vers un dépôt Git sur {{value0}}.",
-          "lockedDisconnected": "{{value0}} est déconnecté.",
-          "93e0221434": "Se connecter"
+          "lockedDisconnected": "{{value0}} est déconnecté."
         },
         "AddRepoServerStartStep": {
           "ae990c86a0": "Retour aux options d'ajout",
           "e1710bf831": "Ouvrir comme dossier",
           "8da4d1a5be": "Ajouter un projet Git",
-          "ac66a3ed2d": "Parcourir le système de fichiers de l'hôte",
           "92d25420a0": "/home/user/project",
           "867692f505": "Chemin sur l'hôte",
           "423b5d3d31": "Ajoutez un dépôt Git ou un dossier déjà présent sur l'hôte sélectionné.",
@@ -4058,11 +4036,8 @@
           "a81ffa0a99": "Créer sur l'hôte",
           "a2ea37d549": "Dépôt Git distant",
           "47759c9491": "Cloner depuis une URL",
-          "516187414c": "Projet ou dossier existant",
-          "0adf083af7": "Parcourir l'hôte",
           "8efa930eb5": "Ajoutez un autre projet depuis l'hôte sélectionné.",
-          "39bd249b3a": "Ajouter un projet",
-          "0f8aba944c": "Naviguez jusqu'à un répertoire et cliquez sur Sélectionner pour le choisir."
+          "39bd249b3a": "Ajouter un projet"
         },
         "AddRepoStartSteps": {
           "87596c1446": "Autres moyens d'ajout",
@@ -4077,16 +4052,12 @@
         },
         "AddRepoSteps": {
           "569326d9cc": "Choisir un dossier",
-          "a93ef169b5": "Parcourir le système de fichiers de l'hôte",
           "2ce3f6edf8": "/path/to/destination",
           "04a4c4e84a": "Emplacement du clone",
           "b698a4a29d": "https://github.com/user/repo.git",
           "3d4acbe693": "URL Git",
           "5b2ea674b1": "Saisissez l'URL Git et choisissez où le cloner.",
           "c05f88a31f": "Cloner depuis une URL",
-          "fe8e629fe3": "Naviguez jusqu'à un répertoire et cliquez sur Sélectionner pour le choisir.",
-          "df8b0e6c22": "Projet ajouté sur l'hôte SSH",
-          "3e64e8a70d": "Échec de la connexion",
           "32a7256d85": "Cloner",
           "69f5b5380d": "Clonage...",
           "cloneOnHostDescription": "Saisissez l'URL Git et choisissez où le cloner sur {{value0}}.",
@@ -4108,8 +4079,7 @@
           "afaf54f245": "Modifier le dossier parent",
           "f520f83a97": "Parcourir le système de fichiers de l'hôte",
           "2a20a603a3": "/home/user/projects",
-          "134e37f711": "Emplacement",
-          "b589b77997": "Naviguez jusqu'à un répertoire et cliquez sur Sélectionner pour le choisir."
+          "134e37f711": "Emplacement"
         },
         "DeleteWorktreeDialog": {
           "ff2a74ac0e": "et",
@@ -4155,7 +4125,6 @@
           "05b33a17a9": "Annuler",
           "8fba4b8cbb": "Ce dossier n'est pas un dépôt Git. Vous aurez l'éditeur, le terminal et la recherche, mais les fonctionnalités basées sur Git ne seront pas disponibles.",
           "c49fb13492": "Échec de l'ajout du dossier sur cet hôte",
-          "9a766f33ac": "Ce chemin a été vérifié sur l'hôte SSH.",
           "79fd02cf5f": "Ce chemin a été vérifié sur {{hostName}}.",
           "8851b77327": "Ce chemin a été vérifié localement."
         },
@@ -4199,13 +4168,7 @@
           "4a64e78822": "Enregistrement..."
         },
         "RemoteFileBrowser": {
-          "2300612806": "Tapez pour filtrer ou saisissez un chemin…",
-          "9e060f5815": "Sélectionner un dossier",
-          "f8b1deb1a4": "Annuler",
-          "51001182e3": "Répertoire vide",
-          "971d85cc84": "S'ouvre comme projet sur cet hôte · {{value0}}",
-          "00c4235c10": "Aucun résultat pour « {{value0}} »",
-          "largeInputNoMatches": "Aucun résultat pour cette saisie longue"
+          "971d85cc84": "S'ouvre comme projet sur cet hôte · {{value0}}"
         },
         "RemoveFolderDialog": {
           "4dc5b5065b": "Supprimer",
@@ -4410,10 +4373,6 @@
           "folderPathIdentity": "Branche / chemin de dossier",
           "cli": "Orca CLI",
           "workspaceOptions": "Options de l'espace de travail"
-        },
-        "SshTargetRow": {
-          "4677394048": "Connexion…",
-          "75ad429b5d": "Se connecter"
         },
         "WorkspaceKanbanCard": {
           "cefae8983e": "Épinglés"
@@ -4729,9 +4688,7 @@
                   "c709860596": "Créer un nouveau projet",
                   "5f9ffac036": "Cloner un dépôt Git distant",
                   "7edb8ebe24": "Cloner depuis une URL",
-                  "a6c20dca96": "Ouvrir un projet depuis une cible SSH",
                   "sshCreateUnavailable": "Pas encore disponible pour les hôtes SSH",
-                  "3d162cc76f": "Projet sur hôte SSH",
                   "fb4fc5380e": "Projet local, dépôt Git ou dossier contenant plusieurs dépôts",
                   "2281fdc8c7": "Parcourir le dossier",
                   "sshBrowseTitle": "Ouvrir un projet sur l'hôte SSH",
@@ -4768,16 +4725,6 @@
             "failure": {
               "archive": {
                 "waiver": "Supprimer quand même"
-              }
-            }
-          }
-        },
-        "remote": {
-          "file": {
-            "browser": {
-              "helpers": {
-                "4dbd72a7d7": "{{value0}} n'est pas un dossier dans {{value1}}",
-                "be266af66c": "{{value0}} correspond à plusieurs dossiers dans {{value1}}"
               }
             }
           }
@@ -4908,17 +4855,7 @@
           "2b3c4d5e6f": "Échec du retrait de l'hôte",
           "3c4d5e6f7a": "Retirer {{value0}} ?",
           "5e6f7a8b9c": "Ceci retire l'hôte SSH enregistré et ses identifiants de cet ordinateur. Les fichiers distants ne sont pas supprimés.",
-          "6f7a8b9c0d": "Annuler",
-          "8b9c0d1e2f": "Retirer l'hôte",
-          "workspacesFailed": "Impossible de retirer {{count}} espaces de travail de cet hôte. L'hôte a été conservé pour vous permettre de réessayer.",
-          "oneWorkspace": "1 espace de travail",
-          "manyWorkspaces": "{{count}} espaces de travail",
-          "hostHasWorkspacesDefault": "Retire {{value0}} et ses identifiants de cet ordinateur. Ses {{value1}} restent dans Orca — les fichiers distants ne sont pas touchés.",
-          "alsoDeleteRemote": "Supprimer aussi ces {{value0}} sur {{value1}}",
-          "alsoForgetLocal": "Retirer aussi ces {{value0}} d'Orca",
-          "advanced": "Avancé",
-          "alsoDeleteRemoteHint": "Supprime définitivement les worktrees Git distants et leurs branches. Irréversible.",
-          "alsoForgetLocalHint": "Les retire uniquement d'Orca. Les fichiers, worktrees et branches distants restent intacts."
+          "8b9c0d1e2f": "Retirer l'hôte"
         },
         "HostRenameDialog": {
           "1a2b3c4d5e": "Renommer l'hôte",
@@ -4938,7 +4875,6 @@
           "6b7c8d9e10": "Actions d'hôte",
           "8d1e2f3a4b": "Renommer…",
           "63f36455cc": "Reconnecter",
-          "59b553e2aa": "Déconnecter",
           "2d3e4f5a6b": "Vérifier la connexion",
           "3c4d5e6f7a": "Gérer l'hôte…",
           "6e7f8a9b0c": "Retirer l'hôte…"
@@ -5011,71 +4947,14 @@
           "5d1c9f0a82": "Annuler",
           "3b7e4a1c96": "Masquer les worktrees externes"
         },
-        "useAddRepoHostSelection": {
-          "connectionFailed": "Échec de la connexion SSH."
-        },
         "AddRemoteHostDialog": {
-          "sshHostRequired": "Un hôte ou un alias de config SSH est requis.",
-          "sshPortInvalid": "Le port doit être compris entre 1 et 65535.",
-          "sshRelayGraceInvalid": "Le délai d'expiration du terminal doit être compris entre 60 et {{value0}} secondes.",
-          "sshSaved": "Hôte SSH ajouté.",
-          "sshSaveFailed": "Échec de l'ajout de l'hôte SSH.",
-          "sshTitle": "Ajouter un hôte SSH",
-          "sshDescription": "Ajoutez une machine permanente sur laquelle vous pouvez vous connecter en SSH.",
-          "cancel": "Annuler",
-          "saving": "Enregistrement...",
-          "save": "Enregistrer",
-          "label": "Label",
-          "sshLabelPlaceholder": "Machine de dev",
-          "sshHost": "Hôte ou alias",
-          "sshHostPlaceholder": "deploy@server:22",
-          "username": "Nom d'utilisateur",
-          "usernamePlaceholder": "deploy",
-          "port": "Port",
-          "identityFile": "Fichier d'identité",
-          "identityFilePlaceholder": "~/.ssh/id_ed25519 (facultatif)",
           "sshPersistenceDefault": "Les terminaux distants de cet hôte restent actifs jusqu'à ce que vous les fermiez ou réinitialisiez le relais.",
-          "sshImportAlreadySynced": "~/.ssh/config est déjà à jour.",
           "sshImportSynced": "Ajout de {{value0}} hôte{{value1}} à Orca.",
-          "sshImportFailed": "Échec de l'import de la config SSH.",
-          "sshAlreadyExists": "Cet hôte SSH est déjà dans Orca.",
           "advanced": "Avancé",
-          "sshConfigPickerLoadFailed": "Échec de la lecture de ~/.ssh/config.",
-          "sshConfigPickerResolveFailed": "Échec de la résolution de cet hôte de la config SSH.",
-          "sshConfigPickerRestartRequired": "Redémarrez Orca pour finaliser l'application de la mise à jour du sélecteur de config SSH.",
-          "sshConfigPickerFilled": "Rempli depuis {{value0}}. Vérifiez puis enregistrez.",
-          "sshConfigPickerTitle": "Choisir depuis ~/.ssh/config",
-          "sshConfigPickerDescription": "Choisissez un hôte pour remplir le formulaire. Rien n'est enregistré tant que vous n'avez pas cliqué sur Enregistrer.",
-          "sshConfigPickerFilter": "Filtrer les hôtes…",
-          "sshConfigPickerHostsLabel": "Hôtes de la config SSH",
-          "sshConfigPickerLoading": "Lecture de ~/.ssh/config…",
-          "sshConfigPickerEmpty": "Aucun hôte dans ~/.ssh/config",
-          "sshConfigPickerNoMatch": "Aucun hôte correspondant",
-          "sshConfigPickerEmptyHint": "Ajoutez-y une entrée Host, ou revenez en arrière pour saisir les détails manuellement.",
-          "sshConfigPickerNoMatchHint": "Essayez un autre filtre, ou revenez en arrière pour saisir manuellement.",
-          "sshConfigPickerMoreResults": "Affichage des {{value0}} premières correspondances. Affinez le filtre pour en trouver davantage.",
-          "sshConfigPickerInOrca": "Dans Orca",
-          "sshConfigPickerPreviouslyRemoved": "Retiré d'Orca",
-          "sshConfigPickerBulkHint": "La synchronisation groupée reste dans Paramètres → SSH",
-          "sshConfigPickerBack": "Retour",
-          "fillFromSshConfig": "Remplir depuis ~/.ssh/config…",
-          "sshConfigPickerAddingAll": "Ajout des hôtes…",
-          "sshConfigPickerAddAll": "Ajouter tous les {{value0}} à Orca",
-          "sshConfigPickerNoNewHosts": "Aucun nouvel hôte à ajouter",
-          "sshConfigPickerAddAllEmpty": "Tout ajouter à Orca",
-          "identityFileFromConfigHint": "Volontairement laissé vide : Orca utilise toutes les clés résolues par ~/.ssh/config pour {{value0}}. Saisissez un chemin pour n'utiliser que cette clé.",
-          "sshConfigPickerRetry": "Réessayer",
-          "sshConfigPickerResolving": "Lecture…"
+          "sshConfigPickerBulkHint": "La synchronisation groupée reste dans Paramètres → SSH"
         },
         "ForgetSshWorkspaceDialog": {
-          "reconnectFailed": "Échec de la reconnexion",
-          "forgetBody": "Retire uniquement cet espace de travail d'Orca. Les fichiers, le worktree Git et les branches sur {{host}} restent intacts.",
-          "title": "Supprimer « {{name}} » ?",
-          "disconnectedBody": "L'hôte SSH de cet espace de travail n'est pas connecté. Reconnectez-le pour le supprimer aussi à distance, ou retirez-le seulement d'Orca.",
-          "ghostBody": "{{host}} n'est plus un hôte SSH enregistré ; cet espace de travail n'est donc plus connecté à un hôte actif. Il ne peut être que retiré d'Orca — les fichiers et branches distants restent intacts.",
-          "cancel": "Annuler",
-          "forget": "Retirer d'Orca",
-          "reconnectAndDelete": "Reconnecter et supprimer"
+          "forget": "Retirer d'Orca"
         },
         "MarkdownImageLightbox": {
           "image": "Image",
@@ -5113,19 +4992,6 @@
         "worktreeIssueDisplacement": {
           "3f61c0a8d2": "Linear {{value}}",
           "9c4b7e1f60": "GitHub #{{value}}"
-        },
-        "WorktreeCardSshHostControl": {
-          "connectFailed": "Échec de la connexion SSH",
-          "removedTooltip": "Hôte SSH retiré — reconnexion impossible",
-          "removedName": "L'hôte SSH {{value0}} a été retiré",
-          "connectedTooltip": "Projet sur hôte SSH",
-          "connectedName": "Projet sur l'hôte SSH {{value0}}",
-          "connectingName": "Connexion à l'hôte SSH {{value0}}",
-          "authFailedName": "Reconnexion à l'hôte SSH {{value0}} — échec d'authentification",
-          "retryName": "Relancer la connexion SSH vers {{value0}}",
-          "connectName": "Se connecter à l'hôte SSH {{value0}}",
-          "authFailedTooltip": "{{value0}} · échec d'authentification",
-          "failedTooltip": "{{value0}} · échec de connexion"
         },
         "preserved": {
           "branch": {

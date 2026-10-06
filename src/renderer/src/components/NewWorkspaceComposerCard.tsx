@@ -7,15 +7,9 @@ import { getAgentCatalog } from '@/lib/agent-catalog'
 import { getScreenSubmitModifierLabel } from '@/lib/screen-submit-shortcut'
 import { resolveProjectCloneUrlPrefill } from '@/lib/project-clone-url-prefill'
 import { useContextualTour } from '@/components/contextual-tours/use-contextual-tour'
-import {
-  AddRemoteHostDialog,
-  type AddRemoteHostMode
-} from '@/components/sidebar/AddRemoteHostDialog'
 import { lazyWithRetry } from '@/lib/lazy-with-retry'
 import type * as SetProjectLocationDialogModule from '@/components/new-workspace/SetProjectLocationDialog'
 import { unwrapRuntimeRpcResult } from '@/runtime/runtime-rpc-client'
-import { withUiConnectTimeout } from '@/ssh/ssh-connect-ui-timeout'
-import { isSshConnectInFlight, trackSshConnect } from '@/ssh/ssh-connect-in-flight'
 import { translate } from '@/i18n/i18n'
 import {
   DEFAULT_DISABLED_TUI_AGENTS,
@@ -34,7 +28,6 @@ import {
   type NeedsProjectHostOption,
   type NewWorkspaceComposerCardProps
 } from './new-workspace/new-workspace-composer-card-props'
-import { getSshStatusLabel } from './new-workspace/new-workspace-composer-ssh-status'
 import { useComposerFileDragOver } from './new-workspace/use-composer-file-drag-over'
 
 // Why lazy: this pulls the ~41 KB project-location browser onto the boot graph, and nothing
@@ -66,7 +59,6 @@ export default function NewWorkspaceComposerCard(
     repoId,
     selectedRepoIsGit,
     onProjectHostSetupChange,
-    selectedRepoSshStatus,
     setupConfig,
     setupControlsEnabled = true,
     selectedProjectId = null,
@@ -94,7 +86,6 @@ export default function NewWorkspaceComposerCard(
   const branchNameInputId = React.useId()
   const projectDescriptionId = React.useId()
   const [sparseEditing, setSparseEditing] = React.useState(false)
-  const [addRemoteHostMode, setAddRemoteHostMode] = React.useState<AddRemoteHostMode | null>(null)
   const [setLocationOption, setSetLocationOption] = React.useState<NeedsProjectHostOption | null>(
     null
   )
@@ -126,13 +117,6 @@ export default function NewWorkspaceComposerCard(
   }, [hasSetLocationOption])
   const shouldShowRunTargetPicker =
     readyProjectHostSetupOptions.length > 0 || needsSetupProjectHostSetupOptions.length > 0
-  const sshStatusLabel = selectedRepoSshStatus
-    ? getSshStatusLabel(selectedRepoSshStatus)
-    : translate('auto.components.NewWorkspaceComposerCard.notConnected', 'Not connected')
-  const connectButtonLabel =
-    selectedRepoSshStatus === 'disconnected' || selectedRepoSshStatus === null
-      ? 'Connect'
-      : 'Reconnect'
   const setupConfigLabel =
     setupConfig?.kind === 'default-tabs'
       ? 'Default tab commands'
@@ -223,19 +207,11 @@ export default function NewWorkspaceComposerCard(
   const handleConnectRunTargetHost = React.useCallback(
     async (option: NeedsProjectHostOption): Promise<void> => {
       const action = option.connectAction
-      if (!action) {
+      // Why: SSH connect actions are unsupported in this build; only runtime hosts can be probed.
+      if (action?.kind !== 'runtime') {
         return
       }
       try {
-        if (action.kind === 'ssh') {
-          if (isSshConnectInFlight(action.targetId)) {
-            return
-          }
-          await withUiConnectTimeout(
-            trackSshConnect(action.targetId, window.api.ssh.connect({ targetId: action.targetId }))
-          )
-          return
-        }
         const response = await window.api.runtimeEnvironments.getStatus({
           selector: action.environmentId,
           timeoutMs: 15_000
@@ -243,9 +219,7 @@ export default function NewWorkspaceComposerCard(
         unwrapRuntimeRpcResult<RuntimeStatus>(response)
         await useAppStore.getState().readRuntimeHostStatusSnapshots()
       } catch (error) {
-        if (action.kind === 'runtime') {
-          await useAppStore.getState().readRuntimeHostStatusSnapshots()
-        }
+        await useAppStore.getState().readRuntimeHostStatusSnapshots()
         toast.error(
           error instanceof Error
             ? error.message
@@ -305,12 +279,8 @@ export default function NewWorkspaceComposerCard(
           focusNameInput={focusNameInput}
           shouldShowRunTargetPicker={shouldShowRunTargetPicker}
           handleProjectHostSetupChange={(setupId) => onProjectHostSetupChange?.(setupId)}
-          handleAddSshHost={() => setAddRemoteHostMode('ssh')}
           handleConnectRunTargetHost={handleConnectRunTargetHost}
           handleSetLocation={handleSetLocation}
-          sshStatusLabel={sshStatusLabel}
-          connectButtonLabel={connectButtonLabel}
-          selectedProjectName={selectedProjectName}
         />
         <NewWorkspaceComposerNameSection {...props} onNamePlainEnter={handleNamePlainEnter} />
         <NewWorkspaceComposerAgentSection
@@ -347,7 +317,6 @@ export default function NewWorkspaceComposerCard(
           />
         </div>
       ) : null}
-      <AddRemoteHostDialog mode={addRemoteHostMode} onOpenChange={setAddRemoteHostMode} />
       {setLocationDialogMounted ? (
         <React.Suspense fallback={null}>
           <SetProjectLocationDialog

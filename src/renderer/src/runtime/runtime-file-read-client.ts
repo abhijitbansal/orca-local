@@ -115,9 +115,6 @@ export async function downloadRuntimeFile(
     if (hasRemoteRuntimeOwner(context)) {
       throw new Error('Remote file is outside the owning runtime worktree')
     }
-    if (context.connectionId) {
-      return window.api.fs.downloadFile({ filePath, connectionId: context.connectionId })
-    }
     const result = await readRuntimeFilePreview(context, filePath)
     return window.api.fs.saveDownloadedFile({
       suggestedName,

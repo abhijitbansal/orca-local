@@ -53,10 +53,6 @@ vi.mock('@/components/agent/AgentCombobox', () => ({
   default: () => <button type="button">Agent picker</button>
 }))
 
-vi.mock('@/components/sidebar/AddRemoteHostDialog', () => ({
-  AddRemoteHostDialog: () => null
-}))
-
 vi.mock('@/components/sparse/SparseCheckoutPresetSelect', () => ({
   default: () => null
 }))

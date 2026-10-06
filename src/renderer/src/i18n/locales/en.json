@@ -876,7 +876,6 @@
     "hooks": {
       "useAutomationDispatchEvents": {
         "59718b120b": "The target workspace is no longer available.",
-        "16a21d6413": "SSH reconnect requires interactive credentials.",
         "386db94f3e": "The target project is no longer available.",
         "3ad7d77f57": "The target workspace is on a different host than this automation run target.",
         "workspaceHostUnresolved": "The target workspace spans more than one host, so this run has no single host to use."
@@ -885,7 +884,6 @@
         "7eb3f44ff7": "Selected agent is disabled. Choose an enabled agent before creating.",
         "b2ead86962": "Failed to resolve PR base.",
         "3db83fc58a": "No project path is available on this host for attachments.",
-        "ba6cb77082": "Failed to connect to project.",
         "chooseOrAddProjectBeforeWorkspace": "Choose or add a project before creating a workspace.",
         "folderWorkspaceCreateFailedTitle": "Folder workspace creation failed",
         "folderWorkspaceCreateFailedMessage": "The folder workspace could not be created. Check the error details above, then try again.",
@@ -1187,7 +1185,6 @@
         "ab63f25397": "Open agent settings",
         "01d1e8f601": "Agent",
         "0c5d6a479c": "[Optional]",
-        "b5a0796911": "Connect",
         "dccd26d4e4": "Choose project",
         "d6b0a96f32": "Add project",
         "969a8bff66": "Project",
@@ -1200,7 +1197,6 @@
         "2132b670da": "both",
         "0e587e31fb": "yaml",
         "ac3748dcda": "Create From",
-        "f660aa1454": "Connecting",
         "7711ad5122": "Local setup command",
         "e5db1b0419": "Combined setup command",
         "runOn": "Run on",
@@ -4039,8 +4035,7 @@
         "AddProjectFromFolderDialog": {
           "7d1f51678c": "Add Project",
           "7726a16374": "Cancel",
-          "046751dbfb": "Add this folder as a separate Orca project.",
-          "e643b30398": "Project added on SSH host"
+          "046751dbfb": "Add this folder as a separate Orca project."
         },
         "AddRepoCreateStep": {
           "0ae45b8238": "my-project",
@@ -4066,13 +4061,7 @@
           "local": "Local",
           "runtime": "Server",
           "ssh": "SSH",
-          "connecting": "Connecting",
-          "connect": "Connect",
-          "addSshHost": "Add SSH host",
-          "addRemoteHost": "Add remote host",
-          "addRemoteHostTooltip": "Choose SSH for a machine you can log into, or remote server for an Orca server.",
-          "addSshHostDetail": "Use an existing machine over SSH.",
-          "addRemoteHostDetail": "SSH host or Orca server"
+          "addRemoteHostTooltip": "Choose SSH for a machine you can log into, or remote server for an Orca server."
         },
         "AddRepoNestedImportStep": {
           "496f68cf8c": "Scanning repositories. Click to stop.",
@@ -4097,26 +4086,15 @@
           "e52454b7f6": "Open as Folder"
         },
         "AddRepoRemoteStep": {
-          "5b205b5281": "Stop scan",
-          "6680289908": "/home/user/project",
-          "ef410aa881": "Host path",
-          "df6fbcf880": "No SSH targets configured.",
-          "44637f43bd": "SSH target",
           "80557be85a": "Choose a connected SSH target and enter the path to a Git repository.",
-          "91b93a90a4": "Open project on SSH host",
-          "007651bdf9": "Navigate to a directory and click Select to choose it.",
-          "dd3ff65486": "Browse remote filesystem",
-          "36d427bb66": "Add project on SSH host",
           "35831a7312": "Adding...",
           "lockedDescription": "Enter the path to a Git repository on {{value0}}.",
-          "lockedDisconnected": "{{value0}} is disconnected.",
-          "93e0221434": "Connect"
+          "lockedDisconnected": "{{value0}} is disconnected."
         },
         "AddRepoServerStartStep": {
           "ae990c86a0": "Back to add options",
           "e1710bf831": "Open as Folder",
           "8da4d1a5be": "Add Git Project",
-          "ac66a3ed2d": "Browse host filesystem",
           "92d25420a0": "/home/user/project",
           "867692f505": "Host path",
           "423b5d3d31": "Add a Git repository or folder that already exists on the selected host.",
@@ -4127,11 +4105,8 @@
           "a81ffa0a99": "Create on host",
           "a2ea37d549": "Remote Git repository",
           "47759c9491": "Clone from URL",
-          "516187414c": "Existing project or folder",
-          "0adf083af7": "Browse host",
           "8efa930eb5": "Add another project from the selected host.",
-          "39bd249b3a": "Add a project",
-          "0f8aba944c": "Navigate to a directory and click Select to choose it."
+          "39bd249b3a": "Add a project"
         },
         "AddRepoStartSteps": {
           "87596c1446": "Other ways to add",
@@ -4146,16 +4121,12 @@
         },
         "AddRepoSteps": {
           "569326d9cc": "Choose folder",
-          "a93ef169b5": "Browse host filesystem",
           "2ce3f6edf8": "/path/to/destination",
           "04a4c4e84a": "Clone location",
           "b698a4a29d": "https://github.com/user/repo.git",
           "3d4acbe693": "Git URL",
           "5b2ea674b1": "Enter the Git URL and choose where to clone it.",
           "c05f88a31f": "Clone from URL",
-          "fe8e629fe3": "Navigate to a directory and click Select to choose it.",
-          "df8b0e6c22": "Project added on SSH host",
-          "3e64e8a70d": "Connection failed",
           "32a7256d85": "Clone",
           "69f5b5380d": "Cloning...",
           "cloneOnHostDescription": "Enter the Git URL and choose where to clone it on {{value0}}.",
@@ -4177,8 +4148,7 @@
           "afaf54f245": "Change parent folder",
           "f520f83a97": "Browse host filesystem",
           "2a20a603a3": "/home/user/projects",
-          "134e37f711": "Location",
-          "b589b77997": "Navigate to a directory and click Select to choose it."
+          "134e37f711": "Location"
         },
         "DeleteWorktreeDialog": {
           "ff2a74ac0e": "and",
@@ -4224,7 +4194,6 @@
           "05b33a17a9": "Cancel",
           "8fba4b8cbb": "This folder isn't a Git repository. You'll have the editor, terminal, and search, but Git-based features won't be available.",
           "c49fb13492": "Failed to add folder on this host",
-          "9a766f33ac": "This path was checked on the SSH host.",
           "79fd02cf5f": "This path was checked on {{hostName}}.",
           "8851b77327": "This path was checked locally."
         },
@@ -4268,13 +4237,7 @@
           "4a64e78822": "Saving..."
         },
         "RemoteFileBrowser": {
-          "2300612806": "Type to filter or enter a path…",
-          "9e060f5815": "Select folder",
-          "f8b1deb1a4": "Cancel",
-          "51001182e3": "Empty directory",
-          "971d85cc84": "Opens as a project on this host · {{value0}}",
-          "00c4235c10": "No matches for '{{value0}}'",
-          "largeInputNoMatches": "No matches for this long input"
+          "971d85cc84": "Opens as a project on this host · {{value0}}"
         },
         "RemoveFolderDialog": {
           "4dc5b5065b": "Remove",
@@ -4479,10 +4442,6 @@
           "folderPathIdentity": "Branch / folder path",
           "cli": "Orca CLI",
           "workspaceOptions": "Workspace options"
-        },
-        "SshTargetRow": {
-          "4677394048": "Connecting…",
-          "75ad429b5d": "Connect"
         },
         "WorkspaceKanbanCard": {
           "cefae8983e": "Pinned"
@@ -4798,9 +4757,7 @@
                   "c709860596": "Create new project",
                   "5f9ffac036": "Clone a remote Git repository",
                   "7edb8ebe24": "Clone from URL",
-                  "a6c20dca96": "Open a project from an SSH target",
                   "sshCreateUnavailable": "Not available for SSH hosts yet",
-                  "3d162cc76f": "Project on SSH host",
                   "fb4fc5380e": "Local project, Git repo, or folder with many repos",
                   "2281fdc8c7": "Browse folder",
                   "sshBrowseTitle": "Open project on SSH host",
@@ -4837,16 +4794,6 @@
             "failure": {
               "archive": {
                 "waiver": "Delete Anyway"
-              }
-            }
-          }
-        },
-        "remote": {
-          "file": {
-            "browser": {
-              "helpers": {
-                "4dbd72a7d7": "{{value0}} isn't a directory in {{value1}}",
-                "be266af66c": "{{value0}} matches multiple directories in {{value1}}"
               }
             }
           }
@@ -4977,17 +4924,7 @@
           "2b3c4d5e6f": "Failed to remove host",
           "3c4d5e6f7a": "Remove {{value0}}?",
           "5e6f7a8b9c": "This removes the saved SSH host and its credentials from this computer. Remote files are not deleted.",
-          "6f7a8b9c0d": "Cancel",
-          "8b9c0d1e2f": "Remove host",
-          "workspacesFailed": "Could not remove {{count}} of this host’s workspaces. The host was kept so you can retry.",
-          "oneWorkspace": "1 workspace",
-          "manyWorkspaces": "{{count}} workspaces",
-          "hostHasWorkspacesDefault": "Removes {{value0}} and its credentials from this computer. Its {{value1}} stay in Orca — remote files are not touched.",
-          "alsoDeleteRemote": "Also delete these {{value0}} on {{value1}}",
-          "alsoForgetLocal": "Also remove these {{value0}} from Orca",
-          "advanced": "Advanced",
-          "alsoDeleteRemoteHint": "Permanently deletes the remote Git worktrees and their branches. Cannot be undone.",
-          "alsoForgetLocalHint": "Clears them from Orca only. Remote files, worktrees, and branches are left untouched."
+          "8b9c0d1e2f": "Remove host"
         },
         "HostRenameDialog": {
           "1a2b3c4d5e": "Rename host",
@@ -5007,7 +4944,6 @@
           "6b7c8d9e10": "Host actions",
           "8d1e2f3a4b": "Rename…",
           "63f36455cc": "Reconnect",
-          "59b553e2aa": "Disconnect",
           "2d3e4f5a6b": "Check connection",
           "3c4d5e6f7a": "Manage host…",
           "6e7f8a9b0c": "Remove host…"
@@ -5080,71 +5016,14 @@
           "5d1c9f0a82": "Cancel",
           "3b7e4a1c96": "Hide external worktrees"
         },
-        "useAddRepoHostSelection": {
-          "connectionFailed": "SSH connection failed."
-        },
         "AddRemoteHostDialog": {
-          "sshHostRequired": "Host or SSH config alias is required.",
-          "sshPortInvalid": "Port must be between 1 and 65535.",
-          "sshRelayGraceInvalid": "Terminal timeout must be between 60 and {{value0}} seconds.",
-          "sshSaved": "SSH host added.",
-          "sshSaveFailed": "Failed to add SSH host.",
-          "sshTitle": "Add SSH host",
-          "sshDescription": "Add a persistent machine you can log into over SSH.",
-          "cancel": "Cancel",
-          "saving": "Saving...",
-          "save": "Save",
-          "label": "Label",
-          "sshLabelPlaceholder": "Dev box",
-          "sshHost": "Host or alias",
-          "sshHostPlaceholder": "deploy@server:22",
-          "username": "Username",
-          "usernamePlaceholder": "deploy",
-          "port": "Port",
-          "identityFile": "Identity file",
-          "identityFilePlaceholder": "~/.ssh/id_ed25519 (optional)",
           "sshPersistenceDefault": "Remote terminals on this host stay alive until you end them or reset the relay.",
-          "sshImportAlreadySynced": "~/.ssh/config already in sync.",
           "sshImportSynced": "Added {{value0}} host{{value1}} to Orca.",
-          "sshImportFailed": "Failed to import SSH config.",
-          "sshAlreadyExists": "That SSH host is already in Orca.",
           "advanced": "Advanced",
-          "sshConfigPickerLoadFailed": "Failed to read ~/.ssh/config.",
-          "sshConfigPickerResolveFailed": "Failed to resolve that SSH config host.",
-          "sshConfigPickerRestartRequired": "Restart Orca to finish applying the SSH config picker update.",
-          "sshConfigPickerFilled": "Filled from {{value0}}. Review and Save.",
-          "sshConfigPickerTitle": "Choose from ~/.ssh/config",
-          "sshConfigPickerDescription": "Pick a host to fill the form. Nothing is saved until you click Save.",
-          "sshConfigPickerFilter": "Filter hosts…",
-          "sshConfigPickerHostsLabel": "SSH config hosts",
-          "sshConfigPickerLoading": "Reading ~/.ssh/config…",
-          "sshConfigPickerEmpty": "No hosts in ~/.ssh/config",
-          "sshConfigPickerNoMatch": "No matching hosts",
-          "sshConfigPickerEmptyHint": "Add a Host entry there, or go back and type the details manually.",
-          "sshConfigPickerNoMatchHint": "Try another filter, or go back and type manually.",
-          "sshConfigPickerMoreResults": "Showing the first {{value0}} matches. Narrow your filter to find more.",
-          "sshConfigPickerInOrca": "In Orca",
-          "sshConfigPickerPreviouslyRemoved": "Removed from Orca",
-          "sshConfigPickerBulkHint": "Bulk sync stays in Settings → SSH",
-          "sshConfigPickerBack": "Back",
-          "fillFromSshConfig": "Fill from ~/.ssh/config…",
-          "sshConfigPickerAddingAll": "Adding hosts…",
-          "sshConfigPickerAddAll": "Add all {{value0}} to Orca",
-          "sshConfigPickerNoNewHosts": "No new hosts to add",
-          "sshConfigPickerAddAllEmpty": "Add all to Orca",
-          "identityFileFromConfigHint": "Left empty on purpose: Orca uses every key ~/.ssh/config resolves for {{value0}}. Type a path to use just that key.",
-          "sshConfigPickerRetry": "Try again",
-          "sshConfigPickerResolving": "Reading…"
+          "sshConfigPickerBulkHint": "Bulk sync stays in Settings → SSH"
         },
         "ForgetSshWorkspaceDialog": {
-          "reconnectFailed": "Reconnection failed",
-          "forgetBody": "Removes this workspace from Orca only. Files, the Git worktree, and branches on {{host}} are left untouched.",
-          "title": "Delete “{{name}}”?",
-          "disconnectedBody": "The SSH host for this workspace is not connected. Reconnect to delete it on the remote too, or remove it from Orca only.",
-          "ghostBody": "{{host}} is no longer a saved SSH host, so this workspace is no longer connected to a live host. It can only be removed from Orca — files and branches on the remote are left untouched.",
-          "cancel": "Cancel",
-          "forget": "Remove from Orca",
-          "reconnectAndDelete": "Reconnect & Delete"
+          "forget": "Remove from Orca"
         },
         "MarkdownImageLightbox": {
           "image": "Image",
@@ -5182,19 +5061,6 @@
         "worktreeIssueDisplacement": {
           "3f61c0a8d2": "Linear {{value}}",
           "9c4b7e1f60": "GitHub #{{value}}"
-        },
-        "WorktreeCardSshHostControl": {
-          "connectFailed": "SSH connection failed",
-          "removedTooltip": "SSH host removed — reconnect unavailable",
-          "removedName": "SSH host {{value0}} was removed",
-          "connectedTooltip": "Project on SSH host",
-          "connectedName": "Project on SSH host {{value0}}",
-          "connectingName": "Connecting to SSH host {{value0}}",
-          "authFailedName": "Reconnect SSH host {{value0}} — authentication failed",
-          "retryName": "Retry SSH connection to {{value0}}",
-          "connectName": "Connect to SSH host {{value0}}",
-          "authFailedTooltip": "{{value0}} · authentication failed",
-          "failedTooltip": "{{value0}} · connection failed"
         },
         "preserved": {
           "branch": {

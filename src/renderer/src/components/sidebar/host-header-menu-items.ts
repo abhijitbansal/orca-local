@@ -8,13 +8,7 @@ import type { RuntimeCompatVerdict } from '../../../../shared/protocol-compat'
 // Why: no 'focus' action here — the host scope strip is the single scoping
 // control (the design doc forbids a separate focused-host toggle), and
 // decluttering is served by collapsing the section.
-export type HostHeaderMenuAction =
-  | 'rename'
-  | 'manage'
-  | 'ssh-reconnect'
-  | 'ssh-disconnect'
-  | 'runtime-check-connection'
-  | 'remove'
+export type HostHeaderMenuAction = 'rename' | 'manage' | 'runtime-check-connection'
 
 export type HostHeaderMenuModel = {
   /** Lifecycle/navigation actions, in display order. */
@@ -28,15 +22,7 @@ export type HostHeaderMenuModel = {
 export type HostHeaderMenuInput = {
   kind: ExecutionHostKind
   health: ExecutionHostHealth
-  /** SSH connection status drives Reconnect vs Disconnect. */
-  sshConnected?: boolean
   compatibility?: RuntimeCompatVerdict
-}
-
-function sshActions(connected: boolean): HostHeaderMenuAction[] {
-  // Why: only offer the action that changes state — Disconnect when up,
-  // Reconnect otherwise — to avoid a dead menu item.
-  return connected ? ['ssh-disconnect'] : ['ssh-reconnect']
 }
 
 export function buildHostHeaderMenuModel(input: HostHeaderMenuInput): HostHeaderMenuModel {
@@ -45,9 +31,6 @@ export function buildHostHeaderMenuModel(input: HostHeaderMenuInput): HostHeader
   const actions: HostHeaderMenuAction[] = ['rename']
 
   switch (input.kind) {
-    case 'ssh':
-      actions.push(...sshActions(input.sshConnected ?? false))
-      break
     case 'runtime':
       actions.push('runtime-check-connection')
       break
@@ -57,12 +40,6 @@ export function buildHostHeaderMenuModel(input: HostHeaderMenuInput): HostHeader
 
   // Manage host… always closes out the list as the catch-all deep link.
   actions.push('manage')
-
-  // Why: removing a host deletes the underlying SSH target / runtime
-  // environment, which only exists for those kinds — local can't be removed.
-  if (input.kind === 'ssh' || input.kind === 'runtime') {
-    actions.push('remove')
-  }
 
   const blocked =
     input.health === 'blocked' && input.compatibility?.kind === 'blocked'

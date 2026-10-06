@@ -106,7 +106,6 @@ export type NewWorkspaceComposerCardProps = {
   selectedRepoSshStatus: SshConnectionStatus | null
   selectedRepoRequiresConnection: boolean
   selectedRepoConnectInProgress: boolean
-  onConnectSelectedRepo: () => Promise<void>
   branchesEnabled?: boolean
   setupControlsEnabled?: boolean
   canUseSparseCheckout: boolean
