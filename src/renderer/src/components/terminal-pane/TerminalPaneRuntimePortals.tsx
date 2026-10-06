@@ -1,6 +1,5 @@
 import { createPortal } from 'react-dom'
 import CodexRestartChip from '../CodexRestartChip'
-import { TerminalSshReconnectOverlay } from './TerminalSshReconnectOverlay'
 import { TerminalRemoteRuntimeReconnectBanner } from './TerminalRemoteRuntimeReconnectBanner'
 import { TerminalProcessExitOverlay } from './TerminalProcessExitOverlay'
 import { MobileDriverOverlay } from './MobileDriverOverlay'
@@ -73,46 +72,6 @@ export function TerminalPaneProcessExitPortals({
           `process-exit-${pane.id}`
         )
       })}
-    </>
-  )
-}
-
-export function TerminalPaneSshReconnectPortals({
-  controller
-}: {
-  controller: TerminalPaneController
-}): React.JSX.Element | null {
-  const {
-    managedPanes,
-    showSshReconnectOverlay,
-    sshReconnectEnvironmentId,
-    sshReconnectError,
-    sshReconnectStatus,
-    sshReconnectTargetId,
-    sshReconnectTargetLabel,
-    sshReconnectTargetRemoved,
-    worktreeId
-  } = controller
-  if (!showSshReconnectOverlay || !sshReconnectTargetId || !sshReconnectStatus) {
-    return null
-  }
-  return (
-    <>
-      {managedPanes.map((pane) =>
-        createPortal(
-          <TerminalSshReconnectOverlay
-            targetId={sshReconnectTargetId}
-            targetLabel={sshReconnectTargetLabel}
-            status={sshReconnectStatus}
-            error={sshReconnectError}
-            targetRemoved={sshReconnectTargetRemoved}
-            worktreeId={worktreeId}
-            sshOwnerEnvironmentId={sshReconnectEnvironmentId}
-          />,
-          pane.container,
-          `ssh-reconnect-${pane.id}`
-        )
-      )}
     </>
   )
 }

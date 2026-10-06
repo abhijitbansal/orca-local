@@ -25,7 +25,6 @@
         "opencodeGoToggleDescription": "활성 워크스페이스에 대한 OpenCode Go 토큰 및 비용 사용량을 표시합니다.",
         "kimiToggleDescription": "활성 워크스페이스의 Kimi 구독 사용량을 표시합니다.",
         "minimaxToggleDescription": "활성 워크스페이스의 MiniMax 구독 사용량을 표시합니다.",
-        "sshToggleDescription": "사용 가능한 SSH 및 원격 Orca 호스트가 있으면 표시합니다.",
         "resourceUsageToggleDescription": "리소스 관리자를 표시합니다. 클릭하면 CPU, 메모리, 세션, 데몬 제어, 워크스페이스 디스크 스캔을 볼 수 있습니다.",
         "portsToggleDescription": "라이브 워크스페이스 포트를 표시합니다. 워크스페이스 범위 포트 및 외부 수신기를 보려면 클릭하세요.",
         "antigravityToggleDescription": "활성 워크스페이스에 대한 Antigravity 구독 사용량을 표시합니다.",
@@ -50,21 +49,9 @@
       "sshWorkspaceRouting": {
         "title": "SSH 워크스페이스 호스트 탐색",
         "description": "SSH 워크스페이스의 브라우저 페이지는 DNS가 확인된 워크스페이스의 SSH 호스트를 통해 트래픽을 보냅니다. 꺼짐은 이 컴퓨터에서 페이지를 탐색한다는 의미입니다.",
-        "disabledHosts": "대신 이 기기에서 탐색하는 호스트는 다음과 같습니다.",
         "enableHost": "다시 라우팅",
-        "optionHost": "SSH 호스트",
-        "optionHostTooltip": "트래픽과 DNS는 워크스페이스의 SSH 호스트를 통과합니다.",
-        "optionDevice": "이 기기",
-        "optionDeviceTooltip": "페이지는 이 시스템의 네트워크에서 탐색됩니다.",
-        "rowTitle": "SSH 워크스페이스",
-        "rowDescription": "브라우저 트래픽이 시작되는 곳입니다. 페이지는 항상 이 기기에서 렌더링됩니다.",
-        "useHost": "SSH 호스트 사용",
         "probeSkippedHosts": "연결 확인 없이 라우팅된 호스트(어쨌든 시도):",
         "probeAgain": "다시 확인하세요"
-      },
-      "remoteBrowsing": {
-        "heading": "원격 탐색",
-        "headingDescription": "원격 워크스페이스 페이지가 렌더링되는 위치와 해당 네트워크 트래픽이 출발하는 위치입니다."
       },
       "userAgent": {
         "title": "브라우저 ID",
@@ -817,12 +804,6 @@
         "f6300deb8b": "새 브라우저 탭",
         "7a64b31991": "원격 런타임이 활성화된 동안에는 로컬 terminal 생성을 사용할 수 없습니다.",
         "60428567b4": "원격 런타임이 활성화된 동안에는 로컬 terminal 표시를 사용할 수 없습니다.",
-        "f8aaf2bde3": "워크스페이스가 업로드됨",
-        "2fe88c2e06": "원격 워크스페이스 동기화를 사용할 수 없습니다.",
-        "workspaceChangedOnAnotherDevice": "다른 기기에서 워크스페이스가 변경되었습니다.",
-        "2ec42e1c52": "아직 원격 워크스페이스가 없습니다.",
-        "88214a785b": "워크스페이스 동기화가 로컬 세션 하이드레이션을 기다렸다가 시간 초과되었습니다.",
-        "4f78ba5885": "워크스페이스가 동기화되었습니다.",
         "unresolvedTerminalWorktreeOwner": "Terminal creation is unavailable because the worktree owner could not be resolved"
       },
       "useSettingsNavigationMetadata": {
@@ -834,8 +815,6 @@
         "3618579df6": "개인정보 및 텔레메트리",
         "65ec7d1968": "terminal에서 실행되는 개발자 도구에 대한 macOS 개인 정보 보호 액세스입니다.",
         "d91ae31fbd": "macOS 권한",
-        "31e57d1c70": "SSH를 통해 기존 머신의 파일, terminals, Git, 워크스페이스를 사용합니다.",
-        "94a5afe910": "SSH 호스트",
         "40d80bad8a": "베타",
         "b351014180": "Orca 통계와 Claude, Codex, OpenCode, Muse 토큰 분석 및 Grok 구독 사용량.",
         "d72a58b5b9": "통계 및 사용량",
@@ -2365,18 +2344,8 @@
             "c337c9d75c": "닫기"
           },
           "TerminalSshReconnectOverlay": {
-            "authFailed": "{{value0}} 인증에 실패했습니다. 이 터미널 세션을 계속하려면 다시 연결하세요.",
-            "reconnectFailed": "{{value0}}에 대한 SSH 연결에 실패했습니다. 이 터미널 세션을 계속하려면 다시 연결하세요.",
-            "connecting": "{{value0}}에 연결 중입니다. 호스트를 사용할 수 있게 되면 이 터미널이 재개됩니다.",
-            "connected": "SSH가 연결되었습니다.",
-            "disconnected": "이 터미널은 {{value0}} 연결을 기다리고 있습니다. 이 SSH 세션을 계속하려면 연결하세요.",
-            "connectFailed": "SSH 연결 실패",
-            "title": "SSH 연결 필요",
             "connectingButton": "연결 중...",
-            "connectButton": "연결",
-            "removedTitle": "SSH 호스트가 제거됨",
-            "removedBody": "이 워크트리의 SSH 호스트가 제거되어 더 이상 연결할 수 없습니다. 워크트리를 제거하여 정리하세요 — 원격 파일은 그대로 남아 있습니다.",
-            "removeWorkspaceButton": "워크트리 제거"
+            "connectButton": "연결"
           },
           "TerminalRemoteRuntimeReconnectBanner": {
             "retryingTitle": "원격 런타임에 다시 연결 중",
@@ -2737,12 +2706,7 @@
             "e9a5d3c2b1f0": "{{value0}}을(를) 종료할까요?"
           },
           "SshStatusSegment": {
-            "6e8a9a4242": "원격 호스트",
             "d09ec41831": "원격 호스트",
-            "fdc57e9970": "원격 호스트 연결 상태",
-            "59b553e2aa": "연결 해제",
-            "bf07aee59e": "연결 해제 실패",
-            "2c29e2de68": "연결 실패",
             "bc5a3fd41a": "부분 연결",
             "3d0128b105": "연결됨",
             "fd9a3c600e": "오류",
@@ -2750,10 +2714,7 @@
             "95e4ff5b4b": "푸시 중",
             "63a2b965f6": "가져오는 중",
             "connectedHostCount_one": "호스트 {{count}}개",
-            "connectedHostCount_other": "호스트 {{count}}개",
-            "connecting": "연결 중…",
-            "workspaceConflict": "워크스페이스 충돌",
-            "workspaceSyncError": "워크스페이스 동기화 오류"
+            "connectedHostCount_other": "호스트 {{count}}개"
           },
           "CaffeinateStatusSegment": {
             "active": "활성",
@@ -2766,7 +2727,6 @@
           "StatusBar": {
             "9659e38343": "포트",
             "d1e1a7a6bf": "리소스 관리자",
-            "24ac89df1a": "원격 호스트",
             "5e59007df4": "Kimi 사용량",
             "8c86cd77b0": "OpenCode Go 사용량",
             "c1df0d67ec": "Gemini 사용량",
@@ -2991,9 +2951,6 @@
               },
               "plan": "플랜"
             }
-          },
-          "SshTargetStatusRow": {
-            "sshHost": "SSH 호스트"
           },
           "usagePercentageLabel": {
             "used": "{{value0}}% 사용",
@@ -3949,7 +3906,6 @@
           "5b205b5281": "스캔 중지",
           "6680289908": "/home/user/project",
           "ef410aa881": "원격 경로",
-          "0416bde073": "설정에 추가",
           "df6fbcf880": "구성된 SSH 대상이 없습니다.",
           "44637f43bd": "SSH 대상",
           "80557be85a": "연결된 SSH 대상을 선택하고 Git 리포지토리 경로를 입력하세요.",
@@ -6703,8 +6659,6 @@
           "d7e3f62d70": "개인정보 및 텔레메트리",
           "9b83cc62c2": "terminal에서 실행되는 개발자 도구의 macOS 개인정보 보호 접근 권한입니다.",
           "65660d4548": "macOS 권한",
-          "c2ee313198": "SSH를 통해 기존 머신의 파일, terminals, Git, 워크스페이스를 사용합니다.",
-          "9b02492d1f": "SSH 호스트",
           "8acf3f22e0": "Orca 통계와 Claude, Codex, OpenCode, Muse 토큰 분석 및 Grok 구독 사용량.",
           "954a8f5aef": "통계 및 사용량",
           "a737a4bb22": "일반 작업에 대한 키보드 단축키입니다.",
@@ -6884,84 +6838,15 @@
           "68bbcd864a": "새로운",
           "2ef2b2674b": "{{value0}} 삭제"
         },
-        "SshDestructiveActionDialog": {
-          "895b216267": "취소"
-        },
         "SshPane": {
-          "c0f1c80166": "구성된 SSH 대상이 없습니다.",
-          "639ceb3698": "대상 추가",
-          "51d7dba44d": "가져오기",
           "a7d28dff81": "Orca에서 연결할 원격 호스트를 추가합니다.",
-          "94c5284560": "대상",
-          "f495689b82": "가져오기 실패",
-          "f8050f6307": "동기화된 {{value0}} 서버{{value1}}",
-          "68c13b4589": "테스트 실패",
-          "81d08bcddf": "연결 성공",
-          "2c4ee7332b": "원격 릴레이를 재설정하지 못했습니다.",
-          "db2e48975e": "원격 릴레이 재설정",
-          "025e107643": "원격 terminal을 종료하지 못했습니다.",
-          "90e308c98b": "원격 terminal 종료됨",
-          "a43de1d3ee": "연결 해제 실패",
-          "e95d5ae10e": "연결 실패",
-          "c2a69510e3": "대상을 제거하지 못했습니다.",
-          "a0237eb1ca": "대상이 제거되었습니다.",
-          "2227ce47b6": "대상을 저장하지 못했습니다.",
-          "f602009125": "대상이 추가됨",
-          "b4ba0ce33d": "타겟이 업데이트되었습니다.",
-          "3879cbaa52": "terminals 시간 제한은 60~{{value0}}초 사이여야 하며, 그렇지 않으면 재설정될 때까지 terminals을 활성 상태로 유지해야 합니다.",
-          "4db9afce1c": "포트는 1에서 65535 사이여야 합니다.",
-          "0e5aa04161": "호스트 또는 SSH 구성 별칭이 필요합니다.",
-          "f1fc50dad2": "SSH 대상을 로드하지 못했습니다.",
-          "0cda732f43": "연결 테스트 실패",
-          "terminateUnverifiable": "{{terminals}} 원격 터미널에 연결할 수 없습니다. 종료하려면 다시 연결하세요."
-        },
-        "SshPassphraseDialog": {
-          "d5a234456f": "취소",
-          "c3ce71aad6": "암호를 입력하세요",
-          "abaa0dc653": "비밀번호를 입력하세요",
-          "ce4fdf7914": "다음에 대한 암호를 입력하세요.",
-          "dbf9b6f2d0": "비밀번호를 입력하세요",
-          "c55f105262": "SSH 자격 증명 요청을 취소하지 못했습니다.",
-          "b8e88fd0de": "SSH 자격 증명을 제출하지 못했습니다.",
-          "405066423c": "잠금 해제",
-          "bec2c1318f": "연결",
-          "8a349e3fac": "{{value0}}의 암호",
-          "cab3d5f5a5": "{{value0}}의 비밀번호",
-          "1f3dde805d": "SSH 키 암호",
-          "106bd57f4a": "SSH 비밀번호",
-          "a21f9e74c0": "SSH 확인",
-          "981352fb42": "다음에 대한 인증 과제를 완료하세요.",
-          "456516603b": "응답 입력",
-          "c624f64b86": "계속하다"
+          "94c5284560": "대상"
         },
         "SshTargetCard": {
-          "ec6543cee9": "연결",
-          "0e53e9f8e8": "테스트",
-          "1810b51482": "연결 중",
-          "4c86f30877": "연결 해제",
-          "7f7b3d7ab4": "대상 제거",
-          "3d21a22d0e": "대상 제거",
-          "3d8af2949f": "대상 편집",
-          "762a48c662": "원격 릴레이 재설정",
-          "97dea4e8cf": "원격 릴레이 재설정",
-          "da16e108e6": "원격 terminals 종료",
-          "c77f1abfe3": "원격 terminals 종료 중",
-          "18968ede9e": "오류",
           "f0871e6bfb": "연결",
-          "47e94bd6ba": "연결됨",
-          "a883f5a00f": "terminal 시간 초과: {{value0}}",
-          "8ce71262f4": "재설정될 때까지 terminals"
-        },
-        "SshTargetDestructiveActions": {
-          "7e66942808": "그러면 이 SSH 대상에서 활성 terminal 세션이 중지됩니다. 다시 연결해도 복원되지 않습니다.",
-          "accf177a03": "원격 Terminals을 종료하시겠습니까?",
-          "26be00392d": "이 SSH 대상의 원격 릴레이를 강제로 중지합니다. 이 대상의 활성 원격 terminals과 포트 포워딩이 종료됩니다.",
-          "570a7a0574": "원격 릴레이를 재설정하시겠습니까?",
-          "3bb0cf0ee4": "그러면 대상이 제거되고 활성 원격 terminals이 종료됩니다.",
-          "4808966c41": "SSH 대상 제거"
+          "47e94bd6ba": "연결됨"
         },
         "SshTargetForm": {
-          "fea9cb402e": "취소",
           "1b19b00e93": "제한된 시간 초과는 60초에서 7일 사이여야 합니다.",
           "137e88ce8d": "Orca가 이 호스트에서 연결 해제된 뒤에도 원격 터미널은 계속 실행됩니다.",
           "b574994adc": "중지하려면 원격 터미널 종료 또는 릴레이 재설정을 사용하세요.",
@@ -6973,18 +6858,6 @@
           "3b01ca44a0": "선택 사항. 터널링에 사용됩니다(예: Cloudflare Access, ProxyCommand).",
           "f42d844544": "예: cloudflared access ssh --hostname %h",
           "c7d0e18ecb": "프록시 명령",
-          "cb91f6375c": "선택 사항. 기본적으로 SSH agent가 사용됩니다.",
-          "d6a5f2ee5c": "~/.ssh/id_ed25519(SSH agent를 사용하려면 비워 두세요)",
-          "63c0c145c1": "개인 키 파일",
-          "c94cfa634c": "포트",
-          "47e082bc17": "deploy",
-          "dc1dc52aaa": "사용자 이름",
-          "2ee9bcd2e8": "server, deploy@server:2222, ssh://server",
-          "ce370ce674": "호스트 또는 별칭 *",
-          "b8dab0aa7b": "내 서버",
-          "298de87a88": "레이블",
-          "9518545cb6": "대상 추가",
-          "a62b4cb39a": "변경 사항 저장",
           "29af933cd5": "새로운 SSH 대상",
           "f2331ce599": "SSH 대상 편집",
           "7c13f58c91": "재설정할 때까지",
@@ -6992,12 +6865,7 @@
           "4a342f44c1": "고급 연결",
           "e9609ddca6": "프록시, 점프 호스트, 연결 재사용",
           "8c922dffba": "더 빠른 설정을 위해 SSH 연결 재사용",
-          "53e9aabfc0": "사용 가능한 경우 OpenSSH 멀티플렉싱을 사용합니다. 사용자 지정 SSH 제한이 있는 호스트에서는 끄세요.",
-          "editTitle": "SSH 호스트 편집",
-          "addTitle": "SSH 호스트 추가",
-          "editDescription": "이 머신의 연결 세부 정보를 업데이트합니다. 변경 사항은 다음 연결 시 적용됩니다.",
-          "addDescription": "SSH로 로그인할 수 있는 영구 머신을 추가합니다.",
-          "editingPrefix": "편집 중"
+          "53e9aabfc0": "사용 가능한 경우 OpenSSH 멀티플렉싱을 사용합니다. 사용자 지정 SSH 제한이 있는 호스트에서는 끄세요."
         },
         "TasksPane": {
           "f71d8a9dd3": "작업 제공자",
@@ -7578,12 +7446,6 @@
             "c690a15849": "리소스",
             "81ef5abc2f": "상태 표시줄에 CPU, 메모리, terminal 세션 및 워크스페이스 디스크 사용량을 표시합니다.",
             "7cf005b29f": "리소스 관리자",
-            "fe192b060e": "호스트",
-            "f4997e0f8a": "연결",
-            "a278406ed5": "원격",
-            "6ecad74eb3": "SSH",
-            "f17d66d0d2": "상태 표시줄에 원격 호스트 연결 상태를 표시합니다.",
-            "57fb424c56": "원격 호스트",
             "35565867cb": "Moonshot",
             "de586def95": "구독",
             "00a028f25f": "사용량",
@@ -7775,13 +7637,6 @@
             "c4e3bf3282": "탭",
             "a8c55c9c91": "파비콘",
             "660c1dd007": "라벨",
-            "sshWorkspaceRouting": {
-              "ssh": "SSH",
-              "proxy": "프록시",
-              "tunnel": "터널",
-              "routing": "라우팅",
-              "network": "회로망"
-            },
             "userAgent": {
               "identity": "신원",
               "userAgent": "사용자 에이전트",
@@ -8657,27 +8512,8 @@
         },
         "ssh": {
           "search": {
-            "d41f296f64": "핑",
-            "237b391f7c": "연결",
-            "8cb870b109": "테스트",
-            "7efd17e816": "SSH",
-            "96ca5d9a0b": "SSH 대상에 대한 연결을 테스트합니다.",
-            "a3058f3605": "연결 테스트",
-            "2cd40ba0d0": "호스트",
-            "5220501141": "구성",
-            "3b12e064a4": "가져오기",
-            "7f251a45a8": "~/.ssh/config에서 호스트를 가져옵니다.",
-            "41a3127094": "SSH 구성에서 가져오기",
-            "f9493b80c0": "서버",
-            "8fb1cc87cc": "호스트",
-            "09395490af": "대상",
-            "00d1fda01a": "새로운",
-            "f7b6383aec": "추가",
             "62826efbe9": "새로운 원격 SSH 대상을 추가합니다.",
-            "f5a691bb6c": "SSH 대상 추가",
-            "d4bcd497c7": "원격",
-            "74c6d90d78": "원격 SSH 대상을 관리합니다.",
-            "380a788da7": "SSH 연결"
+            "74c6d90d78": "원격 SSH 대상을 관리합니다."
           }
         },
         "terminal": {
@@ -10010,32 +9846,9 @@
             "readyToast": "{{value0}}을(를) 검토 준비 완료로 표시했습니다."
           },
           "PortsPanel": {
-            "3ea4a02a8f": "취소",
-            "4eb801ce93": "개발 서버",
-            "8dfed0a15c": "라벨(선택사항)",
-            "17bea6e391": "로컬호스트",
-            "a3721a50b0": "원격 호스트",
-            "d57545ff92": "원격과 동일",
-            "b950b1948b": "로컬 포트",
-            "9e5a4118b0": "원격 포트",
-            "c9d106547a": "포워드",
-            "c7e920aa7c": "{{value0}}(으)로 공개",
-            "e740075063": "제거",
-            "b3548e59f4": "편집",
             "fe2730d050": "{{value0}} 복사",
             "b22b128b2a": "브라우저에서 열기",
-            "75aeea592f": "브라우저에서 {{value0}} 열기",
-            "de349d4560": "{{value0}} 열기",
-            "907eb53ed2": "포트 전달",
-            "04efd3dad4": "로컬 시스템의 원격 서비스에 액세스하려면 포트를 전달하세요.",
-            "1f0d2a24f9": "전달된 포트 없음",
-            "36b1b2984a": "감지됨",
-            "ddbe58d74e": "전달됨",
-            "a103dae837": "추가",
             "6bc058dbe1": "포트",
-            "d4c3cd679c": "다시 연결하는 중...",
-            "a2f1a47f42": "SSH 연결이 끊겼습니다.",
-            "409afcc145": "브라우저에 대해 선택된 워크스페이스가 없습니다.",
             "153145e675": "증거",
             "c7b4702b7b": "워크스페이스",
             "57d930fa45": "PID",
@@ -10056,13 +9869,7 @@
             "98e9a414f8": "브라우저를 열지 못했습니다.",
             "a00f3a2840": "포트를 새로고침하지 못했습니다.",
             "97b562d21d": ":{{value0}}에서 프로세스가 중지되었습니다.",
-            "9079776663": "저장",
             "c57eda6822": "편집",
-            "9f475dc994": "전달 중...",
-            "d7c83cfd24": "저장 중...",
-            "31e80cff2d": "원격 포트를 로컬 시스템으로 전달합니다.",
-            "10360598a4": "포트 전달 구성을 업데이트합니다.",
-            "80206251c8": "포트 전달 편집",
             "4bc9b00912": "워크스페이스",
             "3e13cb63ee": "알려지지 않은",
             "472054d94c": "포트 :{{value0}}",
@@ -15350,17 +15157,7 @@
       "failed": "원격 호스트에서 이 페이지를 열 수 없습니다. 연결을 확인하고 다시 시도해 보세요."
     },
     "sshRoute": {
-      "preparingTitle": "SSH 호스트를 통해 연결",
-      "errorTitle": "SSH 브라우저 라우팅을 사용할 수 없습니다.",
-      "errorDescription": "이 워크스페이스의 페이지는 SSH 호스트를 통해 탐색하지만 현재는 해당 연결을 사용할 수 없습니다.",
-      "retry": "다시 시도",
-      "tryAnyway": "어쨌든 시도해 보세요",
-      "browseLocally": "대신 이 기기에서 탐색하세요.",
-      "forwardingBlockedTitle": "SSH 서버는 브라우저 트래픽을 차단합니다.",
-      "sshUnavailableTitle": "SSH 연결을 사용할 수 없습니다.",
-      "forwardingBlockedDescription": "이 서버는 탐색에 필요한 TCP 전달(종종 sshd 구성에서 \"AllowTcpForwarding no\")을 거부합니다. 관리자에게 전달을 허용해 달라고 요청하거나 대신 이 기기에서 탐색하세요.",
-      "sshUnavailableDescription": "이 워크스페이스의 페이지는 SSH 호스트를 탐색하지만 현재는 해당 연결을 사용할 수 없습니다. 호스트를 다시 연결한 후 다시 시도하세요.",
-      "showDetails": "세부정보 표시"
+      "errorDescription": "이 워크스페이스의 페이지는 SSH 호스트를 통해 탐색하지만 현재는 해당 연결을 사용할 수 없습니다."
     },
     "sshEgress": {
       "routedTooltip": "{{value0}}을(를) 탐색하는 중",

@@ -37,7 +37,6 @@ export function useSettingsPageEffects(
     setMountedSectionIds,
     setQuickCommandAddIntentSignal,
     setSettingsProjectHostSelection,
-    setSshHostAddIntentSignal,
     setPendingNavRequestTick,
     setVoiceModelStatesLoading,
     settings,
@@ -204,8 +203,6 @@ export function useSettingsPageEffects(
     }
     if (settingsNavigationTarget.intent === 'add-quick-command') {
       setQuickCommandAddIntentSignal((signal) => signal + 1)
-    } else if (settingsNavigationTarget.intent === 'add-ssh-host') {
-      setSshHostAddIntentSignal((signal) => signal + 1)
     }
     setMountedSectionIds((previous) => {
       if (previous.has(paneSectionId)) {
@@ -227,7 +224,6 @@ export function useSettingsPageEffects(
     setPendingNavRequestTick,
     setQuickCommandAddIntentSignal,
     setSettingsProjectHostSelection,
-    setSshHostAddIntentSignal,
     settings,
     settingsProjectList,
     settingsNavigationTarget

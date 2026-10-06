@@ -43,8 +43,6 @@ function recordStatusBarToggleInteraction(
     recordFeatureInteraction('resource-manager')
   } else if (id === 'ports') {
     recordFeatureInteraction('ports')
-  } else if (id === 'ssh') {
-    recordFeatureInteraction('ssh')
   } else if (
     id === 'claude' ||
     id === 'codex' ||

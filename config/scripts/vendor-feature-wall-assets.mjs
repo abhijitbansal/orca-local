@@ -39,11 +39,6 @@ const TILES = [
     posterRelativePath: 'public/whats-new/posters/orca-design-mode.jpg'
   },
   {
-    id: 'tile-06',
-    gifRelativePath: 'public/whats-new/ssh-demo.gif',
-    posterRelativePath: 'public/whats-new/posters/ssh-demo.jpg'
-  },
-  {
     id: 'tile-07',
     gifRelativePath: 'public/file-drag.gif',
     posterRelativePath: 'public/whats-new/posters/file-drag.jpg'

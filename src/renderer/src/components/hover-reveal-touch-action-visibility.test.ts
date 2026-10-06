@@ -18,8 +18,6 @@ const HOVER_REVEAL_FILES = [
   resolve(__dirname, 'native-chat/NativeChatMessageRow.tsx'),
   resolve(__dirname, 'right-sidebar/AiVaultSessionRow.tsx'),
   resolve(__dirname, 'right-sidebar/local-port-row.tsx'),
-  resolve(__dirname, 'right-sidebar/ssh-detected-port-row.tsx'),
-  resolve(__dirname, 'right-sidebar/ssh-forwarded-port-row.tsx'),
   resolve(__dirname, 'right-sidebar/SourceControl.tsx'),
   resolve(__dirname, 'settings/ShortcutBindingSubRow.tsx'),
   resolve(__dirname, 'settings/ShortcutCommandBlock.tsx'),

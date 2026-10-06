@@ -5,7 +5,6 @@ import { getPluginsPaneSearchEntries } from '@/components/settings/plugins-searc
 import { getPrivacyPaneSearchEntries } from '@/components/settings/privacy-search'
 import { getRepositoryPaneSearchEntries } from '@/components/settings/repository-search'
 import { buildSettingsProjectList } from '@/components/settings/settings-project-list'
-import { getSshPaneSearchEntries } from '@/components/settings/ssh-search'
 import { translate } from '@/i18n/i18n'
 import type { SettingsNavSection } from '@/lib/settings-navigation-types'
 import { getRepoKindLabel } from '../../../shared/repo-kind'
@@ -13,7 +12,6 @@ import type { Repo } from '../../../shared/repo-types'
 import {
   Blocks,
   Bug,
-  Cable,
   FlaskConical,
   Lock,
   ShieldCheck,
@@ -28,21 +26,6 @@ export function buildRemoteSettingsSections(
 ): SettingsNavSection[] {
   const showDesktopOnlySettings = !isWebClient
   return [
-    ...(showDesktopOnlySettings
-      ? [
-          {
-            id: 'ssh',
-            title: translate('auto.hooks.useSettingsNavigationMetadata.94a5afe910', 'SSH Hosts'),
-            description: translate(
-              'auto.hooks.useSettingsNavigationMetadata.31e57d1c70',
-              'Use existing machines over SSH for files, terminals, Git, and workspaces.'
-            ),
-            icon: Cable,
-            searchEntries: getSshPaneSearchEntries(),
-            group: 'remote'
-          }
-        ]
-      : []),
     ...(showDesktopOnlySettings && isMac
       ? [
           {

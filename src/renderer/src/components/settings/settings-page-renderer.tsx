@@ -34,8 +34,7 @@ import {
 } from './settings-interface-secondary-section-renderers'
 import {
   renderDeveloperPermissionsSettingsSection,
-  renderPrivacySettingsSection,
-  renderSshSettingsSection
+  renderPrivacySettingsSection
 } from './settings-remote-security-section-renderers'
 import {
   renderAdvancedSettingsSection,
@@ -126,7 +125,6 @@ export function renderSettingsPage(context: SettingsRenderContext): React.JSX.El
                 {renderNotificationsSettingsSection(context)}
                 {renderShortcutsSettingsSection(context)}
                 {renderStatsSettingsSection(context)}
-                {renderSshSettingsSection(context)}
                 {renderDeveloperPermissionsSettingsSection(context)}
                 {renderPrivacySettingsSection(context)}
                 {renderAdvancedSettingsSection(context)}

@@ -66,20 +66,6 @@ Ghostty 级终端，支持 WebGL 渲染、无限分屏，以及重启后依然�
 <tr>
 <td width="50%" valign="middle">
 
-### SSH Worktree
-
-在高性能远程机器上运行智能体，完整支持文件编辑、git 和终端 — 自动重连与端口转发一应俱全。
-
-[文档 →](../site/content/docs/ssh.mdx)
-
-</td>
-<td width="50%">
-  <a href="../site/content/docs/ssh.mdx"><picture><source srcset="../../resources/onboarding/feature-wall/tile-06.gif" type="image/gif"><img src="../../resources/onboarding/feature-wall/tile-06.poster.jpg" alt="通过 SSH 使用远程 worktree" width="100%" /></picture></a>
-</td>
-</tr>
-<tr>
-<td width="50%" valign="middle">
-
 ### 标注 AI Diff
 
 在任意 diff 行上添加评论并发回给智能体 — 评审、编辑、提交，全程无需离开 Orca。

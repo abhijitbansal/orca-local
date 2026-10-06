@@ -66,20 +66,6 @@ Haz clic en cualquier elemento de UI en una ventana real de Chromium para enviar
 <tr>
 <td width="50%" valign="middle">
 
-### Worktrees por SSH
-
-Ejecuta agentes en una máquina remota potente con edición completa de archivos, git y terminales — con reconexión automática y reenvío de puertos incluidos.
-
-[Docs →](../site/content/docs/ssh.mdx)
-
-</td>
-<td width="50%">
-  <a href="../site/content/docs/ssh.mdx"><picture><source srcset="../../resources/onboarding/feature-wall/tile-06.gif" type="image/gif"><img src="../../resources/onboarding/feature-wall/tile-06.poster.jpg" alt="Worktrees remotos por SSH" width="100%" /></picture></a>
-</td>
-</tr>
-<tr>
-<td width="50%" valign="middle">
-
 ### Anotar diffs de IA
 
 Deja comentarios en cualquier línea de un diff y envíalos de vuelta al agente — revisa, edita y haz commit sin salir de Orca.

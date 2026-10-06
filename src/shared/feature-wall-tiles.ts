@@ -3,7 +3,6 @@ export type FeatureWallTileId =
   | 'tile-02'
   | 'tile-04'
   | 'tile-05'
-  | 'tile-06'
   | 'tile-07'
   | 'tile-08'
   | 'tile-09'
@@ -35,7 +34,6 @@ export const FEATURE_WALL_MEDIA_TILE_IDS = [
   'tile-02',
   'tile-04',
   'tile-05',
-  'tile-06',
   'tile-07',
   'tile-08',
   'tile-09',
@@ -99,18 +97,6 @@ export const FEATURE_WALL_TILES: readonly FeatureWallTile[] = [
     recordedAtPath: 'tile-05.recorded-at.json',
     owner: 'browser-experience',
     docsUrl: 'https://www.onorca.dev/docs/browser/design-mode'
-  },
-  {
-    id: 'tile-06',
-    kind: 'media',
-    title: 'Remote workspaces',
-    caption:
-      'Run agents on a remote machine with the same Orca editing, git, and terminal workflow.',
-    gifPath: 'tile-06.gif',
-    posterPath: 'tile-06.poster.jpg',
-    recordedAtPath: 'tile-06.recorded-at.json',
-    owner: 'ssh-workspaces',
-    docsUrl: 'https://www.onorca.dev/docs/ssh'
   },
   {
     id: 'tile-07',

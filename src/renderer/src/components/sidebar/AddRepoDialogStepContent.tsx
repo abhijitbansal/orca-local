@@ -63,7 +63,6 @@ type AddRepoDialogStepContentProps = {
   onSelectTarget: (id: string) => void
   onRemotePathChange: (path: string) => void
   onAddRemoteRepo: () => void
-  onOpenSshSettings: () => void
   onConnectTarget: (id: string) => Promise<void>
   onStopRemoteNestedScan: () => void
   onCloneUrlChange: (url: string) => void
@@ -133,7 +132,6 @@ export function AddRepoDialogStepContent({
   onSelectTarget,
   onRemotePathChange,
   onAddRemoteRepo,
-  onOpenSshSettings,
   onConnectTarget,
   onStopRemoteNestedScan,
   onCloneUrlChange,
@@ -202,7 +200,6 @@ export function AddRepoDialogStepContent({
         onSelectTarget={onSelectTarget}
         onRemotePathChange={onRemotePathChange}
         onAdd={onAddRemoteRepo}
-        onOpenSshSettings={onOpenSshSettings}
         onConnectTarget={onConnectTarget}
         onStopNestedScan={onStopRemoteNestedScan}
       />

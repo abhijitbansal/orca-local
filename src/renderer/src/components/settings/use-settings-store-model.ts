@@ -113,7 +113,6 @@ export function useSettingsStoreModel() {
     null
   )
   const [quickCommandAddIntentSignal, setQuickCommandAddIntentSignal] = useState(0)
-  const [sshHostAddIntentSignal, setSshHostAddIntentSignal] = useState(0)
   const [hasUnsavedCommitPromptChanges, setHasUnsavedCommitPromptChanges] = useState(false)
   const [hasUnsavedBranchPromptChanges, setHasUnsavedBranchPromptChanges] = useState(false)
   const [sourceControlAiPromptDiscardSignal, setSourceControlAiPromptDiscardSignal] = useState(0)
@@ -179,8 +178,6 @@ export function useSettingsStoreModel() {
     setHighlightedSettingsTargetId,
     quickCommandAddIntentSignal,
     setQuickCommandAddIntentSignal,
-    sshHostAddIntentSignal,
-    setSshHostAddIntentSignal,
     hasUnsavedCommitPromptChanges,
     setHasUnsavedCommitPromptChanges,
     hasUnsavedBranchPromptChanges,

@@ -66,20 +66,6 @@ WebGL 렌더링, 무한 분할, 재시작 후에도 유지되는 스크롤백을
 <tr>
 <td width="50%" valign="middle">
 
-### SSH Worktree
-
-강력한 원격 머신에서 에이전트를 실행하세요. 파일 편집, git, 터미널을 모두 지원하며 자동 재연결과 포트 포워딩도 포함됩니다.
-
-[문서 →](../site/content/docs/ssh.mdx)
-
-</td>
-<td width="50%">
-  <a href="../site/content/docs/ssh.mdx"><picture><source srcset="../../resources/onboarding/feature-wall/tile-06.gif" type="image/gif"><img src="../../resources/onboarding/feature-wall/tile-06.poster.jpg" alt="SSH를 통한 원격 worktree" width="100%" /></picture></a>
-</td>
-</tr>
-<tr>
-<td width="50%" valign="middle">
-
 ### AI Diff 주석
 
 diff의 어느 줄에든 코멘트를 남기고 에이전트에게 바로 보내세요 — Orca를 떠나지 않고 리뷰하고 수정하고 커밋할 수 있습니다.

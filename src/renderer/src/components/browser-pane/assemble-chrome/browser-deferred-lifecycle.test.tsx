@@ -15,14 +15,11 @@ type MockState = {
   focusGroup: () => void
   updateBrowserPageState: () => void
   setBrowserPageUrl: () => void
-  settings: { browserSshWorkspaceRoutingEnabled: boolean }
 }
 
 const mocks = vi.hoisted(() => ({
   state: null as MockState | null,
   store: null as StoreApi<MockState> | null,
-  executionHostId: 'local',
-  prepare: vi.fn(),
   destroy: vi.fn()
 }))
 
@@ -33,8 +30,7 @@ vi.mock('@/store', async () => {
   }
 })
 vi.mock('@/lib/worktree-runtime-owner', () => ({
-  getRuntimeEnvironmentIdForWorktree: () => null,
-  getExecutionHostIdForWorktree: () => mocks.executionHostId
+  getRuntimeEnvironmentIdForWorktree: () => null
 }))
 vi.mock('@/components/contextual-tours/use-contextual-tour', () => ({
   useContextualTour: () => {}
@@ -106,8 +102,7 @@ function createState(): MockState {
     remoteBrowserPageHandlesByPageId: {},
     focusGroup: () => {},
     updateBrowserPageState: () => {},
-    setBrowserPageUrl: () => {},
-    settings: { browserSshWorkspaceRoutingEnabled: true }
+    setBrowserPageUrl: () => {}
   }
 }
 
@@ -130,19 +125,12 @@ function redraw(view: ReturnType<typeof render>, active = true): void {
   act(() => mocks.store!.setState({ ...mocks.state! }))
   view.rerender(surface(active))
 }
-const settle = () => act(async () => {})
 
-describe('deferred browser lifecycle through the overlay and SSH gate', () => {
+describe('deferred browser lifecycle through the overlay', () => {
   beforeEach(() => {
     mocks.state = createState()
     mocks.store = createStore(() => mocks.state!)
-    mocks.executionHostId = 'local'
     mocks.destroy.mockReset()
-    mocks.prepare.mockReset().mockResolvedValue({ partition: 'persist:orca-browser-v1-routed' })
-    Object.defineProperty(window, 'api', {
-      configurable: true,
-      value: { browser: { prepareSshWorkspacePartition: mocks.prepare } }
-    })
   })
   afterEach(() => {
     cleanup()
@@ -235,55 +223,5 @@ describe('deferred browser lifecycle through the overlay and SSH gate', () => {
     redraw(view)
     expect(page.isConnected).toBe(false)
     expect(restored.isConnected).toBe(false)
-  })
-
-  it('keeps a prepared SSH gate and its opened pages alive when switching tabs', async () => {
-    mocks.executionHostId = 'ssh:target-a'
-    const view = render(surface())
-    await settle()
-    const page = view.container.querySelector('[data-page-id="a-1"]')
-    expect(page).not.toBeNull()
-    mocks.destroy.mockClear()
-    selectTab('b')
-    redraw(view)
-    await settle()
-    expect(mocks.destroy.mock.calls.flat()).not.toContain('a-1')
-    mocks.destroy.mockClear()
-    mocks.prepare.mockClear()
-    selectTab('a')
-    redraw(view)
-    await settle()
-    expect(mocks.destroy).not.toHaveBeenCalled()
-    expect(mocks.prepare).not.toHaveBeenCalled()
-    expect(view.container.querySelector('[data-page-id="a-1"]')).toBe(page)
-    redraw(view, false)
-    expect(view.container.querySelectorAll('[data-page-id]')).toHaveLength(0)
-    expect(mocks.destroy).not.toHaveBeenCalled()
-    redraw(view)
-    await settle()
-    expect(mocks.prepare).toHaveBeenCalledOnce()
-    expect(view.container.querySelector('[data-page-id="a-1"]')).not.toBe(page)
-    expect(view.container.querySelectorAll('[data-page-id]')).toHaveLength(1)
-  })
-
-  it('guards all pages, including inactive tabs, when SSH routing is enabled', async () => {
-    mocks.executionHostId = 'ssh:target-a'
-    mocks.state!.settings.browserSshWorkspaceRoutingEnabled = false
-    const view = render(surface())
-    selectPage('a-2')
-    redraw(view)
-    selectTab('b')
-    redraw(view)
-    selectTab('a')
-    redraw(view)
-    mocks.destroy.mockClear()
-    mocks.prepare.mockImplementation(() => new Promise(() => {}))
-    mocks.state!.settings = { browserSshWorkspaceRoutingEnabled: true }
-    mocks.state!.browserTabsByWorktree['wt-1'] = mocks.state!.browserTabsByWorktree['wt-1'].map(
-      (browser) => ({ ...browser })
-    )
-    redraw(view)
-    expect(view.container.querySelectorAll('[data-page-id]')).toHaveLength(0)
-    expect(new Set(mocks.destroy.mock.calls.flat())).toEqual(new Set(['a-1', 'a-2', 'b-1', 'b-2']))
   })
 })

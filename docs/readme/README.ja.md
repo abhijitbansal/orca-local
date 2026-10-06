@@ -66,20 +66,6 @@ WebGL レンダリング、無制限の分割、再起動後も残るスクロ�
 <tr>
 <td width="50%" valign="middle">
 
-### SSH ワークツリー
-
-強力なリモートマシン上でエージェントを実行 — ファイル編集、git、ターミナルをフルに使え、自動再接続とポートフォワーディングも付属します。
-
-[ドキュメント →](../site/content/docs/ssh.mdx)
-
-</td>
-<td width="50%">
-  <a href="../site/content/docs/ssh.mdx"><picture><source srcset="../../resources/onboarding/feature-wall/tile-06.gif" type="image/gif"><img src="../../resources/onboarding/feature-wall/tile-06.poster.jpg" alt="SSH 経由のリモートワークツリー" width="100%" /></picture></a>
-</td>
-</tr>
-<tr>
-<td width="50%" valign="middle">
-
 ### AI Diff に注釈
 
 任意の Diff 行にコメントを付けてエージェントへ送り返せます — Orca から離れずにレビュー、編集、コミットまで完結します。

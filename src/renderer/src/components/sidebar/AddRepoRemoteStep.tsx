@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CircleStop, FolderOpen, Settings } from 'lucide-react'
+import { CircleStop, FolderOpen } from 'lucide-react'
 import { DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,7 +19,6 @@ type RemoteStepProps = {
   onSelectTarget: (id: string) => void
   onRemotePathChange: (value: string) => void
   onAdd: () => void
-  onOpenSshSettings: () => void
   onConnectTarget: (id: string) => Promise<void>
   onStopNestedScan?: () => void
 }
@@ -35,7 +34,6 @@ export function RemoteStep({
   onSelectTarget,
   onRemotePathChange,
   onAdd,
-  onOpenSshSettings,
   onConnectTarget,
   onStopNestedScan
 }: RemoteStepProps): React.JSX.Element {
@@ -116,18 +114,6 @@ export function RemoteStep({
                     'No SSH targets configured.'
                   )}
                 </p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-7 text-xs"
-                  onClick={onOpenSshSettings}
-                >
-                  <Settings className="size-3.5" />
-                  {translate(
-                    'auto.components.sidebar.AddRepoRemoteStep.0416bde073',
-                    'Add in Settings'
-                  )}
-                </Button>
               </div>
             ) : (
               <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1 scrollbar-sleek">

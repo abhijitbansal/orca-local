@@ -46,11 +46,6 @@ const DictationController = lazy(() =>
     default: module.DictationController
   }))
 )
-const SshPassphraseDialog = lazy(() =>
-  import('../components/settings/SshPassphraseDialog').then((module) => ({
-    default: module.SshPassphraseDialog
-  }))
-)
 const ContextualTourOverlay = lazy(() =>
   import('../components/contextual-tours/ContextualTourOverlay').then((module) => ({
     default: module.ContextualTourOverlay
@@ -117,7 +112,6 @@ export function AppRootSurfaces(props: {
   const petVisible = useAppStore((s) => s.petVisible)
   const dictationState = useAppStore((s) => s.dictationState)
   const activeContextualTourId = useAppStore((s) => s.activeContextualTourId)
-  const hasSshCredentialRequest = useAppStore((s) => s.sshCredentialQueue.length > 0)
 
   const shouldMountSetupGuideTelemetryObserver = persistedUIReady
   const shouldMountDictationController = voiceEnabled || dictationState !== 'idle'
@@ -273,13 +267,6 @@ export function AppRootSurfaces(props: {
           </ModalBoundary>
         ) : null}
       </Suspense>
-      {hasSshCredentialRequest ? (
-        <Suspense fallback={null}>
-          <ModalBoundary boundaryId="modal.ssh-passphrase" resetKey={activeModal}>
-            <SshPassphraseDialog />
-          </ModalBoundary>
-        </Suspense>
-      ) : null}
       <ModalBoundary boundaryId="modal.markdown-template-picker" resetKey={activeModal}>
         <MarkdownTemplatePicker />
       </ModalBoundary>

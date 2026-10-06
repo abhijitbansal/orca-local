@@ -39,8 +39,7 @@ export default React.memo(function AddRepoDialog({
   const fetchWorktrees = useAppStore((s) => s.fetchWorktrees)
   const setHideDefaultBranchWorkspace = useAppStore((s) => s.setHideDefaultBranchWorkspace)
   const settings = useAppStore((s) => s.settings)
-  const { closeModal, closeForFolderHandoff, finishProjectAdd, handleOpenSshSettings } =
-    useAddRepoHostedController(hosted)
+  const { closeModal, closeForFolderHandoff, finishProjectAdd } = useAddRepoHostedController(hosted)
   const [step, setStep] = useState<AddRepoDialogStep>('add')
   const [isAdding, setIsAdding] = useState(false)
   const [addProjectBusyLabel, setAddProjectBusyLabel] = useState<string | null>(null)
@@ -366,7 +365,6 @@ export default React.memo(function AddRepoDialog({
           setRemoteError(null)
         }}
         onAddRemoteRepo={handleAddRemoteRepo}
-        onOpenSshSettings={handleOpenSshSettings}
         onConnectTarget={handleConnectTarget}
         onStopRemoteNestedScan={stopRemoteNestedScan}
         onCloneUrlChange={(value) => {

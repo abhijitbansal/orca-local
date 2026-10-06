@@ -40,7 +40,7 @@ export const PR_E2E_SOURCE_ROUTES = [
     specs: ['tests/e2e/local-ssh-browser-routing.spec.ts'],
     matches: (file) =>
       isProductSource(file) &&
-      /^src\/(?:main\/browser\/local-ssh-browser-(?:route|partitions)\.ts|renderer\/src\/(?:components\/browser-pane\/(?:use-ssh-workspace-browser-route\.ts|assemble-chrome\/ssh-routed-browser-page-gate\.tsx)|lib\/worktree-host-connection-phase\.ts))$/.test(
+      /^src\/(?:main\/browser\/local-ssh-browser-(?:route|partitions)\.ts|renderer\/src\/(?:components\/browser-pane\/use-ssh-workspace-browser-route\.ts|lib\/worktree-host-connection-phase\.ts))$/.test(
         file
       )
   },

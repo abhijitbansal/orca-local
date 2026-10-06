@@ -69,7 +69,6 @@ function renderStepContent(overrides: Partial<StepContentProps>): string {
     onSelectTarget: vi.fn(),
     onRemotePathChange: vi.fn(),
     onAddRemoteRepo: vi.fn(),
-    onOpenSshSettings: vi.fn(),
     onConnectTarget: vi.fn(),
     onStopRemoteNestedScan: vi.fn(),
     onCloneUrlChange: vi.fn(),

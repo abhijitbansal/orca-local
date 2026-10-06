@@ -39,9 +39,6 @@ const ResourceUsageStatusSegment = lazyWithRetry(() =>
 const PortsStatusSegment = lazyWithRetry(() =>
   import('./PortsStatusSegment').then((module) => ({ default: module.PortsStatusSegment }))
 )
-const SshStatusSegment = lazyWithRetry(() =>
-  import('./SshStatusSegment').then((module) => ({ default: module.SshStatusSegment }))
-)
 
 export type StatusBarProps = {
   floatingTerminalOpen: boolean
@@ -84,7 +81,6 @@ export function StatusBarSurface({
     showFloatingWorkspaceAttentionDot,
     showPorts,
     showResourceUsage,
-    showSsh,
     statusBarUsageMode,
     usageMenuFocusHandoff,
     usageMenuOpen,
@@ -278,7 +274,6 @@ export function StatusBarSurface({
             {showPorts ? (
               <PortsStatusSegment compact={compact} iconOnly={segmentsIconOnly} />
             ) : null}
-            {showSsh ? <SshStatusSegment compact={compact} iconOnly={segmentsIconOnly} /> : null}
           </React.Suspense>
           {showFloatingTerminalToggle && (
             <FloatingTerminalIconContextMenu currentLocation="status-bar" className="relative">

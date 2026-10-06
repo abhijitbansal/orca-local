@@ -21,7 +21,6 @@ import { BrowserPagePane } from './browser-page-pane'
 import { WorkspaceDocPagePane } from '../workspace-doc/workspace-doc-page-pane'
 import { DeferredBrowserContent } from './DeferredBrowserContent'
 import { isBrowserPagePanePaintable } from '../host-guest/browser-page-paintability'
-import { SshRoutedBrowserPageGate } from './ssh-routed-browser-page-gate'
 import {
   isBrowserPageMountAdmitted,
   useAnyBrowserPageMountAdmission
@@ -159,59 +158,51 @@ export default function BrowserPane({
   return (
     <div className="relative flex h-full min-h-0 flex-1 flex-col">
       {localBrowserPages.length > 0 ? (
-        <SshRoutedBrowserPageGate
-          worktreeId={browserTab.worktreeId}
-          sessionProfileId={browserTab.sessionProfileId ?? null}
-          pageIds={localBrowserPageIds}
-        >
-          {(routedPartition) => (
-            <div className="relative flex min-h-0 flex-1">
-              {localBrowserPages.map((page) => (
-                <DeferredBrowserContent
-                  key={page.id}
-                  retainMounted={isWorktreeActive}
-                  mountEligible={isBrowserPagePanePaintable({
-                    isActive:
-                      (isActive && page.id === activeBrowserPageId) ||
-                      (hasAdmittedPage && isBrowserPageMountAdmitted(page.id)),
-                    isAutomationVisible: automationVisiblePageIds.has(page.id),
-                    isMobileDriven: mobileDrivenPageIds.has(page.id),
-                    hasRemoteViewer: remotelyViewedPageIds.has(page.id)
-                  })}
-                >
-                  {page.docLocation ? (
-                    <WorkspaceDocPagePane
-                      page={page}
-                      isActive={isActive && page.id === activeBrowserPage?.id}
-                    />
-                  ) : (
-                    <BrowserPagePane
-                      browserTab={page}
-                      workspaceId={browserTab.id}
-                      worktreeId={browserTab.worktreeId}
-                      sessionProfileId={browserTab.sessionProfileId ?? null}
-                      sessionPartition={routedPartition ?? browserTab.sessionPartition ?? null}
-                      isActive={isActive && page.id === activeBrowserPage?.id}
-                      chromeShortcutScope={
-                        page.id === activeBrowserPage?.id ? resolvedChromeShortcutScope : 'inactive'
-                      }
-                      isAutomationVisible={automationVisiblePageIds.has(page.id)}
-                      isMobileDriven={mobileDrivenPageIds.has(page.id)}
-                      isRemotelyViewed={remotelyViewedPageIds.has(page.id)}
-                      inputLocked={activeBrowserDriver.kind === 'mobile'}
-                      onUpdatePageState={updateBrowserPageState}
-                      onSetUrl={setBrowserPageUrl}
-                    />
-                  )}
-                </DeferredBrowserContent>
-              ))}
-              <BrowserMobileDriverOverlay
-                driver={activeBrowserDriver}
-                onTakeBack={reclaimActiveBrowserForDesktop}
-              />
-            </div>
-          )}
-        </SshRoutedBrowserPageGate>
+        <div className="relative flex min-h-0 flex-1">
+          {localBrowserPages.map((page) => (
+            <DeferredBrowserContent
+              key={page.id}
+              retainMounted={isWorktreeActive}
+              mountEligible={isBrowserPagePanePaintable({
+                isActive:
+                  (isActive && page.id === activeBrowserPageId) ||
+                  (hasAdmittedPage && isBrowserPageMountAdmitted(page.id)),
+                isAutomationVisible: automationVisiblePageIds.has(page.id),
+                isMobileDriven: mobileDrivenPageIds.has(page.id),
+                hasRemoteViewer: remotelyViewedPageIds.has(page.id)
+              })}
+            >
+              {page.docLocation ? (
+                <WorkspaceDocPagePane
+                  page={page}
+                  isActive={isActive && page.id === activeBrowserPage?.id}
+                />
+              ) : (
+                <BrowserPagePane
+                  browserTab={page}
+                  workspaceId={browserTab.id}
+                  worktreeId={browserTab.worktreeId}
+                  sessionProfileId={browserTab.sessionProfileId ?? null}
+                  sessionPartition={browserTab.sessionPartition ?? null}
+                  isActive={isActive && page.id === activeBrowserPage?.id}
+                  chromeShortcutScope={
+                    page.id === activeBrowserPage?.id ? resolvedChromeShortcutScope : 'inactive'
+                  }
+                  isAutomationVisible={automationVisiblePageIds.has(page.id)}
+                  isMobileDriven={mobileDrivenPageIds.has(page.id)}
+                  isRemotelyViewed={remotelyViewedPageIds.has(page.id)}
+                  inputLocked={activeBrowserDriver.kind === 'mobile'}
+                  onUpdatePageState={updateBrowserPageState}
+                  onSetUrl={setBrowserPageUrl}
+                />
+              )}
+            </DeferredBrowserContent>
+          ))}
+          <BrowserMobileDriverOverlay
+            driver={activeBrowserDriver}
+            onTakeBack={reclaimActiveBrowserForDesktop}
+          />
+        </div>
       ) : null}
     </div>
   )

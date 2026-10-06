@@ -154,7 +154,6 @@ export function useStatusBarController(floatingTerminalOpen: boolean) {
   // Why: OpenCode Go is web/cookie-auth, not a CLI on PATH, so detection-gating doesn't apply.
   const visibleOpencodeGo = getVisibleUsageProvider('opencode-go', opencodeGo, usageSettings)
   const showOpencodeGo = visibleOpencodeGo !== null && statusBarItems.includes('opencode-go')
-  const showSsh = statusBarItems.includes('ssh')
   const showResourceUsage = statusBarItems.includes('resource-usage')
   const showPorts = statusBarItems.includes('ports')
   const showFloatingTerminalToggle =
@@ -272,7 +271,6 @@ export function useStatusBarController(floatingTerminalOpen: boolean) {
     showFloatingWorkspaceAttentionDot,
     showPorts,
     showResourceUsage,
-    showSsh,
     statusBarItems,
     statusBarUsageMode,
     toggleStatusBarItem,

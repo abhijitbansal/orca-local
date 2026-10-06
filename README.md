@@ -66,20 +66,6 @@ Click any UI element in a real Chromium window to send its HTML, CSS, and a crop
 <tr>
 <td width="50%" valign="middle">
 
-### SSH Worktrees
-
-Run agents on a beefy remote box with full file editing, git, and terminals — auto-reconnect and port forwarding included.
-
-[Docs →](docs/site/content/docs/ssh.mdx)
-
-</td>
-<td width="50%">
-  <a href="docs/site/content/docs/ssh.mdx"><picture><source srcset="resources/onboarding/feature-wall/tile-06.gif" type="image/gif"><img src="resources/onboarding/feature-wall/tile-06.poster.jpg" alt="Remote worktrees over SSH" width="100%" /></picture></a>
-</td>
-</tr>
-<tr>
-<td width="50%" valign="middle">
-
 ### Annotate AI Diffs
 
 Drop comments on any diff line and ship them back to the agent — review, edit, and commit without leaving Orca.

@@ -1,79 +1,22 @@
-// @vitest-environment happy-dom
 /**
- * The Resource Manager tooltip and the SSH segment's host count were built from
- * bare English literals inside helper functions, so they stayed English while
+ * The Resource Manager tooltip was built from
+ * bare English literals inside helper functions, so it stayed English while
  * every label around them translated. The coverage audit cannot see values
  * returned from helpers, so only a runtime assertion against the real catalog
  * keeps them honest — same reasoning as
  * `src/renderer/src/i18n/settings-status-label-localization.test.ts`.
  */
-import { cleanup, render, screen } from '@testing-library/react'
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
-import type { SshConnectionStatus } from '../../../../shared/ssh-types'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { i18n } from '@/i18n/i18n'
 import {
   formatTerminalSessionCount,
   getResourceManagerAriaLabel,
   getResourceManagerTooltipLines
 } from './resource-manager-terminal-copy'
-import { SshStatusSegment } from './SshStatusSegment'
-
-type StoreState = {
-  sshConnectionStates: Map<string, { status: SshConnectionStatus }>
-  sshTargetLabels: Map<string, string>
-  remoteWorkspaceSyncStatusByTargetId: Record<string, { phase: string }>
-}
-
-let storeState: StoreState = {
-  sshConnectionStates: new Map(),
-  sshTargetLabels: new Map(),
-  remoteWorkspaceSyncStatusByTargetId: {}
-}
-
-vi.mock('../../store', () => {
-  const state = (): Record<string, unknown> => ({
-    ...storeState,
-    settings: null,
-    runtimeEnvironments: [],
-    runtimeStatusByEnvironmentId: new Map(),
-    setRuntimeEnvironmentStatus: vi.fn(),
-    hydrateRuntimeEnvironmentStatuses: vi.fn(),
-    setActiveView: vi.fn(),
-    openSettingsTarget: vi.fn(),
-    recordFeatureInteraction: vi.fn(),
-    fetchRuntimeEnvironmentRepos: vi.fn(),
-    fetchWorktrees: vi.fn(),
-    fetchWorktreeLineage: vi.fn()
-  })
-  const useAppStore = (selector: (value: Record<string, unknown>) => unknown): unknown =>
-    selector(state())
-  useAppStore.getState = state
-  return { useAppStore }
-})
-
-function setSshTargets(
-  entries: { id: string; label: string; status: SshConnectionStatus; syncPhase?: string }[]
-): void {
-  storeState = {
-    sshConnectionStates: new Map(entries.map((entry) => [entry.id, { status: entry.status }])),
-    sshTargetLabels: new Map(entries.map((entry) => [entry.id, entry.label])),
-    remoteWorkspaceSyncStatusByTargetId: Object.fromEntries(
-      entries.flatMap((entry) => (entry.syncPhase ? [[entry.id, { phase: entry.syncPhase }]] : []))
-    )
-  }
-}
-
-function triggerText(): string {
-  return screen.getByRole('button').textContent ?? ''
-}
 
 describe('status-bar copy under a non-English UI language', () => {
   beforeAll(async () => {
     await i18n.changeLanguage('ja')
-  })
-
-  afterEach(() => {
-    cleanup()
   })
 
   afterAll(async () => {
@@ -142,42 +85,5 @@ describe('status-bar copy under a non-English UI language', () => {
     expect(getResourceManagerAriaLabel({ sessionCount: 3, spaceScanReady: false })).toBe(
       'リソースマネージャー、3 件のターミナルセッション'
     )
-  })
-
-  it('translates the connected host count next to the translated aria label', () => {
-    setSshTargets([
-      { id: 'ssh-1', label: 'builder', status: 'connected' },
-      { id: 'ssh-2', label: 'openclaw', status: 'connected' }
-    ])
-    render(<SshStatusSegment compact={false} iconOnly={false} />)
-
-    expect(screen.getByRole('button').getAttribute('aria-label')).toBe('リモートホスト接続状態')
-    expect(triggerText()).toContain('2 台のホスト')
-  })
-
-  it('translates the singular host count', () => {
-    setSshTargets([{ id: 'ssh-1', label: 'builder', status: 'connected' }])
-    render(<SshStatusSegment compact={false} iconOnly={false} />)
-
-    expect(triggerText()).toContain('1 台のホスト')
-  })
-
-  it('translates the connecting and workspace-sync states', () => {
-    setSshTargets([{ id: 'ssh-1', label: 'builder', status: 'connecting' }])
-    render(<SshStatusSegment compact={false} iconOnly={false} />)
-    expect(triggerText()).toContain('接続中…')
-    cleanup()
-
-    setSshTargets([
-      { id: 'ssh-1', label: 'builder', status: 'connected', syncPhase: 'conflict' },
-      { id: 'ssh-2', label: 'openclaw', status: 'connected', syncPhase: 'error' }
-    ])
-    render(<SshStatusSegment compact={false} iconOnly={false} />)
-    expect(triggerText()).toContain('ワークスペースの競合')
-    cleanup()
-
-    setSshTargets([{ id: 'ssh-1', label: 'builder', status: 'connected', syncPhase: 'error' }])
-    render(<SshStatusSegment compact={false} iconOnly={false} />)
-    expect(triggerText()).toContain('ワークスペースの同期エラー')
   })
 })
