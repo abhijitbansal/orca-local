@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { readAllowlist, scanLocalOnly } from './check-local-only.mjs'
+import { findStaleAllowlistRows, readAllowlist, scanLocalOnly } from './check-local-only.mjs'
 
 const roots = []
 function fixture(files) {
@@ -228,9 +228,30 @@ describe('scanLocalOnly', () => {
   })
 })
 
+describe('findStaleAllowlistRows', () => {
+  it('reports rows whose file no longer exists', () => {
+    const root = base({ 'src/main/present.ts': '' })
+    expect(
+      findStaleAllowlistRows({
+        rootDir: root,
+        allowlist: new Set([
+          'src/main/present.ts:forbidden-host',
+          'src/main/gone.ts:forbidden-import',
+          'package.json:forbidden-dependency:ssh2'
+        ])
+      })
+    ).toEqual(['src/main/gone.ts:forbidden-import'])
+  })
+})
+
 describe('repository', () => {
   it('has no local-only violations outside the allowlist', () => {
     const rootDir = path.resolve(import.meta.dirname, '../..')
     expect(scanLocalOnly({ rootDir, allowlist: readAllowlist(rootDir) })).toEqual([])
+  })
+
+  it('has no stale allowlist rows', () => {
+    const rootDir = path.resolve(import.meta.dirname, '../..')
+    expect(findStaleAllowlistRows({ rootDir, allowlist: readAllowlist(rootDir) })).toEqual([])
   })
 })

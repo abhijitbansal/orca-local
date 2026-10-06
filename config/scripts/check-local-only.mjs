@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Local-only fork gate: fails when cloud egress, cloud SDKs, publish/deep-link config, or wildcard binds reappear (e.g. after an upstream merge).
-import { readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { isDirectInvocation } from './script-entry-detection.mjs'
 
@@ -172,6 +172,10 @@ export function readAllowlist(rootDir) {
   )
 }
 
+export function findStaleAllowlistRows({ rootDir, allowlist }) {
+  return [...allowlist].filter((row) => !existsSync(path.join(rootDir, row.split(':')[0])))
+}
+
 export function scanLocalOnly({ rootDir, allowlist }) {
   const sources = SCANNED_ROOTS.flatMap((root) => collect(path.join(rootDir, root), []))
   return [
@@ -184,13 +188,19 @@ export function scanLocalOnly({ rootDir, allowlist }) {
 }
 
 export function main(rootDir = process.cwd()) {
-  const violations = scanLocalOnly({ rootDir, allowlist: readAllowlist(rootDir) })
+  const allowlist = readAllowlist(rootDir)
+  const violations = scanLocalOnly({ rootDir, allowlist })
+  const staleRows = findStaleAllowlistRows({ rootDir, allowlist })
+  for (const row of staleRows) {
+    console.error(`${row} [stale-allowlist-row] file does not exist`)
+  }
   for (const v of violations) {
     console.error(`${v.file}:${v.line} [${v.rule}] ${v.match}`)
   }
-  if (violations.length > 0) {
+  const total = violations.length + staleRows.length
+  if (total > 0) {
     console.error(
-      `\ncheck-local-only: ${violations.length} violation(s). See docs/reference/local-only-upstream-sync.md.`
+      `\ncheck-local-only: ${total} violation(s). See docs/reference/local-only-upstream-sync.md.`
     )
     process.exitCode = 1
   } else {

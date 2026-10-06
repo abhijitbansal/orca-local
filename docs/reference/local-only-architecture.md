@@ -115,7 +115,7 @@ Every entry carries a justification comment. The categories:
 - **Strings only**: CLI help examples, a code comment link, and a pasteable install command Orca never runs.
 - **Identifier strings only**: the `https://api.openai.com/auth` JWT claim key read from a local Codex auth file (`codex-auth-identity.ts`), never a request URL.
 - **Proxy resolution only**: `session.resolveProxy(url)` classifies a URL and never connects (`src/main/network/proxy-settings.ts`).
-- **Port-scan address classification**, not a listener bind (`local-workspace-port-address.ts`, `relay/port-scan-handler.ts`).
+- **Port-scan address classification**, not a listener bind (`local-workspace-port-address.ts`).
 
 ### CI workflows
 
