@@ -37,14 +37,7 @@ const WINDOWS_SHIM_SPAWN_ALLOWLIST = [
   'config/scripts/build-linux-local.test.mjs',
   // Benchmarks, repros and e2e drivers — developer-invoked or Linux-only in CI.
   'config/scripts/run-ai-vault-typing-bench.mjs',
-  'config/scripts/run-local-ssh-browser-routing-e2e.mjs',
   'config/scripts/run-multi-workspace-typing-bench.mjs',
-  'config/scripts/run-ssh-codex-artifacts-repro-e2e.mjs',
-  'config/scripts/run-ssh-docker-e2e.mjs',
-  'config/scripts/run-ssh-docker-perf-e2e.mjs',
-  'config/scripts/run-ssh-docker-terminal-parking-e2e.mjs',
-  'config/scripts/run-ssh-docker-watcher-isolation-e2e.mjs',
-  'config/scripts/run-ssh-staged-upload-reliability.mjs',
   'config/scripts/run-terminal-ibus-hangul-e2e.mjs',
   'config/scripts/run-terminal-scale-perf-e2e.mjs',
   // Routes its shim through an explicit `cmd.exe /d /s /c`, which is the correct form.

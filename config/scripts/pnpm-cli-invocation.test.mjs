@@ -140,10 +140,7 @@ describe('resolvePnpmCliInvocation', () => {
 
 describe('pnpm 12 native-cli callers', () => {
   it('reinvokes pnpm through the helper rather than `node $npm_execpath`', () => {
-    for (const file of [
-      './build-native-for-platform.mjs',
-      './run-ssh-docker-bulk-open-freeze-e2e.mjs'
-    ]) {
+    for (const file of ['./build-native-for-platform.mjs']) {
       const source = readFileSync(new URL(file, import.meta.url), 'utf8')
       expect(source).toContain("from './pnpm-cli-invocation.mjs'")
       expect(source).not.toMatch(/process\.execPath,\s*\[\s*(?:pnpmEntry|npmExecPath)/)

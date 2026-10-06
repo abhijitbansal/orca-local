@@ -15,21 +15,13 @@ vi.mock('node:fs', () => ({
   realpathSync: (value: string) => value,
   writeFileSync: fixture.write
 }))
-vi.mock('./helpers/docker-ssh-relay-image', () => ({ prepareDockerSshRelayImage: vi.fn() }))
 
 import globalSetup from './global-setup'
 
 beforeEach(() => {
   vi.resetAllMocks()
   fixture.exists.mockReturnValue(true)
-  for (const name of [
-    'SKIP_BUILD',
-    'ORCA_E2E_SSH_LOCALHOST',
-    'ORCA_E2E_SSH_DOCKER',
-    'ORCA_E2E_NESTED_RUNTIME_SSH',
-    'ORCA_E2E_SKILL_STAGING',
-    'ORCA_E2E_TEST_REPO_PATH_FILE'
-  ]) {
+  for (const name of ['SKIP_BUILD', 'ORCA_E2E_SKILL_STAGING', 'ORCA_E2E_TEST_REPO_PATH_FILE']) {
     vi.stubEnv(name, '')
   }
 })

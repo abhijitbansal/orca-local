@@ -16,11 +16,7 @@ describe('native-only PR E2E routing', () => {
       expect(shouldRunReusablePrE2e([file])).toBe(false)
     }
     expect(shouldRunReusablePrE2e([])).toBe(false)
-    for (const spec of [
-      'tests/e2e/ssh-startup-exec-readiness.spec.ts',
-      'tests/e2e/terminal-ime-exact-byte.spec.ts',
-      'tests/e2e/future.spec.ts'
-    ]) {
+    for (const spec of ['tests/e2e/terminal-ime-exact-byte.spec.ts', 'tests/e2e/future.spec.ts']) {
       expect(shouldRunReusablePrE2e([spec])).toBe(true)
       expect(shouldRunReusablePrE2e(['tests/e2e/terminal-ibus-hangul-native.spec.ts', spec])).toBe(
         true
