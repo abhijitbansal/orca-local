@@ -87,7 +87,8 @@ it('retains the folder instance and metadata through upgrade, listing, and Store
       hostId: 'local'
     })
   }
-  expect(reloaded.getWorktreeMetaForHost(id, 'ssh:builder')?.comment).toBe('other host')
+  // Local-only build: remote-host metadata is stripped at load.
+  expect(reloaded.getWorktreeMetaForHost(id, 'ssh:builder')).toBeUndefined()
   reloaded.flush()
   expect(createStore().getWorktreeMetaForHost(id, 'local')?.instanceId).toBe(before.instanceId)
 })
