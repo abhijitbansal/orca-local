@@ -238,7 +238,7 @@ describe('Store', () => {
     expect(store.getRepos().map((repo) => repo.id)).toEqual(['profile-repo'])
   }, 15_000)
 
-  it('backfills project host setup compatibility records from legacy repos on load', async () => {
+  it('backfills project host setup compatibility records from legacy repos and strips the remote one on load', async () => {
     writeDataFile({
       schemaVersion: 1,
       repos: [
@@ -263,7 +263,7 @@ describe('Store', () => {
     expect(store.getProjects()).toEqual([
       expect.objectContaining({
         id: 'github:stablyai/orca',
-        sourceRepoIds: ['local-repo', 'remote-repo']
+        sourceRepoIds: ['local-repo']
       })
     ])
     expect(store.getProjectHostSetups()).toEqual([
@@ -272,12 +272,6 @@ describe('Store', () => {
         projectId: 'github:stablyai/orca',
         hostId: 'local',
         path: '/Users/alice/orca'
-      }),
-      expect.objectContaining({
-        id: 'remote-repo',
-        projectId: 'github:stablyai/orca',
-        hostId: 'ssh:gpu-vm',
-        path: '/home/alice/orca'
       })
     ])
 
@@ -287,12 +281,20 @@ describe('Store', () => {
     expect(persisted.projectHostSetups).toEqual(store.getProjectHostSetups())
   })
 
-  it('preserves independent project host setup records on load', async () => {
+  it('preserves independent local project host setup records and strips runtime ones on load', async () => {
     const independentProject = makeProject({
       id: 'cloud-project',
       displayName: 'Cloud Project'
     })
     const independentSetup = makeProjectHostSetup({
+      id: 'cloud-project::local',
+      projectId: independentProject.id,
+      hostId: 'local',
+      repoId: '',
+      path: '/srv/cloud-project',
+      displayName: 'Local copy'
+    })
+    const remoteSetup = makeProjectHostSetup({
       id: 'cloud-project::gpu-vm',
       projectId: independentProject.id,
       hostId: 'runtime:gpu-vm',
@@ -304,7 +306,7 @@ describe('Store', () => {
       ...getDefaultPersistedState(testState.dir),
       repos: [makeRepo({ id: 'r1', path: '/repo', displayName: 'Repo' })],
       projects: [independentProject],
-      projectHostSetups: [independentSetup]
+      projectHostSetups: [independentSetup, remoteSetup]
     })
 
     const store = await createStore()
@@ -312,11 +314,12 @@ describe('Store', () => {
     expect(store.getProjects().map((project) => project.id)).toEqual(['repo:r1', 'cloud-project'])
     expect(store.getProjectHostSetups().map((setup) => setup.id)).toEqual([
       'r1',
-      'cloud-project::gpu-vm'
+      'cloud-project::local'
     ])
     store.flush()
     const persisted = readDataFile() as PersistedState
     expect(persisted.projectHostSetups).toContainEqual(independentSetup)
+    expect(persisted.projectHostSetups).not.toContainEqual(remoteSetup)
   })
 
   it('updates and persists a project Windows runtime preference', async () => {
@@ -354,7 +357,7 @@ describe('Store', () => {
     })
   })
 
-  it('carries project state and independent setups across a repo remote identity change', async () => {
+  it('carries project state and the local setup across a repo remote identity change', async () => {
     const originProjectId = 'git:git.example.com/acme/app'
     writeDataFile({
       ...getDefaultPersistedState(testState.dir),
@@ -405,9 +408,11 @@ describe('Store', () => {
       kind: 'wsl',
       distro: 'Ubuntu'
     })
-    expect(
-      store.getProjectHostSetups().find((setup) => setup.id === 'app::gpu-vm')?.projectId
-    ).toBe(upstreamProjectId)
+    // Local-only build: the runtime-hosted independent setup is stripped at load.
+    expect(store.getProjectHostSetups().find((setup) => setup.id === 'app::gpu-vm')).toBeUndefined()
+    expect(store.getProjectHostSetups().find((setup) => setup.id === 'r1')?.projectId).toBe(
+      upstreamProjectId
+    )
   })
 
   it('migrates legacy WSL agent settings into the global Windows runtime default', async () => {

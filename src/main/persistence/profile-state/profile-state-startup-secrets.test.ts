@@ -150,6 +150,11 @@ describe.each(['serialized', 'parsed'] as const)(
           ownerLease: secrets.lease
         })
         await seeded.store.flushAsync()
+        const seededPersisted = seeded.authority.readSerializedState()
+        expect(seededPersisted).not.toContain(secrets.lease)
+        expect(JSON.parse(seededPersisted ?? 'null')).toMatchObject({
+          sshPtyConsumerRecoveries: [{ ownerLease: sealed(secrets.lease) }]
+        })
         seeded.store.freezeWrites()
 
         keyState = failure
@@ -167,9 +172,10 @@ describe.each(['serialized', 'parsed'] as const)(
             httpProxyUrl: sealed(secrets.proxy),
             opencodeSessionCookie: sealed(secrets.cookie)
           },
-          ui: { browserKagiSessionLink: sealed(secrets.kagi) },
-          sshPtyConsumerRecoveries: [{ ownerLease: sealed(secrets.lease) }]
+          ui: { browserKagiSessionLink: sealed(secrets.kagi) }
         })
+        // Local-only build: the legacy SSH recovery is stripped at load, so the next save drops it.
+        expect(JSON.parse(persisted ?? 'null').sshPtyConsumerRecoveries ?? []).toEqual([])
         reopened.store.freezeWrites()
 
         keyState = 'available'
@@ -177,7 +183,7 @@ describe.each(['serialized', 'parsed'] as const)(
         expect(restored.getSettings().httpProxyUrl).toBe(secrets.proxy)
         expect(restored.getSettings().opencodeSessionCookie).toBe(secrets.cookie)
         expect(restored.getUI().browserKagiSessionLink).toBe(secrets.kagi)
-        expect(restored.getSshPtyConsumerRecovery('ssh-1')?.ownerLease).toBe(secrets.lease)
+        expect(restored.getSshPtyConsumerRecovery('ssh-1')).toBeNull()
       }
     )
   }

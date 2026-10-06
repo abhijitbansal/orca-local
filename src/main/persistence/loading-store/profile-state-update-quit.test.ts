@@ -93,6 +93,7 @@ describe('SQLite profile state during an update quit', () => {
   it('exports final SSH shutdown writes and reloads them through the frozen JSON importer', async () => {
     const { store, dataFile, databasePath } = await fixture()
     store.markSshRemotePtyLeasesForShutdown(TARGET_ID, 'detached')
+    expect(store.getSshRemotePtyLeases(TARGET_ID)[0]?.state).toBe('detached')
 
     await store.flushAsync({ exportJsonCompatibility: true })
 
@@ -105,9 +106,8 @@ describe('SQLite profile state during an update quit', () => {
     })
     const legacy = new Store({ dataFile, serializedState: json })
     try {
-      expect(legacy.getSshRemotePtyLeases(TARGET_ID)).toEqual([
-        expect.objectContaining({ state: 'detached', lastDetachedAt: expect.any(Number) })
-      ])
+      // Local-only build: remote PTY leases are stripped at load.
+      expect(legacy.getSshRemotePtyLeases(TARGET_ID)).toEqual([])
     } finally {
       legacy.freezeWrites()
     }
@@ -125,7 +125,7 @@ describe('SQLite profile state during an update quit', () => {
     const legacy = new Store({ dataFile, serializedState: json })
     try {
       expect(legacy.getSettings().theme).toBe('dark')
-      expect(legacy.getSshRemotePtyLeases(TARGET_ID)[0]?.state).toBe('detached')
+      expect(legacy.getSshRemotePtyLeases(TARGET_ID)).toEqual([])
     } finally {
       legacy.freezeWrites()
     }
@@ -233,7 +233,7 @@ describe('SQLite profile state during an update quit', () => {
     try {
       expect(reopened.backend).toBe('sqlite')
       expect(reopened.store.getSettings().theme).toBe('dark')
-      expect(reopened.store.getSshRemotePtyLeases(TARGET_ID)[0]?.state).toBe('detached')
+      expect(reopened.store.getSshRemotePtyLeases(TARGET_ID)).toEqual([])
     } finally {
       reopened.store.freezeWrites()
     }

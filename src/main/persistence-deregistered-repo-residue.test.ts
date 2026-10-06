@@ -103,7 +103,7 @@ describe('deregistered repo residue', () => {
     expect(session.sleepingAgentSessionsByPaneKey ?? {}).toEqual({})
   })
 
-  it('keeps a remote session whose repo is not registered on the desktop', async () => {
+  it('drops a remote session partition at load, registered repo or not', async () => {
     writeDataFile({
       schemaVersion: 1,
       repos: [makeRepo({ id: LIVE_REPO, path: '/workspace/live' })],
@@ -116,29 +116,38 @@ describe('deregistered repo residue', () => {
     const store = await createStore()
     store.flush()
 
-    const partition = store.getWorkspaceSession(RUNTIME_HOST)
-    expect(partition.tabsByWorktree[GONE_WORKTREE]).toHaveLength(1)
-    expect(partition.activeTabTypeByWorktree).toEqual(
-      sessionFor(GONE_WORKTREE).activeTabTypeByWorktree
-    )
+    expect(store.getWorkspaceSession(RUNTIME_HOST).tabsByWorktree[GONE_WORKTREE]).toBeUndefined()
+    expect(readDataFile()).toMatchObject({ workspaceSessionsByHostId: {} })
   })
 
-  it('keeps rows for every registered repo, on any execution host', async () => {
-    const remoteWorktree = `${LIVE_REPO}::/home/user/remote`
+  it('keeps rows for every registered local repo and drops the remote-hosted one', async () => {
+    const localWorktree = `${LIVE_REPO}::/home/user/live`
+    const remoteWorktree = `${GONE_REPO}::/home/user/remote`
     writeDataFile({
       schemaVersion: 1,
-      repos: [makeRepo({ id: LIVE_REPO, path: '/home/user/live', executionHostId: RUNTIME_HOST })],
-      worktreeMeta: { [remoteWorktree]: { hostId: RUNTIME_HOST, status: 'active' } },
+      repos: [
+        makeRepo({ id: LIVE_REPO, path: '/home/user/live' }),
+        makeRepo({ id: GONE_REPO, path: '/home/user/remote', executionHostId: RUNTIME_HOST })
+      ],
+      worktreeMeta: {
+        [localWorktree]: { status: 'active' },
+        [remoteWorktree]: { hostId: RUNTIME_HOST, status: 'active' }
+      },
+      workspaceSession: sessionFor(localWorktree),
       workspaceSessionsByHostId: { [RUNTIME_HOST]: sessionFor(remoteWorktree) }
     })
 
     const store = await createStore()
 
-    expect(store.getWorktreeMeta(remoteWorktree)).toBeDefined()
-    const partition = store.getWorkspaceSession(RUNTIME_HOST)
-    expect(partition.tabsByWorktree[remoteWorktree]).toHaveLength(1)
+    expect(store.getWorktreeMeta(localWorktree)).toBeDefined()
+    expect(store.getWorktreeMeta(remoteWorktree)).toBeUndefined()
+    expect(store.getRepos().map((repo) => repo.id)).toEqual([LIVE_REPO])
+    expect(store.getWorkspaceSession('local').tabsByWorktree[localWorktree]).toHaveLength(1)
+    expect(store.getWorkspaceSession(RUNTIME_HOST).tabsByWorktree[remoteWorktree]).toBeUndefined()
     // Also proves the sleeping-agent fixture is well-formed, so the sweep assertions above bite.
-    expect(Object.keys(partition.sleepingAgentSessionsByPaneKey ?? {})).toHaveLength(1)
+    expect(
+      Object.keys(store.getWorkspaceSession('local').sleepingAgentSessionsByPaneKey ?? {})
+    ).toHaveLength(1)
   })
 
   it('leaves folder-workspace session rows alone: their keys name no repo', async () => {

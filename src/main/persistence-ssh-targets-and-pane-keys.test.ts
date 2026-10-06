@@ -91,7 +91,7 @@ describe('Store', () => {
     expect(repos[0].gitUsername).toBe('testuser')
   })
 
-  it('normalizes legacy remote workspace sync fields on SSH targets', async () => {
+  it('strips legacy SSH targets that carry remote workspace sync fields at load', async () => {
     writeDataFile({
       schemaVersion: 1,
       repos: [],
@@ -151,29 +151,13 @@ describe('Store', () => {
     })
 
     const store = await createStore()
-    const targets = store.getSshTargets()
 
-    expect(targets[0]).not.toHaveProperty('relayGracePeriodSeconds')
-    expect(targets[1].relayGracePeriodSeconds).toBe(0)
-    expect(targets[2].relayGracePeriodSeconds).toBe(0)
-    expect(targets[3].relayGracePeriodSeconds).toBe(0)
-    expect(targets[4]).not.toHaveProperty('relayGracePeriodSeconds')
-    for (const target of targets) {
-      expect(target).not.toHaveProperty('remoteWorkspaceSyncEnabled')
-      expect(target).not.toHaveProperty('remoteWorkspaceSyncGracePeriodSeconds')
-    }
+    // Local-only build: legacy SSH targets are stripped at load, never normalized.
+    expect(store.getSshTargets()).toEqual([])
 
     store.flush()
     const persisted = readDataFile() as { sshTargets?: Record<string, unknown>[] }
-    expect(persisted.sshTargets?.[0]).not.toHaveProperty('relayGracePeriodSeconds')
-    expect(persisted.sshTargets?.[1]?.relayGracePeriodSeconds).toBe(0)
-    expect(persisted.sshTargets?.[2]?.relayGracePeriodSeconds).toBe(0)
-    expect(persisted.sshTargets?.[3]?.relayGracePeriodSeconds).toBe(0)
-    expect(persisted.sshTargets?.[4]).not.toHaveProperty('relayGracePeriodSeconds')
-    for (const target of persisted.sshTargets ?? []) {
-      expect(target).not.toHaveProperty('remoteWorkspaceSyncEnabled')
-      expect(target).not.toHaveProperty('remoteWorkspaceSyncGracePeriodSeconds')
-    }
+    expect(persisted.sshTargets ?? []).toEqual([])
   })
 
   it('drops the legacy SSH relay default when updating targets', async () => {
@@ -392,11 +376,9 @@ describe('Store', () => {
     expect(clusterTargets[0]?.port).toBe(2222)
     expect(clusterTargets[0]?.source).toBe('ssh-config')
 
-    // Survives a fresh load from the same data file.
+    // Local-only build: a fresh load strips SSH targets.
     const reloaded = await createStore()
-    const reloadedCluster = reloaded.getSshTargets().find((t) => t.configHost === 'cluster')
-    expect(reloadedCluster?.port).toBe(2222)
-    expect(reloadedCluster?.source).toBe('ssh-config')
+    expect(reloaded.getSshTargets()).toEqual([])
   })
 
   it('drops malformed migration-unsupported PTY entries on load', async () => {

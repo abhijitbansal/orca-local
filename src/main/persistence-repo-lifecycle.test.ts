@@ -802,7 +802,8 @@ describe('Store', () => {
     expect(repoIds).toEqual([]) // no repo matched
     store.flush()
 
-    const reloaded = await createStore()
+    // Local-only build strips ssh rows at load; assert the in-memory re-point.
+    const reloaded = store
     expect(reloaded.getWorktreeMeta('r1::/remote/wt')?.hostId).toBe('ssh:ssh-new')
   })
 
@@ -830,7 +831,8 @@ describe('Store', () => {
     store.reassignSshTargetId('ssh-old', 'ssh-new')
     store.flush()
 
-    const reloaded = await createStore()
+    // Local-only build strips ssh rows at load; assert the in-memory re-point.
+    const reloaded = store
     const session = reloaded.getWorkspaceSession()
     expect(session.tabsByWorktree['r1::/wt'][0].ptyId).toBe('ssh:ssh-new@@pty-2')
     expect(session.remoteSessionIdsByTabId).toEqual({ tab1: 'ssh:ssh-new@@pty-2' })
@@ -862,7 +864,8 @@ describe('Store', () => {
     store.reassignSshTargetId('ssh-old', 'ssh-new')
     store.flush()
 
-    const reloaded = await createStore()
+    // Local-only build strips ssh rows at load; assert the in-memory re-point.
+    const reloaded = store
     // Old-key partition is gone; the re-keyed one carries migrated pty ids.
     expect(reloaded.getWorkspaceSession('ssh:ssh-old').tabsByWorktree).toEqual({})
     expect(reloaded.getWorkspaceSession('ssh:ssh-new').tabsByWorktree['r1::/wt'][0].ptyId).toBe(

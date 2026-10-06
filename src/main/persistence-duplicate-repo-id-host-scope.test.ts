@@ -105,10 +105,10 @@ afterEach(async () => {
 })
 
 describe('deleting one host copy of a repo id shared by two hosts', () => {
-  it('keeps both rows resolvable after load', async () => {
+  it('strips the remote copy at load and keeps the local row resolvable', async () => {
     const store = await createStoreWithDuplicateRepoId()
 
-    expect(store.getRepos().map((repo) => repo.path)).toEqual(['/laptop/dup', '/remote/dup'])
+    expect(store.getRepos().map((repo) => repo.path)).toEqual(['/laptop/dup'])
   })
 
   it('removeProjectForHost drops only the addressed host row', async () => {
@@ -119,25 +119,16 @@ describe('deleting one host copy of a repo id shared by two hosts', () => {
     expect(store.getRepos().map((repo) => repo.path)).toEqual(['/laptop/dup'])
   })
 
-  it('deleteProjectHostSetup drops only the row it reports, never the sibling host', async () => {
-    // Repo-derived setups reuse the repo id, so a duplicated id yields two setups with the
-    // same setup id and the lookup can only resolve one. Whichever it resolves, the other
-    // host's registration must survive.
+  it('deleteProjectHostSetup drops only the local row once the remote copy is stripped', async () => {
     const store = await createStoreWithDuplicateRepoId()
 
     const result = store.deleteProjectHostSetup({ setupId: 'dup' })
 
-    expect(result?.repo?.path).toBeDefined()
-    expect(store.getRepos().map((repo) => repo.path)).toEqual(
-      duplicateIdRepos()
-        .map((repo) => repo.path)
-        .filter((path) => path !== result?.repo?.path)
-    )
+    expect(result?.repo?.path).toBe('/laptop/dup')
+    expect(store.getRepos()).toEqual([])
   })
 
-  it('setResolvedRepoGitUsername writes only the probed host row', async () => {
-    // Enrichment resolves per repo *location*, so the write must land on the row it probed; an
-    // id-only lookup would stamp the sibling host's username and host-scoped hydration cache.
+  it('setResolvedRepoGitUsername never lands on the local row for a stripped runtime host', async () => {
     const store = await createStoreFromState({
       repos: [
         {
@@ -164,17 +155,14 @@ describe('deleting one host copy of a repo id shared by two hosts', () => {
         { id: 'dup', executionHostId: toRuntimeExecutionHostId('env-1') },
         'runtime-user'
       )
-    ).toBe(true)
+    ).toBe(false)
 
     expect(store.getRepos().map((repo) => [repo.displayName, repo.gitUsername])).toEqual([
-      ['Dup Local', ''],
-      ['Dup Runtime', 'runtime-user']
+      ['Dup Local', '']
     ])
   })
 
-  it('a stale local setup for an id that only exists on ssh never deletes the ssh row', async () => {
-    // Two mechanisms must each hold this line: load-time projection drops the stale setup, and
-    // deleteProjectHostSetup resolves the repo by (repoId, setup.hostId) with no sibling fallback.
+  it('a stale local setup for an id that only existed on ssh resolves no repo', async () => {
     const { setupId, ...state } = staleLocalSetupState()
     const store = await createStoreFromState(state)
 
@@ -182,6 +170,6 @@ describe('deleting one host copy of a repo id shared by two hosts', () => {
 
     expect(result?.repo).toBeUndefined()
     expect(store.getProjectHostSetups().map((setup) => setup.id)).not.toContain(setupId)
-    expect(store.getRepos().map((repo) => repo.path)).toEqual(['/remote/dup'])
+    expect(store.getRepos()).toEqual([])
   })
 })

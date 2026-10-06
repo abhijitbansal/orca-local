@@ -284,11 +284,12 @@ describe('Store', () => {
   })
 
   it.each([
-    { label: 'local', hostId: undefined },
-    { label: 'SSH', hostId: 'ssh:ssh-1' }
+    { label: 'local', hostId: undefined, survivesReload: true },
+    // Local-only build: a remote partition is live in memory but stripped on reload.
+    { label: 'SSH', hostId: 'ssh:ssh-1', survivesReload: false }
   ])(
     'preserves a reconciled incarnation across a renderer snapshot ($label)',
-    async ({ hostId }) => {
+    async ({ hostId, survivesReload }) => {
       const store = await createStore()
       const paneKey = `tab1:${TEST_LEAF_1}`
       store.setWorkspaceSession(
@@ -334,7 +335,7 @@ describe('Store', () => {
       )
       const reloaded = await createStore()
       expect(reloaded.getWorkspaceSession(hostId).terminalPtyIncarnationsByPaneKey?.[paneKey]).toBe(
-        'inc-live'
+        survivesReload ? 'inc-live' : undefined
       )
     }
   )

@@ -190,9 +190,10 @@ describe('worktree name retirement registry', () => {
     const newRepo = { ...oldRepo, id: OTHER_REPO }
     store.addRepo(newRepo)
 
+    // Local-only build: remote retirement namespaces are stripped at load, so nothing carries over.
     await expect(
       getRetiredNameRegistryForRepo(store, newRepo, [newRepo], store.getSettings())
-    ).resolves.toEqual({ exhaustedTiers: 0, names: ['nautilus'] })
+    ).resolves.toEqual({ exhaustedTiers: 0, names: [] })
   })
 
   it('preserves a Codex-only local retirement across remove and re-add', async () => {
@@ -280,9 +281,10 @@ describe('worktree name retirement registry', () => {
     const { getRetiredNameRegistryForRepo } = await import('./worktree-name-retirement')
     const readopted = store.getRepos().find((entry) => entry.id === REPO)!
     expect(readopted.connectionId).toBe('ssh-new')
+    // Local-only build: the legacy remote namespace is stripped at load, so there is nothing to carry.
     await expect(
       getRetiredNameRegistryForRepo(store, readopted, [readopted], store.getSettings())
-    ).resolves.toEqual({ exhaustedTiers: 0, names: ['nautilus'] })
+    ).resolves.toEqual({ exhaustedTiers: 0, names: [] })
   })
 
   it('reassigning a target id carries retirements when the endpoint itself moved', async () => {

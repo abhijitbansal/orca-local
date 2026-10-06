@@ -319,8 +319,10 @@ describe('worker persistence avoids synchronous profile filesystem calls', () =>
     )
     store.upsertSshRemotePtyLease({ targetId: 'ssh-1', ptyId: 'pty-2', state: 'expired' })
     store.upsertSshRemotePtyLease({ targetId: 'ssh-1', ptyId: 'pty-4', state: 'terminated' })
+    await store.flushPendingOrThrowAsync()
     record(directory)
-    const write = vi.spyOn(authority, 'writeSerializedDomains')
+    // Local-only build: lease writes have no selective domain, so they commit as one complete write.
+    const write = vi.spyOn(authority, 'writeCompleteSerializedDomains')
     await store.markSshRemotePtyLeasesAttachedAsync('ssh-1', ['pty-1', 'pty-2', 'pty-4'])
     await authority.drainBackups()
     fsCalls.recording = false

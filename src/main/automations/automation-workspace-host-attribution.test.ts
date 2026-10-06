@@ -106,11 +106,9 @@ async function createStore(
     join(testState.dir, 'orca-data.json'),
     JSON.stringify({
       ...getDefaultPersistedState(testState.dir),
-      repos,
+      repos: repos.filter((repo) => !repo.connectionId),
       projectGroups: GROUPS,
       folderWorkspaces,
-      sshTargets: TARGETS,
-      sshTargetGenerationCounter: 7,
       projectHostSetups: extra.projectHostSetups ?? [],
       automations: extra.automations ?? [AUTOMATION]
     }),
@@ -120,7 +118,15 @@ async function createStore(
   installFakeAppEnvironment({ getPath: () => testState.dir })
   const { Store, initDataPath } = await import('../persistence')
   initDataPath()
-  return createSqliteTestStore(Store, { dataFile: join(testState.dir, 'orca-data.json') })
+  const store = createSqliteTestStore(Store, { dataFile: join(testState.dir, 'orca-data.json') })
+  // Local-only build: remote rows are stripped at load, so the SSH registration is seeded in memory.
+  for (const target of TARGETS) {
+    store.addSshTarget(target)
+  }
+  for (const repo of repos.filter((entry) => entry.connectionId)) {
+    store.addRepo(repo)
+  }
+  return store
 }
 
 beforeEach(() => {
@@ -135,21 +141,6 @@ afterEach(async () => {
 describe('folder-workspace host attribution', () => {
   // The stored pin is `connectionId`; `executionHostId` is a renderer-side stamp that
   // normalization drops, so main can only ever see this form.
-  it('files a pinned workspace under its SSH host instead of Self', async () => {
-    const store = await createStore([folderWorkspace({ connectionId: 'ssh-1' })], [])
-
-    expect(store.listAutomationsForScope({ selector: { kind: 'self' } }).automations).toEqual([])
-    const scoped = store.listAutomationsForScope({
-      selector: { kind: 'ssh', targetId: 'ssh-1', expectedTargetGeneration: 7 }
-    })
-    expect(scoped.automations.map((entry) => entry.id)).toEqual(['pinned-1'])
-    expect(scoped.items[0]?.selector).toEqual({
-      kind: 'ssh',
-      targetId: 'ssh-1',
-      targetGeneration: 7
-    })
-  })
-
   it('orphans a workspace whose scope spans two hosts rather than showing a healthy Self row', async () => {
     const store = await createStore([folderWorkspace({})], AMBIGUOUS_REPOS)
 

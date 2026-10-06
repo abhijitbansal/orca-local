@@ -2,7 +2,6 @@ import {
   closeTestStores,
   testState,
   createStore,
-  writeDataFile,
   makeTerminalTab
 } from './persistence-test-harness'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
@@ -65,59 +64,6 @@ describe('Store', () => {
     await closeTestStores()
     rmSync(testState.dir, { recursive: true, force: true })
   })
-  it('remaps legacy SSH lease leaf ids by PTY when the layout is already normalized', async () => {
-    writeDataFile({
-      schemaVersion: 1,
-      repos: [],
-      worktreeMeta: {},
-      settings: {},
-      ui: {},
-      githubCache: { pr: {}, issue: {} },
-      workspaceSession: {
-        activeRepoId: 'r1',
-        activeWorktreeId: 'wt1',
-        activeTabId: 'tab1',
-        tabsByWorktree: {
-          wt1: [
-            {
-              id: 'tab1',
-              worktreeId: 'wt1',
-              title: 'Terminal',
-              customTitle: null,
-              color: null,
-              sortOrder: 0,
-              createdAt: 1,
-              ptyId: 'remote-pty'
-            }
-          ]
-        },
-        terminalLayoutsByTabId: {
-          tab1: {
-            root: { type: 'leaf', leafId: TEST_LEAF_1 },
-            activeLeafId: TEST_LEAF_1,
-            expandedLeafId: null,
-            ptyIdsByLeafId: { [TEST_LEAF_1]: 'remote-pty' }
-          }
-        }
-      },
-      sshRemotePtyLeases: [
-        {
-          targetId: 'ssh-1',
-          ptyId: 'remote-pty',
-          worktreeId: 'wt1',
-          tabId: 'tab1',
-          leafId: 'pane:1',
-          state: 'detached',
-          createdAt: 1,
-          updatedAt: 1
-        }
-      ]
-    })
-
-    const store = await createStore()
-    expect(store.getSshRemotePtyLeases('ssh-1')[0].leafId).toBe(TEST_LEAF_1)
-  })
-
   it('normalizes stale legacy session writes to prior UUID leaves before preserving bindings', async () => {
     const store = await createStore()
     store.setWorkspaceSession({

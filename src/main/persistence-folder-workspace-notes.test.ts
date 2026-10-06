@@ -202,7 +202,7 @@ describe('Store', () => {
     }
   })
 
-  it('keeps notes and remote provenance for an SSH folder workspace across a rollback', async () => {
+  it('drops an SSH folder workspace and its notes at load after a rollback', async () => {
     const store = await createStore()
     const group = store.createProjectGroup({
       name: 'Platform',
@@ -219,8 +219,8 @@ describe('Store', () => {
     writeDataFile(simulatePreviousBuildLoadAndFlush(readDataFile() as PersistedState))
 
     const restored = await createStore()
-    expect(restored.getFolderWorkspace(workspace.id)?.diffComments).toEqual([note])
-    expect(restored.getFolderWorkspace(workspace.id)?.connectionId).toBe('ssh-1')
+    // Local-only build: remote-hosted folder workspaces are stripped at load, never migrated.
+    expect(restored.getFolderWorkspace(workspace.id)).toBeUndefined()
   })
 
   it('round-trips unknown top-level state keys through load and flush', async () => {

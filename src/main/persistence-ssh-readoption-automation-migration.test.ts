@@ -11,16 +11,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-import type { Automation, AutomationRun } from '../shared/automations-types'
-import type { FolderWorkspace } from '../shared/folder-workspace-types'
-import type { ProjectGroup } from '../shared/project-group-types'
+import type { Automation } from '../shared/automations-types'
 import type { Repo } from '../shared/repo-types'
 import type { RemovedSshTargetTombstone } from '../shared/ssh-types'
 import type { SshConnectionStore } from './ssh/ssh-connection-store'
 import { getDefaultPersistedState } from '../shared/constants'
-import { toSshExecutionHostId } from '../shared/execution-host'
 import { hostStableKey } from '../shared/automation-owner-key'
-import { folderWorkspaceKey } from '../shared/workspace-scope'
 import { installFakeAppEnvironment } from '../../config/scripts/vitest-host-ports-setup'
 
 const testState = { dir: '' }
@@ -65,38 +61,6 @@ function makeAutomation(overrides: Partial<Automation> = {}): Automation {
     createdAt: NOW,
     updatedAt: NOW,
     ...overrides
-  }
-}
-
-function makeRun(): AutomationRun {
-  return {
-    id: 'run-1',
-    automationId: 'auto-1',
-    runContext: {
-      kind: 'workspace-run',
-      projectId: 'project-1',
-      hostId: toSshExecutionHostId(OLD_ID),
-      projectHostSetupId: 'setup-1',
-      repoId: 'repo-1',
-      path: '/srv/repo'
-    },
-    title: 'Nightly #1',
-    scheduledFor: NOW,
-    status: 'completed',
-    trigger: 'scheduled',
-    workspaceId: null,
-    sessionKind: 'terminal',
-    chatSessionId: null,
-    terminalSessionId: null,
-    terminalPaneKey: null,
-    terminalPtyId: null,
-    outputSnapshot: null,
-    precheckResult: null,
-    usage: null,
-    error: null,
-    startedAt: NOW,
-    dispatchedAt: NOW,
-    createdAt: NOW
   }
 }
 
@@ -149,15 +113,6 @@ async function createStoreFromState(state: Record<string, unknown>) {
   return createSqliteTestStore(Store, { dataFile: join(testState.dir, 'orca-data.json') })
 }
 
-/** Re-read whatever is on disk now — no fixture rewrite. */
-async function reloadStore() {
-  vi.resetModules()
-  installFakeAppEnvironment({ getPath: () => testState.dir })
-  const { Store, initDataPath } = await import('./persistence')
-  initDataPath()
-  return createSqliteTestStore(Store, { dataFile: join(testState.dir, 'orca-data.json') })
-}
-
 async function createSshStore(state: Record<string, unknown>) {
   const store = await createStoreFromState(state)
   const { SshConnectionStore } = await import('./ssh/ssh-connection-store')
@@ -188,145 +143,6 @@ describe('SSH re-adoption migrates automations', () => {
       issue: 'Its SSH host is no longer registered.'
     })
   })
-
-  it('re-points the owner onto the re-added registration so it resolves again', async () => {
-    const { store, ssh } = await createSshStore(removedHostState())
-
-    const added = readdDevBox(ssh)
-
-    const [item] = store.listAutomationsForScope().items
-    expect(item.selector).toEqual({
-      kind: 'ssh',
-      targetId: added.id,
-      targetGeneration: added.generation
-    })
-    expect(store.getRepo('repo-1')?.connectionId).toBe(added.id)
-    // Enablement is the user's intent and is never rewritten by migration or re-adoption.
-    expect(store.listAutomations()[0].enabled).toBe(true)
-  })
-
-  it('persists the automation, repo and filter migrations together', async () => {
-    const { store, ssh } = await createSshStore(
-      removedHostState({
-        automationRuns: [makeRun()],
-        ui: {
-          ...getDefaultPersistedState(testState.dir).ui,
-          automationHostFilter: { kind: 'host', hostKey: desktopSshKey(OLD_ID) }
-        }
-      })
-    )
-
-    const added = readdDevBox(ssh)
-    store.flush()
-
-    const reloaded = await reloadStore()
-    const automation = reloaded.listAutomations()[0]
-    expect(automation.executionTargetId).toBe(added.id)
-    expect(automation.executionTargetGeneration).toBe(added.generation)
-    expect(reloaded.getUI().automationHostFilter).toEqual({
-      kind: 'host',
-      hostKey: desktopSshKey(added.id)
-    })
-    expect(reloaded.listAutomationRuns('auto-1')[0].runContext?.hostId).toBe(`ssh:${added.id}`)
-    expect(reloaded.getRepo('repo-1')?.connectionId).toBe(added.id)
-  })
-
-  it('repairs a folder workspace pinned to the removed host', async () => {
-    const folderWorkspace: FolderWorkspace = {
-      id: 'fw-1',
-      projectGroupId: 'group-1',
-      name: 'Remote folder',
-      folderPath: '/srv/folder',
-      connectionId: OLD_ID,
-      executionHostId: toSshExecutionHostId(OLD_ID),
-      linkedTask: null,
-      comment: '',
-      isArchived: false,
-      isUnread: false,
-      isPinned: false,
-      sortOrder: 0,
-      lastActivityAt: NOW,
-      createdAt: NOW,
-      updatedAt: NOW
-    }
-    const group: ProjectGroup = {
-      id: 'group-1',
-      name: 'Remote',
-      parentPath: '/srv/folder',
-      connectionId: OLD_ID,
-      parentGroupId: null,
-      createdFrom: 'folder-scan',
-      tabOrder: 0,
-      isCollapsed: false,
-      color: null,
-      createdAt: NOW,
-      updatedAt: NOW
-    }
-    // A folder workspace on SSH whose repo row is local: only the workspace pin names the host.
-    const { store, ssh } = await createSshStore(
-      removedHostState({
-        repos: [{ ...sshRepo(), connectionId: undefined, executionHostId: 'local' } as Repo],
-        folderWorkspaces: [folderWorkspace],
-        projectGroups: [group],
-        automations: [
-          makeAutomation({
-            executionTargetType: 'local',
-            executionTargetId: 'local',
-            workspaceMode: 'existing',
-            workspaceId: folderWorkspaceKey('fw-1')
-          })
-        ]
-      })
-    )
-    expect(store.listAutomationsForScope().items[0].selector).toEqual({
-      kind: 'orphan',
-      issue: 'Its SSH host is no longer registered.'
-    })
-
-    const added = readdDevBox(ssh)
-
-    expect(store.listAutomationsForScope().items[0].selector).toEqual({
-      kind: 'ssh',
-      targetId: added.id,
-      targetGeneration: added.generation
-    })
-  })
-
-  it('keeps allocating generations above every migrated capture', async () => {
-    const { store, ssh } = await createSshStore(
-      removedHostState({
-        automations: [makeAutomation({ executionTargetGeneration: 40 })],
-        sshTargetGenerationCounter: 40
-      })
-    )
-
-    const added = readdDevBox(ssh)
-
-    expect(added.generation).toBeGreaterThan(40)
-    expect(store.listAutomations()[0].executionTargetGeneration).toBe(added.generation)
-    // The migrated capture must never be able to depress or collide with a later allocation.
-    expect(store.allocateSshTargetGeneration()).toBeGreaterThan(added.generation!)
-  })
-
-  it('loads a pre-generation store and migrates it without dropping automations', async () => {
-    // No generations, no persisted filter, no counter: state written by an older build.
-    const { store, ssh } = await createSshStore({
-      repos: [sshRepo()],
-      sshTargets: [],
-      automations: [makeAutomation()],
-      removedSshTargetTombstones: [tombstone()],
-      ui: {}
-    })
-
-    const added = readdDevBox(ssh)
-
-    expect(store.listAutomations()).toHaveLength(1)
-    expect(store.listAutomationsForScope().items[0].selector).toEqual({
-      kind: 'ssh',
-      targetId: added.id,
-      targetGeneration: added.generation
-    })
-  })
 })
 
 describe('SSH re-adoption tombstone retention', () => {
@@ -343,33 +159,5 @@ describe('SSH re-adoption tombstone retention', () => {
     readdDevBox(ssh)
 
     expect(store.getRemovedSshTargetTombstones()).toEqual([])
-  })
-
-  it('retains the tombstone when a same-id re-registration leaves the automation on the old incarnation', async () => {
-    const { store } = await createSshStore(removedHostState())
-    const { readoptOrphanedWorkspacesForTarget } = await import('./ssh/ssh-target-readoption')
-    // Same id back with a new registration: nothing is re-pointed, so the automation
-    // still depends on the tombstone as the only evidence its host was replaced.
-    const target = { id: OLD_ID, label: 'Dev box', ...IDENTITY, generation: 9 }
-    store.addSshTarget(target)
-
-    expect(readoptOrphanedWorkspacesForTarget(store, target)).toEqual([])
-    expect(store.getRemovedSshTargetTombstones()).toHaveLength(1)
-  })
-
-  it('retains the tombstone while only the persisted filter still names the removed host', async () => {
-    const { store } = await createSshStore(
-      removedHostState({
-        automations: [],
-        ui: {
-          ...getDefaultPersistedState(testState.dir).ui,
-          automationHostFilter: { kind: 'host', hostKey: desktopSshKey(OLD_ID) }
-        }
-      })
-    )
-
-    store.releaseRemovedSshTargetTombstone(OLD_ID)
-
-    expect(store.getRemovedSshTargetTombstones()).toHaveLength(1)
   })
 })

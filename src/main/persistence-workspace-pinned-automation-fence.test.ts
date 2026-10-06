@@ -1,29 +1,17 @@
-import {
-  closeTestStores,
-  createSqliteTestStore,
-  readPersistedStateJson,
-  writePersistedStateJson
-} from './persistence-test-harness'
+import { closeTestStores, createSqliteTestStore } from './persistence-test-harness'
 /**
- * A `local`-typed automation whose folder workspace pins it to an SSH host is
- * projected as SSH-owned, so it must be fenceable like any other SSH-owned row.
- *
- * It used to capture no registration generation at all, so `captured ?? current`
- * always read the *current* one and `targetReplaced` could never fire: deleting
- * a host and re-adding one under the same id silently moved the schedule onto a
- * different machine. These tests drive the real Store through create and reload.
+ * A `local`-typed automation whose folder workspace pinned it to an SSH host used to be projected
+ * as SSH-owned. A local-only build strips that workspace at load, so the record can never project
+ * onto a remote host. These tests drive the real Store through load.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-import type { Automation, AutomationCreateInput } from '../shared/automations-types'
 import type { FolderWorkspace } from '../shared/folder-workspace-types'
 import type { ProjectGroup } from '../shared/project-group-types'
 import type { Repo } from '../shared/repo-types'
 import type { SshTarget } from '../shared/ssh-types'
-import { AUTOMATION_ORPHAN_ISSUES } from '../shared/automation-list-scope'
-import { AUTOMATION_OWNER_CONFLICT_CODES } from '../shared/automation-owner-conflict'
 import { getDefaultPersistedState } from '../shared/constants'
 import { folderWorkspaceKey } from '../shared/workspace-scope'
 import { installFakeAppEnvironment } from '../../config/scripts/vitest-host-ports-setup'
@@ -40,7 +28,6 @@ vi.mock('./telemetry/cohort-classifier', () => ({ getCohortAtEmit: vi.fn() }))
 const NOW = 1_700_000_000_000
 const TARGET_ID = 'prod'
 const FIRST_GENERATION = 4
-const REPLACEMENT_GENERATION = 5
 
 function prodTarget(generation: number): SshTarget {
   return {
@@ -125,41 +112,6 @@ async function createStoreFromState(state: Record<string, unknown>) {
   return createSqliteTestStore(Store, { dataFile: join(testState.dir, 'orca-data.json') })
 }
 
-async function reloadStore() {
-  vi.resetModules()
-  installFakeAppEnvironment({ getPath: () => testState.dir })
-  const { Store, initDataPath } = await import('./persistence')
-  initDataPath()
-  return createSqliteTestStore(Store, { dataFile: join(testState.dir, 'orca-data.json') })
-}
-
-/** The same target id now carries a different registration incarnation. */
-function replaceStoredTargetGeneration(generation: number): void {
-  const file = join(testState.dir, 'orca-data.json')
-  const state = JSON.parse(readPersistedStateJson(file))
-  state.sshTargets = [prodTarget(generation)]
-  state.sshTargetGenerationCounter = generation
-  writePersistedStateJson(file, JSON.stringify(state))
-}
-
-const PINNED_CREATE_INPUT: AutomationCreateInput = {
-  name: 'Nightly',
-  prompt: 'go',
-  agentId: 'codex',
-  projectId: 'repo-1',
-  workspaceMode: 'existing',
-  workspaceId: folderWorkspaceKey('fw-1'),
-  timezone: 'UTC',
-  rrule: 'FREQ=DAILY',
-  dtstart: NOW
-}
-
-function createPinnedAutomation(store: {
-  createAutomation: (input: AutomationCreateInput) => Automation
-}): Automation {
-  return store.createAutomation(PINNED_CREATE_INPUT)
-}
-
 beforeEach(() => {
   testState.dir = mkdtempSync(join(tmpdir(), 'orca-pinned-fence-'))
 })
@@ -170,59 +122,16 @@ afterEach(async () => {
   vi.resetModules()
 })
 
-describe('workspace-pinned automations capture a registration generation', () => {
-  it('stamps the pinned SSH target generation when the record is created', async () => {
+describe('workspace-pinned automations in a local-only build', () => {
+  it('strips the SSH-pinned folder workspace and its target at load, so nothing can project onto them', async () => {
     const store = await createStoreFromState(pinnedState(FIRST_GENERATION))
 
-    const automation = createPinnedAutomation(store)
-
-    expect(automation.executionTargetType).toBe('local')
-    expect(automation.executionTargetGeneration).toBe(FIRST_GENERATION)
+    expect(store.getFolderWorkspace('fw-1')).toBeUndefined()
+    expect(store.getSshTargets()).toEqual([])
+    expect(store.getRepos().map((repo) => repo.id)).toEqual(['repo-1'])
   })
 
-  it('projects the pinned record onto the SSH host while the registration is unchanged', async () => {
-    const store = await createStoreFromState(pinnedState(FIRST_GENERATION))
-    createPinnedAutomation(store)
-
-    expect(store.listAutomationsForScope().items[0].selector).toEqual({
-      kind: 'ssh',
-      targetId: TARGET_ID,
-      targetGeneration: FIRST_GENERATION
-    })
-  })
-
-  it('orphans the pinned record when the same target id is re-added as a new incarnation', async () => {
-    const store = await createStoreFromState(pinnedState(FIRST_GENERATION))
-    createPinnedAutomation(store)
-    store.flush()
-    replaceStoredTargetGeneration(REPLACEMENT_GENERATION)
-
-    const reloaded = await reloadStore()
-
-    expect(reloaded.listAutomationsForScope().items[0].selector).toEqual({
-      kind: 'orphan',
-      issue: AUTOMATION_ORPHAN_ISSUES.targetReplaced
-    })
-  })
-
-  it('refuses to dispatch the pinned record onto the replacement machine', async () => {
-    const store = await createStoreFromState(pinnedState(FIRST_GENERATION))
-    createPinnedAutomation(store)
-    store.flush()
-    replaceStoredTargetGeneration(REPLACEMENT_GENERATION)
-
-    const reloaded = await reloadStore()
-
-    const automation = reloaded.listAutomations()[0]
-    expect(reloaded.automationCapturedHostIssue(automation)).toBe(
-      AUTOMATION_ORPHAN_ISSUES.targetReplaced
-    )
-    expect(() =>
-      reloaded.assertAutomationOwnerFence({ id: automation.id, operation: 'execute' })
-    ).toThrowError(expect.objectContaining({ code: AUTOMATION_OWNER_CONFLICT_CODES.targetRemoved }))
-  })
-
-  it('backfills a legacy pinned record that was stored without a capture', async () => {
+  it('leaves a local-typed automation without a pinned workspace owned by this machine', async () => {
     const legacy = {
       id: 'auto-legacy',
       name: 'Legacy',
@@ -232,6 +141,7 @@ describe('workspace-pinned automations capture a registration generation', () =>
       projectId: 'repo-1',
       executionTargetType: 'local',
       executionTargetId: 'local',
+      executionTargetGeneration: FIRST_GENERATION,
       schedulerOwner: 'local_host_service',
       workspaceMode: 'existing',
       workspaceId: folderWorkspaceKey('fw-1'),
@@ -251,73 +161,8 @@ describe('workspace-pinned automations capture a registration generation', () =>
       pinnedState(FIRST_GENERATION, { automations: [legacy] })
     )
 
-    expect(store.listAutomations()[0].executionTargetGeneration).toBe(FIRST_GENERATION)
-  })
-
-  it('never re-stamps a differing capture, so a replacement cannot re-adopt the record', async () => {
-    const store = await createStoreFromState(
-      pinnedState(REPLACEMENT_GENERATION, {
-        automations: [
-          {
-            id: 'auto-captured',
-            name: 'Captured',
-            prompt: 'go',
-            precheck: null,
-            agentId: 'codex',
-            projectId: 'repo-1',
-            executionTargetType: 'local',
-            executionTargetId: 'local',
-            executionTargetGeneration: FIRST_GENERATION,
-            schedulerOwner: 'local_host_service',
-            workspaceMode: 'existing',
-            workspaceId: folderWorkspaceKey('fw-1'),
-            baseBranch: null,
-            reuseSession: false,
-            timezone: 'UTC',
-            rrule: 'FREQ=DAILY',
-            dtstart: NOW,
-            enabled: true,
-            nextRunAt: NOW,
-            missedRunPolicy: 'run_once_within_grace',
-            missedRunGraceMinutes: 720,
-            createdAt: NOW,
-            updatedAt: NOW
-          }
-        ]
-      })
-    )
-
-    expect(store.listAutomations()[0].executionTargetGeneration).toBe(FIRST_GENERATION)
-    expect(store.listAutomationsForScope().items[0].selector).toEqual({
-      kind: 'orphan',
-      issue: AUTOMATION_ORPHAN_ISSUES.targetReplaced
-    })
-  })
-})
-
-describe('the destination a pinned create lands on', () => {
-  // The derived selection reads `local`; the record still lands on the pinned SSH host,
-  // so accepting Self here scheduled a job on a machine the user did not choose.
-  it('refuses a Self destination for a workspace-pinned record', async () => {
-    const store = await createStoreFromState(pinnedState(FIRST_GENERATION))
-
-    expect(() =>
-      store.createAutomation(PINNED_CREATE_INPUT, { destination: { selector: { kind: 'self' } } })
-    ).toThrowError(
-      expect.objectContaining({ code: AUTOMATION_OWNER_CONFLICT_CODES.invalidDestination })
-    )
-    expect(store.listAutomations()).toHaveLength(0)
-  })
-
-  it('accepts the pinned host as the destination', async () => {
-    const store = await createStoreFromState(pinnedState(FIRST_GENERATION))
-
-    const created = store.createAutomation(PINNED_CREATE_INPUT, {
-      destination: {
-        selector: { kind: 'ssh', targetId: TARGET_ID, targetGeneration: FIRST_GENERATION }
-      }
-    })
-
-    expect(created.executionTargetGeneration).toBe(FIRST_GENERATION)
+    expect(store.getFolderWorkspace('fw-1')).toBeUndefined()
+    expect(store.listAutomations()).toHaveLength(1)
+    expect(store.listAutomationsForScope().items[0].selector.kind).not.toBe('ssh')
   })
 })

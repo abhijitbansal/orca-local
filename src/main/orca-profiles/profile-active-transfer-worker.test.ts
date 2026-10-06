@@ -58,7 +58,7 @@ async function fixture() {
   const args = {
     sourceProfileId: 'source',
     targetProfileId: 'target',
-    repoId: 'repo-remote',
+    repoId: 'repo-local',
     mode: 'move'
   } as const
   const read = (id: string) => readProfileStateWithRevision(id, root)
@@ -78,7 +78,7 @@ describe('active profile transfers with the live writer', () => {
     expect(read('source').state.settings.theme).toBe('dark')
   })
 
-  it('keeps the source frozen after moving a remote project and its persisted state', async () => {
+  it('keeps the source frozen after moving a project and its persisted state', async () => {
     const { store, root, args, read } = await fixture()
     const result = await transferActiveProfileProject(args, root, store, async () => {})
     expect(result.status).toBe('transferred')

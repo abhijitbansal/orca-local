@@ -155,12 +155,12 @@ describe('Store', () => {
       displayName: 'Cloud Project'
     })
     const independentSetup = makeProjectHostSetup({
-      id: 'cloud-project::gpu-vm',
+      id: 'cloud-project::local',
       projectId: independentProject.id,
-      hostId: 'runtime:gpu-vm',
+      hostId: 'local',
       repoId: '',
       path: '/srv/cloud-project',
-      displayName: 'GPU VM'
+      displayName: 'Local copy'
     })
     writeDataFile({
       ...getDefaultPersistedState(testState.dir),
@@ -186,12 +186,12 @@ describe('Store', () => {
       displayName: 'Cloud Project'
     })
     const independentSetup = makeProjectHostSetup({
-      id: 'cloud-project::gpu-vm',
+      id: 'cloud-project::local',
       projectId: independentProject.id,
-      hostId: 'runtime:gpu-vm',
+      hostId: 'local',
       repoId: '',
       path: '/srv/cloud-project',
-      displayName: 'GPU VM'
+      displayName: 'Local copy'
     })
     writeDataFile({
       ...getDefaultPersistedState(testState.dir),
@@ -203,7 +203,7 @@ describe('Store', () => {
     const result = store.updateProjectHostSetup({
       setupId: independentSetup.id,
       updates: {
-        displayName: 'GPU VM renamed',
+        displayName: 'Local copy renamed',
         path: '/srv/renamed',
         worktreeBasePath: '../worktrees',
         setupState: 'ready',
@@ -216,7 +216,7 @@ describe('Store', () => {
       project: independentProject,
       setup: expect.objectContaining({
         id: independentSetup.id,
-        displayName: 'GPU VM renamed',
+        displayName: 'Local copy renamed',
         path: '/srv/renamed',
         worktreeBasePath: '../worktrees',
         setupState: 'ready',
@@ -225,7 +225,7 @@ describe('Store', () => {
       })
     })
     expect(store.getProjectHostSetups()[0]).toMatchObject({
-      displayName: 'GPU VM renamed',
+      displayName: 'Local copy renamed',
       path: '/srv/renamed'
     })
   })
@@ -342,12 +342,12 @@ describe('Store', () => {
       displayName: 'Cloud Project'
     })
     const independentSetup = makeProjectHostSetup({
-      id: 'cloud-project::gpu-vm',
+      id: 'cloud-project::local',
       projectId: independentProject.id,
-      hostId: 'runtime:gpu-vm',
+      hostId: 'local',
       repoId: '',
       path: '/srv/cloud-project',
-      displayName: 'GPU VM'
+      displayName: 'Local copy'
     })
     writeDataFile({
       ...getDefaultPersistedState(testState.dir),
