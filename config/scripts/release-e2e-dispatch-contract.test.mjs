@@ -63,7 +63,7 @@ describe('release E2E dispatch contract', () => {
     ).toEqual({
       'native-runtime': 'electron'
     })
-    for (const jobName of ['e2e', 'changed-e2e', 'ssh-docker-watcher-isolation']) {
+    for (const jobName of ['e2e', 'changed-e2e']) {
       expect(e2eWorkflow.jobs[jobName].needs, jobName).toEqual(['build', 'prepare-native-cache'])
     }
   })

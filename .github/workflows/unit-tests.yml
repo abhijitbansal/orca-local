@@ -9,7 +9,7 @@ on:
         type: string
 
       runner:
-        description: Hosted runner for the unit shards; relay integration keeps its x86 host.
+        description: Hosted runner for the unit shards.
         required: false
         default: ubuntu-latest
         type: string
