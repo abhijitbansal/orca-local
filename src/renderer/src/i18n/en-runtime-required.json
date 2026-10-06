@@ -137,15 +137,7 @@
         "0e587e31fb": "yaml",
         "2132b670da": "both",
         "7711ad5122": "Local setup command",
-        "a239038146": "SSH connection error",
-        "connected": "Connected",
-        "connectingSsh": "Connecting SSH...",
-        "e5db1b0419": "Combined setup command",
-        "preparingSshConnection": "Preparing SSH connection...",
-        "reconnectingSsh": "Reconnecting SSH...",
-        "sshAuthenticationFailed": "SSH authentication failed",
-        "sshNotConnected": "SSH not connected",
-        "sshReconnectionFailed": "SSH reconnection failed"
+        "e5db1b0419": "Combined setup command"
       },
       "PullRequestPage": {
         "2560588245": "Failed to request reviewer",

@@ -182,24 +182,6 @@
   "auto.components.LinearItemDrawer.fbb90300e2": {
     "ko": "사용자 지정 추정치"
   },
-  "auto.components.NewWorkspaceComposerCard.connectingSsh": {
-    "ko": "SSH 연결 중..."
-  },
-  "auto.components.NewWorkspaceComposerCard.preparingSshConnection": {
-    "ko": "SSH 연결 준비 중..."
-  },
-  "auto.components.NewWorkspaceComposerCard.reconnectingSsh": {
-    "ko": "SSH 다시 연결 중..."
-  },
-  "auto.components.NewWorkspaceComposerCard.sshAuthenticationFailed": {
-    "ko": "SSH 인증 실패"
-  },
-  "auto.components.NewWorkspaceComposerCard.sshNotConnected": {
-    "ko": "SSH가 연결되지 않음"
-  },
-  "auto.components.NewWorkspaceComposerCard.sshReconnectionFailed": {
-    "ko": "SSH 다시 연결 실패"
-  },
   "auto.components.NewWorkspaceComposerModal.fa90f739a5": {
     "ko": "워크스페이스를 만들기 전에 프로젝트, 워크스페이스 이름, agent를 선택하세요."
   },
