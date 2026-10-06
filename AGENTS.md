@@ -96,6 +96,10 @@ Ordinary `pnpm install` covers the host OS and CPU only. Before packaging for an
 
 All changes must consider folder workspaces as well as git worktrees. Don't assume every workspace is a git worktree.
 
+## Execution Verdicts
+
+Anything that reports on, stops, or lists work running outside the current process (PTYs, the terminal daemon, WSL distros) uses one vocabulary: `live` / `unverifiable` / `exited`, with no synonyms. Loss of contact is never evidence of process death or absence: only the process's owner can say `exited`, so anything else is `unverifiable`, and `unverifiable` never authorizes a kill, delete, respawn or release. Examples: `src/main/worktree-removal-safety.ts`, `src/renderer/src/store/terminals/terminal-disowned-pty-sources.ts`.
+
 ## Agent Status
 
 The execution host owns agent status in one store, the hook server's, and every reader (sidebar, `worktree ps`, dashboard) subscribes to it. Before adding a producer, a cache, or a reader-side precedence rule, read [`docs/reference/agent-status-store.md`](./docs/reference/agent-status-store.md): new producers write into that store, and readers keep only presentation policy.

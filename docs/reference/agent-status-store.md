@@ -46,7 +46,7 @@ the CLI.
 
 **The execution host owns agent status, in one store, and every reader
 subscribes to it.** This follows the boundary in
-[`ssh-execution-boundary.md`](./ssh-execution-boundary.md): the host that runs
+[execution verdicts](../../AGENTS.md#execution-verdicts): the host that runs
 the process is the only party that can observe it, and the client is never
 authoritative for execution state.
 

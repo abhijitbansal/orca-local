@@ -586,7 +586,7 @@ guarantee forbids.
 
 Once the shell exits, node-pty drops its handle record and closes the job, so a
 terminated tree reports `null` rather than `[]`. Null means _unverifiable_ in
-the sense of [`ssh-execution-boundary.md`](./ssh-execution-boundary.md) — no job
+the sense of [execution verdicts](../../AGENTS.md#execution-verdicts) — no job
 support, not a ConPTY, or no longer tracked. It is never evidence that
 processes died.
 
