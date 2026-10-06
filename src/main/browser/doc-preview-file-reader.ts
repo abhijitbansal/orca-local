@@ -1,6 +1,5 @@
 import { extname } from 'node:path'
 import type { DocPreviewFileFailureReason } from '../../shared/doc-preview-scheme'
-import { FileReadCapExceededError } from '../ssh/ssh-filesystem-stream-reader'
 import { requireSshFilesystemProvider } from '../providers/ssh-filesystem-dispatch'
 import {
   resolveDocPreviewAuthorityPaths,
@@ -20,14 +19,11 @@ const UNSERVABLE_ASSET_PREVIEW_MESSAGE = 'This workspace cannot send this file t
  *  render a silently half-finished document. */
 const TRUNCATED_PREVIEW_MESSAGE = 'This document is too large for the server to send in full.'
 
-/** The SSH provider reports an over-cap file either as a typed error or as this message. */
+/** A provider reports an over-cap file with this message. */
 const TOO_LARGE_ERROR_MESSAGE = 'file_too_large'
 
 function isTooLargeReadError(error: unknown): boolean {
-  return (
-    error instanceof FileReadCapExceededError ||
-    (error instanceof Error && error.message === TOO_LARGE_ERROR_MESSAGE)
-  )
+  return error instanceof Error && error.message === TOO_LARGE_ERROR_MESSAGE
 }
 
 export type DocPreviewReadOutcome =

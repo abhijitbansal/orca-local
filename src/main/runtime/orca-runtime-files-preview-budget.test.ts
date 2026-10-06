@@ -10,7 +10,6 @@ import {
 import { getSshFilesystemProvider } from '../providers/ssh-filesystem-dispatch'
 import { RUNTIME_PREVIEWABLE_BINARY_MAX_BYTES } from './orca-runtime-files'
 import { REMOTE_RPC_MAX_CONTENT_BYTES } from '../../shared/remote-rpc-content-budget'
-import { FileReadCapExceededError, StreamProtocolError } from '../ssh/ssh-filesystem-stream-reader'
 
 vi.mock('fs', async () => (await import('./orca-runtime-files-mock-registry')).fsModuleMock())
 vi.mock('fs/promises', async () =>
@@ -173,31 +172,12 @@ describe('RuntimeFileCommands', () => {
       )
     })
 
-    // Why: without translation the reader's raw "exceeds client cap" string reaches the client as a
-    // generic runtime_error, which neither the desktop nor the mobile preview arm recognizes.
-    it('translates an over-cap stream read into file_too_large', async () => {
-      const { commands, store } = createRuntimeFileCommands({ path: '/repo' })
-      store.getRepo.mockReturnValue({ connectionId: 'ssh-1' })
-      vi.mocked(getSshFilesystemProvider).mockReturnValue({
-        stat: vi.fn().mockResolvedValue({ type: 'file', size: 1024 }),
-        readFile: vi
-          .fn()
-          .mockRejectedValue(
-            new FileReadCapExceededError('Reported totalSize 900000 exceeds client cap 524288')
-          )
-      } as never)
-
-      await expect(commands.readFileExplorerPreview('id:wt-1', 'log.txt')).rejects.toThrow(
-        'file_too_large'
-      )
-    })
-
     it('leaves a genuine stream protocol failure unmasked', async () => {
       const { commands, store } = createRuntimeFileCommands({ path: '/repo' })
       store.getRepo.mockReturnValue({ connectionId: 'ssh-1' })
       vi.mocked(getSshFilesystemProvider).mockReturnValue({
         stat: vi.fn().mockResolvedValue({ type: 'file', size: 1024 }),
-        readFile: vi.fn().mockRejectedValue(new StreamProtocolError('Malformed chunk for stream 4'))
+        readFile: vi.fn().mockRejectedValue(new Error('Malformed chunk for stream 4'))
       } as never)
 
       await expect(commands.readFileExplorerPreview('id:wt-1', 'log.txt')).rejects.toThrow(

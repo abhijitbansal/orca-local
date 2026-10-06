@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 import { MAX_FILE_RANGE_READ_BYTES } from '../../../shared/file-range-read'
 import type { IFilesystemProvider } from '../../providers/types'
-import { sshFileStreamReadCap } from '../../ssh/ssh-file-stream-read-cap'
 import { readWorkerTranscript } from './worker-transcript-read'
-import { MAX_REMOTE_TRANSCRIPT_SCAN_BYTES } from './worker-transcript-remote-read'
+import {
+  MAX_LEGACY_REMOTE_TRANSCRIPT_READ_BYTES,
+  MAX_REMOTE_TRANSCRIPT_SCAN_BYTES
+} from './worker-transcript-remote-read'
 
 function codexMessage(id: string, text: string): Buffer {
   return Buffer.from(
@@ -234,7 +236,7 @@ describe('remote worker transcript reads', () => {
       messages: [{ id: 'legacy', blocks: [{ type: 'text', text: 'small legacy transcript' }] }]
     })
     expect(readFile).toHaveBeenCalledWith('/remote/legacy.jsonl', {
-      maxTextBytes: sshFileStreamReadCap(false)
+      maxTextBytes: MAX_LEGACY_REMOTE_TRANSCRIPT_READ_BYTES
     })
     expect(readFileRange).not.toHaveBeenCalled()
   })
@@ -301,7 +303,7 @@ describe('remote worker transcript reads', () => {
       limited: false
     })
     expect(readFile).toHaveBeenLastCalledWith(transcriptPath, {
-      maxTextBytes: sshFileStreamReadCap(false)
+      maxTextBytes: MAX_LEGACY_REMOTE_TRANSCRIPT_READ_BYTES
     })
   })
 

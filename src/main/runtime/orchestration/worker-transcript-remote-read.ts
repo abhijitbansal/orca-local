@@ -6,7 +6,6 @@ import {
   type NativeChatLineDecoder
 } from '../../native-chat/transcript-tail-reader'
 import { transcriptFallbackId } from '../../native-chat/transcript-fallback-id'
-import { sshFileStreamReadCap } from '../../ssh/ssh-file-stream-read-cap'
 import {
   boundWorkerTranscriptMessages,
   clampWorkerTranscriptLimit
@@ -24,8 +23,8 @@ import {
 } from './worker-transcript-remote-range-read'
 
 export const MAX_REMOTE_TRANSCRIPT_SCAN_BYTES = 8 * 1024 * 1024
-// The legacy snapshot stays at SSH's established ceiling while parsing only the scan window.
-const MAX_LEGACY_REMOTE_TRANSCRIPT_READ_BYTES = sshFileStreamReadCap(false)
+// The legacy snapshot keeps its established ceiling while parsing only the scan window.
+export const MAX_LEGACY_REMOTE_TRANSCRIPT_READ_BYTES = 10 * 1024 * 1024
 
 type RemoteReadArgs = {
   agent: string
