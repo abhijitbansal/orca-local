@@ -132,22 +132,20 @@ describe('profile-state candidate cutover soak', () => {
     const folderGroup = profile.first.store.createProjectGroup({
       name: 'Fixture folders',
       createdFrom: 'manual',
-      parentPath: '/fixture/folder',
-      connectionId: 'build-host'
+      parentPath: '/fixture/folder'
     })
     const folderWorkspace = profile.first.store.createFolderWorkspace({
       projectGroupId: folderGroup.id,
       name: 'Remote folder fixture',
-      folderPath: '/fixture/folder',
-      connectionId: 'build-host'
+      folderPath: '/fixture/folder'
     })
     const remoteAutomation = profile.first.store.createAutomation({
-      name: 'Remote fixture automation',
+      name: 'Local fixture automation',
       prompt: 'Keep the remote fixture valid',
       agentId: 'claude',
-      projectId: 'repo-remote',
+      projectId: 'repo-local',
       workspaceMode: 'existing',
-      workspaceId: 'repo-remote::/fixture/remote',
+      workspaceId: 'repo-local::/fixture/local',
       baseBranch: null,
       reuseSession: false,
       timezone: 'UTC',
@@ -195,11 +193,10 @@ describe('profile-state candidate cutover soak', () => {
 
       const restarted = reopen(profile)
       expect(restarted.store.getWorkspaceSession().activeTabId).toBe('tab-local')
-      expect(restarted.store.getWorkspaceSession('ssh:build-host').activeTabId).toBe('tab-remote')
+      expect(restarted.store.getWorkspaceSession('ssh:build-host').activeTabId).toBeNull()
       expect(restarted.store.getFolderWorkspace(folderWorkspace.id)).toMatchObject({
         name: 'Remote folder fixture',
-        folderPath: '/fixture/folder',
-        connectionId: 'build-host'
+        folderPath: '/fixture/folder'
       })
       expect(restarted.store.getWorktreeMeta('repo-local::/fixture/local')).toMatchObject({
         comment: `soak-${round}`,
@@ -212,10 +209,10 @@ describe('profile-state candidate cutover soak', () => {
         .listAutomations()
         .find((automation) => automation.id === remoteAutomation.id)
       expect(persistedRemoteAutomation).toMatchObject({
-        executionTargetType: 'ssh',
-        executionTargetId: 'build-host',
-        schedulerOwner: 'ssh_bridge',
-        workspaceId: 'repo-remote::/fixture/remote'
+        executionTargetType: 'local',
+        executionTargetId: 'local',
+        schedulerOwner: 'local_host_service',
+        workspaceId: 'repo-local::/fixture/local'
       })
       expect(
         restarted.store
@@ -236,10 +233,9 @@ describe('profile-state candidate cutover soak', () => {
     const persisted = exportJson(afterOffline.store)
     expect(afterOffline.store.getSettings().agentStatusHooksEnabled).toBe(false)
     expect(afterOffline.store.getSettings().opencodeSessionCookie).toBe('fixture-secret')
-    expect(afterOffline.store.getWorkspaceSession('ssh:build-host').activeTabId).toBe('tab-remote')
+    expect(afterOffline.store.getWorkspaceSession('ssh:build-host').activeTabId).toBeNull()
     expect(afterOffline.store.getFolderWorkspace(folderWorkspace.id)).toMatchObject({
-      folderPath: '/fixture/folder',
-      connectionId: 'build-host'
+      folderPath: '/fixture/folder'
     })
     expect(afterOffline.store.listAutomationRuns('automation-fixture').length).toBeGreaterThan(8)
     expect(
@@ -247,9 +243,9 @@ describe('profile-state candidate cutover soak', () => {
         .listAutomations()
         .find((automation) => automation.id === remoteAutomation.id)
     ).toMatchObject({
-      executionTargetType: 'ssh',
-      executionTargetId: 'build-host',
-      schedulerOwner: 'ssh_bridge'
+      executionTargetType: 'local',
+      executionTargetId: 'local',
+      schedulerOwner: 'local_host_service'
     })
     expect(afterOffline.store.listAutomationRuns(remoteAutomation.id)).toHaveLength(1)
     expect(persisted).toHaveProperty('soakExtension', {
@@ -345,7 +341,7 @@ describe('profile-state candidate cutover soak', () => {
     const verifier = reopen(profile)
     expect(verifier.store.getSettings().terminalFontSize).toBe(100)
     expect(verifier.store.getSettings().opencodeSessionCookie).toBe('fixture-secret')
-    expect(verifier.store.getWorkspaceSession('ssh:build-host').activeTabId).toBe('tab-remote')
+    expect(verifier.store.getWorkspaceSession('ssh:build-host').activeTabId).toBeNull()
     expect(readFileSync(profile.options.databaseFile)).toBeTruthy()
     verifier.store.freezeWrites()
   })

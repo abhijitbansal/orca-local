@@ -435,34 +435,6 @@ describe('Store with an injected SQLite profile-state authority', () => {
       'workspaceSession'
     ])
 
-    const remoteSession = store.getWorkspaceSession('ssh:build-host')
-    const remoteWorktreeId = remoteSession.activeWorktreeId
-    const remoteTabId = remoteSession.activeTabId
-    const remoteLayout = remoteTabId ? remoteSession.terminalLayoutsByTabId[remoteTabId] : undefined
-    const remoteLeafId = remoteLayout
-      ? Object.keys(remoteLayout.ptyIdsByLeafId ?? {})[0]
-      : undefined
-    const remotePtyId = remoteLeafId ? remoteLayout?.ptyIdsByLeafId?.[remoteLeafId] : undefined
-    if (!remoteWorktreeId || !remoteTabId || !remoteLayout || !remoteLeafId || !remotePtyId) {
-      throw new Error('fixture did not produce a normalized remote PTY binding')
-    }
-    expect(
-      await store.persistPtyBinding(
-        {
-          worktreeId: remoteWorktreeId,
-          tabId: remoteTabId,
-          leafId: remoteLeafId,
-          ptyId: 'pty-remote-rebound',
-          expectedBinding: { ptyId: remotePtyId }
-        },
-        'ssh:build-host'
-      )
-    ).toBe(true)
-    expect(writeDomains).toHaveBeenCalledTimes(2)
-    expect(writeDomains.mock.calls[1]?.[0].map(({ domain }) => domain)).toEqual([
-      'workspaceSessionsByHostId'
-    ])
-
     const reloaded = new Store({
       dataFile,
       profileStateAuthority: createAuthority(databasePath, 'profile-authority-test')

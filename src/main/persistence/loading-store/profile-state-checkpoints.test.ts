@@ -63,13 +63,11 @@ function fixture() {
 
 function mutateThroughGetters(store: Store): void {
   store.getWorkspaceSession().activeTabId = 'direct-local-tab'
-  store.getWorkspaceSession('ssh:build-host').activeTabId = 'direct-remote-tab'
 }
 
 const EXPECTED_CHECKPOINT = {
   settings: { theme: 'dark' },
-  workspaceSession: { activeTabId: 'direct-local-tab' },
-  workspaceSessionsByHostId: { 'ssh:build-host': { activeTabId: 'direct-remote-tab' } }
+  workspaceSession: { activeTabId: 'direct-local-tab' }
 }
 
 describe('complete profile state checkpoints', () => {

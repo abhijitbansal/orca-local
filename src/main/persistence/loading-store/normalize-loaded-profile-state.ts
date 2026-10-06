@@ -1,13 +1,8 @@
 import { normalizePersistedMobileClientTabSelections } from '../../runtime/client-session-tab-selection-persistence'
-import type { SshRemotePtyLease } from '../../../shared/ssh-types'
 import { normalizeFeatureInteractionTelemetryBuckets } from '../../../shared/feature-interactions'
 import { normalizeFolderWorkspaceDiffComments } from '../../folder-workspace-diff-comments'
 import { normalizeFolderWorkspaces } from '../../../shared/folder-workspaces'
 import { normalizeWorkspaceLineageByChildKey } from '../applying-settings/ui-interaction-merge'
-import {
-  normalizeSshRemotePtyLease,
-  normalizeSshTarget
-} from '../leasing-ssh-ptys/ssh-normalization'
 import {
   normalizeClaudeLivePtySessionIds,
   normalizeLegacyPaneKeyAliasEntries,
@@ -87,18 +82,10 @@ export function normalizeLoadedProfileState(
       workspaceSession,
       markNeedsSave
     ),
-    sshTargets: (parsed.sshTargets ?? []).map(normalizeSshTarget),
-    deletedSshConfigAliases: Array.isArray(parsed.deletedSshConfigAliases)
-      ? parsed.deletedSshConfigAliases.filter((alias): alias is string => typeof alias === 'string')
-      : [],
     retiredWorktreeNamesByRepo: normalizeRetiredNameRegistryMap(parsed.retiredWorktreeNamesByRepo),
     retiredWorktreeNamesByNamespace: normalizeRetiredNameRegistryMap(
       parsed.retiredWorktreeNamesByNamespace
     ),
-    sshRemotePtyLeases: (parsed.sshRemotePtyLeases ?? [])
-      .map(normalizeSshRemotePtyLease)
-      .filter((lease): lease is SshRemotePtyLease => lease !== null),
-    sshPtyConsumerRecoveries: parsed.sshPtyConsumerRecoveries,
     claudeLivePtySessionIds: normalizeClaudeLivePtySessionIds(parsed.claudeLivePtySessionIds),
     migrationUnsupportedPtyEntries: normalizeMigrationUnsupportedPtyEntries(
       parsed.migrationUnsupportedPtyEntries

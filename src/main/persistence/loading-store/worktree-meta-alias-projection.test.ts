@@ -113,6 +113,8 @@ type Fixture = {
   omittable: string[]
   /** Identity keys no locator row regenerates, so they must stay on disk. */
   irreducible: string[]
+  /** Identity keys on an ssh host: stripped at load, never written back. */
+  strippedAtLoad: string[]
 }
 
 /**
@@ -126,6 +128,7 @@ function buildFixture(): Fixture {
   const worktreeIdentityAliases: Record<string, string[]> = {}
   const omittable: string[] = []
   const irreducible: string[] = []
+  const strippedAtLoad: string[] = []
 
   const link = (id: string, host: string, row: WorktreeMeta): string => {
     const identityKey = canonicalWorktreeIdentity({
@@ -164,11 +167,13 @@ function buildFixture(): Fixture {
   worktreeMeta[contested] = { ...localClaim }
   // Only the host the locator row names can regenerate a key from it, so the other host's row stays.
   omittable.push(link(contested, LOCAL, localClaim))
-  irreducible.push(link(contested, REMOTE, remoteClaim))
+  strippedAtLoad.push(link(contested, REMOTE, remoteClaim))
   // 5. An alias whose locator row a host-scoped prune already removed: rebuilding it would
   //    resurrect a workspace the user deleted.
   const voided = worktreeId(TWIN_ROWS + 2)
-  irreducible.push(link(voided, REMOTE, meta(TWIN_ROWS + 2, random, { hostId: REMOTE as never })))
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: A test-only ssh host id for the legacy meta row; the field type does not admit it.
+  const voidedMeta = meta(TWIN_ROWS + 2, random, { hostId: REMOTE as never })
+  strippedAtLoad.push(link(voided, REMOTE, voidedMeta))
   // 6. A dangling identity key: the alias points at a row that is not there.
   const dangling = worktreeId(TWIN_ROWS + 3)
   worktreeMeta[dangling] = meta(TWIN_ROWS + 3, random)
@@ -206,7 +211,8 @@ function buildFixture(): Fixture {
       workspaceLineageByChildKey: {}
     } as unknown as PersistedState,
     omittable,
-    irreducible
+    irreducible,
+    strippedAtLoad
   }
 }
 
@@ -242,6 +248,11 @@ describe('worktree meta alias projection', () => {
     expect(Object.keys(onDisk.worktreeMetaByIdentity ?? {}).sort()).toEqual(
       [...fixture.irreducible].sort()
     )
+    expect(Object.keys(onDisk.worktreeMetaByIdentity ?? {})).not.toEqual(
+      expect.arrayContaining(fixture.strippedAtLoad)
+    )
+    // Hostless pseudo-worktree rows read through any host; no row may still name the ssh host.
+    expect(Object.values(before.remote).filter((row) => row.hostId)).toEqual([])
     expect(fixture.omittable).toHaveLength(TWIN_ROWS + 1)
     // ...and the locator map, which is what regenerates them, is written in full. This is the
     // property the downgrade story rests on, so it is asserted as a set, not a count.
