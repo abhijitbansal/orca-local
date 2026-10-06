@@ -13,6 +13,7 @@ import { useMountedRef } from '@/hooks/useMountedRef'
 import { useAppStore } from '@/store'
 import type { Repo } from '../../../../shared/repo-types'
 import { isGitRepoKind } from '../../../../shared/repo-kind'
+import { LocalOnlyUnsupportedError } from '../../../../shared/local-only-unsupported-error'
 import { finishProjectAddWithDefaultCheckout } from './project-added-default-checkout'
 import { translate } from '@/i18n/i18n'
 import { worktreeRefreshOptions } from './add-repo-runtime-owner'
@@ -36,6 +37,11 @@ const AddProjectFromFolderDialog = React.memo(function AddProjectFromFolderDialo
   const isOpen = activeModal === 'confirm-add-project-from-folder'
   const [previousOpen, setPreviousOpen] = useState(isOpen)
   const folderPath = typeof modalData.folderPath === 'string' ? modalData.folderPath : ''
+  // Why: a legacy ssh-owned folder must fail closed, never be added as a local project.
+  const legacySshConnectionId =
+    typeof modalData.connectionId === 'string' && modalData.connectionId
+      ? modalData.connectionId
+      : ''
   const runtimeEnvironmentId =
     typeof modalData.runtimeEnvironmentId === 'string' ? modalData.runtimeEnvironmentId : null
 
@@ -68,6 +74,9 @@ const AddProjectFromFolderDialog = React.memo(function AddProjectFromFolderDialo
     setIsAdding(true)
     setError(null)
     try {
+      if (legacySshConnectionId) {
+        throw new LocalOnlyUnsupportedError('ssh', 'addProjectFromFolder')
+      }
       const repo: Repo | null = await addRepoPath(folderPath, 'git', { runtimeEnvironmentId })
       if (!mountedRef.current || gen !== addGenRef.current) {
         return
@@ -116,6 +125,7 @@ const AddProjectFromFolderDialog = React.memo(function AddProjectFromFolderDialo
     fetchWorktrees,
     folderPath,
     isAdding,
+    legacySshConnectionId,
     mountedRef,
     openNonGitConfirmation,
     runtimeEnvironmentId,

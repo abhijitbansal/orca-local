@@ -154,6 +154,18 @@ describe('AddProjectFromFolderDialog', () => {
     )
   })
 
+  it('fails closed for a legacy SSH folder instead of adding it as a local project', async () => {
+    mocks.state.modalData = { folderPath: '/remote/child', connectionId: 'ssh-target-1' }
+    const { default: AddProjectFromFolderDialog } = await import('./AddProjectFromFolderDialog')
+
+    renderToStaticMarkup(<AddProjectFromFolderDialog />)
+    await clickAddProject()
+
+    expect(mocks.state.addRepoPath).not.toHaveBeenCalled()
+    expect(mocks.state.openModal).not.toHaveBeenCalled()
+    expect(mocks.finishProjectAddWithDefaultCheckout).not.toHaveBeenCalled()
+  })
+
   it('leaves local non-Git folders on the existing Open as Folder confirmation path', async () => {
     mocks.state.addRepoPath.mockImplementation(async (folderPath: string) => {
       mocks.state.openModal('confirm-non-git-folder', { folderPath })
