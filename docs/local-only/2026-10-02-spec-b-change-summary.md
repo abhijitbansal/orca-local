@@ -1,6 +1,6 @@
 # Local-only Orca, Spec B: change summary
 
-Branch: `local-only/spec-b`, 48 commits on top of `local-only/spec-a` including this summary. Spec A plus Spec B add up to about 130 commits on top of `main` at `449b8ca17d`.
+Branch: `local-only/spec-b`, 48 commits on top of `local-only/spec-a` including this summary. Spec A plus Spec B add up to 133 commits on top of `main` at `449b8ca17d`.
 Spec: [`2026-10-02-local-only-spec-b-design.md`](./2026-10-02-local-only-spec-b-design.md) · Plan: [`2026-10-02-local-only-spec-b-plan.md`](./2026-10-02-local-only-spec-b-plan.md) · Spec A summary: [`2026-10-01-spec-a-change-summary.md`](./2026-10-01-spec-a-change-summary.md)
 Architecture: [`docs/reference/local-only-architecture.md`](../reference/local-only-architecture.md) · Upstream sync: [`docs/reference/local-only-upstream-sync.md`](../reference/local-only-upstream-sync.md)
 
@@ -71,6 +71,7 @@ All logs are in `notes/local-only/{before,after,after-b}/`, which is gitignored.
 ### Runtime and packaging acceptance
 
 - **Clean `pnpm build:mac`.** Run with `rm -rf out dist`, then `ORCA_COMPUTER_MACOS_SIGN_IDENTITY=- CSC_IDENTITY_AUTO_DISCOVERY=false pnpm build:mac`. It succeeds and produces arm64 and x64 DMGs. The bundle's `Resources/relay/` contains only `wsl/wsl-agent-hook-relay.js` and `wsl/wsl-browser-network-relay.js`: no SSH relay and no orcad. `app.asar` contains no `ssh2`, `tweetnacl` or orcad code.
+- **`orca serve` (headless), isolated profile:** it prints "Orca server ready" with no network listener, and `orca status` reports the runtime `ready` and reachable over the Unix socket. The serve process's only socket is a `127.0.0.1` loopback helper.
 - **Hidden launch with an isolated profile.** `lsof` across the whole process tree shows only `127.0.0.1` sockets: two belong to Playwright's debug ports and one is Orca's loopback helper. CSP probes pass: blob workers and wasm work, a remote `fetch` is blocked, and there are no page errors. `orca status --json` over the Unix socket returns `ok: true`.
 
 ## Behaviour changes you will notice (in addition to Spec A's)
@@ -78,7 +79,7 @@ All logs are in `notes/local-only/{before,after,after-b}/`, which is gitignored.
 - There is no SSH host support anywhere. The CLI refuses `ssh:` hosts with an "unsupported in this build" error. `git` over SSH to your own remotes, using your own git and `GIT_SSH_COMMAND`, still works.
 - There are no Remote Orca Servers, no paired runtimes, no `orca environment` and no cross-machine orchestration.
 - There are no Cloud VMs or VM recipes, and no `orca vm`. `orca serve` still runs a local headless Orca without the recipe flags.
-- On Windows, AI Vault no longer reads OpenCode sessions stored inside WSL. Every other WSL feature (terminals, agent hooks, the browser network relay) still works.
+- On Windows, AI Vault no longer reads OpenCode sessions stored inside WSL. The other WSL features (terminals, agent hooks, the browser network relay) are kept. That is verified by `build:relay` producing both WSL bundles and by unit tests, but not exercised on a Windows machine in this session. Use the Windows item in the checklist.
 - On first launch after upgrading, SSH and remote-runtime projects and their tabs disappear from the profile. They were only pointers to remote paths, so no local data is lost.
 
 ## Known residuals
@@ -91,4 +92,5 @@ These are also listed in the architecture doc:
   - B7.2 briefly removed the at-rest encryption of SSH lease records while SSH writes were still possible. The reviewer caught it and it was restored in the next commit (`5d822924e3`), so no released state was affected.
   - Implementer commits carry `Co-Authored-By: Claude Sonnet 5.5`.
   - A stray local branch `backup-y3-tmp` from Spec A still needs `git branch -D backup-y3-tmp`.
+- **Profile created outside the repo.** An earlier, non-isolated `orca serve` probe in this session launched the packaged Spec B app against your real `~/Library/Application Support/orca`. The directory existed since Oct 2 but held no profile. The probe created a fresh `profiles/local-default/profile-state.db` and set Orca's own app-scoped macOS default `com.stablyai.orca ApplePressAndHoldEnabled=0`, which Orca also sets on its own first launch. No existing data was there, so nothing was lost. To undo it, remove that directory and run `defaults delete com.stablyai.orca ApplePressAndHoldEnabled`.
 - **Not done:** opening PRs. Both branches are pushed to your fork; merge `local-only/spec-a` and then `local-only/spec-b`, or merge `spec-b`, which contains both.
