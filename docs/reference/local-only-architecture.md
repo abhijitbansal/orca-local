@@ -8,16 +8,15 @@ the fork still reaches the network. The enforcement lives in
 fork current with upstream, follow [local-only-upstream-sync.md](./local-only-upstream-sync.md).
 
 Design and plan: `docs/local-only/2026-10-01-local-only-spec-a-design.md` and
-`docs/local-only/2026-10-01-local-only-spec-a-plan.md`.
+`docs/local-only/2026-10-01-local-only-spec-a-plan.md`, `docs/local-only/2026-10-02-local-only-spec-b-design.md` and its plan.
 
 ## Invariants
 
-- **I1, egress.** No Orca code opens a connection to a non-loopback host, with five exceptions:
-  - the user's git CLI against their own remotes
+- **I1, egress.** No Orca code opens a connection to a non-loopback host, with four exceptions:
+  - the user's git CLI against their own remotes (including its own `GIT_SSH_COMMAND` handling, which is git's SSH, not Orca's)
   - the embedded browser pane
   - `shell.openExternal`, which hands off to the OS browser
   - user-initiated speech-model and scrcpy downloads
-  - SSH, until Spec B lands
 
   Agent CLIs that Orca spawns (claude, codex, ...) talk to their vendors themselves. That traffic is out of scope.
 
@@ -30,6 +29,8 @@ Design and plan: `docs/local-only/2026-10-01-local-only-spec-a-design.md` and
 
 - **I3, telemetry.** Events keep their schema validation and consent gate. The transport is a local JSONL file under `userData`. No code reads that file over a socket.
 
+- **I4, no remote execution.** No code path can create an `ssh:` or `runtime:` execution host, open an SSH connection, deploy a relay or orcad to another machine, or dial a remote Orca runtime. `ExecutionHostKind`/`ExecutionHostId` keep their `ssh` and `runtime` members as inert values nothing can construct. A legacy value reaching a seam fails closed with a typed "unsupported in this build" error; it never falls back to local. Persisted rows that name such a host are dropped at profile load (`src/main/persistence/loading-store/remote-execution-host-strip.ts`).
+
 ## Remaining listeners
 
 Re-derive with:
@@ -40,36 +41,25 @@ rg -n "\.listen\(|createServer\(|new WebSocketServer\(" src -g '!*.test.*'
 
 Production listeners (test fixtures and harnesses are listed separately below):
 
-| Listener                                             | Site                                                                                                                                              | Bind address                                                                    |
-| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| CLI runtime RPC                                      | `src/main/runtime/rpc/unix-socket-transport.ts:59` (`listen` at `:66`)                                                                            | Unix socket `o-<pid>-*.sock` under `userData`, or a Windows named pipe. No TCP. |
-| PTY daemon                                           | `src/main/daemon/daemon-server-lifecycle.ts:44` (`listen` at `:58`)                                                                               | Unix socket or named pipe at the endpoint's `bindPath()`. No TCP.               |
-| Agent-hook HTTP server                               | `src/main/agent-hooks/server/server-lifecycle.ts:162` (`listen` at `:184`)                                                                        | `127.0.0.1`, ephemeral port.                                                    |
-| Browser CDP proxy (HTTP + WebSocket)                 | `src/main/browser/cdp-ws-proxy.ts:57-58` (`listen` at `:97`)                                                                                      | `127.0.0.1`, ephemeral port.                                                    |
-| Localhost worktree label proxy                       | `src/main/localhost-worktree-label-proxy.ts:73` (`listen` at `:81`)                                                                               | `127.0.0.1`, ephemeral port.                                                    |
-| SOCKS server for SSH/remote browser routing (Spec B) | `src/main/browser/remote-browser-socks-server.ts:42` (`listen` at `:60`)                                                                          | `127.0.0.1`, ephemeral port.                                                    |
-| SSH local port forward, ssh2 provider (Spec B)       | `src/main/ssh/ssh2-port-forward-provider.ts:24` (`listen` at `:98`)                                                                               | `localHost` from `ssh-port-forward.ts:76`, which is `127.0.0.1`.                |
-| SSH local port forward, system ssh (Spec B)          | `src/main/ssh/system-ssh-forward-process.ts:85` (`listen` at `:100`), `src/main/ssh/system-ssh-dynamic-forward-process.ts:89` (`listen` at `:91`) | `127.0.0.1` (these only reserve a free local port).                             |
-
-Listeners that run on the remote host of an SSH target (the relay, shipped to the
-box by Spec B code), not on this machine:
-
-| Listener                     | Site                                                         | Bind address                   |
-| ---------------------------- | ------------------------------------------------------------ | ------------------------------ |
-| Relay reconnect socket       | `src/relay/relay-socket-ownership.ts:57` (`listen` at `:79`) | Unix socket on the remote box. |
-| Relay agent-hook HTTP server | `src/relay/agent-hook-server.ts:155` (`listen` at `:176`)    | `127.0.0.1` on the remote box. |
+| Listener                                   | Site                                                                       | Bind address                                                                    |
+| ------------------------------------------ | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| CLI runtime RPC                            | `src/main/runtime/rpc/unix-socket-transport.ts:59` (`listen` at `:66`)     | Unix socket `o-<pid>-*.sock` under `userData`, or a Windows named pipe. No TCP. |
+| PTY daemon                                 | `src/main/daemon/daemon-server-lifecycle.ts:44` (`listen` at `:58`)        | Unix socket or named pipe at the endpoint's `bindPath()`. No TCP.               |
+| Agent-hook HTTP server                     | `src/main/agent-hooks/server/server-lifecycle.ts:162` (`listen` at `:184`) | `127.0.0.1`, ephemeral port.                                                    |
+| Browser CDP proxy (HTTP + WebSocket)       | `src/main/browser/cdp-ws-proxy.ts:57-58` (`listen` at `:97`)               | `127.0.0.1`, ephemeral port.                                                    |
+| Localhost worktree label proxy             | `src/main/localhost-worktree-label-proxy.ts:73` (`listen` at `:81`)        | `127.0.0.1`, ephemeral port.                                                    |
+| Agent-hook HTTP server inside a WSL distro | `src/relay/agent-hook-server.ts:155` (`listen` at `:176`)                  | `127.0.0.1` of the distro, reached over the WSL hook relay (same machine).      |
 
 Test-only listeners (not shipped behavior, all `127.0.0.1`): the
 `browser-route-*-fixture.ts`, `browser-route-tcp-egress-socks-recorder.ts` and
 `browser-session-ua-wire-probe-server.ts` files in
-`src/main/browser/`, `src/main/ssh/ssh-hostile-host-local-sshd.ts`,
-`src/main/orcad/__fixtures__/fake-orcad-electron-sidecar.cjs`. The
+`src/main/browser/`. The
 `new WebSocketServer(` sites are `cdp-ws-proxy.ts:58`, which attaches to the
 loopback HTTP server above, and `browser-route-tcp-egress-fixture.ts:224`
 (`noServer: true`, a test fixture).
 
 There is no runtime WebSocket listener. `ws-transport.ts` and
-`runtime-rpc-network-exposure.ts` are gone, so `orca serve` and `orcad` accept
+`runtime-rpc-network-exposure.ts` are gone, so `orca serve` accepts
 connections only over the Unix socket or named pipe. The guard's `wildcard-bind`
 rule fails on any `host`/`hostname`/`bindHost`/`address` of `0.0.0.0` or `::`, or a
 `.listen(`/`.bind(` call with such a host argument. The
@@ -84,7 +74,7 @@ of their own to bind.
 
 ## Remaining egress exceptions
 
-Outside I1's five exceptions, nothing in `src/` should name a cloud host. These
+Outside I1's four exceptions, nothing in `src/` should name a cloud host. These
 are the exceptions as they exist in the tree.
 
 - **Git CLI.** `git fetch`, `push`, `clone` run the user's own git binary against
@@ -99,7 +89,6 @@ are the exceptions as they exist in the tree.
   browser. Orca opens no connection.
 - **Speech-model and scrcpy downloads.** User-initiated, HTTPS only
   (`src/main/speech/speech-model-http-download.ts`, `src/main/emulator/android/scrcpy-server-download.ts`).
-- **SSH (Spec B).** SSH targets, the SSH relay, and its remote runtime/skill transfer rails.
 
 The renderer's own CSP (`src/renderer/index.html` and `popout.html`) restricts
 `connect-src` to `'self'`, `blob:`, and loopback HTTP/WS, and `img-src` to local
@@ -160,15 +149,22 @@ Scans non-test sources under `src/`, `package.json`, and every
 - **U11, renderer remote loads:** website-favicon, GitHub-avatar and Google favicon-service icon sources; a strict CSP on the native renderer shells.
 - **U12, cloud directory:** `cloud/`, its CI workflows, and lint/format ignore entries.
 - **Cloud speech-to-text:** the OpenAI (GPT-4o transcribe) provider, its API-key store, IPC, preload and settings UI. Local speech models and their downloads stay. A persisted selection of a removed cloud model hydrates to no model selected.
+- **U13, ephemeral VMs and VM recipes (B1):** the `orca vm` CLI, `EphemeralVmsPane`, `skill-guides/orca-per-workspace-env*`, `--recipe-json`/`--serve-recipe-json`/`--serve-project-root` on `orca serve`. `experimentalEphemeralVms` and the per-worktree checkout mode stay as inert persisted values.
+- **U14, serve-update handoff (B2):** the supervisor handoff in `src/cli/runtime/launch.ts` and `notifyServeSupervisorReady`. `orca serve` remains a local headless runtime driven by the local CLI over the unix socket or named pipe.
+- **U15, orcad (B3):** `src/main/orcad/**`, `src/main/ssh/orcad-*`, `src/shared/orcad-*`, the build-orcad scripts, the electron-builder orcad template, its CI and `docs/reference/orcad-operations.md`.
+- **U16, transfer rails and pinned downloads (B4):** the `skills.install*` RPC family and upload methods, `skill-package-download.ts`, `skill-install-request-service.ts`, `runtime-archive-download.ts`, `pinned-runtime-materializer.ts`, `node-runtime-pin` and `check:node-runtime-pin`, and the WSL OpenCode vault reader (`opencode-wsl-runtime-preparation.ts`), so AI Vault on Windows no longer lists OpenCode sessions stored inside WSL. `scrcpy-server-download.ts` and the speech-model download stay.
+- **U17, remote runtime environments (B5):** the pairing client, `src/shared/pairing.ts` and fixtures, `src/shared/remote-runtime-*`, `ipc/runtime-environment*`, the runtime-environments pane, store and client, the remote-server-update client, the CLI remote dial (`websocket-transport.ts`, `ORCA_PAIRING_CODE`, `ORCA_ENVIRONMENT`, `orca environment`, `--host runtime:`), e2ee and `tweetnacl`, the orchestration federation files. `activeRuntimeEnvironmentId` stays an inert, always-null field.
+- **U18, SSH (B6):** connection management, the SSH git/filesystem/PTY providers, relay deploy, the SSH UI, IPC, preload and CLI, port forwarding, SOCKS and browser tunnels, SSH e2e and CI, the `docs/reference/ssh-*` docs, the `ssh2` runtime dependency and its packaged-runtime entry. The provider registries (`getSshGitProvider`, `getSshFilesystemProvider`, `getSshProvider`, PTY `sshProviders`) remain as stubs that always return `undefined`, so ~80 `if (connectionId)` callers stay byte-identical to upstream.
+- **Hydration (B7):** `sshTargets`, `sshTargetGenerationCounter`, `deletedSshConfigAliases`, `removedSshTargetTombstones`, `sshRemotePtyLeases` and `sshPtyConsumerRecoveries` are deleted from a loaded profile; repos, project groups, folder workspaces, project host setups, worktree metadata, identity rows, session partitions and retirement namespaces that name an `ssh:`/`runtime:` host or a `connectionId` are dropped; the profile is marked dirty so the SQLite domain rows follow on the next complete write. The six keys stay in `PersistedState` as inert empty defaults.
 
-## Known residuals and Spec B scope
+## What remains, and why
 
-Reachable network surface this spec deliberately leaves, or has not yet removed:
+The reachable network surface is now exactly I1's four exceptions. These are the deliberate remnants:
 
-- **Outbound WebSocket dial to paired remote runtimes.** The CLI and desktop can still connect out to a user-paired remote Orca runtime (`src/shared/remote-runtime-*.ts`). Only the listener side is removed. Spec B removes remote runtimes.
-- **orcad and serve-update handoff.** `orca serve` / `orcad` network mode is gone; `orca serve --recipe-json` and the SSH orcad deploy paths are runtime-dead but their code remains until Spec B.
-- **SSH relay and skill-transfer rails**, including `src/main/ssh/runtime-archive-download.ts` and `pinned-runtime-materializer.ts`, which download from the network when an SSH host needs a runtime.
-- **VM recipe guides** (`skill-guides/`, ephemeral-VM code under `src/main/ephemeral-vm-*`) that name vendor APIs.
-- **Dead persisted settings keys** (for example `starNag*`, update UI fields, cloud-linked profile fields, mobile pairing settings, `groupBy: 'pr'`, `activeView` of `'artifacts'`/`'tasks'`) are kept so state from an upstream build hydrates without a crash; each falls back to its default.
-- **Browser pane is unrestricted by design.** Anything the user loads in it, including its network traffic, is outside the invariants.
+- **WSL relay survivors.** WSL is on-machine execution, so its two bundles stay: `src/relay/wsl-agent-hook-relay.ts` and `src/relay/wsl-browser-network-relay.ts`, built by `config/scripts/build-relay.mjs` into `out/relay/` and shipped as `resources/relay`. Their import closure (about 40 `src/relay` files: `dispatcher*`, `agent-hook-*`, `plugin-overlay*`, `protocol.ts`, `preflight-handler.ts`, `wsl-hook-fs-bridge.ts`, `wsl-install-plugins-handler.ts`, `relay-frame-decoder.ts`, ...) and the eight `src/main/ssh` transport files the Windows-side WSL hook relay manager imports (`relay-protocol`, `ssh-channel-multiplexer`, `ssh-multiplexer-transport-writer`, `ssh-multiplexer-writer-lane-scheduler`, `ssh-connection-generation`, `ssh-target-identity`, `ssh-target-id-migration`, `removed-ssh-target-tombstone-retention`) are kept **in place**, not relocated, so upstream merges stay small. Re-derive the closure with `pnpm tc` after touching either entry. Nothing in it opens a socket to another machine.
+- **Inert types and keys.** `ExecutionHostKind`/`ExecutionHostId` keep `ssh`/`runtime`; `Repo.connectionId`/`executionHostId` and the folder-workspace and project-host-setup equivalents stay typed; the six SSH persisted keys and `activeRuntimeEnvironmentId` stay as empty/null defaults; `experimentalEphemeralVms` and the per-worktree checkout mode stay as dead settings. None can be set from any UI, IPC, RPC or CLI path.
+- **Hook installers' `SFTPWrapper`.** ~37 managed agent-hook installers use `import type { SFTPWrapper } from 'ssh2'` as their filesystem abstraction (the WSL hook bridge fakes it). `@types/ssh2` therefore stays a devDependency; the runtime `ssh2` package is gone and the guard forbids non-type imports.
+- **Dead persisted settings keys** from Spec A (`starNag*`, update UI fields, cloud-linked profile fields, mobile pairing settings, `groupBy: 'pr'`, `activeView` of `'artifacts'`/`'tasks'`) still hydrate to defaults.
+- **Stale doc citations in code comments.** Shared files that cite `docs/reference/ssh-execution-boundary.md` or `remote-wire-compatibility.md` keep the comment text; those pages are removed and the citations are historical.
+- **Browser pane is unrestricted by design.** Anything the user loads in it is outside the invariants.
 - **Agent CLIs** that Orca spawns reach their vendors on their own.
