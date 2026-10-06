@@ -39,18 +39,10 @@ const ENTRY_POINTS = [
 
 // Native addons and electron cannot be bundled; externalising them is what the
 // relay build already does (config/scripts/build-relay.mjs).
-const EXTERNAL = [
-  'electron',
-  'node-pty',
-  '@parcel/watcher',
-  'better-sqlite3',
-  'keytar',
-  'fsevents',
-  'cpu-features'
-]
+const EXTERNAL = ['electron', 'node-pty', '@parcel/watcher', 'better-sqlite3', 'keytar', 'fsevents']
 
 /**
- * Why: some optional native deps (ssh2's cpu-features) reference a prebuilt `.node`
+ * Why: some optional native deps reference a prebuilt `.node`
  * that only exists where a build toolchain has run. Resolving them made this gate
  * pass on a developer machine and hard-fail on CI. Nothing here needs the addon —
  * only the import graph — so mark every `.node` external instead.

@@ -22,6 +22,4 @@ src/main/ports/local-workspace-port-address.ts:wildcard-bind
 # JWT claim namespace key read from a local Codex auth file, not a request URL.
 src/main/codex-accounts/codex-auth-identity.ts:forbidden-host
 # ---- Spec B: temporary rows for code that later Spec B units delete. Remove each row with its file; B0.2 strips this block. ----
-# B6 ssh2 client (value imports; type-only `import type { SFTPWrapper }` sites are exempt by rule).
-package.json:forbidden-dependency:ssh2
 # ---- end Spec B ----

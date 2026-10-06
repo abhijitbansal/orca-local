@@ -24,7 +24,6 @@ const PACKAGED_RUNTIME_PACKAGE_ROOTS = [
   'proper-lockfile',
   // serve-sim (for CLI JS entry + closure + state/middleware + to make packaged require('serve-sim') + its internal relatives work; mirrors other runtime JS like ws/yaml/zod. Natives/dylibs still via extraResources + the node_modules/serve-sim copy in resources from builder. Client if added too.
   'serve-sim',
-  'ssh2',
   'ws',
   'yaml',
   'zod'
