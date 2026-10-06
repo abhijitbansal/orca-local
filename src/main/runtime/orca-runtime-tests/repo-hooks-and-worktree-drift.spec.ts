@@ -4,11 +4,8 @@ import {
   getBaseRefDefault,
   gitRunner,
   listWorktrees,
-  parseOrcaYaml,
-  registerSshFilesystemProvider,
   registerSshGitProvider,
   setPlatform,
-  unregisterSshFilesystemProvider,
   unregisterSshGitProvider
 } from '../orca-runtime-test-mocks.spec'
 import {
@@ -47,91 +44,11 @@ describe('OrcaRuntimeService', () => {
       })
     })
 
-    it('reports ok for a missing remote orca.yaml and error for any other read failure', async () => {
-      const readFile = vi.fn()
-      registerSshFilesystemProvider('ssh-1', { readFile } as never)
-      const runtime = new OrcaRuntimeService(remoteStore as never)
-
-      try {
-        readFile.mockRejectedValueOnce(Object.assign(new Error('missing'), { code: 'ENOENT' }))
-        await expect(runtime.checkRepoHooks('id:repo-1')).resolves.toMatchObject({
-          status: 'ok',
-          hasHooks: false
-        })
-
-        readFile.mockRejectedValueOnce(Object.assign(new Error('down'), { code: 'ECONNRESET' }))
-        await expect(runtime.checkRepoHooks('id:repo-1')).resolves.toMatchObject({
-          status: 'error',
-          hasHooks: false
-        })
-      } finally {
-        unregisterSshFilesystemProvider('ssh-1')
-      }
-    })
-
     it('reports ok for a local repo hook check', async () => {
       const runtime = new OrcaRuntimeService(store as never)
 
       await expect(runtime.checkRepoHooks('id:repo-1')).resolves.toMatchObject({ status: 'ok' })
     })
-  })
-
-  it('resolves SSH issue commands from shared orca.yaml and deletes empty overrides', async () => {
-    const remoteStore = {
-      ...store,
-      getRepos: () => [
-        {
-          id: TEST_REPO_ID,
-          path: '/remote/repo',
-          displayName: 'repo',
-          badgeColor: 'blue',
-          addedAt: 1,
-          connectionId: 'ssh-1'
-        }
-      ]
-    }
-    vi.mocked(parseOrcaYaml).mockReturnValue({
-      scripts: {},
-      issueCommand: 'claude -p "Fix #{{issue}}"'
-    })
-    const fsProvider = {
-      readFile: vi.fn(async (filePath: string) => {
-        if (filePath.endsWith('.orca/issue-command')) {
-          throw Object.assign(new Error('missing'), { code: 'ENOENT' })
-        }
-        if (filePath.endsWith('orca.yaml')) {
-          return { content: 'issueCommand: claude -p "Fix #{{issue}}"', isBinary: false }
-        }
-        return { content: '', isBinary: false }
-      }),
-      writeFile: vi.fn().mockResolvedValue(undefined),
-      createDir: vi.fn().mockResolvedValue(undefined),
-      deletePath: vi.fn().mockResolvedValue(undefined)
-    }
-    registerSshFilesystemProvider('ssh-1', fsProvider as never)
-    const runtime = new OrcaRuntimeService(remoteStore as never)
-
-    try {
-      await expect(runtime.readRepoIssueCommand('id:repo-1')).resolves.toMatchObject({
-        localContent: null,
-        sharedContent: 'claude -p "Fix #{{issue}}"',
-        effectiveContent: 'claude -p "Fix #{{issue}}"',
-        localFilePath: '/remote/repo/.orca/issue-command',
-        source: 'shared'
-      })
-      await expect(runtime.writeRepoIssueCommand('id:repo-1', '   ')).resolves.toEqual({
-        ok: true
-      })
-    } finally {
-      unregisterSshFilesystemProvider('ssh-1')
-    }
-
-    expect(fsProvider.readFile).toHaveBeenCalledWith('/remote/repo/orca.yaml')
-    expect(fsProvider.deletePath).toHaveBeenCalledWith('/remote/repo/.orca/issue-command', false)
-    expect(fsProvider.writeFile).not.toHaveBeenCalledWith(
-      '/remote/repo/.orca/issue-command',
-      expect.anything()
-    )
   })
 
   it('treats SSH worktree drift as unknown without local git probes', async () => {

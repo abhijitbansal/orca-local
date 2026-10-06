@@ -30,11 +30,6 @@ vi.mock('../telemetry/client', () => ({ track: vi.fn() }))
 vi.mock('../telemetry/cohort-classifier', () => ({
   getCohortAtEmit: () => ({ nth_repo_added: 2 })
 }))
-vi.mock('../ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: () => ({ hosts: [] }),
-  sshConfigHostsToTargets: () => []
-}))
-
 describe('plain profile switch persistence', () => {
   it('preserves shutdown changes when quit starts during the switch checkpoint', async () => {
     const { store, authority, readState } = await createWorkerMaintenanceFixture()

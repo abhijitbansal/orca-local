@@ -18,11 +18,6 @@ vi.mock('../../telemetry/client', () => ({ track: vi.fn() }))
 vi.mock('../../telemetry/cohort-classifier', () => ({
   getCohortAtEmit: () => ({ nth_repo_added: 2 })
 }))
-vi.mock('../../ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: () => ({ hosts: [] }),
-  sshConfigHostsToTargets: () => []
-}))
-
 const directories: string[] = []
 const stores: Store[] = []
 const livePaneKey = 'live-tab:11111111-1111-4111-8111-111111111111'

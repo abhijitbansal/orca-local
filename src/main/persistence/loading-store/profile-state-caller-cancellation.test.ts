@@ -8,11 +8,6 @@ vi.mock('../../telemetry/client', () => ({ track: vi.fn() }))
 vi.mock('../../telemetry/cohort-classifier', () => ({
   getCohortAtEmit: () => ({ nth_repo_added: 2 })
 }))
-vi.mock('../../ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: () => ({ hosts: [] }),
-  sshConfigHostsToTargets: () => []
-}))
-
 describe('profile flush caller cancellation', () => {
   it('releases a canceled waiter while its admitted write completes and later saving continues', async () => {
     const { store, authority, readState } = await createWorkerMaintenanceFixture()

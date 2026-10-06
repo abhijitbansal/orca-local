@@ -4,7 +4,7 @@ import { AutomationOwnerConflictError } from '../../shared/automation-owner-conf
 import type { AutomationOwnerRef } from '../../shared/automation-owner-ref'
 import {
   EXTERNAL_AUTOMATION_SCOPE_CODES,
-  ExternalAutomationScopeError
+  type ExternalAutomationScopeError
 } from '../../shared/external-automation-scope'
 import type { ExternalAutomationProvider } from '../../shared/automations-types'
 import type { SshTarget } from '../../shared/ssh-types'
@@ -57,46 +57,6 @@ describe('resolveExternalAutomationScope', () => {
     expect(scope.target).toEqual({ type: 'ssh', connectionId: 'target-a' })
     expect(scope.sshTarget).toBe(target)
     expect(scope.managerId).toBe('openclaw:ssh:target-a')
-  })
-
-  it('excludes a runtime-owned target instead of exposing it', () => {
-    const target = sshTarget({ owner: { type: 'on-demand-runtime', runtimeId: 'rt-1' } })
-
-    expect(() =>
-      resolveExternalAutomationScope(
-        { owner: desktopSsh('target-a', 3), provider: 'hermes' },
-        registry([target])
-      )
-    ).toThrow(ExternalAutomationScopeError)
-    try {
-      resolveExternalAutomationScope(
-        { owner: desktopSsh('target-a', 3), provider: 'hermes' },
-        registry([target])
-      )
-    } catch (error) {
-      expect((error as ExternalAutomationScopeError).code).toBe(
-        EXTERNAL_AUTOMATION_SCOPE_CODES.targetHidden
-      )
-    }
-  })
-
-  it('hides a runtime-owned target even when the captured generation is wrong', () => {
-    const target = sshTarget({
-      generation: 9,
-      owner: { type: 'on-demand-runtime', runtimeId: 'rt-1' }
-    })
-
-    try {
-      resolveExternalAutomationScope(
-        { owner: desktopSsh('target-a', 3), provider: 'hermes' },
-        registry([target])
-      )
-      expect.unreachable('hidden target must not resolve')
-    } catch (error) {
-      expect((error as ExternalAutomationScopeError).code).toBe(
-        EXTERNAL_AUTOMATION_SCOPE_CODES.targetHidden
-      )
-    }
   })
 
   it('fails closed with the host-changed conflict on a stale generation', () => {

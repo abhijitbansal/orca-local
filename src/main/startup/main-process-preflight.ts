@@ -54,8 +54,6 @@ import { electronRuntimeDesktopSurface } from '../host/electron-runtime-desktop-
 import { setRuntimeDesktopSurface } from '../runtime/runtime-desktop-surface'
 import { electronRuntimeBrowserCommandsFactory } from '../host/electron-browser-commands'
 import { setRuntimeBrowserCommandsFactory } from '../runtime/runtime-browser-commands-factory'
-import { electronHttpClient } from '../host/electron-http-client'
-import { setMainHttpClient } from '../network/http-client'
 import { electronSpeechServiceFactories } from '../host/electron-speech-services'
 import { setSpeechServiceFactories } from '../speech/speech-runtime-service'
 import { setWorktreeWatcherRemoval } from '../ipc/worktree-watcher-removal'
@@ -275,10 +273,6 @@ function initializeMainProcessPreflight(options: MainProcessPreflightOptions): b
   // desktop supplies it; a Node host has no Chromium proxy config to consult, so the
   // environment variables are the whole answer there.
   setDefaultProxySessionResolver(() => session.defaultSession)
-  // Why here: integrations use Chromium's network stack on the desktop. A Node host
-  // falls back to the platform default, which is a real behavioural difference (proxy
-  // read from the environment, Node's user agent) rather than a transparent swap.
-  setMainHttpClient(electronHttpClient)
   // Why here: constructing the speech services is what pulls Electron's streaming net
   // request in. A host without them rejects speech calls rather than pretending.
   setSpeechServiceFactories(electronSpeechServiceFactories)

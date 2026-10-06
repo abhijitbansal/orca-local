@@ -45,7 +45,6 @@ on:
       - 'src/main/runtime/rpc/dispatcher.ts'
       - 'src/main/runtime/rpc/errors.ts'
       - 'src/main/runtime/rpc/methods/computer*.ts'
-      - 'src/main/ssh/ssh-remote-cli-launcher.ts'
       - 'src/shared/computer-use-*.ts'
       - 'tests/e2e/computer-linux.e2e.ts'
       - 'tests/e2e/computer-windows.e2e.ts'

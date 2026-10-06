@@ -23,7 +23,6 @@ import { SESSION_TAB_METHODS } from './session-tabs'
 import { NATIVE_CHAT_METHODS } from './native-chat'
 import { FILE_METHODS } from './files'
 import { GIT_METHODS } from './git'
-import { SSH_METHODS } from './ssh'
 import { SPEECH_METHODS } from './speech'
 import { CLIENT_UI_METHODS } from './client-ui'
 import { CLIENT_EVENT_METHODS } from './client-events'
@@ -71,7 +70,6 @@ export const ALL_RPC_METHODS = [
   ...NATIVE_CHAT_METHODS,
   ...FILE_METHODS,
   ...GIT_METHODS,
-  ...SSH_METHODS,
   ...SPEECH_METHODS,
   ...WORKSPACE_PORT_METHODS,
   ...PLUGIN_METHODS,

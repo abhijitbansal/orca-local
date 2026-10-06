@@ -12,11 +12,6 @@ import type { Store } from '../persistence/loading-store/store'
 import { RuntimeManagedWorktreeQueries } from './runtime-managed-worktree-queries'
 import type { RuntimeStore } from './runtime-store-contract'
 
-vi.mock('./ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: vi.fn(),
-  sshConfigHostsToTargets: vi.fn()
-}))
-
 vi.mock('electron', () => ({
   app: { getPath: () => testState.dir },
   safeStorage: { isEncryptionAvailable: () => false }

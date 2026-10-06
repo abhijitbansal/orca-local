@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import {
   ExecutionHostNotDispatchableError,
   requireFilesystemProviderForHost,
@@ -7,45 +7,13 @@ import {
   resolveGitRouteForHost,
   UnresolvableExecutionHostError
 } from './execution-host-provider-dispatch'
-import { registerSshGitProvider, unregisterSshGitProvider } from './ssh-git-dispatch'
-import {
-  registerSshFilesystemProvider,
-  unregisterSshFilesystemProvider
-} from './ssh-filesystem-dispatch'
 
 const connectionId = 'host-dispatch-target'
-const gitProvider = { listWorktrees: async () => [] } as never
-const filesystemProvider = { readDir: async () => [] } as never
 
 describe('execution host provider dispatch', () => {
-  afterEach(() => {
-    unregisterSshGitProvider(connectionId)
-    unregisterSshFilesystemProvider(connectionId)
-  })
-
   it('routes `local` to the local entry rather than to a provider', () => {
     expect(resolveGitRouteForHost('local')).toEqual({ kind: 'local', hostId: 'local' })
     expect(resolveFilesystemRouteForHost('local')).toEqual({ kind: 'local', hostId: 'local' })
-  })
-
-  it('routes an ssh host to its registered provider', () => {
-    registerSshGitProvider(connectionId, gitProvider)
-    registerSshFilesystemProvider(connectionId, filesystemProvider)
-
-    expect(resolveGitRouteForHost(`ssh:${connectionId}`)).toEqual({
-      kind: 'ssh',
-      hostId: `ssh:${connectionId}`,
-      connectionId,
-      provider: gitProvider
-    })
-    expect(resolveFilesystemRouteForHost(`ssh:${connectionId}`)).toEqual({
-      kind: 'ssh',
-      hostId: `ssh:${connectionId}`,
-      connectionId,
-      provider: filesystemProvider
-    })
-    expect(requireGitProviderForHost(`ssh:${connectionId}`)).toBe(gitProvider)
-    expect(requireFilesystemProviderForHost(`ssh:${connectionId}`)).toBe(filesystemProvider)
   })
 
   it('answers `unreachable`, not `local`, for an ssh host with no registered provider', () => {
@@ -75,11 +43,18 @@ describe('execution host provider dispatch', () => {
     })
   })
 
+  it('keeps an ssh host remote and refuses to serve it, since no provider can register', () => {
+    expect(() => requireGitProviderForHost(`ssh:${connectionId}`)).toThrow(
+      /Remote connection dropped/
+    )
+    expect(() => requireFilesystemProviderForHost(`ssh:${connectionId}`)).toThrow(
+      /Remote connection dropped/
+    )
+  })
+
   it('refuses to hand a runtime host to this process’s ssh table', () => {
     // A runtime repo row carries the *server's* nested target id. Dialling it here would reach a
     // same-named target in this client's namespace.
-    registerSshGitProvider(connectionId, gitProvider)
-
     expect(() => requireGitProviderForHost('runtime:env-7')).toThrow(
       ExecutionHostNotDispatchableError
     )

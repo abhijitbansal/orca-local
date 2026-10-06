@@ -170,9 +170,6 @@ module.exports = {
     // Why: these repo-only inputs are either bundled into out/ or copied via
     // extraResources. Shipping them in app.asar bloats the desktop bundle.
     '!src{,/**/*}',
-    // Why: the pinned Node a local orcad build references (~120 MB) and its download cache.
-    '!out/runtimes{,/**/*}',
-    '!out/node-runtime-cache{,/**/*}',
     '!config{,/**/*}',
     '!docs{,/**/*}',
     '!native{,/**/*}',

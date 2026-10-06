@@ -22,11 +22,6 @@ vi.mock('electron', () => ({
 
 vi.mock('./telemetry/client', () => ({ track: vi.fn() }))
 vi.mock('./telemetry/cohort-classifier', () => ({ getCohortAtEmit: vi.fn() }))
-vi.mock('./ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: vi.fn(),
-  sshConfigHostsToTargets: vi.fn()
-}))
-
 describe('active-view persistence boundary', () => {
   beforeEach(() => {
     testState.dir = mkdtempSync(join(tmpdir(), 'orca-active-view-boundary-'))

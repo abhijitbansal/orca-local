@@ -6,10 +6,6 @@ import {
 } from './persistence/loading-store/profile-state-maintenance-fixture'
 import { Store } from './persistence/loading-store/store'
 
-vi.mock('./ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: vi.fn(),
-  sshConfigHostsToTargets: vi.fn()
-}))
 vi.mock('./telemetry/client', () => ({ track: vi.fn() }))
 vi.mock('./telemetry/cohort-classifier', () => ({
   getCohortAtEmit: () => ({ nth_repo_added: 2 })

@@ -1,50 +1,29 @@
+import { LocalOnlyUnsupportedError } from '../../shared/local-only-unsupported-error'
 import type { IFilesystemProvider } from './types'
-
-const sshProviders = new Map<string, IFilesystemProvider>()
 
 export const SSH_FILESYSTEM_PROVIDER_UNAVAILABLE_MESSAGE =
   'Remote connection dropped. Click Reconnect on the SSH target before retrying.'
 
-// Why: a reconnect builds a fresh provider, so anything holding remote state tied to the old
-// transport (file watches) needs a signal to rebuild it — nothing else marks that boundary.
-const registrationListeners = new Set<(connectionId: string) => void>()
-
+// Why kept: filesystem-watcher-handlers.ts subscribes at registration; a no-op unsubscribe leaves that file untouched.
 export function onSshFilesystemProviderRegistered(
-  listener: (connectionId: string) => void
+  _listener: (connectionId: string) => void
 ): () => void {
-  registrationListeners.add(listener)
-  return () => {
-    registrationListeners.delete(listener)
-  }
+  return () => {}
 }
 
 export function registerSshFilesystemProvider(
   connectionId: string,
-  provider: IFilesystemProvider
-): void {
-  sshProviders.set(connectionId, provider)
-  for (const listener of registrationListeners) {
-    try {
-      listener(connectionId)
-    } catch (error) {
-      // Why: relay establish must not fail because a subscriber threw.
-      console.warn('[ssh-filesystem] provider registration listener failed:', error)
-    }
-  }
+  _provider: IFilesystemProvider
+): never {
+  throw new LocalOnlyUnsupportedError('ssh', `registerSshFilesystemProvider(${connectionId})`)
 }
 
-export function unregisterSshFilesystemProvider(connectionId: string): void {
-  sshProviders.delete(connectionId)
-}
+export function unregisterSshFilesystemProvider(_connectionId: string): void {}
 
-export function getSshFilesystemProvider(connectionId: string): IFilesystemProvider | undefined {
-  return sshProviders.get(connectionId)
+export function getSshFilesystemProvider(_connectionId: string): IFilesystemProvider | undefined {
+  return undefined
 }
 
 export function requireSshFilesystemProvider(connectionId: string): IFilesystemProvider {
-  const provider = getSshFilesystemProvider(connectionId)
-  if (!provider) {
-    throw new Error(SSH_FILESYSTEM_PROVIDER_UNAVAILABLE_MESSAGE)
-  }
-  return provider
+  throw new LocalOnlyUnsupportedError('ssh', `requireSshFilesystemProvider(${connectionId})`)
 }

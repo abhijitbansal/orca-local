@@ -179,8 +179,7 @@ describe('legacy agent-status ingress ratchet', () => {
   it('requires every production remote ingress to name the unsupported-peer capability source', () => {
     const callers = productionFiles.filter((file) => /\.ingestRemote\s*\(/.test(file.source))
     expect(callers.map((file) => file.relativePath).sort()).toEqual([
-      'main/agent-hooks/wsl-hook-relay-deps.ts',
-      'main/ssh/ssh-relay-session.ts'
+      'main/agent-hooks/wsl-hook-relay-deps.ts'
     ])
     // Why: a bare import of the constant (unused elsewhere) would pass a substring check
     // without ever stamping it onto the envelope — require the actual key:value binding.

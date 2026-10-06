@@ -30,7 +30,6 @@ describe('host port bootstrap wiring', () => {
     'setRuntimeDesktopSurface(electronRuntimeDesktopSurface)',
     'setRuntimeBrowserCommandsFactory(electronRuntimeBrowserCommandsFactory)',
     'setDefaultProxySessionResolver(',
-    'setMainHttpClient(electronHttpClient)',
     'setSpeechServiceFactories(electronSpeechServiceFactories)',
     'setWorktreeWatcherRemoval(desktopWorktreeWatcherRemoval)'
   ]

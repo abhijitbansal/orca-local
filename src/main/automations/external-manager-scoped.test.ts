@@ -5,10 +5,7 @@ import { ExternalAutomationProbeScheduler } from './external-automation-probe-sc
 import { getActiveMultiplexer } from '../ssh/ssh-target-registry'
 import { AutomationOwnerConflictError } from '../../shared/automation-owner-conflict'
 import type { AutomationOwnerRef } from '../../shared/automation-owner-ref'
-import {
-  EXTERNAL_AUTOMATION_SCOPE_CODES,
-  ExternalAutomationScopeError
-} from '../../shared/external-automation-scope'
+import { EXTERNAL_AUTOMATION_SCOPE_CODES } from '../../shared/external-automation-scope'
 import type { ExternalAutomationProvider } from '../../shared/automations-types'
 import type { SshTarget } from '../../shared/ssh-types'
 import type * as Fs from 'node:fs'
@@ -151,18 +148,6 @@ describe('scoped external automations', () => {
     await expect(
       engine.listManager({ owner: desktopSsh('target-a', 3), provider: 'hermes' })
     ).rejects.toBeInstanceOf(AutomationOwnerConflictError)
-    expect(getActiveMultiplexer).not.toHaveBeenCalled()
-    expect(runProcessMock).not.toHaveBeenCalled()
-  })
-
-  it('excludes a runtime-owned target without probing it', async () => {
-    const engine = buildEngine([
-      sshTarget({ owner: { type: 'on-demand-runtime', runtimeId: 'rt-1' } })
-    ])
-
-    await expect(
-      engine.listManager({ owner: desktopSsh('target-a', 3), provider: 'hermes' })
-    ).rejects.toBeInstanceOf(ExternalAutomationScopeError)
     expect(getActiveMultiplexer).not.toHaveBeenCalled()
     expect(runProcessMock).not.toHaveBeenCalled()
   })

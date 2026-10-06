@@ -1,66 +1,25 @@
+import { LocalOnlyUnsupportedError } from '../../shared/local-only-unsupported-error'
 import type { SshGitProvider } from './ssh-git-provider'
-import { getSshPlainSshMode, PlainSshUnsupportedError } from '../ssh/ssh-plain-ssh-mode'
 
-const sshProviders = new Map<string, SshGitProvider>()
-const sshProviderGenerations = new Map<string, number>()
-const SSH_PROVIDER_GENERATION_MAX_ENTRIES = 512
-let providerGenerationSequence = 0
-let evictedProviderGeneration = 0
-
+// Why a stub: the SSH connection layer is removed, so no git provider is ever registered. The ~40
+// `if (connectionId)` callers keep compiling; every arm resolves to "unavailable" and never to local (I4).
 export const SSH_GIT_PROVIDER_UNAVAILABLE_MESSAGE =
   'Remote connection dropped. Click Reconnect on the SSH target before retrying.'
 
-export function registerSshGitProvider(connectionId: string, provider: SshGitProvider): void {
-  sshProviders.set(connectionId, provider)
-  sshProviderGenerations.set(connectionId, ++providerGenerationSequence)
-  pruneProviderGenerations()
+export function registerSshGitProvider(connectionId: string, _provider: SshGitProvider): never {
+  throw new LocalOnlyUnsupportedError('ssh', `registerSshGitProvider(${connectionId})`)
 }
 
-export function unregisterSshGitProvider(connectionId: string): void {
-  if (sshProviders.delete(connectionId)) {
-    sshProviderGenerations.set(connectionId, ++providerGenerationSequence)
-    pruneProviderGenerations()
-  }
+export function unregisterSshGitProvider(_connectionId: string): void {}
+
+export function getSshGitProviderGeneration(_connectionId: string): number {
+  return 0
 }
 
-// Connection ids are externally supplied and can churn across repeated SSH
-// sessions. Keep recent generations for cache invalidation without retaining
-// every retired target for the lifetime of the main process.
-function pruneProviderGenerations(): void {
-  while (sshProviderGenerations.size > SSH_PROVIDER_GENERATION_MAX_ENTRIES) {
-    const oldest = sshProviderGenerations.keys().next()
-    if (oldest.done) {
-      return
-    }
-    evictedProviderGeneration = Math.max(
-      evictedProviderGeneration,
-      sshProviderGenerations.get(oldest.value) ?? 0
-    )
-    sshProviderGenerations.delete(oldest.value)
-  }
-}
-
-export function getSshGitProviderGeneration(connectionId: string): number {
-  return sshProviderGenerations.get(connectionId) ?? evictedProviderGeneration
-}
-
-/** @internal - exposed for cache-bound regression tests. */
-export function _getSshGitProviderGenerationCacheSize(): number {
-  return sshProviderGenerations.size
-}
-
-export function getSshGitProvider(connectionId: string): SshGitProvider | undefined {
-  return sshProviders.get(connectionId)
+export function getSshGitProvider(_connectionId: string): SshGitProvider | undefined {
+  return undefined
 }
 
 export function requireSshGitProvider(connectionId: string): SshGitProvider {
-  const provider = getSshGitProvider(connectionId)
-  if (!provider) {
-    const plainMode = getSshPlainSshMode(connectionId)
-    if (plainMode) {
-      throw new PlainSshUnsupportedError('Git', plainMode)
-    }
-    throw new Error(SSH_GIT_PROVIDER_UNAVAILABLE_MESSAGE)
-  }
-  return provider
+  throw new LocalOnlyUnsupportedError('ssh', `requireSshGitProvider(${connectionId})`)
 }

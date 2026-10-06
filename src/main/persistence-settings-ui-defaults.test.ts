@@ -15,16 +15,6 @@ import type { PersistedState } from '../shared/persisted-state-types'
 import { getDefaultPersistedState } from '../shared/constants'
 import { ONBOARDING_FINAL_STEP, ONBOARDING_FLOW_VERSION } from '../shared/onboarding-defaults'
 
-// Stub the ~/.ssh/config parser so the SSH-import test drives the real Store with deterministic hosts, not the operator's actual ~/.ssh/config.
-const { loadUserSshConfigMock, sshConfigHostsToTargetsMock } = vi.hoisted(() => ({
-  loadUserSshConfigMock: vi.fn(),
-  sshConfigHostsToTargetsMock: vi.fn()
-}))
-
-vi.mock('./ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: loadUserSshConfigMock,
-  sshConfigHostsToTargets: sshConfigHostsToTargetsMock
-}))
 const { trackMock, getCohortAtEmitMock } = vi.hoisted(() => ({
   trackMock: vi.fn(),
   getCohortAtEmitMock: vi.fn()

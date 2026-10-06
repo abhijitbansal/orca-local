@@ -1,10 +1,8 @@
 import {
   listWorktrees,
   listWorktreesStrict,
-  registerSshFilesystemProvider,
   registerSshGitProvider,
   removeWorktree,
-  unregisterSshFilesystemProvider,
   unregisterSshGitProvider
 } from '../orca-runtime-test-mocks.spec'
 import type { WorktreeMeta } from '../orca-runtime-test-mocks.spec'
@@ -26,10 +24,6 @@ import { getLocalWorktreeScanGeneration } from '../../local-worktree-scan-genera
 beforeEach(resetWorktreeTestSshHostHome)
 
 const REMOTE_REPO_PATH = '/remote/repo'
-
-function missingPath(): never {
-  throw Object.assign(new Error('ENOENT'), { code: 'ENOENT' })
-}
 
 function makeGitProvider(worktrees: readonly unknown[]) {
   return {
@@ -123,38 +117,6 @@ describe('OrcaRuntimeService worktree removal execution host', () => {
       expect(removeWorktreeMeta).toHaveBeenCalledWith(TEST_WORKTREE_ID, 'ssh:target-a')
       expect(metaById[TEST_WORKTREE_ID]).toBeUndefined()
     } finally {
-      unregisterSshGitProvider('target-a')
-    }
-  })
-
-  it('runs the cleanup path for a migrated-spelling row entirely on its host', async () => {
-    // #18358 made an `executionHostId`-only row a removable cleanup candidate. Every step of the
-    // removal it starts — list, existence probe, delete, prune — must name the same host.
-    const { runtimeStore, removeWorktreeMeta } = makeRemoteRepoStore('ssh:target-a')
-    const provider = makeGitProvider([REPO_ROOT_ENTRY])
-    const fsProvider = { stat: vi.fn(missingPath), deletePath: vi.fn() }
-    registerSshGitProvider('target-a', provider as never)
-    registerSshFilesystemProvider('target-a', fsProvider as never)
-    const runtime = createWorktreeRemovalRuntime(runtimeStore)
-
-    try {
-      await expect(
-        runtime.removeManagedWorktree(TEST_WORKTREE_ID, {
-          force: true,
-          runHooks: false,
-          allowUnverifiedPtyStop: false,
-          hostId: 'ssh:target-a'
-        })
-      ).resolves.toEqual({})
-
-      expect(provider.listWorktrees).toHaveBeenCalledWith(REMOTE_REPO_PATH)
-      expect(fsProvider.stat).toHaveBeenCalledWith(TEST_WORKTREE_PATH)
-      expect(listWorktreesStrict).not.toHaveBeenCalled()
-      expect(removeWorktree).not.toHaveBeenCalled()
-      expect(fsProvider.deletePath).not.toHaveBeenCalled()
-      expect(removeWorktreeMeta).toHaveBeenCalledWith(TEST_WORKTREE_ID, 'ssh:target-a')
-    } finally {
-      unregisterSshFilesystemProvider('target-a')
       unregisterSshGitProvider('target-a')
     }
   })

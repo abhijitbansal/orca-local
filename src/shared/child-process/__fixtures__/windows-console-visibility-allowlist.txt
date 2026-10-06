@@ -37,7 +37,6 @@ main/pty-descendant-termination.ts
 main/pty/posix-pty-foreground-group.ts
 main/pty/windows-environment-path.ts
 main/runtime/tls-certificate.ts
-main/ssh/ssh-connection.ts
 main/startup/ensure-virtual-display.ts
 main/startup/windows-install-dir-acl-probe.ts
 main/win32-utils.ts

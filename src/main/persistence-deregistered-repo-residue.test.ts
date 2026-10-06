@@ -18,11 +18,6 @@ import { composeWorktreeHostIdentity } from '../shared/worktree/host-qualified-i
 import { folderWorkspaceKey, worktreeWorkspaceKey } from '../shared/workspace-scope'
 import type { PersistedState } from '../shared/persisted-state-types'
 
-vi.mock('./ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: vi.fn(),
-  sshConfigHostsToTargets: vi.fn()
-}))
-
 vi.mock('electron', () => ({
   app: { getPath: () => testState.dir },
   safeStorage: { isEncryptionAvailable: () => false }

@@ -10,11 +10,6 @@ vi.mock('../../telemetry/client', () => ({ track: vi.fn() }))
 vi.mock('../../telemetry/cohort-classifier', () => ({
   getCohortAtEmit: () => ({ nth_repo_added: 2 })
 }))
-vi.mock('../../ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: () => ({ hosts: [] }),
-  sshConfigHostsToTargets: () => []
-}))
-
 describe('quit during failed profile maintenance', () => {
   it('retries a known failed checkpoint and persists shutdown edits before closing', async () => {
     const { store, authority, readState, dataFile } = await createWorkerMaintenanceFixture()

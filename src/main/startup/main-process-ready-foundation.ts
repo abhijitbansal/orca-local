@@ -15,7 +15,6 @@ import { getCanonicalUserDataPath } from '../persistence'
 import { createProfileStateStoreForStartup } from '../persistence/profile-state/profile-state-startup-authority'
 import { initializeBrowserClientHostId } from '../browser/browser-client-host-id'
 import { scheduleSecretProtectionGapReport } from '../host/deferred-secret-protection-report'
-import { initSshHostKeyStoreFile } from '../ssh/ssh-host-key-store'
 import { neutralizeLegacyTerminalShimDir } from '../pty/legacy-terminal-shim-dir'
 import { createWindowsShellPathHydration } from './windows-shell-path-hydration'
 import { configureWindowsHostGitEnvironmentReadiness } from '../git/runner'
@@ -176,10 +175,6 @@ export async function initializeReadyFoundation(): Promise<void> {
     deferUntilFirstWindow: !state.isServeMode,
     skipInDevelopment: is.dev
   })
-  // Why here: the host key store is a sidecar of the same profile, and every SSH connect consults
-  // it. Left unbound it reports nothing trusted, which is safe but silently discards our own
-  // accept records on every launch.
-  initSshHostKeyStoreFile(profile.dataFile)
   // Why: must precede PTY handler registration and run in headless serve too, which returns before openMainWindow.
   neutralizeLegacyTerminalShimDir(app.getPath('userData'))
   const windowsShellPathHydration = createWindowsShellPathHydration()

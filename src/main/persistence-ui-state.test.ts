@@ -17,16 +17,6 @@ import {
 } from './persistence-test-harness'
 import { installFakeAppEnvironment } from '../../config/scripts/vitest-host-ports-setup'
 
-// Stub the ~/.ssh/config parser so the SSH-import test drives the real Store with deterministic hosts, not the operator's actual ~/.ssh/config.
-const { loadUserSshConfigMock, sshConfigHostsToTargetsMock } = vi.hoisted(() => ({
-  loadUserSshConfigMock: vi.fn(),
-  sshConfigHostsToTargetsMock: vi.fn()
-}))
-
-vi.mock('./ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: loadUserSshConfigMock,
-  sshConfigHostsToTargets: sshConfigHostsToTargetsMock
-}))
 const { trackMock, getCohortAtEmitMock } = vi.hoisted(() => ({
   trackMock: vi.fn(),
   getCohortAtEmitMock: vi.fn()

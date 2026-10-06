@@ -50,11 +50,6 @@ vi.mock('../../telemetry/client', () => ({ track: vi.fn() }))
 vi.mock('../../telemetry/cohort-classifier', () => ({
   getCohortAtEmit: vi.fn(() => ({ nth_repo_added: 2 }))
 }))
-vi.mock('../../ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: vi.fn(() => ({ hosts: [] })),
-  sshConfigHostsToTargets: vi.fn(() => [])
-}))
-
 const { Store } = await import('./store')
 const { createProfileStateStore } = await import('../profile-state/profile-state-store-factory')
 

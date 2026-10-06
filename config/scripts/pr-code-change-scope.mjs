@@ -271,9 +271,7 @@ const WINDOWS_PACKAGE_TESTS = [
   'src/shared/secure-path-windows-acl.win32.test.ts',
   'src/main/runtime/unreadable-secret-store-preservation.win32.test.ts',
   'src/main/ipc/pty-codex-account-attribution.test.ts',
-  'src/main/ipc/pty-spawn-env-codex-resume-provenance.test.ts',
-  'src/main/ssh/ssh-relay-upload-stage-windows-identity.test.ts',
-  'src/main/ssh/remote-node-runtime-store-windows.test.ts'
+  'src/main/ipc/pty-spawn-env-codex-resume-provenance.test.ts'
 ]
 
 const STATIC_ANALYSIS_AUDIT_SCRIPTS = [

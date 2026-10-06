@@ -134,7 +134,6 @@ vi.mock('../browser/browser-client-host-id', () => ({ initializeBrowserClientHos
 vi.mock('../host/deferred-secret-protection-report', () => ({
   scheduleSecretProtectionGapReport: vi.fn()
 }))
-vi.mock('../ssh/ssh-host-key-store', () => ({ initSshHostKeyStoreFile: vi.fn() }))
 vi.mock('../pty/legacy-terminal-shim-dir', () => ({ neutralizeLegacyTerminalShimDir: vi.fn() }))
 vi.mock('./windows-shell-path-hydration', () => ({
   createWindowsShellPathHydration: () => ({ whenReady: Promise.resolve() })

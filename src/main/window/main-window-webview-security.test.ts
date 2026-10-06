@@ -25,10 +25,6 @@ vi.mock('../browser/browser-route-session-runtime', () => ({
   browserRouteSessionRegistry: { isAllowedPartition: () => false },
   browserRouteWebContentsRegistry: { attachGuest: mocks.attachRouteGuest }
 }))
-vi.mock('../browser/local-ssh-browser-partitions', () => ({
-  isLocalSshBrowserPartition: () => false,
-  enforceLocalSshWebRtcPolicyForGuest: vi.fn()
-}))
 vi.mock('../browser/doc-preview-protocol', () => ({
   isDocPreviewSession: (candidate: unknown) => candidate === 'doc-preview-session'
 }))

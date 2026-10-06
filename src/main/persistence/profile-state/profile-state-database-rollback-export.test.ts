@@ -36,11 +36,6 @@ vi.mock('../../telemetry/client', () => ({ track: vi.fn() }))
 vi.mock('../../telemetry/cohort-classifier', () => ({
   getCohortAtEmit: () => ({ nth_repo_added: 2 })
 }))
-vi.mock('../../ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: () => ({ hosts: [] }),
-  sshConfigHostsToTargets: () => []
-}))
-
 it('can publish an updater JSON export at a reused revision after SQLite rollback', async () => {
   const root = mkdtempSync(join(tmpdir(), 'orca-database-rollback-export-'))
   const directory = join(root, 'profiles', 'rollback-export')

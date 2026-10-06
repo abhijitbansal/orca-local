@@ -39,11 +39,6 @@ vi.mock('electron', () => ({
   ipcMain: { on: () => {}, handle: () => {} },
   BrowserWindow: { getAllWindows: () => [] }
 }))
-vi.mock('../../ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: vi.fn(() => ({ hosts: [] })),
-  sshConfigHostsToTargets: vi.fn(() => [])
-}))
-
 const { Store } = await import('./store')
 const stores: InstanceType<typeof Store>[] = []
 afterEach(async () => {

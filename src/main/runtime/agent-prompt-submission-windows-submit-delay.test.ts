@@ -4,7 +4,6 @@ import {
   getAgentPromptSubmitDelayMs,
   getTerminalPasteIngestMs
 } from '../../shared/agent-prompt-injection'
-import { setSshTargetRegistryHandlers } from '../ssh/ssh-target-registry'
 import { OrcaRuntimeService } from './orca-runtime'
 import { makeStore } from './runtime-rpc-worktree-store-fixtures'
 
@@ -81,13 +80,6 @@ function patchPtyRecord(runtime: OrcaRuntimeService, patch: Record<string, unkno
   Object.assign(record!, patch)
 }
 
-function registerSshRemotePlatform(platform: NodeJS.Platform | undefined): void {
-  setSshTargetRegistryHandlers({
-    connect: null,
-    getState: () => ({ remotePlatform: platform }) as never
-  })
-}
-
 function countSubmits(writes: readonly string[]): number {
   return writes.filter((data) => data === '\r').length
 }
@@ -103,7 +95,6 @@ describe('agent prompt submit delay on a ConPTY host', () => {
   afterEach(() => {
     vi.useRealTimers()
     Object.defineProperty(process, 'platform', originalPlatform)
-    setSshTargetRegistryHandlers({ connect: null, getState: null })
   })
 
   it('holds Enter for the payload ingest plus the settle window', async () => {
@@ -188,7 +179,6 @@ describe('agent prompt submit delay follows the execution host', () => {
   afterEach(() => {
     vi.useRealTimers()
     Object.defineProperty(process, 'platform', originalPlatform)
-    setSshTargetRegistryHandlers({ connect: null, getState: null })
   })
 
   it('still charges ConPTY for a WSL pane, which is spawned through it', async () => {
@@ -200,74 +190,6 @@ describe('agent prompt submit delay follows the execution host', () => {
     patchPtyRecord(runtime, { isWsl: true, wslDistro: 'Ubuntu' })
     const delayMs = submitDelayFor(HOST_PROBE_PROMPT, 'win32')
     expect(delayMs).toBeGreaterThan(submitDelayFor(HOST_PROBE_PROMPT, 'linux'))
-    const submission = runtime.sendTerminalAgentPrompt(handle, HOST_PROBE_PROMPT, {
-      inputKind: 'driving'
-    })
-    const stalled = expect(submission).rejects.toThrow('agent_prompt_stalled')
-
-    await vi.advanceTimersByTimeAsync(delayMs - 1)
-    expect(countSubmits(writes)).toBe(0)
-    await vi.advanceTimersByTimeAsync(1)
-    expect(countSubmits(writes)).toBe(1)
-
-    await vi.runAllTimersAsync()
-    await stalled
-  })
-
-  it('waits the ConPTY delay for a Windows SSH host driven from macOS', async () => {
-    useHostPlatform('darwin')
-    vi.useFakeTimers()
-    const { runtime, handle, writes } = await createPromptRuntime()
-    patchPtyRecord(runtime, { connectionId: 'ssh-target-1' })
-    registerSshRemotePlatform('win32')
-    const clientDelayMs = submitDelayFor(HOST_PROBE_PROMPT, 'darwin')
-    const hostDelayMs = submitDelayFor(HOST_PROBE_PROMPT, 'win32')
-    const submission = runtime.sendTerminalAgentPrompt(handle, HOST_PROBE_PROMPT, {
-      inputKind: 'driving'
-    })
-    const stalled = expect(submission).rejects.toThrow('agent_prompt_stalled')
-
-    await vi.advanceTimersByTimeAsync(clientDelayMs)
-    expect(countSubmits(writes)).toBe(0)
-    await vi.advanceTimersByTimeAsync(hostDelayMs - clientDelayMs)
-    expect(countSubmits(writes)).toBe(1)
-
-    await vi.runAllTimersAsync()
-    await stalled
-  })
-
-  it('skips the ConPTY delay for a Linux SSH host driven from Windows', async () => {
-    useHostPlatform('win32')
-    vi.useFakeTimers()
-    const { runtime, handle, writes } = await createPromptRuntime()
-    patchPtyRecord(runtime, { connectionId: 'ssh-target-1' })
-    registerSshRemotePlatform('linux')
-    const delayMs = submitDelayFor(HOST_PROBE_PROMPT, 'linux')
-    expect(delayMs).toBeLessThan(submitDelayFor(HOST_PROBE_PROMPT, 'win32'))
-    const submission = runtime.sendTerminalAgentPrompt(handle, HOST_PROBE_PROMPT, {
-      inputKind: 'driving'
-    })
-    const stalled = expect(submission).rejects.toThrow('agent_prompt_stalled')
-
-    await vi.advanceTimersByTimeAsync(delayMs - 1)
-    expect(countSubmits(writes)).toBe(0)
-    await vi.advanceTimersByTimeAsync(1)
-    expect(countSubmits(writes)).toBe(1)
-
-    await vi.runAllTimersAsync()
-    await stalled
-  })
-
-  it('falls back to the remote worktree path flavor before the relay reports a platform', async () => {
-    useHostPlatform('darwin')
-    vi.useFakeTimers()
-    const { runtime, handle, writes } = await createPromptRuntime()
-    patchPtyRecord(runtime, {
-      connectionId: 'ssh-target-1',
-      worktreeId: 'repo-1::C:\\worktrees\\worktree-a'
-    })
-    registerSshRemotePlatform(undefined)
-    const delayMs = submitDelayFor(HOST_PROBE_PROMPT, 'win32')
     const submission = runtime.sendTerminalAgentPrompt(handle, HOST_PROBE_PROMPT, {
       inputKind: 'driving'
     })

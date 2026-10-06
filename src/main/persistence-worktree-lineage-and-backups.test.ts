@@ -21,16 +21,6 @@ import { acquireProfileStateMaintenance } from './persistence/profile-state/prof
 import type { Repo } from '../shared/repo-types'
 import { folderWorkspaceKey, worktreeWorkspaceKey } from '../shared/workspace-scope'
 
-// Stub the ~/.ssh/config parser so the SSH-import test drives the real Store with deterministic hosts, not the operator's actual ~/.ssh/config.
-const { loadUserSshConfigMock, sshConfigHostsToTargetsMock } = vi.hoisted(() => ({
-  loadUserSshConfigMock: vi.fn(),
-  sshConfigHostsToTargetsMock: vi.fn()
-}))
-
-vi.mock('./ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: loadUserSshConfigMock,
-  sshConfigHostsToTargets: sshConfigHostsToTargetsMock
-}))
 const { trackMock, getCohortAtEmitMock } = vi.hoisted(() => ({
   trackMock: vi.fn(),
   getCohortAtEmitMock: vi.fn()

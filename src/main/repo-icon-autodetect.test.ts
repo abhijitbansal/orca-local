@@ -1,13 +1,8 @@
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { gitExecFileAsync } from './git/runner'
-import {
-  registerSshFilesystemProvider,
-  unregisterSshFilesystemProvider
-} from './providers/ssh-filesystem-dispatch'
-import type { IFilesystemProvider } from './providers/types'
 import { detectRepoIcon, detectRepoIconAndUpstream } from './repo-icon-autodetect'
 
 const PNG_1X1_BASE64 =
@@ -21,30 +16,7 @@ async function makeTempRepoDir(): Promise<string> {
   return dir
 }
 
-const registeredHosts: string[] = []
-
-/** A remote host whose only readable file is a package.json naming a host-specific homepage. */
-function registerHomepageHost(connectionId: string, homepage: string) {
-  const stat = vi.fn(async (filePath: string) => {
-    if (!filePath.endsWith('/package.json')) {
-      throw new Error('ENOENT')
-    }
-    return { type: 'file', size: 64, mtime: 0 }
-  })
-  const readFile = vi.fn(async () => ({
-    content: JSON.stringify({ homepage }),
-    isBinary: false,
-    mimeType: 'application/json'
-  }))
-  registerSshFilesystemProvider(connectionId, { stat, readFile } as unknown as IFilesystemProvider)
-  registeredHosts.push(connectionId)
-  return { stat, readFile }
-}
-
 afterEach(async () => {
-  for (const connectionId of registeredHosts.splice(0)) {
-    unregisterSshFilesystemProvider(connectionId)
-  }
   await Promise.all(tempDirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })))
 })
 
@@ -188,12 +160,10 @@ describe('detectRepoIcon', () => {
     // the path, and the nested id dials a same-named box of ours.
     const repoPath = await makeTempRepoDir()
     await writeFile(join(repoPath, 'favicon.png'), Buffer.from(PNG_1X1_BASE64, 'base64'))
-    const nested = registerHomepageHost('nested-1', 'https://nested.example.com')
 
     await expect(
       detectRepoIcon({ repoPath, executionHostId: 'runtime:env-a' })
     ).resolves.toBeUndefined()
-    expect(nested.stat).not.toHaveBeenCalled()
   })
 
   it('does not fetch a GitHub owner avatar for GitHub repos', async () => {

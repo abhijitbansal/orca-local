@@ -222,9 +222,6 @@ jobs:
       - name: Enforce runtime Electron-import ratchet
         run: pnpm run check:runtime-electron-ratchet
 
-      - name: Check Node runtime pin
-        run: pnpm run check:node-runtime-pin
-
       # Why: extraction writes sorted evidence to an isolated temporary path,
       # so feature PRs need one normalized AST pass rather than a three-OS matrix.
       - name: Verify localization extraction
@@ -911,8 +908,6 @@ jobs:
           src/main/runtime/unreadable-secret-store-preservation.win32.test.ts
           src/main/ipc/pty-codex-account-attribution.test.ts
           src/main/ipc/pty-spawn-env-codex-resume-provenance.test.ts
-          src/main/ssh/ssh-relay-upload-stage-windows-identity.test.ts
-          src/main/ssh/remote-node-runtime-store-windows.test.ts
 
       # Why the :parallel variant: identical to build:release except the three
       # electron-vite targets overlap instead of running back to back. The Linux package

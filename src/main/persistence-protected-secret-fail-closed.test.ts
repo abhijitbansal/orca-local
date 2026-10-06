@@ -19,11 +19,6 @@ const cipherState = {
   decryptionThrows: false
 }
 
-vi.mock('./ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: vi.fn(),
-  sshConfigHostsToTargets: vi.fn()
-}))
-
 vi.mock('electron', () => ({
   app: { getPath: () => testState.dir }
 }))

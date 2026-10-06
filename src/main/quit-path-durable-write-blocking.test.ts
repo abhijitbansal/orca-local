@@ -89,11 +89,6 @@ vi.mock('node:fs/promises', async (importOriginal) => {
   return { ...patched, default: patched }
 })
 
-vi.mock('./ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: vi.fn(),
-  sshConfigHostsToTargets: vi.fn()
-}))
-
 vi.mock('./telemetry/client', () => ({ track: vi.fn() }))
 
 vi.mock('./telemetry/cohort-classifier', () => ({

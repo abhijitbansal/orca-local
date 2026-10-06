@@ -4,7 +4,6 @@ import { disposeWorktreeBaseDirectoryWatchers } from '../ipc/worktree-base-direc
 import { stopFolderRepoGitUpgradeWatch } from '../ipc/folder-repo-git-upgrade'
 import { killAllPty } from '../ipc/pty'
 import { disconnectDaemon, shutdownDaemon } from '../daemon/daemon-init'
-import { beginSshShutdown } from '../ipc/ssh-shutdown-drain'
 import { agentHookServer } from '../agent-hooks/server'
 import { wslHookRelayManager } from '../agent-hooks/wsl-hook-relay-manager'
 import { removeManagedAgentHooksAsync } from '../agent-hooks/managed-agent-hook-controls'
@@ -171,17 +170,9 @@ function installWillQuitHandler(): void {
       await state.runtime?.getOffscreenBrowserBackend()?.destroyAll?.()
       await state.runtime?.getAgentBrowserBridge()?.destroyAllSessions()
     })()
-    // Why (review P2-4): local SSH browser routes own loopback listeners and, on the
-    // system-ssh path, `ssh -N -D` children that would otherwise outlive the app.
-    const localSshRouteShutdown = import('../browser/local-ssh-browser-route')
-      .then((routes) => routes.closeAllLocalSshBrowserRoutes())
-      .catch(() => {})
     browserManager.setBrowserGuestStateChangedListener(null)
     const emulatorShutdown =
       state.runtime?.getEmulatorBridge()?.destroyAllSessions() ?? Promise.resolve()
-    // Why immediately before the final store flush with no await in between: beginSshShutdown() marks every
-    // active SSH lease detached in memory synchronously, and that flush is what persists it.
-    const sshShutdown = beginSshShutdown()
     killAllPty()
     const watcherShutdown = shutdownWatchersOnce()
     const finalStore = state.store
@@ -236,8 +227,6 @@ function installWillQuitHandler(): void {
       { name: 'runtime-rpc', promise: rpcStopAndClear },
       { name: 'watchers', promise: watcherShutdown },
       { name: 'emulator', promise: emulatorShutdown },
-      { name: 'local-ssh-browser-routes', promise: localSshRouteShutdown },
-      { name: 'ssh', promise: sshShutdown },
       { name: 'plugin-hosts', promise: pluginHostShutdown },
       { name: 'grok-hooks', promise: grokHookCleanup },
       { name: 'ref-maintenance', promise: refMaintenanceShutdown },

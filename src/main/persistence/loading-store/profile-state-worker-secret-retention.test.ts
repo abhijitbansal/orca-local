@@ -6,11 +6,6 @@ vi.mock('../../telemetry/client', () => ({ track: vi.fn() }))
 vi.mock('../../telemetry/cohort-classifier', () => ({
   getCohortAtEmit: () => ({ nth_repo_added: 2 })
 }))
-vi.mock('../../ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: () => ({ hosts: [] }),
-  sshConfigHostsToTargets: () => []
-}))
-
 let encryptionAvailable = true
 let previousSecretStore: ReturnType<typeof getSecretStore>
 const ciphertext = (plaintext: string) => Buffer.from(`sealed:${plaintext}`).toString('base64')

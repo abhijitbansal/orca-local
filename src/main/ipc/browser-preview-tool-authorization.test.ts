@@ -120,7 +120,6 @@ const TOOL_CHANNELS = [
 
 const BROWSER_PAGE_CHANNELS = [
   'browser:registerGuest',
-  'browser:prepareSshWorkspacePartition',
   'browser:repairGuestRegistration',
   'browser:isGuestRegistered',
   'browser:unregisterGuest',

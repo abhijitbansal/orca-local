@@ -4,10 +4,6 @@ import {
   maintenanceBarrier
 } from './persistence/loading-store/profile-state-maintenance-fixture'
 
-vi.mock('./ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: vi.fn(),
-  sshConfigHostsToTargets: vi.fn()
-}))
 vi.mock('./telemetry/client', () => ({ track: vi.fn() }))
 vi.mock('./telemetry/cohort-classifier', () => ({
   getCohortAtEmit: () => ({ nth_repo_added: 2 })

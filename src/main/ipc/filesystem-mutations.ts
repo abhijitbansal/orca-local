@@ -6,14 +6,13 @@ import type { Store } from '../persistence'
 import { resolveAuthorizedPath } from './filesystem-auth'
 import { requireSshFilesystemProvider } from '../providers/ssh-filesystem-dispatch'
 import { resolveLocalDroppedPathsForAgent } from './dropped-path-resolution'
-import { importExternalPathsSsh } from './filesystem-import-ssh'
+import { LocalOnlyUnsupportedError } from '../../shared/local-only-unsupported-error'
 import type { SshMutationExpectation } from '../../shared/ssh-types'
 import { assertSshMutationExpectation } from '../ssh/ssh-connection-generation'
 import { renameLocalPathSerializedByDestination } from '../destination-serialized-local-rename'
 import { assertNotExists, rethrowWithUserMessage } from './filesystem-create-path-guards'
 import type {
   ImportItemResult,
-  ImportSkipReason,
   ResolveDroppedPathsResult
 } from '../../shared/filesystem-import-result-types'
 import { importOneSource } from './filesystem-import-local'
@@ -154,22 +153,11 @@ export function registerFilesystemMutationHandlers(store: Store): void {
         args.expectedExecutionHostId
       )
       if (args.connectionId) {
-        return importExternalPathsSsh(args.sourcePaths, args.destDir, args.connectionId, {
-          ensureDir: args.ensureDir,
-          assertCurrent: () =>
-            assertSshMutationExpectation(
-              args.connectionId,
-              args.expectedSshTargetId,
-              args.expectedSshConnectionGeneration,
-              args.expectedExecutionHostId
-            )
-        })
+        throw new LocalOnlyUnsupportedError('ssh', 'fs:importExternalPaths')
       }
 
       // Why: destDir must be authorized before any copy work begins. If the
       // destination is outside allowed roots, the entire import fails.
-      // This only applies to local imports — remote paths are authorized by
-      // the SSH connection boundary (see importExternalPathsSsh).
       const resolvedDest = await resolveAuthorizedPath(args.destDir, store)
 
       const results: ImportItemResult[] = []
@@ -188,11 +176,9 @@ export function registerFilesystemMutationHandlers(store: Store): void {
   )
 
   // Why: terminal drag-and-drop resolver. Local worktrees pass paths through
-  // unchanged (reference-in-place; preserves zero-latency drop). SSH worktrees
-  // upload each path into `${worktreePath}/.orca/drops/` and return remote
-  // paths the remote agent can read. Kept as a separate IPC from
+  // unchanged (reference-in-place; preserves zero-latency drop). Kept as a separate IPC from
   // fs:importExternalPaths because terminal semantics differ from the
-  // explorer's "copy into user-picked destDir". See docs/terminal-drop-ssh.md.
+  // explorer's "copy into user-picked destDir".
   ipcMain.handle(
     'fs:resolveDroppedPathsForAgent',
     async (
@@ -218,32 +204,7 @@ export function registerFilesystemMutationHandlers(store: Store): void {
           failed: []
         }
       }
-      const worktreePath = args.worktreePath.replace(/\/+$/, '')
-      const destDir = `${worktreePath}/.orca/drops`
-      const { results } = await importExternalPathsSsh(args.paths, destDir, args.connectionId, {
-        ensureDir: true,
-        assertCurrent: () =>
-          assertSshMutationExpectation(
-            args.connectionId,
-            args.expectedSshTargetId,
-            args.expectedSshConnectionGeneration,
-            args.expectedExecutionHostId
-          )
-      })
-      const resolvedPaths: string[] = []
-      const skipped: { sourcePath: string; reason: ImportSkipReason }[] = []
-      const failed: { sourcePath: string; reason: string }[] = []
-      // Iterate in input order so injected paths align with the user's drop order.
-      for (const r of results) {
-        if (r.status === 'imported') {
-          resolvedPaths.push(r.destPath)
-        } else if (r.status === 'skipped') {
-          skipped.push({ sourcePath: r.sourcePath, reason: r.reason })
-        } else {
-          failed.push({ sourcePath: r.sourcePath, reason: r.reason })
-        }
-      }
-      return { resolvedPaths, skipped, failed }
+      throw new LocalOnlyUnsupportedError('ssh', 'fs:resolveDroppedPathsForAgent')
     }
   )
 }
