@@ -749,7 +749,5 @@ describe('connectPanePty', () => {
       expect.objectContaining({ sessionId: hostPtyId })
     )
     expect(transport.attach).not.toHaveBeenCalled()
-    expect(window.api.ssh.connect).not.toHaveBeenCalled()
-    expect(window.api.ssh.needsPassphrasePrompt).not.toHaveBeenCalled()
   })
 })

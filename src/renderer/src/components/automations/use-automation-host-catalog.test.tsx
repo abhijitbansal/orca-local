@@ -153,7 +153,6 @@ beforeEach(() => {
   mocks.getRuntimeEnvironmentStatus.mockResolvedValue({ capabilities: [] })
   Object.assign(window, {
     api: {
-      ssh: { connect: vi.fn() },
       runtimeEnvironments: { connect: vi.fn() }
     }
   })

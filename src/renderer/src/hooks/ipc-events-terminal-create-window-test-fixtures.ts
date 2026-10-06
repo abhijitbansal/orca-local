@@ -172,17 +172,6 @@ export function buildTerminalCreateWindow(args: {
         onClientHostedBrowserRowsChanged: () => () => {},
         getClientHostedBrowserRows: async () => []
       },
-      ssh: {
-        listTargets: () => Promise.resolve([]),
-        listPortForwards: () => Promise.resolve([]),
-        listDetectedPorts: () => Promise.resolve([]),
-        getState: () => Promise.resolve(null),
-        onStateChanged: () => () => {},
-        onCredentialRequest: () => () => {},
-        onPortForwardsChanged: () => () => {},
-        onDetectedPortsChanged: () => () => {},
-        onCredentialResolved: () => () => {}
-      },
       agentStatus: { onSet: () => () => {} }
     }
   }

@@ -48,16 +48,6 @@ export const fsApi = {
     ipcRenderer.on('fs:localLogTailChanged', listener)
     return () => ipcRenderer.removeListener('fs:localLogTailChanged', listener)
   },
-  downloadFile: (args: {
-    filePath: string
-    connectionId: string
-  }): Promise<{ canceled: true } | { canceled: false; destinationPath: string }> =>
-    ipcRenderer.invoke('fs:downloadFile', args),
-  downloadFolder: (args: {
-    dirPath: string
-    connectionId: string
-  }): Promise<{ canceled: true } | { canceled: false; destinationPath: string }> =>
-    ipcRenderer.invoke('fs:downloadFolder', args),
   saveDownloadedFile: (args: {
     suggestedName: string
     content: string

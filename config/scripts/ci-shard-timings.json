@@ -3762,7 +3762,6 @@
       "src/preload/renderer-heap-statistics-reader.test.ts": 30,
       "src/preload/renderer-process-memory-reader.test.ts": 53,
       "src/preload/renderer-restart-wiring.test.ts": 44,
-      "src/preload/ssh-authority-forwarding.test.ts": 604,
       "src/preload/usage-provider-api.test.ts": 47,
       "src/relay/agent-hook-envelope-publication.test.ts": 351,
       "src/relay/agent-hook-integration.test.ts": 848,

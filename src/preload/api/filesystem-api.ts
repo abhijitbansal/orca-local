@@ -51,14 +51,6 @@ export type FilesystemApi = {
     startLocalLogTail: (args: LocalLogTailWatchArgs) => Promise<void>
     stopLocalLogTail: (args: { subscriptionId: string }) => Promise<void>
     onLocalLogTailChanged: (callback: (payload: LocalLogTailChangedPayload) => void) => () => void
-    downloadFile: (args: {
-      filePath: string
-      connectionId: string
-    }) => Promise<{ canceled: true } | { canceled: false; destinationPath: string }>
-    downloadFolder: (args: {
-      dirPath: string
-      connectionId: string
-    }) => Promise<{ canceled: true } | { canceled: false; destinationPath: string }>
     saveDownloadedFile: (args: {
       suggestedName: string
       content: string

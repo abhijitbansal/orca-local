@@ -157,7 +157,6 @@ beforeEach(() => {
   releaseHeld = null
   Object.assign(window, {
     api: {
-      ssh: { connect: vi.fn() },
       runtimeEnvironments: { connect: vi.fn() }
     }
   })

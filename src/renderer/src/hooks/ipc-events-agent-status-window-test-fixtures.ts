@@ -18,9 +18,7 @@ export function buildWindowApi(args: {
   getSnapshot?: () => Promise<AgentStatusSetData[]>
   getMigrationUnsupportedSnapshot?: () => Promise<MigrationUnsupportedPtyEntry[]>
   drop?: (paneKey: string) => void
-  remoteWorkspace?: Record<string, unknown>
   runtime?: Record<string, unknown>
-  ssh?: Record<string, unknown>
   ui?: Record<string, unknown>
 }): Record<string, unknown> {
   return {
@@ -112,19 +110,6 @@ export function buildWindowApi(args: {
         getClientHostedBrowserRows: async () => [],
         ...args.runtime
       },
-      ssh: {
-        listTargets: () => Promise.resolve([]),
-        listRemovedTargetLabels: () => Promise.resolve({}),
-        listPortForwards: () => Promise.resolve([]),
-        listDetectedPorts: () => Promise.resolve([]),
-        getState: () => Promise.resolve(null),
-        onStateChanged: () => () => {},
-        onCredentialRequest: () => () => {},
-        onCredentialResolved: () => () => {},
-        onPortForwardsChanged: () => () => {},
-        onDetectedPortsChanged: () => () => {},
-        ...args.ssh
-      },
       notifications: { dispatch: vi.fn(async () => ({ delivered: false })) },
       agentStatus: {
         onSet: args.onSet,
@@ -136,8 +121,7 @@ export function buildWindowApi(args: {
           ? { getMigrationUnsupportedSnapshot: args.getMigrationUnsupportedSnapshot }
           : {}),
         drop: args.drop ?? vi.fn()
-      },
-      remoteWorkspace: args.remoteWorkspace
+      }
     }
   }
 }

@@ -15,8 +15,6 @@ export const reposApi = {
 
   add: (args) => ipcRenderer.invoke('repos:add', args),
 
-  addRemote: (args) => ipcRenderer.invoke('repos:addRemote', args),
-
   create: (args) => ipcRenderer.invoke('repos:create', args),
 
   isGitAvailable: (): Promise<boolean> => ipcRenderer.invoke('repos:isGitAvailable'),
@@ -41,10 +39,6 @@ export const reposApi = {
   pickDirectory: () => ipcRenderer.invoke('repos:pickDirectory'),
 
   clone: (args) => ipcRenderer.invoke('repos:clone', args),
-
-  cloneRemote: (args) => ipcRenderer.invoke('repos:cloneRemote', args),
-
-  createRemote: (args) => ipcRenderer.invoke('repos:createRemote', args),
 
   cloneAbort: () => ipcRenderer.invoke('repos:cloneAbort'),
 

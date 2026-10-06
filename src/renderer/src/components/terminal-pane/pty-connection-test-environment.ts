@@ -32,10 +32,6 @@ export function buildAgentStatusModuleMock(
 export function installTerminalTestGlobals(): void {
   ;(globalThis as unknown as { window: unknown }).window = {
     api: {
-      ssh: {
-        connect: vi.fn().mockResolvedValue({ status: 'connected' }),
-        needsPassphrasePrompt: vi.fn().mockResolvedValue(false)
-      },
       pty: {
         kill: vi.fn(),
         signal: vi.fn(),
