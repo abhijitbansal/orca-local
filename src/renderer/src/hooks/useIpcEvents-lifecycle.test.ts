@@ -21,7 +21,6 @@ const EXPECTED_DIRECT_CALLBACK_METHODS = [
   'keybindings.onChanged',
   'pty.onExit',
   'rateLimits.onUpdate',
-  'remoteWorkspace.onChanged',
   'repos.onChanged',
   'runtime.onBrowserDriverChanged',
   'runtime.onBrowserRemoteViewersChanged',
@@ -31,11 +30,6 @@ const EXPECTED_DIRECT_CALLBACK_METHODS = [
   'runtime.onTerminalFitOverrideChanged',
   'runtimeEnvironments.onStatusChanged',
   'settings.onChanged',
-  'ssh.onCredentialRequest',
-  'ssh.onCredentialResolved',
-  'ssh.onDetectedPortsChanged',
-  'ssh.onPortForwardsChanged',
-  'ssh.onStateChanged',
   'ui.onActivateWorktree',
   'ui.onCloseActiveTab',
   'ui.onCloseFloatingItem',
@@ -78,7 +72,6 @@ const EXPECTED_DIRECT_CALLBACK_METHODS = [
   'ui.onSwitchTab',
   'ui.onSwitchTabAcrossAllTypes',
   'ui.onSwitchTerminalTab',
-  'ui.onSystemResumed',
   'ui.onTerminalShortcutCaptured',
   'ui.onTerminalTabCloseRequest',
   'ui.onTerminalZoom',
@@ -174,13 +167,6 @@ const EXPECTED_CALLBACK_REGISTRATION_SEQUENCE = [
   'ui.onSwitchTerminalTab',
   'rateLimits.onUpdate',
   'workspaceSpace.onProgress',
-  'ssh.onCredentialRequest',
-  'ssh.onCredentialResolved',
-  'ssh.onPortForwardsChanged',
-  'ssh.onDetectedPortsChanged',
-  'ssh.onStateChanged',
-  'ui.onSystemResumed',
-  'remoteWorkspace.onChanged',
   'ui.onTerminalZoom',
   'agentStatus.onSet',
   'agentStatus.onClear',
@@ -449,9 +435,6 @@ describe('useIpcEvents App-lifetime lifecycle', () => {
     )
     expect(cleanupOrder.indexOf('runtimeEnvironment.unsubscribe')).toBeLessThan(
       cleanupOrder.indexOf('ipc.repos.onChanged')
-    )
-    expect(cleanupOrder.indexOf('directSsh.stop')).toBeGreaterThan(
-      cleanupOrder.lastIndexOf('ipc.runtime.onBrowserDriverChanged')
     )
     expect(cleanupOrder.at(-1)).toBe('notifications.reset')
     expect([...listeners.values()].every((records) => records.every((item) => !item.active))).toBe(
