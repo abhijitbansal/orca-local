@@ -185,7 +185,7 @@ pnpm build:win
 
 ## 개인정보
 
-Orca 자체 코드는 [아키텍처 문서](../reference/local-only-architecture.md)에 나열된 예외를 제외하고 클라우드 서비스에 연결하지 않습니다. 예외는 내 원격 저장소에 대한 `git` CLI, 내장 브라우저 창, OS 브라우저로 넘기는 링크, 직접 시작하는 음성 모델과 scrcpy 다운로드, 그리고 SSH입니다. 새로 설치하면 로컬 사용 기록이 기본으로 켜져 있습니다. 검증된 제품 이벤트가 앱 `logs` 폴더의 `telemetry.ndjson`에 추가되며, 크기 제한이 있고 업로드되지 않습니다. 설정 → 개인정보에서 끄거나 `ORCA_TELEMETRY_DISABLED=1`로 실행하면 꺼집니다. 자세한 내용은 [개인정보 및 텔레메트리](../site/content/docs/telemetry.mdx)를 참고하세요. Orca에서 실행하는 에이전트 CLI(Claude Code, Codex 등)는 각자의 벤더에 연결하며, 그 트래픽은 Orca의 범위 밖입니다.
+Orca 자체 코드는 [아키텍처 문서](../reference/local-only-architecture.md)에 나열된 예외를 제외하고 클라우드 서비스에 연결하지 않습니다. 예외는 내 원격 저장소에 대한 `git` CLI, 내장 브라우저 창, OS 브라우저로 넘기는 링크, 그리고 직접 시작하는 음성 모델과 scrcpy 다운로드입니다. 새로 설치하면 로컬 사용 기록이 기본으로 켜져 있습니다. 검증된 제품 이벤트가 앱 `logs` 폴더의 `telemetry.ndjson`에 추가되며, 크기 제한이 있고 업로드되지 않습니다. 설정 → 개인정보에서 끄거나 `ORCA_TELEMETRY_DISABLED=1`로 실행하면 꺼집니다. 자세한 내용은 [개인정보 및 텔레메트리](../site/content/docs/telemetry.mdx)를 참고하세요. Orca에서 실행하는 에이전트 CLI(Claude Code, Codex 등)는 각자의 벤더에 연결하며, 그 트래픽은 Orca의 범위 밖입니다.
 
 ---
 

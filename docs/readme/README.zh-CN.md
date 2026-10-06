@@ -183,7 +183,7 @@ pnpm build:win
 
 ## 隐私
 
-除[架构说明](../reference/local-only-architecture.md)中列出的例外外，Orca 自身的代码不会连接任何云服务。例外包括：你自己的 `git` CLI 访问你自己的远程仓库、内置浏览器面板、交给系统浏览器打开的链接、由你主动发起的语音模型和 scrcpy 下载，以及 SSH。新安装默认开启本地使用记录：经过校验的产品事件会追加写入应用 `logs` 文件夹下的 `telemetry.ndjson`，有大小上限，且不会上传。可在设置 → 隐私中关闭，或使用 `ORCA_TELEMETRY_DISABLED=1` 启动。详见[隐私与遥测](../site/content/docs/telemetry.mdx)。你在 Orca 中运行的智能体 CLI（Claude Code、Codex 等）会各自连接自己的厂商，这部分流量与 Orca 无关。
+除[架构说明](../reference/local-only-architecture.md)中列出的例外外，Orca 自身的代码不会连接任何云服务。例外包括：你自己的 `git` CLI 访问你自己的远程仓库、内置浏览器面板、交给系统浏览器打开的链接、以及由你主动发起的语音模型和 scrcpy 下载。新安装默认开启本地使用记录：经过校验的产品事件会追加写入应用 `logs` 文件夹下的 `telemetry.ndjson`，有大小上限，且不会上传。可在设置 → 隐私中关闭，或使用 `ORCA_TELEMETRY_DISABLED=1` 启动。详见[隐私与遥测](../site/content/docs/telemetry.mdx)。你在 Orca 中运行的智能体 CLI（Claude Code、Codex 等）会各自连接自己的厂商，这部分流量与 Orca 无关。
 
 ---
 

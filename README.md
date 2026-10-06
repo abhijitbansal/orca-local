@@ -188,7 +188,7 @@ The documentation under `docs/site/content/docs/` is upstream's docs site. This 
 
 ## Privacy
 
-Orca's own code makes no connection to a cloud service, apart from the exceptions listed in [the architecture notes](docs/reference/local-only-architecture.md): your git CLI against your own remotes, the embedded browser pane, links handed to your OS browser, speech-model and scrcpy downloads you start yourself, and SSH. A local usage record is on by default for new installs: validated product events are appended to `telemetry.ndjson` under the app's `logs` folder, size-capped and never uploaded. Turn it off in Settings → Privacy, or launch with `ORCA_TELEMETRY_DISABLED=1`. See [Privacy & telemetry](docs/site/content/docs/telemetry.mdx). The agent CLIs you run in Orca (Claude Code, Codex, ...) talk to their own vendors; that traffic is theirs.
+Orca's own code makes no connection to a cloud service, apart from the exceptions listed in [the architecture notes](docs/reference/local-only-architecture.md): your git CLI against your own remotes, the embedded browser pane, links handed to your OS browser, and speech-model and scrcpy downloads you start yourself. A local usage record is on by default for new installs: validated product events are appended to `telemetry.ndjson` under the app's `logs` folder, size-capped and never uploaded. Turn it off in Settings → Privacy, or launch with `ORCA_TELEMETRY_DISABLED=1`. See [Privacy & telemetry](docs/site/content/docs/telemetry.mdx). The agent CLIs you run in Orca (Claude Code, Codex, ...) talk to their own vendors; that traffic is theirs.
 
 ---
 
