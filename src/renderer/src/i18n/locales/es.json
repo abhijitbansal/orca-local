@@ -904,8 +904,6 @@
         "e5db1b0419": "Comando de configuración combinado",
         "addProjectBeforeWorkspace": "Agrega un proyecto antes de crear un espacio de trabajo.",
         "connectProjectFirst": "Conecta este proyecto primero",
-        "connectSourceLookup": "Conectar",
-        "reconnectSourceLookup": "Volver a conectar",
         "sshNotConnected": "SSH no conectado",
         "connectingSsh": "Conectando SSH...",
         "sshAuthenticationFailed": "Falló la autenticación SSH",
@@ -913,21 +911,7 @@
         "connected": "Conectado",
         "reconnectingSsh": "Reconectando SSH...",
         "sshReconnectionFailed": "Falló la reconexión SSH",
-        "notConnected": "No conectado",
         "runOn": "Ejecutar en",
-        "setupHostExistingFolderTitle": "Configurar {{value0}}",
-        "cloneProjectOnHost": "Clonar proyecto",
-        "cloneUrlPlaceholder": "https://github.com/owner/repo.git",
-        "cloneDestinationPlaceholder": "/parent/directory/on/host",
-        "cloningHostSetup": "Clonando...",
-        "cloneHostSetup": "Clonar",
-        "importExistingFolderOnHost": "Importar carpeta existente",
-        "setupHostExistingFolderPlaceholder": "/path/to/project/on/host",
-        "setupKindGit": "Repositorio Git",
-        "setupKindFolder": "Carpeta",
-        "setupHostExistingFolderHelp": "Vincula un checkout que ya exista allí y luego crea este espacio de trabajo en ese host.",
-        "importingHostSetup": "Importando...",
-        "importHostSetup": "Importar",
         "notePasteTooLarge": "El contenido pegado es demasiado grande para el campo de nota.",
         "reuseExistingBranch": "Reutilizar rama",
         "reuseExistingBranchHint": "Haz checkout de la rama existente en lugar de crear una nueva a partir de ella.",
@@ -941,7 +925,6 @@
         "connectingHost": "Connecting…",
         "connectHost": "Connect",
         "addHost": "Add host",
-        "addHostHint": "Register another machine or Orca server",
         "addSshHost": "Add SSH host",
         "addSshHostHint": "Use an existing machine over SSH",
         "hostConnectionFailed": "Connection failed"
@@ -2128,10 +2111,6 @@
             "0b38ee2f86": "Cancelar",
             "c337c9d75c": "Cerrar"
           },
-          "TerminalSshReconnectOverlay": {
-            "connectingButton": "Conectando...",
-            "connectButton": "Conectar"
-          },
           "TerminalRemoteRuntimeReconnectBanner": {
             "retryingTitle": "Reconnecting to remote runtime",
             "disconnectedTitle": "Remote runtime disconnected",
@@ -2167,7 +2146,6 @@
             "openLocalWorkspace": "Abre un espacio de trabajo local antes de reanudar una sesión.",
             "sessionQueued": "Sesión en cola",
             "openSupportedWorkspace": "Abre un espacio de trabajo antes de reanudar una sesión.",
-            "localSessionSshWorkspaceUnsupported": "El historial de esta sesión solo existe en este equipo. Para reanudarla, arrástrala a un workspace local. Los workspaces SSH no tienen acceso a ese historial.",
             "sessionHostMismatchUnsupported": "Esta sesión pertenece a un host diferente. Suéltala en un espacio de trabajo del mismo host."
           },
           "TabGroupDropOverlay": {
@@ -2455,17 +2433,6 @@
             "c7e3b1a0d9f2": "Terminar {{value0}} terminal huérfano",
             "d8f4c2b1e0a3": "Terminar {{value0}} terminales huérfanos",
             "e9a5d3c2b1f0": "¿Terminar {{value0}}?"
-          },
-          "SshStatusSegment": {
-            "d09ec41831": "Hosts remotos",
-            "bc5a3fd41a": "parcial",
-            "3d0128b105": "conectado",
-            "fd9a3c600e": "error",
-            "fbb3f9f05e": "conflicto",
-            "95e4ff5b4b": "haciendo push",
-            "63a2b965f6": "haciendo pull",
-            "connectedHostCount_one": "{{count}} host",
-            "connectedHostCount_other": "{{count}} hosts"
           },
           "CaffeinateStatusSegment": {
             "active": "Activo",
@@ -3346,8 +3313,7 @@
           "fe1e616c5b": "Git es necesario para crear un proyecto.",
           "c234df77f7": "Elige o introduce una carpeta padre del host antes de crear.",
           "3a13f6e88b": "ubicación no seleccionada",
-          "6ed14c0281": "carpeta del host no seleccionada",
-          "ssh_parent_manual": "Introduce una ruta padre SSH."
+          "6ed14c0281": "carpeta del host no seleccionada"
         },
         "AddRepoNestedImportStep": {
           "496f68cf8c": "Escaneando repositorios. Haz clic para detener.",
@@ -3370,12 +3336,6 @@
           "24eda6c8b2": "Escaneando... {{value0}}",
           "6149d5203f": "No hay repositorios seleccionados. Abre la carpeta principal para usar el editor, la terminal y la búsqueda sin funciones de Git.",
           "e52454b7f6": "Abrir como carpeta"
-        },
-        "AddRepoRemoteStep": {
-          "80557be85a": "Elige un destino SSH conectado e introduce la ruta a un repositorio Git.",
-          "35831a7312": "Agregando...",
-          "lockedDescription": "Introduce la ruta a un repositorio Git en {{value0}}.",
-          "lockedDisconnected": "{{value0}} está desconectado."
         },
         "AddRepoServerStartStep": {
           "ae990c86a0": "Volver a opciones de agregado",
@@ -3520,9 +3480,6 @@
           "d99a034073": "Cancelar",
           "83dfbc5313": "Nombre del grupo",
           "4a64e78822": "Guardando..."
-        },
-        "RemoteFileBrowser": {
-          "971d85cc84": "Se abre como proyecto en este host · {{value0}}"
         },
         "RemoveFolderDialog": {
           "4dc5b5065b": "Quitar",
@@ -3703,7 +3660,6 @@
           "projectSshHost": "SSH del proyecto",
           "activeRuntimeHost": "Servidor activo",
           "projectRuntimeHost": "Servidor del proyecto",
-          "631b97eea9": "Ámbito del host",
           "2d4f0eb933": "Predeterminado",
           "1a0eec0d35": "Estado",
           "b5536d5a88": "Tareas",
@@ -4050,9 +4006,6 @@
                   "7edb8ebe24": "Clonar desde URL",
                   "fb4fc5380e": "Proyecto local, repositorio de Git o carpeta con muchos repositorios",
                   "2281fdc8c7": "Explorar carpeta",
-                  "sshCreateUnavailable": "Aún no disponible para hosts SSH",
-                  "sshBrowseTitle": "Abrir proyecto en host SSH",
-                  "sshBrowseDescription": "Repositorio Git o carpeta existente en este host SSH",
                   "runtimeBrowseDescription": "Repositorio Git o carpeta existente en este host"
                 }
               }
@@ -4215,13 +4168,6 @@
           "b7e3a91c4f": "Arrastra los encabezados de proyecto para reordenarlos, o cambia a",
           "e8c1f4a2b9": "en las opciones del espacio de trabajo."
         },
-        "AddRepoHostSelector": {
-          "host": "Host",
-          "local": "Local",
-          "runtime": "Servidor",
-          "ssh": "SSH",
-          "addRemoteHostTooltip": "Elige SSH para una máquina donde puedas iniciar sesión, o servidor remoto para un servidor de Orca."
-        },
         "sidebarHostOptions": {
           "3e102f111c": "Todos los hosts",
           "visibleHostsCount": "{{value0}} hosts"
@@ -4229,13 +4175,6 @@
         "SidebarHostScopeStrip": {
           "scopedTo": "{{value0}} visible",
           "backToAll": "Todos los hosts"
-        },
-        "HostRemoveDialog": {
-          "1a2b3c4d5e": "Se quitó {{value0}}",
-          "2b3c4d5e6f": "No se pudo quitar el host",
-          "3c4d5e6f7a": "¿Quitar {{value0}}?",
-          "5e6f7a8b9c": "Esto quita el host SSH guardado y sus credenciales de este equipo. Los archivos remotos no se eliminan.",
-          "8b9c0d1e2f": "Quitar host"
         },
         "HostRenameDialog": {
           "1a2b3c4d5e": "Renombrar host",
@@ -4249,15 +4188,12 @@
           "5b8b4b6a01": "Se requiere actualizar el servidor",
           "9b3c1d2e44": "Se requiere actualizar el cliente",
           "2c29e2de68": "Falló la conexión",
-          "bf07aee59e": "No se pudo desconectar",
           "7f1a2b3c4d": "{{value0}} está accesible",
           "4f2c8a9b10": "Acciones de host para {{value0}}",
           "6b7c8d9e10": "Acciones de host",
           "8d1e2f3a4b": "Renombrar…",
-          "63f36455cc": "Reconectar",
           "2d3e4f5a6b": "Verificar conexión",
-          "3c4d5e6f7a": "Administrar host…",
-          "6e7f8a9b0c": "Quitar host…"
+          "3c4d5e6f7a": "Administrar host…"
         },
         "WorkspaceKanbanDrawer": {
           "1975a4e480": "Falló la sincronización del estado de la tarea",
@@ -4308,7 +4244,6 @@
         },
         "AddRemoteHostDialog": {
           "sshImportSynced": "Se sincronizó {{value0}} host{{value1}}.",
-          "sshPersistenceDefault": "Los terminales remotos en este host seguirán activos hasta que los cierres o restablezcas el relay.",
           "advanced": "Advanced"
         },
         "ForgetSshWorkspaceDialog": {
@@ -5959,32 +5894,18 @@
           "68bbcd864a": "nuevo",
           "2ef2b2674b": "Eliminar {{value0}}"
         },
-        "SshPane": {
-          "a7d28dff81": "Agrega un host remoto para conectarte a él en Orca.",
-          "94c5284560": "Destinos"
-        },
-        "SshTargetCard": {
-          "f0871e6bfb": "conectar",
-          "47e94bd6ba": "conectado"
-        },
         "SshTargetForm": {
           "1b19b00e93": "Los tiempos de espera acotados deben estar entre 60 segundos y 7 días.",
-          "137e88ce8d": "Los terminales remotos siguen ejecutándose después de que Orca se desconecta de este host.",
           "b574994adc": "Usa Finalizar terminales remotos o Restablecer relé cuando quieras detenerlos.",
           "71fc546097": "Mantener los terminales activos hasta restablecer",
-          "92f80edbfd": "Persistencia de terminales remotos",
           "feae1d1e69": "Opcional. Equivale a ProxyJump / ssh -J.",
           "11bcb4507a": "bastion.example.com",
           "b2ab248ded": "Host de salto",
           "3b01ca44a0": "Opcional. Se usa para túneles (p. ej., Cloudflare Access, ProxyCommand).",
           "f42d844544": "p. ej., cloudflared access ssh --hostname %h",
           "c7d0e18ecb": "Comando proxy",
-          "29af933cd5": "Nuevo destino SSH",
-          "f2331ce599": "Editar destino SSH",
           "7c13f58c91": "Hasta restablecer",
           "55c56cf2c7": "Tiempo de espera después de desconectar (segundos)",
-          "4a342f44c1": "Conexión avanzada",
-          "e9609ddca6": "Proxy, host de salto y reutilización de conexión",
           "8c922dffba": "Reutilizar la conexión SSH para una configuración más rápida",
           "53e9aabfc0": "Usa la multiplexación de OpenSSH cuando esté disponible. Desactiva esta opción para hosts con restricciones SSH personalizadas."
         },
@@ -7464,7 +7385,6 @@
             "availableHosts": "Hosts disponibles",
             "availableHostsDescription": "Hosts donde está configurado este proyecto.",
             "host": "host",
-            "ssh": "ssh",
             "remote": "remote",
             "vm": "vm",
             "keepForkUpToDate": "Mantener el fork actualizado",
@@ -7500,12 +7420,6 @@
             "0ecba9aa5f": "teclado",
             "ebd7d81e1d": "Elige si Orca o el terminal con foco tiene prioridad cuando los atajos se superponen.",
             "f052906167": "Atajos en terminal"
-          }
-        },
-        "ssh": {
-          "search": {
-            "62826efbe9": "Agrega un nuevo host SSH.",
-            "74c6d90d78": "Administra hosts SSH."
           }
         },
         "terminal": {
@@ -9498,7 +9412,6 @@
             "originalPaneUnavailable": "El panel original ya no está disponible.",
             "worktreeUnavailable": "El worktree ya no está disponible.",
             "openSupportedWorkspace": "Abre un workspace antes de reanudar una sesión.",
-            "localSessionSshWorkspaceUnsupported": "El historial de esta sesión solo existe en este equipo. Para reanudarla, abre un workspace local. Los workspaces SSH no tienen acceso a ese historial.",
             "sessionHostMismatchUnsupported": "Esta sesión pertenece a un host diferente. Abre un espacio de trabajo en el mismo host para reanudarla.",
             "prepareSessionResumeFailed": "Could not prepare this session for resume.",
             "sessionDeleted": "Sesión eliminada",

@@ -75,13 +75,9 @@
       "caveat": "This opens a new page on the remote host at this page’s last address. Signed-in and other transient page state may differ, and a page that came from a form submission opens blank.",
       "failed": "Couldn't open this page on the remote host. Check the connection and try again."
     },
-    "sshRoute": {
-      "errorDescription": "Pages in this workspace browse through its SSH host, and that connection is not available right now."
-    },
     "sshEgress": {
       "routedTooltip": "Browsing through {{value0}}",
       "localTooltip": "Browsing from this device, not {{value0}}",
-      "localChip": "This device",
       "routedDetail": "Network traffic and DNS go through the workspace's SSH host.",
       "localDetail": "Pages load from this machine and its network.",
       "settingsLink": "Routing settings"
@@ -152,13 +148,6 @@
       "clientHostedRemote": {
         "title": "Host remote browser pages on this device",
         "description": "Render remote workspace pages on this desktop; network traffic still goes through the remote host. Applies to new pages only."
-      },
-      "sshWorkspaceRouting": {
-        "title": "Browse through SSH workspace hosts",
-        "description": "Browser pages in SSH workspaces send their traffic through the workspace's SSH host, with DNS resolved there. Off means pages browse from this machine.",
-        "enableHost": "Route again",
-        "probeSkippedHosts": "Hosts routed without the connection check (Try anyway):",
-        "probeAgain": "Check again"
       },
       "userAgent": {
         "title": "Browser identity",
@@ -1203,21 +1192,6 @@
         "addProjectBeforeWorkspace": "Add a project before creating a workspace.",
         "connectProjectFirst": "Connect this project first",
         "defaultBranchUpdateFailed": "Could not update the project default branch. Try again.",
-        "connectSourceLookup": "Connect",
-        "reconnectSourceLookup": "Reconnect",
-        "setupHostExistingFolderTitle": "Set up {{value0}}",
-        "cloneProjectOnHost": "Clone project",
-        "cloneUrlPlaceholder": "https://github.com/owner/repo.git",
-        "cloneDestinationPlaceholder": "/parent/directory/on/host",
-        "cloningHostSetup": "Cloning...",
-        "cloneHostSetup": "Clone",
-        "importExistingFolderOnHost": "Import existing folder",
-        "setupHostExistingFolderPlaceholder": "/path/to/project/on/host",
-        "setupKindGit": "Git repo",
-        "setupKindFolder": "Folder",
-        "setupHostExistingFolderHelp": "Link a checkout that already exists there, then create this workspace on that host.",
-        "importingHostSetup": "Importing...",
-        "importHostSetup": "Import",
         "sshNotConnected": "SSH not connected",
         "connectingSsh": "Connecting SSH...",
         "sshAuthenticationFailed": "SSH authentication failed",
@@ -1225,7 +1199,6 @@
         "connected": "Connected",
         "reconnectingSsh": "Reconnecting SSH...",
         "sshReconnectionFailed": "SSH reconnection failed",
-        "notConnected": "Not connected",
         "notePasteTooLarge": "Paste is too large for the note field.",
         "waitForSetupBeforeAgent": "Wait for setup to complete before starting agent",
         "chooseRunTarget": "Choose target",
@@ -1239,7 +1212,6 @@
         "setLocationOnHost": "Set project location on {{host}}",
         "setLocationTooltip": "Choose a folder or clone this project onto {{host}}.",
         "addHost": "Add host",
-        "addHostHint": "Register another machine or Orca server",
         "addSshHost": "Add SSH host",
         "addSshHostHint": "Use an existing machine over SSH",
         "hostConnectionFailed": "Connection failed"
@@ -2516,10 +2488,6 @@
             "0b38ee2f86": "Cancel",
             "c337c9d75c": "Close"
           },
-          "TerminalSshReconnectOverlay": {
-            "connectingButton": "Connecting...",
-            "connectButton": "Connect"
-          },
           "TerminalRemoteRuntimeReconnectBanner": {
             "retryingTitle": "Reconnecting to remote runtime",
             "disconnectedTitle": "Remote runtime disconnected",
@@ -2559,8 +2527,7 @@
             "openLocalWorkspace": "Open a local workspace before resuming a session.",
             "sessionQueued": "Session queued",
             "openSupportedWorkspace": "Open a workspace before resuming a session.",
-            "sessionHostMismatchUnsupported": "This session belongs to a different host. Drop it onto a workspace on the same host.",
-            "localSessionSshWorkspaceUnsupported": "This session's history is stored on this machine, so it can't resume in an SSH workspace. Drop it onto a local workspace instead."
+            "sessionHostMismatchUnsupported": "This session belongs to a different host. Drop it onto a workspace on the same host."
           },
           "TabGroupDropOverlay": {
             "paneColumnLabel": "New split"
@@ -2858,17 +2825,6 @@
             "c7e3b1a0d9f2": "End {{value0}} orphan terminal",
             "d8f4c2b1e0a3": "End {{value0}} orphan terminals",
             "e9a5d3c2b1f0": "Kill {{value0}}?"
-          },
-          "SshStatusSegment": {
-            "d09ec41831": "Remote Hosts",
-            "bc5a3fd41a": "partial",
-            "3d0128b105": "connected",
-            "fd9a3c600e": "error",
-            "fbb3f9f05e": "conflict",
-            "95e4ff5b4b": "pushing",
-            "63a2b965f6": "pulling",
-            "connectedHostCount_one": "{{count}} host",
-            "connectedHostCount_other": "{{count}} hosts"
           },
           "StatusBar": {
             "9659e38343": "Ports",
@@ -4052,16 +4008,8 @@
           "5e97f0c4b9": "Project created",
           "2c12db1511": "Project already added",
           "875dda0995": "Enter a host parent path.",
-          "ssh_parent_manual": "Enter an SSH parent path.",
           "45b7c26034": "Create project",
           "85085d74d2": "Creating…"
-        },
-        "AddRepoHostSelector": {
-          "host": "Host",
-          "local": "Local",
-          "runtime": "Server",
-          "ssh": "SSH",
-          "addRemoteHostTooltip": "Choose SSH for a machine you can log into, or remote server for an Orca server."
         },
         "AddRepoNestedImportStep": {
           "496f68cf8c": "Scanning repositories. Click to stop.",
@@ -4084,12 +4032,6 @@
           "24eda6c8b2": "Scanning... {{value0}}",
           "6149d5203f": "No repositories are selected. Open the parent folder instead to use editor, terminal, and search without Git features.",
           "e52454b7f6": "Open as Folder"
-        },
-        "AddRepoRemoteStep": {
-          "80557be85a": "Choose a connected SSH target and enter the path to a Git repository.",
-          "35831a7312": "Adding...",
-          "lockedDescription": "Enter the path to a Git repository on {{value0}}.",
-          "lockedDisconnected": "{{value0}} is disconnected."
         },
         "AddRepoServerStartStep": {
           "ae990c86a0": "Back to add options",
@@ -4235,9 +4177,6 @@
           "d99a034073": "Cancel",
           "83dfbc5313": "Group Name",
           "4a64e78822": "Saving..."
-        },
-        "RemoteFileBrowser": {
-          "971d85cc84": "Opens as a project on this host · {{value0}}"
         },
         "RemoveFolderDialog": {
           "4dc5b5065b": "Remove",
@@ -4400,7 +4339,6 @@
           "09faabd875": "Project order",
           "7bada3b1ab": "Sort by",
           "dc0bb670bc": "Group by",
-          "631b97eea9": "Host scope",
           "9919ae1082": "Workspace options",
           "bc96dbd041": "Workspace options ({{value0}})",
           "af9249c505": "Most recent workspace activity",
@@ -4757,11 +4695,8 @@
                   "c709860596": "Create new project",
                   "5f9ffac036": "Clone a remote Git repository",
                   "7edb8ebe24": "Clone from URL",
-                  "sshCreateUnavailable": "Not available for SSH hosts yet",
                   "fb4fc5380e": "Local project, Git repo, or folder with many repos",
                   "2281fdc8c7": "Browse folder",
-                  "sshBrowseTitle": "Open project on SSH host",
-                  "sshBrowseDescription": "Existing Git repository or folder on this SSH host",
                   "runtimeBrowseDescription": "Existing Git repository or folder on this host"
                 }
               }
@@ -4919,13 +4854,6 @@
         "index": {
           "b826a98b6f": "busy"
         },
-        "HostRemoveDialog": {
-          "1a2b3c4d5e": "Removed {{value0}}",
-          "2b3c4d5e6f": "Failed to remove host",
-          "3c4d5e6f7a": "Remove {{value0}}?",
-          "5e6f7a8b9c": "This removes the saved SSH host and its credentials from this computer. Remote files are not deleted.",
-          "8b9c0d1e2f": "Remove host"
-        },
         "HostRenameDialog": {
           "1a2b3c4d5e": "Rename host",
           "2b3c4d5e6f": "This label is shown only on this computer. Leave it blank to use the default name.",
@@ -4938,15 +4866,12 @@
           "5b8b4b6a01": "Update server required",
           "9b3c1d2e44": "Update client required",
           "2c29e2de68": "Connection failed",
-          "bf07aee59e": "Disconnect failed",
           "7f1a2b3c4d": "{{value0}} is reachable",
           "4f2c8a9b10": "Host actions for {{value0}}",
           "6b7c8d9e10": "Host actions",
           "8d1e2f3a4b": "Rename…",
-          "63f36455cc": "Reconnect",
           "2d3e4f5a6b": "Check connection",
-          "3c4d5e6f7a": "Manage host…",
-          "6e7f8a9b0c": "Remove host…"
+          "3c4d5e6f7a": "Manage host…"
         },
         "FolderWorkspaceComposerDialog": {
           "connectFailed": "Failed to connect to project.",
@@ -5017,10 +4942,8 @@
           "3b7e4a1c96": "Hide external worktrees"
         },
         "AddRemoteHostDialog": {
-          "sshPersistenceDefault": "Remote terminals on this host stay alive until you end them or reset the relay.",
           "sshImportSynced": "Added {{value0}} host{{value1}} to Orca.",
-          "advanced": "Advanced",
-          "sshConfigPickerBulkHint": "Bulk sync stays in Settings → SSH"
+          "advanced": "Advanced"
         },
         "ForgetSshWorkspaceDialog": {
           "forget": "Remove from Orca"
@@ -6930,32 +6853,18 @@
           "68bbcd864a": "new",
           "2ef2b2674b": "Delete {{value0}}"
         },
-        "SshPane": {
-          "a7d28dff81": "Add a remote host to connect to it in Orca.",
-          "94c5284560": "Targets"
-        },
-        "SshTargetCard": {
-          "f0871e6bfb": "connect",
-          "47e94bd6ba": "connected"
-        },
         "SshTargetForm": {
           "1b19b00e93": "Bounded timeouts must be between 60 seconds and 7 days.",
           "7c13f58c91": "Until reset",
           "55c56cf2c7": "Timeout after disconnect (seconds)",
-          "137e88ce8d": "Remote terminals keep running after Orca disconnects from this host.",
           "b574994adc": "Use End Remote Terminals or Reset Relay when you want to stop them.",
           "71fc546097": "Keep terminals alive until reset",
-          "92f80edbfd": "Remote Terminal Persistence",
           "feae1d1e69": "Optional. Equivalent to ProxyJump / ssh -J.",
           "11bcb4507a": "bastion.example.com",
           "b2ab248ded": "Jump Host",
           "3b01ca44a0": "Optional. Used for tunneling (e.g. Cloudflare Access, ProxyCommand).",
           "f42d844544": "e.g. cloudflared access ssh --hostname %h",
           "c7d0e18ecb": "Proxy Command",
-          "29af933cd5": "New SSH Target",
-          "f2331ce599": "Edit SSH Target",
-          "4a342f44c1": "Advanced Connection",
-          "e9609ddca6": "Proxy, jump host, and connection reuse",
           "8c922dffba": "Reuse SSH connection for faster setup",
           "53e9aabfc0": "Uses OpenSSH multiplexing when available. Turn off for hosts with custom SSH restrictions.",
           "remoteRuntime": "Runtime",
@@ -8532,7 +8441,6 @@
             "availableHosts": "Available Hosts",
             "availableHostsDescription": "Hosts where this project is set up.",
             "host": "host",
-            "ssh": "ssh",
             "remote": "remote",
             "vm": "vm",
             "cc876ca5f2": "repository",
@@ -8619,12 +8527,6 @@
             "0ecba9aa5f": "keyboard",
             "ebd7d81e1d": "Choose whether Orca or the focused terminal wins when shortcuts overlap.",
             "f052906167": "Shortcuts in Terminal"
-          }
-        },
-        "ssh": {
-          "search": {
-            "62826efbe9": "Add a new remote SSH target.",
-            "74c6d90d78": "Manage remote SSH targets."
           }
         },
         "terminal": {
@@ -10825,7 +10727,6 @@
             "worktreeUnavailable": "Worktree is no longer available.",
             "openSupportedWorkspace": "Open a workspace before resuming a session.",
             "sessionHostMismatchUnsupported": "This session belongs to a different host. Open a workspace on the same host to resume it.",
-            "localSessionSshWorkspaceUnsupported": "This session's history is stored on this machine, so it can't resume in an SSH workspace. Open a local workspace instead.",
             "prepareSessionResumeFailed": "Could not prepare this session for resume.",
             "sessionDeleted": "Session deleted",
             "sessionDeleteFailed": "Couldn't delete the session",

@@ -67,13 +67,9 @@
       "caveat": "Cela ouvre une nouvelle page sur l'hôte distant à la dernière adresse de cette page. L'état de la page connectée et celui des autres pages transitoires peuvent différer, et une page provenant d'une soumission de formulaire s'ouvre en blanc.",
       "failed": "Impossible d'ouvrir cette page sur l'hôte distant. Vérifiez la connexion et réessayez."
     },
-    "sshRoute": {
-      "errorDescription": "Les pages de cet espace de travail parcourent son hôte SSH et cette connexion n'est pas disponible pour le moment."
-    },
     "sshEgress": {
       "routedTooltip": "Parcourir {{value0}}",
       "localTooltip": "Navigation depuis cet appareil, et non depuis {{value0}}",
-      "localChip": "Cet appareil",
       "routedDetail": "Le trafic réseau et DNS transitent par l'hôte SSH de l'espace de travail.",
       "localDetail": "Les pages se chargent depuis cette machine et son réseau.",
       "settingsLink": "Paramètres de routage"
@@ -134,13 +130,6 @@
       "clientHostedRemote": {
         "title": "Héberger des pages de navigateur distant sur cet appareil",
         "description": "Afficher les pages de l'espace de travail distant sur ce bureau ; le trafic réseau passe toujours par l'hôte distant. S'applique uniquement aux nouvelles pages."
-      },
-      "sshWorkspaceRouting": {
-        "title": "Parcourez les hôtes de l'espace de travail SSH",
-        "description": "Les pages du navigateur dans les espaces de travail SSH envoient leur trafic via l'hôte SSH de l'espace de travail, avec le DNS résolu à cet endroit. Désactivé signifie que les pages sont parcourues à partir de cette machine.",
-        "enableHost": "Itinéraire à nouveau",
-        "probeSkippedHosts": "Hôtes routés sans vérification de connexion (essayez quand même) :",
-        "probeAgain": "Revérifier"
       },
       "userAgent": {
         "title": "Identité du navigateur",
@@ -1173,21 +1162,6 @@
         "runOn": "Exécuter sur",
         "addProjectBeforeWorkspace": "Ajoutez un projet avant de créer un espace de travail.",
         "connectProjectFirst": "Connectez d'abord ce projet",
-        "connectSourceLookup": "Se connecter",
-        "reconnectSourceLookup": "Reconnecter",
-        "setupHostExistingFolderTitle": "Configurer {{value0}}",
-        "cloneProjectOnHost": "Cloner le projet",
-        "cloneUrlPlaceholder": "https://github.com/owner/repo.git",
-        "cloneDestinationPlaceholder": "/parent/directory/on/host",
-        "cloningHostSetup": "Clonage...",
-        "cloneHostSetup": "Cloner",
-        "importExistingFolderOnHost": "Importer un dossier existant",
-        "setupHostExistingFolderPlaceholder": "/path/to/project/on/host",
-        "setupKindGit": "Dépôt Git",
-        "setupKindFolder": "Dossier",
-        "setupHostExistingFolderHelp": "Reliez un checkout déjà présent à cet emplacement, puis créez cet espace de travail sur cet hôte.",
-        "importingHostSetup": "Import...",
-        "importHostSetup": "Importer",
         "sshNotConnected": "SSH non connecté",
         "connectingSsh": "Connexion SSH...",
         "sshAuthenticationFailed": "Échec de l'authentification SSH",
@@ -1195,7 +1169,6 @@
         "connected": "Connecté",
         "reconnectingSsh": "Reconnexion SSH...",
         "sshReconnectionFailed": "Échec de la reconnexion SSH",
-        "notConnected": "Non connecté",
         "notePasteTooLarge": "Le contenu collé est trop volumineux pour le champ de note.",
         "waitForSetupBeforeAgent": "Attendre la fin du setup avant de démarrer l'agent",
         "chooseRunTarget": "Choisir la cible",
@@ -1209,7 +1182,6 @@
         "setLocationOnHost": "Définir l'emplacement du projet sur {{host}}",
         "setLocationTooltip": "Choisissez un dossier ou clonez ce projet sur {{host}}.",
         "addHost": "Ajouter un hôte",
-        "addHostHint": "Enregistrer une autre machine ou un serveur Orca",
         "addSshHost": "Ajouter un hôte SSH",
         "addSshHostHint": "Utiliser une machine existante via SSH",
         "hostConnectionFailed": "Échec de la connexion",
@@ -2451,10 +2423,6 @@
             "0b38ee2f86": "Annuler",
             "c337c9d75c": "Fermer"
           },
-          "TerminalSshReconnectOverlay": {
-            "connectingButton": "Connexion...",
-            "connectButton": "Se connecter"
-          },
           "TerminalRemoteRuntimeReconnectBanner": {
             "retryingTitle": "Reconnexion au runtime distant",
             "disconnectedTitle": "Runtime distant déconnecté",
@@ -2494,8 +2462,7 @@
             "openLocalWorkspace": "Ouvrez un espace de travail local avant de reprendre une session.",
             "sessionQueued": "Session en attente",
             "openSupportedWorkspace": "Ouvrez un espace de travail avant de reprendre une session.",
-            "sessionHostMismatchUnsupported": "Cette session appartient à un autre hôte. Déposez-la sur un espace de travail du même hôte.",
-            "localSessionSshWorkspaceUnsupported": "L'historique de cette session est stocké sur cette machine ; la reprise est impossible dans un espace de travail SSH. Déposez-la plutôt sur un espace de travail local."
+            "sessionHostMismatchUnsupported": "Cette session appartient à un autre hôte. Déposez-la sur un espace de travail du même hôte."
           },
           "TabGroupDropOverlay": {
             "paneColumnLabel": "Nouvelle scission"
@@ -2793,17 +2760,6 @@
             "c7e3b1a0d9f2": "Tuer {{value0}} terminal orphelin",
             "d8f4c2b1e0a3": "Tuer {{value0}} terminaux orphelins",
             "e9a5d3c2b1f0": "Tuer {{value0}} ?"
-          },
-          "SshStatusSegment": {
-            "d09ec41831": "Hôtes distants",
-            "bc5a3fd41a": "partiel",
-            "3d0128b105": "connecté",
-            "fd9a3c600e": "error",
-            "fbb3f9f05e": "conflit",
-            "95e4ff5b4b": "push en cours",
-            "63a2b965f6": "pull en cours",
-            "connectedHostCount_one": "{{count}} hôte",
-            "connectedHostCount_other": "{{count}} hôtes"
           },
           "StatusBar": {
             "9659e38343": "Ports",
@@ -3983,16 +3939,8 @@
           "5e97f0c4b9": "Projet créé",
           "2c12db1511": "Projet déjà ajouté",
           "875dda0995": "Saisissez un chemin parent sur l'hôte.",
-          "ssh_parent_manual": "Saisissez un chemin parent SSH.",
           "45b7c26034": "Créer le projet",
           "85085d74d2": "Création…"
-        },
-        "AddRepoHostSelector": {
-          "host": "Hôte",
-          "local": "Local",
-          "runtime": "Serveur",
-          "ssh": "SSH",
-          "addRemoteHostTooltip": "Choisissez SSH pour une machine sur laquelle vous pouvez vous connecter, ou serveur distant pour un serveur Orca."
         },
         "AddRepoNestedImportStep": {
           "496f68cf8c": "Analyse des dépôts en cours. Cliquez pour arrêter.",
@@ -4015,12 +3963,6 @@
           "24eda6c8b2": "Analyse... {{value0}}",
           "6149d5203f": "Aucun dépôt sélectionné. Ouvrez plutôt le dossier parent pour utiliser l'éditeur, le terminal et la recherche sans les fonctionnalités Git.",
           "e52454b7f6": "Ouvrir comme dossier"
-        },
-        "AddRepoRemoteStep": {
-          "80557be85a": "Choisissez une cible SSH connectée et saisissez le chemin vers un dépôt Git.",
-          "35831a7312": "Ajout...",
-          "lockedDescription": "Saisissez le chemin vers un dépôt Git sur {{value0}}.",
-          "lockedDisconnected": "{{value0}} est déconnecté."
         },
         "AddRepoServerStartStep": {
           "ae990c86a0": "Retour aux options d'ajout",
@@ -4166,9 +4108,6 @@
           "d99a034073": "Annuler",
           "83dfbc5313": "Nom du groupe",
           "4a64e78822": "Enregistrement..."
-        },
-        "RemoteFileBrowser": {
-          "971d85cc84": "S'ouvre comme projet sur cet hôte · {{value0}}"
         },
         "RemoveFolderDialog": {
           "4dc5b5065b": "Supprimer",
@@ -4331,7 +4270,6 @@
           "09faabd875": "Ordre des projets",
           "7bada3b1ab": "Trier par",
           "dc0bb670bc": "Grouper par",
-          "631b97eea9": "Portée des hôtes",
           "9919ae1082": "Options des espaces de travail",
           "bc96dbd041": "Options des espaces de travail ({{value0}})",
           "af9249c505": "Activité d'espace de travail la plus récente",
@@ -4688,11 +4626,8 @@
                   "c709860596": "Créer un nouveau projet",
                   "5f9ffac036": "Cloner un dépôt Git distant",
                   "7edb8ebe24": "Cloner depuis une URL",
-                  "sshCreateUnavailable": "Pas encore disponible pour les hôtes SSH",
                   "fb4fc5380e": "Projet local, dépôt Git ou dossier contenant plusieurs dépôts",
                   "2281fdc8c7": "Parcourir le dossier",
-                  "sshBrowseTitle": "Ouvrir un projet sur l'hôte SSH",
-                  "sshBrowseDescription": "Dépôt Git existant ou dossier sur cet hôte SSH",
                   "runtimeBrowseDescription": "Dépôt Git existant ou dossier sur cette machine"
                 }
               }
@@ -4850,13 +4785,6 @@
         "index": {
           "b826a98b6f": "occupé"
         },
-        "HostRemoveDialog": {
-          "1a2b3c4d5e": "{{value0}} retiré",
-          "2b3c4d5e6f": "Échec du retrait de l'hôte",
-          "3c4d5e6f7a": "Retirer {{value0}} ?",
-          "5e6f7a8b9c": "Ceci retire l'hôte SSH enregistré et ses identifiants de cet ordinateur. Les fichiers distants ne sont pas supprimés.",
-          "8b9c0d1e2f": "Retirer l'hôte"
-        },
         "HostRenameDialog": {
           "1a2b3c4d5e": "Renommer l'hôte",
           "2b3c4d5e6f": "Ce libellé n'est affiché que sur cet ordinateur. Laissez vide pour utiliser le nom par défaut.",
@@ -4869,15 +4797,12 @@
           "5b8b4b6a01": "Mise à jour du serveur requise",
           "9b3c1d2e44": "Mise à jour du client requise",
           "2c29e2de68": "Échec de la connexion",
-          "bf07aee59e": "Échec de la déconnexion",
           "7f1a2b3c4d": "{{value0}} est joignable",
           "4f2c8a9b10": "Actions d'hôte pour {{value0}}",
           "6b7c8d9e10": "Actions d'hôte",
           "8d1e2f3a4b": "Renommer…",
-          "63f36455cc": "Reconnecter",
           "2d3e4f5a6b": "Vérifier la connexion",
-          "3c4d5e6f7a": "Gérer l'hôte…",
-          "6e7f8a9b0c": "Retirer l'hôte…"
+          "3c4d5e6f7a": "Gérer l'hôte…"
         },
         "FolderWorkspaceComposerDialog": {
           "connectFailed": "Échec de la connexion au projet.",
@@ -4948,10 +4873,8 @@
           "3b7e4a1c96": "Masquer les worktrees externes"
         },
         "AddRemoteHostDialog": {
-          "sshPersistenceDefault": "Les terminaux distants de cet hôte restent actifs jusqu'à ce que vous les fermiez ou réinitialisiez le relais.",
           "sshImportSynced": "Ajout de {{value0}} hôte{{value1}} à Orca.",
-          "advanced": "Avancé",
-          "sshConfigPickerBulkHint": "La synchronisation groupée reste dans Paramètres → SSH"
+          "advanced": "Avancé"
         },
         "ForgetSshWorkspaceDialog": {
           "forget": "Retirer d'Orca"
@@ -6850,32 +6773,18 @@
           "68bbcd864a": "nouveau",
           "2ef2b2674b": "Supprimer {{value0}}"
         },
-        "SshPane": {
-          "a7d28dff81": "Ajoutez un hôte distant pour vous y connecter depuis Orca.",
-          "94c5284560": "Cibles"
-        },
-        "SshTargetCard": {
-          "f0871e6bfb": "connect",
-          "47e94bd6ba": "connecté"
-        },
         "SshTargetForm": {
           "1b19b00e93": "Les délais limités doivent être compris entre 60 secondes et 7 jours.",
           "7c13f58c91": "Jusqu'à la réinitialisation",
           "55c56cf2c7": "Délai après déconnexion (secondes)",
-          "137e88ce8d": "Les terminaux distants continuent de s'exécuter après la déconnexion d'Orca de cet hôte.",
           "b574994adc": "Utilisez « Arrêter les terminaux distants » ou « Réinitialiser le relais » quand vous voulez les arrêter.",
           "71fc546097": "Garder les terminaux actifs jusqu'à la réinitialisation",
-          "92f80edbfd": "Persistance des terminaux distants",
           "feae1d1e69": "Facultatif. Équivalent à ProxyJump / ssh -J.",
           "11bcb4507a": "bastion.example.com",
           "b2ab248ded": "Hôte de rebond",
           "3b01ca44a0": "Facultatif. Utilisé pour le tunneling (ex. Cloudflare Access, ProxyCommand).",
           "f42d844544": "ex. cloudflared access ssh --hostname %h",
           "c7d0e18ecb": "Commande de proxy",
-          "29af933cd5": "Nouvelle cible SSH",
-          "f2331ce599": "Modifier la cible SSH",
-          "4a342f44c1": "Connexion avancée",
-          "e9609ddca6": "Proxy, hôte de rebond et réutilisation de la connexion",
           "8c922dffba": "Réutiliser la connexion SSH pour une configuration plus rapide",
           "53e9aabfc0": "Utilise le multiplexage OpenSSH quand il est disponible. Désactivez pour les hôtes soumis à des restrictions SSH particulières."
         },
@@ -8434,7 +8343,6 @@
             "availableHosts": "Hôtes disponibles",
             "availableHostsDescription": "Hôtes où ce projet est configuré.",
             "host": "hôte",
-            "ssh": "ssh",
             "remote": "distant",
             "vm": "VM",
             "cc876ca5f2": "dépôt",
@@ -8521,12 +8429,6 @@
             "0ecba9aa5f": "clavier",
             "ebd7d81e1d": "Choisissez si Orca ou le terminal ciblé l'emporte lorsque des raccourcis se chevauchent.",
             "f052906167": "Raccourcis dans le terminal"
-          }
-        },
-        "ssh": {
-          "search": {
-            "62826efbe9": "Ajoutez une nouvelle cible SSH distante.",
-            "74c6d90d78": "Gérez les cibles SSH distantes."
           }
         },
         "terminal": {
@@ -10725,7 +10627,6 @@
             "worktreeUnavailable": "Le worktree n'est plus disponible.",
             "openSupportedWorkspace": "Ouvrez un espace de travail avant de reprendre une session.",
             "sessionHostMismatchUnsupported": "Cette session appartient à un autre hôte. Ouvrez un espace de travail sur le même hôte pour la reprendre.",
-            "localSessionSshWorkspaceUnsupported": "L'historique de cette session est stocké sur cette machine ; impossible de la reprendre dans un espace de travail SSH. Ouvrez plutôt un espace de travail local.",
             "prepareSessionResumeFailed": "Impossible de préparer cette session pour la reprise.",
             "sessionDeleted": "Session supprimée",
             "sessionDeleteFailed": "Impossible de supprimer la session",
