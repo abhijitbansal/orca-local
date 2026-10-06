@@ -5193,7 +5193,6 @@
       "src/renderer/src/components/sidebar/project-order-manual-default-notice-visibility.test.ts": 53,
       "src/renderer/src/components/sidebar/prompt-cache-countdown-clock.test.ts": 65,
       "src/renderer/src/components/sidebar/prompt-cache-timer-selection.test.ts": 55,
-      "src/renderer/src/components/sidebar/remote-file-browser-drive-paths.test.ts": 58,
       "src/renderer/src/components/sidebar/rendered-sidebar-worktree-order.test.ts": 1657,
       "src/renderer/src/components/sidebar/repo-header-create-state.test.ts": 110,
       "src/renderer/src/components/sidebar/sidebar-empty-state-gate.test.ts": 45,

@@ -34,7 +34,7 @@ export const ARCHIVE_HOOK_OVERRIDE_HINT =
  * `exited` means the host reported a non-zero exit for this hook run. `unverifiable` covers every
  * case where the hook's outcome was never observed — spawn failure, timeout, lost contact with the
  * execution host. Loss of contact is never evidence that the hook passed, so both block removal.
- * Vocabulary is deliberately the `UnstoppedPtyVerdict` spelling; see docs/reference/ssh-execution-boundary.md.
+ * Vocabulary is deliberately the `UnstoppedPtyVerdict` spelling; see AGENTS.md.
  */
 export type ArchiveHookOutcome = 'exited' | 'unverifiable'
 

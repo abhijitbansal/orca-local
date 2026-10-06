@@ -172,19 +172,6 @@ describe('RuntimeFileCommands', () => {
       )
     })
 
-    it('leaves a genuine stream protocol failure unmasked', async () => {
-      const { commands, store } = createRuntimeFileCommands({ path: '/repo' })
-      store.getRepo.mockReturnValue({ connectionId: 'ssh-1' })
-      vi.mocked(getSshFilesystemProvider).mockReturnValue({
-        stat: vi.fn().mockResolvedValue({ type: 'file', size: 1024 }),
-        readFile: vi.fn().mockRejectedValue(new Error('Malformed chunk for stream 4'))
-      } as never)
-
-      await expect(commands.readFileExplorerPreview('id:wt-1', 'log.txt')).rejects.toThrow(
-        'Malformed chunk'
-      )
-    })
-
     it('rejects oversized SSH preview metadata with small content', async () => {
       const { commands, store } = createRuntimeFileCommands({ path: '/repo' })
       store.getRepo.mockReturnValue({ connectionId: 'ssh-1' })

@@ -23,7 +23,7 @@
  * `runtime-git-command-target`.
  *
  * An `ssh:` host with no registered provider also throws. Loss of contact is never evidence that
- * the checkout is local (docs/reference/ssh-execution-boundary.md); refusing leaves a remote
+ * the checkout is local (AGENTS.md); refusing leaves a remote
  * worktree in place, while the incumbent fallback deleted a client-side path.
  */
 

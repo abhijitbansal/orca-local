@@ -678,7 +678,6 @@
         "3618579df6": "Privacidad y telemetría",
         "65ec7d1968": "Permisos de privacidad de macOS para herramientas de desarrollo lanzadas desde terminales.",
         "d91ae31fbd": "Permisos de macOS",
-        "40d80bad8a": "Beta",
         "b351014180": "Estadísticas de Orca más análisis de tokens de Claude, Codex, OpenCode y Muse y uso de suscripción de Grok.",
         "d72a58b5b9": "Estadísticas y uso",
         "dcd0d9b74f": "Atajos de teclado para acciones comunes.",
@@ -3437,7 +3436,6 @@
           "e52454b7f6": "Abrir como carpeta",
           "05b33a17a9": "Cancelar",
           "8fba4b8cbb": "Esta carpeta no es un repositorio Git. Tendrás editor, terminal y búsqueda, pero las funciones basadas en Git no estarán disponibles.",
-          "c49fb13492": "No se pudo agregar la carpeta en este host",
           "79fd02cf5f": "Esta ruta se verificó en {{hostName}}.",
           "8851b77327": "Esta ruta se verificó localmente."
         },

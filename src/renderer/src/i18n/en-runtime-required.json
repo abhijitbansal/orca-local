@@ -2842,9 +2842,6 @@
         "NewExternalWorktreesInboxLine": {
           "5e1b8d3f62": "Hide external worktrees permanently"
         },
-        "NonGitFolderDialog": {
-          "c49fb13492": "Failed to add folder on this host"
-        },
         "PreservedBranchBatchReviewDialog": {
           "a0f9863597_one": "Force Delete {{count}} Branch",
           "a0f9863597_other": "Force Delete {{count}} Branches"
@@ -3714,7 +3711,6 @@
       "useSettingsNavigationMetadata": {
         "2b043783ef": "Integrations",
         "33a5e1d597": "Connect GitHub, GitLab, Linear, and source-hosting services.",
-        "40d80bad8a": "Beta",
         "5235c215ca": "Choose which task providers appear in the Tasks page and sidebar.",
         "85f4fd7710": "Task Sources",
         "tasksDescription": "Connect providers, install the Linear skill, and choose what appears in Tasks."

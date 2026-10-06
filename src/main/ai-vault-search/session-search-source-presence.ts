@@ -14,7 +14,7 @@ import type { SessionSearchSourcePresence } from './session-search-engine-types'
  * holds a live file record for the session, which is `present`. No row means
  * this read cannot tell whether the source is gone or merely unrecorded, and
  * loss of contact is never evidence of absence
- * (docs/reference/ssh-execution-boundary.md), so it is `unverifiable`. Proving
+ * (AGENTS.md), so it is `unverifiable`. Proving
  * a deletion is the indexer's job and it retires the session's rows outright.
  */
 export function sessionSourcePresence(

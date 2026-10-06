@@ -891,7 +891,6 @@
         "3618579df6": "Confidentialité & télémétrie",
         "65ec7d1968": "Accès de confidentialité macOS pour les outils de développement lancés depuis le terminal.",
         "d91ae31fbd": "Autorisations macOS",
-        "40d80bad8a": "Beta",
         "b351014180": "Statistiques Orca, plus analyses de tokens Claude, Codex, OpenCode, Muse et utilisation d'abonnement Grok.",
         "d72a58b5b9": "Statistiques & usage",
         "dcd0d9b74f": "Raccourcis clavier pour les actions courantes.",
@@ -4065,7 +4064,6 @@
           "e52454b7f6": "Ouvrir comme dossier",
           "05b33a17a9": "Annuler",
           "8fba4b8cbb": "Ce dossier n'est pas un dépôt Git. Vous aurez l'éditeur, le terminal et la recherche, mais les fonctionnalités basées sur Git ne seront pas disponibles.",
-          "c49fb13492": "Échec de l'ajout du dossier sur cet hôte",
           "79fd02cf5f": "Ce chemin a été vérifié sur {{hostName}}.",
           "8851b77327": "Ce chemin a été vérifié localement."
         },

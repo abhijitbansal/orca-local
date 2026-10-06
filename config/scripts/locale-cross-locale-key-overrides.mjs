@@ -127,10 +127,6 @@ export const CROSS_LOCALE_KEY_OVERRIDES = {
     zh: '测试版',
     ja: 'ベータ'
   },
-  'auto.hooks.useSettingsNavigationMetadata.40d80bad8a': {
-    zh: '测试版',
-    ja: 'ベータ'
-  },
   // Issue/PR state picker; it sits beside 已关闭, so 进行中 is a different state.
   'auto.components.PullRequestPage.7b8f6bf6d8': {
     zh: '开放'

@@ -138,8 +138,7 @@ function parseOptionalLabel(
 
 /** The host's integrity gate for its own store, strict by design: an unknown key or enum arm
  *  rejects the whole record. Never a cross-version decoder — anything reading records or views
- *  from another build must ignore unknown keys and degrade unknown arms, or negotiate
- *  (docs/reference/remote-wire-compatibility.md, Rules 1 and 4).
+ *  from another build must ignore unknown keys and degrade unknown arms, or negotiate.
  *  Every malformed field rejects, descriptive or not: admission drops bad provider facts before
  *  they get here, so a value outside its image is a writer bug, never data to repair silently. */
 export function parseAgentChildWorkInput(value: unknown): AgentChildWorkInput | null {

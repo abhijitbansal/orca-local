@@ -5,7 +5,7 @@ import { parseAppSshPtyId } from '../../../../shared/ssh-pty-id'
 // Why: both remote shapes are answered across a link — paired runtimes
 // ("remote:", host-owned buffer) and direct SSH ("ssh:<target>@@<id>", main's
 // relay-fed model, whose serialize can block on host RPCs). Silence from either
-// is `unverifiable`, never proof of death (docs/reference/ssh-execution-boundary.md).
+// is `unverifiable`, never proof of death (AGENTS.md).
 export function isRemoteExecutionHostPtyId(ptyId: string | null | undefined): boolean {
   if (typeof ptyId !== 'string') {
     return false

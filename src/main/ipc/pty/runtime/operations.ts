@@ -227,7 +227,7 @@ export function hasPtyFromRuntimeController(
       // Why: a sync probe cannot wait out the cold-start daemon swap the way
       // probePtyLiveness does, and the pre-swap provider's "no PTY" for a
       // daemon-restored id is fabricated — answer unverifiable until the swap
-      // settles (docs/reference/ssh-execution-boundary.md rule 2).
+      // settles (AGENTS.md).
       if (!watchedLocalPtyProviderStartups.has(startupPromise)) {
         watchedLocalPtyProviderStartups.add(startupPromise)
         const markSettled = (): void => {

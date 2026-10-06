@@ -99,7 +99,7 @@ describe('runtime detected-worktree listing sweeps missing local metadata', () =
   })
 
   // The execution host owns this verdict: this host cannot stat a checkout that lives behind an SSH
-  // connection, so a local miss is not evidence of absence. See docs/reference/ssh-execution-boundary.md.
+  // connection, so a local miss is not evidence of absence. See AGENTS.md.
   //
   // Deliberately identical to the first case except for `connectionId`, and the row is stamped
   // `local` so it is a real prune candidate. That pairing is the proof: the same fixture without a

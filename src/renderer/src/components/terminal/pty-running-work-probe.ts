@@ -5,7 +5,7 @@ import { isClientOnlyUnverifiableInspection } from '../../../../shared/terminal-
 
 /**
  * One probe answer in the fixed `live` / `unverifiable` / `exited` vocabulary of
- * `docs/reference/ssh-execution-boundary.md`. `exited` is only ever produced by a host that
+ * `AGENTS.md`. `exited` is only ever produced by a host that
  * answered; every failure to reach the owner — a rejection, a closed transport, or a deadline
  * that expired first — stays `unverifiable`, because loss of contact is not evidence of death.
  */

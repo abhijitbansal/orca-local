@@ -80,7 +80,7 @@ export type SessionSearchPlannerReport = {
  * path never stats a transcript, so it can report that the index has a live
  * file record for a session or that it has none, and never that a source is
  * gone: only a proven deletion may claim `missing`, and proving one is the
- * indexer's job (docs/reference/ssh-execution-boundary.md).
+ * indexer's job (AGENTS.md).
  */
 export type SessionSearchSourcePresence = 'present' | 'unverifiable'
 

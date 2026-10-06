@@ -106,7 +106,7 @@ describe('worktree.list host coverage under the row cap', () => {
 
   it('names a configured host that contributed no rows at all', async () => {
     // Why: a repo whose scan failed contributes zero rows exactly like a host with no worktrees.
-    // docs/reference/ssh-execution-boundary.md forbids the listing from reading as absolute there.
+    // AGENTS.md forbids the listing from reading as absolute there.
     const result = await queries(fleet(3, 0), ['local', 'ssh:box-1', 'runtime:paired']).list(
       undefined,
       200

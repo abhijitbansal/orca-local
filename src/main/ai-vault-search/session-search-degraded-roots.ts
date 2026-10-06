@@ -20,7 +20,7 @@ export type SessionSearchDegradedRoot = { root: string; reason: string }
  *    swallows a readdir failure and returns, so without this an EACCES root and
  *    an agent that was never installed both arrive as "no files" — reporting
  *    the first as an empty index is the loss-of-contact-as-absence mistake
- *    docs/reference/ssh-execution-boundary.md forbids.
+ *    AGENTS.md forbids.
  *
  * The second is what reports a detached volume, and it needs no memory of
  * previous passes: the evidence is the index's own rows plus this pass's

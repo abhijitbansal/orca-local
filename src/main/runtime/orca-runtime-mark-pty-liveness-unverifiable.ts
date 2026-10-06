@@ -112,7 +112,7 @@ export class OrcaRuntimeWithMarkPtyLivenessUnverifiable extends OrcaRuntimeWithO
   protected rememberPtyLivenessVerdict(ptyId: string, verdict: PtyLivenessVerdict): void {
     // An earned death certificate is KEPT, not dropped, so the register is three-valued on disk as
     // well as in the type. Its only writer is a host-delivered exit frame; nothing weaker may
-    // reach it (docs/reference/ssh-execution-boundary.md).
+    // reach it (AGENTS.md).
     this.ptyLivenessVerdictByPtyId.delete(ptyId)
     this.ptyLivenessObservationSequence += 1
     this.ptyLivenessVerdictByPtyId.set(ptyId, {

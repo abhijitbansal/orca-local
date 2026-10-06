@@ -19,7 +19,7 @@ export function useLandingPreflightRuntime(): { preflightIssues: PreflightIssue[
     const runtimeStatus = s.runtimeStatusByEnvironmentId.get(environmentId)
     // Why the shared verdict and not `entry.status`: an unverifiable probe nulls it while the
     // transport is still up, and reading that as unreachable discarded the whole preflight
-    // result for a host that never went away (docs/reference/ssh-execution-boundary.md).
+    // result for a host that never went away (AGENTS.md).
     const reachability = runtimeStatus
       ? isConnectedRuntimeHostState(runtimeHostConnectionStateForEntry(runtimeStatus))
         ? 'reachable'

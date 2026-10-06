@@ -60,7 +60,7 @@ describe('mirror targets and host connection state agree on one host', () => {
   // Regression: an unverifiable status probe over a still-ready transport read as
   // "connected" on the host surfaces and as "gone" to the mirror, so the session-tab
   // mirror was torn down and cold-rebuilt while the host's flows were still delivering.
-  // docs/reference/ssh-execution-boundary.md: loss of contact is never evidence of exit.
+  // AGENTS.md: loss of contact is never evidence of exit.
   it('holds the mirror target when a ready transport returns an unverifiable probe', () => {
     const entry = entryForSnapshot(makeSnapshot({ verification: 'unavailable' }))
 

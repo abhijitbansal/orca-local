@@ -18,12 +18,12 @@ import { isPtyBindingStillAddressable } from '../store/terminals/terminal-disown
 // `tab.ptyId` on every restored row unconditionally. Reading the fallback alone
 // respawns those panes while the host still holds their shells — two
 // `claude --resume` on one transcript for an agent pane
-// (docs/reference/ssh-execution-boundary.md).
+// (AGENTS.md).
 //
 // These are still client-side maps, so on their own they can only say `unverifiable`. The host's
 // answer outranks them and arrives separately: main records `disownedPtyIds` for the ids a
 // reachable relay disowned, which is the one signal strong enough to license a respawn — not a
-// claim the process exited (docs/reference/ssh-execution-boundary.md). Reading the maps alone
+// claim the process exited (AGENTS.md). Reading the maps alone
 // refused the respawn a killed relay requires, because a dead generation's ids survive in them and
 // nothing here could tell that the host had already disowned them.
 export function shouldRetryPaneSpawnOnSshReconnect(args: {

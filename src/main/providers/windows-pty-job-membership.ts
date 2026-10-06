@@ -20,7 +20,7 @@ import {
  * so an anchored identity can be confirmed or retired exactly
  * (judgeCachedAgentJobEvidence). Callers must bound only the unanchored rest.
  *
- * Null means unverifiable per docs/reference/ssh-execution-boundary.md, never
+ * Null means unverifiable per AGENTS.md, never
  * that processes died.
  */
 export function readWindowsPtyJobProcessIds(

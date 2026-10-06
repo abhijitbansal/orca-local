@@ -209,7 +209,7 @@ describe('daemon pty foreground degraded-scan handling', () => {
   })
 
   it('never expires an identity while the job answer is unverifiable', async () => {
-    // ssh-execution-boundary.md: loss of contact is not evidence of death.
+    // AGENTS.md: loss of contact is not evidence of death.
     resolveAgentForegroundProcessMock
       .mockResolvedValueOnce({ available: true, processName: 'claude' })
       .mockResolvedValue({ available: true, processName: null })

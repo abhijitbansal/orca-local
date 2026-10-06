@@ -19,7 +19,7 @@ export type SshPtyLeaseOperations = {
 /**
  * Only `terminated` unbinds a pane. It is the operator-close state and the one written after a
  * host-acknowledged stop; `expired` records that the CLIENT lost its route and says nothing about
- * the remote shell (docs/reference/ssh-execution-boundary.md). Wiping the binding on `expired` made
+ * the remote shell (AGENTS.md). Wiping the binding on `expired` made
  * `resolvePersistedStablePaneOwner` return null, so `adoptStablePane` gave up and `createTerminal`
  * spawned a replacement over a process that was still running. Keeping it buys a reattach ATTEMPT
  * only — a genuinely dead shell is retired by `attachStablePaneOwner` on the relay's own absence

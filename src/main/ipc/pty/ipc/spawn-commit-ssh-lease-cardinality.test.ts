@@ -95,7 +95,7 @@ describe('the IPC spawn commit keeps one reattachable lease per SSH pane', () =>
 
     const predecessor = store.getSshRemotePtyLeases(TARGET).find((entry) => entry.ptyId === 'pty-0')
     // `expired`, not `terminated`: losing the lease is not evidence the remote shell died, and the
-    // process is deliberately left running (docs/reference/ssh-execution-boundary.md).
+    // process is deliberately left running (AGENTS.md).
     expect(predecessor).toMatchObject({ state: 'expired', supersededBy: 'pty-1' })
   })
 

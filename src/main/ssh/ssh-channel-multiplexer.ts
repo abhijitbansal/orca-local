@@ -82,7 +82,7 @@ function sshMuxRequestTimeoutError(method: string, timeoutMs: number): Error {
  * wedged link lost at TIMEOUT_MS turned what used to surface as SSH_MUX_REQUEST_TIMEOUT into
  * CONNECTION_LOST, so callers that phrase the verdict to a user must branch on this rather than on
  * the timeout alone or they silently start reporting absence
- * (docs/reference/ssh-execution-boundary.md).
+ * (AGENTS.md).
  */
 export function isSshRequestOutcomeUnverifiable(error: unknown): boolean {
   const code = error instanceof Error ? (error as Error & { code?: unknown }).code : undefined

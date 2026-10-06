@@ -7,15 +7,15 @@
  * a rebuildable ABI flip from a host whose glibc will never satisfy the binary — and the
  * message had to hedge across all of them.
  *
- * Wire compatibility (docs/reference/remote-wire-compatibility.md): this rides as the
- * optional `data` of an existing JSON-RPC error, so it is Rule 1 — additive. A client
+ * Wire compatibility: this rides as the
+ * optional `data` of an existing JSON-RPC error, so it is additive. A client
  * that does not read it still renders `error.message`, which is exactly today's
  * behaviour, so no capability negotiation is needed.
  *
  * `repairable` is the field with teeth: it is true only for a fault that was PROVED and
  * that rebuilding node-pty on the host actually fixes. An `unverifiable` cause is never
  * repairable — a probe that did not answer must not trigger a destructive repair, which
- * is the #14830 lesson recorded in docs/reference/ssh-execution-boundary.md.
+ * is the #14830 lesson recorded in AGENTS.md.
  */
 import { z } from 'zod'
 import { TERMINAL_UNAVAILABLE_ERROR_CODE } from './runtime-capability-degradation'

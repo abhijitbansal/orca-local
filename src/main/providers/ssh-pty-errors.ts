@@ -4,7 +4,7 @@ export const SSH_PTY_IDENTITY_MISMATCH_ERROR = 'SSH_PTY_IDENTITY_MISMATCH'
  * The relay accepted the attach for a PTY it had just proven alive and only retired the stale
  * output delivery. Deliberately not `SSH_SESSION_EXPIRED`: every consumer of that token retires the
  * pane binding and cold-restores the agent, which duplicates a running agent onto one transcript
- * (docs/reference/ssh-execution-boundary.md — respawning needs host evidence of absence, and this
+ * (AGENTS.md — respawning needs host evidence of absence, and this
  * reply is host evidence of the opposite).
  */
 export const SSH_PTY_SOURCE_RESTORE_REQUIRED_ERROR = 'SSH_PTY_SOURCE_RESTORE_REQUIRED'
@@ -29,7 +29,7 @@ export function isSshPtyIdentityMismatchError(error: unknown): boolean {
  * This is NOT itself a death certificate. `pty.attach` answers absent for an id its session map
  * never had as readily as for a pid it probed — and after a relay restart that is every id the
  * previous one minted. Certifying `exited` needs {@link SshPtyProvenExitedOnRelayError}
- * (docs/reference/ssh-execution-boundary.md).
+ * (AGENTS.md).
  *
  * Carries the same `SSH_SESSION_EXPIRED` message so message-based consumers are unaffected; only
  * callers that can act on the stronger verdict test the class.
@@ -53,7 +53,7 @@ export function isSshPtyAbsentFromRelayError(error: unknown): boolean {
  * The parent class is raised for the whole union, which also contains "this session map has no such
  * id" — every id minted before a relay restart, checked against nothing. Callers that only release
  * client-side bookkeeping keep testing the parent; a caller about to record `exited` must test this
- * (docs/reference/ssh-execution-boundary.md).
+ * (AGENTS.md).
  */
 export class SshPtyProvenExitedOnRelayError extends SshPtyAbsentFromRelayError {
   constructor(message: string) {

@@ -113,7 +113,7 @@ export type NativeChatImageRefBlock = {
 
 /** Lifecycle of one spawned child agent, as the display collapses it.
  *  `unverifiable` is the repo's loss-of-contact verdict (see
- *  docs/reference/ssh-execution-boundary.md): the child stopped reporting and
+ *  AGENTS.md): the child stopped reporting and
  *  nothing proves it exited. Every in-flight provider state collapses to
  *  `working`; `idle` is a child that exists but is not currently working. */
 export const NATIVE_CHAT_SUBAGENT_STATES = [

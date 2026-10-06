@@ -3,7 +3,7 @@
 // certificate. The refusal it acts on is a union: `pty.attach` answers absent both for a pid the
 // relay probed and found gone, and for an id its session map never had, which is every id minted
 // before a relay restart. Certifying the union orphans a live remote shell and cold-starts a second
-// agent onto its transcript (docs/reference/ssh-execution-boundary.md).
+// agent onto its transcript (AGENTS.md).
 //
 // The sibling handlePtyReattachFailure has always refused to certify from that union. These pin the
 // same rule here, and pin that the marked half — the one refusal the relay backed with a pid probe

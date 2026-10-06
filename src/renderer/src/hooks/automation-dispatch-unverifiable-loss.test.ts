@@ -30,7 +30,7 @@ async function createCompletion() {
 
 /**
  * Loss of contact is never evidence of process death
- * (docs/reference/ssh-execution-boundary.md). The exit sentinel these readers
+ * (AGENTS.md). The exit sentinel these readers
  * receive is the same one the terminal panes already classify as unverifiable.
  */
 describe('automation dispatch completion on an unverifiable loss', () => {

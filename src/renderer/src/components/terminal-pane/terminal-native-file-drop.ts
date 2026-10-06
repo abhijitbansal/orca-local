@@ -43,8 +43,7 @@ export type NativeTerminalFileDropArgs = {
  *
  * Local worktrees: paste the local absolute path (reference-in-place; no copy
  * or IPC). SSH worktrees: upload each file into `${worktreePath}/.orca/drops`
- * and paste the remote path so the remote agent can read it. See
- * docs/terminal-drop-ssh.md.
+ * and paste the remote path so the remote agent can read it.
  */
 export async function handleNativeTerminalFileDrop(
   args: NativeTerminalFileDropArgs

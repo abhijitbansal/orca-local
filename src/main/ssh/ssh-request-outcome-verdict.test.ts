@@ -5,7 +5,7 @@ import {
   SSH_MUX_REQUEST_TIMEOUT_CODE
 } from './ssh-channel-multiplexer'
 
-// docs/reference/ssh-execution-boundary.md: the vocabulary is live / unverifiable / exited, and
+// AGENTS.md: the vocabulary is live / unverifiable / exited, and
 // loss of contact is never evidence of absence. Three call sites phrase this verdict to a user, so
 // collapsing "unverifiable" into "could not be reached" is a user-visible lie.
 describe('SSH request outcome verdict', () => {

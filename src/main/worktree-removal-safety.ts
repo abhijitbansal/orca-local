@@ -144,7 +144,7 @@ export async function canSafelyRemoveOrphanedWorktreeDirectory(
   // Why: this answer authorises a recursive delete, and the proof it relies on — a `.git` file at
   // the top of the directory — is also what a bare-repo dotfiles home looks like. An execution host
   // that never named its home leaves that check with nothing to compare against, and
-  // `unverifiable` does not authorise a delete (docs/reference/ssh-execution-boundary.md).
+  // `unverifiable` does not authorise a delete (AGENTS.md).
   if (!isRemovalHomeAuthorityResolved(home)) {
     return false
   }

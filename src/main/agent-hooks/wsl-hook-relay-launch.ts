@@ -33,8 +33,7 @@ const INSTALL_TIMEOUT_MS = 30_000
 export type WslHookRelayBundle = { jsPath: string; version: string }
 
 export function resolveWslHookRelayBundle(): WslHookRelayBundle | null {
-  // Mirrors getLocalRelayCandidates in ssh-relay-deploy: env override for
-  // tests/dev, then packaged extraResources, then dev out/ paths.
+  // Env override for tests/dev, then packaged extraResources, then dev out/ paths.
   const candidates: string[] = []
   if (process.env.ORCA_RELAY_PATH) {
     candidates.push(join(process.env.ORCA_RELAY_PATH, 'wsl'))

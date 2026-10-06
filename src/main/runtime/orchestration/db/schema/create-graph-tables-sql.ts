@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS remote_dispatch_attachments (
 
 -- Why five states: 'start_unknown', 'stopping', and 'stop_unknown' do not
 -- establish process exit, and a potentially-live worker must still count as a
--- nesting parent. See docs/reference/ssh-execution-boundary.md.
+-- nesting parent. See AGENTS.md.
 CREATE INDEX IF NOT EXISTS idx_remote_dispatch_attachments_active_pane
   ON remote_dispatch_attachments(pane_key)
   WHERE ${potentiallyLiveRemoteAttachmentSql()};

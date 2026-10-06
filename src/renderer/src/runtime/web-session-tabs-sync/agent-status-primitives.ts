@@ -193,7 +193,7 @@ export function buildRetractedMirroredTabSweepPatch(
     // Keep the sweep state consistent with the accepted host inventory.
     tabsByWorktree: nextTabsByWorktree
   }
-  // Why: a retraction can be a reconnect re-key, not pane death (ssh-execution-boundary); keeping
+  // Why: a retraction can be a reconnect re-key, not pane death (AGENTS.md); keeping
   // cutoffs means a republished pane cannot replay activity the user cleared on this client.
   // The host retracts exact tab ids; a worktree-wide orphan sweep could erase a sibling host.
   // A colliding host tab id cannot authorize global tombstones or tab registry cleanup.

@@ -6,7 +6,7 @@
  *
  * The marker is additive on purpose: an answer without it means "ambiguous", which is also what an
  * older relay's unmarked answer means, so a client may never read a missing marker as evidence of
- * anything (docs/reference/ssh-execution-boundary.md).
+ * anything (AGENTS.md).
  */
 export const PTY_ATTACH_PROVEN_EXITED_MARKER = 'process exited'
 

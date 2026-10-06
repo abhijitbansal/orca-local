@@ -210,7 +210,7 @@ export async function resolveTerminalOrphanInventory(args: {
       // ready row bound to the host's handle, which is the rebind — the handle is the identity, the
       // ptyId behind it is the host's business. Removal here needs what the two branches around it
       // already require: an explicit `retiredTerminalSurfaces` entry, or two authoritative
-      // inventories omitting the identity. See docs/reference/ssh-execution-boundary.md.
+      // inventories omitting the identity. See AGENTS.md.
       disposition = 'retain'
     } else if (!hasStrongOrphanIdentity(terminal, surface, snapshot.worktree)) {
       disposition = 'retain'

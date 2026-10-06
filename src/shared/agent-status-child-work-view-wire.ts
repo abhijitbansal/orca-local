@@ -2,7 +2,7 @@
 //
 // Views reach clients from hosts of any version, so they are read permissively: unknown keys are
 // ignored and an unknown enum arm degrades to one every reader already handles, never rejecting the
-// row (docs/reference/remote-wire-compatibility.md, Rules 1 and 4). The record codec stays
+// row. The record codec stays
 // host-internal; nothing here loads it. Type-only references keep this loadable in the renderer.
 
 import type {

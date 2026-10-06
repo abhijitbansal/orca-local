@@ -6,7 +6,7 @@ import { parseAppSshPtyId } from '../../../../shared/ssh-pty-id'
  * A missing buffer snapshot only proves the pane exited when the client could have
  * observed it. `SshPtyProvider` reports no authoritative buffer snapshot and the relay
  * exposes no snapshot RPC, so for a remote pty the absence is loss of contact —
- * `unverifiable`, never `exited`. See docs/reference/ssh-execution-boundary.md.
+ * `unverifiable`, never `exited`. See AGENTS.md.
  */
 export function terminalPreviewUnavailableMessage(source: {
   ptyId?: string | null

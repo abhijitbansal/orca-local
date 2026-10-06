@@ -9,10 +9,10 @@
 # Migrating a file means replacing its spawn/execFile calls with
 # runProcess/spawnProcess and deleting its line here.
 #
-# browser-route-egress-electron-launch.ts, browser-route-persisted-worker-electron-process.ts
-# and system-ssh-dynamic-forward-process.ts need spawn options ProcessSpec cannot express:
+# browser-route-egress-electron-launch.ts and browser-route-persisted-worker-electron-process.ts
+# need spawn options ProcessSpec cannot express:
 # `detached: true` for a process-group kill, a synchronous taskkill, and an stdio shape other
-# than all-pipes (a long-lived `ssh -N` must not be handed a stdin pipe nobody closes).
+# than all-pipes.
 # Migrating them means teaching run-process.ts those options first.
 # codex-app-server-posix-supervisor.ts requires child_process only inside its
 # dependency-free POSIX supervisor script, never in Orca's process.

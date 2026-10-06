@@ -166,7 +166,7 @@ describe('RuntimeManagedWorktreeQueries.list host scope', () => {
   // second: the UNSCOPED listing reported `omittedHostIds: ["local","ssh:ssh-scope-refused"]` with
   // `--host` selectors, while the SCOPED listing reported `{"hostIds":[],"omittedHostIds":[]}`.
   // A listing that covered nothing, reporting no gaps, is indistinguishable from a repo that
-  // genuinely has no worktrees -- the thing docs/reference/ssh-execution-boundary.md forbids.
+  // genuinely has no worktrees -- the thing AGENTS.md forbids.
   function sshStore(): RuntimeStore {
     const repo = folderRepo({
       id: 'repo-ssh',

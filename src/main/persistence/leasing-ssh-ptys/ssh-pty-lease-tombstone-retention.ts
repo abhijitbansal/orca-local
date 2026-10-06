@@ -8,7 +8,7 @@ export type SshPtyLeaseTombstoneRetentionOperations = {
 
 /** A routing tombstone with nothing left to route: the operator closed this PTY and no stop is
  *  still owed for it. `expired` is deliberately not here — it says only that the CLIENT lost its
- *  route (docs/reference/ssh-execution-boundary.md), and `sweepOrphanedRelayPtys` reads those ids
+ *  route (AGENTS.md), and `sweepOrphanedRelayPtys` reads those ids
  *  as its leave-alone list, so deleting one would authorize stopping a remote shell that
  *  supersession left running on purpose. */
 function isRetiredRoutingTombstone(lease: SshRemotePtyLease, targetId: string): boolean {

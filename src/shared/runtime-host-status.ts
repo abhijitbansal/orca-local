@@ -54,7 +54,7 @@ export function lastVerifiedRuntimeStatus<Status = RuntimeStatus>(
  * The host's own verdict that this pairing is over: retired by an explicit disconnect, or
  * refused — auth rejected or protocol mismatch, which stops every retry for good. Positive
  * evidence, unlike a lost transport, so this is the only state that may withdraw a fact the
- * host already gave us (docs/reference/ssh-execution-boundary.md).
+ * host already gave us (AGENTS.md).
  */
 export function isRuntimeHostContactRevoked(
   entry:

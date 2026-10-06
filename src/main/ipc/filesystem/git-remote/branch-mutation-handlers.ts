@@ -31,7 +31,7 @@ export function registerGitRemoteBranchMutationHandlers(context: FilesystemHandl
         pushTarget?: GitPushTarget
       }
     ): Promise<void> => {
-      // Why: coerce to strict boolean so a malformed payload (e.g. string 'false') can't enable --set-upstream; mirror in src/relay/git-handler.ts.
+      // Why: coerce to strict boolean so a malformed payload (e.g. string 'false') can't enable --set-upstream.
       const publish = args.publish === true
       if (args.connectionId) {
         if (args.pushTarget) {

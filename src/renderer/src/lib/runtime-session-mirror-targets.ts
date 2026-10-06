@@ -53,7 +53,7 @@ export function getReachableRuntimeSessionMirrorTargets(
     // came back unverifiable nulls `entry.status` while the host keeps delivering. Reading
     // that as "gone" tore the mirror down mid-flow, disagreeing with every host surface.
     // Dropping the mirror is destructive, so only the one exit verdict earns it —
-    // 'checking' and 'reconnecting' are unverifiable (docs/reference/ssh-execution-boundary.md).
+    // 'checking' and 'reconnecting' are unverifiable (AGENTS.md).
     if (isDisconnectedRuntimeHostState(runtimeHostConnectionStateForEntry(entry))) {
       continue
     }

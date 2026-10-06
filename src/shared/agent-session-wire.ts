@@ -19,7 +19,7 @@ import type { AgentSessionContextUsage } from './agent-session-context-usage'
 // adapters and clients against exactly these types, so everything here must be
 // plain JSON. The whole surface is gated by agent-session.structured.v1, which
 // no released baseline advertises; after that capability ships, every new field
-// must remain optional to old readers (docs/reference/remote-wire-compatibility.md).
+// must remain optional to old readers.
 
 import type {
   AgentJournalCursor,

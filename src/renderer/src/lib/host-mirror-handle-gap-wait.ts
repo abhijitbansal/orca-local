@@ -13,7 +13,7 @@ import {
  * Why: mirror hydration says "the rows arrived", not "this pane's liveness is
  * decidable" — the handle lands one relay round trip later. A pane whose leaf
  * is still bound to a PTY of the same environment, with no published handle,
- * is `unverifiable` (docs/reference/ssh-execution-boundary.md); resuming on it
+ * is `unverifiable` (AGENTS.md); resuming on it
  * forked a session the host was still running (#19735).
  *
  * The wait is bounded because mirror settlement has already happened and will
@@ -31,7 +31,7 @@ import {
  *
  * Sustained reconnect churn can therefore hold a pane parked indefinitely: each reconnect voids the
  * in-flight verdict and grants a fresh full budget. That is CORRECT, not the defect above. Under
- * churn the pane's liveness genuinely is unverifiable, and `docs/reference/ssh-execution-boundary.md`
+ * churn the pane's liveness genuinely is unverifiable, and `AGENTS.md`
  * forbids resolving unverifiable to `exited`. It has the shape of a latch that never releases, so
  * do not "fix" it by letting a verdict from one connection decide another — that is #19735.
  */
@@ -406,7 +406,7 @@ export function parkUntilHostMirrorHandleLands(
     //
     // Why contact is checked too: an environment that dropped mid-park publishes nothing,
     // so the deadline measures the outage rather than the host. Loss of contact is never
-    // evidence about a process (docs/reference/ssh-execution-boundary.md), and a verdict
+    // evidence about a process (AGENTS.md), and a verdict
     // recorded here authorizes the resume that forks the agent the host is still running.
     // The generation cannot stand in for it — a plain disconnect never advances it.
     //

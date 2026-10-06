@@ -24,7 +24,7 @@ describe('runtime Git target routing', () => {
     expect(requireRuntimeGitProvider(target({}))).toBeNull()
   })
 
-  // Loss of contact is never evidence of locality (docs/reference/ssh-execution-boundary.md).
+  // Loss of contact is never evidence of locality (AGENTS.md).
   it('keeps an unreachable ssh host remote instead of degrading it to local', () => {
     const route = runtimeGitRouteForTarget(target({ executionHostId: 'ssh:gone' }))
 

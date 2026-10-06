@@ -17,7 +17,7 @@ type ParkedTerminalCaptureArgs = {
  *  xterm buffer is the only client-side copy, and the paired-parking capability that licenses the
  *  unmount is a static build string — never evidence the host retained this pty's buffer. A host
  *  that answers `no-serializable-buffer` (or stays silent) is unverifiable, not empty, so the park
- *  must leave a copy behind. See docs/reference/ssh-execution-boundary.md.
+ *  must leave a copy behind. See AGENTS.md.
  *  Returns whether the episode covered every tab; false leaves it unmarked so a later episode retries. */
 export function captureParkedTerminalBuffers({
   worktreeId,

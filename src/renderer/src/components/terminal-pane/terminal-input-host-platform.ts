@@ -74,7 +74,7 @@ export function resolveTerminalInputHostPlatform(args: {
   if (runtimeEnvironmentId) {
     // Why last-verified: the host's platform is a fact about the host, and falling back to the
     // client's silently re-points every keystroke and path at the wrong conventions -- a Windows
-    // host driven from a Mac. See docs/reference/ssh-execution-boundary.md.
+    // host driven from a Mac. See AGENTS.md.
     return (
       lastVerifiedRuntimeStatus(args.state.runtimeStatusByEnvironmentId.get(runtimeEnvironmentId))
         ?.hostPlatform ?? args.clientPlatform

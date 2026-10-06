@@ -40,7 +40,7 @@ export type RelayArtifact = {
   /**
    * Forked by the relay daemon as a long-lived child of its own. These are relay
    * infrastructure, never user work, and the reap gate subtracts them from a daemon's
-   * child census; see src/main/ssh/relay-daemon-service-children.ts.
+   * child census.
    */
   daemonServiceChild?: boolean
 }

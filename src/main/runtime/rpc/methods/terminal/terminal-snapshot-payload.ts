@@ -34,8 +34,7 @@ export function buildSnapshotFrameMeta(options: SnapshotFrameOptions): Record<st
     pendingEscapeTailAnsi: options.pendingEscapeTailAnsi,
     // Why conditional and additive: old clients ignore the unknown field,
     // and a new client must read absence as unknown rather than zero, so
-    // no opcode or capability negotiation is involved (Rule 1 of
-    // docs/reference/remote-wire-compatibility.md).
+    // no opcode or capability negotiation is involved.
     // Why `seq` is required: the flags are only proven at this frame's own
     // seq, so without a replay boundary the client cannot order them.
     ...(typeof options.seq === 'number' && options.kittyKeyboardFlags !== undefined

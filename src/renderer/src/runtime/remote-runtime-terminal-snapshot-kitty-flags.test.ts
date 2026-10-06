@@ -15,7 +15,7 @@ import {
 import { replaceRuntimeEnvironmentRevisions } from './runtime-environment-revision'
 
 // `kittyKeyboardFlags` is an additive optional field on the existing
-// SnapshotStart frame (Rule 1 of docs/reference/remote-wire-compatibility.md).
+// SnapshotStart frame.
 // An old host omits it, and absence must stay unknown rather than be laundered
 // into "the host proved kitty is inactive".
 

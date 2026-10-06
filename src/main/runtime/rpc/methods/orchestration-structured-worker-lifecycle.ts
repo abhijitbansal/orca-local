@@ -298,7 +298,7 @@ export function readArchivedStructuredJournal(args: {
     // The archive is frozen BEFORE the close, so it proves nothing about the child. Only a
     // settled release row proves the close landed; `releasing` and `unknown` are the states
     // that exist to say it did not, and answering `exited` from one of them is the death
-    // certificate `docs/reference/ssh-execution-boundary.md` forbids.
+    // certificate `AGENTS.md` forbids.
     liveness: args.releaseState === 'released' ? 'exited' : 'unverifiable'
   })
 }

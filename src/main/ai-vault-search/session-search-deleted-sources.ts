@@ -95,7 +95,7 @@ type SessionSearchSourceVerdict =
  * this feature kept shipping. There is no separate root fence: the walk cannot
  * reach a verdict of `gone` without a successful listing, so an unreadable or
  * missing root produces `unverifiable` structurally rather than by a guard
- * somebody has to remember to call (docs/reference/ssh-execution-boundary.md:
+ * somebody has to remember to call (AGENTS.md:
  * loss of contact is never evidence of absence).
  */
 export async function retireDeletedSessionSearchSources(

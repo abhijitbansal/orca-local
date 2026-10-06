@@ -269,7 +269,7 @@ export async function attachStablePaneOwner(
     // session map never had — every id minted before a relay restart, checked against nothing. Only
     // the marked half observed the process, so only it may certify a death; the rest publishes the
     // stop sentinel its sibling handlePtyReattachFailure publishes, which every reader resolves to
-    // `stop_unverified` (docs/reference/ssh-execution-boundary.md).
+    // `stop_unverified` (AGENTS.md).
     runtime?.onPtyExit(
       owner.ptyId,
       UNVERIFIED_PROCESS_EXIT_CODE,

@@ -91,7 +91,7 @@ describe('shouldRetryPaneSpawnOnSshReconnect', () => {
     // The relay-restart shape: a SIGKILLed relay comes back renumbering from a new mint epoch, so
     // the leaf map still names `pty2:<dead-epoch>:1` while the new relay answers that it has no
     // such id. That answer is positive host evidence of absence, which is the one case where
-    // replacing the pane is correct (docs/reference/ssh-execution-boundary.md).
+    // replacing the pane is correct (AGENTS.md).
     expect(
       shouldRetryPaneSpawnOnSshReconnect({
         targetId: 'conn-1',

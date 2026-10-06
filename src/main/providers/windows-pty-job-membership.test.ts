@@ -52,7 +52,7 @@ describe('readWindowsPtyJobProcessIds', () => {
     ['an empty job, which is not the shell-alone case', []]
   ])('reports unverifiable for %s', (_case, pids) => {
     // null is never evidence that processes died
-    // (docs/reference/ssh-execution-boundary.md). An empty list means the tree
+    // (AGENTS.md). An empty list means the tree
     // is gone, which this function has never been the one to report.
     expect(readWindowsPtyJobProcessIds(pty(), () => pids)).toBeNull()
   })

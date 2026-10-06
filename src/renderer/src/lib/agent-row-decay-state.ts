@@ -12,7 +12,7 @@ type DecayInput = Pick<AgentStatusEntry, 'state' | 'restoredUnconfirmed'>
 /**
  * Where a stale non-`done` entry decays to.
  *
- * Silence is not evidence (docs/reference/ssh-execution-boundary.md), so the destination
+ * Silence is not evidence (AGENTS.md), so the destination
  * splits on the liveness Orca actually holds: a pane whose PTY is still in the live-PTY map
  * only lost its reporting stream (`unverifiable`), while a pane with no PTY has nothing
  * running behind it (`idle`). Neither ever claims the agent finished.

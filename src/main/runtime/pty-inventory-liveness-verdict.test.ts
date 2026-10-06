@@ -120,7 +120,7 @@ describe('inventory sweep liveness verdicts', () => {
     // relay's CURRENT session map, so a relay that restarted omits every id the previous one minted
     // (ids are `pty2:<ptyIdMintEpoch>:<n>` with a fresh epoch per relay start) whether or not those
     // shells ever died. Recording `exited` here would only relocate the fabrication that
-    // handlePtyReattachFailure was corrected for (docs/reference/ssh-execution-boundary.md).
+    // handlePtyReattachFailure was corrected for (AGENTS.md).
     const runtime = makeRuntimeMissingFromInventory(
       () => false,
       vi.fn(async () => [{ id: 'ssh:conn-1@@relay-sibling', worktreeId: WORKTREE_ID }])

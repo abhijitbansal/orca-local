@@ -1,7 +1,7 @@
 /**
  * A stale agent entry on a pane Orca STILL HOLDS A LIVE PTY FOR is not the same thing as a
  * pane with nothing running in it. Both used to decay to `idle`, which asserts "nothing here"
- * on no evidence at all — the exact substitution docs/reference/ssh-execution-boundary.md
+ * on no evidence at all — the exact substitution AGENTS.md
  * exists to prevent (loss of contact is never evidence).
  *
  * The split is on evidence Orca already computes: `tabHasLivePty`. With a live PTY the row

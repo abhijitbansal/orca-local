@@ -1,5 +1,3 @@
-import type { OrcadHealth } from '../orcad/orcad-health'
-
 export type ServePairingUnavailableReason =
   | 'websocket_unavailable'
   | 'device_registry_unavailable'
@@ -31,8 +29,6 @@ export type ServeReadiness = {
   advertisedEndpoint: string | null
   managedWslCliReconciliation: 'pending' | 'settled' | 'failed'
   pairing: ServePairingReadiness
-  // Read only by the SSH orcad deploy side (src/main/ssh/orcad-*); nothing local publishes it.
-  health?: OrcadHealth
 }
 
 export type ServeReadinessOutput = { mode: 'human' | 'json' }

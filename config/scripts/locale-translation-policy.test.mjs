@@ -147,7 +147,7 @@ describe('locale-translation-policy', () => {
     ).toBe('제거 중…')
     expect(
       repairTranslatedValue({
-        key: 'auto.components.status.bar.SshStatusSegment.63a2b965f6',
+        key: 'auto.components.status.bar.PortsStatusSegment.7dac3ecc9d',
         enValue: 'pulling',
         localeValue: '풀 중',
         locale: 'ko'

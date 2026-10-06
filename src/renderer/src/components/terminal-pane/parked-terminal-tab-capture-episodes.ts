@@ -6,7 +6,7 @@ import { captureParkedTerminalBuffers } from './parked-terminal-buffer-capture'
  *  its scrollback, and the paired-parking capability that licenses the unmount is a static build
  *  string — never evidence the host retained this pty's buffer. A host that answers
  *  `no-serializable-buffer` is unverifiable, not empty. Keep the buffer, never discard it.
- *  See docs/reference/ssh-execution-boundary.md.
+ *  See AGENTS.md.
  *  `capturedTabIds` is mutated in place: it is the caller's ref-held episode ledger. */
 export function captureNewlyParkedTerminalTabs(
   worktreeId: string,

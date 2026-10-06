@@ -35,7 +35,7 @@
  * Note the deliberate second distinction inside the `ssh` variant: `provider: null` means "this host
  * is remote and currently unreachable", which is not the same answer as "this host is local" and can
  * no longer be spelled the same way. That mirrors the `live` / `unverifiable` / `exited` rule in
- * docs/reference/ssh-execution-boundary.md — loss of contact is never evidence of locality.
+ * AGENTS.md — loss of contact is never evidence of locality.
  */
 
 import {

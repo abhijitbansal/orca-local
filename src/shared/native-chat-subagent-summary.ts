@@ -207,7 +207,7 @@ export function subagentGroupBlocks(
  *  clients that read this sentence instead of the block reconcile nothing and
  *  cannot re-check the children — so a frozen `N working` would go on asserting
  *  a liveness only the dead process could have observed. That is the collapse
- *  `docs/reference/ssh-execution-boundary.md` forbids: loss of contact is not
+ *  `AGENTS.md` forbids: loss of contact is not
  *  evidence of a live state. Liveness stays with the structured block, which the
  *  writing host revises in place for as long as it can see the children.
  *

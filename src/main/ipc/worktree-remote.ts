@@ -1820,7 +1820,7 @@ export async function createRemoteWorktree(
       (err.message.includes('No workspace roots registered yet') ||
         err.message.includes('Path outside authorized workspace'))
     ) {
-      // Why: only OLD relays (pre-allowlist-removal) throw these; surface an upgrade message. Remove after version floor moves (docs/relay-fs-allowlist-removal.md).
+      // Why: only OLD relays (pre-allowlist-removal) throw these; surface an upgrade message.
       throw new Error(
         `Older relay reported an authorization error; please reconnect to deploy the latest relay. (${err.message})`
       )

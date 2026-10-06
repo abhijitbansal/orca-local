@@ -140,7 +140,7 @@ describe('runtime file target execution host', () => {
   })
 
   // Losing contact with a remote host is never evidence that its files are here
-  // (docs/reference/ssh-execution-boundary.md).
+  // (AGENTS.md).
   it('reports the dropped connection instead of reading a remote path locally', async () => {
     const runtime = makeRuntime(
       [{ id: 'repo-shared', path: '/srv/app', connectionId: 'm4air' }],

@@ -22,7 +22,7 @@ type ImportOptions = {
    * Called for every host path carrying terminal tabs that `resolveWorktreeId` could not place.
    * An unplaceable path is `unverifiable` — the local catalog has not landed yet — never proof the
    * row is not ours, so callers must not treat such an import as an authoritative picture of the
-   * host. See docs/reference/ssh-execution-boundary.md.
+   * host. See AGENTS.md.
    */
   onUnplacedTerminalTabs?: (worktreePath: string, tabCount: number) => void
 }
