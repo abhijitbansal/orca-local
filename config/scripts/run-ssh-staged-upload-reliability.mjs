@@ -10,7 +10,6 @@ const defaultFiles = [
   'src/main/ssh/ssh-relay-upload-stage-commands.test.ts',
   'src/main/ssh/sftp-namespace-resolution.test.ts',
   'src/main/ssh/ssh-connection-sftp-wire.test.ts',
-  'src/main/ssh/ssh-remote-commands.test.ts',
   'src/main/ssh/ssh-relay-cross-version-isolation.test.ts'
 ]
 

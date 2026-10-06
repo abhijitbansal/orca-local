@@ -77,10 +77,6 @@ const UNGATED_TASKKILL_ALLOWLIST = new Map<string, string>([
   [
     'src/cli/handlers/interactive-login-interruption.ts',
     'CLI host: no Chromium pid on the machine to reach, and no reader for the ring'
-  ],
-  [
-    'src/relay/subprocess-tree-termination.ts',
-    'Relay host: same, and the relay cannot import the main-process gate'
   ]
 ])
 

@@ -30,7 +30,7 @@ jobs:
     # faster runner.
     runs-on: blacksmith-6vcpu-macos-15
     timeout-minutes: 60
-    # actions: read fetches the relay addons from the release-cut run.
+    # actions: read reads the release-cut run conclusion.
     permissions:
       actions: read
       contents: write
@@ -127,25 +127,12 @@ jobs:
           echo "identity=$identity" >>"$GITHUB_OUTPUT"
           echo "Classified $TAG as $identity"
 
-      # Only a Windows runner compiles these; release-cut's relay-windows-process-tree
-      # job built them from this tag before dispatching this workflow.
-      - name: Collect the Windows process-table addons for the relay
-        uses: actions/download-artifact@v8
-        with:
-          name: relay-windows-process-tree
-          path: .build/windows-process-tree
-          run-id: ${{ inputs.release_run_id }}
-          github-token: ${{ github.token }}
-
       - name: Build app
         run: pnpm build:release
         env:
           # Why: Vite's web build crossed Node's default old-space ceiling on
           # the macOS release runner, leaving v1.4.2-rc.8 as an incomplete draft.
           NODE_OPTIONS: --max-old-space-size=4096
-          # Fail the release rather than ship a relay that cannot launch outside
-          # sshd's job for a standard user on a Windows SSH host.
-          ORCA_REQUIRE_RELAY_NATIVE_ADDONS: x64,arm64
 
       - name: Gate runtime file-watcher process isolation
         run: |
@@ -153,12 +140,6 @@ jobs:
           # host and the exact Electron runtime survive SIGSEGV before packaging.
           node config/scripts/runtime-file-watcher-fault-harness.mjs
           ELECTRON_RUN_AS_NODE=1 pnpm exec electron config/scripts/runtime-file-watcher-fault-harness.mjs
-
-      - name: Gate SSH relay watcher process isolation
-        run: |
-          # Why: the remote native watcher shares a daemon with live PTYs.
-          # Kill only its child and require both PTY and watch recovery before packaging.
-          node config/scripts/relay-watcher-fault-harness.mjs
 
       - name: Abort if the parent release-cut run was cancelled
         # Why: this workflow is dispatched separately, so cancelling release-cut

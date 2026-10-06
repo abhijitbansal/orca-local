@@ -23,7 +23,6 @@ const expensiveJobs = [
   'shell_contracts',
   'test',
   'cross-version-wire',
-  'managed_hook_node18',
   'package',
   'package_windows'
 ]

@@ -35,8 +35,7 @@ const AUDITED_GLOBAL_FETCH_LINES = new Map<string, number>([
   ['main/opencode/status-plugin-post-source.ts', 1],
   ['main/pi/agent-status-extension-source.ts', 1],
   // local identifiers named `fetch` (git fetch), not HTTP
-  ['main/ipc/worktree-remote.ts', 2],
-  ['relay/git-handler-fetch-operations.ts', 1]
+  ['main/ipc/worktree-remote.ts', 2]
 ])
 
 // A line is a hit when it calls bare `fetch(` or touches `globalThis.fetch` /

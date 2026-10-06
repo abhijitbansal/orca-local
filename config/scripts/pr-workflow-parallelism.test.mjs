@@ -24,7 +24,6 @@ const shellContractFiles = [
   'src/main/shell-startup-feature-channel.test.ts',
   'src/main/zsh-scoped-histfile.live-shell.test.ts',
   'src/main/zsh-startup-hook-user-config-equivalence.live-shell.test.ts',
-  'src/main/zsh-wrapper-version-mismatch.live-shell.test.ts',
   'src/main/runtime/structured-session-cli-login-shell.live-shell.test.ts',
   'src/shared/posix-command-path-lookup.test.ts'
 ]
@@ -238,24 +237,6 @@ describe('PR workflow parallelism', () => {
 
     expect(buildStep.run).toContain('scripts=(build:relay build:electron-vite:parallel)')
     expect(buildStep.run).toContain('pnpm run "$script" &')
-  })
-
-  it('smokes managed-hook companions under their supported Node 18 runtime', () => {
-    const steps = workflow.jobs.managed_hook_node18.steps
-    const installIndex = steps.findIndex(
-      (step) => step.uses === './.github/actions/install-node-dependencies'
-    )
-    const buildIndex = steps.findIndex((step) => step.run === 'pnpm run build:relay')
-    const node18Index = steps.findIndex(
-      (step) => step.uses === 'actions/setup-node@v6' && step.with['node-version'] === '18'
-    )
-    const smokeIndex = steps.findIndex(
-      (step) => step.run === 'node config/scripts/smoke-managed-hook-runtime-node18.mjs'
-    )
-
-    expect(installIndex).toBeLessThan(buildIndex)
-    expect(buildIndex).toBeLessThan(node18Index)
-    expect(node18Index).toBeLessThan(smokeIndex)
   })
 
   it('restores the pnpm store before dependency installation', () => {
@@ -510,15 +491,12 @@ describe('PR workflow parallelism', () => {
       'shell_contracts',
       'test',
       'cross-version-wire',
-      'managed_hook_node18',
       'package',
       'package_windows'
     ])
     const verifyStep = workflow.jobs.verify.steps.find(
       (step) => step.name === 'Require successful checks'
     )
-    expect(verifyStep.env.MANAGED_HOOK_NODE18).toBe('${{ needs.managed_hook_node18.result }}')
-    expect(verifyStep.run).toContain('"$MANAGED_HOOK_NODE18"')
     expect(verifyStep.env.CROSS_VERSION_WIRE).toBe('${{ needs.cross-version-wire.result }}')
     expect(verifyStep.run).toContain('"$CROSS_VERSION_WIRE"')
   })

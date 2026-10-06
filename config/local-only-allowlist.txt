@@ -19,7 +19,6 @@ src/renderer/src/lib/cmd-j-evaluation-fixture.ts:forbidden-host
 src/main/network/proxy-settings.ts:forbidden-host
 # Port-scan address classification, not a listener bind.
 src/main/ports/local-workspace-port-address.ts:wildcard-bind
-src/relay/port-scan-handler.ts:wildcard-bind
 # JWT claim namespace key read from a local Codex auth file, not a request URL.
 src/main/codex-accounts/codex-auth-identity.ts:forbidden-host
 # ---- Spec B: temporary rows for code that later Spec B units delete. Remove each row with its file; B0.2 strips this block. ----

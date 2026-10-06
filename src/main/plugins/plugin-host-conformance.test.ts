@@ -6,12 +6,6 @@ import {
   createPluginPanelCallAdmission
 } from '../../shared/plugins/plugin-panel-call-admission'
 import type { PluginPanelActionOutcome } from '../../shared/plugins/plugin-panel-bridge'
-import type { MethodHandler } from '../../relay/dispatcher'
-import {
-  RELAY_PLUGIN_PANEL_HOST_CALL_METHOD,
-  RELAY_PLUGIN_WORKER_HOST_CALL_METHOD,
-  registerRelayPluginHostCallHandlers
-} from '../../relay/plugin-host-call-handler'
 import {
   executePluginHostCallRequest,
   type PluginHostCallPolicy,
@@ -69,13 +63,6 @@ function createAdapters(
   resolvePolicy: ResolvePluginHostCallPolicy,
   limits?: { maxBytes?: number; maxMessages?: number; perMs?: number }
 ): Record<string, HostCallAdapter> {
-  const relayHandlers = new Map<string, MethodHandler>()
-  registerRelayPluginHostCallHandlers(
-    { onRequest: (method, handler) => relayHandlers.set(method, handler) },
-    (context) => (context.clientId === 1 ? PLUGIN_KEY : null),
-    resolvePolicy,
-    { panelAdmission: createPluginPanelCallAdmission({ limits, now: () => 0 }) }
-  )
   const desktopAdmission = createPluginPanelCallAdmission({ limits, now: () => 0 })
   return {
     'desktop-main': async (request, viaPanel) => {
@@ -91,15 +78,6 @@ function createAdapters(
         viaPanel,
         resolvePolicy
       })
-    },
-    relay: async (request, viaPanel) => {
-      const registeredMethod = viaPanel
-        ? RELAY_PLUGIN_PANEL_HOST_CALL_METHOD
-        : RELAY_PLUGIN_WORKER_HOST_CALL_METHOD
-      return (await relayHandlers.get(registeredMethod)!(request as Record<string, unknown>, {
-        clientId: 1,
-        isStale: () => false
-      })) as PluginPanelActionOutcome
     }
   }
 }
@@ -120,8 +98,8 @@ const successParams: Record<string, unknown> = {
   'events.subscribe': { events: ['worktree.created'] }
 }
 
-describe('plugin host main/relay conformance', () => {
-  it('runs a granted success through both transports for all 13 v0 methods', async () => {
+describe('plugin host main conformance', () => {
+  it('runs a granted success through the desktop transport for all 13 v0 methods', async () => {
     expect(PLUGIN_HOST_API_V0).toHaveLength(13)
     expect(Object.keys(successParams).sort()).toEqual(
       PLUGIN_HOST_API_V0.map((entry) => entry.name).sort()
@@ -137,13 +115,12 @@ describe('plugin host main/relay conformance', () => {
           adapter({ method: spec.name, params: successParams[spec.name] }, spec.panel)
         )
       )
-      expect(outcomes, spec.name).toHaveLength(2)
-      expect(outcomes[0], spec.name).toEqual(outcomes[1])
+      expect(outcomes, spec.name).toHaveLength(1)
       expect(outcomes[0], spec.name).toMatchObject({ ok: true })
     }
   })
 
-  it('projects workspace context without host paths on main and relay', async () => {
+  it('projects workspace context without host paths on main', async () => {
     const resolvePolicy = vi.fn().mockResolvedValue(createPolicy(['workspace:read']))
     for (const adapter of Object.values(createAdapters(resolvePolicy))) {
       const outcome = await adapter({ method: 'workspace.readContext', params: {} }, true)
@@ -236,20 +213,18 @@ describe('plugin host main/relay conformance', () => {
     }
   ]
 
-  it.each(deniedCases)('returns identical $code codes for $name', async (testCase) => {
+  it.each(deniedCases)('returns the $code code for $name', async (testCase) => {
     const outcomes: PluginPanelActionOutcome[] = []
-    for (const adapterName of ['desktop-main', 'relay']) {
+    for (const adapterName of ['desktop-main']) {
       const resolvePolicy = vi.fn().mockImplementation(() => testCase.policy())
       const adapter = createAdapters(resolvePolicy)[adapterName]!
       outcomes.push(await adapter(testCase.request, testCase.viaPanel))
     }
     expect(outcomes[0]).toMatchObject({ ok: false, code: testCase.code })
-    expect(outcomes[1]).toMatchObject({ ok: false, code: testCase.code })
-    expect(outcomes[0]).toEqual(outcomes[1])
   })
 
-  it('enforces the same per-plugin panel budget on desktop main and relay', async () => {
-    for (const adapterName of ['desktop-main', 'relay']) {
+  it('enforces the same per-plugin panel budget on desktop main', async () => {
+    for (const adapterName of ['desktop-main']) {
       const resolvePolicy = vi.fn().mockResolvedValue(createPolicy(['notifications:show']))
       const adapter = createAdapters(resolvePolicy, {
         maxMessages: 1,
@@ -270,7 +245,7 @@ describe('plugin host main/relay conformance', () => {
   })
 
   it('charges malformed and oversized panel traffic before schema parsing', async () => {
-    for (const adapterName of ['desktop-main', 'relay']) {
+    for (const adapterName of ['desktop-main']) {
       const resolvePolicy = vi.fn().mockResolvedValue(createPolicy(['notifications:show']))
       const adapter = createAdapters(resolvePolicy, {
         maxBytes: 128,
@@ -305,39 +280,6 @@ describe('plugin host main/relay conformance', () => {
     }
   })
 
-  it('binds relay plugin identity to the requesting connection', async () => {
-    const relayHandlers = new Map<string, MethodHandler>()
-    const services = createServices()
-    const resolvePolicy = vi.fn().mockResolvedValue(createPolicy(['storage'], services))
-    const resolveIdentity = vi
-      .fn()
-      .mockImplementation(({ clientId }: { clientId: number }) =>
-        clientId === 7 ? PLUGIN_KEY : null
-      )
-    registerRelayPluginHostCallHandlers(
-      { onRequest: (method, handler) => relayHandlers.set(method, handler) },
-      resolveIdentity,
-      resolvePolicy
-    )
-    const handler = relayHandlers.get(RELAY_PLUGIN_WORKER_HOST_CALL_METHOD)!
-
-    await expect(
-      handler(
-        { method: 'storage.get', params: { key: 'alpha' } },
-        { clientId: 7, isStale: () => false }
-      )
-    ).resolves.toMatchObject({ ok: true })
-    expect(services.storage.get).toHaveBeenCalledWith(PLUGIN_KEY, 'alpha')
-
-    await expect(
-      handler(
-        { method: 'storage.get', params: { key: 'alpha' } },
-        { clientId: 8, isStale: () => false }
-      )
-    ).resolves.toMatchObject({ ok: false, code: 'unavailable' })
-    expect(resolvePolicy).toHaveBeenCalledTimes(1)
-  })
-
   it('rejects malformed envelopes and client-supplied authority before policy resolution', async () => {
     const requests = [
       { pluginKey: '../evil', method: 'storage.get', params: { key: 'alpha' } },
@@ -355,7 +297,7 @@ describe('plugin host main/relay conformance', () => {
       }
     ]
     for (const request of requests) {
-      for (const adapterName of ['desktop-main', 'relay']) {
+      for (const adapterName of ['desktop-main']) {
         const resolvePolicy = vi.fn().mockResolvedValue(createPolicy(['storage']))
         const outcome = await createAdapters(resolvePolicy)[adapterName]!(request, false)
         expect(outcome).toMatchObject({ ok: false, code: 'invalid_request' })

@@ -5,7 +5,7 @@ import type { OrcaRuntimeService } from './orca-runtime'
 import { makeTuiIdleRuntime } from './tui-idle-wait-test-harness'
 import type { RuntimeSyncWindowGraph } from '../../shared/runtime-types'
 import { TERMINAL_LIFECYCLE_METHODS } from './rpc/methods/terminal/terminal-lifecycle-methods'
-import { getForegroundProcessName } from '../../relay/pty-shell-utils'
+import { resolveAgentForegroundProcess } from '../providers/agent-foreground-process'
 
 // #6011 end-to-end: a REAL pty running a REAL process that emits a REAL name-only
 // OSC title while streaming must not satisfy `orca terminal wait --for tui-idle`.
@@ -41,11 +41,11 @@ async function startRealAgentPane(mode: 'explicit-idle' | 'quiet', workMs: numbe
   })
   running.push(child)
 
-  // Real foreground read against the real pty: the same helper the relay serves
-  // `pty.getForegroundProcess` with, so corroboration is host-produced here too.
+  // Real foreground read against the real pty: the same resolver the local PTY
+  // provider uses, so corroboration is host-produced here too.
   const runtime = makeTuiIdleRuntime({
     repoPath: '/tmp/tui-idle-real-pty',
-    getForegroundProcess: () => getForegroundProcessName(child.pid, child.process || null)
+    getForegroundProcess: () => resolveAgentForegroundProcess(child.pid, child.process || null)
   })
   runtime.attachWindow(1)
   const graph: RuntimeSyncWindowGraph = {

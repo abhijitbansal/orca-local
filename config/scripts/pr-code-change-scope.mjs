@@ -26,7 +26,6 @@ export const PR_CHECK_JOBS = [
   'shell_contracts',
   'test',
   'cross-version-wire',
-  'managed_hook_node18',
   'package',
   'package_windows'
 ]
@@ -47,7 +46,6 @@ const GIT_COMPAT_PREFIXES = [
   'src/shared/review-head-tracking-ref',
   'src/shared/worktree/local-base-branch-fast-forward',
   'src/main/git/',
-  'src/relay/git-',
   'config/scripts/git-binary-compatibility'
 ]
 
@@ -142,14 +140,6 @@ const CROSS_VERSION_WIRE_PREFIXES = [
   'src/main/runtime/runtime-worktree-pty-agent-sources',
   'src/shared/runtime-worktree-contracts',
   'src/renderer/src/runtime/remote-runtime-terminal-multiplexer'
-]
-
-const MANAGED_HOOK_PREFIXES = [
-  'config/scripts/smoke-managed-hook-runtime-node18',
-  'config/scripts/build-relay',
-  'src/relay/',
-  'src/shared/agent-hook',
-  'src/main/agent-hooks/'
 ]
 
 const NATIVE_RUNTIME_PREFIXES = [
@@ -282,7 +272,6 @@ const WINDOWS_PACKAGE_TESTS = [
   'src/main/runtime/unreadable-secret-store-preservation.win32.test.ts',
   'src/main/ipc/pty-codex-account-attribution.test.ts',
   'src/main/ipc/pty-spawn-env-codex-resume-provenance.test.ts',
-  'src/relay/windows-port-scan.win32.test.ts',
   'src/main/ssh/ssh-relay-upload-stage-windows-identity.test.ts',
   'src/main/ssh/remote-node-runtime-store-windows.test.ts'
 ]
@@ -382,8 +371,6 @@ function jobDetector(job) {
       return (files) => files.some((file) => matchesPrefix(file, SHELL_PREFIXES))
     case 'cross-version-wire':
       return (files) => files.some((file) => matchesPrefix(file, CROSS_VERSION_WIRE_PREFIXES))
-    case 'managed_hook_node18':
-      return (files) => files.some((file) => matchesPrefix(file, MANAGED_HOOK_PREFIXES))
     case 'package':
       return (files) => files.some(isLinuxPackagePath)
     case 'package_windows':
