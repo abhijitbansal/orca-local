@@ -30,18 +30,8 @@ vi.mock('child_process', async () => {
 })
 
 import { main } from './index'
-import { okFixture, queueFixtures } from './test-fixtures'
+import { okFixture } from './test-fixtures'
 import { useWorktreeAwarenessEnvironment } from './index-test-harness'
-
-const SSH_TARGET = { id: 'ssh-1777360569033-yvz2mp', label: 'openclaw', remotePlatform: 'win32' }
-
-/** Every SSH-target lookup answers with the one target only this machine's runtime knows about. */
-function queueSshTargetLookups(count: number): void {
-  queueFixtures(
-    callMock,
-    ...Array.from({ length: count }, () => okFixture('req_ssh_targets', { targets: [SSH_TARGET] }))
-  )
-}
 
 /**
  * A runtime that answers `status.get` with the name it currently publishes: the stored override
@@ -78,23 +68,6 @@ describe('runtime-selector flags on locally pinned CLI commands', () => {
     serveOrcaAppMock,
     getDefaultUserDataPathMock,
     spawnMock
-  })
-
-  it('answers `host list` from this machine and stamps the runtime that actually answered', async () => {
-    queueSshTargetLookups(1)
-    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-
-    await main(['host', 'list', '--json'], '/tmp/repo')
-
-    const printed = JSON.parse(String(logSpy.mock.calls[0]?.[0]))
-    expect(printed._meta.runtimeId).toBe('local')
-    expect(printed.result.hosts.map((host: { id: string }) => host.id)).toEqual([
-      'local',
-      SSH_TARGET.id
-    ])
-    expect(
-      printed.result.hosts.find((host: { id: string }) => host.id === SSH_TARGET.id).platform
-    ).toBe('win32')
   })
 
   it('reads and updates the name the answering runtime publishes', async () => {

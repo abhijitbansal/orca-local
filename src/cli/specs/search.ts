@@ -27,7 +27,6 @@ export const SEARCH_COMMAND_SPECS: CommandSpec[] = [
     positionalArgs: ['query'],
     notes: [
       'Searches the Orca host on this machine. There is no all-computers search.',
-      'In an Orca SSH terminal, the forwarded CLI searches the controlling Orca runtime by default; --path only filters results on that runtime.',
       'Quote a multi-word query, or pass it as --query "<text>"; unquoted words are read as command names.',
       '--scope conversation searches user and assistant turns only; --scope all (the default) also searches commands and tool output.',
       '--fresh waits up to five seconds for the host to reconcile its index before searching, then searches anyway.',

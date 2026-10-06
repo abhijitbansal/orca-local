@@ -254,7 +254,7 @@ async function addCodexAccount({ client, cwd, json }: HandlerContext): Promise<v
     },
     async () => {
       // Why: plain OAuth binds a loopback callback the user's browser cannot reach
-      // on a headless/SSH host; device auth is explicitly designed for this flow.
+      // on a headless host; device auth is explicitly designed for this flow.
       await runAgentLoginInTerminal(
         'codex',
         ['login', '--device-auth'],

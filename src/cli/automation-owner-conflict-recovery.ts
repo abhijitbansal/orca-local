@@ -2,9 +2,9 @@
  * What a user should do about each automation owner conflict, phrased for the
  * CLI rather than for a window that can re-render itself.
  *
- * `automation_target_removed` deliberately offers no retry: the SSH host the
+ * `automation_target_removed` deliberately offers no retry: the host the
  * record is pinned to is gone, so every retry fails identically until the user
- * re-adds that host or deletes the automation.
+ * deletes the automation.
  */
 
 import {
@@ -20,8 +20,8 @@ const RECOVERY: Record<string, readonly string[]> = {
     'Run the command again; it captures the current host on each attempt.'
   ],
   [AUTOMATION_OWNER_CONFLICT_CODES.targetRemoved]: [
-    'This automation is pinned to an SSH host that is no longer registered, so it cannot run and retrying will not change that.',
-    'Re-add that SSH host, or delete the automation with `orca automations remove --id <id>`.'
+    'This automation is pinned to a host that is no longer registered, so it cannot run and retrying will not change that.',
+    'Delete the automation with `orca automations remove --id <id>`.'
   ],
   [AUTOMATION_OWNER_CONFLICT_CODES.fencingRequired]: [
     'The host accepted the request but did not report which host owns the automation, so the CLI had no owner to send.',

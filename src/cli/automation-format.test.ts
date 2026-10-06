@@ -36,21 +36,6 @@ function automation(overrides: Partial<Automation> = {}): Automation {
 // removal untouched, so printing only those renders a dead automation byte-for-byte
 // like a healthy one and the named recovery step cannot be completed.
 describe('formatAutomationShow reports the host the authority projects', () => {
-  it('distinguishes a live SSH host from a replaced one by its incarnation', () => {
-    const live = formatAutomationShow({
-      automation: automation(),
-      owner: { selector: { kind: 'ssh', targetId: 'box-1', targetGeneration: 4 } }
-    })
-    const replaced = formatAutomationShow({
-      automation: automation(),
-      owner: { selector: { kind: 'ssh', targetId: 'box-1', targetGeneration: 9 } }
-    })
-
-    expect(live).toContain('host: ssh:box-1 (generation 4)')
-    expect(replaced).toContain('host: ssh:box-1 (generation 9)')
-    expect(live).not.toBe(replaced)
-  })
-
   it('says outright that an orphan has no host, rather than naming its dead target', () => {
     const output = formatAutomationShow({
       automation: automation(),
@@ -86,10 +71,7 @@ describe('formatAutomationList reports each row host', () => {
     const output = formatAutomationList({
       automations: [automation(), automation({ id: 'auto-2', name: 'Weekly' })],
       items: [
-        {
-          automationId: 'auto-1',
-          selector: { kind: 'ssh', targetId: 'box-1', targetGeneration: 4 }
-        },
+        { automationId: 'auto-1', selector: { kind: 'self' } },
         {
           automationId: 'auto-2',
           selector: { kind: 'orphan', issue: AUTOMATION_ORPHAN_ISSUES.targetMissing }
@@ -97,7 +79,7 @@ describe('formatAutomationList reports each row host', () => {
       ]
     })
 
-    expect(output).toContain('host: ssh:box-1 (generation 4)')
+    expect(output).toContain('host: self')
     expect(output).toContain(`host: orphan — ${AUTOMATION_ORPHAN_ISSUES.targetMissing}`)
   })
 

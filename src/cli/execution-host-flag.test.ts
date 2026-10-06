@@ -19,9 +19,20 @@ describe('parseHostFlag', () => {
     expect(() => parseHostFlag(flags({ host: value }))).toThrow(`Invalid --host value: ${value}`)
   })
 
-  it('parses the supported host kinds', () => {
+  it('parses the local host', () => {
     expect(parseHostFlag(flags({ host: 'local' }))?.kind).toBe('local')
-    expect(parseHostFlag(flags({ host: 'ssh:box-1' }))?.kind).toBe('ssh')
+  })
+
+  it('refuses an ssh host selector in this local-only build', () => {
+    expect(() => parseHostFlag(new Map([['host', 'ssh:devbox']]))).toThrow(
+      /Unsupported --host value: ssh:devbox/
+    )
+  })
+
+  it('refuses a runtime host selector in this local-only build', () => {
+    expect(() => parseHostFlag(new Map([['host', 'runtime:03ef704c']]))).toThrow(
+      /Unsupported --host value: runtime:03ef704c/
+    )
   })
 })
 

@@ -7,8 +7,7 @@ export function createOrchestrationCompatibilityEnvelope(
   env: NodeJS.ProcessEnv
 ): RuntimeOrchestrationEnvelope {
   const evidence = readOrchestrationCompatibilityEvidence(env)
-  // Read here, from this CLI's own environment only: the SSH paths build evidence from a remote
-  // shell's environment, where a session id could never name a session on this host.
+  // Read here, from this CLI's own environment only.
   const agentSessionId = readInjectedAgentSessionId(env)
   return {
     compatibilityInvocationId: randomUUID(),

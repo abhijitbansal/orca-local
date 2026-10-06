@@ -123,8 +123,7 @@ async function getExplicitTarget(
 /**
  * Reads the record's current owner so the mutation that follows can name it.
  *
- * The CLI cannot project an owner itself — it has no SSH target registry — so it
- * asks the authority that stores the record. A host too old to answer sends
+ * The CLI cannot project an owner itself, so it asks the authority that stores the record. A host too old to answer sends
  * nothing, and that host has no fence to satisfy either.
  */
 async function resolveExpectedOwner(

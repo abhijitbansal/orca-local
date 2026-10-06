@@ -57,13 +57,7 @@ orca worktree show --worktree issue:123 --json
 
 ## Choose a host
 
-List every machine the current Orca host can target and the selector for each one:
-
-```bash
-orca host list --json
-```
-
-The result includes this machine and its registered [SSH targets](/docs/ssh). Use `--host local` for this machine and `--host ssh:<target-id>` for an SSH target. SSH rows include the detected remote platform (`linux`, `darwin`, or `win32`) after the target connects; older or disconnected targets report `platform unknown`. They also include `connected` and, when known, the SSH lifecycle `connectionStatus`. SSH labels also resolve when they are unique; use the IDs from `host list` when names collide. If you put a machine name on the wrong selector, Orca reports the matching machine and the flag to use instead of returning an empty result.
+Orca runs on this machine only. `--host local` is the only accepted value; an `ssh:` or `runtime:` selector is refused with an `invalid_argument` error rather than answered for the wrong machine.
 
 ## Runtime commands
 

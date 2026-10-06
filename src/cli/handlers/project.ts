@@ -10,7 +10,7 @@ import type {
   ProjectHostSetupUpdateArgs,
   ProjectHostSetupUpdateResult
 } from '../../shared/project-types'
-import { getSshTargetIdForExecutionHost, type ExecutionHostId } from '../../shared/execution-host'
+import type { ExecutionHostId } from '../../shared/execution-host'
 import type { RepoKind } from '../../shared/repo-types'
 import type { CommandHandler, HandlerContext } from '../dispatch'
 import {
@@ -22,11 +22,7 @@ import {
   formatProjectList,
   printResult
 } from '../format'
-import {
-  hostFilterMatchesHostId,
-  parseHostFlag,
-  resolveHostFlagTarget
-} from '../execution-host-flag'
+import { hostFilterMatchesHostId, parseHostFlag } from '../execution-host-flag'
 import { getOptionalStringFlag, getRequiredStringFlag } from '../flags'
 import { resolveRepoPathArgument } from '../repo-path-arguments'
 import { RuntimeClientError, type RuntimeRpcSuccess } from '../runtime-client'
@@ -57,20 +53,6 @@ async function callProjectHostSetup<TResult>(
   }
 }
 
-async function getResolvedHostId(
-  flags: Map<string, string | boolean>,
-  client: HandlerContext['client']
-): Promise<ExecutionHostId> {
-  const host = await resolveHostFlagTarget(flags, client)
-  if (!host) {
-    throw new RuntimeClientError('invalid_argument', 'Missing required --host')
-  }
-  return host.id
-}
-
-// Why: the setup paths keep the unresolved id on purpose. The runtime rejects every `ssh:` host
-// for those operations regardless of whether it exists, so resolving first would answer "no such
-// target" and imply the command would have worked with the right id.
 function getRequiredHostId(flags: Map<string, string | boolean>): ExecutionHostId {
   const host = parseHostFlag(flags)
   if (!host) {
@@ -97,7 +79,7 @@ export const PROJECT_HANDLERS: Record<string, CommandHandler> = {
   },
   'project setups': async ({ flags, client, json }) => {
     const projectFilter = getOptionalStringFlag(flags, 'project')
-    const hostFilter = await resolveHostFlagTarget(flags, client)
+    const hostFilter = parseHostFlag(flags)
     const result = await callProjectHostSetup<{ setups: ProjectHostSetup[] }>(
       client,
       'projectHostSetup.list'
@@ -112,13 +94,10 @@ export const PROJECT_HANDLERS: Record<string, CommandHandler> = {
   'project setup-existing-folder': async ({ flags, client, cwd, json }) => {
     const rawPath = getRequiredStringFlag(flags, 'path')
     const hostId = getRequiredHostId(flags)
-    // An SSH host's filesystem is not the CLI's, so resolving a relative path against the client
-    // cwd would register a path that names the wrong machine.
-    const pathIsOffClient = getSshTargetIdForExecutionHost(hostId) !== null
     const args: ProjectHostSetupExistingFolderArgs = {
       projectId: getRequiredStringFlag(flags, 'project'),
       hostId,
-      path: resolveRepoPathArgument(rawPath, cwd, pathIsOffClient, 'Remote project setup'),
+      path: resolveRepoPathArgument(rawPath, cwd, false, 'Project setup existing folder'),
       kind: getOptionalRepoKind(flags),
       displayName: getOptionalStringFlag(flags, 'display-name')
     }
@@ -149,12 +128,7 @@ export const PROJECT_HANDLERS: Record<string, CommandHandler> = {
     const path = getOptionalStringFlag(flags, 'path')
     const args: ProjectHostSetupCreateArgs = {
       projectId: getRequiredStringFlag(flags, 'project'),
-      // Why: unlike the setup paths below, the runtime does not reject `ssh:` here — this records
-      // independent metadata — so an unknown target would persist a row pointing at a machine
-      // that does not exist. Resolving catches that. `local` and `runtime:` pass through
-      // untouched, because this is also the provisioning path and a runtime host legitimately
-      // may not exist yet when its metadata is written.
-      hostId: await getResolvedHostId(flags, client),
+      hostId: getRequiredHostId(flags),
       setupId: getOptionalStringFlag(flags, 'setup-id'),
       path:
         path === undefined

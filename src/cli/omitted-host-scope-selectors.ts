@@ -4,12 +4,6 @@ import {
   type ParsedExecutionHost
 } from '../shared/execution-host'
 import type { RuntimeListingHostScope } from '../shared/runtime-listing-host-scope'
-import {
-  findSshTargetByName,
-  listSshTargets,
-  type SshTargetSummary
-} from './host-selector-alternatives'
-import type { RuntimeClient } from './runtime-client'
 
 export type OmittedHostScopeSelector = {
   hostId: ExecutionHostId
@@ -35,40 +29,20 @@ export type WithAnnotatedHostScope<TResult> = Omit<TResult, 'hostScope'> & {
  * finish the job hard-errors on those.
  *
  * The ids are kept rather than filtered: dropping one would shrink what the listing admits it did
- * not cover, and `docs/reference/ssh-execution-boundary.md` requires a listing to name its gaps.
- * A `null` selector marks the ones this machine cannot name, which is the part a caller needs.
- * Only the SSH-target registry is consulted, so this answers "can I
- * select it", never "is it up" — no host is claimed live or exited on this path.
+ * not cover. A `null` selector marks the ones this machine cannot name, which is the part a
+ * caller needs. This answers "can I select it", never "is it up".
  */
-export async function resolveOmittedHostScopeSelectors(
-  client: RuntimeClient,
+export function resolveOmittedHostScopeSelectors(
   omittedHostIds: readonly ExecutionHostId[]
-): Promise<OmittedHostScopeSelector[]> {
-  const parsed = omittedHostIds.map((hostId) => ({
+): OmittedHostScopeSelector[] {
+  return omittedHostIds.map((hostId) => ({
     hostId,
-    host: parseExecutionHostId(hostId)
-  }))
-  // Why: SSH targets need a round trip, so only pay for it when an ssh host was actually omitted.
-  const sshTargets = parsed.some((entry) => entry.host?.kind === 'ssh')
-    ? await listSshTargets(client)
-    : []
-  return parsed.map(({ hostId, host }) => ({
-    hostId,
-    selector: resolveSelector(host, sshTargets)
+    selector: resolveSelector(parseExecutionHostId(hostId))
   }))
 }
 
-function resolveSelector(
-  host: ParsedExecutionHost | null,
-  sshTargets: readonly SshTargetSummary[]
-): string | null {
-  if (host?.kind === 'local') {
-    return '--host local'
-  }
-  if (host?.kind === 'ssh') {
-    return findSshTargetByName(sshTargets, host.targetId) ? `--host ssh:${host.targetId}` : null
-  }
-  return null
+function resolveSelector(host: ParsedExecutionHost | null): string | null {
+  return host?.kind === 'local' ? '--host local' : null
 }
 
 /** Renders a scope line; an absent scope means the host never reported one, not full coverage. */
@@ -94,13 +68,12 @@ export function formatListingHostScope(scope: ListingHostScopeWithSelectors | un
 }
 
 /** Attaches the resolved selectors in place; a listing with no omitted hosts pays nothing. */
-export async function annotateOmittedHostScope(
-  client: RuntimeClient,
-  result: { hostScope?: ListingHostScopeWithSelectors }
-): Promise<void> {
+export function annotateOmittedHostScope(result: {
+  hostScope?: ListingHostScopeWithSelectors
+}): void {
   const scope = result.hostScope
   if (!scope || scope.omittedHostIds.length === 0) {
     return
   }
-  scope.omittedHostSelectors = await resolveOmittedHostScopeSelectors(client, scope.omittedHostIds)
+  scope.omittedHostSelectors = resolveOmittedHostScopeSelectors(scope.omittedHostIds)
 }

@@ -90,51 +90,20 @@ describe('orca cli worktree awareness', () => {
     expect(callMock).toHaveBeenCalledWith('project.list')
   })
 
-  // Why: ssh: was never validated, so an unknown target answered ok:true with an empty list —
-  // the same silent wrong-machine answer unknown runtime ids used to give.
-  it('rejects an unknown ssh host instead of answering empty', async () => {
-    queueFixtures(callMock, okFixture('req_ssh_targets', { targets: [] }))
+  it('refuses an ssh host instead of answering empty or contacting a runtime', async () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
     const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const priorExitCode = process.exitCode
 
     await main(['project', 'setups', '--host', 'ssh:openclaw', '--json'], '/tmp/repo')
 
-    expect(callMock).not.toHaveBeenCalledWith('projectHostSetup.list')
+    expect(callMock).not.toHaveBeenCalled()
     expect([...logSpy.mock.calls, ...errSpy.mock.calls].flat().join('\n')).toContain(
-      'no SSH target named or with id openclaw'
+      'Unsupported --host value: ssh:openclaw'
     )
     expect(process.exitCode).toBe(1)
 
     process.exitCode = priorExitCode
-  })
-
-  it('resolves an ssh label to its target id before filtering', async () => {
-    queueFixtures(
-      callMock,
-      okFixture('req_ssh_targets', { targets: [{ id: 'ssh-123-abc', label: 'openclaw' }] }),
-      okFixture('req_project_setups', {
-        setups: [
-          {
-            id: 'setup-openclaw',
-            projectId: 'github:stablyai/orca',
-            hostId: 'ssh:ssh-123-abc',
-            repoId: 'repo-openclaw',
-            path: '/home/me/orca',
-            displayName: 'Orca',
-            setupState: 'ready',
-            setupMethod: 'legacy-repo',
-            createdAt: 1,
-            updatedAt: 1
-          }
-        ]
-      })
-    )
-    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-
-    await main(['project', 'setups', '--host', 'ssh:openclaw'], '/tmp/repo')
-
-    expect(logSpy.mock.calls[0]?.[0]).toContain('setup-openclaw')
   })
 
   it('rejects a malformed --host value before contacting any runtime', async () => {
@@ -218,9 +187,7 @@ describe('orca cli worktree awareness', () => {
     })
   })
 
-  it('rejects SSH project setup relative paths, which name the client filesystem', async () => {
-    // A local CLI reaching an `ssh:*` host is still off-client: resolving `./orca` against the
-    // CLI cwd would register a path that exists on the wrong machine.
+  it('refuses to set up an existing folder on an ssh host', async () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
     const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const priorExitCode = process.exitCode
@@ -242,7 +209,7 @@ describe('orca cli worktree awareness', () => {
 
     expect(callMock).not.toHaveBeenCalled()
     expect([...logSpy.mock.calls, ...errSpy.mock.calls].flat().join('\n')).toContain(
-      'Remote project setup requires --path to be an absolute path on the remote server.'
+      'Unsupported --host value: ssh:openclaw'
     )
     expect(process.exitCode).toBe(1)
 
