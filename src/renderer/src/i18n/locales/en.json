@@ -1205,7 +1205,6 @@
         "noRunTargets": "No run targets are ready for this project.",
         "branchName": "Branch name",
         "branchNamePlaceholder": "feature/my-branch",
-        "connectTimedOut": "Connection timed out. It may still be connecting in the background.",
         "connectingHost": "Connecting…",
         "connectHost": "Connect",
         "setLocation": "Set project location",
@@ -4942,8 +4941,7 @@
           "3b7e4a1c96": "Hide external worktrees"
         },
         "AddRemoteHostDialog": {
-          "sshImportSynced": "Added {{value0}} host{{value1}} to Orca.",
-          "advanced": "Advanced"
+          "sshImportSynced": "Added {{value0}} host{{value1}} to Orca."
         },
         "ForgetSshWorkspaceDialog": {
           "forget": "Remove from Orca"
@@ -6852,26 +6850,6 @@
           "623b4cf910": "Edit Preset",
           "68bbcd864a": "new",
           "2ef2b2674b": "Delete {{value0}}"
-        },
-        "SshTargetForm": {
-          "1b19b00e93": "Bounded timeouts must be between 60 seconds and 7 days.",
-          "7c13f58c91": "Until reset",
-          "55c56cf2c7": "Timeout after disconnect (seconds)",
-          "b574994adc": "Use End Remote Terminals or Reset Relay when you want to stop them.",
-          "71fc546097": "Keep terminals alive until reset",
-          "feae1d1e69": "Optional. Equivalent to ProxyJump / ssh -J.",
-          "11bcb4507a": "bastion.example.com",
-          "b2ab248ded": "Jump Host",
-          "3b01ca44a0": "Optional. Used for tunneling (e.g. Cloudflare Access, ProxyCommand).",
-          "f42d844544": "e.g. cloudflared access ssh --hostname %h",
-          "c7d0e18ecb": "Proxy Command",
-          "8c922dffba": "Reuse SSH connection for faster setup",
-          "53e9aabfc0": "Uses OpenSSH multiplexing when available. Turn off for hosts with custom SSH restrictions.",
-          "remoteRuntime": "Runtime",
-          "remoteRuntimeHelp": "Which Node.js runs Orca on this host. Orca-managed Node uploads its own and needs no npm; Host Node uses the Node.js already installed there.",
-          "remoteRuntimeAuto": "Auto",
-          "remoteRuntimePinnedNode": "Orca-managed Node",
-          "remoteRuntimeHostNode": "Host Node"
         },
         "TasksPane": {
           "f71d8a9dd3": "Task Providers",
@@ -14042,14 +14020,6 @@
     "runtime": {
       "webRuntimeSession": {
         "remoteHostDisconnected": "The workspace is not connected to a remote Orca host."
-      }
-    },
-    "ssh": {
-      "sshConnectVerb": {
-        "reconnect": "Reconnect",
-        "retry": "Retry",
-        "connect": "Connect",
-        "connecting": "Connecting…"
       }
     },
     "main": {

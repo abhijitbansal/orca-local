@@ -1175,7 +1175,6 @@
         "noRunTargets": "Aucune cible d'exécution n'est prête pour ce projet.",
         "branchName": "Nom de branche",
         "branchNamePlaceholder": "feature/my-branch",
-        "connectTimedOut": "La connexion a expiré. Elle se poursuit peut-être en arrière-plan.",
         "connectingHost": "Connexion…",
         "connectHost": "Se connecter",
         "setLocation": "Définir l'emplacement du projet",
@@ -4873,8 +4872,7 @@
           "3b7e4a1c96": "Masquer les worktrees externes"
         },
         "AddRemoteHostDialog": {
-          "sshImportSynced": "Ajout de {{value0}} hôte{{value1}} à Orca.",
-          "advanced": "Avancé"
+          "sshImportSynced": "Ajout de {{value0}} hôte{{value1}} à Orca."
         },
         "ForgetSshWorkspaceDialog": {
           "forget": "Retirer d'Orca"
@@ -6772,21 +6770,6 @@
           "623b4cf910": "Modifier le préréglage",
           "68bbcd864a": "nouveau",
           "2ef2b2674b": "Supprimer {{value0}}"
-        },
-        "SshTargetForm": {
-          "1b19b00e93": "Les délais limités doivent être compris entre 60 secondes et 7 jours.",
-          "7c13f58c91": "Jusqu'à la réinitialisation",
-          "55c56cf2c7": "Délai après déconnexion (secondes)",
-          "b574994adc": "Utilisez « Arrêter les terminaux distants » ou « Réinitialiser le relais » quand vous voulez les arrêter.",
-          "71fc546097": "Garder les terminaux actifs jusqu'à la réinitialisation",
-          "feae1d1e69": "Facultatif. Équivalent à ProxyJump / ssh -J.",
-          "11bcb4507a": "bastion.example.com",
-          "b2ab248ded": "Hôte de rebond",
-          "3b01ca44a0": "Facultatif. Utilisé pour le tunneling (ex. Cloudflare Access, ProxyCommand).",
-          "f42d844544": "ex. cloudflared access ssh --hostname %h",
-          "c7d0e18ecb": "Commande de proxy",
-          "8c922dffba": "Réutiliser la connexion SSH pour une configuration plus rapide",
-          "53e9aabfc0": "Utilise le multiplexage OpenSSH quand il est disponible. Désactivez pour les hôtes soumis à des restrictions SSH particulières."
         },
         "TasksPane": {
           "f71d8a9dd3": "Fournisseurs de tâches",
@@ -13976,14 +13959,6 @@
     "runtime": {
       "webRuntimeSession": {
         "remoteHostDisconnected": "L'espace de travail n'est pas connecté à un hôte Orca distant."
-      }
-    },
-    "ssh": {
-      "sshConnectVerb": {
-        "reconnect": "Reconnecter",
-        "retry": "Réessayer",
-        "connect": "Se connecter",
-        "connecting": "Connexion…"
       }
     },
     "main": {

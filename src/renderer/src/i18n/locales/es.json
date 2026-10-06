@@ -921,7 +921,6 @@
         "noRunTargets": "No hay destinos de ejecución listos para este proyecto.",
         "branchName": "Nombre de rama",
         "branchNamePlaceholder": "feature/my-branch",
-        "connectTimedOut": "Connection timed out. It may still be connecting in the background.",
         "connectingHost": "Connecting…",
         "connectHost": "Connect",
         "addHost": "Add host",
@@ -4243,8 +4242,7 @@
           "3b7e4a1c96": "Ocultar worktrees externos"
         },
         "AddRemoteHostDialog": {
-          "sshImportSynced": "Se sincronizó {{value0}} host{{value1}}.",
-          "advanced": "Advanced"
+          "sshImportSynced": "Se sincronizó {{value0}} host{{value1}}."
         },
         "ForgetSshWorkspaceDialog": {
           "forget": "Eliminar de Orca"
@@ -5893,21 +5891,6 @@
           "623b4cf910": "Editar preset",
           "68bbcd864a": "nuevo",
           "2ef2b2674b": "Eliminar {{value0}}"
-        },
-        "SshTargetForm": {
-          "1b19b00e93": "Los tiempos de espera acotados deben estar entre 60 segundos y 7 días.",
-          "b574994adc": "Usa Finalizar terminales remotos o Restablecer relé cuando quieras detenerlos.",
-          "71fc546097": "Mantener los terminales activos hasta restablecer",
-          "feae1d1e69": "Opcional. Equivale a ProxyJump / ssh -J.",
-          "11bcb4507a": "bastion.example.com",
-          "b2ab248ded": "Host de salto",
-          "3b01ca44a0": "Opcional. Se usa para túneles (p. ej., Cloudflare Access, ProxyCommand).",
-          "f42d844544": "p. ej., cloudflared access ssh --hostname %h",
-          "c7d0e18ecb": "Comando proxy",
-          "7c13f58c91": "Hasta restablecer",
-          "55c56cf2c7": "Tiempo de espera después de desconectar (segundos)",
-          "8c922dffba": "Reutilizar la conexión SSH para una configuración más rápida",
-          "53e9aabfc0": "Usa la multiplexación de OpenSSH cuando esté disponible. Desactiva esta opción para hosts con restricciones SSH personalizadas."
         },
         "TasksPane": {
           "f71d8a9dd3": "Proveedores de tareas",
@@ -12346,14 +12329,6 @@
     "runtime": {
       "webRuntimeSession": {
         "remoteHostDisconnected": "The workspace is not connected to a remote Orca host."
-      }
-    },
-    "ssh": {
-      "sshConnectVerb": {
-        "connect": "Conectar",
-        "connecting": "Conectando…",
-        "reconnect": "Reconectar",
-        "retry": "Reintentar"
       }
     },
     "main": {

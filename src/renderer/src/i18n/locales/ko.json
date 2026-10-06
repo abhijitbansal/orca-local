@@ -1086,7 +1086,6 @@
         "noRunTargets": "이 프로젝트에는 실행 대상이 준비되어 있지 않습니다.",
         "branchName": "브랜치 이름",
         "branchNamePlaceholder": "feature/my-branch",
-        "connectTimedOut": "Connection timed out. It may still be connecting in the background.",
         "connectingHost": "Connecting…",
         "connectHost": "Connect",
         "addHost": "Add host",
@@ -4810,8 +4809,7 @@
           "3b7e4a1c96": "외부 워크트리 숨기기"
         },
         "AddRemoteHostDialog": {
-          "sshImportSynced": "{{value0}} 호스트{{value1}}을(를) Orca에 추가했습니다.",
-          "advanced": "고급"
+          "sshImportSynced": "{{value0}} 호스트{{value1}}을(를) Orca에 추가했습니다."
         },
         "ForgetSshWorkspaceDialog": {
           "forget": "Orca에서 제거"
@@ -6630,21 +6628,6 @@
           "623b4cf910": "사전 설정 편집",
           "68bbcd864a": "새로운",
           "2ef2b2674b": "{{value0}} 삭제"
-        },
-        "SshTargetForm": {
-          "1b19b00e93": "제한된 시간 초과는 60초에서 7일 사이여야 합니다.",
-          "b574994adc": "중지하려면 원격 터미널 종료 또는 릴레이 재설정을 사용하세요.",
-          "71fc546097": "재설정할 때까지 터미널 유지",
-          "feae1d1e69": "선택 사항. ProxyJump / ssh -J와 동일합니다.",
-          "11bcb4507a": "bastion.example.com",
-          "b2ab248ded": "점프 호스트",
-          "3b01ca44a0": "선택 사항. 터널링에 사용됩니다(예: Cloudflare Access, ProxyCommand).",
-          "f42d844544": "예: cloudflared access ssh --hostname %h",
-          "c7d0e18ecb": "프록시 명령",
-          "7c13f58c91": "재설정할 때까지",
-          "55c56cf2c7": "연결 해제 후 시간 제한(초)",
-          "8c922dffba": "더 빠른 설정을 위해 SSH 연결 재사용",
-          "53e9aabfc0": "사용 가능한 경우 OpenSSH 멀티플렉싱을 사용합니다. 사용자 지정 SSH 제한이 있는 호스트에서는 끄세요."
         },
         "TasksPane": {
           "f71d8a9dd3": "작업 제공자",
@@ -13891,14 +13874,6 @@
     "runtime": {
       "webRuntimeSession": {
         "remoteHostDisconnected": "The workspace is not connected to a remote Orca host."
-      }
-    },
-    "ssh": {
-      "sshConnectVerb": {
-        "connect": "연결",
-        "connecting": "연결 중…",
-        "reconnect": "다시 연결",
-        "retry": "재시도"
       }
     },
     "main": {

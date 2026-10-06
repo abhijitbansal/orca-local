@@ -1086,7 +1086,6 @@
         "noRunTargets": "此项目还没有可用的运行目标。",
         "branchName": "分支名称",
         "branchNamePlaceholder": "feature/my-branch",
-        "connectTimedOut": "连接超时，可能仍在后台连接中。",
         "connectingHost": "Connecting…",
         "connectHost": "Connect",
         "addHost": "Add host",
@@ -4810,8 +4809,7 @@
           "3b7e4a1c96": "隐藏外部工作树"
         },
         "AddRemoteHostDialog": {
-          "sshImportSynced": "已同步 {{value0}} 个主机{{value1}}。",
-          "advanced": "Advanced"
+          "sshImportSynced": "已同步 {{value0}} 个主机{{value1}}。"
         },
         "ForgetSshWorkspaceDialog": {
           "forget": "从 Orca 中移除"
@@ -6630,21 +6628,6 @@
           "623b4cf910": "编辑预设",
           "68bbcd864a": "新的",
           "2ef2b2674b": "删除 {{value0}}"
-        },
-        "SshTargetForm": {
-          "1b19b00e93": "有限超时时间必须介于 60 秒到 7 天之间。",
-          "b574994adc": "需要停止它们时，请使用“结束远程终端”或“重置中继”。",
-          "71fc546097": "保持终端运行直到重置",
-          "feae1d1e69": "可选。相当于 ProxyJump / ssh -J。",
-          "11bcb4507a": "bastion.example.com",
-          "b2ab248ded": "跳板主机",
-          "3b01ca44a0": "可选。用于隧道（例如 Cloudflare Access、ProxyCommand）。",
-          "f42d844544": "例如 cloudflared access ssh --hostname %h",
-          "c7d0e18ecb": "代理命令",
-          "7c13f58c91": "直到重置",
-          "55c56cf2c7": "断开连接后的超时时间（秒）",
-          "8c922dffba": "复用 SSH 连接以加快设置",
-          "53e9aabfc0": "可用时使用 OpenSSH 多路复用。对于有自定义 SSH 限制的主机，请关闭此项。"
         },
         "TasksPane": {
           "f71d8a9dd3": "任务提供者",
@@ -13891,14 +13874,6 @@
     "runtime": {
       "webRuntimeSession": {
         "remoteHostDisconnected": "工作区未连接到远程 Orca 主机。"
-      }
-    },
-    "ssh": {
-      "sshConnectVerb": {
-        "connect": "连接",
-        "connecting": "正在连接…",
-        "reconnect": "重新连接",
-        "retry": "重试"
       }
     },
     "main": {

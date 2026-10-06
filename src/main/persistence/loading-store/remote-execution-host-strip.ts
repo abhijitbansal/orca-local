@@ -115,12 +115,13 @@ export function stripRemoteExecutionHostState(
 ): RemoteExecutionHostStripResult {
   let changed = false
   const legacyRecoveryTargetIds: string[] = []
+  const persistedValues = new Map<string, unknown>(Object.entries(parsed))
 
   for (const key of STRIPPED_REMOTE_STATE_KEYS) {
     if (!Object.hasOwn(parsed, key)) {
       continue
     }
-    const value: unknown = Reflect.get(parsed, key)
+    const value = persistedValues.get(key)
     if (key === 'sshPtyConsumerRecoveries' && Array.isArray(value)) {
       for (const record of value) {
         if (isRecord(record) && typeof record.targetId === 'string' && record.targetId.length > 0) {
