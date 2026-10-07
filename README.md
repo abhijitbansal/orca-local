@@ -16,7 +16,7 @@
   Run Codex, ClaudeCode, OpenCode or Pi side-by-side — each in its own worktree, tracked in one place.
 </p>
 
-> **Local-only fork.** This fork of [stablyai/orca](https://github.com/stablyai/orca) runs entirely on your machine. There are no cloud accounts, no mobile app, no auto-update, no telemetry upload, and no network listener. A local usage record, on by default for new installs and off with one switch, is written to a file and never sent anywhere. Git works through your own `git` CLI against your own remotes. The invariants, the sockets that remain, and the few places that still reach the network are in [docs/reference/local-only-architecture.md](docs/reference/local-only-architecture.md). To take a new upstream release, see [docs/reference/local-only-upstream-sync.md](docs/reference/local-only-upstream-sync.md).
+> **Local-only fork.** This fork of [stablyai/orca](https://github.com/stablyai/orca) runs entirely on your machine. There are no cloud accounts, no mobile app, no auto-update, no telemetry upload, no SSH or remote Orca servers, and no network listener. A local usage record, on by default for new installs and off with one switch, is written to a file and never sent anywhere. Git works through your own `git` CLI against your own remotes. See [What this fork changed](#what-this-fork-changed), [Build from source](#build-from-source) and [Updating from upstream](#updating-from-upstream).
 
 ## Features
 
@@ -162,25 +162,95 @@ Works with **any CLI agent** — if it runs in a terminal, it runs in Orca.
 
 ---
 
-## Install
+## What this fork changed
 
-This fork ships no prebuilt downloads, no Homebrew cask, and no auto-update. Build it from source, and update by merging upstream and rebuilding ([upstream sync guide](docs/reference/local-only-upstream-sync.md)).
+Compared with upstream Orca, this fork **removes** everything that let Orca's own code reach the cloud, or let anything on the network reach Orca:
+
+| Area                     | Removed                                                                                                                                                                                                           | Kept                                                                                                                      |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Telemetry and support    | PostHog upload; feedback, crash-report and diagnostics upload; the GitHub star prompt                                                                                                                             | A local, consent-gated usage record (`telemetry.ndjson`); local crash capture and "copy report"                           |
+| Updates and distribution | The auto-updater, release channels, the publish config and Homebrew casks                                                                                                                                         | Building from source (below)                                                                                              |
+| Accounts and sharing     | Orca Cloud sign-in and profile sync; skill and artifact share links; the `orca://` deep links; `npx skills` registry installs; the plugin marketplace seed and kill list                                          | Local profiles, local skills and local plugins                                                                            |
+| Mobile and remote access | The Orca Mobile app, its relay and push service; the runtime WebSocket listener; the browser web client; pairing; `orca serve` network mode                                                                       | `orca serve` as a local headless runtime, reached by the `orca` CLI over a local socket                                   |
+| Remote execution         | SSH remotes, the SSH relay, remote Orca runtime environments, orcad, ephemeral VMs and VM recipes, the skill-transfer rails and pinned Node downloads                                                             | Local and WSL execution; `git` over SSH to your own remotes through your own git client                                   |
+| Integrations             | GitHub, GitLab, Bitbucket, Azure DevOps, Gitea, Jira and Linear API integrations (PR/issue panels, the Tasks view, `gh`/`glab`), vendor usage and quota polling, Claude OAuth refresh, OpenAI cloud transcription | Local diff and source control, AI commit messages, local Claude usage from statusline posts, and on-device speech-to-text |
+| Renderer                 | Remote favicon and avatar loads                                                                                                                                                                                   | A strict Content-Security-Policy on app windows; the embedded browser pane is unrestricted by design                      |
+
+Old profiles upgrade cleanly. SSH and remote-runtime projects, tabs and leases are dropped when the profile loads, and no local data is lost. A guard script (`pnpm run check:local-only`, part of `pnpm lint`) fails the build if a cloud host, cloud SDK, publish block, deep-link protocol, wildcard bind or `ssh2`/`tweetnacl` value import comes back.
+
+More detail:
+
+- What changed and the before/after test and security results: [Spec A summary](docs/local-only/2026-10-01-spec-a-change-summary.md) (cloud, mobile, telemetry, updater, integrations) and [Spec B summary](docs/local-only/2026-10-02-spec-b-change-summary.md) (SSH, remote runtimes, orcad, VMs).
+- The invariants, the sockets that remain, and the few places that still reach the network: [local-only architecture](docs/reference/local-only-architecture.md).
+- An index of all fork docs: [docs/local-only/README.md](docs/local-only/README.md).
+
+---
+
+## Build from source
+
+This fork ships no prebuilt downloads, no Homebrew cask, and no auto-update. Build it yourself.
+
+**Prerequisites**
+
+- Node.js 24 (`node -v`).
+- pnpm 12, which is pinned in `package.json`. Enable it with `corepack enable`. If corepack cannot fetch pnpm 12, run every `pnpm` command below as `npx -y pnpm@12.0.0 …`.
+- macOS: Xcode Command Line Tools (`xcode-select --install`), because the build compiles small Swift helpers.
+- Linux and Windows: the native build toolchain listed in [CONTRIBUTING.md](.github/CONTRIBUTING.md).
+
+**Run from source (no packaging)**
 
 ```bash
 pnpm install
+pnpm dev
+```
 
-# macOS (builds x64 and arm64, so install both CPU variants first)
-pnpm install:release
+**Package an installable app**
+
+```bash
+# macOS: produces dist/orca-macos-arm64.dmg and dist/orca-macos-x64.dmg (plus .zip)
+pnpm install:release      # installs native modules for both CPU architectures
 pnpm build:mac
 
-# Linux
+# Linux: produces dist/orca-linux.AppImage, plus .deb and .rpm
+pnpm install
 pnpm build:linux
 
-# Windows
+# Windows: produces dist/orca-windows-setup.exe
+pnpm install
 pnpm build:win
 ```
 
-For a run from source without packaging, use `pnpm dev`. Contributing and per-platform prerequisites are in [CONTRIBUTING.md](.github/CONTRIBUTING.md).
+**Unsigned macOS builds.** Without an Apple signing identity, build unsigned:
+
+```bash
+ORCA_COMPUTER_MACOS_SIGN_IDENTITY=- CSC_IDENTITY_AUTO_DISCOVERY=false pnpm build:mac
+```
+
+The first time you open the app, right-click it and choose **Open**. You also need these variables if your keychain holds duplicate "Apple Development" certificates, which make `codesign` fail with "ambiguous".
+
+**The `orca` CLI.** The packaged app installs it from Settings → General → CLI. From a source checkout, run `pnpm build:cli`, then `node out/cli/index.js status`.
+
+**Verify a build.** Before you rely on a build, run:
+
+```bash
+pnpm tc && pnpm test && pnpm lint   # lint includes the local-only guard
+```
+
+---
+
+## Updating from upstream
+
+Updates arrive by merging upstream and rebuilding:
+
+```bash
+git remote add upstream https://github.com/stablyai/orca.git   # once
+git fetch upstream
+git merge upstream/main
+pnpm install
+pnpm tc && pnpm run check:local-only && pnpm test
+```
+
+If a merge reintroduces a removed feature, `check:local-only` names the exact file and line. Resolve modify/delete conflicts on removed files with `git rm`. The per-file conflict playbook is in [local-only-upstream-sync.md](docs/reference/local-only-upstream-sync.md).
 
 The documentation under `docs/site/content/docs/` is upstream's docs site. This fork does not publish it; read the pages in the repo.
 
