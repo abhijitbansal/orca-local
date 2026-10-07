@@ -47,7 +47,8 @@ const HOST_SUBDIR = 'daemon-host'
 const MARKER_NAME = '.materialized.json'
 
 // LOCAL appData (not roaming) so OneDrive/roaming never syncs this ~260MB runtime. Shared with NSIS uninstall (config/nsis/orca-installer-hooks.nsh) — keep in sync.
-const LOCAL_HOST_ROOT_NAME = 'Orca'
+// Why not 'Orca': upstream Orca relocates its own host there, and sharing it would run upstream code as our daemon.
+const LOCAL_HOST_ROOT_NAME = 'Orca Local'
 
 type MaterializeMarker = {
   version: string

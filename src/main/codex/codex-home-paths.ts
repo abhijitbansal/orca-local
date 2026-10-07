@@ -12,6 +12,7 @@ import {
 } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
+import { PACKAGED_USER_DATA_DIR_NAME } from '../../shared/packaged-app-identity'
 import {
   clearCopiedResourceMarker,
   markCopiedResource,
@@ -66,12 +67,18 @@ export function getOrcaUserDataPath(): string {
   // Why: CLI hook commands import this module outside Electron. Mirror the CLI
   // runtime metadata path so offline hook status/on/off uses the same userData.
   if (process.platform === 'darwin') {
-    return join(homedir(), 'Library', 'Application Support', 'orca')
+    return join(homedir(), 'Library', 'Application Support', PACKAGED_USER_DATA_DIR_NAME)
   }
   if (process.platform === 'win32') {
-    return join(process.env.APPDATA ?? join(homedir(), 'AppData', 'Roaming'), 'orca')
+    return join(
+      process.env.APPDATA ?? join(homedir(), 'AppData', 'Roaming'),
+      PACKAGED_USER_DATA_DIR_NAME
+    )
   }
-  return join(process.env.XDG_CONFIG_HOME || join(homedir(), '.config'), 'orca')
+  return join(
+    process.env.XDG_CONFIG_HOME || join(homedir(), '.config'),
+    PACKAGED_USER_DATA_DIR_NAME
+  )
 }
 
 // Why: each managed home (the shared runtime mirror, or a per-account

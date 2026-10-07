@@ -5,7 +5,7 @@ domain. That prevents held keys from repeating in terminal applications such as 
 eligible launch, Orca writes:
 
 ```sh
-defaults write com.stablyai.orca ApplePressAndHoldEnabled -bool false
+defaults write com.abhijitbansal.orca-local ApplePressAndHoldEnabled -bool false
 ```
 
 The write is scoped to Orca's packaged bundle domain. Bare Electron development bundles and
@@ -33,14 +33,14 @@ timeouts, and other exit statuses leave the preference alone.
 Set the preference explicitly, then restart Orca:
 
 ```sh
-defaults write com.stablyai.orca ApplePressAndHoldEnabled -bool true
+defaults write com.abhijitbansal.orca-local ApplePressAndHoldEnabled -bool true
 ```
 
 After Orca has recorded its one-time decision, deleting the key also restores the macOS default
 without Orca recreating it:
 
 ```sh
-defaults delete com.stablyai.orca ApplePressAndHoldEnabled
+defaults delete com.abhijitbansal.orca-local ApplePressAndHoldEnabled
 ```
 
 Development and prerelease channels may use a channel-suffixed Orca bundle identifier; use that

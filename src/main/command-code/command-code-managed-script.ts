@@ -1,3 +1,4 @@
+import { PACKAGED_USER_DATA_DIR_NAME } from '../../shared/packaged-app-identity'
 import { buildWindowsAgentHookPostCommand } from '../agent-hooks/installer-utils'
 import {
   buildPosixHookPayloadCapture,
@@ -110,8 +111,8 @@ export function buildCommandCodeManagedScript(
     '    "$HOME/Library/Application Support/orca-dev/agent-hooks/endpoint.env" \\',
     '    "${XDG_CONFIG_HOME:-$HOME/.config}/orca-dev/agent-hooks"/*/endpoint.env \\',
     '    "${XDG_CONFIG_HOME:-$HOME/.config}/orca-dev/agent-hooks/endpoint.env" \\',
-    '    "$HOME/Library/Application Support/orca/agent-hooks/endpoint.env" \\',
-    '    "${XDG_CONFIG_HOME:-$HOME/.config}/orca/agent-hooks/endpoint.env"; do',
+    `    "$HOME/Library/Application Support/${PACKAGED_USER_DATA_DIR_NAME}/agent-hooks/endpoint.env" \\`,
+    `    "\${XDG_CONFIG_HOME:-$HOME/.config}/${PACKAGED_USER_DATA_DIR_NAME}/agent-hooks/endpoint.env"; do`,
     '    [ -r "$endpoint" ] || continue',
     '    endpoint_port=$(sed -n "s/^ORCA_AGENT_HOOK_PORT=//p" "$endpoint" | head -n 1)',
     '    if [ "$endpoint_port" = "$ORCA_AGENT_HOOK_PORT" ]; then',
