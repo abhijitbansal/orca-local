@@ -9,8 +9,9 @@ import type {
   ComputerUsePermissionSetupResult,
   ComputerUsePermissionStatusResult
 } from '../../shared/computer-use-permissions-types'
+import { PACKAGED_BUNDLE_ID } from '../../shared/packaged-app-identity'
 
-const DEFAULT_COMPUTER_USE_BUNDLE_ID = 'com.stablyai.orca.computer-use'
+const DEFAULT_COMPUTER_USE_BUNDLE_ID = `${PACKAGED_BUNDLE_ID}.computer-use`
 
 export { getComputerUsePermissionStatus } from './macos-computer-use-permission-status'
 

@@ -209,6 +209,9 @@ export function configureDevUserDataPath(isDev: boolean): void {
   }
 
   if (!isDev) {
+    // Why pin: the post-ready app.setName('Orca Local') would otherwise move late
+    // getPath('userData') reads from `orca-local` to `Orca Local`, splitting the profile.
+    app.setPath('userData', app.getPath('userData'))
     return
   }
   const overrideUserDataPath = process.env.ORCA_DEV_USER_DATA_PATH

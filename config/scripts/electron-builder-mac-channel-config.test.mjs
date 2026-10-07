@@ -46,12 +46,12 @@ const withAdhocEnv = (assert) => withEnv({ ORCA_MAC_ADHOC: '1' }, assert)
 describe('electron-builder mac channel config', () => {
   // Why: Squirrel.Mac swaps the .app in place only when the replacement carries the
   // same bundle id and a valid Developer ID signature. A hourly built on the local
-  // (com.stablyai.orca.local, ad-hoc) identity would be un-installable over a real
+  // (ad-hoc) identity would be un-installable over a real
   // Orca — the whole point of the channel.
   it('builds hourly artifacts with the release signing identity', () => {
     withHourlyEnv((config) => {
       expect(config.mac.appId).toBeUndefined()
-      expect(config.appId).toBe('com.stablyai.orca')
+      expect(config.appId).toBe('com.abhijitbansal.orca-local')
       expect(config.mac.hardenedRuntime).toBe(true)
       expect(config.forceCodeSigning).toBe(true)
     })
@@ -89,7 +89,10 @@ describe('electron-builder mac channel config', () => {
     withEnv(
       { ORCA_MAC_HOURLY: '1', ORCA_HOURLY_BUILD_VERSION: '1.4.160-hourly.202607281400' },
       (config) => {
-        expect(config.extraMetadata).toEqual({ version: '1.4.160-hourly.202607281400' })
+        expect(config.extraMetadata).toEqual({
+          name: 'orca-local',
+          version: '1.4.160-hourly.202607281400'
+        })
       }
     )
   })
@@ -98,7 +101,7 @@ describe('electron-builder mac channel config', () => {
   // real Orca, so the same signing and the same TCC argument apply.
   it('builds adhoc artifacts with the release identity', () => {
     withAdhocEnv((config) => {
-      expect(config.appId).toBe('com.stablyai.orca')
+      expect(config.appId).toBe('com.abhijitbansal.orca-local')
       expect(config.mac.hardenedRuntime).toBe(true)
       expect(config.mac.notarize).toBe(true)
       expect(config.forceCodeSigning).toBe(true)
@@ -109,14 +112,17 @@ describe('electron-builder mac channel config', () => {
     withEnv(
       { ORCA_MAC_ADHOC: '1', ORCA_ADHOC_BUILD_VERSION: '1.4.160-adhoc.20260728140533' },
       (config) => {
-        expect(config.extraMetadata).toEqual({ version: '1.4.160-adhoc.20260728140533' })
+        expect(config.extraMetadata).toEqual({
+          name: 'orca-local',
+          version: '1.4.160-adhoc.20260728140533'
+        })
       }
     )
   })
 
   it('builds daily artifacts with the release identity', () => {
     withDailyEnv((config) => {
-      expect(config.appId).toBe('com.stablyai.orca')
+      expect(config.appId).toBe('com.abhijitbansal.orca-local')
       expect(config.mac.hardenedRuntime).toBe(true)
       expect(config.mac.notarize).toBe(true)
       expect(config.forceCodeSigning).toBe(true)
@@ -127,7 +133,10 @@ describe('electron-builder mac channel config', () => {
     withEnv(
       { ORCA_MAC_DAILY: '1', ORCA_DAILY_BUILD_VERSION: '1.4.160-daily.202607281300' },
       (config) => {
-        expect(config.extraMetadata).toEqual({ version: '1.4.160-daily.202607281300' })
+        expect(config.extraMetadata).toEqual({
+          name: 'orca-local',
+          version: '1.4.160-daily.202607281300'
+        })
       }
     )
   })

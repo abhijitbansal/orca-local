@@ -4,6 +4,11 @@ import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import {
+  PACKAGED_APP_NAME,
+  PACKAGED_BUNDLE_ID,
+  PACKAGED_USER_DATA_DIR_NAME
+} from '../../src/shared/packaged-app-identity'
 
 const REPO_ROOT = join(import.meta.dirname, '..', '..')
 const SRC_MAIN_DIR = join(REPO_ROOT, 'src', 'main')
@@ -19,6 +24,14 @@ describe('electron-builder config', () => {
     expect(electronBuilderConfig.appId).toBe(
       require('../../src/shared/local-build-compatibility-contract.json').appId
     )
+  })
+
+  // Why: the CLI and main resolve userData from these constants, so a builder-only rename
+  // would leave `orca status` reading a directory the packaged app never writes.
+  it('ships the identity the runtime resolves its profile from', () => {
+    expect(electronBuilderConfig.appId).toBe(PACKAGED_BUNDLE_ID)
+    expect(electronBuilderConfig.productName).toBe(PACKAGED_APP_NAME)
+    expect(electronBuilderConfig.extraMetadata.name).toBe(PACKAGED_USER_DATA_DIR_NAME)
   })
 
   it('excludes repo-only source trees from app.asar', () => {
@@ -350,17 +363,22 @@ describe('electron-builder config', () => {
   })
 
   it('matches the Linux desktop entry to Electron window class', () => {
-    expect(electronBuilderConfig.linux.desktop.entry.StartupWMClass).toBe('orca')
+    expect(electronBuilderConfig.linux.desktop.entry.StartupWMClass).toBe(
+      PACKAGED_USER_DATA_DIR_NAME
+    )
   })
 
-  it('uses the release artifact set as local Linux targets without changing existing names', () => {
+  it('ships Linux packages under the fork package name so dpkg/rpm never replace upstream Orca', () => {
     expect(electronBuilderConfig.linux.target).toEqual(['AppImage', 'deb', 'rpm'])
     expect(electronBuilderConfig.toolsets).toEqual({ appimage: '1.0.3' })
     expect(electronBuilderConfig.appImage.artifactName).toBe('orca-linux.${ext}')
-    expect(electronBuilderConfig.deb.artifactName).toBe('orca-ide_${version}_${arch}.${ext}')
+    expect(electronBuilderConfig.deb).toMatchObject({
+      packageName: 'orca-local',
+      artifactName: 'orca-local_${version}_${arch}.${ext}'
+    })
     expect(electronBuilderConfig.rpm).toMatchObject({
-      packageName: 'orca-ide',
-      artifactName: 'orca-ide-${version}.${arch}.${ext}'
+      packageName: 'orca-local',
+      artifactName: 'orca-local-${version}.${arch}.${ext}'
     })
   })
 
@@ -420,6 +438,7 @@ describe('electron-builder config', () => {
       delete process.env.ORCA_MAC_RELEASE
       process.env.ORCA_LOCAL_BUILD_VERSION = '1.4.159-rc.0.local.123.abc'
       expect(require('../electron-builder.config.cjs').extraMetadata).toEqual({
+        name: PACKAGED_USER_DATA_DIR_NAME,
         version: '1.4.159-rc.0.local.123.abc'
       })
     } finally {
@@ -446,7 +465,9 @@ describe('electron-builder config', () => {
       delete require.cache[configPath]
       process.env.ORCA_LOCAL_BUILD_VERSION = '1.4.159-local.123.abc'
       process.env.ORCA_MAC_RELEASE = '1'
-      expect(require('../electron-builder.config.cjs').extraMetadata).toBeUndefined()
+      expect(require('../electron-builder.config.cjs').extraMetadata).toEqual({
+        name: PACKAGED_USER_DATA_DIR_NAME
+      })
     } finally {
       if (originalLocalVersion === undefined) {
         delete process.env.ORCA_LOCAL_BUILD_VERSION

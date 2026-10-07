@@ -25,8 +25,8 @@ import {
   findPersistentCellDivergences
 } from './terminal-garble-frame-analysis.mjs'
 
-const DEFAULT_EXECUTABLE = '/Applications/Orca.app/Contents/MacOS/Orca'
-const DEFAULT_PROFILE = path.join(os.homedir(), 'Library', 'Application Support', 'orca')
+const DEFAULT_EXECUTABLE = '/Applications/Orca Local.app/Contents/MacOS/Orca Local'
+const DEFAULT_PROFILE = path.join(os.homedir(), 'Library', 'Application Support', 'orca-local')
 const URL = 'https://example.com/orca-terminal-garble-repro'
 const MODIFIER = process.platform === 'darwin' ? 'Meta' : 'Control'
 const replayRoot = path.join(os.tmpdir(), 'garble-rig')

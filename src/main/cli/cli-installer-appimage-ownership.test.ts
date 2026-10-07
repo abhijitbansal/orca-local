@@ -262,7 +262,7 @@ describe.skipIf(process.platform === 'win32')('AppImage CLI ownership', () => {
   // #15081 review: the Linux reclaim rule was narrowed to extracted-cache launchers, which left a
   // deb/rpm -> AppImage migration wedged on its own leftover symlink.
   it('reclaims a symlink left by a packaged deb/rpm install', async () => {
-    for (const directory of ['/opt/Orca', '/opt/orca-ide', '/opt/orca']) {
+    for (const directory of ['/opt/Orca Local', '/opt/Orca', '/opt/orca-ide', '/opt/orca']) {
       const fixture = await makeFixture()
       await symlink(`${directory}/resources/bin/orca-ide`, fixture.commandPath)
 

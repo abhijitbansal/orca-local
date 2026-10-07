@@ -95,6 +95,10 @@ and `verify:localization-coverage` fail on keys that are orphaned (used only by 
 we deleted) or extra. Prune those keys from all six locale JSONs, then run
 `pnpm run sync:localization-runtime-catalog`. If the gates pass, leave the catalogs alone.
 
+### App identity
+
+The fork ships as **Orca Local**: bundle id `com.abhijitbansal.orca-local`, userData `orca-local`. The constants live in `src/shared/packaged-app-identity.ts`, and `config/electron-builder.config.cjs` repeats them for `appId`, `productName` and `extraMetadata.name`. `electron-builder-config.test.mjs` asserts the two copies match. When you resolve a conflict in any of these, keep the fork's value. After the merge, run `rg "com\.stablyai\.orca|Application Support', 'orca'"`. Any new production hit is an upstream identity literal: point it at the shared constants. Test fixtures that only use the string as a sample path can stay.
+
 ## Classifying a new upstream feature
 
 Ask where its data goes, in this order:

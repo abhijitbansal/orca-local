@@ -15,7 +15,7 @@ is_owned_link() {
   [ -L "$link" ] || return 1
   local link_target candidate candidate_target
   link_target="$(readlink -f -- "$link" 2>/dev/null || true)"
-  for candidate in /opt/Orca/resources/bin/orca-ide /opt/orca-ide/resources/bin/orca-ide /opt/orca/resources/bin/orca-ide; do
+  for candidate in "/opt/Orca Local/resources/bin/orca-ide" /opt/Orca/resources/bin/orca-ide /opt/orca-ide/resources/bin/orca-ide /opt/orca/resources/bin/orca-ide; do
     candidate_target="$(readlink -f -- "$candidate" 2>/dev/null || true)"
     if [ -n "$candidate_target" ] && [ "$link_target" = "$candidate_target" ]; then
       return 0
@@ -24,7 +24,8 @@ is_owned_link() {
   return 1
 }
 
-for dir in /opt/Orca /opt/orca-ide /opt/orca; do
+# Why first: the fork installs to /opt/Orca Local; with upstream also installed, never link to its shim.
+for dir in "/opt/Orca Local" /opt/Orca /opt/orca-ide /opt/orca; do
   sandbox="$dir/chrome-sandbox"
   if [ -f "$sandbox" ]; then
     # Why: packaged Linux installs must leave Chromium's sandbox helper usable

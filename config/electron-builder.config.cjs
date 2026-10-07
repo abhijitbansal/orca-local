@@ -57,7 +57,13 @@ const devChannelBuildVersion = isHourlyChannel
     : isAdhocChannel
       ? process.env.ORCA_ADHOC_BUILD_VERSION
       : undefined
-const appId = 'com.stablyai.orca'
+// Why: the fork's own identity (see src/shared/packaged-app-identity.ts) so an install never
+// shares a profile, TCC grants, Keychain item or /Applications slot with upstream Orca.
+const appId = 'com.abhijitbansal.orca-local'
+const productName = 'Orca Local'
+// Why: Electron derives userData from the packaged package.json `name`.
+const packagedPackageName = 'orca-local'
+const buildVersion = devChannelBuildVersion || localBuildVersion
 const featureWallResources = {
   from: 'resources/onboarding/feature-wall',
   to: 'onboarding/feature-wall'
@@ -155,13 +161,12 @@ const windowsRuntimeResources = existsSync(
 /** @type {import('electron-builder').Configuration} */
 module.exports = {
   appId,
-  productName: 'Orca',
+  productName,
   toolsets: { appimage: '1.0.3' },
-  ...(devChannelBuildVersion
-    ? { extraMetadata: { version: devChannelBuildVersion } }
-    : localBuildVersion
-      ? { extraMetadata: { version: localBuildVersion } }
-      : {}),
+  extraMetadata: {
+    name: packagedPackageName,
+    ...(buildVersion ? { version: buildVersion } : {})
+  },
   directories: {
     buildResources: 'resources/build'
   },
@@ -574,9 +579,9 @@ module.exports = {
     icon: 'resources/build/icon.icns',
     desktop: {
       entry: {
-        // Why: Electron reports WM_CLASS=orca for the visible Linux window;
-        // GNOME docks need an exact match to group it with orca-ide.desktop.
-        StartupWMClass: 'orca'
+        // Why: Electron derives WM_CLASS from the packaged package name (`orca-local`);
+        // GNOME docks need an exact match to group the window with its .desktop entry.
+        StartupWMClass: packagedPackageName
       }
     },
     extraResources: [
@@ -606,8 +611,9 @@ module.exports = {
     artifactName: isLinuxArm64Release ? 'orca-linux-arm64.${ext}' : 'orca-linux.${ext}'
   },
   deb: {
-    packageName: 'orca-ide',
-    artifactName: 'orca-ide_${version}_${arch}.${ext}',
+    // Why not 'orca-ide': dpkg would treat the fork as an upgrade of upstream Orca.
+    packageName: 'orca-local',
+    artifactName: 'orca-local_${version}_${arch}.${ext}',
     // Why: xvfb lets the bundled `orca serve` CLI run browser panes on a headless
     // Linux host — Chromium needs a display server even for offscreen rendering,
     // and serve starts Xvfb itself when present (see ensure-virtual-display.ts).
@@ -629,8 +635,8 @@ module.exports = {
     afterRemove: 'resources/linux/packaging/after-remove.sh'
   },
   rpm: {
-    packageName: 'orca-ide',
-    artifactName: 'orca-ide-${version}.${arch}.${ext}',
+    packageName: 'orca-local',
+    artifactName: 'orca-local-${version}.${arch}.${ext}',
     // Why: see deb depends. RPM distros ship Xvfb as xorg-x11-server-Xvfb (there
     // is no `xvfb` package), so the name differs from the deb here.
     depends: [

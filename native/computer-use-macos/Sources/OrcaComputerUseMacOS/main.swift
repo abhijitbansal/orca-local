@@ -4108,8 +4108,8 @@ private func isTrustedOrcaApplication(_ pid: pid_t) -> Bool {
     }
     // Why: dev validation runs from per-worktree wrapper apps with stable
     // Orca-owned bundle ids; the sidecar peer check must still authorize them.
-    return bundleId == "com.stablyai.orca" ||
-        bundleId.hasPrefix("com.stablyai.orca.dev.") ||
+    return bundleId == "com.abhijitbansal.orca-local" ||
+        bundleId.hasPrefix("com.abhijitbansal.orca-local.dev.") ||
         bundleId == "com.github.Electron"
 }
 
