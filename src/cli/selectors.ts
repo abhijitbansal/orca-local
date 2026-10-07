@@ -56,7 +56,6 @@ export async function resolveCallerDistroPathSelector(
   const isLinuxMountedPath = /^\/mnt\/[A-Za-z](?:\/|$)/.test(linuxPath)
   if (
     (!callerDistro && !isLinuxMountedPath) ||
-    client.isRemote ||
     !linuxPath.startsWith('/') ||
     linuxPath.startsWith('//') ||
     // Backslash is a legal Linux filename character but a separator once a path reads as UNC.
@@ -89,24 +88,10 @@ export async function normalizeWorktreeSelectorForCaller(
   )
 }
 
-function assertLocalCwdWorktreeSelector(selector: string, client: RuntimeClient): void {
-  if (!client.isRemote) {
-    return
-  }
-  // Why: a paired CLI's cwd belongs to the client machine, not the runtime
-  // server, so cwd-derived worktree selectors are only valid locally.
-  throw new RuntimeClientError(
-    'invalid_argument',
-    `${selector} is a local cwd shortcut and cannot be resolved against a remote runtime. Pass an explicit server-side worktree selector such as identity:<identity>, id:<repo-id>::<path>, name:<displayName>, branch:<branch>, issue:<number>, or path:<absolute-server-path>.`
-  )
-}
-
 export async function resolveCurrentWorktreeSelector(
   cwd: string,
   client: RuntimeClient
 ): Promise<string> {
-  assertLocalCwdWorktreeSelector('current', client)
-
   const currentPath = resolvePath(cwd)
   const worktrees = await client.call<RuntimeWorktreeListResult>('worktree.list', {
     limit: 10_000
@@ -150,7 +135,6 @@ export async function getOptionalWorktreeSelector(
     return undefined
   }
   if (value === 'active' || value === 'current') {
-    assertLocalCwdWorktreeSelector(value, client)
     return await resolveCurrentWorktreeSelector(cwd, client)
   }
   return await normalizeWorktreeSelectorForCaller(value, cwd, client)
@@ -164,7 +148,6 @@ export async function getRequiredWorktreeSelector(
 ): Promise<string> {
   const value = getRequiredStringFlag(flags, name)
   if (value === 'active' || value === 'current') {
-    assertLocalCwdWorktreeSelector(value, client)
     return await resolveCurrentWorktreeSelector(cwd, client)
   }
   return await normalizeWorktreeSelectorForCaller(value, cwd, client)
@@ -183,13 +166,9 @@ export async function getBrowserWorktreeSelector(
   }
   if (value) {
     if (value === 'active' || value === 'current') {
-      assertLocalCwdWorktreeSelector(value, client)
       return await resolveCurrentWorktreeSelector(cwd, client)
     }
     return await normalizeWorktreeSelectorForCaller(value, cwd, client)
-  }
-  if (client.isRemote) {
-    return undefined
   }
   // Default: auto-resolve from cwd
   try {
@@ -238,7 +217,6 @@ export async function getBrowserCommandTarget(
     return { page }
   }
   if (explicitWorktree === 'active' || explicitWorktree === 'current') {
-    assertLocalCwdWorktreeSelector(explicitWorktree, client)
     return {
       page,
       worktree: await resolveCurrentWorktreeSelector(cwd, client)
@@ -291,13 +269,9 @@ export async function getEmulatorWorktreeSelector(
   }
   if (explicit) {
     if (explicit === 'active' || explicit === 'current') {
-      assertLocalCwdWorktreeSelector(explicit, client)
       return resolveCurrentWorktreeSelector(cwd, client)
     }
     return explicit
-  }
-  if (client.isRemote) {
-    return undefined
   }
   const terminalWorktreeId = process.env.ORCA_WORKTREE_ID
   if (terminalWorktreeId?.trim()) {

@@ -28,49 +28,106 @@
         "9263e75f49": "Codex is using the previous account"
       },
       "GitHubItemDialog": {
-        "04539beb48": "issue",
-        "307c98e8e3": "Show {{value0}} more lines above",
-        "3853476a97": "GitHub item",
+        "03e542fcfe": "Failed to start an AI agent for the broken checks: {{value0}}",
+        "0ae387d8ca": "by",
+        "0bbdc673c1": "Failed to refresh checks",
+        "1690fd7f4a": "No broken checks to fix.",
+        "2511f44bb7": "Fix broken checks",
+        "28986b3747": "Started an AI agent for the broken checks.",
+        "2d89a38d9d": "{{value0}} {{value1}} as viewed",
         "3ab6ac0fc8": "Preview and edit the selected GitHub issue or pull request.",
-        "45af57999b": "Close preview",
-        "474c59b4b3": "Close · Esc",
-        "68796dafa0": "pr",
-        "88fd82474d": "page",
+        "485609c4f2": "check #",
+        "55962099bc": "opened this issue",
+        "5932578f51": "Merge requires a registered local repo",
+        "6e43a16435": "Inline",
+        "71c11aff84": "Rerun all checks",
+        "726db41722": "Open workspace",
+        "744197c84d": "No inline output is available for this check.",
+        "745c9089ec": "Unable to reply without a repository path.",
+        "773ff70035": "unknown",
+        "829674460a": "Diff unavailable because the PR commit SHAs are missing.",
+        "8b15a5e91c": "Remove reviewer {{value0}}",
+        "8c45901789": "Request reviewer {{value0}}",
+        "9157d48ddb": "Fix checks",
         "924c2fe05e": "destructive",
-        "b0b7344684": "Request up to 15 reviewers",
-        "b1157c78ff": "sheet",
-        "ce8a85d209": "default",
-        "checkActionRequiredHint": "This check needs a manual action on GitHub (for example, approving the workflow run) before merging is unblocked.",
-        "d0a05e73f5": "compact",
-        "e517b4d641": "closed",
-        "e9b7cb7d17": "Failed to {{value0}} PR"
+        "934add88b6": "Reviewer",
+        "934d87ab96": "Loading check details…",
+        "9e7c221b8d": "Failed to rerun checks",
+        "a2495e4784": "Pull request",
+        "a341343303": "Review comment added.",
+        "ab050dffec": "Closed",
+        "af924014f8": "Viewed",
+        "b7bf31b8de": "Failed to sync viewed state with GitHub.",
+        "ba8e329d92": "Unmark viewed",
+        "bd3b4492a0": "Pull request reopened",
+        "bd7be7b1fd": "comment L",
+        "c0253318d6": "Unable to sync viewed state for this pull request.",
+        "dbe5e2448e": "Pull request merged",
+        "dc1ca081a8": "Open",
+        "e31651a224": "Rerun failed checks",
+        "e463ec935f": "Check reruns requested",
+        "e52bed9264": "No checks reported yet",
+        "e7007aa1d8": "Unable to refresh checks without a repository path.",
+        "ea985e657f": "Reviewer requested",
+        "ec5c4b3ab2": "Reopen PR",
+        "ecffebc251": "No checks found",
+        "f4b1292569": "Start the default AI agent on these checks",
+        "fedc09eeb9": "Unrequest reviewer {{value0}}"
       },
       "GitLabItemDialog": {
-        "11384f99aa": "number",
-        "4186685c78": "reopen",
-        "881e522e04": "merge",
-        "cae2712a23": "close"
+        "00d0d25825": "File, line, and comment are required.",
+        "00f3bab87b": " of {{value0}} required",
+        "02cbe2de44": "Pipeline",
+        "1b19cdc510": "Remove reviewer {{value0}}",
+        "4168eb2c51": "Resolve",
+        "7a7204417f": "Line",
+        "865ea2703e": "Reopened MR !{{value0}}",
+        "98718490e4": "MR title is required.",
+        "9b11cd233f": "Closed MR !{{value0}}",
+        "9bfb4a24d7": "by",
+        "a7eb4f4916": "from",
+        "e089f62594": "Merged MR !{{value0}}",
+        "f11e3e7675": "No pipeline runs for this MR.",
+        "ffdd9a78e1": "MR diff refs are unavailable for inline comments."
+      },
+      "HostedReviewUnlinkMenuItem": {
+        "description": "Orca will hide {{value0}} {{value1}} details for this workspace. The {{value0}} and branch on {{value2}} won’t be changed.",
+        "label": "Unlink {{value0}} from workspace"
       },
       "JiraIssueWorkspace": {
         "2a829a2f00": "priority",
+        "666cfdd835": "Unknown",
         "693be070d0": "transition",
-        "9ebee71962": "labels",
-        "b8e2079d96": "assignee",
-        "def3d0e824": "title"
+        "76513c7898": "Close Jira issue preview",
+        "857bd2f88f": "Preview, edit, and start work from the selected issue.",
+        "ef21405c6d": "Jira issue"
       },
       "Landing": {
+        "00cee697c1": "Run \"gh auth login\" in a terminal to connect your GitHub account.",
         "16e9e3df89": "starred",
+        "5beaef5f9e": "GitHub CLI is not installed",
+        "73e1ad4282": "Orca uses the GitHub CLI (gh) to show pull requests, issues, and checks.",
+        "9f96d018b7": "GitHub CLI is not authenticated",
         "ce44fad849": "Missing dependencies",
         "f05d237049": "Add a project first"
       },
-      "LinearIssueTextEditor": {
-        "00fa439dc7": "title",
-        "75294b07d1": "description"
+      "LinearIssueMarkdownDescriptionEditor": {
+        "28fd951b83": "Strike",
+        "5666b4493d": "Italic",
+        "caa88f50d0": "Bold",
+        "d9c47069ef": "Markdown"
       },
       "LinearIssueWorkspace": {
-        "9e3c49beb8": "Copy issue identifier",
-        "af6e02c44a": "page",
-        "f5a6b38a14": "sheet"
+        "8a33c85e9c": "Someone",
+        "ad5dec37b7": "Preview, edit, and start work from the selected issue.",
+        "c23e79e5c0": "Actions",
+        "ca8778c124": "Unknown"
+      },
+      "LinearItemDrawer": {
+        "48e17e8cbd": "Unknown",
+        "59b6cd3706": "Loading states",
+        "780ea6ed89": "No states found",
+        "fbb90300e2": "Custom estimate"
       },
       "NativeChatResumeOnRestartModal": {
         "continueUnconfirmed_one": "Continuation delivery is unconfirmed for {{value0}} chat. Open it to check before sending another message.",
@@ -80,116 +137,516 @@
         "0e587e31fb": "yaml",
         "2132b670da": "both",
         "7711ad5122": "Local setup command",
-        "addHostHint": "Register another machine or Orca server",
-        "cloneDestinationPlaceholder": "/parent/directory/on/host",
-        "cloneHostSetup": "Clone",
-        "cloneProjectOnHost": "Clone project",
-        "cloneUrlPlaceholder": "https://github.com/owner/repo.git",
-        "cloningHostSetup": "Cloning...",
-        "connectSourceLookup": "Connect",
-        "e5db1b0419": "Combined setup command",
-        "importExistingFolderOnHost": "Import existing folder",
-        "importHostSetup": "Import",
-        "importingHostSetup": "Importing...",
-        "reconnectSourceLookup": "Reconnect",
-        "setupHostExistingFolderHelp": "Link a checkout that already exists there, then create this workspace on that host.",
-        "setupHostExistingFolderPlaceholder": "/path/to/project/on/host",
-        "setupHostExistingFolderTitle": "Set up {{value0}}",
-        "setupKindFolder": "Folder",
-        "setupKindGit": "Git repo"
+        "e5db1b0419": "Combined setup command"
       },
       "PullRequestPage": {
+        "2560588245": "Failed to request reviewer",
         "3450247584": "Comment",
+        "000f90afcf": "Completed",
+        "00b7b82329": "head branch",
+        "00d3be6bcd": "Reviewers",
+        "03282ff3b9": "Reviewer requested",
+        "0ac19bb52e": "Open comment on GitHub",
+        "0f5821b035": "Auto-merge disabled",
+        "0fa8b8faec": "Start the default AI agent on these checks",
+        "102d3d177f": "Reviewers requested",
+        "11505c7a71": "Reply posted.",
+        "1208347ac0": "Failed to add comment",
+        "1378d79e83": "Side by Side",
+        "14c9fc70ed": "+ Assignee",
+        "1550675e5f": "No inline output is available for this check.",
+        "161d91ef02": "Send comment",
+        "169a93b29a": "updated",
+        "18f2af42ac": "Check reruns requested",
+        "1939d0f663": "Pull request",
+        "19628e058d": "Failed to add review comment.",
         "19f19560d5": "destructive",
+        "1a2570e18e": "Start new workspace",
+        "1ae11c905c": "No repo context available for this pull request.",
+        "1b14d0a69c": "Open in GitHub",
+        "1e6d089420": "Reviewers removed",
         "1ff5d979df": "No one assigned",
+        "246b2c6456": "Failed to refresh checks",
+        "25690a3855": "Start workspace from PR",
+        "2760fa29a4": "Everyone else",
         "2b4fdb880c": "Unmark viewed",
+        "2c1d93da43": "Reviewer removed",
         "2e528e1c2d": "Viewed",
+        "2f5195c6a0": "Reopen",
+        "319cf2d54b": "Show file tree",
+        "31a7b202f2": "Reply to @{{value0}}",
+        "345b68254c": "thread",
+        "3463d10a63": "Comments",
+        "347034903a": "Copy GitHub link",
+        "34b9f7c264": ":L{{value0}}",
+        "35a0573f41": "Annotation",
+        "36b514a457": "Unrequest reviewer {{value0}}",
+        "3912daf310": "This pull request has no reported checks yet.",
+        "3b6886b2ee": "Copied",
+        "3bde131f49": "Type or choose a user",
+        "3c891789f6": "by",
+        "3d77438c92": "This will reopen the pull request on GitHub.",
+        "408e634fbb": "Reply in this review thread",
+        "41d275d3ec": "Request reviewer {{value0}}",
         "42c36d9166": "{{value0}} {{value1}} reaction{{value2}}",
+        "45877f5089": "No checks found",
+        "4a337ac05f": "Save",
+        "4b8ae7303f": "Failed to load diff.",
         "4b960e5978": "Loading code context…",
+        "4d18310d55": "Files changed",
         "50b8fb290f": "Mark viewed",
+        "51c65c0265": "No broken checks to fix.",
         "51ed0cf38b": "Show more lines below",
+        "522d9353e1": "Rerun",
+        "54cddd1858": "Rerun all checks",
+        "56ec6eafb7": "Open the PR details to view current reviewers.",
+        "57750f4a8c": "Loading...",
+        "57c13a5aa4": "More PR workspace actions",
+        "5821aab360": "Failed to post reply.",
+        "5963a6a852": "Check rerun requested",
+        "5a01ca7253": "Failed to sync viewed state with GitHub.",
+        "5a65651096": "This will close the pull request on GitHub.",
+        "5ad00c7a0e": "No matching reviewers.",
+        "5d0f42766d": "Refresh checks",
+        "5df7c41d2a": "Retry",
+        "5edbe7eefa": "Auto-merge enabled",
         "5f3e293517": "Reset code context",
+        "61452f2143": "Start workspace from issue",
         "61a8c69a33": "page",
+        "61bfc81ada": "Unable to open the workspace attached to this pull request.",
         "6568ae8ece": "default",
+        "6591b1fa82": "Cancel",
+        "662bc2998d": "Status:",
+        "68605516dd": "Rerun failed checks",
+        "6885c619e7": "Unable to reply without a repository path.",
+        "6ad2c1ab9c": "No files changed.",
+        "6b1d5ee3e4": "No inline details are available for this check.",
+        "710e47aa06": "Pull request reopened",
+        "71a3c0f9d2": "Start workspace",
+        "74660bd80b": "Diff unavailable because the PR commit SHAs are missing.",
+        "76551b1161": "Started",
+        "76b2a0ac5b": "resolved",
+        "7720c9c3f5": "Jobs",
+        "77482513f8": "Close",
+        "778683ec84": "Description",
+        "77d9388fb0": "unknown",
+        "788a782bb0": "Failed to rerun checks",
         "791ddede19": "comment L",
+        "7aa3b5f706": "Pull request closed",
+        "7b8f6bf6d8": "Open",
+        "7df8d5fc60": "Open GitHub merge box",
+        "7f964a365a": "Remove reviewer",
         "805cb72cd4": "Request up to 15 reviewers",
+        "828f045847": "Suggestions",
         "82c87eceb9": "Edit assignees",
+        "8432d17901": "Annotations",
         "84fc40769a": "-L{{value0}}",
         "85d119be40": "Code context controls",
+        "85e62c5266": "Started an AI agent for the broken checks.",
+        "894cfd884b": "Posting…",
+        "89e80af1c7": "files viewed",
+        "8ecda455a0": "Open on GitHub",
+        "8f369a6b6b": "You can request up to 15 reviewers",
         "8ff5ae8866": "Assignees",
+        "94d95cf1f7": "Checks",
+        "96d013ed28": "Close pull request",
+        "973ef2fac9": "Failed to disable auto-merge",
+        "98583589c6": "Failed to start an AI agent for the broken checks: {{value0}}",
+        "992e799227": "GitHub link copied",
+        "996a1897d2": "Unable to sync viewed state for this pull request.",
+        "9b4190dc98": "Description updated.",
+        "9d5425918e": "Reopen PR",
+        "9e8d45700e": "Conversation",
+        "a04c137bb7": "Reviewer",
+        "a053bdd082": "Fix Broken Checks With AI",
+        "a18d01cda3": "No checks reported yet",
+        "a4541fd3db": "Fix broken checks",
+        "a459866967": "Resume workspace attached to PR",
+        "a63b3c159c": "This will update the pull request on GitHub.",
+        "aae645d36d": "Failed to merge pull request",
         "aae99c6c04": "pr",
+        "acbd110867": "Loading reviewers",
+        "ae9a38fd4a": "Remove reviewer {{value0}}",
         "b0e80f083d": "wants to merge into",
         "b6bda618cf": "compact",
+        "b936cc51a4": "Closed",
+        "bc215fea4d": "+ Label",
+        "c057f2fcb0": "Unable to refresh checks without a repository path.",
+        "c44b70352b": "base branch",
+        "c4c02ea23e": "Unable to create a fix workspace automatically.",
+        "c57873d721": "Pull request merged",
+        "c798fa0ec7": "Failed to remove reviewer",
+        "c808db1dd1": "Fix checks",
+        "c8ea6c7c4c": "No description provided.",
         "c9de94b07a": "Show more lines above",
+        "c9e7094a7b": "Resume workspace",
         "checkActionRequiredHint": "This check needs a manual action on GitHub (for example, approving the workflow run) before merging is unblocked.",
+        "closePullRequestFailed": "Failed to close pull request",
+        "commentTooLarge": "Comment is too large to submit safely.",
+        "d10b6d5209": "No reviewers requested.",
+        "d2030fc8cd": "Add a comment…",
+        "d2d589556c": "No comments yet.",
+        "d31f4b508c": "Failed to enable auto-merge",
         "d65f70786e": "closed",
+        "d6c6679de7": "Reply to comment",
+        "d8c3ba91c4": "Unable to comment without the PR head SHA.",
+        "d8e82b7f15": "Loading check details…",
+        "d94810f652": "Failed to update description.",
+        "da9aaa8bcf": "Edit description",
+        "dace0d1a9f": "Enter a reviewer",
+        "dd5d9a4f17": "updated {{value0}}",
+        "dd94111c18": "Collapse All",
+        "ddfd42f460": "Review the prompt before starting an agent.",
+        "diffLoadTimedOut": "Timed out loading this diff.",
+        "e01e34f5fa": "comment",
+        "e04c027d98": "Failed to load check details.",
+        "e0b15c793f": "Failed to copy GitHub link",
         "e1f3641bfd": "from",
         "e295a78c11": "Show {{value0}} more lines above",
+        "e5f4a24f78": "Inline",
         "e6996f4024": "· updated",
-        "ff84e1f54c": "{{value0}} {{value1}} as viewed"
-      },
-      "StarNagCard": {
-        "68a41bc3aa": "Could not star with",
-        "73dfd4eb8d": "Don't ask again",
-        "92b0f9d921": "is authenticated and try again.",
-        "996bf76e46": "Open GitHub to finish in your browser.",
-        "cd8c34aac1": "gh",
-        "cf82170065": "Could not star the repo. Make sure"
+        "eb722a5a8c": "Expand All",
+        "eca289e593": "Merge requires a registered local repo",
+        "eec3706a6a": "{{value0}} PR #{{value1}}?",
+        "eff839f438": "Review comment added.",
+        "f01bf79a79": "check #",
+        "f119e5f5ef": "Reply",
+        "f4a4b3fd9f": "Recently edited these files",
+        "f4fe47c2bb": "Resolved",
+        "ff84e1f54c": "{{value0}} {{value1}} as viewed",
+        "filesRetry": "Retry",
+        "filesUnavailable": "Couldn't load changed files.",
+        "reopenPullRequestFailed": "Failed to reopen pull request"
       },
       "TaskPage": {
+        "00022ec0ba": "Project",
+        "00b7ffb952": "Type / State",
+        "02f67c0d09": "New Project",
+        "03da966159": "Select a project so we can authenticate to GitLab.",
+        "0506a78337": "This will update the pull request on GitHub.",
+        "054bf695cc": "Draft",
+        "09623359b9": "Start date",
+        "0aa8525950": "Model",
+        "0b65d3fb2c": "Search Linear projects...",
+        "0b9b04f4b5": "Type or choose a user",
+        "0bfbf62f75": "Retry",
+        "0c0de0fc0e": "Couldn't load issues from",
+        "0c11ca0b6d": "New Jira issue",
+        "0c8df28045": "Next page",
+        "0cbf7e5cf3": "Linear task mode",
+        "0eacf48491": "Loading…",
+        "0f7b0d964a": "Creates a new issue in {{value0}}.",
+        "11a828abf8": "GitLab",
+        "1301d376f1": "Assigned",
+        "1361275ec3": "New Linear project",
+        "137e2a8a01": "PRs",
+        "154b0fa623": "Status",
         "163df31e0e": "https://example.atlassian.net",
+        "16cba35bee": "Title",
         "171b7739d8": "mrs",
+        "1742eafc14": "No Project",
+        "18451e99df": "Done",
+        "1a06219d5c": "Close tasks",
+        "1a9ea003dc": "Failed to disable auto-merge",
+        "1b59a07674": "Creating...",
+        "1c893195ac": "Failed to update state",
+        "1e1b2ad8f2": "Select a team from the project workspace before filing this issue.",
+        "1f0fce91e3": "Select {{value0}}",
         "2007e14d95": "gitlab",
+        "2193a99ec1": "Open workspace attached to issue",
+        "228b25028f": "Browse and start work on your assigned Linear issues directly from here.",
+        "246bd64aed": "Open {{value0}} in Linear",
         "246c2b3dd3": "Atlassian account settings",
+        "25ff84769a": "No issues match this Linear context.",
         "285bc21dc5": "Change the query or clear it.",
+        "297a805b64": "Previous",
         "2abe22ef76": "Your token is encrypted via the OS keychain and stored locally.",
+        "2af3ab5c58": "Select one team to open in Linear",
+        "2bdefbcac3": "Try a different search query.",
+        "2ea1c701b6": "Target date",
+        "2ff9fd71fd": "Refresh Jira issues",
+        "31f81cc334": "Refreshing GitHub work…",
         "33a4bd7f5c": "todos",
         "33fc2bcb30": "Use a Jira Cloud site URL, Atlassian email, and API token to browse issues.",
+        "345b169f1f": "High",
+        "34d97ca682": "What's going on?",
+        "34da8ac06c": "Lead",
         "3659f9792a": "board",
+        "37a82eaaf8": "Merged",
+        "37d60046e3": "Open GitHub merge box",
+        "37e7ee311e": "Key",
         "38139edb52": "github",
+        "3ace2e6bcf": "Suggestions",
         "3b11c8e8fc": "array",
         "3b7f34282f": "closed",
+        "3ca9b424a3": "Failed to create project.",
+        "3cb855080f": "views",
         "3d93316bb0": "prs",
+        "3f594861a5": "Failed to save team selection.",
+        "3f9604efc7": "Opened issue #{{value0}}",
+        "3feb524d42": "New Linear issue",
+        "40eaf2c27c": "Details",
+        "42a9160321": "Unassigned",
+        "443f7dd928": "Merge",
         "456b8512da": "MergeRequest",
         "4645a7814f": "jira",
+        "4826fd1ad8": "Close · Esc",
+        "4ac8ff2275": "Open {{value0}} in Jira",
+        "4b6e40e42c": "All Open",
+        "4f3cb99f41": "Switch Team",
+        "50387522d7": "No grouping",
         "513cddfa7a": "Verifying…",
         "51411113df": "list",
+        "524f095d55": "Needs review",
+        "5301ca0f20": "Create project",
+        "534a9c6017": "Unable to open the workspace attached to this pull request.",
+        "53e002d895": "Issue has no repo slug.",
+        "5659da12fc": "Grouping",
+        "56cdb413a2": "Comma-separated values",
+        "578f730c16": "Short summary",
+        "579f98afcd": "Add a short summary...",
+        "585dba2989": "Unable to open the workspace attached to this issue.",
+        "592a55611b": "Try selecting more teams or refreshing; team filters apply to the current fetched issue set.",
         "59c14d34a2": "Create a token in",
+        "5af6f0ae5b": "Select team",
+        "5b6b2af943": "Retrying…",
+        "5d2d835467": "Ordering",
+        "5d4fd69a6a": "Recently active in this pull request",
+        "5e8061b088": "Start workspace from {{value0}} {{value1}}",
+        "5ebff3a0aa": "None",
+        "5eccb3c841": "Title / Context",
+        "5ed38a49e5": "Review the workspace error below, then refresh.",
+        "606a85c774": "Open",
+        "609532fae7": "Failed to save default task source.",
+        "60f68a2ef4": "Linear issues",
         "60f806ce99": "Connect Jira site",
+        "618107fab3": "No fetched issues match the selected teams",
+        "6244a02f46": "Open in Linear",
+        "62c7bd789f": "Request up to 15 reviewers",
+        "63b2abd3aa": "Jira issues",
+        "6430594b18": "unknown author",
         "6459faa8b3": "error",
+        "669e419d65": "Linear view is missing workspace context.",
+        "66ae7330f6": "More actions",
+        "67662ade50": "project issues",
+        "67755a83a1": "Everyone else",
+        "6775c05483": "Failed to update Linear state",
+        "67d881244c": "Resume workspace attached to PR",
         "68df347677": "you@example.com",
+        "69591944e7": "Low",
+        "6cd6b3ae6a": "Previous page",
+        "6d56559467": "Connect your Linear account",
         "6edf402e11": "overview",
+        "6ffa6be99f": "Refreshing GitHub work",
+        "713179dfdc": "No priority",
+        "727069bee5": "Projects",
+        "733b8f2421": "Linear / Views",
+        "7437e340b4": "Failed to create issue.",
+        "745ae567d4": "\"{{value0}}\" is not available for {{value1}}",
+        "75a38d7df8": "GitHub data is temporarily unavailable. Its API may be down, rate-limited, or unreachable. Please try again shortly.",
+        "7698af5263": "Mine",
+        "7719d8daa9": "{{value0}} member{{value1}}",
+        "7753652524": "Resume",
+        "7762f4b03a": "of",
         "7799ad9ab6": "draft",
+        "7d08e8be0f": "Start",
+        "7d63e2626e": "Loading...",
+        "7da41c9225": "Target",
+        "7deb9e59a5": "More PR actions",
+        "7f3f7b4c18": "Description (optional, markdown)",
+        "7f94eb6395": "Assign issue",
+        "7fd59c18d8": "Medium",
+        "8029e2bd4d": "Select one Linear team to open in Linear",
+        "837bb901ec": "Reviewers removed",
+        "8396825a14": "Action",
+        "83bce6be5c": "Connect Jira",
+        "844dc193c7": "{{value0}} PR #{{value1}}?",
+        "851017590d": "Add Linear access",
+        "8675cd6188": "Linear",
         "887efe9140": "Connect",
+        "88f478cdef": "Failed to merge pull request",
+        "8964184a8b": "Refresh Linear",
+        "8a07f21e76": "Health",
+        "8a22eb3f7b": "No matching reviewers.",
+        "8aba10579d": "Assignees",
+        "8d1e17a3ef": "Open {{value0}} in GitHub",
+        "8f06dbb9e5": "Reviewer requested",
+        "8ff6fdc368": "Creating…",
+        "903c7af49f": "No Linear issues found",
+        "919a20dd5b": "Enter {{value0}}",
         "937b29fa35": "items",
+        "93c57f15e5": "No projects found.",
         "93d5f21fc1": "pr",
+        "9497f2787c": "Start workspace",
+        "94d900518d": "No issues match the selected preset.",
+        "94f0339621": "Assigned to me",
+        "969e26577c": "You can request up to 15 reviewers",
+        "995dd6af9b": "Open PR checks",
+        "99c2755218": "Jira JQL, e.g. project = ABC AND statusCategory != Done",
         "9ae151b26b": "linear",
+        "9bc8aea407": "Add description...",
+        "9c57663908": "View",
+        "9cd11ba218": "Jira",
+        "9e03c17847": "Open the PR details to view current reviewers.",
+        "9f2b4c03a6": "Filing in",
+        "a04fe7ba73": "Visibility",
+        "a0544fb653": "MR !{{value0}}",
+        "a150c59da7": "Connect your Jira site",
+        "a161925adc": "Pull request merged",
+        "a26a48252e": "Display properties",
+        "a3318684bc": "Failed to enable auto-merge",
+        "a5bf86defe": "Auto-merge disabled",
+        "a6f7e93d7f": "List",
         "a70153f583": "connecting",
+        "a7396b05c6": "Checks",
+        "a98cbe7664": "Team",
         "a9f256ecea": "No GitLab issues match this filter.",
+        "acef77f7ca": "GitHub",
+        "ae592fee62": "Issue type",
+        "ae859c816b": "Page {{value0}}",
+        "aec5feeb69": "Failed to create Jira issue.",
+        "af2a8371de": "Failed to load Jira issue types.",
+        "af377b13b1": "{{value0}} view",
+        "af9e877f30": "No labels",
+        "afc68824ff": "No states found",
+        "b15ceb409d": "Search GitHub issues...",
+        "b1eaa18ace": "Issue",
         "b2007ba885": "project",
+        "b36f4bf9de": "No labels.",
+        "b39fe6511d": "projects",
+        "b4e10f096e": "Owner",
+        "b518ae6307": "Browse, edit, create, and start work from Jira issues directly from here.",
+        "b6329379ca": "Start new workspace",
+        "b6795e65fd": "Close",
+        "b73717af92": "Next",
+        "b797bdd7c3": "Clear search",
+        "b7bae28b6a": "shown",
         "b95623e93f": "Atlassian API token",
+        "backToCloseReasons": "Back",
+        "bb63046423": "Assigned to {{value0}}",
         "bbec4717ee": "mr",
+        "bc06ed0fb0": "Back to views",
+        "bc46d8204e": "Select one project to open in GitHub",
+        "bcdc1330b2": "Open in GitLab",
+        "bd9965df51": "Reported",
+        "bdebffcbfe": "Create a Linear project for the selected team.",
+        "be8cf68d9f": "view issues",
+        "c11105dac5": "New Issue",
+        "c1d1600362": "Open in browser",
+        "c2268a9982": "All",
+        "c679af7ad9": "Refresh My Todos",
+        "c8d5bec5f7": "Priority",
+        "ca63694b4c": "Failed to update assignees.",
+        "cb98f0350c": "Created {{value0}}",
+        "cba2a2b7fb": "Linear project is missing workspace context.",
+        "cbcdcbe244": "Loading required Jira fields…",
         "cbce2bc9cd": "none",
+        "cc13109b5d": "Loading states",
+        "cc8795e07c": "Unable to load Linear issues",
+        "cd171f3391": "...",
         "cd7dc432a3": "No GitLab MRs match this filter.",
+        "cf72580c04": "Write a description, project brief, or collect ideas...",
+        "cfaadb6b22": "No lead",
+        "cfb56a7868": "Search projects...",
         "cfb730b73e": "issue",
+        "closeAsCompleted": "Close as completed",
         "closeAsCompletedDescription": "Done, closed, fixed, resolved",
+        "closeAsDuplicate": "Close as duplicate",
         "closeAsDuplicateDescription": "Duplicate of another issue in this repository",
         "closeAsDuplicateSubmit": "Close duplicate",
+        "closeAsNotPlanned": "Close as not planned",
         "closeAsNotPlannedDescription": "Won't fix, can't repro, stale",
+        "d00571d9b1": "Enter a reviewer",
         "d079be2dc8": "No assigned issues. Try searching for something.",
+        "d09b7631b7": "Failed to switch Jira site.",
+        "d09bf34db7": "Closed",
+        "d0ca4aa1d0": "Labels",
+        "d0d570b306": "Failed to switch Linear workspace.",
         "d0e3c8f933": "No matching GitHub work",
+        "d1132848f8": "Select one GitHub project to open in GitHub",
+        "d1766fd62d": "projects failed to load",
+        "d1e243795c": "issues",
+        "d2a876ca53": "Assignee",
+        "d3d0998b7d": "New GitHub issue",
+        "d45a910c4a": "Change Linear state from {{value0}}",
+        "d47248df4d": "Linear view mode",
+        "d4c2830063": "Refresh GitLab work items",
+        "d591aac6ae": "No pending todos. You’re all caught up!",
+        "d6cda23ef1": "Members",
         "d6d08c1650": "Select a project to see GitLab work items.",
+        "d747aed72f": "Board",
+        "d7f16d0e32": "Select Team",
+        "d8a517ad89": "Identifier",
+        "d9151fd4e9": "Issue title",
+        "dc67f69962": "Failed to request reviewer",
+        "dfc0c79bd8": "Issues",
+        "dfd72673e7": "Failed to save project selection.",
+        "duplicateIssueMissing": "Enter an issue number in this repository.",
+        "duplicateIssueNotInteger": "Use a whole issue number.",
+        "duplicateIssueNotPositive": "Use a positive issue number.",
         "duplicateIssueNumberPlaceholder": "Issue number",
+        "duplicateIssueSameIssue": "Choose a different issue.",
+        "e104fa3d3d": "Start workspace from issue",
+        "e15ba2d2eb": "Create issue",
+        "e178c0a953": "Choose a Jira project before creating the issue.",
+        "e224d76876": "MR",
+        "e4b29c5bcf": "Start workspace from PR",
+        "e592d99051": "All Jira sites",
+        "e65757a338": "Pagination",
+        "e7115334aa": "Hide Jira",
+        "e78ec261ed": "Views",
+        "e9139db03f": "Failed to hide {{value0}}.",
+        "e9b6955dcd": "Issue #{{value0}}",
+        "eb10c32872": "ID",
+        "eba87f2edb": "No Jira issues found",
+        "ecbcc83140": "Project name",
+        "ed1daeb49a": "Failed to remove reviewer",
+        "edf4bc4135": "No assignable users.",
+        "editReviewersWithCurrent": "Edit reviewers: {{value0}}",
+        "eec0c5c079": "Search Linear issues...",
+        "eee4df4c66": "Search GitHub PRs...",
+        "eee68073b2": "Open in Jira",
+        "eff9800d4b": "{{value0}} label{{value1}}",
+        "f161bf9ede": "Description (optional)",
         "f294c500ef": "No GitLab work matches this filter.",
-        "fe28c9821f": "view"
+        "f362667d55": "Updated",
+        "f373ab1a4f": "Urgent",
+        "f397d513e3": "Back",
+        "f4374519ae": "Your preferred issue source (upstream) is no longer configured for {{value0}}. Using origin.",
+        "f51e254d35": "Try a different JQL query.",
+        "f6fa3c97d0": "Reviewers",
+        "f9191d1714": "Reviewer removed",
+        "fc0d8a1fa4": "to submit.",
+        "fe28c9821f": "view",
+        "fe380f306c": "Failed to save default task view.",
+        "fed317634c": "Auto-merge enabled",
+        "ff53631e6f": "Refresh GitHub work",
+        "ff69a30681": "Cancel",
+        "ff90d0abc7": "Start workspace from {{value0}}",
+        "loadPageFailed": "Page {{value0}} could not be loaded from GitHub.",
+        "loadPageNoMoreResults": "No more results on page {{value0}}.",
+        "loadPageUnreachable": "Page {{value0}} is beyond what GitHub search can return.",
+        "noMatchingIssuesLoaded": "No matching issues loaded.",
+        "repository": "Repository",
+        "searchIssues": "Search issues",
+        "useIssueNumber": "Use issue #{{value0}}"
       },
       "Terminal": {
         "cdc9ac4b2d": "editor"
       },
-      "UpdateCard": {
-        "522df222b9": "spinner",
-        "7ffc08506e": "check",
-        "d5253b54af": "error"
+      "UnexpectedSignoutCard": {
+        "1f6b2c9d4e": "What you get back",
+        "2c9a5b6e8d": "Publish HTML and Markdown files and manage every shared link from Orca.",
+        "3d8e5f1b9c": "Share skills behind an unlisted link and install them on any machine you use.",
+        "3e8f5c2a91": "Dismiss",
+        "4b7d2e8f1a": "Connect Orca Mobile to this desktop across cellular or any Wi-Fi.",
+        "5a1c8d3e6f": "Sign in again to restore Artifact sharing, Orca Relay, and skill sharing.",
+        "6e3f1a9c5b": "Orca Relay",
+        "7b4d9e1f2a": "Sign in again as {{value0}} to restore Artifact sharing, Orca Relay, and skill sharing.",
+        "8d2e4f7a1b": "Artifact sharing",
+        "9a4c6b2d7e": "Skill sharing",
+        "9f2c1a4b7d": "You've been signed out",
+        "c5b3e8a17d": "Sign in to Orca"
       },
       "WorktreeJumpPalette": {
         "c4afa68159": "Try a worktree, setting, action, tab title, agent prompt, URL, PR, or port.",
@@ -203,16 +660,6 @@
         },
         "ActivityScopeFilterControls": {
           "hiddenCount": "{{value0}} hidden"
-        }
-      },
-      "artifacts": {
-        "ArtifactsPage": {
-          "openArtifact": "Open artifact",
-          "signInCopy": "Sign in to view and manage artifacts shared through your account.",
-          "signInHeading": "Sign in to Orca"
-        },
-        "artifact-publish-flow": {
-          "5cb4f5ec36": "Copy link"
         }
       },
       "automations": {
@@ -367,6 +814,15 @@
         }
       },
       "editor": {
+        "CheckRunDetailsPanel": {
+          "834cb3f23d": "Fix with AI",
+          "b3e7f9a1c2": "Check fix context unavailable",
+          "b7f5e2c91a": "Refresh",
+          "c8f1a2d4e7": "Choose the agent and edit the full command input before launch.",
+          "d5a8c2f1b9": "Start the default AI agent to fix this check",
+          "e2b4d7c8a1": "Choose an agent for this check",
+          "f1c9e3a6d4": "Choose agent to fix check"
+        },
         "CombinedDiffFileTree": {
           "d5ac717d65": "uncommitted"
         },
@@ -419,6 +875,23 @@
         },
         "RichMarkdownSlashMenu": {
           "e2e12b0e98": "component"
+        },
+        "check": {
+          "run": {
+            "details": {
+              "fix": {
+                "with": {
+                  "ai": {
+                    "1a8c4e2b90": "Select a workspace before launching an AI action.",
+                    "2ef90c9819": "Started an AI agent for this check.",
+                    "4f2d9a8c17": "Select a repository before launching an AI action.",
+                    "7c3e1b5d42": "Open a PR or MR before launching an AI fix.",
+                    "9b2f6d4a81": "This check is not failing."
+                  }
+                }
+              }
+            }
+          }
         }
       },
       "emulator": {
@@ -462,15 +935,24 @@
             "d8401975b1": "approved",
             "f27676a92c": "status:"
           },
+          "ConnectIntegrationsList": {
+            "33b650af52": "Connect where your team tracks work. Orca starts workspaces with the issue title, link, and context already attached.",
+            "3dddb2d565": "connected for tasks",
+            "5b3577a492": "connected for review status",
+            "code_host_tasks_caption": "Your code host's issues also work as tasks.",
+            "code_host_tasks_summary": "issues available as tasks · add Linear or Jira if your team plans work there",
+            "list_end": ", and ",
+            "list_mid": ", ",
+            "review_step_description": "Connect a review provider so Orca can show PR or MR status, checks, and reviews.",
+            "review_step_title": "See PR status while agents work",
+            "task_step_title": "Start agents on your tasks without leaving Orca"
+          },
           "FeatureWallSetupChecklist": {
             "b1f1981c5e": "See tasks"
           },
           "ReviewAnimatedVisual": {
             "8ab622e4d6": "notes",
             "8df4d52b68": "pr-view"
-          },
-          "TasksAnimatedVisual": {
-            "72f9e516a3": "pressing"
           },
           "agents": {
             "orchestration": {
@@ -492,6 +974,30 @@
                 "coordinatorBeat1": "PR 1/2 ready",
                 "coordinatorBeat2": "PR 2/2 ready",
                 "coordinatorInitial": "Splitting auth rewrite into 2 PRs…"
+              }
+            }
+          },
+          "connect": {
+            "integration": {
+              "step": {
+                "0f47ff17c6": "Change",
+                "5538eb6743": "Done",
+                "close_step": "Close",
+                "open_step": "Open"
+              }
+            }
+          },
+          "feature": {
+            "wall": {
+              "setup": {
+                "checklist": {
+                  "localized": {
+                    "copy": {
+                      "06fe30fdb0": "Start an agent from a task in one click and keep PR status in view.",
+                      "ad342dd4c6": "Connect integrations"
+                    }
+                  }
+                }
               }
             }
           },
@@ -529,12 +1035,16 @@
           "a1b2c3d4e5": "Add a comment",
           "b1c2d3e4f5": "Reopen issue",
           "bd3b4492a0": "Issue reopened",
-          "bf43425540": "Comment",
           "c5c117270e": "Add your comment here, be kind",
-          "commentTooLarge": "Comment is too large to submit safely.",
           "e9b7cb7d17": "Failed to close issue",
-          "f2a8c1d903": "Failed to reopen issue",
-          "f6a7b8c9d0": "Close issue"
+          "f2a8c1d903": "Failed to reopen issue"
+        },
+        "GitHubMarkdownComposer": {
+          "8f1c2d4e6a": "Nothing to preview",
+          "b7e4a1c902": "Paste, drop, or click to add files",
+          "c91f0a2b14": "Write",
+          "d82b1e3f05": "Preview",
+          "e3bd59143c": "Insert"
         },
         "GitHubWorkItemAssigneePopoverContent": {
           "4f8b6f2c1d": "Filter assignees...",
@@ -548,24 +1058,41 @@
           "de26e2eb06": "No labels"
         },
         "IssueSourceSelector": {
+          "51d1608920": "Origin",
           "643d7e9496": "upstream",
           "cdc9bd64fa": "compact"
         },
         "PRFilterDropdowns": {
-          "19bb6f115f": "reviewed-by"
+          "01f3f3d161": "Author",
+          "19bb6f115f": "reviewed-by",
+          "7f1ba66c3e": "Reviewed by",
+          "9d0f2eda6d": "Label",
+          "b27b7e526c": "Review from"
         },
         "PRFilterSections": {
-          "2e639b84fa": "reviewer",
-          "3ce4d5e96e": "prs",
-          "4e50c7bc03": "assignee",
-          "66256a73b3": "status",
+          "1e9b5244f2": "on",
+          "24754c44ad": "Author",
+          "2b2f019091": "Any state",
           "712c5abdbf": "label",
-          "7bf3a6e5ac": "author"
+          "7bf3a6e5ac": "author",
+          "b1d9fdea08": "Label",
+          "f0cf6dd591": "off"
+        },
+        "github": {
+          "rate": {
+            "limit": {
+              "display": {
+                "6da1858354": "left · resets in",
+                "bb227706a6": "REST",
+                "budget_scope_prefix": "Budget scope",
+                "f42790d150": "of"
+              }
+            }
+          }
         },
         "githubIssueCloseReasons": {
           "completed": {
-            "description": "Done, closed, fixed, resolved",
-            "label": "Close as completed"
+            "description": "Done, closed, fixed, resolved"
           },
           "duplicate": {
             "description": "Duplicate of another issue",
@@ -576,89 +1103,155 @@
             "label": "Close as not planned"
           }
         },
+        "pr": {
+          "merge": {
+            "state": {
+              "039c072f94": "Behind",
+              "1432ecff30": "GitHub says this PR can merge, but some checks failed",
+              "4e2507176b": "Checks pending",
+              "87fa36ac83": "Checks failed",
+              "9bd983ce8f": "GitHub says this PR can merge, but checks are still running",
+              "a5b66afb58": "Checks passed",
+              "b289646bcd": "GitHub reports requested changes on this pull request",
+              "bf5e4c6c92": "Blocked",
+              "fbd4f57f0a": "Checks passed. Merge eligibility will be checked again before merging."
+            }
+          }
+        },
         "project": {
           "ProjectCell": {
+            "4b5b871da8": "No labels in this repo.",
+            "54cac64427": "Row has no repo slug.",
+            "8d669084f6": "Restricted",
+            "af5d8c912a": "Restricted item",
             "ffeff79861": "PULL_REQUEST"
           },
           "ProjectPicker": {
-            "43a88ae574": "BOARD_LAYOUT",
-            "ab1a2c357d": "Roadmap (unsupported)",
-            "b787682111": "Browse all",
-            "ba0ab9a117": "Browse all (loading…)",
-            "cafb908f34": "TABLE_LAYOUT"
+            "9b36829267": "No views found.",
+            "b3044b7a25": "Recent"
           },
           "ProjectRow": {
             "c3b81ddea2": "DRAFT_ISSUE"
           },
           "ProjectViewWrapper": {
-            "1bf8c01c8b": "Switch to a Table view to work with this project in Orca."
+            "067119985c": "GitHub search, e.g. assignee:@me is:open",
+            "1850fceac8": "{{value0}}/{{value1}} isn't added to Orca. Add it to start work, or open in GitHub.",
+            "1aa7c952b9": "Project view",
+            "4d2a77a119": "File feature request"
           }
         }
       },
-      "linear-issue-attribute-filter-dropdowns": {
-        "optionsFromTeam": "Options from {{team}}"
+      "gitlab": {
+        "gitlab": {
+          "rate": {
+            "limit": {
+              "display": {
+                "3e2c982cfa": "left, resets in",
+                "budget_scope_prefix": "Budget scope",
+                "ea8ad0bae8": "of"
+              }
+            }
+          }
+        }
+      },
+      "jira": {
+        "connect": {
+          "dialog": {
+            "2849ddb295": "Atlassian email",
+            "3d81bf3ab3": "API token",
+            "4a2ab52781": "Verifying…",
+            "7b3967c12f": "Atlassian API token",
+            "8090504a3e": "Create a token in",
+            "8388bdea2b": "Connect Jira site",
+            "d785c42b8b": "Use a Jira Cloud site URL, Atlassian email, and API token to browse issues.",
+            "e176f9d0c5": "Jira Cloud site URL",
+            "fdd26d81cc": "Atlassian account settings"
+          }
+        }
       },
       "linear": {
         "api": {
           "key": {
             "dialog": {
               "57a66522c8": "connecting",
-              "e689a4d0a6": "error"
+              "edec49dfae": "lin_api_..."
             }
+          }
+        },
+        "priority": {
+          "icon": {
+            "c43d3e065b": "Priority:"
           }
         },
         "project": {
           "view": {
             "surfaces": {
-              "2c4b1c2c08": "number",
-              "7616c986c6": "Open {{value0}} issues"
+              "06b887d622": "Showing first",
+              "111bef9aa8": "Lead",
+              "20b9d09b7d": "Unknown",
+              "3ad562bdf4": "scoped issues",
+              "3be47aed6f": "Priority",
+              "563501f191": "Progress",
+              "65bda65159": "Members",
+              "7616c986c6": "Open {{value0}} issues",
+              "c8db98b73b": "Resources",
+              "ef90b21366": "No views found",
+              "f059181bd9": "Private",
+              "f5ef24cf46": "Health"
             }
+          }
+        },
+        "scope": {
+          "selector": {
+            "89f6580dbf": "Search teams..."
           }
         }
       },
       "mobile": {
-        "MobileHero": {
-          "79d2f480da": "Network interface to advertise",
-          "7af266b80d": "Install QR code",
-          "bb0074ce11": "Pairing QR code",
-          "ca85e595a7": "No interfaces found",
-          "relayDegradedNotice": "Relay couldn’t be reached — this code only works on your LAN or Tailscale."
-        },
         "MobilePage": {
-          "1b4509a8a1": "paired",
-          "c5909374cf": "intro"
-        },
-        "MobilePageToolbar": {
-          "a4f8c2d91e": "Hide from sidebar",
-          "b7e3d1c84a": "Show in sidebar"
-        },
-        "mobile": {
-          "platform": {
-            "copy": {
-              "2a532d6fd7": "Scan with your Android camera to download the latest APK from GitHub Releases.",
-              "432db52b73": "Scan with your iPhone camera to open the App Store."
-            }
-          }
-        },
-        "slides": {
-          "WorktreeListSlide": {
-            "c5ad56786d": "spinner"
-          }
+          "1b4509a8a1": "paired"
         }
       },
       "new": {
         "workspace": {
           "SmartWorkspaceNameField": {
+            "3e8bb1176a": "Connect Linear in Settings to search issues.",
+            "6859e2896c": "Cancel",
             "69ce292138": "linear",
-            "9c004911c3": "gitlab"
+            "9c004911c3": "gitlab",
+            "a76fcb4fa0": "Switch to",
+            "ad188067ae": "The GitHub URL points to",
+            "e57c53727c": "Add project...",
+            "eadf877af5": "Keep",
+            "openSettings": "Settings"
           }
         }
       },
       "onboarding": {
         "IntegrationsStep": {
+          "04ef416712": "Add Linear access",
+          "0b4a7d23ab": "Signing in",
+          "217beb0658": "GitHub",
+          "27743304b1": "Linear",
+          "277f30eb34": "Linear, GitLab, Bitbucket, Azure DevOps, Gitea, and Jira live in Settings > Integrations.",
+          "3a3e360289": "More task sources",
+          "4983ae7433": "Add Linear access with a Personal API key. Full-access keys can show every team the key owner can access.",
+          "50db38cf4b": "Pull requests, issues, and check status.",
+          "5c115cb713": "CLI not installed",
+          "6d469169f2": "GitHub setup",
+          "80e3ce0bc9": "Re-check",
+          "8405043962": "Sign in needed",
           "93f0c49ad1": "not-authenticated",
           "a3bcf13694": "connected",
-          "a74c6d6b18": "not-installed"
+          "a74c6d6b18": "not-installed",
+          "af69f42372": "Press Enter to run GitHub CLI auth. Re-check GitHub after the browser or device flow finishes.",
+          "b08a6ac93c": "{{value0}} workspace{{value1}} linked. Add another workspace or replace a restricted key any time.",
+          "bd5d976fb2": "Install gh",
+          "c1547656f0": "Checking…",
+          "c91a5782f1": "Connected",
+          "d6e5dba05a": "Sign in",
+          "dd9c186a8b": "Add workspace access",
+          "f9d2e12d17": "GitHub sign in command"
         },
         "NotificationStep": {
           "2c47f5465f": "Turn on Allow notifications for Orca in System Settings. This step updates automatically once enabled.",
@@ -690,7 +1283,6 @@
       "right": {
         "sidebar": {
           "AiVaultPanel": {
-            "localSessionSshWorkspaceUnsupported": "This session's history is stored on this machine, so it can't resume in an SSH workspace. Open a local workspace instead.",
             "localWorkspacesOnly": "Resume from history is only available in local workspaces.",
             "remoteBrowseLocalHistory": "Remote workspaces can browse local history. Resume actions run from local workspaces.",
             "valueCopyFailed": "Unable to copy {{value0}}"
@@ -744,11 +1336,69 @@
             "tokenCount": "{{value0}} tok"
           },
           "ChecksPanel": {
+            "058039787c": "Cancel",
+            "07871c0589": "Link another PR",
+            "192e686e57": "Open on {{value0}}",
+            "2ab7fd4b6d": "Save",
+            "2ef90c9819": "Started an AI agent for the broken checks.",
+            "34464d00b9": "updated",
+            "3b203c62f8": "This will permanently remove the comment from the PR.",
             "3c3ad3a1d2": "Started the agent. No selected comments can be marked resolved on the host.",
+            "430f1a62d4": "Could not resolve the selected thread on the host.",
+            "495b2f8c4b": "Started the agent, but could not resolve or reply on the selected comments.",
+            "4ede779461": "Resolve Review Conflicts With AI",
+            "5594400d73": "No broken checks to fix.",
+            "5788d1059d": "Could not update review thread. Check the GitHub API budget.",
+            "5c88c6db07": "Open on {{value0}}",
+            "5eb2163b6b": "Review the prompt before starting an agent. After the prompt is delivered, Orca resolves the selected host threads and replies to comments it cannot resolve.",
+            "653c105ecc": "More PR actions",
+            "6633c7a1fb": "Publish Branch",
+            "71026ca2cb": "Refreshing…",
             "7202f4a40a": "unlink PR",
+            "786e3c143f": "Delete",
+            "7e4b2a19c0": "Could not resolve the GitHub PR to reply on.",
+            "7f4489f370": "Refresh",
+            "7fad8509fe": "Fix With AI",
+            "889cdfba04": "Create {{value0}}",
+            "976cefd02f": "Checks unavailable",
+            "98f4c37b33": "Push & Create {{value0}}",
+            "a0181a8d76": "Started an AI agent for the conflicts.",
+            "a4ef4e0832": "No workspace selected",
+            "aa95b81a3a": "Started the agent. Marked {{value0}} resolved, replied to {{value1}}, skipped {{value2}}, failed {{value3}}.",
             "abf59262fb": "Review the prompt before starting an agent.",
+            "b5dd73a105": "Select a workspace to view checks",
+            "b6ce28da5b": "{{value0}} #{{value1}} is already open",
+            "cf9e69f3be": "{{value0}} is already open",
+            "d00ebdc402": "Resolve {{value0}} Comments With AI",
+            "dda5924a40": "Checks require a Git branch and hosted review context",
             "e56c42122e": "destructive",
-            "gitlabUnlink": "Unlink MR"
+            "ea9b649ce3": "Delete comment?",
+            "f273f2271c": "Started the agent. Marked {{value0}} resolved, replied to {{value1}}, skipped {{value2}}, failed {{value3}}.{{value4}}",
+            "f316a8ca2b": "No unresolved comments selected.",
+            "fdb27637f2": "Publishing…",
+            "review": {
+              "auto_retry": "Orca will retry at {{time}}.",
+              "open_review": "Open Review",
+              "retry": "Retry"
+            },
+            "sync": {
+              "branch": "Sync Branch",
+              "pending": "Syncing…"
+            }
+          },
+          "CreateHostedReviewBasePicker": {
+            "205ef284fa": "Base branch",
+            "5a9315b61a": "No branches match “{{value0}}”. Press Enter to use it anyway.",
+            "bb4b41d563": "from {{value0}}",
+            "da4d57c9c2": "Leave empty to use {{value0}}."
+          },
+          "CreateHostedReviewComposer": {
+            "741ff8a0d2": "Push & Create {{value0}}"
+          },
+          "CreateHostedReviewComposerFields": {
+            "29732f2fb0": "new PR",
+            "90cabf6cfc": "Stack this PR above #{{value0}}",
+            "ff81473a57": "Creates a GitHub Stack or extends the parent's existing stack."
           },
           "CreatePullRequestDialog": {
             "02b2ce911f": "Description (optional)",
@@ -802,10 +1452,33 @@
             "9a8b85882d": "loading"
           },
           "HostedReviewActions": {
+            "2bfaf4379c": "More {{value0}} actions",
+            "377269db6f": "{{value0}} reopened",
+            "38a1bccb14": "Queue through #{{pr}} · {{count}} PRs",
+            "3ce211ece6": "Reopen {{value0}}",
+            "3de88351c5": "GitHub will add this pull request and every pull request below it to the merge queue.",
+            "4d5fb5a284": "Close",
             "59b4dccf70": "destructive",
+            "6645ac7dd1": "Reopening...",
+            "73e0e1819d": "Queueing stack...",
+            "78f5ff294c": "This will reopen the {{value0}}.",
+            "9845a71e17": "More actions",
+            "9a41a687b7": "Queue through #{{pr}} · {{count}} PR",
+            "a32fe6dba6": "GitHub will merge this pull request and every pull request below it in the stack.",
+            "a3d572a4de": "This will close the {{value0}}.",
             "b25f63edd7": "open",
+            "closeDraft": "Close",
+            "closedToast": "{{value0}} closed",
+            "d2ca293f3d": "Working...",
+            "draftMoreActions": "More {{value0}} actions",
+            "e4aca40024": "Delete Workspace",
+            "e555a41d32": "Merging stack...",
+            "eefd50457e": "Deleting...",
             "ef064cb7c3": "default",
-            "fa3ee9a515": "closed"
+            "fa3ee9a515": "closed",
+            "markReady": "Mark ready for review",
+            "markingReady": "Marking ready...",
+            "readyToast": "{{value0}} marked ready for review"
           },
           "PortsPanel": {
             "1119f90ad7": "container",
@@ -817,36 +1490,85 @@
             "1ec640c9c7": "match"
           },
           "SourceControl": {
+            "02d8c04339": "Generate {{value0}} details with AI",
             "03d238218c": "Details",
+            "0453ca3a9a": "{{value0}} created, but Orca could not refresh it yet.",
             "04832d8047": "rebase",
             "0fad573938": "Uncommitted",
             "15b7f210d7": "Review the prompt before starting an agent.",
+            "1a6a6e0bc5": "Generate Hosted Review Details",
             "1f7119f604": "Base",
+            "26511c22b4": "Creating...",
             "2830dd64a2": "deleted",
+            "318e2a7f88": "Wait for AI generation to finish.",
             "3636d0f686": "ready",
             "383cf92c73": "tree",
             "3a231c845b": "unknown",
             "424ee0e5bf": "error",
             "48a003c1b1": "Staged Changes",
+            "4d6e1fd7f3": "More actions",
+            "4f76c0a9de": "Base branch must differ from the head branch.",
             "522f44dce5": "Untracked Files",
             "527e130b6f": "Stop generating",
+            "5acbcedc1a": "Create {{value0}}",
+            "6055949c50": "{{value0}} base branch",
             "77afaa8152": "All",
             "783a808870": "Close",
+            "78ddfd0bb4": "Create as draft",
             "7a09d7f9d2": "base",
+            "7d6a8f0082": "Title",
+            "812cb992ee": "Open on {{value0}}",
+            "8d8f5c6c94": "Generating commit message…",
             "901140f47d": "Review the prompt before starting an agent.",
+            "9484270f45": "Generating title & description…",
+            "995c5e67ec": "Review setup needs attention.",
             "9bb062a886": "uncommitted",
             "9febd8ab5f": "create_pr",
             "a0cc0e6b4e": "loading",
+            "a0dc20fc93": "Description (optional)",
+            "a6eda33521": "{{value0}} title",
+            "a8873e1d62": "{{value0}} description",
+            "aaf1451654": "Create draft {{value0}}",
+            "ae743199cd": "Choose a different base branch before creating a {{value0}}.",
+            "aee92f8684": "Generate",
+            "b355e740b2": "Stop generating {{value0}} details",
+            "b75cb1fd0c": "Committing changes…",
             "c105a61960": "merge",
+            "c5e4175139": "More {{value0}} and remote actions",
             "conflictsSection": "Conflicts",
+            "createPrIntentBranchChangedDuringDetails": "Branch changed while generating review details. Retry Create PR.",
+            "createPrIntentBranchNotReady": "Branch is not ready to create a review yet.",
+            "createPrIntentCommitBlockedSummary": "Commit blocked: {{value0}} Fix the issue, then retry Create PR.",
+            "createPrIntentCommitFailed": "Could not commit changes. Fix the issue, then retry Create PR.",
             "createPrIntentConfigureAi": "Add a commit message or configure Source Control AI settings.",
+            "createPrIntentCreatingReview": "Creating review…",
+            "createPrIntentFastForwarding": "Updating branch…",
+            "createPrIntentForcePushing": "Force pushing with lease…",
+            "createPrIntentGenerateDetailsFailed": "Could not generate review details. Retry Create PR.",
             "createPrIntentGenerateFailed": "Could not generate a commit message. Add one and retry.",
+            "createPrIntentGeneratingDetails": "Generating review details…",
+            "createPrIntentNeedsSync": "Sync this branch before creating a review.",
+            "createPrIntentPublishing": "Publishing branch…",
+            "createPrIntentPushing": "Pushing commits…",
+            "createPrIntentRemoteFailed": "Could not update the remote branch. Retry Create PR.",
             "d2e9189866": "all",
+            "d37e68f61d": "Preparing branch for review…",
             "d4ef4bafc5": "Changes",
             "d62bc0c7d8": "untracked",
+            "d6fb1df5fe": "{{value0}} is already open",
+            "d7492cafce": "Could not refresh Source Control. Retry Create PR.",
+            "e1970d327d": "New {{value0}}",
+            "e2b7a1c0d9f4": "Failed to create {{value0}}",
             "e59bca888a": "markdown",
+            "e64a632456": "main",
+            "e868cec4e1": "Generating…",
+            "eef5446523": "{{value0}} #{{value1}} is already open",
             "f3a1b8c204": "upstream",
+            "f3a8b2c1d0e5": "Enter a {{value0}} title.",
             "f62ce91ade": "origin",
+            "f76307c1f7": "Choose a base branch.",
+            "fda060d6ce": "Review the commit message, then retry Create PR.",
+            "fe5bd1a610": "Creating {{value0}}...",
             "tooManyChanges": "Too many changes detected. Only the first {{value0}} changes are shown."
           },
           "SourceControlAgentActionDialogForm": {
@@ -865,20 +1587,104 @@
           "checks": {
             "panel": {
               "content": {
+                "3916814392": "behind (base commit:",
+                "00e1c1658a": "Completed",
+                "02ca4f9074": "passing",
+                "03ca88f623": "Edit",
+                "066fedd446": "Failed jobs",
                 "07eccfa397": "No details are available for this check.",
+                "084c516efb": "Copy commands",
+                "0975eeaaef": "Conflicting files",
+                "0c96cd25e5": "Resolve",
+                "0dca6bfab5": "Open check details",
                 "0fc6f743b3": "by",
+                "1abb17aac9": "More",
+                "1e53e45072": "Copied",
+                "1f2b980522": "Loading check details…",
+                "2b2be92919": "Add comment",
+                "2ba0a32bdd": "bot",
+                "2dd5ddabc4": "workflow #",
+                "365254cc1b": "Unresolve",
+                "3a71a6ed0b": "Resolve conflicts before checks and merge can complete.",
+                "3fff651d32": "Add a PR comment",
+                "49731703ea": "Jobs",
                 "49ea0937e4": "Add comment to resolve list",
+                "5341023167": "check",
+                "5856874b59": "Orca will refresh checks while this panel stays open.",
+                "5bc9bda2af": "Run from this worktree",
+                "5d4ebf9391": "Inspect details or start an AI fix pass.",
+                "5dc3af25c0": "Select comment",
+                "5e52f4ef7f": "failing",
+                "5e6e5a13fa": "View",
+                "60186d8498": "Conflicts block this",
+                "6cc6eace26": "Delete",
+                "6fa7f8723f": "commit",
+                "73d0675356": "Refreshing conflict details…",
+                "7440d09d2c": "Start conversation",
+                "74c6885b8a": "More comment actions",
+                "751f7c6e5c": "Showing first 100 comments per source",
+                "755be805f6": "No comments",
                 "7c1f0a2b11": "Open",
+                "7f793b571d": "Drag to resize checks",
+                "87cd07c69a": "This branch has conflicts that must be resolved",
+                "8987d5a3dd": "Resolved",
+                "8a621a2c4f": "Grouped",
                 "90206b6353": "comment",
+                "94557d68e2": "Comments",
                 "95ad090b01": "thread",
+                "991f50c7e4": "No checks configured",
+                "9ad98f2a17": "pending",
+                "9d0e7bcefc": "No blocking PR action",
                 "9fecebb29d": "Add",
+                "a2fb3f4408": "Showing first 100 jobs",
+                "a54ae21c6f": "Status:",
+                "a6de3e5a20": "Clear queued comments",
+                "a7f0c7e8d1": "Queue",
                 "a916648574": "Open details",
+                "aa8494ae3c": "check #",
                 "actionRequiredHint": "This check needs a manual action on GitHub (for example, approving the workflow run) before merging is unblocked.",
-                "d098e5529a": "Output"
+                "ae8a04ef17": "Conflict file details are unavailable",
+                "b062f55f29": "Cancel",
+                "b13f85d75c": "Timeline",
+                "b3195cba33": "Unmark author as bot",
+                "b37ebdc51c": "Commenting unavailable.",
+                "b45db92d0e": "Fix",
+                "b4e8a1c902": "Queued",
+                "b652f38caf": "failing check",
+                "b8c4e2a1f7": "View full logs",
+                "ba20d1a896": "Reply to {{value0}}",
+                "c16762ac8c": "Checks and comments below show the current fetched context.",
+                "c1f6fc006a": "Reply",
+                "c3a8e5d710": "Needs review · {{value0}}",
+                "cbcc4ab3db": "Showing first 100 checks",
+                "cdbfda4dec": "Annotation",
+                "checksUnresolvedChip": "unresolved",
+                "checksUnresolvedStripHint": "These checks finished without a pass or fail verdict.",
+                "d098e5529a": "Output",
+                "d3923d18fe": "Go to comment",
+                "d7a2f9c401": "Send unresolved {{value0}} comments",
+                "d91f2a6c39": "Send {{value0}} queued comments to AI",
+                "dcb3c546fe": "Retry",
+                "df137989b3": "Showing first 20 annotations",
+                "e15a8b77ef": "No inline details are available for this check.",
+                "e45324fbed": "Failed to load check details.",
+                "e4e3af15ee": "View full details",
+                "e87fb3d929": "Copy mergeability refresh commands",
+                "e8b4c1a903": "Resolved · {{value0}}",
+                "ea9fd5ed6a": "Start conversation...",
+                "ee07b33924": "unknown",
+                "f2fe8a4e8f": "Annotations",
+                "f588b46a6c": "Mark author as bot",
+                "f5bc5c4cf1": "The hosting provider reports conflicts, but local Git did not reproduce them. Refresh the review or push the branch to recalculate mergeability.",
+                "f5cf324efa": "Comment display options",
+                "f6a40263ff": "Save",
+                "f8a2c91d04": "Queue for agent",
+                "fd46a70f1a": "Started"
               },
               "empty": {
                 "state": {
                   "3322603418": "Pull request status unavailable",
+                  "05e4aec17b": "{{value0}} checks will be available after the operation completes",
                   "13e1c7d5ed": "No {{value0}} found",
                   "2bdd7aaf2d": "GitHub status could not be refreshed. Existing cached data was preserved.",
                   "3d4af82ff4": "Refreshing GitHub status for this branch",
@@ -892,10 +1698,15 @@
                   "938b5606a6": "Checking for pull request",
                   "b597440265": "Refresh GitHub status for this branch to load checks and review.",
                   "d372072df1": "GitHub refresh is paused by the current rate-limit budget",
+                  "d77c513c1e": "{{value0}} in progress",
                   "f8543140cc": "Publish this branch before creating a {{value0}}."
                 }
               },
               "review": {
+                "active": {
+                  "body": "Orca is checking {{provider}} for a {{reviewLabel}} on this branch.",
+                  "title": "Checking {{reviewLabel}} status"
+                },
                 "auth": {
                   "body": "{{provider}} could not authenticate the credentials available in this environment. Check the {{provider}} login or environment token, then retry.",
                   "title": "{{provider}} authentication failed"
@@ -920,25 +1731,63 @@
                   "body": "Check out a branch before creating a {{reviewLabel}}.",
                   "title": "No current branch"
                 },
+                "detail": {
+                  "network": "Orca also could not check {{reviewLabel}} status because this environment could not reach {{provider}}.",
+                  "positive": "Orca also has saved {{reviewLabel}} information that it could not verify.",
+                  "rate_limited": "Orca also could not check {{reviewLabel}} status because {{provider}} is temporarily limiting requests.",
+                  "untyped": "Orca also could not confirm whether this branch already has a {{reviewLabel}}."
+                },
                 "dirty": {
                   "body": "Commit or stash your changes before creating a {{reviewLabel}}.",
                   "title": "Commit changes first"
+                },
+                "existing": {
+                  "body": "Orca found an existing {{reviewLabel}} for this branch.",
+                  "title": "{{reviewLabelCap}} already exists"
                 },
                 "fork": {
                   "body": "Orca cannot create a {{reviewLabel}} from this fork head here.",
                   "title": "Fork head unsupported"
                 },
+                "git_error": {
+                  "body": "Orca could not confirm this branch's upstream from this environment. Retry before publishing or creating a {{reviewLabel}}.",
+                  "title": "Could not check branch status"
+                },
+                "git_loading": {
+                  "body": "Orca is checking this branch before showing create or publish actions.",
+                  "title": "Checking branch status"
+                },
+                "needs_push": {
+                  "body": "Push the latest commits before creating a {{reviewLabel}}.",
+                  "title": "Branch has unpushed commits"
+                },
                 "needs_sync": {
                   "body": "Sync this branch with its upstream before creating a {{reviewLabel}}.",
                   "title": "Branch needs to sync"
+                },
+                "network": {
+                  "body": "This environment could not reach {{provider}}. Check its connection, then retry.",
+                  "title": "Could not reach {{provider}}"
+                },
+                "no_review": {
+                  "body": "Create a {{reviewLabel}} to start checks and review.",
+                  "title": "No {{reviewLabel}} found"
                 },
                 "no_upstream": {
                   "body": "Publish this branch to set its upstream before creating a {{reviewLabel}}.",
                   "title": "No upstream configured"
                 },
+                "paused": {
+                  "body": "{{provider}} is temporarily limiting requests. This can happen even when the displayed API quota is not exhausted.",
+                  "title": "{{provider}} refresh paused"
+                },
                 "permission": {
                   "body": "The current {{provider}} credentials cannot read this repository's {{reviewLabel}}s. Check the account, token scopes, and repository access, then retry.",
                   "title": "{{provider}} access denied"
+                },
+                "positive": {
+                  "body": "Orca has saved {{reviewLabel}} information for this branch but could not confirm its current status.",
+                  "title": "{{reviewLabelCap}} details unavailable"
                 },
                 "repo": {
                   "body": "{{provider}} could not resolve or access the repository for the current remote and account. Check the remote and repository access, then retry.",
@@ -966,9 +1815,43 @@
                     "title": "Remote-only context"
                   }
                 },
+                "unknown": {
+                  "body": "Orca has not confirmed the {{reviewLabel}} status for this branch. Retry to check again.",
+                  "title": "{{reviewLabelCap}} status unavailable"
+                },
+                "unknown_error": {
+                  "body": "The lookup failed, so Orca could not confirm whether this branch already has a {{reviewLabel}}.",
+                  "title": "Could not check {{reviewLabel}} status"
+                },
                 "unsupported": {
                   "body": "This repository provider does not support creating a {{reviewLabel}} from Orca.",
                   "title": "{{reviewLabelCap}} not supported here"
+                },
+                "untyped": {
+                  "body": "Orca could not confirm whether this branch already has a {{reviewLabel}}. Retry to check again.",
+                  "title": "{{reviewLabelCap}} status unavailable"
+                }
+              }
+            }
+          },
+          "create": {
+            "hosted": {
+              "review": {
+                "button": {
+                  "label": {
+                    "8df1a05952": "Create PR in stack",
+                    "8e8149a0bf": "Create draft PR in stack",
+                    "96ae7358e0": "Push & Create PR in stack"
+                  }
+                }
+              }
+            },
+            "pull": {
+              "request": {
+                "review": {
+                  "copy": {
+                    "a1f8c3d2e4": "Push succeeded, but {{value0}} creation failed: {{value1}}"
+                  }
                 }
               }
             }
@@ -978,10 +1861,12 @@
             "34af8aadf5": "top",
             "45b78f03bc": "side",
             "6306b48afd": "source-control",
+            "83a10e3c44": "Checks",
             "9f83375839": "checks",
             "b37ff4a89a": "ports",
             "ef182dcb12": "search",
-            "fc3095d2ed": "explorer"
+            "fc3095d2ed": "explorer",
+            "parentPrChecks": "PR Checks"
           },
           "pull": {
             "policy": {
@@ -1031,12 +1916,27 @@
                   "6de99d162b": "entry"
                 }
               },
+              "dropdown": {
+                "items": {
+                  "9e779995dd": "Create {{value0}}"
+                }
+              },
               "primary": {
                 "action": {
                   "2d8f185fbc": "Stage all changes before committing partially staged files",
                   "8c6d15a07d": "Create PR",
+                  "a5d1f7b036": "Publish commits before creating a {{value0}}.",
                   "acce237921": "Nothing to commit. Branch has no changes to publish.",
-                  "d2a8c4e703": "No changes on this branch to include in a {{value0}}."
+                  "b6e2a8c147": "Push commits before creating a {{value0}}.",
+                  "b8e4f2a901": "Wait for the remote operation to finish.",
+                  "c7f3b9d258": "Sync this branch before creating a {{value0}}.",
+                  "c9f3a1b802": "Resolve conflicts before creating a {{value0}}.",
+                  "d2a8c4e703": "No changes on this branch to include in a {{value0}}.",
+                  "d8a4c0e369": "Authenticate before creating a {{value0}}.",
+                  "e3b9d5f814": "Cannot create a {{value0}} from the default branch.",
+                  "e9b5d1f470": "Check out a branch before creating a {{value0}}.",
+                  "f0c6e2a581": "This branch is not ready for a {{value0}} yet.",
+                  "f4c0e6a925": "Commit changes before creating a {{value0}}."
                 }
               }
             }
@@ -1050,12 +1950,57 @@
       },
       "rightSidebar": {
         "FolderWorkspacePrChecksPanel": {
+          "allChecksPassing": "all checks passing",
+          "emptyCopy": "PR checks will appear here after worktrees are attached to this folder workspace.",
+          "emptyTitle": "No attached worktrees yet",
+          "failingCount": "{{value0}} failing",
+          "hideDetails": "Hide {{value0}} PR check details",
+          "oneFailing": "1 failing",
+          "onePending": "1 pending",
+          "oneWorktree": "1 worktree",
           "openChecksTab": "Open {{value0}} Checks tab",
-          "summary": "{{value0}} attached · {{value1}} with PR/MR · {{value2}} attention · {{value3}} pending · {{value4}} passing · {{value5}} no PR · {{value6}} unknown"
+          "openReviewExternally": "Open {{value0}} externally",
+          "pendingCount": "{{value0}} pending",
+          "refresh": "Refresh PR checks",
+          "reviewChecks": "Review checks",
+          "showDetails": "Show {{value0}} PR check details",
+          "summary": "{{value0}} attached · {{value1}} with PR/MR · {{value2}} attention · {{value3}} pending · {{value4}} passing · {{value5}} no PR · {{value6}} unknown",
+          "unavailable": "PR checks are only shown for folder workspaces.",
+          "worktreeCount": "{{value0}} worktrees"
         },
         "FolderWorkspaceWorktreesPanel": {
           "description": "Shows worktrees attached to this folder workspace.",
           "label": "Workspaces"
+        },
+        "parentPrChecks": {
+          "groups": {
+            "draftOrNoChecks": "Draft / no checks",
+            "merged": "Merged",
+            "needsAttention": "Needs attention",
+            "noPr": "No PR",
+            "passing": "Passing",
+            "pending": "Pending",
+            "unavailable": "Unavailable"
+          },
+          "rowSummary": {
+            "checking": "Checking review status…",
+            "checksFailing": "Checks failing",
+            "checksPassing": "Checks passing",
+            "checksPending": "Checks pending",
+            "closedWithoutMerge": "Closed without merge",
+            "detailsUnavailable": "Review details unavailable",
+            "draftReview": "Draft review",
+            "failingCount": "{{value0}} failing",
+            "mergeConflicts": "Merge conflicts",
+            "merged": "Merged",
+            "noCheckSignal": "No check signal",
+            "noPrLinked": "No PR linked",
+            "notFetched": "Status not fetched yet",
+            "pendingCount": "{{value0}} pending",
+            "refreshFailed": "Refresh failed",
+            "reviewUnavailable": "Review status unavailable",
+            "unavailableWorktree": "Unavailable for this worktree"
+          }
         }
       },
       "settings": {
@@ -1170,7 +2115,25 @@
           "f00d6aa9b5": "WSL is not available on this machine."
         },
         "CommitMessageAiPane": {
-          "841ed9884a": "Used by repositories that have not customized Source Control AI."
+          "02bab6542c": "pr",
+          "19e10a12bb": "hosted review",
+          "2c5436c018": "open",
+          "2dafc7646e": "Hosted-review creation defaults",
+          "347094560b": "Used by repositories that inherit global hosted-review defaults.",
+          "6278c0ce43": "Prefer repository pull request templates when no description is set.",
+          "6ba48f07a4": "Draft by default",
+          "6c84ba6de3": "template",
+          "7662715213": "Open hosted review after creation",
+          "841ed9884a": "Used by repositories that have not customized Source Control AI.",
+          "b125eabffa": "Open the created hosted review in your browser after submit.",
+          "b27b0809f3": "Run hosted-review detail generation once when the composer opens.",
+          "b388463881": "pull request",
+          "d5f0de6309": "Generate details when opening Create PR",
+          "d8b6764d79": "Use review template when available",
+          "e001734396": "Create hosted reviews as drafts unless changed in the composer.",
+          "e9d46a544d": "Defaults used when the hosted-review composer opens.",
+          "ebed4d2a29": "draft",
+          "fdee745b87": "merge request"
         },
         "ComputerUsePane": {
           "07bbe4c4cb": "Screenshots",
@@ -1179,15 +2142,8 @@
           "4d03dec2d0": "Read app interface trees and perform requested actions.",
           "6b5a2cd3a5": "Accessibility"
         },
-        "EphemeralVmRuntimesSection": {
-          "cleaned": "Cleaned up temporary VM runtime.",
-          "cleanupFailedToast": "Couldn’t clean up temporary VM runtime.",
-          "empty": "No temporary VM runtimes need cleanup.",
-          "loadFailed": "Couldn’t load temporary VM runtimes.",
-          "loading": "Checking temporary VM runtimes…",
-          "markedCleaned": "Marked temporary VM runtime as cleaned.",
-          "refresh": "Refresh temporary VM runtimes",
-          "title": "Temporary VM runtimes"
+        "DevToolsPane": {
+          "orcaCloud": "Orca Cloud"
         },
         "ExperimentalPane": {
           "0277901cf7": "Adds an Agents entry to the left sidebar with a threaded worktree feed for completed agents, blocking questions, unread state, and worktree creation events. Experimental — the event model and UI may change.",
@@ -1200,34 +2156,23 @@
             "copy": "Preview updated worktree-card layout, metadata placement, card-display menu options, and status presentation."
           }
         },
-        "GeneralRemoteServerUpdates": {
-          "reviewUpdateOne": "1 update available",
-          "reviewUpdates": "{{value0}} updates available"
-        },
-        "GeneralSupportSection": {
-          "1e29570462": "starring",
-          "511782265b": "Support the project with a GitHub star via the gh CLI.",
-          "5c49f02662": "hidden",
-          "73b327e793": "Try Again",
-          "9d181300e3": "starred",
-          "b3f0584f5d": "loading",
-          "c9f96d4234": "error"
-        },
-        "GeneralUpdateSettingsSection": {
-          "3394d1f663": "checking",
-          "4c1c001813": "downloading",
-          "6405510b92": "error",
-          "7173352632": "idle",
-          "82465b2444": "available",
-          "90eb7309d7": "not-available",
-          "a0832ccdb1": "downloaded"
-        },
         "GeneralWorkspaceSettingsSection": {
           "externalWorktreesDescription": "Choose whether worktrees created outside Orca appear by default.",
           "hide": "Hide",
           "show": "Show"
         },
         "GitPane": {
+          "0de4ae556c": "GitLab API Budget",
+          "2cde9044a8": "graphql",
+          "3072428ac7": "glab",
+          "32dca11189": "github",
+          "612a440e57": "GitHub API Budget",
+          "895d3f70b8": "gh",
+          "8a527d48e3": "gitlab",
+          "aa204f185f": "Current GitHub CLI REST, Search, and GraphQL rate limits.",
+          "b9c011fbc2": "rate limit",
+          "c4f610d057": "Current GitLab CLI REST rate-limit headers when available.",
+          "cdd793134e": "api budget",
           "f35007e6e8": "git-username"
         },
         "GrokAccountsSection": {
@@ -1242,17 +2187,20 @@
           "0879860c58": "Pull requests and build statuses via Bitbucket Cloud API tokens.",
           "09285e9fe6": "The GitHub CLI is installed but not authenticated. Run this command in a terminal:",
           "15cf990798": "Not authenticated",
+          "1683acbac4": "Connect the source hosts Orca can use for pull requests, merge requests, checks, and review status.",
           "1a62c295c6": "Gitea credentials are configured but could not authenticate. Check the token, API base URL, and repository permissions, then restart Orca if environment variables changed.",
           "1fac9b4910": "{{value0}} · Pull requests and commit statuses",
           "2122e15517": "Each connected Linear workspace has one key stored by the active runtime. Full-access keys can cover all teams the key owner can access; restricted keys can be replaced any time.",
           "264a9b6128": "Linear",
           "277fc23929": "{{value0}} · Pull requests and build statuses",
           "295154e54e": "connected",
+          "298c65ecac": "Review providers",
           "2c0330ec3e": "for private repositories, and set",
           "33ae9730a8": "Add Linear access to browse and link issues.",
           "35a3379372": "Install the GitLab CLI to enable merge requests, issues, and pipelines.",
           "3614887c40": "checking",
           "399cf46867": "Install GitHub CLI",
+          "3ba07f933b": "Connect issue trackers Orca can use to browse tasks and start workspaces with linked context.",
           "3c3cf05c63": "Bitbucket credentials are configured but could not authenticate. Check the token and repository permissions, then restart Orca if environment variables changed.",
           "44cde4aa01": "ORCA_BITBUCKET_API_TOKEN",
           "45bf5e6e4b": "Auth failed",
@@ -1276,6 +2224,7 @@
           "6e0ff3403e": "ORCA_BITBUCKET_ACCESS_TOKEN",
           "6f317f5132": "only when Orca cannot derive the API base URL from the git remote.",
           "70c5f74f36": "GitHub",
+          "70e885705b": "Task providers",
           "8489c0aa49": "Bitbucket",
           "8e078e480c": "Disconnect {{value0}}",
           "8f960935c1": "ORCA_AZURE_DEVOPS_ACCESS_TOKEN",
@@ -1325,48 +2274,10 @@
           "dde0ec1cd8": "Toolchains Orca uses to run emulators. Android works on any OS via the Android SDK; iOS Simulators need Xcode on macOS."
         },
         "MobileNetworkInterfaceSection": {
-          "1dc87a7fbc": "Tailscale",
-          "1e64659126": "Regenerate",
-          "1f7c26d36a": "Sign in to the same tailnet on both devices.",
-          "39fad211d9": "Connect outside your Wi-Fi with a tailnet",
-          "406a35121c": "Network Interface",
-          "51d29927eb": "Install",
-          "63d5e4ae1e": "Regenerate the QR code and scan it from the Orca mobile app.",
-          "668016be7a": "on your computer and phone.",
-          "87985ba6f5": "In this Network Interface menu, choose the Tailscale address, usually a 100.x.y.z IP.",
-          "9fc5d203ff": "Orca Mobile connects directly to this computer. To use it away from the same LAN, put your computer and phone on the same private overlay network, then generate the QR code with that network address selected.",
-          "a9db5d771d": "Refresh network interfaces",
-          "c541f67790": "Generate QR Code",
-          "d536b5e20d": "Choose which network address to advertise in the QR code. Use your LAN address for same-network pairing, or an overlay network address (Tailscale, ZeroTier) for cross-network access."
-        },
-        "MobilePane": {
-          "relayDegradedNotice": "Relay couldn’t be reached — this code only works on your LAN or Tailscale. Regenerate to try again."
-        },
-        "MobileRelayBetaAvailability": {
-          "about": "About the Orca Relay beta",
-          "androidApk": "Android APK",
-          "availability": "Available on",
-          "beta": "Beta",
-          "testFlight": "TestFlight"
-        },
-        "MobileRelayStatusSection": {
-          "automatic": "Connect from anywhere when a phone is paired",
-          "connecting": "Connecting",
-          "directNeedsNoAccount": "LAN and Tailscale pairing still work without an account.",
-          "directStillAvailable": "LAN and Tailscale connections remain available.",
-          "offline": "Offline",
-          "reconnecting": "Reconnecting",
-          "registered": "Registered",
-          "signIn": "Sign in",
-          "signInPrompt": "Sign in on this desktop to connect from anywhere",
-          "standby": "Standby — no relay devices",
-          "title": "Orca Relay",
-          "unavailable": "Unavailable"
+          "1dc87a7fbc": "Tailscale"
         },
         "MobileSettingsPane": {
-          "9a3c280e49": "GitHub Releases",
-          "b0088412a1": "or the Android APK from",
-          "c8491c17ef": "Control Orca from your phone by scanning a QR code. Beta / early preview - expect bugs and breaking changes. Get the iOS app from the"
+          "b0088412a1": "or the Android APK from"
         },
         "NotificationsPane": {
           "274af61bc0": "system",
@@ -1389,20 +2300,6 @@
           "44923dd982": "destructive",
           "7784912ed6": "repo",
           "f91b649324": "Saved Commands"
-        },
-        "ReleaseChannelSection": {
-          "adhocWarning": "Adhoc builds come from a branch that has not landed, and the Windows ones are unsigned. Whoever cut one may abandon it — keep a stable build handy.",
-          "dailyWarning": "Daily builds ship straight from main with no test gate, and the Windows ones are unsigned. Keep a stable build handy.",
-          "hourlyWarning": "Hourly builds ship straight from main with no test gate, and the Windows ones are unsigned. Keep a stable build handy."
-        },
-        "RemoteServerUpdateDialog": {
-          "checkAgain": "Check for Server Updates",
-          "restartWarning": "Updating restarts these servers. {{value0}} live tabs and {{value1}} terminal panes may briefly disconnect.",
-          "updateOne": "Update server",
-          "updating": "Updating servers…"
-        },
-        "RepositoryGitHubAccountSection": {
-          "retry": "Retry"
         },
         "RepositoryHooksSection": {
           "0e0dd5b9a5": "loaded",
@@ -1431,6 +2328,17 @@
           "bea897eec2": "On",
           "cf5959c834": "Source Control AI enabled"
         },
+        "RepositorySourceControlAiHostedReviewDefaults": {
+          "053ccfbf52": "Off",
+          "14f1eb99d0": "Generate details when opening Create PR",
+          "629ed8a9d3": "Open hosted review after creation",
+          "777443bf89": "On",
+          "981eae7e14": "Draft by default",
+          "a68849a859": "Global default is",
+          "aa6ee4b7d6": "Hosted-review creation defaults",
+          "d32b87e754": "Use review template when available",
+          "ffc3b26b26": "Use global"
+        },
         "RepositorySourceControlAiSection": {
           "152268c295": "Save",
           "57e6e9d4b1": "Saving...",
@@ -1439,40 +2347,19 @@
           "ccb07dd027": "Saved",
           "e57dde9d93": "Unsaved changes"
         },
-        "RuntimeEnvironmentsPane": {
-          "163671f7b5": "Run",
-          "1826bd0608": "Saved Servers",
-          "54ebacc600": "Server name",
-          "55fcc964cd": "on the server and paste the printed pairing URL.",
-          "7b5986c8df": "Saved {{value0}}. Use Active Server to switch when ready.",
-          "8cf8790697": "Saved servers route this browser through a paired Orca runtime.",
-          "960e901ae4": "orca serve --pairing-address <host>",
-          "9bc9b83474": "Pairing code",
-          "9f7665a01b": "Removing the active server first switches Orca back to Local desktop. Existing host sessions are left alone.",
-          "b2fda48c39": "Removing the active server disconnects this browser from that host. Existing host sessions are left alone.",
-          "c3d772c514": "orca://pair?code=...",
-          "e038625857": "Dev box",
-          "f3a3d6d834": "{{value0}} capabilities",
-          "f75ce1c7a5": "Local keeps today's desktop behavior. Saved servers route supported client calls through the remote runtime.",
-          "updateAvailableOne": "1 update available",
-          "updatesAvailable": "{{value0}} updates available"
-        },
-        "RuntimePairingUrlGenerator": {
-          "279e0dcb57": "127.0.0.1 only works on this computer. Use a LAN, Tailscale, or custom address for another device.",
-          "add-custom": "Add custom address…",
-          "b91e36a986": "web",
-          "de6d5cff95": "This computer ("
-        },
         "Settings": {
           "084d8fac5b": "Privacy & Security",
+          "11faa2f7dd": "Task Sources",
           "2309068a6f": "destructive",
           "23931df7e8": "Remote Hosts",
           "23c6874fdf": "AI Capabilities",
           "8bd117d669": "Interface",
           "9abb9be3bc": "Set Up",
+          "b07041697f": "Connect GitHub, GitLab, Linear, and source-hosting services.",
+          "c9ca101a3b": "Integrations",
           "dd72ed437a": "Choose which task providers appear in the Tasks page and sidebar.",
           "e1578cd4bc": "Workflows",
-          "mobile_group": "Mobile"
+          "tasksDescription": "Connect providers, install the Linear skill, and choose what appears in Tasks."
         },
         "SettingsFormControls": {
           "3119c012a5": "string",
@@ -1496,21 +2383,37 @@
           "caf33029cc": "Directories",
           "fde7ff2cc3": "packages/web shared/ui"
         },
-        "SshPane": {
-          "94c5284560": "Targets",
-          "a7d28dff81": "Add a remote host to connect to it in Orca."
+        "TaskSourceShowInTasksStep": {
+          "description": "Include this provider in the Tasks source picker and sidebar shortcuts.",
+          "hide": "Hide",
+          "hideProviderAction": "Hide {{provider}} from Tasks",
+          "lastProviderAction": "{{provider}} is shown in Tasks. At least one provider must stay visible.",
+          "lastProviderHint": "At least one provider must stay visible in Tasks.",
+          "show": "Show",
+          "showProviderAction": "Show {{provider}} in Tasks",
+          "shown": "Shown",
+          "title": "Show in Tasks"
         },
-        "SshTargetCard": {
-          "47e94bd6ba": "connected",
-          "f0871e6bfb": "connect"
-        },
-        "SshTargetForm": {
-          "137e88ce8d": "Remote terminals keep running after Orca disconnects from this host.",
-          "29af933cd5": "New SSH Target",
-          "4a342f44c1": "Advanced Connection",
-          "92f80edbfd": "Remote Terminal Persistence",
-          "e9609ddca6": "Proxy, jump host, and connection reuse",
-          "f2331ce599": "Edit SSH Target"
+        "TasksPane": {
+          "09ae2d7c51": "Linear",
+          "6b23a34f6d": "Jira",
+          "7c5d7fdc20": "GitLab",
+          "connectCodeHostDescription": "Install and authenticate the CLI under Integrations so Orca can load issues.",
+          "connectInIntegrations": "Set up in Integrations",
+          "connectProviderTitle": "Connect {{provider}}",
+          "connectionCheckUnavailable": "Orca couldn't check this connection. Try again, or open Integrations for setup details.",
+          "e14063e727": "GitHub",
+          "f71d8a9dd3": "Task Providers",
+          "incompleteBannerBody": "Hide providers you do not use, or expand a card and finish its steps.",
+          "incompleteBannerTitle": "Some visible providers still need setup",
+          "integrationsHint": "Credentials for all providers also live under",
+          "integrationsLink": "Integrations",
+          "openIntegrations": "Integrations",
+          "providersDescription": "Each card walks through connection (and skill, for Linear) plus whether it appears in Tasks.",
+          "retryConnection": "Try again",
+          "setupDescription": "Finish connect + visibility for each provider in one place. Linear also needs the agent skill so coding agents can read and update tickets. At least one provider must stay visible.",
+          "setupTitle": "Task management setup",
+          "skillHint": ". After Linear is connected, usage examples stay under Settings → Linear."
         },
         "TerminalAppearanceSection": {
           "16c471ee03": "on",
@@ -1636,27 +2539,12 @@
             "ff8de8a2ad": "display"
           }
         },
-        "artifacts": {
-          "account": "Orca account",
-          "connected": "Connected",
-          "enable": "Enable Artifacts",
-          "enableDescription": "Add Artifacts to the sidebar so you can open and delete shared files.",
-          "openArtifactsDescription": "View and delete links shared through your account.",
-          "signInRequired": "Sign in is required to upload and manage artifacts."
-        },
         "auto": {
           "rename": {
             "branch": {
               "search": {
                 "427f2cd1eb": "Auto-Rename Branch"
               }
-            }
-          }
-        },
-        "bitbucket": {
-          "credentials": {
-            "dialog": {
-              "remoteRuntime": "Bitbucket credentials saved here are stored on this local machine only. Set ORCA_BITBUCKET_* environment variables on the remote runtime instead."
             }
           }
         },
@@ -1692,6 +2580,7 @@
         },
         "general": {
           "search": {
+            "06ea5a69a6": "github",
             "27d9b996ba": "codex",
             "3c30fe2d51": "gemini",
             "41c2f9a025": "default",
@@ -1704,55 +2593,83 @@
             "9b0bc30160": "pi",
             "9da6c875e5": "dock",
             "aea7d2cccb": "openclaude",
+            "b65665703a": "support",
+            "bdfb6dc21b": "like",
             "c29f23ab57": "HTTP Proxy",
             "c61b14be7c": "grok",
             "db11502270": "Default Agent",
             "e2da948f59": "Pre-select an AI coding agent in the new-workspace composer.",
             "e3b1d42f95": "Proxy URL for Orca network requests and local terminal children.",
+            "e4fb4516d0": "star",
             "e55d62dfa4": "launchpad",
+            "e6b01c8e30": "feedback",
             "eb8946b2c9": "Hosts that should bypass the configured HTTP proxy.",
             "f472e97440": "aider"
           }
         },
+        "git": {
+          "search": {
+            "1139f61512": "Current GitHub CLI REST, Search, and GraphQL rate limits.",
+            "16f53f7323": "gh",
+            "2b4a72885d": "Current GitLab CLI REST rate-limit headers when available.",
+            "40f9b815fd": "api budget",
+            "4808f065b3": "gitlab",
+            "65b69d9f80": "graphql",
+            "83ecb3f470": "GitLab API Budget",
+            "b7e52124c7": "rate limit",
+            "d088806071": "github",
+            "ead733645f": "glab",
+            "ff86e354c4": "GitHub API Budget"
+          }
+        },
         "integrations": {
           "search": {
-            "c97d58a0f3": "Bitbucket Cloud authentication via API token environment variables."
+            "03a7b275be": "ado",
+            "129fc59aa8": "gitea",
+            "16a486a49d": "Connect Linear to browse and link issues.",
+            "20540996ef": "credentials",
+            "2ec2bd328c": "api token",
+            "33180e8c10": "self-hosted",
+            "371ee914d2": "merge request",
+            "3c3d3d8ffa": "connect",
+            "41ccade05c": "gh",
+            "50d20817f7": "bitbucket",
+            "581844769a": "mr",
+            "617603509b": "Jira Integration",
+            "67a2a0e868": "Bitbucket Integration",
+            "6e2ab619c6": "GitLab authentication via the glab CLI.",
+            "7166b9090c": "GitHub authentication via the gh CLI.",
+            "7319e3015b": "linear",
+            "7345b7c3e6": "atlassian",
+            "760e2446e0": "Bitbucket Cloud authentication with a saved API token or environment variables.",
+            "76f6af7c57": "Connect Jira Cloud or update Jira API token credentials.",
+            "7b1f3984bb": "Azure DevOps Repos authentication via token environment variables.",
+            "8c568d761c": "pull request",
+            "a626990bd2": "disconnect",
+            "aab86d64e5": "Gitea Integration",
+            "af5ae87847": "access token",
+            "af6611fa6e": "Azure DevOps Integration",
+            "b027b4b318": "Linear Integration",
+            "b38b5d27f1": "azure devops",
+            "b40cbe5de4": "glab",
+            "b50b71ef9d": "GitLab Integration",
+            "b79c21bd42": "github",
+            "b939695c69": "gitlab",
+            "c450244ad7": "integration",
+            "c97d58a0f3": "Bitbucket Cloud authentication via API token environment variables.",
+            "d0d019dc29": "Gitea authentication via API token environment variables.",
+            "e1263dd748": "jira",
+            "ed63380247": "azure repos",
+            "f16e41cc72": "GitHub Integration",
+            "faa0b5a0d9": "api key"
           }
         },
         "jira": {
           "integration": {
             "card": {
               "09742875cd": "Jira",
-              "09d310e42d": "you@example.com",
-              "1666f8d562": "Create an Atlassian API token",
-              "1ab7f551f3": "Atlassian API token",
-              "255bfe98ec": "Test",
-              "27dae4ab60": "https://example.atlassian.net",
-              "2e8bb790fd": "Connect",
-              "33a8b261ee": "Update credentials",
               "3df81cb0ac": "ok",
-              "5936977fcd": "Cancel",
-              "5fb1562315": "error",
-              "74f3063026": "{{value0}} site{{value1}} connected",
-              "8ff73fef62": "Jira tokens are encrypted by the active runtime and stored locally. Re-entering the same site URL and email replaces that site's API token.",
-              "9046a20d4c": "Disconnect {{value0}}",
-              "9a9f8d4910": "Connect Jira Cloud to browse, create, and link issues.",
-              "9bb34706ca": "Connected",
-              "a28f417220": "Connect Jira",
-              "ab350991b8": "Verified",
-              "cec06a0f79": "Testing…",
-              "d5c5b47bb9": "update",
-              "d914d7ab70": "Verifying…",
-              "eaffa454e9": "Update",
-              "efaab83c5d": "Add site",
               "fb854902d9": "connecting"
-            }
-          }
-        },
-        "mobile": {
-          "settings": {
-            "search": {
-              "b730ff7049": "experimental"
             }
           }
         },
@@ -1765,16 +2682,7 @@
             "availableHostsDescription": "Hosts where this project is set up.",
             "host": "host",
             "remote": "remote",
-            "ssh": "ssh",
             "vm": "vm"
-          }
-        },
-        "runtime": {
-          "environments": {
-            "search": {
-              "3517fb2ec0": "Active Server",
-              "4575341c77": "Choose local desktop, add a saved remote Orca server, or generate a pairing URL."
-            }
           }
         },
         "settingOwnership": {
@@ -1782,13 +2690,39 @@
           "terminalQuickCommands": "Commands are saved on this client, then scoped globally or to a project setup so they run from the selected terminal context."
         },
         "shareSkills": {
-          "refreshLinks": "Refresh",
           "showButton": "Show Skills button"
         },
-        "ssh": {
-          "search": {
-            "62826efbe9": "Add a new remote SSH target.",
-            "74c6d90d78": "Manage remote SSH targets."
+        "task": {
+          "tracker": {
+            "integration": {
+              "cards": {
+                "1a12e33fe5": "Add Linear access",
+                "2d60ec7921": "Connect a Jira Cloud site with an API token, or a self-hosted Jira with a personal access token or username and password. Credentials are sent to the selected remote runtime and stored there with runtime-supported encryption.",
+                "3e7c10d286": "Testing...",
+                "60996beda6": "Add Jira site",
+                "6224fe9d34": "Each connected Linear workspace has one key stored by the active runtime. Full-access keys can cover all teams the key owner can access; restricted keys can be replaced any time.",
+                "622c224082": "Add workspace access",
+                "7ca5ffffdb": "Browse, create, and start work from Jira Cloud issues.",
+                "8b2408a8e5": "Jira is connected for this runtime. Re-check if the connected site list looks stale.",
+                "8c20e76308": "Each connected Jira site has one token stored by the active runtime.",
+                "977e360b71": "Connect a Jira Cloud site with an API token, or a self-hosted Jira with a personal access token or username and password. Credentials are stored locally and encrypted when local runtime storage supports it.",
+                "9fa04a032e": "{{value0}} site{{value1}} connected",
+                "a1093a06c7": "Checking Jira access before showing setup actions.",
+                "a2c0015fb8": "Verified",
+                "account_scope_prefix": "Account scope",
+                "c24e56c532": "Test",
+                "c90f2ef419": "Re-check",
+                "cef18762a2": "Add access with a Personal API key from your Linear settings. Full-access keys can see every team the key owner can reach.",
+                "dd3529015d": "Disconnect {{value0}}",
+                "disconnect_all": "Disconnect",
+                "e1f5e6424c": "{{value0}} workspace{{value1}} connected",
+                "e2ff968276": "Connect Jira",
+                "eae4a9f16b": "Add Linear access to browse and link issues.",
+                "fe9231215b": "Checking Linear access before showing setup actions.",
+                "statusConnected": "Connected",
+                "statusNotConnected": "Not connected"
+              }
+            }
           }
         },
         "terminal": {
@@ -1810,11 +2744,38 @@
             "control": {
               "integration": {
                 "cards": {
+                  "05863d2599": "Pull requests and commit statuses via the Gitea REST API.",
+                  "0613928cb3": "Gitea status is not available in this runtime yet.",
+                  "087feb92f1": ", or set",
+                  "0b5242f8a2": "{{value0}} · Pull requests and commit statuses",
+                  "0eb50d5593": "Pull requests and build statuses via Azure DevOps REST API tokens.",
+                  "0fa5629dad": "Pull requests and build statuses",
+                  "186a6689df": "ORCA_AZURE_DEVOPS_API_BASE_URL",
                   "19416c874c": "ORCA_BITBUCKET_API_TOKEN",
+                  "19fb419c12": "Gitea credentials are configured but could not authenticate. Check the token, API base URL, and repository permissions, then restart Orca if environment variables changed.",
+                  "1a9475dace": "Learn more",
+                  "24ac1c69dc": "Bitbucket status is not available in this runtime yet.",
+                  "40f678df73": "Azure DevOps credentials are configured but could not authenticate. Check the token, API base URL, and repository permissions, then restart Orca if environment variables changed.",
+                  "48842720d2": "ORCA_AZURE_DEVOPS_TOKEN",
+                  "52f75876be": "Pull requests and commit statuses for detected repositories",
+                  "54636c65d4": "Pull requests and build statuses for detected Azure Repos",
+                  "60708f23da": "only when Orca cannot derive the API URL from the remote.",
+                  "6154b02093": "Bitbucket credentials are configured but could not authenticate. Check the token and repository permissions, then restart Orca if environment variables changed.",
                   "63a7f47392": "ORCA_BITBUCKET_EMAIL",
+                  "6d5c2a3005": "ORCA_GITEA_TOKEN",
+                  "6da9dfa5de": "for private repositories, and set",
+                  "709057ad91": "ORCA_GITEA_API_BASE_URL",
+                  "793a06e899": "Re-check",
+                  "7bbc9c64f0": "Set",
+                  "7bd345e3f6": "only when Orca cannot derive the API base URL from the git remote.",
                   "a924e8dcd1": "Pull requests and build statuses via Bitbucket Cloud API tokens.",
+                  "b8a10b07c1": ". Set",
                   "e63fe8f627": "ORCA_BITBUCKET_ACCESS_TOKEN",
+                  "ea204f5e03": "{{value0}} · Pull requests and build statuses",
+                  "f3f47dc7de": "Azure DevOps status is not available in this runtime yet.",
+                  "fbfd237f5e": "ORCA_AZURE_DEVOPS_ACCESS_TOKEN",
                   "fc71a0e7aa": "and",
+                  "fcbe0469fd": "Public repositories are detected from their git remote. Set",
                   "statusAuthFailed": "Auth failed",
                   "statusConfigured": "Configured",
                   "statusConnected": "Connected",
@@ -1831,6 +2792,13 @@
           "imported_other": "Imported {{value0}} themes",
           "over_limit_one": "Importing these themes would exceed the {{value0}} custom terminal theme limit. Deselect 1 new theme and try again.",
           "over_limit_other": "Importing these themes would exceed the {{value0}} custom terminal theme limit. Deselect {{value1}} new themes and try again."
+        },
+        "voice": {
+          "pane": {
+            "search": {
+              "322d457a0d": "transcription"
+            }
+          }
         }
       },
       "shared": {
@@ -1849,20 +2817,7 @@
       },
       "sidebar": {
         "AddRemoteHostDialog": {
-          "pairingCode": "Pairing code",
-          "pairingCommand": "orca serve --pairing-address <host>",
-          "pairingHelpPrefix": "Run",
-          "pairingHelpSuffix": "on the server and paste the printed pairing URL.",
-          "serverName": "Server name",
-          "sshConfigPickerBulkHint": "Bulk sync stays in Settings → SSH",
-          "sshConfigPickerDescription": "Pick a host to fill the form. Nothing is saved until you click Save.",
-          "sshPersistenceDefault": "Remote terminals on this host stay alive until you end them or reset the relay."
-        },
-        "AddRepoHostSelector": {
-          "addRemoteHostTooltip": "Choose SSH for a machine you can log into, or remote server for an Orca server.",
-          "local": "Local",
-          "runtime": "Server",
-          "ssh": "SSH"
+          "sshImportSynced": "Added {{value0}} host{{value1}} to Orca."
         },
         "AddRepoNestedImportStep": {
           "220dd32d83": "Scanning...",
@@ -1883,14 +2838,6 @@
           "createFailed": "Failed to create folder workspace.",
           "noRepos": "Add a Git project under this folder to attach GitHub or GitLab tasks.",
           "sourceProject": "Task Source"
-        },
-        "HostSectionHeaderMenu": {
-          "63f36455cc": "Reconnect"
-        },
-        "LinearAgentSkillSetupPrompt": {
-          "missingBoth": "Orca CLI and Linear agent skill are missing.",
-          "panelDescription": "Install the host agent skill for linked Linear task handoffs.",
-          "panelTitle": "Linear agent skill"
         },
         "NewExternalWorktreesInboxLine": {
           "5e1b8d3f62": "Hide external worktrees permanently"
@@ -1926,7 +2873,12 @@
           "scopedTo": "{{value0}} visible"
         },
         "SidebarNav": {
-          "9c95e1ce91": "Agents"
+          "0ccba862b8": "Open GitHub tasks",
+          "196c1b5362": "Open GitLab tasks",
+          "9c95e1ce91": "Agents",
+          "c39ab10000": "Open Linear tasks",
+          "e7ad3c540d": "Open Jira tasks",
+          "fee535205b": "Tasks"
         },
         "SidebarSettingsHelpMenu": {
           "d396773ef0": "checking"
@@ -1936,11 +2888,24 @@
           "abc62b6328": "Add Project"
         },
         "SidebarWorkspaceOptionsMenu": {
+          "0f9b959b31": "PR",
           "2d4f0eb933": "Default",
-          "631b97eea9": "Host scope",
           "680043342f": "compact",
           "bc96dbd041": "Workspace options ({{value0}})",
           "c7591b6014": "repo"
+        },
+        "WorkspaceKanbanDrawer": {
+          "1975a4e480": "Task status sync failed",
+          "a5b6c7d8e9": "Could not sync Linear issue {{value0}}.",
+          "b6c7d8e9f0": "Task status sync could not finish.",
+          "c1d2e3f4a5": "Linear issue {{value0}} could not be read.",
+          "c7d8e9f0a1": "{{value0}} updated",
+          "d2e3f4a5b6": "No matching Linear workflow state for {{value0}}.",
+          "d8e9f0a1b2": "{{value0}} skipped",
+          "e02b0d92ff": "Task status sync skipped",
+          "e3f4a5b6c7": "Multiple Linear workflow states match {{value0}}.",
+          "e9f0a1b2c3": "{{value0}} failed",
+          "f4a5b6c7d8": "Could not update Linear issue {{value0}}."
         },
         "WorkspaceKanbanSettingsMenu": {
           "b45b350eb0": "Move {{value0}} left"
@@ -1959,8 +2924,13 @@
           "ca74db7550": "Project on SSH host"
         },
         "WorktreeCardMeta": {
+          "2c67730e07": "Open in Orca",
+          "3ea2702e62": "Linked {{value0}} #{{value1}}",
+          "ad25c3ff05": "View on {{value0}}",
           "ae76907ca6": "Unlink {{value0}}",
-          "eace1d2cf6": "neutral"
+          "dbe2d18972": "More {{value0}} actions",
+          "eace1d2cf6": "neutral",
+          "reviewLinkLabel": "{{value0}} link"
         },
         "WorktreeCardMetadataStatusBadges": {
           "29df45afa2": "MR"
@@ -1968,6 +2938,10 @@
         "WorktreeCardPorts": {
           "34f733dda2": "Go to Worktree",
           "3e5f66564e": "Workspace unavailable"
+        },
+        "WorktreeCardReviewDetailSection": {
+          "copyLink": "Copy link",
+          "reviewHeader": "{{value0}} #{{value1}}"
         },
         "WorktreeList": {
           "2ca6e29a3c": "repo",
@@ -1979,10 +2953,14 @@
         },
         "WorktreeMetaDialog": {
           "029ea5ec57": "Open GitHub issue",
+          "077a4f7b5c": "PR # or GitHub URL",
+          "1b91db7e14": "GH PR",
+          "5ae06f40fd": "Paste a pull request URL, or enter a number. Leave blank to remove the link.",
           "645fa4a0fd": "GH Issue",
           "65770ad0f0": "Edit GitHub links and notes for this workspace.",
           "741279e7b7": "Issue # or GitHub URL",
-          "7c454be4c5": "Paste an issue URL, or enter a number. Leave blank to remove the link."
+          "7c454be4c5": "Paste an issue URL, or enter a number. Leave blank to remove the link.",
+          "a0d191b7a7": "Edit issue links, pull request links, and notes for this workspace."
         },
         "WorktreeOpenInMenu": {
           "3ec372b664": "file-manager"
@@ -1994,17 +2972,6 @@
           "759371df43": "Hide",
           "8372e4bbd9": "{{value0}} currently shown",
           "f1f71b9f02": "Always show"
-        },
-        "add": {
-          "repo": {
-            "local": {
-              "start": {
-                "actions": {
-                  "a6c20dca96": "Open a project from an SSH target"
-                }
-              }
-            }
-          }
         },
         "index": {
           "b826a98b6f": "busy"
@@ -2039,12 +3006,23 @@
       },
       "skills": {
         "SkillBundleInstallFlow": {
+          "01c5a13e01": "Close",
+          "01c5a13e02": "Cancel installation",
+          "01c5a13e03": "Installing…",
           "01c5a13e04": "Retry {{value0}} skills",
           "01c5a13e05": "Install {{value0}} skills"
         },
         "SkillBundleInstallOutcome": {
+          "01c5a12e01": "Installed",
+          "01c5a12e02": "Updated",
+          "01c5a12e03": "Unchanged",
+          "01c5a12e04": "Kept local",
           "01c5a12e05": "Failed",
-          "01c5a12e06": "Cancelled"
+          "01c5a12e06": "Cancelled",
+          "01c5a12e07": "Bundle installation needs attention.",
+          "01c5a12e08": "Skills installed and verified.",
+          "01c5a12e09": "{{value0}} selected skills checked.",
+          "01c5a12e10": "Needs retry"
         },
         "SkillBundleInstallReview": {
           "01c5a11e01": "Immutable version",
@@ -2053,42 +3031,121 @@
           "01c5a11e04": "{{value0}} scripts",
           "01c5a11e05": "{{value0}} executable",
           "01c5a11e06": "SHA-256",
+          "01c5a11e09": "Release notes:",
           "01c5a11e0a": "Skills contain instructions and may include scripts. Treat them as code from their author.",
           "01c5a11e0b": "Skills to install",
           "01c5a11e0c": "Choose any subset from this bundle.",
+          "01c5a11e0d": "Select all",
           "01c5a11e0e": "No description",
           "01c5a11e0f": "{{value0}} files · {{value1}} scripts",
           "01c5a11e10": "{{value0}} executable",
+          "01c5a11e11": "Local copies need a decision",
+          "01c5a11e12": "Orca will keep these local copies by default. Select only the copies you want to discard and replace.",
+          "01c5a11e13": "Replace {{value0}} ({{value1}})",
           "01c5a11e14": "{{value0}} new",
           "01c5a11e15": "{{value0}} unchanged",
           "01c5a11e16": "{{value0}} updates",
           "01c5a11e17": "{{value0}} conflicts"
         },
-        "SkillCloudManagementActions": {
-          "0ac5c175fd": "Confirm unshare",
-          "2552c12fea": "Access",
-          "2b8c569ea7": "Current organization",
-          "3d346ddce8": "existing recipient",
-          "505cd6105c": "Cloud sharing controls",
-          "640bc6b92e": "Confirm package deletion",
-          "6b6adf68c1": "Delete selected Cloud version",
-          "7a80285dad": "Unshare",
-          "8cac3b9362": "Active links",
-          "9e6bd31487": "No active share links.",
-          "activeLinkBearerDescription": "Anyone with an active link can inspect and install the skills. Revoking blocks future access but leaves installed copies unchanged.",
-          "bbec37d8f8": "Confirm version deletion",
-          "c7f2b69122": "Unsharing blocks future installs. Copies already installed on any machine remain there.",
-          "cc8e4ef6ba": "Save access",
-          "copyLink": "Copy link",
-          "eb603f7888": "outside the current roster will be preserved.",
-          "ed753624c0": "Delete Cloud package",
-          "linkCopied": "Share link copied"
+        "SkillCard": {
+          "d25a1b8ae6": "Share skill"
+        },
+        "SkillFreshnessNudge": {
+          "updateMany": "Update skills",
+          "updateOne": "Update skill"
+        },
+        "SkillFreshnessRow": {
+          "chipBrokenLink": "Broken link",
+          "chipCurrent": "Current",
+          "chipDuplicate": "Duplicate",
+          "chipExternalLink": "External link",
+          "chipInRepo": "In a repo",
+          "chipInaccessible": "Inaccessible",
+          "chipNewer": "Newer",
+          "chipPluginCache": "Plugin cache",
+          "chipReadOnly": "Read only",
+          "chipUnrecognized": "Unrecognized",
+          "skippedReasonBrokenLink": "This copy is a shortcut to something that no longer exists, so Orca left it out — you can safely delete it.",
+          "skippedReasonDuplicate": "This is a separate copy, so the update won’t reach it — the command only refreshes the main copy. Remove this copy, then reinstall the skill so this location follows the main one.",
+          "skippedReasonExternalLink": "This copy is a shortcut pointing outside Orca’s skill folders, so Orca left it out of the update.",
+          "skippedReasonInRepo": "This is a project skill, not a global one — Orca only updates your global skills, so it left this out of the update.",
+          "skippedReasonInaccessible": "Orca couldn’t read this copy, so it left the skill out of the update.",
+          "skippedReasonNewer": "This copy is a later version than the one this build of Orca ships, so Orca left it alone rather than roll it back. Updating Orca will bring the two back in line.",
+          "skippedReasonPluginCache": "A plugin manages this skill, so Orca left it out of the update — update the plugin instead.",
+          "skippedReasonReadOnly": "This copy is in a read-only location, so Orca left it out of the update. Change its permissions to let Orca update it.",
+          "skippedReasonStaleRecord": "The skills updater has no usable record of this copy, so it reports the skill as already up to date and changes nothing. Reinstall it to bring the record back in line: {{value0}}",
+          "skippedReasonUnrecognized": "The copy here doesn’t match the official version — it may be modified, or a different skill with the same name. Orca left it out of the update so it won’t overwrite it. Remove it if you want Orca to update this skill.",
+          "statusCantUpdate": "Skipped",
+          "statusUpdateAvailable": "Update available",
+          "tipBrokenLink": "A shortcut to something that no longer exists.",
+          "tipCurrent": "This copy matches the current official version.",
+          "tipDuplicate": "A separate copy of this skill, installed apart from the main one.",
+          "tipExternalLink": "A shortcut pointing outside Orca’s skill folders.",
+          "tipInRepo": "This copy lives inside a project, not your global skills.",
+          "tipInaccessible": "Orca couldn’t read this copy (a permissions or file error).",
+          "tipNewer": "This copy is a later version than the one this build of Orca ships.",
+          "tipPluginCache": "This copy is managed by a plugin.",
+          "tipReadOnly": "This copy is in a read-only location.",
+          "tipUnrecognized": "This copy doesn’t match any official version — it may be modified, or a different skill with the same name."
+        },
+        "SkillFreshnessStatusPill": {
+          "details": "Details"
+        },
+        "SkillFreshnessUpdateDialog": {
+          "attention": "Some installed Orca skills were left out of the update.",
+          "blockedMany": "{{value0}} skills can't be updated automatically.",
+          "blockedOne": "1 skill can't be updated automatically.",
+          "checkNow": "Re-check",
+          "checking": "Checking installed Orca skills…",
+          "close": "Close",
+          "copied": "Copied",
+          "copyCommand": "Copy command",
+          "done": "Done",
+          "errorTitle": "The update didn't finish",
+          "none": "No installed Orca skills found.",
+          "progressAria": "Updating skills",
+          "retry": "Retry",
+          "runningDescription": "You can close this window — it keeps running in the background.",
+          "runningMany": "Updating {{value0}} skills…",
+          "runningOne": "Updating 1 skill…",
+          "scanCandidateLimit": "Orca found more same-named skill folders than it can safely inspect.",
+          "scanDepthLimit": "Orca reached its plugin scan depth limit before checking this folder.",
+          "scanEntryLimit": "Orca reached its plugin scan entry limit before checking the rest of this cache.",
+          "scanIncomplete": "Orca could not finish checking plugin-managed skills.",
+          "scanIoError": "Orca could not read this plugin path.",
+          "scanIoErrorWithCode": "Orca could not read this plugin path ({{value0}}).",
+          "scanIssueLimit": "Orca found too many skipped plugin folders to list individually.",
+          "scanManifestLimit": "Orca skipped this plugin manifest because it exceeded a safe limit.",
+          "scanOutsideRoot": "Orca skipped this plugin path because it points outside the plugin cache.",
+          "showLog": "Show log",
+          "stop": "Stop",
+          "stopping": "Stopping…",
+          "stoppingHeadline": "Stopping the update…",
+          "success": "All installed Orca skills are up to date.",
+          "title": "Update skills",
+          "updateActionMany": "Update {{value0}} skills",
+          "updateActionOne": "Update 1 skill",
+          "updateMany": "{{value0}} updates available",
+          "updateOne": "1 update available",
+          "updatedMany": "Updated {{value0}} skills",
+          "updatedOne": "Updated 1 skill",
+          "updatedPartial": "Updated {{value0}} of {{value1}} skills",
+          "updating": "Updating…"
         },
         "SkillInstallDialog": {
-          "4a00d133c5": "Orca verifies access and package identity before changing the selected machine."
+          "01c5a14e01": "Install shared skills",
+          "05588076a9": "Cancel installation",
+          "241e72f9d6": "Installing…",
+          "4a00d133c5": "Orca verifies access and package identity before changing the selected machine.",
+          "59c3b76cdd": "Retry install",
+          "d198ec91e5": "Close",
+          "fcbec627cc": "Install shared skill",
+          "opening": "Opening this link…"
         },
         "SkillInstallManagementDialog": {
           "070654c6d1": "Orca will preserve them unless you explicitly discard the local changes.",
+          "0900db719a": "— disconnected",
+          "176fef9516": "· SSH",
           "1c9e7f420a": "Installed bundle skills",
           "2ae587d39c": "Retry incomplete coverage",
           "34c2ef9e71": "Install {{count}} skills",
@@ -2097,11 +3154,14 @@
           "470d8d2476": "Confirm remove",
           "561e49ccd1": "Install selected version",
           "64c71cf7b9": "No Orca-managed skill installs were found on this machine.",
+          "6cb1fbe039": "This computer",
           "74b70892ea": "Local files were modified",
+          "8095927ff3": "Close",
           "86ed219b55": "Choose a version",
           "9c04bd0120": "Installed version",
           "a0cab67c2f": "Remove {{count}} skills",
           "c1d03ee50d": "Cancel installation",
+          "dab29e4b54": "{{installed}} installed · {{updated}} updated · {{keptLocal}} kept local",
           "e1884c812e": "Discard changes and install version",
           "e91af0079f": "Remove",
           "f7c5075e77": "Discard changes and remove",
@@ -2109,60 +3169,61 @@
           "installAnotherMachine": "Install on another machine"
         },
         "SkillInstallReviewContent": {
+          "157de228b4": "Inspect skill",
+          "1b6ad2ca5c": "checked.",
           "27672470d9": "Opening the link does not install anything. Review the immutable version first.",
+          "2a31912f14": "Orca found",
+          "37d990b94c": "changed",
           "3d8421ca2f": "executable",
+          "3fc62a61eb": "placement",
+          "651b7d8a57": "Local copy needs a decision",
+          "66270286ac": "· You can retry safely.",
+          "66cff7a804": "https://app.orca.dev/skills/share/…",
+          "69236de8d6": "Checking…",
           "87137bcb8d": "scripts",
+          "89e2601162": "Discard and replace",
           "8f9833d509": "Immutable version",
+          "93eb0fe8c7": "Orca skill link",
           "98ed90e523": "A skill contains instructions and may include scripts. Treat it as code from its author.",
+          "a5675fb371": "content and left it untouched. Keep it, or explicitly discard and replace it with this version.",
           "f72ee4022a": "SHA-256",
-          "fab8fce842": "files"
+          "fab8fce842": "files",
+          "releaseNotes": "Release notes:",
+          "targetHeader": "Installation Target"
+        },
+        "SkillInstallTargetFields": {
+          "0785d0a503": "— update required",
+          "0c10a406fb": "WSL ·",
+          "0e5b43a9e3": "Workspace",
+          "5845cfe543": "Choose a worktree or folder",
+          "63cc9e31fe": "Destination",
+          "71eefd7660": "— disconnected",
+          "7a366323e7": "Folder",
+          "8562dd1e6e": "This computer",
+          "85d85880df": "· SSH",
+          "8e6a972229": "No workspaces are known on this machine.",
+          "a4dfd33095": "One workspace",
+          "b8a0b706ad": "Machine",
+          "c779621aa0": "Global skills",
+          "cb47652227": "Execution environment",
+          "d628c416a2": "Git worktree",
+          "e5b0d15e64": "Host operating system"
+        },
+        "SkillInstallWorkspaceCombobox": {
+          "empty": "No workspaces found.",
+          "search": "Search workspaces..."
         },
         "SkillManagedInstallList": {
           "86c76cb262": "{{count}} skill bundle"
         },
         "SkillRow": {
           "detailContents": "Contents",
-          "detailSource": "Source"
+          "detailSource": "Source",
+          "notShareable": "Not shareable"
         },
         "SkillSelectionBar": {
           "clear": "Clear",
           "selectAll": "Select all {{count}} eligible"
-        },
-        "SkillShareDialog": {
-          "description": "Review the exact files, choose who can access them, then publish an immutable version.",
-          "descriptionV2": "Review the exact files, then publish an immutable version behind an unlisted link.",
-          "newVersionDescription": "Review the exact files, then publish an immutable version to the existing Cloud package.",
-          "peopleRequired": "Select at least one teammate.",
-          "readyDescription": "Recipients authenticate with Orca before they can inspect or install it.",
-          "readyDescriptionV2": "Anyone with this unlisted link can inspect and install the skills."
-        },
-        "SkillShareReviewContent": {
-          "01c5a17e01": "{{value0}} skills",
-          "01c5a17e02": "Review included skills",
-          "01c5a17e03": "{{value0}} files · {{value1}}",
-          "0a49d901ab": "Organization",
-          "0cd4b3e396": "Everyone currently in",
-          "266527d295": "Publishing as {{value0}}{{value1}}.",
-          "3121f44358": "files",
-          "4895d3e0ee": "No teammates are available.",
-          "6817a7f6f8": "Skill access",
-          "77f636eac3": "executable",
-          "78d863235c": "Access",
-          "8188f5d765": "can access the link.",
-          "8edd32622f": "scripts",
-          "ad940367a5": "Validating and publishing…",
-          "e3caf6baeb": "Revoking this link blocks future access. It does not remove copies already installed on recipients’ machines.",
-          "f25429e266": "Selected people",
-          "fe204e06f0": "the organization",
-          "unlistedLinkDetails": "The link is not searchable or listed publicly. Revoke it to block future access; installed copies remain.",
-          "unlistedLinkTitle": "Unlisted link",
-          "unlistedPublishingAs": "Publishing as {{value0}}. Anyone with the link can inspect and install these skills."
-        },
-        "SkillShareSelectionControls": {
-          "01c5a15e01": "Cancel sharing",
-          "01c5a15e03": "{{value0}} selected",
-          "01c5a15e04": "Select all results",
-          "01c5a15e05": "Share {{value0}} skills"
         },
         "SkillsPage": {
           "08a321a984": "Adjust the search or filters.",
@@ -2177,35 +3238,115 @@
           "984405683f": "Plugin",
           "aa59462502": "Repository",
           "ab5b777350": "Checked home, repository, bundled, and plugin skill folders.",
+          "aee7b99cc6": "Install from link",
           "b088e0785d": "Beta",
+          "c13b82793c": "Manage installs",
           "e46e162e2e": "from",
-          "fb6bf60b52": "Claude"
+          "fb6bf60b52": "Claude",
+          "remoteShareNotice": "These skills live on {{host}}. Open Skills on that machine to share them.",
+          "searchLinks": "Search links",
+          "sharedLinks": "Shared links",
+          "viewSwitch": "Show"
+        },
+        "SkillsSelectionHeader": {
+          "title": "Select skills to share"
         },
         "SkillsSharedLinksHeader": {
           "back": "Back to skills",
           "backTooltip": "Back to skills · Esc",
           "unlisted": "Unlisted — only people with a link can open it."
         },
+        "count": {
+          "linkOne": "{{count}} link",
+          "linkOther": "{{count}} links",
+          "shareOne": "Share {{count}} skill",
+          "shareOther": "Share {{count}} skills"
+        },
         "install": {
+          "additionalAgentsHeader": "Additional Agent Directories",
+          "agentAccessWarning": "Skills contain instructions your agent may follow. Continue only if you trust the source of this share link.",
           "agentAlways": "Always",
+          "agentNotInstalled": "Not installed",
           "agentsCanonical": "Always installed for {{value0}}, which read {{value1}}.",
           "agentsCanonicalNote": "{{value0}} read {{value1}}, which every install writes.",
+          "agentsCountBadge": "{{count}} selected",
+          "agentsCountLabel": "{{count}} {{label}}",
+          "agentsLabel": "Agents",
+          "agentsNone": "No agents selected",
           "agentsNoneChosen": "No extra agents",
+          "agentsSelected": "Installing for: {{value0}}",
           "agentsSummary": "Also: {{value0}}",
+          "authorizing": "Authorizing package access…",
           "bundleDestinationSummary": "{{value0}} new · {{value1}} already installed · {{value2}} need a decision",
+          "bundleSkillsMissing": "This version does not contain any of the installed bundle skills.",
+          "bundleVerificationFailed": "Installation failed before Orca could verify the requested bundle.",
+          "canonicalExplanation": "These agents natively read {{root}}, which Orca installs to by default:",
+          "canonicalHeader": "Standard Agents (Always Included)",
+          "chooseSkills": "Choose what to install from this link.",
+          "chooseWorkspace": "Choose a workspace.",
           "deselectAll": "Deselect optional",
+          "destinationAlreadyFinished": "The destination had already finished this installation.",
+          "enterShareLink": "Enter an Orca skill share link.",
+          "fileBinary": "binary",
+          "fileRunnable": "runnable",
+          "inspectManagedFailed": "Orca could not inspect managed installs on this machine.",
+          "installing": "Downloading, verifying, and installing…",
+          "linkHint": "Opening a link never installs anything — you review it first.",
+          "reconnectBeforeInstalling": "Reconnect your Orca account before installing.",
+          "reconnectBeforeVersionChange": "Reconnect your Orca account before changing versions.",
+          "reconnectForVersionHistory": "Reconnect your Orca account to load version history.",
+          "removeFailed": "Orca could not safely remove this skill.",
+          "requestedVersionVerificationFailed": "Installation failed before Orca could verify the requested version.",
+          "reviewInstructions": "About this skill",
+          "reviewRunnableFiles": "Includes scripts or binary files",
           "reviewSupportingFiles": "Includes supporting files",
-          "trustNote": "Skills are instructions and code from their author. Install what you trust."
+          "rowInstalled": "Already installed",
+          "rowNeedsDecision": "Needs a decision",
+          "rowNew": "New",
+          "rowUpdate": "Update",
+          "runnableWarning": "{{affectedCount}} of {{selectedCount}} selected skills include scripts or binary files: {{affected}}.",
+          "selectAll": "Select all",
+          "selectSkill": "Select at least one skill.",
+          "shareUnavailable": "This share is unavailable. The link may be invalid, expired, or revoked.",
+          "singleRunnableWarning": "This skill includes scripts or binary files.",
+          "supportingFileWarning": "The selected skills include {{fileCount}} beyond SKILL.md.",
+          "targetAgentsHeader": "Target Agents",
+          "trustNote": "Skills are instructions and code from their author. Install what you trust.",
+          "versionHistoryUnavailable": "Version history is unavailable for this skill.",
+          "versionVerificationFailed": "Orca could not verify the requested version."
         },
         "managedInstall": {
-          "sendToMachine": "Send to another machine"
+          "cancel": "Cancel",
+          "confirmRemove": "Confirm remove",
+          "discardEdits": "Discard my edits and reinstall",
+          "discardEditsRemove": "Discard my edits and remove",
+          "editedWarning": "Your edits are kept unless you choose to discard them.",
+          "finishInstall": "Finish installing",
+          "installElsewhere": "Install elsewhere…",
+          "installedOn": "Installed {{date}}",
+          "reinstall": "Reinstall",
+          "remove": "Remove",
+          "scopeGlobal": "Everywhere",
+          "scopeWorkspace": "This workspace",
+          "sendToMachine": "Send to another machine",
+          "skillEdited": "Edited",
+          "skillMissing": "Missing",
+          "stateEdited": "Edited after installing",
+          "stateMissing": "Files are missing",
+          "titleMore": "{{name}} +{{count}}",
+          "useVersion": "Use this version",
+          "versionCurrent": "{{date}} (installed)",
+          "versionLabel": "Version"
         },
-        "share": {
-          "accessSummary": "Anyone with the link can install this. It is not listed anywhere, and revoking it blocks new installs — not copies already installed. Publishing as {{value0}}.",
-          "accessSummaryShort": "Unlisted link — anyone with it can install this. Publishing as {{value0}}.",
-          "description": "Publishes an immutable version behind an unlisted link.",
-          "newVersionDescription": "Publishes an immutable version to the existing package.",
-          "readyDescription": "Copy the link to share it."
+        "skill-install-progress-state": {
+          "currentSkill": "Installing {{value0}} of {{value1}}: {{value2}}…"
+        },
+        "skillWarningPreview": {
+          "binaryFilesDescription": "Includes opaque assets and an executable binary.",
+          "bundleDescription": "A preview bundle covering every warning level.",
+          "instructionsOnlyDescription": "Instructions contained entirely in SKILL.md.",
+          "runnableFilesDescription": "Includes scripts that an agent may run with your access.",
+          "supportingFilesDescription": "Includes readable reference files beyond the main instructions."
         }
       },
       "sparse": {
@@ -2281,16 +3422,21 @@
             "9e2525c89f": "Resident memory held by Orca plus the processes under each worktree's terminals.",
             "e7ccce7e87": "of system RAM"
           },
-          "SshStatusSegment": {
-            "3d0128b105": "connected",
-            "63a2b965f6": "pulling",
-            "95e4ff5b4b": "pushing",
-            "bc5a3fd41a": "partial",
-            "connectedHostCount_one": "{{count}} host",
-            "connectedHostCount_other": "{{count}} hosts",
-            "d09ec41831": "Remote Hosts",
-            "fbb3f9f05e": "conflict",
-            "fd9a3c600e": "error"
+          "SkillUpdateStatusSegment": {
+            "errorAria": "Skill update failed. Click to open details.",
+            "errorLabel": "Update failed",
+            "errorTooltip": "Skill update failed — click to see details",
+            "runningAria": "Skills updating. Click to open details.",
+            "runningLabel": "Updating skills",
+            "runningMany": "Updating {{value0}} skills…",
+            "runningOne": "Updating {{value0}}…",
+            "stoppingAria": "Stopping the skill update. Click to open details.",
+            "stoppingLabel": "Stopping update",
+            "stoppingTooltip": "Stopping the skill update…",
+            "successAria": "Skills updated. Click to open details.",
+            "successLabel": "Skills updated",
+            "successMany": "Updated {{value0}} skills",
+            "successOne": "Updated {{value0}}"
           },
           "StatusBar": {
             "06741a2f3d": "Open MiniMax usage details",
@@ -2375,7 +3521,6 @@
         },
         "group": {
           "AiVaultSessionDropLayer": {
-            "localSessionSshWorkspaceUnsupported": "This session's history is stored on this machine, so it can't resume in an SSH workspace. Drop it onto a local workspace instead.",
             "localWorkspacesOnly": "Resume from history is only available in local workspaces.",
             "openLocalWorkspace": "Open a local workspace before resuming a session."
           },
@@ -2399,7 +3544,6 @@
               "page": {
                 "gitlab": {
                   "filters": {
-                    "2328f6a40c": "My Todos",
                     "e157d7ce4d": "MRs"
                   }
                 }
@@ -2407,23 +3551,6 @@
             }
           },
           "dialogs": {
-            "new": {
-              "github": {
-                "issue": {
-                  "dialog": {
-                    "e02508846c": "this repository"
-                  }
-                }
-              },
-              "linear": {
-                "issue": {
-                  "dialog": {
-                    "dialogDescription": "Create a Linear issue for the selected team.",
-                    "dialogTitle": "New Linear issue"
-                  }
-                }
-              }
-            },
             "task": {
               "page": {
                 "connect": {
@@ -2433,67 +3560,31 @@
                 }
               }
             }
-          },
-          "github": {
-            "github": {
-              "detail": {
-                "host": {
-                  "312ca15778": "GitHub list",
-                  "8d5cde4770": "Pull requests"
-                }
-              },
-              "issue": {
-                "label": {
-                  "selector": {
-                    "2a1862c470": "Loading labels…"
-                  }
-                }
-              },
-              "work": {
-                "item": {
-                  "row": {
-                    "draftPullRequest": "Draft pull request",
-                    "issue": "Issue",
-                    "pullRequest": "Pull request"
-                  }
-                }
-              }
-            }
-          },
-          "hooks": {
-            "use": {
-              "task": {
-                "page": {
-                  "linear": {
-                    "active": {
-                      "collection": {
-                        "68462f8b29": "View: {{value0}}",
-                        "d8b3cd9488": "Project: {{value0}}"
-                      }
-                    }
-                  },
-                  "session": {
-                    "resume": {
-                      "savedLinearProjectMissing": "Saved Linear project was not found.",
-                      "savedLinearProjectRestoreFailed": "Failed to restore saved Linear project.",
-                      "savedLinearViewMissing": "Saved Linear view was not found.",
-                      "savedLinearViewRestoreFailed": "Failed to restore saved Linear view."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "linear": {
-            "linear": {
-              "connect": {
-                "empty": {
-                  "3e00e8ebd4": "Loading Linear"
-                }
-              }
+          }
+        },
+        "project": {
+          "source": {
+            "combobox": {
+              "allProjects": "All projects",
+              "chooseSource": "Choose task source",
+              "hostCount": "{{value0}} hosts",
+              "noMatches": "No projects match your search.",
+              "noProjects": "No projects",
+              "searchProjects": "Search projects..."
             }
           }
         }
+      },
+      "taskPageEmptyState": {
+        "changeQueryDescription": "Change the query or clear it.",
+        "noGitLabIssuesTitle": "No GitLab issues",
+        "noGitLabMrsDescription": "No GitLab MRs match this filter.",
+        "noGitLabMrsTitle": "No GitLab merge requests",
+        "noGitLabWorkDescription": "No GitLab work matches this filter.",
+        "noGitLabWorkTitle": "No GitLab work",
+        "noMatchingGitHubWorkTitle": "No matching GitHub work",
+        "noProjectSourcesDescription": "Select at least one project source so Orca knows which host/account to fetch tasks from.",
+        "noProjectSourcesTitle": "No project sources selected"
       },
       "terminal": {
         "pane": {
@@ -2501,9 +3592,6 @@
             "6b9a6975f8": "The terminal still has a running process. If you close the terminal, the process will be killed.",
             "78b79d854d": "Close Terminal?",
             "ebd2fa844d": "Close"
-          },
-          "MobileDriverOverlay": {
-            "3eed73394f": "Your keyboard is paused"
           },
           "TerminalErrorToast": {
             "ptyAllocationLimit": "Your system cannot allocate any more pty devices. Close some terminals you are not using, in Orca or another program, then try again.",
@@ -2515,10 +3603,6 @@
           "TerminalSessionStateSaveFailureDialog": {
             "678c780a2c": "Disk space is unavailable",
             "e2fcf07c0d": "Orca could not save this terminal session because local storage is full or not writable. Open the disk space analyzer to find workspace storage you can clean up."
-          },
-          "TerminalSshReconnectOverlay": {
-            "connectButton": "Connect",
-            "connectingButton": "Connecting..."
           },
           "terminal": {
             "drop": {
@@ -2612,6 +3696,7 @@
     },
     "hooks": {
       "useComposerState": {
+        "b2ead86962": "Failed to resolve PR base.",
         "dropPartiallyAttached_one": "{{failureCount}} of {{count}} item could not be attached.",
         "dropPartiallyAttached_other": "{{failureCount}} of {{count}} items could not be attached."
       },
@@ -2624,7 +3709,25 @@
         "f6300deb8b": "New Browser Tab"
       },
       "useSettingsNavigationMetadata": {
-        "5235c215ca": "Choose which task providers appear in the Tasks page and sidebar."
+        "2b043783ef": "Integrations",
+        "33a5e1d597": "Connect GitHub, GitLab, Linear, and source-hosting services.",
+        "5235c215ca": "Choose which task providers appear in the Tasks page and sidebar.",
+        "85f4fd7710": "Task Sources",
+        "tasksDescription": "Connect providers, install the Linear skill, and choose what appears in Tasks."
+      }
+    },
+    "i18n": {
+      "hostedReview": {
+        "copy": {
+          "91b5c8d7e6": "GitLab",
+          "a2c6d9e0f7": "Merge Request",
+          "b3d7e0f1a8": "merge request",
+          "c4e8f1a2b9": "MR",
+          "c7d1e5f9a8": "GitHub",
+          "d8e2f6a0b9": "Pull Request",
+          "e9f3a7b1c0": "pull request",
+          "f0a4b8c2d1": "PR"
+        }
       }
     },
     "lib": {
@@ -2642,6 +3745,58 @@
         "permissionDenied": "Permission denied.",
         "symlink": "Symbolic links cannot be attached.",
         "unsupported": "Unsupported file type."
+      },
+      "fix": {
+        "checks": {
+          "agent": {
+            "launch": {
+              "027228a06b": "Unable to find a workspace for these checks.",
+              "03c1d61f83": "Unable to open the workspace attached to these checks.",
+              "2ebf794906": "No enabled AI agent was detected on this workspace host.",
+              "4c7f783a7a": "Saved checks agent is not available on this workspace host.",
+              "822bf52295": "Unable to resolve the workspace launch platform.",
+              "9f00d7df0c": "Fix checks prompt is empty. Update Source Control AI settings.",
+              "dfb4dd7c00": "Unable to find the workspace attached to these checks.",
+              "fb6c294e85": "Could not build the agent launch command."
+            }
+          }
+        }
+      },
+      "launch": {
+        "work": {
+          "item": {
+            "direct": {
+              "19c7683acf": "Selected agent is not available in the created workspace.",
+              "3de6371df3": "Could not build the agent launch command.",
+              "67e103dd60": "Workspace created but could not be activated.",
+              "8bc45efdbc": "Failed to resolve PR head.",
+              "agent": {
+                "ceeeb509b5": "Agent took too long to start. The workspace is ready — paste the {{value0}} when the agent is idle."
+              }
+            }
+          }
+        }
+      },
+      "pr": {
+        "bot": {
+          "author": {
+            "overrides": {
+              "6d5d52b53f": "Bot author override limit reached"
+            }
+          }
+        },
+        "comment": {
+          "audience": {
+            "27ce73211c": "All",
+            "64deee36a9": "Bots",
+            "a7150a17bc": "Humans",
+            "empty": {
+              "all": "No comments yet.",
+              "bot": "No bot comments.",
+              "human": "No human comments."
+            }
+          }
+        }
       },
       "terminal": {
         "shortcut": {
@@ -2672,13 +3827,33 @@
         }
       }
     },
-    "runtime": {
-      "githubCheckDetailsTimeout": {
-        "timedOut": "Timed out loading check details."
-      }
-    },
     "store": {
       "slices": {
+        "editor": {
+          "checkRunDetailsLoadFailed": "Failed to load check details.",
+          "checkRunDetailsRepoUnavailable": "Repository details are unavailable for this check.",
+          "checkRunDetailsUnavailable": "No details are available for this check."
+        },
+        "jira": {
+          "856083302c": "Jira connection was superseded by a newer request."
+        },
+        "linear": {
+          "37d36984d0": "Linear connection was superseded by a newer request."
+        },
+        "orca": {
+          "profiles": {
+            "2f6c78a039": "Failed to refresh profile auth",
+            "319d7cf39b": "Cloud profile created",
+            "33290e88ed": "Failed to connect profile",
+            "76deec8f58": "Failed to switch organization",
+            "83600521e7": "Failed to sign out",
+            "8b8fa73174": "Orca Cloud sign-in is not configured",
+            "9fcb07a796": "Profile connected",
+            "a37b5e6d37": "Signed out of profile",
+            "d6e764e7db": "Reconnect this profile",
+            "f0c9e11a6d": "Failed to create cloud profile"
+          }
+        },
         "settings": {
           "faa8fb83dd": "Save or close unsaved editor tabs before switching servers."
         },
@@ -2699,12 +3874,13 @@
   "browser": {
     "clientHosted": {
       "popupBlocked": "Popup blocked: {{origin}}"
-    },
-    "sshEgress": {
-      "localChip": "This device"
-    },
-    "sshRoute": {
-      "errorDescription": "Pages in this workspace browse through its SSH host, and that connection is not available right now."
+    }
+  },
+  "checksPanel": {
+    "unlinked": {
+      "description": "PR #{{number}} is hidden for this workspace. Link it again to restore checks and review details.",
+      "relink": "Link PR #{{number}}",
+      "title": "Pull request unlinked"
     }
   },
   "components": {
@@ -2802,15 +3978,12 @@
         }
       },
       "status": {
+        "failedAfter": "Failed after {{value0}}",
+        "interruptedAfter": "Interrupted after {{value0}}",
         "responding": "Agent is responding",
         "toggleDetails": "Toggle turn details",
         "workedFor": "Worked for {{value0}}",
-        "interruptedAfter": "Interrupted after {{value0}}",
-        "failedAfter": "Failed after {{value0}}",
         "workingFor": "Working for {{value0}}"
-      },
-      "subagents": {
-        "unnamed": "Subagent"
       },
       "tool": {
         "countN": "{{value0}} tool calls",
@@ -2914,6 +4087,9 @@
           },
           "tierField": "Cleanup tier"
         },
+        "presentationFixtures": {
+          "reviewAlphaCleanup": "Review alpha cleanup"
+        },
         "scan": {
           "readyManyMany": "{{value0}} workspaces found, with {{value1}} cleanup suggestions.",
           "readyManyOne": "{{value0}} workspaces found, with 1 cleanup suggestion.",
@@ -2963,14 +4139,12 @@
       "clientHostedRemote": {
         "description": "Render remote workspace pages on this desktop; network traffic still goes through the remote host. Applies to new pages only.",
         "title": "Host remote browser pages on this device"
-      },
-      "sshWorkspaceRouting": {
-        "description": "Browser pages in SSH workspaces send their traffic through the workspace's SSH host, with DNS resolved there. Off means pages browse from this machine.",
-        "enableHost": "Route again",
-        "probeAgain": "Check again",
-        "probeSkippedHosts": "Hosts routed without the connection check (Try anyway):",
-        "title": "Browse through SSH workspace hosts"
       }
+    }
+  },
+  "sourceControl": {
+    "unlinkedPr": {
+      "status": "PR #{{number}} unlinked"
     }
   },
   "sparsePreset": {
@@ -2988,6 +4162,10 @@
     },
     "matchLabel": {
       "automation": "Run"
+    },
+    "taskUrl": {
+      "createHint": "Create worktree from {{value0}}",
+      "loadingHint": "Loading {{value0}}…"
     }
   }
 }

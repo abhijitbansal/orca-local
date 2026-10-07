@@ -44,7 +44,7 @@ host-local detail: `src/relay/fs-handler-terminal-artifact.ts` recomputes that s
 against the `expectedStatIdentity` the host sends. Changing the format would have a new
 host publishing a string an older relay can never reproduce, failing every remote
 artifact read as `terminal_file_grant_stale` — a break that reaches old peers with no
-wire-schema change at all. See [remote wire compatibility](./remote-wire-compatibility.md).
+wire-schema change at all. See the former remote wire compatibility rules.
 
 ## What is still open
 

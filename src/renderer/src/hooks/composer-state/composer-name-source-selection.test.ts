@@ -4,7 +4,6 @@ import { act, renderHook } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { useIssueSourceActions } from './issue-source-actions'
 import { resolveDraftBaseBranchNamesWorkspace } from './workspace-identity-state'
-import { useGitHubProviderSelection } from './github-provider-selection'
 
 type Input = Parameters<typeof useIssueSourceActions>[0]
 
@@ -81,42 +80,6 @@ describe('composer name source selection', () => {
       expect(input.setBaseBranch).toHaveBeenCalledWith(undefined)
     }
   })
-
-  it.each([false, true])(
-    'clears only source-owned bases when selecting a GitHub issue (%s)',
-    (owned) => {
-      const input = {
-        ...createInput({ baseBranch: 'release/1.2', baseBranchNamesWorkspace: owned }),
-        applyLinkedWorkItem: vi.fn(),
-        eligibleRepos: [],
-        handleBaseBranchPrSelect: vi.fn(),
-        selectedRepo: undefined,
-        selectedRepoGitHubSourceContext: null,
-        settings: null
-      }
-      const { result } = renderHook(() => useGitHubProviderSelection(input))
-
-      act(() =>
-        result.current.handleSmartGitHubItemSelect({
-          id: 'issue-42',
-          type: 'issue',
-          number: 42,
-          title: 'Fix export',
-          state: 'open',
-          url: 'https://github.com/o/r/issues/42',
-          labels: [],
-          updatedAt: '',
-          author: null,
-          repoId: 'repo-1'
-        })
-      )
-
-      expect(input.setBaseBranch).toHaveBeenCalledTimes(owned ? 1 : 0)
-      if (owned) {
-        expect(input.setBaseBranch).toHaveBeenCalledWith(undefined)
-      }
-    }
-  )
 
   it('names the workspace after a branch the name field picked', () => {
     const { result } = renderHook(() =>

@@ -41,13 +41,6 @@ import {
   type CollectBundleOptions,
   type CollectedBundle
 } from './bundle'
-import {
-  deleteBundle as _deleteBundle,
-  uploadBundle as _uploadBundle,
-  type DeleteBundleOptions,
-  type UploadBundleOptions,
-  type UploadBundleResult
-} from './diagnostic-bundle-upload'
 import { setActiveSink, startSpan } from './tracer'
 import { setSecurePathHardeningReporter } from '../../shared/secure-path-hardening-report'
 
@@ -222,7 +215,7 @@ export function getDiagnosticsStatus(): DiagnosticsStatus {
  *  `platform` / `arch` / `osRelease` / `orcaChannel` inputs come from main
  *  and are baked into the bundle header. NEVER pass `install_id` here —
  *  the bundle's identity is the per-bundle submission ID, not the
- *  PostHog-lane install_id (Issue 8 in the security review). */
+ *  product-telemetry-lane install_id (Issue 8 in the security review). */
 export function collectDiagnosticBundle(
   meta: Pick<
     CollectBundleOptions,
@@ -246,16 +239,4 @@ export function collectDiagnosticBundle(
     daemonLogMaxFiles: DAEMON_LOG_MAX_FILES,
     ...meta
   })
-}
-
-/** Upload a collected bundle payload. Returns the ticket ID on success;
- *  throws on any of the failure modes documented in `bundle.ts`. */
-export async function uploadDiagnosticBundle(
-  opts: UploadBundleOptions
-): Promise<UploadBundleResult> {
-  return _uploadBundle(opts)
-}
-
-export async function deleteDiagnosticBundle(opts: DeleteBundleOptions): Promise<void> {
-  return _deleteBundle(opts)
 }

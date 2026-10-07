@@ -6,11 +6,6 @@ vi.mock('../../telemetry/client', () => ({ track: vi.fn() }))
 vi.mock('../../telemetry/cohort-classifier', () => ({
   getCohortAtEmit: () => ({ nth_repo_added: 2 })
 }))
-vi.mock('../../ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: () => ({ hosts: [] }),
-  sshConfigHostsToTargets: () => []
-}))
-
 describe('worker-owned Store writes', () => {
   it('consumes the debounce timer and avoids full checkpoints after a selective durable write', async () => {
     const { store, authority, readState } = await fixture()

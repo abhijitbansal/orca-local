@@ -6,7 +6,6 @@ import baseConfig from './vitest.config'
 const contracts = [
   'src/main/sqlite/sync-database.test.ts',
   'src/main/runtime/orchestration/db/row-column-lists.test.ts',
-  'src/relay/fs-path-metadata-symlink-concurrency.test.ts',
   'src/renderer/src/components/editor/rich-markdown-list-tokenizers.test.ts',
   'src/renderer/src/components/editor/rich-markdown-lowlight-cache.test.ts',
   'src/renderer/src/components/terminal-pane/agent-completion-coordinator-queued-inspection-disposal.test.ts',

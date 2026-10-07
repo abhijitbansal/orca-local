@@ -15,29 +15,12 @@ import { tmpdir } from 'node:os'
 import type { PersistedState } from '../shared/persisted-state-types'
 import type { ProjectGroup } from '../shared/project-group-types'
 import { getDefaultWorkspaceSession } from '../shared/constants'
-
-import {
-  advanceSshConnectionGeneration,
-  assertSshMutationExpectation,
-  resetSshConnectionGenerations
-} from './ssh/ssh-connection-generation'
-import { getRuntimeOwnedSshTargetId } from './ssh/ssh-connection-store'
 import {
   _getLocalWorktreeScanGenerationCacheSize,
   getLocalWorktreeScanGeneration,
   isLocalWorktreeScanGenerationCurrent
 } from './local-worktree-scan-generation'
 
-// Stub the ~/.ssh/config parser so the SSH-import test drives the real Store with deterministic hosts, not the operator's actual ~/.ssh/config.
-const { loadUserSshConfigMock, sshConfigHostsToTargetsMock } = vi.hoisted(() => ({
-  loadUserSshConfigMock: vi.fn(),
-  sshConfigHostsToTargetsMock: vi.fn()
-}))
-
-vi.mock('./ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: loadUserSshConfigMock,
-  sshConfigHostsToTargets: sshConfigHostsToTargetsMock
-}))
 const { trackMock, getCohortAtEmitMock } = vi.hoisted(() => ({
   trackMock: vi.fn(),
   getCohortAtEmitMock: vi.fn()
@@ -708,39 +691,6 @@ describe('Store', () => {
     expect(store.getWorktreeMeta('only::/repo/wt')).toBeUndefined()
   })
 
-  it('removing and recreating a runtime-owned SSH target fences the old incarnation', async () => {
-    resetSshConnectionGenerations(3)
-    try {
-      const store = await createStore()
-      const targetId = getRuntimeOwnedSshTargetId('vm-1')
-      const target = {
-        id: targetId,
-        label: 'ephemeral vm',
-        host: 'vm-old.example.com',
-        port: 22,
-        username: 'dev',
-        source: 'manual' as const,
-        owner: { type: 'on-demand-runtime' as const, runtimeId: 'vm-1' }
-      }
-      store.addSshTarget(target)
-      const staleGeneration = advanceSshConnectionGeneration(targetId)
-
-      store.removeSshTarget(targetId)
-      store.addSshTarget({ ...target, host: 'vm-new.example.com' })
-      const replacementGeneration = advanceSshConnectionGeneration(targetId)
-
-      // A delayed write from the discarded VM must not pass the replacement's fence.
-      expect(() => assertSshMutationExpectation(targetId, targetId, staleGeneration)).toThrow(
-        'SSH connection changed; refresh and try again'
-      )
-      expect(() =>
-        assertSshMutationExpectation(targetId, targetId, replacementGeneration)
-      ).not.toThrow()
-    } finally {
-      resetSshConnectionGenerations()
-    }
-  })
-
   // ── 6c. reassignSshTargetId re-adopts orphaned workspaces ─────────────
 
   it('reassignSshTargetId re-points repos and worktree metas onto the new id', async () => {
@@ -802,7 +752,8 @@ describe('Store', () => {
     expect(repoIds).toEqual([]) // no repo matched
     store.flush()
 
-    const reloaded = await createStore()
+    // Local-only build strips ssh rows at load; assert the in-memory re-point.
+    const reloaded = store
     expect(reloaded.getWorktreeMeta('r1::/remote/wt')?.hostId).toBe('ssh:ssh-new')
   })
 
@@ -830,7 +781,8 @@ describe('Store', () => {
     store.reassignSshTargetId('ssh-old', 'ssh-new')
     store.flush()
 
-    const reloaded = await createStore()
+    // Local-only build strips ssh rows at load; assert the in-memory re-point.
+    const reloaded = store
     const session = reloaded.getWorkspaceSession()
     expect(session.tabsByWorktree['r1::/wt'][0].ptyId).toBe('ssh:ssh-new@@pty-2')
     expect(session.remoteSessionIdsByTabId).toEqual({ tab1: 'ssh:ssh-new@@pty-2' })
@@ -862,7 +814,8 @@ describe('Store', () => {
     store.reassignSshTargetId('ssh-old', 'ssh-new')
     store.flush()
 
-    const reloaded = await createStore()
+    // Local-only build strips ssh rows at load; assert the in-memory re-point.
+    const reloaded = store
     // Old-key partition is gone; the re-keyed one carries migrated pty ids.
     expect(reloaded.getWorkspaceSession('ssh:ssh-old').tabsByWorktree).toEqual({})
     expect(reloaded.getWorkspaceSession('ssh:ssh-new').tabsByWorktree['r1::/wt'][0].ptyId).toBe(

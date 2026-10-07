@@ -113,8 +113,6 @@ const MANUAL_OPT_IN = [
   'src/main/local-worktree-filesystem-wsl-banner.wsl.test.ts',
   // `RUN_REAL_WINDOWS = platform === 'win32' && ORCA_REAL_WINDOWS_SKILL_TEST === '1'`.
   'src/main/skills/skill-windows-rename-contention.integration.test.ts',
-  // Same flag; installs into a real Windows workspace.
-  'src/main/skills/skill-windows-workspace.integration.test.ts',
   // `RUN_REAL_WSL = … && ORCA_REAL_WSL_SKILL_TEST === '1'`; real distro filesystem.
   'src/main/skills/skill-wsl-delete.integration.test.ts',
   // Same flag; real WSL install transactions.

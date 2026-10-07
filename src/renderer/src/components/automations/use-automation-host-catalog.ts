@@ -241,9 +241,6 @@ export function useAutomationHostCatalog(
       retry: (entry) => {
         void controller.scheduler.retry(automationHostFetchTarget(entry, pairingRevision))
       },
-      connectSshTarget: (targetId) => {
-        void window.api.ssh.connect({ targetId })
-      },
       connectRuntimeEnvironment: (environmentId) => {
         void window.api.runtimeEnvironments.connect({ selector: environmentId })
       },

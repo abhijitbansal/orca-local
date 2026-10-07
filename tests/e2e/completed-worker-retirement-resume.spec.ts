@@ -64,7 +64,7 @@ for (const closeMode of ['terminal-close-cli', 'worker-release'] as const) {
 
     const userDataDir = await electronApp.evaluate(({ app }) => app.getPath('userData'))
     const isolatedHome = await electronApp.evaluate(({ app }) => app.getPath('home'))
-    const client = new RuntimeClient(userDataDir, 30_000, null, null)
+    const client = new RuntimeClient(userDataDir, 30_000)
     const coordinatorPane = await waitForActivePaneHookDescriptor(orcaPage)
     const coordinatorResolved = await client.call<{ terminal: { handle: string } }>(
       'terminal.resolvePane',

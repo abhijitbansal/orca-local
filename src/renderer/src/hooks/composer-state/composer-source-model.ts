@@ -41,7 +41,6 @@ export type ComposerSourceModel = {
   handleLinkPopoverChange: (open: boolean) => void
   handleNameValueChange: (nextName: string) => void
   handleOpenAgentSettings: () => void
-  handleOpenJiraSettings: () => void
   handleProjectChange: (projectId: string) => void
   handleProjectHostSetupChange: (setupId: string) => void
   handleRemoveLinkedWorkItem: () => void
@@ -58,8 +57,6 @@ export type ComposerSourceModel = {
   handleSmartLinearIssueSelect: (issue: LinearIssue) => void
   handleSparseSelectPreset: (preset: SparsePreset | null) => void
   insertComposerFolderPaths: (folderPaths: string[]) => void
-  onConnectSelectedProjectGroup: () => Promise<void>
-  onConnectSelectedRepo: () => Promise<void>
   prefetchSshConnectedGeneration: number
   resolvePendingSmartGitHubSubmit: () => Promise<PendingSmartGitHubSubmitResolution>
   selectAddedProjectRepo: (nextRepoId: string) => void

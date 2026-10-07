@@ -46,7 +46,7 @@ describe('keybinding-file', () => {
         version: 1,
         keybindings: {
           'worktree.quickOpen': 'Mod+Shift+P',
-          'view.tasks': null
+          'workspace.openBoard': null
         },
         platforms: {
           linux: {
@@ -65,7 +65,7 @@ describe('keybinding-file', () => {
       exists: true,
       overrides: {
         'worktree.quickOpen': ['Mod+Shift+P'],
-        'view.tasks': [],
+        'workspace.openBoard': [],
         'terminal.paste': ['Ctrl+Shift+V', 'Shift+Insert'],
         'terminal.search': ['Ctrl+Shift+F']
       },
@@ -125,7 +125,7 @@ describe('keybinding-file', () => {
         keybindings: {
           unknownAction: 'Ctrl+Alt+U',
           'terminal.search': 'not-a-keybinding',
-          'view.tasks': 'Mod+P'
+          'workspace.openBoard': 'Mod+P'
         }
       }),
       'utf8'
@@ -201,9 +201,9 @@ describe('keybinding-file', () => {
   })
 
   it('rejects writes that would conflict with another effective shortcut', () => {
-    expect(() => writeKeybindingOverride(filePath, 'linux', 'view.tasks', ['Mod+P'])).toThrow(
-      'conflicts with another shortcut'
-    )
+    expect(() =>
+      writeKeybindingOverride(filePath, 'linux', 'workspace.openBoard', ['Mod+P'])
+    ).toThrow('conflicts with another shortcut')
     expect(readKeybindingFile(filePath, 'linux').overrides).toEqual({})
   })
 
@@ -211,9 +211,9 @@ describe('keybinding-file', () => {
     expect(() => writeKeybindingOverride(filePath, 'linux', 'unknown.action', [])).toThrow(
       'Unknown keybinding action'
     )
-    expect(() => writeKeybindingOverride(filePath, 'linux', 'view.tasks', 'Ctrl+Alt+T')).toThrow(
-      'Use a string array or null.'
-    )
+    expect(() =>
+      writeKeybindingOverride(filePath, 'linux', 'workspace.openBoard', 'Ctrl+Alt+T')
+    ).toThrow('Use a string array or null.')
   })
 
   it('resets only the active platform override', () => {
@@ -245,11 +245,11 @@ describe('keybinding-file', () => {
   })
 
   it('migrates legacy settings once when no file exists', () => {
-    migrateLegacyKeybindings(filePath, 'linux', { 'view.tasks': ['Ctrl+Alt+T'] })
-    migrateLegacyKeybindings(filePath, 'linux', { 'view.tasks': ['Ctrl+Alt+X'] })
+    migrateLegacyKeybindings(filePath, 'linux', { 'workspace.openBoard': ['Ctrl+Alt+T'] })
+    migrateLegacyKeybindings(filePath, 'linux', { 'workspace.openBoard': ['Ctrl+Alt+X'] })
 
     expect(readKeybindingFile(filePath, 'linux').overrides).toEqual({
-      'view.tasks': ['Ctrl+Alt+T']
+      'workspace.openBoard': ['Ctrl+Alt+T']
     })
   })
 

@@ -24,7 +24,6 @@ import type { WorkspaceSource as WorkspaceCreateTelemetrySource } from '../../..
 
 export type ComposerTargetStoreModel = {
   initialRepoId: string | undefined
-  initialEphemeralVmRecipeId: string | undefined
   initialName: string
   initialPrompt: string
   initialLinkedWorkItem: LinkedWorkItemSummary | null
@@ -53,9 +52,7 @@ export type ComposerTargetStoreModel = {
   closeModal: ComposerStoreActions['closeModal']
   openSettingsPage: ComposerStoreActions['openSettingsPage']
   openSettingsTarget: ComposerStoreActions['openSettingsTarget']
-  setActiveRuntimeEnvironmentPreference: ComposerStoreActions['setActiveRuntimeEnvironmentPreference']
   prefetchWorktreeCreateBase: ComposerStoreActions['prefetchWorktreeCreateBase']
-  prefetchWorkItems: ComposerStoreActions['prefetchWorkItems']
   fetchSparsePresets: ComposerStoreActions['fetchSparsePresets']
   repos: readonly Repo[]
   projects: readonly Project[]

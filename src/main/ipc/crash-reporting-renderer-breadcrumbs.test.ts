@@ -38,24 +38,11 @@ vi.mock('electron', () => ({
   }
 }))
 
-vi.mock('./feedback', () => ({
-  submitFeedback: vi.fn()
-}))
-
 vi.mock('../crash-reporting/crash-breadcrumb-store', () => ({
   getCrashBreadcrumbSnapshot: vi.fn(() => []),
   recordCoalescedCrashBreadcrumb: (...args: unknown[]) =>
     recordCoalescedCrashBreadcrumbMock(...args),
   recordCrashBreadcrumb: (...args: unknown[]) => recordCrashBreadcrumbMock(...args)
-}))
-
-vi.mock('../observability', () => ({
-  collectDiagnosticBundle: vi.fn(),
-  getDiagnosticsStatus: vi.fn()
-}))
-
-vi.mock('../observability/diagnostic-upload-endpoint', () => ({
-  resolveDiagnosticOrcaChannel: vi.fn()
 }))
 
 vi.mock('../observability/tracer', () => ({

@@ -14,7 +14,6 @@ import { orderHostSectionOptions } from './host-section-order'
 import { buildSidebarHostOptions } from './sidebar-host-options'
 import { getLogicalRepoOrderRankById } from './project-header-drop'
 import { getRenderedWorktreesInSidebarOrder } from './worktree-sidebar-row-preference'
-import { selectWorktreeListReviewCacheInputs } from './worktree-list/listing/review-cache-inputs'
 import {
   filterFolderWorkspacesForVisibleHosts,
   filterProjectGroupsForVisibleHosts,
@@ -47,11 +46,7 @@ export function computeRenderedSidebarWorktrees(
     state.workspaceHostScope
   )
   const projectGroups = state.projectGroups ?? []
-  const { prCache } = selectWorktreeListReviewCacheInputs(
-    state,
-    state.groupBy,
-    state.worktreeCardProperties
-  )
+  const prCache = null
 
   const rows = buildRows(
     state.groupBy,

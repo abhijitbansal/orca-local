@@ -8,7 +8,6 @@ import {
   ensurePathWithinWorkspaceMock,
   resolveDefaultBaseRefWithLocalGit,
   getBranchConflictKind,
-  getPRForBranchMock,
   gitRunner,
   listWorktrees,
   resolveLocalGitUsernameMock
@@ -574,15 +573,6 @@ describe('OrcaRuntimeService', () => {
     computeWorktreePathMock.mockReturnValue(createdWorktree.path)
     ensurePathWithinWorkspaceMock.mockReturnValue(createdWorktree.path)
     vi.mocked(getBranchConflictKind).mockClear()
-    getPRForBranchMock.mockResolvedValue({
-      number: 42,
-      title: 'Existing PR',
-      state: 'open',
-      url: 'https://example.com/pr/42',
-      checksStatus: 'success',
-      updatedAt: '2026-05-21T00:00:00Z',
-      mergeable: 'UNKNOWN'
-    })
     vi.mocked(listWorktrees)
       .mockResolvedValueOnce([
         {
@@ -610,7 +600,6 @@ describe('OrcaRuntimeService', () => {
       })
 
       expect(getBranchConflictKind).not.toHaveBeenCalled()
-      expect(getPRForBranchMock).not.toHaveBeenCalled()
       expect(addWorktree).toHaveBeenCalledWith(
         TEST_REPO_PATH,
         createdWorktree.path,

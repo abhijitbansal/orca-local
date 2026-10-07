@@ -15,7 +15,6 @@ import { randomUUID } from 'node:crypto'
 import { existsSync, mkdirSync, mkdtempSync, realpathSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
-import { prepareDockerSshRelayImage } from './helpers/docker-ssh-relay-image'
 
 export const E2E_TEST_REPO_PATH_FILE_ENV = 'ORCA_E2E_TEST_REPO_PATH_FILE'
 /** Temp file where the test repo path is stored for the fixture to read. */
@@ -24,7 +23,6 @@ export const TEST_REPO_PATH_FILE =
   path.join(os.tmpdir(), `orca-e2e-test-repo-path-${randomUUID()}.txt`)
 const ELECTRON_E2E_BUILD_TIMEOUT_MS = 300_000
 const CLI_E2E_BUILD_TIMEOUT_MS = 120_000
-const WEB_E2E_BUILD_TIMEOUT_MS = 300_000
 
 export default function globalSetup(): void {
   // Why: workers and teardown need this run's path, never another concurrent run's.
@@ -32,8 +30,6 @@ export default function globalSetup(): void {
   const root = process.cwd()
   const outMain = path.join(root, 'out', 'main', 'index.js')
   const outCli = path.join(root, 'out', 'cli', 'index.js')
-  const outWeb = path.join(root, 'out', 'web', 'web-index.html')
-  const outLinuxRelay = path.join(root, 'out', 'relay', 'linux-x64', 'relay.js')
 
   // ── 1. Build the Electron app ──────────────────────────────────────
   if (process.env.SKIP_BUILD && existsSync(outMain)) {
@@ -68,43 +64,6 @@ export default function globalSetup(): void {
       timeout: CLI_E2E_BUILD_TIMEOUT_MS
     })
     console.error('[e2e] CLI build complete.')
-  }
-  if (process.env.ORCA_E2E_WEB_CLIENT === '1') {
-    if (process.env.SKIP_BUILD && existsSync(outWeb)) {
-      console.error('[e2e] SKIP_BUILD set and web client exists — skipping web build')
-    } else {
-      // Why: paired-browser specs need the web bundle served by the runtime; ordinary Electron E2E does not.
-      console.error('[e2e] Building paired runtime web client...')
-      execSync('pnpm run build:web', {
-        env: { ...process.env, VITE_EXPOSE_STORE: 'true' },
-        cwd: root,
-        stdio: 'inherit',
-        timeout: WEB_E2E_BUILD_TIMEOUT_MS
-      })
-      console.error('[e2e] Web client build complete.')
-    }
-  }
-  if (
-    process.env.ORCA_E2E_SSH_LOCALHOST === '1' ||
-    process.env.ORCA_E2E_SSH_DOCKER === '1' ||
-    process.env.ORCA_E2E_NESTED_RUNTIME_SSH === '1' ||
-    (process.env.ORCA_E2E_SKILL_STAGING === '1' && Boolean(process.env.ORCA_E2E_SKILL_SSH_HOST))
-  ) {
-    if (process.env.SKIP_BUILD && existsSync(outLinuxRelay)) {
-      console.error('[e2e] SKIP_BUILD set and SSH relay bundle exists — skipping relay build')
-    } else {
-      // Why: explicit SSH specs need deployable Relay outputs in source-tree runs.
-      console.error('[e2e] Building SSH relay bundle for SSH E2E...')
-      execSync('pnpm run build:relay', {
-        cwd: root,
-        stdio: 'inherit',
-        timeout: 120_000
-      })
-    }
-  }
-  if (process.env.ORCA_E2E_SSH_DOCKER === '1' || process.env.ORCA_E2E_NESTED_RUNTIME_SSH === '1') {
-    console.error('[e2e] Preparing Docker OpenSSH fixture image...')
-    prepareDockerSshRelayImage(root)
   }
 
   // ── 2. Create a seeded test git repo ───────────────────────────────

@@ -45,13 +45,8 @@ vi.mock('../runtime-client', () => {
   class RuntimeClient {
     getCliStatus = getCliStatusMock
 
-    constructor(
-      _userDataPath?: string,
-      _requestTimeoutMs?: number,
-      remotePairingCode?: string | null,
-      environmentSelector?: string | null
-    ) {
-      runtimeClientConstructorMock(remotePairingCode, environmentSelector)
+    constructor() {
+      runtimeClientConstructorMock()
     }
   }
 
@@ -226,18 +221,6 @@ describe('profile-state CLI recovery', () => {
     expect(getCliStatusMock).not.toHaveBeenCalled()
   })
 
-  it('keeps profile-state recovery local when remote selection is configured', async () => {
-    const profile = createProfile()
-    getDefaultUserDataPathMock.mockReturnValue(profile.userDataPath)
-    vi.stubEnv('ORCA_PAIRING_CODE', 'remote-pairing-code')
-    vi.stubEnv('ORCA_ENVIRONMENT', 'stale-environment')
-
-    await main(['profile', 'state', 'rollback', '--revision', '1', '--json'], profile.userDataPath)
-
-    expect(runtimeClientConstructorMock).toHaveBeenCalledWith(null, null)
-    expect(vi.mocked(console.log).mock.calls.at(-1)?.[0]).toContain('quarantineDirectory')
-  })
-
   it.each([true, false])(
     'recovers an absent database and archives every export (legacy JSON present: %s)',
     async (hasJson) => {
@@ -355,21 +338,6 @@ describe('profile-state CLI recovery', () => {
       http1Marker.readHttp1CompatibilityMarker(profile.userDataPath, 'profile-cli-recovery')
     ).toBe(true)
     expect(process.exitCode).toBe(1)
-  })
-
-  it('rejects an explicit remote selector instead of silently ignoring it', async () => {
-    const profile = createProfile()
-    getDefaultUserDataPathMock.mockReturnValue(profile.userDataPath)
-
-    await main(
-      ['profile', 'state', 'rollback', '--revision', '1', '--environment', 'remote', '--json'],
-      profile.userDataPath
-    )
-
-    expect(existsSync(profile.databaseFile)).toBe(true)
-    expect(vi.mocked(console.log).mock.calls.at(-1)?.[0]).toContain(
-      '`--environment` does not retarget profile-state recovery'
-    )
   })
 
   it.each([['--revision', '1'], ['--current-json']])(

@@ -4,14 +4,12 @@ const {
   handleMock,
   removeHandlerMock,
   createProfileMock,
-  routeIdentityMock,
   detectBrowsersMock,
   setBrowserIdentityModeMock
 } = vi.hoisted(() => ({
   handleMock: vi.fn(),
   removeHandlerMock: vi.fn(),
   createProfileMock: vi.fn(),
-  routeIdentityMock: vi.fn(),
   detectBrowsersMock: vi.fn(() => []),
   setBrowserIdentityModeMock: vi.fn(async () => ({ ok: true }))
 }))
@@ -40,10 +38,6 @@ vi.mock('../browser/browser-session-registry', () => ({
   }
 }))
 
-vi.mock('../browser/paired-runtime-browser-client-host-runtime', () => ({
-  getPairedRuntimeBrowserClientRouteIdentity: routeIdentityMock
-}))
-
 vi.mock('../browser/browser-cookie-import', () => ({
   detectInstalledBrowsers: detectBrowsersMock,
   importCookiesFromBrowser: vi.fn(),
@@ -60,7 +54,6 @@ describe('browser session profile IPC', () => {
     handleMock.mockReset()
     removeHandlerMock.mockReset()
     createProfileMock.mockReset()
-    routeIdentityMock.mockReset()
     detectBrowsersMock.mockReset()
     detectBrowsersMock.mockReturnValue([])
     setBrowserIdentityModeMock.mockReset()
@@ -102,54 +95,6 @@ describe('browser session profile IPC', () => {
 
     await expect(handler({ sender: trustedSender() }, 'native')).resolves.toEqual({ ok: true })
     expect(setBrowserIdentityModeMock).toHaveBeenCalledWith('native')
-  })
-
-  function clientHostDetectHandler(): (
-    event: { sender: Electron.WebContents },
-    args: { environmentId: string }
-  ) => unknown {
-    registerBrowserHandlers()
-    return handleMock.mock.calls.find(
-      ([channel]) => channel === 'browser:session:detectBrowsersForClientHost'
-    )?.[1]
-  }
-
-  // Why: the import runs wherever the pages are hosted, so the picker must be sourced from the same
-  // machine — a remote-sourced list is either empty (headless) or names profiles this desktop lacks.
-  it('detects this desktop’s browsers only while the environment is client-hosted', () => {
-    detectBrowsersMock.mockReturnValue([
-      {
-        family: 'chrome',
-        label: 'Google Chrome',
-        cookiesPath: '/Users/someone/Library/.../Cookies',
-        keychainService: 'Chrome Safe Storage',
-        keychainAccount: 'Chrome',
-        profiles: [{ name: 'Person 1', directory: 'Default' }],
-        selectedProfile: 'Default'
-      }
-    ] as never)
-    routeIdentityMock.mockReturnValue({ orcaProfileId: 'profile-a' })
-
-    const handler = clientHostDetectHandler()
-
-    expect(handler({ sender: trustedSender() }, { environmentId: 'env-1' })).toEqual([
-      {
-        family: 'chrome',
-        label: 'Google Chrome',
-        profiles: [{ name: 'Person 1', directory: 'Default' }],
-        selectedProfile: 'Default'
-      }
-    ])
-    expect(routeIdentityMock).toHaveBeenCalledWith('env-1')
-  })
-
-  it('returns null so detection falls back to the server when nothing is client-hosted', () => {
-    routeIdentityMock.mockReturnValue(null)
-
-    const handler = clientHostDetectHandler()
-
-    expect(handler({ sender: trustedSender() }, { environmentId: 'env-1' })).toBeNull()
-    expect(detectBrowsersMock).not.toHaveBeenCalled()
   })
 
   it('creates a profile for a trusted renderer', async () => {

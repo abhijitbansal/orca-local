@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo } from 'react'
 import { useAppStore } from '@/store'
-import { useShallow } from 'zustand/react/shallow'
 import {
   useAllWorktrees,
   useProjectHostSetupProjection,
@@ -15,7 +14,6 @@ import {
 } from '../../../../shared/execution-host'
 import { getActiveSidebarWorkspaceId } from '../../../../shared/workspace-scope'
 import { getPinnedWorktreeDisplayPolicy } from './worktree-list/grouping/row-types'
-import { selectWorktreeListReviewCacheInputs } from './worktree-list/listing/review-cache-inputs'
 import type { VirtualizedScrollAnchor } from '@/hooks/useVirtualizedScrollAnchor'
 import { SidebarWorktreeListDialogs } from './worktree-list/rows/ProjectGroupDialogs'
 import { SidebarWorktreeListEmptyState } from './worktree-list/listing/EmptyState'
@@ -90,10 +88,9 @@ const WorktreeList = React.memo(function WorktreeList({
   const projectGroups = useAppStore((s) => s.projectGroups ?? EMPTY_PROJECT_GROUPS)
   const folderWorkspaces = useAppStore((s) => s.folderWorkspaces)
   const settings = useAppStore((s) => s.settings)
-  const cardProps = useAppStore((s) => s.worktreeCardProperties)
-  const { prCache, hostedReviewCache } = useAppStore(
-    useShallow((s) => selectWorktreeListReviewCacheInputs(s, groupBy, cardProps))
-  )
+  // Why: no forge review data is cached any more, so the list never groups or decorates by PR state.
+  const prCache = null
+  const hostedReviewCache = null
   const pinnedDisplayPolicy = getPinnedWorktreeDisplayPolicy(settings)
   const defaultHostId = getSettingsFocusedExecutionHostId(settings)
   const projectHostSetupProjection = useProjectHostSetupProjection()

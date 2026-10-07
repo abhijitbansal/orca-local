@@ -3,12 +3,6 @@ import { useAppStore } from '@/store'
 import { activateAndRevealWorktree, type ActivateAndRevealResult } from '@/lib/worktree-activation'
 import { ensureWorktreeHasInitialTerminal } from '@/lib/worktree-initial-terminal-seeding'
 import {
-  attachEphemeralVmRuntimeToWorkspace,
-  cleanupEphemeralVmRuntimeForFailedCreate,
-  prepareRequestForCreate
-} from '@/lib/ephemeral-vm-worktree-creation'
-import { getProvisionedRootCreateOptions } from '@/lib/provisioned-root-create-options'
-import {
   formatWorkspaceCreateError,
   getWorkspaceCreateErrorToastMessage
 } from '@/lib/workspace-create-error-format'
@@ -49,67 +43,52 @@ export async function executeWorktreeCreation(
   creationId: string,
   request: WorktreeCreationRequest
 ): Promise<void> {
-  const preparedRequest = await prepareRequestForCreate(creationId, request)
-  if (!preparedRequest) {
-    return
-  }
-
   let result: CreateWorktreeResult
   try {
-    const provisionedRoot = getProvisionedRootCreateOptions(preparedRequest)
-    const structuredLaunch = preparedRequest.agentLaunchRoute === 'structured-native-chat'
-    const backendStartup =
-      provisionedRoot || structuredLaunch ? undefined : resolveBackendDraftStartup(preparedRequest)
+    const structuredLaunch = request.agentLaunchRoute === 'structured-native-chat'
+    const backendStartup = structuredLaunch ? undefined : resolveBackendDraftStartup(request)
     result = await useAppStore
       .getState()
       .createWorktree(
-        preparedRequest.repoId,
-        preparedRequest.name,
-        preparedRequest.baseBranch,
-        preparedRequest.setupDecision,
-        preparedRequest.sparseCheckout,
-        preparedRequest.telemetrySource,
-        preparedRequest.displayName,
-        preparedRequest.linkedIssue,
-        preparedRequest.linkedPR,
-        preparedRequest.pushTarget,
-        preparedRequest.agent ?? undefined,
-        preparedRequest.linkedLinearIssue,
-        preparedRequest.branchNameOverride,
-        preparedRequest.workspaceStatus,
-        preparedRequest.linkedGitLabMR,
-        preparedRequest.linkedGitLabIssue,
+        request.repoId,
+        request.name,
+        request.baseBranch,
+        request.setupDecision,
+        request.sparseCheckout,
+        request.telemetrySource,
+        request.displayName,
+        request.linkedIssue,
+        request.linkedPR,
+        request.pushTarget,
+        request.agent ?? undefined,
+        request.linkedLinearIssue,
+        request.branchNameOverride,
+        request.workspaceStatus,
+        request.linkedGitLabMR,
+        request.linkedGitLabIssue,
         backendStartup,
-        preparedRequest.pendingFirstAgentMessageRename,
+        request.pendingFirstAgentMessageRename,
         creationId,
-        preparedRequest.linkedLinearIssueWorkspaceId,
-        preparedRequest.linkedLinearIssueOrganizationUrlKey,
-        preparedRequest.linkedBitbucketPR,
-        preparedRequest.linkedAzureDevOpsPR,
-        preparedRequest.linkedGiteaPR,
-        preparedRequest.compareBaseRef,
+        request.linkedLinearIssueWorkspaceId,
+        request.linkedLinearIssueOrganizationUrlKey,
+        request.linkedBitbucketPR,
+        request.linkedAzureDevOpsPR,
+        request.linkedGiteaPR,
+        request.compareBaseRef,
         {
-          ...(preparedRequest.nameWasGenerated ? { nameWasGenerated: true } : {}),
-          ...(preparedRequest.displayNameKind
-            ? { displayNameKind: preparedRequest.displayNameKind }
+          ...(request.nameWasGenerated ? { nameWasGenerated: true } : {}),
+          ...(request.displayNameKind ? { displayNameKind: request.displayNameKind } : {}),
+          ...(request.linkedWorkItem !== undefined
+            ? { linkedWorkItem: request.linkedWorkItem }
             : {}),
-          ...(preparedRequest.linkedWorkItem !== undefined
-            ? { linkedWorkItem: preparedRequest.linkedWorkItem }
-            : {}),
-          ...(preparedRequest.linkedTaskSourceContext !== undefined
-            ? { linkedTaskSourceContext: preparedRequest.linkedTaskSourceContext }
+          ...(request.linkedTaskSourceContext !== undefined
+            ? { linkedTaskSourceContext: request.linkedTaskSourceContext }
             : {}),
           // Why: the remote host must own task-draft startup so its initial terminal is the agent, not an idle fallback shell.
-          ...(!structuredLaunch &&
-          !backendStartup &&
-          preparedRequest.agent &&
-          preparedRequest.launchDraftPrompt
-            ? { startupDraft: preparedRequest.launchDraftPrompt }
+          ...(!structuredLaunch && !backendStartup && request.agent && request.launchDraftPrompt
+            ? { startupDraft: request.launchDraftPrompt }
             : {}),
-          ...(provisionedRoot ? { provisionedRoot } : {}),
-          ...(preparedRequest.parentWorktreeId
-            ? { parentWorktreeId: preparedRequest.parentWorktreeId }
-            : {})
+          ...(request.parentWorktreeId ? { parentWorktreeId: request.parentWorktreeId } : {})
         }
       )
   } catch (error) {
@@ -118,16 +97,12 @@ export async function executeWorktreeCreation(
     if (!useAppStore.getState().pendingWorktreeCreations[creationId]) {
       return
     }
-    if (preparedRequest.ephemeralVmRuntimeId) {
-      await cleanupEphemeralVmRuntimeForFailedCreate(preparedRequest)
-    }
     const message = getWorkspaceCreateErrorToastMessage(formatWorkspaceCreateError(error))
     // Why: an error must stay on the same creation surface that owns the faux
     // tab strip, rather than falling back to stale previous-workspace tabs.
     useAppStore.getState().updatePendingWorktreeCreation(creationId, {
       status: 'error',
-      error: message,
-      ...(preparedRequest.ephemeralVmRecipe ? { request } : {})
+      error: message
     })
     // Why: only toast when the panel isn't already showing this error (the user
     // navigated away), so a visible failure isn't announced twice.
@@ -138,25 +113,20 @@ export async function executeWorktreeCreation(
   }
 
   const worktree = result.worktree
-  const structuredLaunch = preparedRequest.agentLaunchRoute === 'structured-native-chat'
-  // Why: cancellation can race a successful backend adoption; clean up again after it settles so an adopted workspace cannot outlive its destroyed VM.
+  const structuredLaunch = request.agentLaunchRoute === 'structured-native-chat'
   if (!useAppStore.getState().pendingWorktreeCreations[creationId]) {
-    if (preparedRequest.ephemeralVmRuntimeId) {
-      await cleanupEphemeralVmRuntimeForFailedCreate(preparedRequest)
-    }
     return
   }
-  await attachEphemeralVmRuntimeToWorkspace(preparedRequest, worktree.id)
 
   const backendSpawned = result.startupTerminal?.spawned === true
-  if (preparedRequest.startupPlan && !backendSpawned && !preparedRequest.startupPlan.launchToken) {
+  if (request.startupPlan && !backendSpawned && !request.startupPlan.launchToken) {
     // Why: delayed delivery must target the exact pane spawned from this queued
     // startup, so both halves of the handoff share one renderer-session token.
-    preparedRequest.startupPlan.launchToken = createBrowserUuid()
+    request.startupPlan.launchToken = createBrowserUuid()
   }
   const startupOpt = structuredLaunch
     ? undefined
-    : buildWorktreeCreationStartupOpt(preparedRequest, backendSpawned)
+    : buildWorktreeCreationStartupOpt(request, backendSpawned)
 
   // Why: only a user still watching the creation surface (or already on the new
   // workspace) is handed it; anyone who moved on (another workspace or an app
@@ -172,11 +142,11 @@ export async function executeWorktreeCreation(
     try {
       activation = activateAndRevealWorktree(worktree.id, {
         sidebarRevealBehavior: 'auto',
-        ...(preparedRequest.agent !== null ? { agent: preparedRequest.agent } : {}),
+        ...(request.agent !== null ? { agent: request.agent } : {}),
         ...(result.setup ? { setup: result.setup } : {}),
         ...(result.defaultTabs ? { defaultTabs: result.defaultTabs } : {}),
         ...(startupOpt ? { startup: startupOpt } : {}),
-        ...(preparedRequest.issueCommand ? { issueCommand: preparedRequest.issueCommand } : {}),
+        ...(request.issueCommand ? { issueCommand: request.issueCommand } : {}),
         ...(backendSpawned ? { backendStartupTerminalSpawned: true } : {})
       })
       primaryTabId = activation === false ? null : activation.primaryTabId
@@ -187,7 +157,7 @@ export async function executeWorktreeCreation(
       // return one here.
       const stateAfterActivationFailure = useAppStore.getState()
       const existingTabs = stateAfterActivationFailure.tabsByWorktree[worktree.id] ?? []
-      const launchAgent = startupOpt?.launchAgent ?? preparedRequest.agent
+      const launchAgent = startupOpt?.launchAgent ?? request.agent
       const verifiedLaunchTabId =
         result.startupTerminal?.tabId ??
         (launchAgent ? existingTabs.find((tab) => tab.launchAgent === launchAgent)?.id : undefined)
@@ -202,7 +172,7 @@ export async function executeWorktreeCreation(
             worktree.id,
             startupOpt,
             result.setup,
-            preparedRequest.issueCommand,
+            request.issueCommand,
             result.defaultTabs,
             // Activation failed before providing its promised surface, so recovery must seed one.
             backendSpawned ? { backendStartupTerminalSpawned: true } : undefined
@@ -219,7 +189,7 @@ export async function executeWorktreeCreation(
         try {
           ensureWebRuntimeWorktreeTerminalAfterWake(worktree.id, {
             startup: startupOpt,
-            agent: preparedRequest.agent
+            agent: request.agent
           })
         } catch (recoveryError) {
           console.error(
@@ -233,20 +203,20 @@ export async function executeWorktreeCreation(
   } else {
     // Why: backgrounded creates still need explicit setup/issue terminals, but must not activate them.
     const hasExplicitTerminalWork = Boolean(
-      startupOpt || result.setup || preparedRequest.issueCommand || result.defaultTabs
+      startupOpt || result.setup || request.issueCommand || result.defaultTabs
     )
-    if (preparedRequest.agent === null || hasExplicitTerminalWork) {
+    if (request.agent === null || hasExplicitTerminalWork) {
       try {
         primaryTabId = ensureWorktreeHasInitialTerminal(
           useAppStore.getState(),
           worktree.id,
           startupOpt,
           result.setup,
-          preparedRequest.issueCommand,
+          request.issueCommand,
           result.defaultTabs,
           {
             activateCreatedTabs: false,
-            ...(preparedRequest.agent !== null ? { callerProvidesSurface: true } : {}),
+            ...(request.agent !== null ? { callerProvidesSurface: true } : {}),
             ...(backendSpawned ? { backendStartupTerminalSpawned: true } : {})
           }
         )
@@ -263,7 +233,7 @@ export async function executeWorktreeCreation(
       try {
         ensureWebRuntimeWorktreeTerminalAfterWake(worktree.id, {
           startup: startupOpt,
-          agent: preparedRequest.agent,
+          agent: request.agent,
           activate: false
         })
       } catch (error) {
@@ -273,8 +243,8 @@ export async function executeWorktreeCreation(
   }
 
   let structuredLaunchAccepted = structuredLaunch
-  const { agentLaunchRoute } = preparedRequest
-  const structuredAgent = preparedRequest.agent
+  const { agentLaunchRoute } = request
+  const structuredAgent = request.agent
   if (
     agentLaunchRoute === 'structured-native-chat' &&
     isAgentSessionHandleProvider(structuredAgent)
@@ -283,7 +253,7 @@ export async function executeWorktreeCreation(
     try {
       structuredSession = await launchStructuredWorktreeSession({
         creationId,
-        request: preparedRequest,
+        request: request,
         agentLaunchRoute,
         worktreeId: worktree.id,
         shouldActivateOnCompletion,
@@ -315,7 +285,7 @@ export async function executeWorktreeCreation(
 
   await completeWorktreeCreation({
     creationId,
-    request: preparedRequest,
+    request: request,
     worktreeId: worktree.id,
     structuredLaunchAccepted,
     activation,

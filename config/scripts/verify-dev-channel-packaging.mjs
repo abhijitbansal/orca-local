@@ -2,10 +2,7 @@
 // Why this exists: the dev-channel workflows run from main, but they build (and
 // therefore read `config/electron-builder.config.cjs` from) whatever ref was
 // asked for. A branch cut before Windows dev builds landed has a config that
-// ignores ORCA_WIN_*, which would resolve `publish.repo` to the *main* repo and
-// leave the release identity signed-looking. Publishing would then fail deep
-// inside electron-builder with a 404 from a token scoped to the dev repo — or,
-// worse, succeed against a repo it was never meant to touch.
+// ignores ORCA_WIN_*, leaving the release identity signed-looking.
 //
 // So: load the config exactly as electron-builder will, and assert the identity
 // it produced matches the channel and platform the workflow believes it is
@@ -15,12 +12,6 @@ import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-const CHANNEL_REPOS = {
-  hourly: 'orca-hourly',
-  daily: 'orca-daily',
-  adhoc: 'orca-adhoc'
-}
-
 const CHANNEL_VERSION_ENV = {
   hourly: 'ORCA_HOURLY_BUILD_VERSION',
   daily: 'ORCA_DAILY_BUILD_VERSION',
@@ -29,24 +20,10 @@ const CHANNEL_VERSION_ENV = {
 
 export function collectDevChannelPackagingProblems({ channel, platform, config, env }) {
   const problems = []
-  const expectedRepo = CHANNEL_REPOS[channel]
-  if (!expectedRepo) {
+  if (!CHANNEL_VERSION_ENV[channel]) {
     return [
-      `Unknown dev channel "${channel}"; expected one of ${Object.keys(CHANNEL_REPOS).join(', ')}.`
+      `Unknown dev channel "${channel}"; expected one of ${Object.keys(CHANNEL_VERSION_ENV).join(', ')}.`
     ]
-  }
-
-  if (config.publish?.repo !== expectedRepo) {
-    problems.push(
-      `publish.repo is "${config.publish?.repo}" but this ${channel} build must publish to "${expectedRepo}". ` +
-        `The checked-out ref's electron-builder config does not understand this channel on ${platform} — rebase it onto a main that does.`
-    )
-  }
-
-  if (config.publish?.releaseType !== 'prerelease') {
-    problems.push(
-      `publish.releaseType is "${config.publish?.releaseType}" but dev-channel builds must publish as "prerelease".`
-    )
   }
 
   // Why version too: `extraMetadata.version` is what stamps the tag the workflow

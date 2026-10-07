@@ -505,7 +505,7 @@ describe('generateCommitMessageFromContext', () => {
   it('keeps the unverifiable wording when the link is declared lost instead of timing out', async () => {
     // Same regression as the exec leg: a wedged link now disposes the mux before the response
     // deadline, so this branch sees CONNECTION_LOST. Reporting "could not be reached" for it
-    // asserts absence the client never observed (docs/reference/ssh-execution-boundary.md).
+    // asserts absence the client never observed (AGENTS.md).
     const result = await discoverCommitMessageModelsRemote(
       'cursor',
       '/remote/repo',

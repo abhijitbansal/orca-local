@@ -106,9 +106,6 @@ export class StateSerializationSecretHandlingOperations {
             )
           }
           break
-        case 'sshRemotePtyLeases':
-          stateToSave[domain] = this.runtime.state.sshRemotePtyLeases
-          break
         default:
           return undefined
       }

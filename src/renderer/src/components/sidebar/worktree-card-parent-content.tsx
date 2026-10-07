@@ -26,7 +26,6 @@ export function WorktreeCardParentContent({
     unreadTooltip,
     stopQuickActionPointerPropagation,
     handleToggleUnreadQuick,
-    statusLaneReview,
     branchIdentityDisplay,
     showInlineAgentList,
     titleRenaming,
@@ -43,16 +42,9 @@ export function WorktreeCardParentContent({
     handleRenameTitle,
     handleEditIssue,
     handleEditComment,
-    handleOpenGitHubIssueInOrca,
     handleOpenIssueInBrowser,
-    linearIssue,
-    handleOpenLinearIssueInOrca,
-    handleOpenReviewInOrca,
-    handleOpenReviewInBrowser,
     handleOpenAutomation,
-    handleOpenAutomationRun,
-    canUnlinkReview,
-    handleUnlinkReview
+    handleOpenAutomationRun
   } = card
   const {
     titleOnlyCard,
@@ -95,22 +87,11 @@ export function WorktreeCardParentContent({
         onRenameWorkspaceTitle={affiliateListMode ? undefined : handleRenameTitle}
         onEditIssue={affiliateListMode ? undefined : handleEditIssue}
         onEditComment={affiliateListMode ? undefined : handleEditComment}
-        onOpenGitHubIssueInOrca={
-          hoverIssue && 'url' in hoverIssue && hoverIssue.url
-            ? handleOpenGitHubIssueInOrca
-            : undefined
-        }
         onOpenIssueInBrowser={
           hoverIssue && 'url' in hoverIssue && hoverIssue.url ? handleOpenIssueInBrowser : undefined
         }
-        onOpenLinearIssueInOrca={linearIssue?.url ? handleOpenLinearIssueInOrca : undefined}
-        onOpenReviewInOrca={
-          hoverReview?.url && hoverReview.provider === 'github' ? handleOpenReviewInOrca : undefined
-        }
-        onOpenReviewInBrowser={hoverReview?.url ? handleOpenReviewInBrowser : undefined}
         onOpenAutomation={affiliateListMode ? undefined : handleOpenAutomation}
         onOpenAutomationRun={affiliateListMode ? undefined : handleOpenAutomationRun}
-        onUnlinkReview={!affiliateListMode && canUnlinkReview ? handleUnlinkReview : undefined}
       >
         {identityContent}
       </WorktreeCardDetailsHover>
@@ -146,7 +127,6 @@ export function WorktreeCardParentContent({
             unreadTooltip={unreadTooltip}
             onPointerDown={stopQuickActionPointerPropagation}
             onToggleUnread={handleToggleUnreadQuick}
-            prDisplay={statusLaneReview}
             newCardStyle={newCardStyle}
             hasBranchIdentity={Boolean(branchIdentityDisplay)}
           />

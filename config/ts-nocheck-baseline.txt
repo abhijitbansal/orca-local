@@ -56,7 +56,6 @@ src/main/runtime/orca-runtime-has-recent-terminal-output-path.ts
 src/main/runtime/orca-runtime-has-terminals-for-worktree.ts
 src/main/runtime/orca-runtime-hydrate-headless-mobile-session-tabs-from-workspace-session.ts
 src/main/runtime/orca-runtime-invalidate-all-handles-for-pty.ts
-src/main/runtime/orca-runtime-linear-commands.ts
 src/main/runtime/orca-runtime-list-known-resolved-worktrees-for-explicit-target.ts
 src/main/runtime/orca-runtime-list-managed-worktrees.ts
 src/main/runtime/orca-runtime-mark-pty-liveness-unverifiable.ts

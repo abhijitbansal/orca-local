@@ -46,21 +46,15 @@ function activityItemAriaLabel(item: ActivityBarItem, status?: CheckStatus | nul
 export function TopActivityOverflowMenu({
   items,
   activeTab,
-  onSelect,
-  checksStatus
+  onSelect
 }: {
   items: ActivityBarItem[]
   activeTab: ActiveRightSidebarTab
   onSelect: (tab: ActiveRightSidebarTab) => void
-  checksStatus?: CheckStatus | null
 }): React.JSX.Element {
-  const hiddenChecksStatus =
-    checksStatus && checksStatus !== 'neutral' && items.some((item) => item.id === 'checks')
-      ? checksStatus
-      : null
   const hiddenItemStatus = items.some((item) => item.statusIndicator === 'failure')
     ? 'failure'
-    : hiddenChecksStatus
+    : null
   const moreTabsLabel = translate(
     'auto.components.right.sidebar.activity.bar.buttons.1fd284e931',
     'More sidebar tabs'

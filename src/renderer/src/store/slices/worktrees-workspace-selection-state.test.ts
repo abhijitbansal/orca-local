@@ -14,7 +14,6 @@ import {
 } from './worktrees-slice-test-fixtures'
 import {
   createTestStore,
-  mockApi,
   resetRemoteRuntimeMocks,
   resetWorktreeSliceModuleMemory
 } from './worktrees-slice-test-harness'
@@ -59,8 +58,6 @@ describe('setActiveWorktree focus handling', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     resetRemoteRuntimeMocks()
-    mockApi.ephemeralVm.cancelProvision.mockResolvedValue({ cancelled: true })
-    mockApi.ephemeralVm.cleanup.mockResolvedValue({})
   })
 
   it('moves focus out of a registered webview before switching worktrees', () => {

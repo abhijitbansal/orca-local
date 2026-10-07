@@ -18,7 +18,6 @@ const mocks = vi.hoisted(() => ({
   generatePullRequestFieldsFromContext: vi.fn(),
   resolveCommitMessageSettings: vi.fn(),
   resolveHostedReviewBodyForGeneration: vi.fn(),
-  loadPullRequestLinkedIssue: vi.fn(),
   getSshGitProvider: vi.fn(),
   getStatus: vi.fn()
 }))
@@ -57,10 +56,6 @@ vi.mock('../providers/ssh-git-dispatch', () => ({
 
 vi.mock('../source-control/pull-request-template', () => ({
   resolveHostedReviewBodyForGeneration: mocks.resolveHostedReviewBodyForGeneration
-}))
-
-vi.mock('../source-control/pull-request-linked-issue', () => ({
-  loadPullRequestLinkedIssue: mocks.loadPullRequestLinkedIssue
 }))
 
 const tempDirs: string[] = []
@@ -106,8 +101,6 @@ describe('RuntimeGitCommands', () => {
     mocks.resolveCommitMessageSettings.mockReset()
     mocks.resolveHostedReviewBodyForGeneration.mockReset()
     mocks.resolveHostedReviewBodyForGeneration.mockImplementation(async ({ body }) => body)
-    mocks.loadPullRequestLinkedIssue.mockReset()
-    mocks.loadPullRequestLinkedIssue.mockResolvedValue(null)
     mocks.getSshGitProvider.mockReset()
     mocks.getStatus.mockReset()
     mocks.checkoutBranch.mockReset()

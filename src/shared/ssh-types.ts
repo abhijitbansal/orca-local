@@ -271,7 +271,7 @@ export type SshRemotePtyLease = {
 
 /**
  * `expired` says only that the CLIENT lost its route, never that the remote shell died
- * (docs/reference/ssh-execution-boundary.md), so it covers two unrelated cases. Two writers can
+ * (AGENTS.md), so it covers two unrelated cases. Two writers can
  * prove the route is dead for good — a newer lease won the pane, or the relay handed the id to
  * another shell — and re-adopting either is the 2 -> 19 -> 20 lease fan-out or a pane handed to a
  * stranger's process. An `expired` lease carrying neither mark is an orphan, not a corpse, and a
@@ -321,9 +321,7 @@ export type PortForwardEntry = {
   advertisedProtocol?: 'http' | 'https'
 }
 
-/** A listening port detected on the remote host by the relay.
- *  Keep in sync with src/relay/port-scan-handler.ts — DetectedPort.
- *  The relay is deployed as a standalone bundle and cannot import from shared. */
+/** A listening port detected on the remote host by the relay. */
 export type DetectedPort = {
   port: number
   host: string
@@ -339,7 +337,7 @@ export type EnrichedDetectedPort = DetectedPort & {
 }
 
 /** Outcome of `ssh:terminateSessions`. Uses the fixed verdict vocabulary from
- *  docs/reference/ssh-execution-boundary.md: a host we could not reach yields `unverifiable`,
+ *  AGENTS.md: a host we could not reach yields `unverifiable`,
  *  never `exited`, so an offline sweep can never be read as a successful remote kill (issue #12661). */
 export type SshTerminateSessionsResult = {
   /** Remote PTYs the host acknowledged stopping. */

@@ -12,12 +12,7 @@ import {
 } from '../../runtime/runtime-rpc-client'
 import { toRuntimeWorktreeSelector } from '../../runtime/runtime-worktree-selector'
 import { translate } from '@/i18n/i18n'
-import {
-  getRepoExecutionHostId,
-  isRuntimeOwnedSshTargetId,
-  LOCAL_EXECUTION_HOST_ID
-} from '../../../../shared/execution-host'
-import { cleanupEphemeralVmRuntimesForDeleted } from '@/lib/ephemeral-vm-runtime-cleanup'
+import { getRepoExecutionHostId, LOCAL_EXECUTION_HOST_ID } from '../../../../shared/execution-host'
 import type { RepoSlice } from './repo-state'
 import { ERROR_TOAST_DURATION } from './repo-state'
 import { mergeProjectCompatibilityForHostRepoChange } from './repo-catalog-identity'
@@ -62,19 +57,6 @@ export function createRepoRemovalActions(
           return
         }
         const ownerHostId = getRepoExecutionHostId(ownerRepo)
-        const runtimeSshTargetId = ownerRepo.connectionId
-        // Why: an SSH per-workspace-env's workspace is the repo's main worktree, so removal routes here; tear down its ephemeral runtime first so it doesn't leak.
-        if (runtimeSshTargetId && isRuntimeOwnedSshTargetId(runtimeSshTargetId)) {
-          const cleanup = await cleanupEphemeralVmRuntimesForDeleted({
-            workspaceIds: getKnownRepoWorktreeIds(get(), projectId, ownerHostId),
-            runtimeOwnedSshTargetIds: [runtimeSshTargetId]
-          })
-          if (cleanup.retainedSshTargetIds.includes(runtimeSshTargetId)) {
-            throw new Error(
-              'The cloud VM could not be destroyed. Retry cleanup before removing it.'
-            )
-          }
-        }
         // Why: derive the target from the owner's settings (via options.hostId) so an SSH host removal never routes repo.rm to the focused runtime.
         const target = getActiveRuntimeTarget(
           settingsForRepoOwner(get(), projectId, options?.hostId)
@@ -97,12 +79,6 @@ export function createRepoRemovalActions(
         }
 
         get().clearOrcaHookTrustForRepo(projectId)
-        const repoPath = get().repos.find((repo) =>
-          repoMatchesHostIdentity(repo, projectId, ownerHostId)
-        )?.path
-        get().evictGitHubRepoCaches(projectId, repoPath)
-        const { clearRepoSlugCacheEntry } = await import('../../lib/repo-slug-index')
-        clearRepoSlugCacheEntry(projectId)
 
         // Kill PTYs for all worktrees belonging to this repo
         const worktreeIds = getKnownRepoWorktreeIds(get(), projectId, ownerHostId)

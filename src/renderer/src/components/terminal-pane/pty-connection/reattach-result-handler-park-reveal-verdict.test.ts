@@ -9,7 +9,7 @@ import type { ColdRestoreAgentResumeStartup } from './fresh-spawn-types'
 /**
  * A park-reveal of a remote-runtime pty arrives with `replay: ''`, so the host
  * snapshot probe is the ONLY structural paint. The probe has three answers and
- * the handler must keep them apart (docs/reference/ssh-execution-boundary.md):
+ * the handler must keep them apart (AGENTS.md):
  *
  *   host image            → paint it (the structural clear + repaint)
  *   unverifiable          → paint nothing AND re-ask the host, bounded

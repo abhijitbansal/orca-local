@@ -11,7 +11,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '@/runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '@/runtime/runtime-rpc-client'
 
 const hooksCheckMock = vi.fn()
 const readIssueCommandMock = vi.fn()
@@ -68,7 +67,6 @@ describe('ensureHooksConfirmed', () => {
         )
       }
     )
-    clearRuntimeCompatibilityCacheForTests()
     installHooksApiMock()
     __resetTrustPromptChainForTests()
   })
@@ -143,40 +141,6 @@ describe('ensureHooksConfirmed', () => {
     await expect(promise).resolves.toBe('skip')
   })
 
-  it('prompts for VM recipes using the recipe lifecycle declarations', async () => {
-    const { state, pending } = createTestState()
-    hooksCheckMock.mockResolvedValue({
-      hasHooks: true,
-      hooks: {
-        environmentRecipes: [
-          {
-            id: 'cloud-sandbox',
-            name: 'Cloud Sandbox',
-            description: 'Starts a per-workspace VM.',
-            create: './scripts/start-vm.sh',
-            suspend: './scripts/suspend-vm.sh',
-            resume: './scripts/resume-vm.sh',
-            destroy: './scripts/destroy-vm.sh'
-          }
-        ]
-      },
-      mayNeedUpdate: false
-    })
-
-    const promise = ensureHooksConfirmed(state, 'repo-1', 'vmRecipe')
-
-    await vi.waitFor(() => expect(pending).toHaveLength(1))
-    expect(pending[0].data.scriptKind).toBe('vmRecipe')
-    expect(pending[0].data.scriptContent).toContain('# environmentRecipes.cloud-sandbox')
-    expect(pending[0].data.scriptContent).toContain('create: ./scripts/start-vm.sh')
-    expect(pending[0].data.scriptContent).toContain('suspend: ./scripts/suspend-vm.sh')
-    expect(pending[0].data.scriptContent).toContain('resume: ./scripts/resume-vm.sh')
-    expect(pending[0].data.scriptContent).toContain('destroy: ./scripts/destroy-vm.sh')
-
-    pending[0].resolve('run')
-    await expect(promise).resolves.toBe('run')
-  })
-
   it('returns run without inspecting hooks when the repo is always trusted', async () => {
     const { state, pending } = createTestState()
     state.trustedOrcaHooks['repo-1'] = {
@@ -249,41 +213,6 @@ describe('ensureHooksConfirmed', () => {
     expect(decision).toBe('run')
     expect(hooksCheckMock).toHaveBeenCalledWith({ repoId: 'repo-1', hostId: 'ssh:ssh-1' })
     expect(runtimeEnvironmentCallMock).not.toHaveBeenCalled()
-  })
-
-  it('checks runtime-owned repo hooks through the repo owner runtime', async () => {
-    const { state, pending } = createTestState({
-      settings: { activeRuntimeEnvironmentId: 'focused-env' },
-      repos: [
-        {
-          id: 'repo-1',
-          displayName: 'Repo One',
-          executionHostId: 'runtime:owner-env'
-        }
-      ]
-    } as unknown as Partial<AppState>)
-    runtimeEnvironmentCallMock.mockResolvedValue({
-      id: 'rpc-hooks',
-      ok: true,
-      result: {
-        hasHooks: true,
-        hooks: { scripts: {} },
-        mayNeedUpdate: false
-      },
-      _meta: { runtimeId: 'runtime-owner' }
-    })
-
-    const decision = await ensureHooksConfirmed(state, 'repo-1', 'archive')
-
-    expect(decision).toBe('run')
-    expect(runtimeEnvironmentCallMock).toHaveBeenCalledWith({
-      selector: 'owner-env',
-      method: 'repo.hooksCheck',
-      params: { repo: 'repo-1' },
-      timeoutMs: 15_000
-    })
-    expect(hooksCheckMock).not.toHaveBeenCalled()
-    expect(pending).toHaveLength(0)
   })
 
   it('does not prompt for orca.yaml when the repo uses local commands only', async () => {

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { OptionalFiniteNumber, OptionalString, requiredString } from './rpc-param-primitives'
 import { createRepoUpdateSchema } from './repo-update-params'
-import { RepoSelector } from './github-repo-target-params'
+import { RepoSelector } from './repo-selector-params'
 
 export const RepoPath = z.object({
   path: requiredString('Missing repo path'),

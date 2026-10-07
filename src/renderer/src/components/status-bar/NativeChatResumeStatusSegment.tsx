@@ -230,7 +230,7 @@ export function NativeChatResumeStatusSegment({
       )}
       {failures > 0 && (
         // A different fact from the offer — the outcome of acting on it — so a second entry, not a
-        // merged count. Same yellow the skill-update segment uses for its own failed state.
+        // merged count. Yellow signals a partial failure.
         <Segment
           iconOnly={iconOnly}
           count={failures}

@@ -215,37 +215,6 @@ export function resolveExternalEditorLaunchSpec(
   )
 }
 
-export function resolveVsCodeRemoteSshLaunchSpec(
-  command: string | undefined,
-  pathValue: string,
-  authority: string,
-  options: { platform?: NodeJS.Platform; fileExists?: (path: string) => boolean } = {}
-): ExternalEditorLaunchSpec | null {
-  const platform = options.platform ?? process.platform
-  const fileExists = options.fileExists ?? existsSync
-  const trimmed = command?.trim() || EXTERNAL_EDITOR_CLI_COMMAND
-
-  let editorCommand: string
-  if (isDirectExecutablePath(trimmed, platform, fileExists)) {
-    editorCommand = stripMatchingQuotes(trimmed)
-  } else {
-    if (isCompoundShellCommand(trimmed)) {
-      return null
-    }
-    editorCommand = resolveCliCommand(trimmed, { platform })
-  }
-
-  if (!isVsCodeLauncherExecutable(editorCommand)) {
-    return null
-  }
-  return {
-    kind: 'executable',
-    hideWindowsConsole: true,
-    spawnCmd: editorCommand,
-    spawnArgs: ['--remote', `ssh-remote+${authority}`, pathValue]
-  }
-}
-
 function resolveExternalEditorSpawn(launchSpec: ExternalEditorLaunchSpec): {
   spawnCmd: string
   spawnArgs: string[]

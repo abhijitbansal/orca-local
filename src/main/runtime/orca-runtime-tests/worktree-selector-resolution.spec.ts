@@ -14,11 +14,7 @@ import {
   listWorktrees,
   mkdir,
   mkdtemp,
-  registerSshFilesystemProvider,
-  registerSshGitProvider,
   tmpdir,
-  unregisterSshFilesystemProvider,
-  unregisterSshGitProvider,
   writeFile
 } from '../orca-runtime-test-mocks.spec'
 import type { WorktreeMeta } from '../orca-runtime-test-mocks.spec'
@@ -77,70 +73,6 @@ describe('OrcaRuntimeService', () => {
     })
   })
 
-  it('routes SSH-backed forward-slash UNC file and git paths without collapsing the root', async () => {
-    vi.mocked(listWorktrees).mockClear()
-    vi.mocked(listWorktrees).mockRejectedValue(new Error('local git should not run for SSH repos'))
-    const remoteStore = {
-      ...store,
-      getRepos: () => [
-        {
-          id: TEST_REPO_ID,
-          path: '//Server/Share/Repo',
-          displayName: 'repo',
-          badgeColor: 'blue',
-          addedAt: 1,
-          connectionId: 'ssh-1'
-        }
-      ],
-      getRepo: () => ({
-        id: TEST_REPO_ID,
-        path: '//Server/Share/Repo',
-        displayName: 'repo',
-        badgeColor: 'blue',
-        addedAt: 1,
-        connectionId: 'ssh-1'
-      })
-    }
-    const fsProvider = { readDir: vi.fn().mockResolvedValue([]) }
-    const gitProvider = {
-      listWorktrees: vi.fn().mockResolvedValue([
-        {
-          path: '//Server/Share/Repo',
-          head: 'abc',
-          branch: 'feature/foo',
-          isBare: false,
-          isMainWorktree: false
-        }
-      ]),
-      getStatus: vi.fn().mockResolvedValue({
-        branch: 'feature/foo',
-        files: [],
-        ahead: 0,
-        behind: 0,
-        hasConflicts: false
-      })
-    }
-    registerSshFilesystemProvider('ssh-1', fsProvider as never)
-    registerSshGitProvider('ssh-1', gitProvider as never)
-    const runtime = new OrcaRuntimeService(remoteStore as never)
-
-    try {
-      await runtime.readFileExplorerDir('path://server/share/repo', 'src')
-      await runtime.getRuntimeGitStatus('path://server/share/repo')
-      await expect(runtime.showRepo('path://server/share/repo')).resolves.toMatchObject({
-        path: '//Server/Share/Repo'
-      })
-    } finally {
-      unregisterSshFilesystemProvider('ssh-1')
-      unregisterSshGitProvider('ssh-1')
-    }
-
-    expect(listWorktrees).not.toHaveBeenCalled()
-    expect(gitProvider.listWorktrees).toHaveBeenCalledWith('//Server/Share/Repo')
-    expect(fsProvider.readDir).toHaveBeenCalledWith('\\\\Server\\Share\\Repo\\src')
-    expect(gitProvider.getStatus).toHaveBeenCalledWith('//Server/Share/Repo')
-  })
-
   it.each([
     { label: 'canonical folder workspace selector', selector: TEST_FOLDER_WORKSPACE_KEY },
     { label: 'id-prefixed folder workspace selector', selector: `id:${TEST_FOLDER_WORKSPACE_KEY}` }
@@ -162,53 +94,6 @@ describe('OrcaRuntimeService', () => {
     await expect(runtime.readFileExplorerPreview(selector, 'src/app.ts')).resolves.toMatchObject({
       content: 'export {}\n',
       isBinary: false
-    })
-  })
-
-  it('routes SSH folder workspace file explorer paths through the filesystem provider', async () => {
-    const folderPath = '/srv/platform'
-    const fsProvider = {
-      stat: vi.fn(async (pathValue: string) => ({
-        size: pathValue.endsWith('/app.ts') ? 8 : 0,
-        type: pathValue.endsWith('/app.ts') ? 'file' : 'directory',
-        mtime: 1
-      })),
-      readDir: vi.fn().mockResolvedValue([
-        {
-          name: 'app.ts',
-          isDirectory: false,
-          isSymlink: false
-        }
-      ]),
-      readFile: vi.fn().mockResolvedValue({ content: 'remote\n', isBinary: false })
-    }
-    const folderWorkspace = makeFolderWorkspace({ folderPath, connectionId: 'ssh-folder' })
-    const projectGroup = makeFolderProjectGroup({ parentPath: folderPath })
-    const runtime = new OrcaRuntimeService(
-      createFolderWorkspaceRuntimeStore(folderWorkspace, projectGroup) as never
-    )
-    registerSshFilesystemProvider('ssh-folder', fsProvider as never)
-
-    try {
-      await expect(
-        runtime.readFileExplorerDir(`id:${TEST_FOLDER_WORKSPACE_KEY}`, 'src')
-      ).resolves.toHaveLength(1)
-      await expect(
-        runtime.readFileExplorerPreview(`id:${TEST_FOLDER_WORKSPACE_KEY}`, 'src/app.ts')
-      ).resolves.toMatchObject({
-        content: 'remote\n',
-        isBinary: false
-      })
-    } finally {
-      unregisterSshFilesystemProvider('ssh-folder')
-    }
-
-    expect(fsProvider.stat).toHaveBeenCalledWith(folderPath)
-    expect(fsProvider.readDir).toHaveBeenCalledWith('/srv/platform/src')
-    expect(fsProvider.stat).toHaveBeenCalledWith('/srv/platform/src/app.ts')
-    expect(fsProvider.readFile).toHaveBeenCalledWith('/srv/platform/src/app.ts', {
-      maxBinaryBytes: 10 * 1024 * 1024,
-      maxTextBytes: 512 * 1024
     })
   })
 

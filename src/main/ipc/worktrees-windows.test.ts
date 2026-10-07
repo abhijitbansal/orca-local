@@ -13,8 +13,6 @@ const {
   resolveDefaultBaseRefWithLocalGitMock,
   resolveDefaultBaseRefViaExecMock,
   getBranchConflictKindMock,
-  getPRForBranchMock,
-  createGitHubPullRequestMock,
   getEffectiveHooksMock,
   getEffectiveHooksFromConfigMock,
   getDefaultTabsLaunchMock,
@@ -43,8 +41,6 @@ const {
   resolveDefaultBaseRefWithLocalGitMock: vi.fn(),
   resolveDefaultBaseRefViaExecMock: vi.fn(),
   getBranchConflictKindMock: vi.fn(),
-  getPRForBranchMock: vi.fn(),
-  createGitHubPullRequestMock: vi.fn(),
   getEffectiveHooksMock: vi.fn(),
   getEffectiveHooksFromConfigMock: vi.fn(),
   getDefaultTabsLaunchMock: vi.fn(),
@@ -100,11 +96,6 @@ vi.mock('../git/git-username', async () => {
   const actual = await vi.importActual<typeof GitUsernameModule>('../git/git-username')
   return { ...actual, resolveLocalGitUsername: resolveLocalGitUsernameMock }
 })
-
-vi.mock('../github/client', () => ({
-  getPRForBranch: getPRForBranchMock,
-  createGitHubPullRequest: createGitHubPullRequestMock
-}))
 
 vi.mock('../hooks', () => ({
   getEffectiveHooks: getEffectiveHooksMock,
@@ -189,8 +180,6 @@ describe('registerWorktreeHandlers – Windows path handling', () => {
     resolveDefaultBaseRefWithLocalGitMock.mockReset()
     resolveDefaultBaseRefViaExecMock.mockReset()
     getBranchConflictKindMock.mockReset()
-    getPRForBranchMock.mockReset()
-    createGitHubPullRequestMock.mockReset()
     getEffectiveHooksMock.mockReset()
     getEffectiveHooksFromConfigMock.mockReset()
     getDefaultTabsLaunchMock.mockReset()
@@ -280,7 +269,6 @@ describe('registerWorktreeHandlers – Windows path handling', () => {
     resolveDefaultBaseRefWithLocalGitMock.mockResolvedValue('origin/main')
     resolveDefaultBaseRefViaExecMock.mockResolvedValue('origin/main')
     getBranchConflictKindMock.mockResolvedValue(null)
-    getPRForBranchMock.mockResolvedValue(null)
     getEffectiveHooksMock.mockReturnValue(null)
     getEffectiveHooksFromConfigMock.mockReturnValue(null)
     getDefaultTabsLaunchMock.mockReturnValue(undefined)

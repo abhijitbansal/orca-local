@@ -244,8 +244,6 @@ describe('useDashboardPopoutBridge', () => {
       'ptyIdsByTabId',
       'runtimePaneTitlesByTabId',
       'acknowledgedAgentsByPaneKey',
-      'hostedReviewCache',
-      'prCache',
       'settings',
       'workspaceStatuses'
     ] as const

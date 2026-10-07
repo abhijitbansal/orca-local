@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { createBootstrapFatalExitBanner } from './config/build-plugins/bootstrap-fatal-exit-banner'
 import { createPdfjsViewerAssetsPlugin } from './config/build-plugins/pdfjs-viewer-assets'
+import { rendererCspPlugin } from './config/build-plugins/renderer-csp'
 import {
   CLI_MAIN_ENTRY_NAMES,
   createPlainNodeEntryGuardPlugin
@@ -32,36 +33,6 @@ function isExternalMainModule(source: string): boolean {
     (dependency) => source === dependency || source.startsWith(`${dependency}/`)
   )
 }
-
-// Why: the telemetry transport is gated by two compile-time constants that
-// only the official CI release workflow sets. Contributor / `pnpm dev` /
-// third-party rebuilds must substitute literal `null` at these sites so
-// `IS_OFFICIAL_BUILD` in `src/main/telemetry/client.ts` evaluates `false`
-// at module load and the track() wrapper short-circuits to console-mirror.
-// The substitution happens at compile time — there is no runtime env-var
-// fallback — so a curious contributor cannot spoof transmission with a
-// shell export.
-//
-// CI injects real values via GitHub Actions secrets
-// (ORCA_BUILD_IDENTITY='stable' | 'rc', ORCA_POSTHOG_WRITE_KEY=phc_...);
-// every other build path resolves these env vars to undefined, which the
-// JSON.stringify below folds to the literal `null`. Ambient declarations
-// for the two constants live in `src/types/build-constants.d.ts`.
-const orcaBuildIdentity = process.env.ORCA_BUILD_IDENTITY
-const ORCA_BUILD_IDENTITY_LITERAL =
-  orcaBuildIdentity === 'stable' || orcaBuildIdentity === 'rc'
-    ? JSON.stringify(orcaBuildIdentity)
-    : 'null'
-const orcaPostHogWriteKey = process.env.ORCA_POSTHOG_WRITE_KEY
-const ORCA_POSTHOG_WRITE_KEY_LITERAL =
-  typeof orcaPostHogWriteKey === 'string' && orcaPostHogWriteKey.length > 0
-    ? JSON.stringify(orcaPostHogWriteKey)
-    : 'null'
-const orcaDiagnosticsTokenUrl = process.env.ORCA_DIAGNOSTICS_TOKEN_URL
-const ORCA_DIAGNOSTICS_TOKEN_URL_LITERAL =
-  typeof orcaDiagnosticsTokenUrl === 'string' && orcaDiagnosticsTokenUrl.length > 0
-    ? JSON.stringify(orcaDiagnosticsTokenUrl)
-    : 'null'
 
 function createStartupDiagnosticsBanner(chunkName: string): string {
   return `
@@ -284,13 +255,6 @@ export const electronViteConfig: UserConfig = {
         plugins: [createMainBootstrapPlugin(), createPlainNodeEntryGuardPlugin()]
       }
     },
-    // Why: compile-time substitution for the telemetry gate. See the block
-    // above for the full rationale.
-    define: {
-      ORCA_BUILD_IDENTITY: ORCA_BUILD_IDENTITY_LITERAL,
-      ORCA_POSTHOG_WRITE_KEY: ORCA_POSTHOG_WRITE_KEY_LITERAL,
-      ORCA_DIAGNOSTICS_TOKEN_URL: ORCA_DIAGNOSTICS_TOKEN_URL_LITERAL
-    },
     // Why: @xterm/headless declares "exports": null in package.json, which
     // prevents Vite's default resolver from finding the CJS entry. Point
     // directly at the published main file so the bundler can inline it.
@@ -317,7 +281,7 @@ export const electronViteConfig: UserConfig = {
         '@': resolve('src/renderer/src')
       }
     },
-    plugins: [react(), tailwindcss(), createPdfjsViewerAssetsPlugin()],
+    plugins: [react(), tailwindcss(), createPdfjsViewerAssetsPlugin(), rendererCspPlugin()],
     worker: {
       format: 'es'
     },
@@ -337,8 +301,7 @@ export const electronViteConfig: UserConfig = {
         preserveEntrySignatures: 'strict',
         input: {
           index: resolve('src/renderer/index.html'),
-          popout: resolve('src/renderer/popout.html'),
-          web: resolve('src/renderer/web-index.html')
+          popout: resolve('src/renderer/popout.html')
         }
       }
     }

@@ -231,16 +231,6 @@ describe('resolveCodexPaneSelectionLaneKey', () => {
     ).toBe('env:env-owner')
   })
 
-  it('routes an owner-less remote pane to the active environment, as inspection does', () => {
-    expect(
-      resolveCodexPaneSelectionLaneKey({
-        state: laneState({ activeRuntimeEnvironmentId: 'env-1' }),
-        tab: HOST_TAB,
-        ptyId: 'remote:term-1'
-      })
-    ).toBe('env:env-1')
-  })
-
   it('keeps an owner-less remote pane off the host lane when no environment is active', () => {
     const laneKey = resolveCodexPaneSelectionLaneKey({
       state: laneState(),
@@ -445,16 +435,6 @@ describe('getCodexAccountSwitchLaneMatcher', () => {
     expect(ubuntuClear('wsl:Ubuntu')).toBe(true)
     expect(ubuntuClear('wsl:Debian')).toBe(false)
     expect(ubuntuClear('wsl:__default__')).toBe(false)
-  })
-
-  it('scopes a switch made against a runtime environment to that machine', () => {
-    const environmentSwitch = getCodexAccountSwitchLaneMatcher({
-      settings: { activeRuntimeEnvironmentId: 'env-1' },
-      target: { runtime: 'host' }
-    })
-    expect(environmentSwitch('env:env-1')).toBe(true)
-    expect(environmentSwitch('host')).toBe(false)
-    expect(environmentSwitch('env:env-2')).toBe(false)
   })
 
   it('never lets a local host switch claim a remote or SSH pane', () => {

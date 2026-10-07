@@ -11,15 +11,11 @@ import { registerBackgroundWorktreeRemovalBridge } from './background-worktree-r
 import { registerBrowserRequestIpcBridge } from './browser-request-ipc-bridge'
 import { registerBrowserStateIpcBridge } from './browser-state-ipc-bridge'
 import { registerContentCreationIpcBridge } from './content-creation-ipc-bridge'
-import { createDirectSshBridgeRuntime } from './direct-ssh-bridge-runtime'
-import { registerDirectSshStateIpcBridge } from './direct-ssh-state-ipc-bridge'
 import { registerMobileAndTerminalCloseIpcBridge } from './mobile-terminal-close-ipc-bridge'
 import { registerMobileDriverIpcBridge } from './mobile-driver-ipc-bridge'
-import { registerOrcaProfileAuthIpcBridge } from './orca-profile-auth-ipc-bridge'
 import { registerOsMarkdownFileOpenBridge } from './os-markdown-file-open-bridge'
 import { registerProjectCatalogIpcBridge } from './project-catalog-ipc-bridge'
 import { registerRateLimitIpcBridge } from './rate-limit-ipc-bridge'
-import { registerRemoteWorkspaceIpcBridge } from './remote-workspace-ipc-bridge'
 import { registerRuntimeClientIpcBridge } from './runtime-client-ipc-bridge'
 import { registerSessionTabIpcBridge } from './session-tab-ipc-bridge'
 import { registerSettingsAndSidebarIpcBridge } from './settings-sidebar-ipc-bridge'
@@ -28,7 +24,6 @@ import { registerTerminalPresentationIpcBridge } from './terminal-presentation-i
 import { registerPtySourceDisownedIpcBridge } from './pty-source-disowned-ipc-bridge'
 import { registerTerminalRequestIpcBridge } from './terminal-request-ipc-bridge'
 import { registerTerminalUiRoutingIpcBridge } from './terminal-ui-routing-ipc-bridge'
-import { registerUpdaterStatusIpcBridge } from './updater-status-ipc-bridge'
 import { createWorktreeEventRuntime } from './worktree-event-runtime'
 import { registerWorkspaceShortcutIpcBridge } from './workspace-shortcut-ipc-bridge'
 import { registerZoomIpcBridge } from './zoom-ipc-bridge'
@@ -50,14 +45,12 @@ export type IpcEventsCleanupPhase =
   | 'runtimeStore.unsubscribe'
   | 'agentStore.unsubscribe'
   | 'ipc.dispose'
-  | 'directSsh.stop'
   | 'notifications.reset'
 
 export function installAppLifetimeIpcEvents(
   onCleanupPhase?: (phase: IpcEventsCleanupPhase) => void
 ): () => void {
   const unsubs: (() => void)[] = []
-  const directSshRuntime = createDirectSshBridgeRuntime()
   const backgroundWakeDispatcher = createBackgroundSleepingAgentWakeDispatcher()
   unsubs.push(backgroundWakeDispatcher.dispose)
   unsubs.push(attachMobileMarkdownBridge())
@@ -94,7 +87,6 @@ export function installAppLifetimeIpcEvents(
     remountTerminalTabsAwaitingHostHydration
   )
   registerSettingsAndSidebarIpcBridge(unsubs)
-  registerOrcaProfileAuthIpcBridge(unsubs)
   registerWorkspaceShortcutIpcBridge(unsubs)
   registerOsMarkdownFileOpenBridge(unsubs)
   unsubs.push(
@@ -121,14 +113,11 @@ export function installAppLifetimeIpcEvents(
   registerTerminalUiRoutingIpcBridge(unsubs)
   registerSessionTabIpcBridge(unsubs)
   registerMobileAndTerminalCloseIpcBridge(unsubs, backgroundWakeDispatcher.request)
-  registerUpdaterStatusIpcBridge(unsubs)
   registerBrowserStateIpcBridge(unsubs, isRuntimeEnvironmentActive)
   registerContentCreationIpcBridge(unsubs, isRuntimeEnvironmentActive)
   registerBrowserRequestIpcBridge(unsubs, isRuntimeEnvironmentActive)
   registerTabLifecycleIpcBridge(unsubs)
   registerRateLimitIpcBridge(unsubs)
-  registerDirectSshStateIpcBridge(unsubs, directSshRuntime)
-  registerRemoteWorkspaceIpcBridge(unsubs, directSshRuntime)
   registerZoomIpcBridge(unsubs)
   const agentStatusBridge = registerAgentStatusIpcBridge(unsubs)
   const disposeMobileDriverHydration = registerMobileDriverIpcBridge(
@@ -147,8 +136,6 @@ export function installAppLifetimeIpcEvents(
     onCleanupPhase?.('agentStore.unsubscribe')
     unsubs.forEach((unsubscribe) => unsubscribe())
     onCleanupPhase?.('ipc.dispose')
-    directSshRuntime.stop()
-    onCleanupPhase?.('directSsh.stop')
     resetAgentHookCompletionNotificationCoordinators()
     onCleanupPhase?.('notifications.reset')
   }

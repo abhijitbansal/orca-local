@@ -151,19 +151,6 @@ it('lets an admitted operation receive its reverse RPC response while draining',
   )
 })
 
-it('keeps skill upload cancellation executable while admitted installation work drains', async () => {
-  const f = fixture()
-  const work = Promise.withResolvers<void>()
-  f.dispatcher.onRequest('skills.install', () => work.promise)
-  const cancel = vi.fn(async () => work.resolve())
-  f.dispatcher.onRequest('skills.cancelUpload', cancel)
-  f.send({ id: 1, method: 'skills.install' })
-  const drain = f.dispatcher.beginWorkDrain()
-  f.send({ id: 2, method: 'skills.cancelUpload' })
-  await drain
-  expect(cancel).toHaveBeenCalledOnce()
-})
-
 it('keeps PTY source delivery cancellation executable while admitted work drains', async () => {
   const f = fixture()
   const work = Promise.withResolvers<void>()

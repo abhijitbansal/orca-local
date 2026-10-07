@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { X } from 'lucide-react'
 
 import { Button } from './ui/button'
-import { acknowledgeBanner, PRIVACY_URL, setOptIn as telemetrySetOptIn } from '../lib/telemetry'
+import { acknowledgeBanner, setOptIn as telemetrySetOptIn } from '../lib/telemetry'
 import { useMountedRef } from '@/hooks/useMountedRef'
 import { translate } from '@/i18n/i18n'
 
@@ -75,23 +75,15 @@ export function FirstLaunchBanner({
       <div className="flex-1 space-y-0.5 pr-1 text-sm">
         <p className="font-medium leading-snug">
           {translate(
-            'auto.components.FirstLaunchBanner.9784b4d7bc',
-            'Help us decide what to build next'
+            'auto.components.FirstLaunchBanner.3f77c016b4',
+            'Orca keeps a local usage record'
           )}
         </p>
         <p className="text-xs leading-snug text-muted-foreground">
           {translate(
-            'auto.components.FirstLaunchBanner.958d2cc31b',
-            'Anonymous counts of which features you use help us prioritize what to build. No file contents, prompts, terminal output, or anything that identifies you. Change anytime in Settings -> Privacy & Telemetry.'
-          )}{' '}
-          <button
-            type="button"
-            className="underline underline-offset-2 hover:text-foreground"
-            onClick={() => void window.api.shell.openUrl(PRIVACY_URL)}
-          >
-            {translate('auto.components.FirstLaunchBanner.d1deebb050', 'Privacy policy')}
-          </button>
-          .
+            'auto.components.FirstLaunchBanner.75a70df50b',
+            'Anonymous counts of which features you use are written to a file on this machine and never uploaded. Change anytime in Settings -> Privacy & Telemetry.'
+          )}
         </p>
       </div>
       {/* Action column — "Got it" primary reads as the easy path; "Turn off" outline marks the explicit opt-out. */}

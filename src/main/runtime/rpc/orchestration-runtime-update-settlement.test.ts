@@ -389,7 +389,7 @@ describe('orchestration runtime update settlement', () => {
     expectIdentityAndWorkPreserved(harness)
   })
 
-  it('uses attested process authority when a remote attachment loses runtime lookup', async () => {
+  it('fails a retained remote attachment send closed instead of relaying it', async () => {
     const harness = createUpdateHarness()
     const attachment = {
       dispatch_id: 'dispatch-remote-retained',
@@ -398,14 +398,7 @@ describe('orchestration runtime update settlement', () => {
       process_incarnation: CURRENT_COORDINATOR_PROCESS_INCARNATION
     }
     vi.spyOn(harness.db, 'findActiveRemoteAttachmentForPane').mockReturnValue(attachment as never)
-    const processCurrent = vi
-      .spyOn(harness.db, 'isRemoteAttachmentProcessCurrent')
-      .mockReturnValue(true)
-    vi.spyOn(harness.db, 'enqueueFederationRelay').mockReturnValue({
-      message_id: 'relay-retained-status',
-      sequence: 1,
-      dispatch_id: attachment.dispatch_id
-    } as never)
+    const enqueue = vi.spyOn(harness.db, 'enqueueFederationRelay')
 
     const response = await harness.createDispatcher().dispatch(
       request(
@@ -421,13 +414,7 @@ describe('orchestration runtime update settlement', () => {
       )
     )
 
-    expect(resultOf(response)).toMatchObject({
-      relay: { dispatchId: attachment.dispatch_id, accepted: true }
-    })
-    expect(processCurrent).toHaveBeenCalledWith({
-      dispatchId: attachment.dispatch_id,
-      paneKey: CURRENT_COORDINATOR_PANE,
-      processIncarnation: CURRENT_COORDINATOR_PROCESS_INCARNATION
-    })
+    expect(response).toMatchObject({ ok: false, error: { code: 'server_required' } })
+    expect(enqueue).not.toHaveBeenCalled()
   })
 })

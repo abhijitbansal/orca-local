@@ -8,8 +8,6 @@ import { FilledBellIcon } from './WorktreeCardHelpers'
 import StatusIndicator from './StatusIndicator'
 import { useWorktreeActivityStatus } from './use-worktree-activity-status'
 import { useIsSleepingWorktree } from './use-worktree-sleep-state'
-import type { WorktreeCardPrDisplay } from './worktree-card-pr-display'
-import { getReviewLabel, ReviewIcon } from './worktree-review-helpers'
 
 type WorktreeCardStatusSlotProps = {
   worktreeId: string
@@ -19,7 +17,6 @@ type WorktreeCardStatusSlotProps = {
   unreadTooltip: string
   onToggleUnread: React.MouseEventHandler<HTMLButtonElement>
   onPointerDown: React.PointerEventHandler<HTMLButtonElement>
-  prDisplay?: WorktreeCardPrDisplay | null
   newCardStyle?: boolean
   hasBranchIdentity?: boolean
   branchIdentityLabel?: string
@@ -70,29 +67,6 @@ function overlayNewCardUnreadStatus(
   )
 }
 
-function getReviewStatusLabel(review: WorktreeCardPrDisplay): string {
-  const label = getReviewLabel(review)
-  if (review.state === 'merged') {
-    return `${label}: Merged`
-  }
-  if (review.state === 'closed') {
-    return `${label}: Closed`
-  }
-  if (review.state === 'draft') {
-    return `${label}: Draft`
-  }
-  if (review.status === 'failure') {
-    return `${label} checks: Failed`
-  }
-  if (review.status === 'pending') {
-    return `${label} checks: Pending`
-  }
-  if (review.status === 'success') {
-    return `${label} checks: Passing`
-  }
-  return `${label}: Open`
-}
-
 export function WorktreeCardStatusSlot({
   worktreeId,
   showStatus,
@@ -101,7 +75,6 @@ export function WorktreeCardStatusSlot({
   unreadTooltip,
   onToggleUnread,
   onPointerDown,
-  prDisplay = null,
   newCardStyle = false,
   hasBranchIdentity = false,
   branchIdentityLabel,
@@ -115,43 +88,28 @@ export function WorktreeCardStatusSlot({
   // status at 'done'. Attention states keep their own glyphs by construction.
   const canShowSleepingStatus =
     newCardStyle && showStatus && isSleeping && QUIET_REVIEW_REPLACEABLE_STATUSES.has(status)
-  const canShowReviewStatus =
-    newCardStyle &&
-    showStatus &&
-    prDisplay !== null &&
-    !canShowSleepingStatus &&
-    QUIET_REVIEW_REPLACEABLE_STATUSES.has(status)
   const canShowBranchStatus =
     newCardStyle &&
     showStatus &&
     hasBranchIdentity &&
-    prDisplay === null &&
     !canShowSleepingStatus &&
     QUIET_REVIEW_REPLACEABLE_STATUSES.has(status)
   const passiveStatusLabel = canShowSleepingStatus
     ? getSleepingStatusLabel()
-    : canShowReviewStatus && prDisplay
-      ? getReviewStatusLabel(prDisplay)
-      : canShowBranchStatus
-        ? (branchIdentityLabel ?? getDefaultBranchIdentityLabel())
-        : statusLabel
+    : canShowBranchStatus
+      ? (branchIdentityLabel ?? getDefaultBranchIdentityLabel())
+      : statusLabel
   const passiveStatusAnnouncement =
     newCardStyle && isUnread ? `${passiveStatusLabel} · Unread` : passiveStatusLabel
   // Why: working and permission already own the new-card status lane, but
   // unread state should still surface to assistive technology and reappear afterward.
   const showNewCardUnreadAlert =
     newCardStyle && isUnread && showStatus && status !== 'working' && status !== 'permission'
-  const reviewStatusIconClassName = compactReviewAndBranchStatusIconClassName
   const branchStatusIcon = <GitBranch className={branchStatusIconClassName} aria-hidden="true" />
   const sleepingStatusIcon = <Moon className={sleepingStatusIconClassName} aria-hidden="true" />
   const passiveStatus = canShowSleepingStatus ? (
     <span className={cn('inline-flex size-5 items-center justify-center p-0.5', className)}>
       {sleepingStatusIcon}
-      <span className="sr-only">{passiveStatusAnnouncement}</span>
-    </span>
-  ) : canShowReviewStatus && prDisplay ? (
-    <span className={cn('inline-flex size-5 items-center justify-center p-0.5', className)}>
-      <ReviewIcon review={prDisplay} className={reviewStatusIconClassName} variant="generic" />
       <span className="sr-only">{passiveStatusAnnouncement}</span>
     </span>
   ) : canShowBranchStatus ? (
@@ -211,15 +169,7 @@ export function WorktreeCardStatusSlot({
             aria-label={actionLabel}
           >
             {newCardStyle ? (
-              showStatus && canShowReviewStatus && prDisplay ? (
-                <span className="inline-flex size-5 items-center justify-center p-0.5">
-                  <ReviewIcon
-                    review={prDisplay}
-                    className={reviewStatusIconClassName}
-                    variant="generic"
-                  />
-                </span>
-              ) : showStatus && canShowBranchStatus ? (
+              showStatus && canShowBranchStatus ? (
                 <span className="inline-flex size-5 items-center justify-center p-0.5">
                   {branchStatusIcon}
                 </span>

@@ -5,14 +5,9 @@ import {
   isConnectedRuntimeHostState,
   runtimeHostConnectionStateForEntry
 } from '@/runtime/runtime-host-connection-state'
-import {
-  getLandingPreflightIssues,
-  hasGitHubBackedProject,
-  type PreflightIssue
-} from './landing-preflight-issues'
+import { getLandingPreflightIssues, type PreflightIssue } from './landing-preflight-issues'
 
 export function useLandingPreflightRuntime(): { preflightIssues: PreflightIssue[] } {
-  const repos = useAppStore((s) => s.repos)
   const preflightStatus = useAppStore((s) => s.preflightStatus)
   const refreshPreflightStatus = useAppStore((s) => s.refreshPreflightStatus)
   const invalidatePreflightStatus = useAppStore((s) => s.invalidatePreflightStatus)
@@ -24,7 +19,7 @@ export function useLandingPreflightRuntime(): { preflightIssues: PreflightIssue[
     const runtimeStatus = s.runtimeStatusByEnvironmentId.get(environmentId)
     // Why the shared verdict and not `entry.status`: an unverifiable probe nulls it while the
     // transport is still up, and reading that as unreachable discarded the whole preflight
-    // result for a host that never went away (docs/reference/ssh-execution-boundary.md).
+    // result for a host that never went away (AGENTS.md).
     const reachability = runtimeStatus
       ? isConnectedRuntimeHostState(runtimeHostConnectionStateForEntry(runtimeStatus))
         ? 'reachable'
@@ -33,15 +28,9 @@ export function useLandingPreflightRuntime(): { preflightIssues: PreflightIssue[
     return `${environmentId}:${runtimeStatus?.connectionGeneration ?? 0}:${reachability}`
   })
 
-  const hasGitHubProject = useMemo(() => hasGitHubBackedProject(repos), [repos])
   const preflightIssues = useMemo(
-    () =>
-      preflightStatus
-        ? getLandingPreflightIssues(preflightStatus, {
-            hasGitHubBackedProject: hasGitHubProject
-          })
-        : [],
-    [preflightStatus, hasGitHubProject]
+    () => (preflightStatus ? getLandingPreflightIssues(preflightStatus) : []),
+    [preflightStatus]
   )
 
   useEffect(() => {

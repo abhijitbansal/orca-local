@@ -50,11 +50,8 @@ const mockApi = {
     recordRemovalSnapshotPrune: vi.fn().mockResolvedValue(undefined)
   },
   pty: { kill: vi.fn().mockResolvedValue(undefined) },
-  runtimeEnvironments: { call: vi.fn().mockResolvedValue({ ok: true, result: {} } as never) },
-  ephemeralVm: {
-    listRuntimes: vi.fn().mockResolvedValue([]),
-    cleanup: vi.fn().mockResolvedValue({})
-  }
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: test stub; the mocked runtime call result is never read as a typed value.
+  runtimeEnvironments: { call: vi.fn().mockResolvedValue({ ok: true, result: {} } as never) }
 }
 
 // @ts-expect-error -- minimal window.api stub for the store under test

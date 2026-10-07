@@ -5,7 +5,7 @@ import {
   parseGitHubIssueOrPRLink,
   parseGitHubIssueOrPRNumber
 } from './github-links'
-import { WORK_ITEM_LINK_QUERY_MAX_BYTES } from './work-item-link-query-bounds'
+import { WORK_ITEM_LINK_QUERY_MAX_BYTES } from '../../../shared/new-workspace/work-item-link-query-bounds'
 
 describe('buildGitHubRepoUrl', () => {
   it('builds a GitHub repository URL from an owner/repo slug', () => {

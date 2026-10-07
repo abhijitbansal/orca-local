@@ -43,7 +43,7 @@ test.describe('worktree visibility with a remote runtime active', () => {
     // The CLI talks to the running app over the socket recorded in its userData
     // dir — exactly what `orca worktree create` does from a terminal.
     const userDataDir = await electronApp.evaluate(({ app }) => app.getPath('userData'))
-    const client = new RuntimeClient(userDataDir, 30_000, null, null)
+    const client = new RuntimeClient(userDataDir, 30_000)
     const createViaCli = async (name: string): Promise<string> => {
       const response = await client.call<{ worktree: { id: string } }>('worktree.create', {
         repo: `id:${repoId}`,

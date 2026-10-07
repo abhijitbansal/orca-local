@@ -28,8 +28,6 @@ export const worktreesApi = {
 
   create: (args) => ipcRenderer.invoke('worktrees:create', args),
 
-  adoptProvisionedRoot: (args) => ipcRenderer.invoke('worktrees:adoptProvisionedRoot', args),
-
   onCreateProgress: (
     callback: (data: { creationId?: string; phase: 'fetching' | 'creating' }) => void
   ): (() => void) => {
@@ -42,10 +40,6 @@ export const worktreesApi = {
   },
 
   prefetchCreateBase: (args) => ipcRenderer.invoke('worktrees:prefetchCreateBase', args),
-
-  resolvePrBase: (args) => ipcRenderer.invoke('worktrees:resolvePrBase', args),
-
-  resolveMrBase: (args) => ipcRenderer.invoke('worktrees:resolveMrBase', args),
 
   remove: (args) => ipcRenderer.invoke('worktrees:remove', args),
 

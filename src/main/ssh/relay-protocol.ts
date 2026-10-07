@@ -56,14 +56,14 @@ export const JsonRpcErrorCode = {
   MethodNotFound: -32601
 } as const
 
-// ── Streaming constants (see docs/relay-file-stream-design.md) ─────
+// ── Streaming constants ─────
 
 /** Per-chunk payload size for fs.readFileStream. Mirrors VS Code's
  * `bufferSize: 256 * 1024` (vs/platform/files/node/diskFileSystemProvider.ts).
  * 256KB raw → ~340KB base64, well under MAX_MESSAGE_SIZE. */
 export const STREAM_CHUNK_SIZE = 256 * 1024
 
-// ── Git response streaming (see docs/relay-git-response-stream-design.md) ──
+// ── Git response streaming ──
 
 /** Sentinel the relay returns as the RPC result when the real payload streams
  * as git.responseChunk frames. Absent from old relays, so a new client falls

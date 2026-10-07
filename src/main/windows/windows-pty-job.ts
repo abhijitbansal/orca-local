@@ -153,7 +153,7 @@ export function terminatePtyJob(proc: IPty): JobTerminationOutcome {
  * the shell until `kill()` runs — see config/patches/node-pty@1.1.0.patch — but
  * the nulled job handle is what makes the answer null either way.)
  * Null therefore means "unverifiable" in the sense of
- * docs/reference/ssh-execution-boundary.md — this build has no job support,
+ * AGENTS.md — this build has no job support,
  * the terminal is not a ConPTY, or it is no longer tracked. It is never
  * evidence that processes died.
  *

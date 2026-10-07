@@ -8,7 +8,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
   getStatus: vi.fn(),
-  refreshGrokRateLimits: vi.fn(),
   grokUsage: vi.fn<() => unknown>(() => null)
 }))
 
@@ -29,7 +28,6 @@ vi.mock('@/i18n/i18n', () => ({
 vi.mock('../../store', () => ({
   useAppStore: (selector: (state: Record<string, unknown>) => unknown) =>
     selector({
-      refreshGrokRateLimits: mocks.refreshGrokRateLimits,
       settingsSearchQuery: '',
       rateLimits: { grok: mocks.grokUsage() }
     })
@@ -46,7 +44,6 @@ describe('GrokAccountsSection', () => {
       tokenFresh: false,
       error: null
     })
-    mocks.refreshGrokRateLimits.mockResolvedValue(undefined)
     mocks.grokUsage.mockReturnValue(null)
     Object.defineProperty(window, 'api', {
       configurable: true,
@@ -64,7 +61,7 @@ describe('GrokAccountsSection', () => {
 
     expect(
       await screen.findByText(
-        'Session expired — run grok on the computer running Orca and wait for it to start. If prompted, complete sign-in, then click Refresh usage. No chat message is needed.'
+        'Session expired — run grok on the computer running Orca and wait for it to start. If prompted, complete sign-in. No chat message is needed.'
       )
     ).toBeInTheDocument()
     expect(screen.queryByText(/grok login/i)).not.toBeInTheDocument()

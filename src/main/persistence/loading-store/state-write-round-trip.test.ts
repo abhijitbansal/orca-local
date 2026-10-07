@@ -77,7 +77,7 @@ function session(activeTabId: string): WorkspaceSessionState {
 }
 
 describe('persisted state survives a save/load round trip', () => {
-  it('reloads settings, secrets and both session partitions unchanged', () => {
+  it('reloads settings, secrets and the local session; a remote partition is dropped at load', () => {
     const dataFile = join(
       realpathSync(mkdtempSync(join(tmpdir(), 'orca-store-round-trip-'))),
       'orca-data.json'
@@ -116,10 +116,9 @@ describe('persisted state survives a save/load round trip', () => {
     // `toMatchObject`: the load path spreads session defaults over what was written, so the
     // reloaded slice is a superset. Exact deep equality is asserted on the second trip below.
     expect(reloaded.getWorkspaceSession()).toMatchObject(before.local)
-    // The remote partition keeps everything it owns; only globals local already holds are dropped,
-    // and `browserUrlHistory` comes back at its default from the same spread as before.
-    expect(reloaded.getWorkspaceSession(HOST_ID).activeTabId).toBe('remote-tab')
-    expect(reloaded.getWorkspaceSession(HOST_ID).browserUrlHistory).toEqual([])
+    // Remote partitions are stripped at load (local-only fork); the slot reads back as the default.
+    expect(reloaded.getWorkspaceSession(HOST_ID).activeTabId).toBeNull()
+    expect(reloaded.getWorkspaceSessionHostIds()).toEqual(['local'])
 
     // Deep equality of the whole reloaded state, taken across a second round trip so the assertion
     // is not comparing against the first load's one-time settings migrations.

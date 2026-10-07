@@ -15,9 +15,6 @@ vi.mock('./session-scanner-worker-spawn', () => ({
   scanAiVaultSessionsInWorker,
   resetAiVaultScannerWorkerForTests: vi.fn()
 }))
-vi.mock('./opencode-wsl-runtime-preparation', () => ({
-  prepareOpenCodeWslReaders: vi.fn(async () => [])
-}))
 
 import { _resetWslCachesForTests, _setWslCachesForTests, listWslDistrosAsync } from '../wsl'
 import { filterPathsToRunningWslDistrosAsync } from '../wsl-running-path-filter'
@@ -64,6 +61,10 @@ describe('AI Vault listing wsl.exe probes', () => {
         additionalCodexSessionsDirs: [join(NATIVE_CODEX_HOME, 'sessions')],
         wslHomeDirs: []
       }),
+      expect.anything()
+    )
+    expect(scanAiVaultSessionsInWorker).toHaveBeenCalledWith(
+      expect.not.objectContaining({ wslOpenCodeReaders: expect.anything() }),
       expect.anything()
     )
   })

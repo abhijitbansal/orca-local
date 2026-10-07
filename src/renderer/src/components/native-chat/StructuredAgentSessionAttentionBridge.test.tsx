@@ -393,19 +393,6 @@ describe('StructuredAgentSessionAttentionBridge', () => {
     })
   })
 
-  it('does not subscribe a remote host that lacks the capability', async () => {
-    mocks.supportsCapability.mockResolvedValue(false)
-    mocks.store?.setState({ testRuntimeOwner: 'env-1' })
-    render(<StructuredAgentSessionAttentionBridge />)
-    await act(() => Promise.resolve())
-
-    expect(mocks.supportsCapability).toHaveBeenCalledWith(
-      'env-1',
-      'agent-session.turn-completion.v1'
-    )
-    expect(mocks.subscribeCompletions).not.toHaveBeenCalled()
-  })
-
   it('drops the host stream when the last structured tab closes', async () => {
     render(<StructuredAgentSessionAttentionBridge />)
     await waitFor(() => expect(mocks.subscribeCompletions).toHaveBeenCalledOnce())

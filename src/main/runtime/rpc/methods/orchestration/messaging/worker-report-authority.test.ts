@@ -211,43 +211,17 @@ describe('worker report authority without a Dispatch capability', () => {
       return dispatchId
     }
 
-    it.each([
-      [
-        'stop_unknown',
-        (dispatchId: string) => {
-          db.markRemoteAttachmentReady(dispatchId)
-          db.beginRemoteAttachmentStop(dispatchId)
-          db.markRemoteAttachmentStopUnknown(dispatchId, 'tab not owned by Orca')
-        }
-      ],
-      [
-        'start_unknown',
-        (dispatchId: string) =>
-          db.failRemoteAttachment(dispatchId, 'agent_readiness', 'connection lost', true)
-      ]
-    ])('settles a remote report from %s', async (state, reachState) => {
-      setup()
-      const dispatchId = startRemoteWorker()
-      reachState(dispatchId)
-      expect(db.getRemoteDispatchAttachment(dispatchId)?.state).toBe(state)
-
-      expect(await workerDone({ taskId: 'task_remote_worker', dispatchId })).toMatchObject({
-        lifecycle: { action: 'completed' }
-      })
-      expect(db.getRemoteDispatchAttachment(dispatchId)?.state).toBe('succeeded')
-    })
-
-    it('refuses a remote report while the stop is in flight', async () => {
+    it('fails a remote worker report closed instead of relaying it to a server', async () => {
       setup()
       const dispatchId = startRemoteWorker()
       db.markRemoteAttachmentReady(dispatchId)
-      db.beginRemoteAttachmentStop(dispatchId)
 
       await expect(workerDone({ taskId: 'task_remote_worker', dispatchId })).rejects.toMatchObject({
-        code: 'dispatch_inactive'
+        code: 'server_required'
       })
-      await expect(ask()).rejects.toMatchObject({ code: 'dispatch_inactive' })
+      await expect(ask()).rejects.toMatchObject({ code: 'server_required' })
       expect(db.listPendingFederationRelay(dispatchId, 'to_home')).toEqual([])
+      expect(db.getRemoteDispatchAttachment(dispatchId)?.state).toBe('ready')
     })
   })
 })

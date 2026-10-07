@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type Database from '../../../../../sqlite/sync-database'
 import { OrchestrationDb } from '../../../../orchestration/db'
-import type { FederatedDispatchRow } from '../../../../orchestration/types'
 import { OrcaRuntimeService } from '../../../../orca-runtime'
 import { encodeWorkerListCursor } from './worker-list-cursor'
 import { ORCHESTRATION_WORKER_LIST_METHOD } from './worker-list-method'
@@ -271,80 +270,6 @@ describe('orchestration worker-list pagination', () => {
     expect(second.page).toEqual({ total: 2, limit: 1, hasMore: false, nextCursor: null })
     // The pinned total and the counts have to describe the same rows.
     expect(second.counts).toEqual({ retained: second.page.total })
-  })
-
-  it('keeps an include-remote filtered page pinned across 32 concurrent snapshot allocations', async () => {
-    db = new OrchestrationDb(':memory:')
-    const runtime = new OrcaRuntimeService()
-    runtime.setOrchestrationDb(db)
-    const run = db.createRun({
-      objective: 'Pinned filtered inventory',
-      coordinatorHandle: 'term-coordinator',
-      coordinatorPaneKey: 'tab-coordinator:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
-    })
-    insertDispatch(db, run.id, 'dispatch-a')
-    insertDispatch(db, run.id, 'dispatch-z')
-    vi.spyOn(db, 'listFederatedDispatchesByIds').mockImplementation((dispatchIds) =>
-      dispatchIds.includes('dispatch-z') ? [federatedDispatch('dispatch-z')] : []
-    )
-    vi.spyOn(runtime, 'resolveOrchestrationWorkerServer').mockReturnValue({
-      environmentId: 'environment-remote',
-      name: 'remote',
-      peerFingerprint: 'peer-remote',
-      pairingRevision: 1
-    })
-    let resolveSnapshot!: () => void
-    const snapshotGate = new Promise<void>((resolve) => {
-      resolveSnapshot = resolve
-    })
-    const remoteCall = vi
-      .spyOn(runtime, 'callOrchestrationWorkerServer')
-      .mockImplementation(async () => {
-        await snapshotGate
-        return {
-          runtimeEpoch: 'epoch-remote',
-          items: [
-            {
-              dispatchId: 'dispatch-z',
-              observation: { status: 'live', exactWorker: true }
-            }
-          ]
-        }
-      })
-
-    const pending = callWorkerList(runtime, {
-      run: run.id,
-      terminalState: 'retained',
-      includeRemote: true,
-      limit: 1
-    })
-    await vi.waitFor(() =>
-      expect(remoteCall).toHaveBeenCalledWith(
-        'environment-remote',
-        'orchestration.federationFleetSnapshot',
-        { dispatchIds: ['dispatch-z'] },
-        expect.any(Number),
-        undefined,
-        { expectedEnvironmentPairingRevision: 1 }
-      )
-    )
-    for (let call = 0; call < 32; call += 1) {
-      await callWorkerList(runtime, { run: run.id, terminalState: 'retained', limit: 1 })
-    }
-    resolveSnapshot()
-
-    const first = await pending
-    expect(first).toMatchObject({
-      workers: [{ dispatchId: 'dispatch-z' }],
-      page: { total: 2, hasMore: true, nextCursor: expect.any(String) }
-    })
-    const second = await callWorkerList(runtime, {
-      run: run.id,
-      terminalState: 'retained',
-      limit: 1,
-      cursor: first.page.nextCursor
-    })
-    expect(second.workers.map((worker) => worker.dispatchId)).toEqual(['dispatch-a'])
   })
 
   it('does not allocate filtered snapshots when the first page has no more rows', async () => {
@@ -704,21 +629,4 @@ function insertWorkerInventory(
 
 function sqliteFor(db: OrchestrationDb): Database.Database {
   return (db as unknown as { db: Database.Database }).db
-}
-
-function federatedDispatch(dispatchId: string): FederatedDispatchRow {
-  return {
-    dispatch_id: dispatchId,
-    environment_id: 'environment-remote',
-    environment_name: 'remote',
-    peer_fingerprint: 'peer-remote',
-    remote_runtime_epoch: 'epoch-remote',
-    protocol_version: 3,
-    remote_worktree_id: null,
-    remote_terminal_handle: null,
-    to_home_imported_sequence: 0,
-    to_home_acknowledged_sequence: 0,
-    created_at: '2026-08-27 00:00:00',
-    updated_at: '2026-08-27 00:00:00'
-  }
 }

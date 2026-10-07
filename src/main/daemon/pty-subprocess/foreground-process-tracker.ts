@@ -161,7 +161,7 @@ export function createPtyForegroundProcessTracker(args: {
               anchorProcessId: cachedAgentForeground.pid,
               identityAgeMs: Date.now() - cachedAgentForeground.refreshedAt
             })
-            // Unverifiable is never exit proof (ssh-execution-boundary.md): hold.
+            // Unverifiable is never exit proof (AGENTS.md): hold.
             if (verdict === 'unavailable') {
               return
             }

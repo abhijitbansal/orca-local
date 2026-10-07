@@ -58,10 +58,6 @@ vi.mock(
   '../source-control/pull-request-template',
   async () => (await import('./filesystem-test-harness')).pullRequestTemplateMock
 )
-vi.mock(
-  '../source-control/pull-request-linked-issue',
-  async () => (await import('./filesystem-test-harness')).pullRequestLinkedIssueMock
-)
 
 import { registerFilesystemHandlers } from './filesystem'
 import { invalidateAuthorizedRootsCache } from './registered-worktree-roots-cache'

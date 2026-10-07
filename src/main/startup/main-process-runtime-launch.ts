@@ -1,21 +1,12 @@
-import { app, powerMonitor, type BrowserWindow } from 'electron'
-import { is } from '@electron-toolkit/utils'
-import { getOrcaCloudAuthConfig } from '../orca-profiles/profile-cloud-auth-config'
-import { getProfileUserDataPath } from '../orca-profiles/profile-storage-paths'
-import {
-  getCanonicalUserDataPath,
-  migrateMobilePairingDataToCanonicalUserDataPath
-} from '../persistence'
+import { app, type BrowserWindow } from 'electron'
+import { getCanonicalUserDataPath } from '../persistence'
 import { OrcaRuntimeRpcServer } from '../runtime/runtime-rpc'
-import { registerMobileHandlers } from '../ipc/mobile'
 import { getLocalPtyProvider, registerHeadlessPtyRuntime } from '../ipc/pty'
 import { LocalPtyProvider } from '../providers/local-pty-provider'
 import { HEADLESS_RUNTIME_WINDOW_ID } from '../../shared/runtime-types'
 import { OffscreenBrowserBackend } from '../browser/offscreen-browser-backend'
 import { browserManager } from '../browser/browser-manager'
-import { getDesktopRelayStatus, publishDesktopRelayStatus } from './main-process-relay-status'
-import { DesktopRelayService } from '../runtime/relay/desktop-relay-service'
-import { getServeOptions, getBundledWebClientRoot, printServeReady } from './main-process-serve'
+import { getServeOptions, printServeReady } from './main-process-serve'
 import {
   bindTerminalRuntimeStartupServices,
   handleCodexHomePtySpawned,
@@ -36,7 +27,6 @@ import { CliInstaller } from '../cli/cli-installer'
 import { installLinuxBareOrcaDispatcher } from '../cli/linux-bare-orca-dispatcher'
 import { scheduleAllPendingHistoryTreeRemovals } from '../terminal-history-deletion'
 import { triggerStartupNotificationRegistration } from '../ipc/startup-notification-registration'
-import { startDesktopPushService } from './main-process-push-startup'
 import { mainProcessState as state } from './main-process-state'
 import { logStartupMilestone } from './startup-diagnostics'
 import { emitServeBrowserIdentityActionLine } from '../server/serve-stdout-boundary'
@@ -59,64 +49,13 @@ function settleDesktopActivation(): void {
   })
 }
 
-function installRuntimeRpc(
-  runtime: RuntimeService,
-  serveOptions: ReturnType<typeof getServeOptions> | null
-): OrcaRuntimeRpcServer {
-  // Why: existing installs may have pairing creds under the late app.getPath('userData'); copy them forward before switching to the canonical path.
-  migrateMobilePairingDataToCanonicalUserDataPath(app.getPath('userData'))
-  // Why: parallel E2E Electron instances would race the fixed port (EADDRINUSE); port 0 gives each a random OS-assigned port.
-  const isE2E = Boolean(process.env.ORCA_E2E_USER_DATA_DIR)
-  const requestedE2EWsPort = process.env.ORCA_E2E_RUNTIME_WS_PORT
-  const e2eWsPort = requestedE2EWsPort === undefined ? 0 : Number(requestedE2EWsPort)
-  if (isE2E && (!Number.isInteger(e2eWsPort) || e2eWsPort < 0 || e2eWsPort > 65_535)) {
-    throw new Error(`Invalid ORCA_E2E_RUNTIME_WS_PORT value: ${requestedE2EWsPort}`)
-  }
-  // Why: pin dev to 6769 so `pnpm dev` doesn't race packaged Orca on 6768 and fall back to a random port, breaking deterministic mobile pairing/repro (STA-1511).
-  const devWsPort = is.dev && !isE2E ? 6769 : undefined
+function installRuntimeRpc(runtime: RuntimeService): OrcaRuntimeRpcServer {
   const runtimeRpc = new OrcaRuntimeRpcServer({
     runtime,
-    // Why: mobile pairing needs the stable pre-setName() path (getCanonicalUserDataPath), not a late app.getPath('userData') that drops paired devices across restarts.
-    userDataPath: getCanonicalUserDataPath(),
-    enableWebSocket: true,
-    // Why: STA-2370 — the desktop app binds the WS listener to loopback until the user pairs a device;
-    // `orca serve` is an explicit remote opt-in, and E2E keeps the wide bind its harness connects over.
-    exposeNetworkByDefault: Boolean(serveOptions) || isE2E,
-    ...(isE2E ? { wsPort: e2eWsPort } : {}),
-    ...(devWsPort !== undefined ? { wsPort: devWsPort } : {}),
-    ...(serveOptions?.wsPort !== undefined
-      ? {
-          wsPort: serveOptions.wsPort,
-          // Why: only explicit `orca serve --port` overrides a stale STA-1511 fallback (issue #8535); default/dev stay fallback-first for pairing stability.
-          preferPinnedWsPort: true
-        }
-      : {}),
-    webClientRoot: getBundledWebClientRoot()
+    // Why: the CLI reads the unix socket path from the stable pre-setName() userData path.
+    userDataPath: getCanonicalUserDataPath()
   })
   state.runtimeRpc = runtimeRpc
-  registerMobileHandlers(runtimeRpc, {
-    getRelayStatus: getDesktopRelayStatus,
-    consumePendingUnpairedDeviceAuthFailure: (webContentsId) => {
-      if (
-        !state.mainWindow ||
-        state.mainWindow.isDestroyed() ||
-        state.mainWindow.webContents.id !== webContentsId ||
-        !state.pendingUnpairedDeviceAuthFailure
-      ) {
-        return false
-      }
-      state.pendingUnpairedDeviceAuthFailure = false
-      return true
-    }
-  })
-  // Why: repeated direct auth failures otherwise look like a client that never connects; point users to re-pairing.
-  runtimeRpc.setOnUnpairedDeviceAuthFailure(() => {
-    // Why: runtime startup races renderer mount; retain the one-shot until the listener consumes it.
-    state.pendingUnpairedDeviceAuthFailure = true
-    if (state.mainWindow && !state.mainWindow.isDestroyed()) {
-      state.mainWindow.webContents.send('mobile:unpairedDeviceAuthFailure')
-    }
-  })
   return runtimeRpc
 }
 
@@ -162,9 +101,6 @@ async function launchServeMode(
     console.error('[runtime] Failed to start headless RPC transport:', error)
     throw error
   })
-  // Why: a phone paired to a headless host still registers and unregisters its token;
-  // it simply never receives a push, because nothing dispatches notifications here.
-  startDesktopPushService(runtimeRpc)
   settleDesktopActivation()
   // Why: every attempt must reach app.quit(); a page beforeunload can veto an earlier signal.
   registerServeSignalHandlers(process, () => app.quit())
@@ -249,38 +185,6 @@ async function launchDesktopMode(
   // fetcher until the persisted proxy lands, so this only has to keep the launch phase itself
   // ordered ahead of the relay — it must not gate the renderer.
   await state.initialProxyApplicationReady
-  // Why after the proxy await: the push gateway client is an app-owned fetcher, so it must not
-  // issue its first request ahead of the persisted proxy.
-  startDesktopPushService(runtimeRpc)
-  const cloudAuth = getOrcaCloudAuthConfig()
-  if (cloudAuth.configured) {
-    try {
-      const relayService = new DesktopRelayService({
-        authConfig: cloudAuth.config,
-        userDataPath: getProfileUserDataPath(),
-        appVersion: app.getVersion(),
-        runtimeRpc,
-        onStatus: publishDesktopRelayStatus
-      })
-      state.desktopRelayService = relayService
-      runtimeRpc.setMobileRelayPairingProvider({
-        createPairingRelay: (relayDeviceId) => relayService.createPairingRelay(relayDeviceId),
-        onDeviceRevokeQueued: (item) => relayService.onDeviceRevokeQueued(item),
-        onDemandStateChanged: () => relayService.demandStateChanged(),
-        getEndpoints: (context, params) => relayService.getEndpoints(context, params),
-        provisionRelay: (context, params) => relayService.provisionRelay(context, params)
-      })
-      relayService.start()
-      // Why: sleeping past relay-token expiry kills the broker with no retry
-      // timer; resume is the moment that state becomes recoverable.
-      powerMonitor.on('resume', () => state.desktopRelayService?.ensureLive())
-    } catch (error) {
-      console.warn(
-        '[relay] Desktop relay startup unavailable:',
-        error instanceof Error ? error.message : String(error)
-      )
-    }
-  }
   // Why: macOS notification permission dialog must fire after the window is shown, else it's hidden behind the maximized window.
   win.once('show', () => {
     // Why: store can be null if init failed earlier; bail rather than throw inside an Electron event listener.
@@ -308,7 +212,7 @@ export async function initializeMainProcessRuntimeLaunch(
     return
   }
   state.serveOptions = serveOptions
-  const runtimeRpc = installRuntimeRpc(runtime, serveOptions)
+  const runtimeRpc = installRuntimeRpc(runtime)
   const shellPathReady = shellPathHydration.whenReady()
   // Why published: the renderer's git-environment barrier must fence on the same
   // generation the terminal startup services wait for, not a later re-read.

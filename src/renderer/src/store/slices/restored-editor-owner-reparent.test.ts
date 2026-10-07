@@ -194,7 +194,6 @@ describe('restored editor owner reparent', () => {
 
   it('commits active reparenting through the complete workspace activation projection', () => {
     const oldId = openRestoredSource()
-    const refreshGitHubForWorktreeIfStale = vi.fn()
     useAppStore.setState({
       activeTabId: 'source-terminal',
       activeBrowserTabId: 'source-browser',
@@ -277,8 +276,7 @@ describe('restored editor owner reparent', () => {
         [SOURCE]: 'source-browser',
         [TARGET]: 'target-browser'
       },
-      everActivatedWorktreeIds: new Set([SOURCE]),
-      refreshGitHubForWorktreeIfStale
+      everActivatedWorktreeIds: new Set([SOURCE])
     } as unknown as Partial<AppState>)
     const targetSnapshots: AppState[] = []
     const unsubscribe = useAppStore.subscribe((state) => {
@@ -309,8 +307,6 @@ describe('restored editor owner reparent', () => {
       id: 'target-terminal',
       generation: 5
     })
-    expect(refreshGitHubForWorktreeIfStale).toHaveBeenCalledOnce()
-    expect(refreshGitHubForWorktreeIfStale).toHaveBeenCalledWith(TARGET)
   })
 
   it('repairs a duplicate migrated tab id held by a non-selected destination group', () => {

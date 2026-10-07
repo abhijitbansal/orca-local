@@ -5,7 +5,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '../../runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../../shared/constants'
 
 const { toastErrorMock } = vi.hoisted(() => ({
@@ -39,7 +38,6 @@ describe('createEditorSlice activateMarkdownLink', () => {
   const runtimeEnvironmentTransportCallMock = vi.fn()
 
   beforeEach(() => {
-    clearRuntimeCompatibilityCacheForTests()
     toastErrorMock.mockReset()
     openUrlMock.mockReset()
     openFileUriMock.mockReset()
@@ -116,47 +114,6 @@ describe('createEditorSlice activateMarkdownLink', () => {
     ])
     expect(openFileUriMock).not.toHaveBeenCalled()
     expect(openUrlMock).not.toHaveBeenCalled()
-  })
-
-  it('opens remote-owned markdown links through the source file runtime owner', async () => {
-    const store = createEditorStore()
-    pathExistsMock.mockResolvedValue(true)
-    store.setState({
-      settings: { activeRuntimeEnvironmentId: 'env-active' } as AppState['settings']
-    })
-    store.getState().openFile({
-      filePath: '/repo/docs/note.md',
-      relativePath: 'docs/note.md',
-      worktreeId: 'wt-1',
-      runtimeEnvironmentId: 'env-source',
-      language: 'markdown',
-      mode: 'edit'
-    })
-
-    await store.getState().activateMarkdownLink('./guide.md', {
-      sourceFilePath: '/repo/docs/note.md',
-      worktreeId: 'wt-1',
-      worktreeRoot: '/repo'
-    })
-
-    expect(runtimeEnvironmentCallMock).toHaveBeenCalledWith({
-      selector: 'env-source',
-      method: 'files.stat',
-      params: { worktree: 'id:wt-1', relativePath: 'docs/guide.md' },
-      timeoutMs: 15_000
-    })
-    expect(store.getState().openFiles).toEqual([
-      expect.objectContaining({
-        filePath: '/repo/docs/note.md',
-        runtimeEnvironmentId: 'env-source'
-      }),
-      expect.objectContaining({
-        filePath: '/repo/docs/guide.md',
-        runtimeEnvironmentId: 'env-source',
-        mode: 'edit',
-        isPreview: true
-      })
-    ])
   })
 
   it('rejects ambiguous same-path owner fallback and honors an explicit source owner', async () => {

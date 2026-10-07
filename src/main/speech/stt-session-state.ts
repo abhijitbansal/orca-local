@@ -1,6 +1,5 @@
 import type { Worker } from 'node:worker_threads'
 import type { ModelManager } from './model-manager'
-import type { OpenAiTranscriptionSession } from './openai-transcription-client'
 import type { SttEventSink } from './stt-service'
 
 export type StopInFlight = {
@@ -11,7 +10,6 @@ export type StopInFlight = {
 
 export type SttSessionState = {
   worker: Worker | null
-  cloudSession: OpenAiTranscriptionSession | null
   modelManager: ModelManager
   activeModelId: string | null
   activeHotwordsFilePath: string | undefined
@@ -30,7 +28,6 @@ export type SttSessionState = {
 export function createSttSessionState(modelManager: ModelManager): SttSessionState {
   return {
     worker: null,
-    cloudSession: null,
     modelManager,
     activeModelId: null,
     activeHotwordsFilePath: undefined,

@@ -193,7 +193,7 @@ function recordObservation(state: ProbeState, observation: EchoObservation): voi
 }
 
 function cacheAppVersion(): void {
-  void window.api?.updater
+  void window.api?.app
     ?.getVersion?.()
     .then((version) => {
       cachedAppVersion = version

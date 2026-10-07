@@ -8,7 +8,6 @@ import { getRepositorySourceControlAiSectionId } from './repository-settings-tar
 import { RepositorySourceControlAiActionRows } from './RepositorySourceControlAiActionRows'
 import { RepositorySourceControlAiCustomCommand } from './RepositorySourceControlAiCustomCommand'
 import { RepositorySourceControlAiEnablement } from './RepositorySourceControlAiEnablement'
-import { RepositorySourceControlAiHostedReviewDefaults } from './RepositorySourceControlAiHostedReviewDefaults'
 import {
   normalizePersistedRepoAi,
   useRepositorySourceControlAiGlobalUx
@@ -47,7 +46,6 @@ export function RepositorySourceControlAiSection({
     savingActionIds,
     updateEnablement,
     updateCustomCommand,
-    updateHostedReviewDefault,
     updateActionMode,
     updateActionAgent,
     updateActionTemplate,
@@ -106,11 +104,6 @@ export function RepositorySourceControlAiSection({
         onAppendVariable={appendVariable}
         onActionDiscard={discardActionRecipeText}
         onActionSave={(actionId) => void saveActionRecipeText(actionId)}
-      />
-      <RepositorySourceControlAiHostedReviewDefaults
-        value={displayRepoAi.prCreationDefaults}
-        source={source}
-        onChange={updateHostedReviewDefault}
       />
     </section>
   )

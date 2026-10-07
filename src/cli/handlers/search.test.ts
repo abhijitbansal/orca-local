@@ -57,7 +57,6 @@ async function runSearch(
     result?: unknown
     error?: unknown
     json?: boolean
-    isRemote?: boolean
   } = {}
 ): Promise<{ call: ReturnType<typeof vi.fn>; output: string }> {
   const call = options.error
@@ -68,8 +67,8 @@ async function runSearch(
     lines.push(String(value))
   })
   await SEARCH_HANDLERS.search!({
-    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the handler reads only `call` and `isRemote`; a real RuntimeClient would resolve runtime metadata and open a socket.
-    client: { call, isRemote: options.isRemote ?? false } as never,
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the handler reads only `call`; a real RuntimeClient would resolve runtime metadata and open a socket.
+    client: { call } as never,
     cwd: '/workspace',
     flags: new Map(flags),
     json: options.json ?? false
@@ -237,13 +236,6 @@ describe('orca search over the runtime RPC', () => {
         error: new RuntimeClientError('runtime_unavailable', 'Orca is not running.')
       })
     ).rejects.toThrow('Orca is not running.')
-  })
-
-  it('applies the paired-client exposure policy for a remote runtime', async () => {
-    const { output } = await runSearch([['query', 'q']], { isRemote: true, json: true })
-
-    expect(printedResults(output).hits[0]).not.toHaveProperty('resumeCommand')
-    expect(printedResults(output).hits[0]?.source).toEqual({ presence: 'present' })
   })
 
   it('keeps the local resume command and source path for a same-machine host', async () => {

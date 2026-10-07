@@ -6,8 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { SPEECH_MODEL_CATALOG } from './model-catalog'
 import { ModelManager } from './model-manager'
 
-const { hasOpenAiSpeechApiKeyMock, netRequestMock } = vi.hoisted(() => ({
-  hasOpenAiSpeechApiKeyMock: vi.fn(),
+const { netRequestMock } = vi.hoisted(() => ({
   netRequestMock: vi.fn()
 }))
 
@@ -18,10 +17,6 @@ vi.mock('electron', () => ({
   net: {
     request: netRequestMock
   }
-}))
-
-vi.mock('./openai-api-key-store', () => ({
-  hasOpenAiSpeechApiKey: hasOpenAiSpeechApiKeyMock
 }))
 
 type ModelManagerInternals = {
@@ -49,8 +44,6 @@ type ModelManagerInternals = {
 describe('ModelManager', () => {
   beforeEach(() => {
     netRequestMock.mockReset()
-    hasOpenAiSpeechApiKeyMock.mockReset()
-    hasOpenAiSpeechApiKeyMock.mockReturnValue(false)
   })
 
   it('requires pinned, internally consistent metadata for every model file', () => {
@@ -142,27 +135,6 @@ describe('ModelManager', () => {
       expect(existsSync(`${modelDir}.partial`)).toBe(false)
       await expect(manager.getModelState(manifest.id)).resolves.toEqual({
         id: manifest.id,
-        status: 'ready'
-      })
-    } finally {
-      rmSync(dir, { recursive: true, force: true })
-    }
-  })
-
-  it('marks OpenAI transcription models ready only when an API key is configured', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'orca-model-manager-'))
-    try {
-      const manager = new ModelManager(dir)
-
-      await expect(manager.getModelState('openai-gpt-4o-mini-transcribe')).resolves.toEqual({
-        id: 'openai-gpt-4o-mini-transcribe',
-        status: 'not-downloaded'
-      })
-
-      hasOpenAiSpeechApiKeyMock.mockReturnValue(true)
-
-      await expect(manager.getModelState('openai-gpt-4o-mini-transcribe')).resolves.toEqual({
-        id: 'openai-gpt-4o-mini-transcribe',
         status: 'ready'
       })
     } finally {

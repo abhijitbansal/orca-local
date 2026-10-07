@@ -10,8 +10,8 @@ export const getPrivacyPaneSearchEntries = createLocalizedCatalog(() => [
   {
     title: translate('auto.components.settings.privacy.search.5c508bad41', 'Privacy & Telemetry'),
     description: translate(
-      'auto.components.settings.privacy.search.aa3b794c17',
-      'Anonymous product usage data, diagnostics, and telemetry controls.'
+      'auto.components.settings.privacy.search.ceafd36bbd',
+      'Local product usage record, diagnostics, and telemetry controls.'
     ),
     keywords: [
       ...translateSearchKeyword('auto.components.settings.privacy.search.10124159f1', 'privacy'),
@@ -20,19 +20,18 @@ export const getPrivacyPaneSearchEntries = createLocalizedCatalog(() => [
       ...translateSearchKeyword('auto.components.settings.privacy.search.79c319948b', 'usage'),
       ...translateSearchKeyword('auto.components.settings.privacy.search.b021b9cb81', 'anonymous'),
       ...translateSearchKeyword('auto.components.settings.privacy.search.3922051573', 'data'),
-      ...translateSearchKeyword('auto.components.settings.privacy.search.2b5a5c312f', 'posthog'),
       ...translateSearchKeyword('auto.components.settings.privacy.search.27a27b2f63', 'opt out'),
       ...translateSearchKeyword('auto.components.settings.privacy.search.4d4bb76bf4', 'opt in')
     ]
   },
   {
     title: translate(
-      'auto.components.settings.privacy.search.57b283461a',
-      'Share Anonymous Usage Data'
+      'auto.components.settings.privacy.search.e993d6ac14',
+      'Keep a Local Usage Record'
     ),
     description: translate(
-      'auto.components.settings.privacy.search.b707cc3981',
-      'Help improve Orca by sending anonymous feature-usage events.'
+      'auto.components.settings.privacy.search.465e8e5545',
+      'Orca records anonymous feature-usage events to a local file.'
     ),
     keywords: [
       ...translateSearchKeyword('auto.components.settings.privacy.search.77d3180def', 'telemetry'),

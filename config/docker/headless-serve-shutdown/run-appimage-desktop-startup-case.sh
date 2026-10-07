@@ -223,20 +223,20 @@ fi
 marker_seen=false
 deadline=$((SECONDS + startup_timeout_seconds))
 while ((SECONDS < deadline)); do
-  if grep -Eq '^\[startup\] updater-setup-done t=[0-9]+$' "$stderr_log"; then
+  if grep -Eq '^\[startup\] window-created t=[0-9]+$' "$stderr_log"; then
     marker_seen=true
     break
   fi
   if ! identity_alive "$launcher_pid" "$launcher_start_ticks"; then
-    report_launcher_exit 'the updater-setup-done marker'
+    report_launcher_exit 'the window-created marker'
   fi
   sleep 0.2
 done
 if [[ "$marker_seen" != true ]]; then
   if ! identity_alive "$launcher_pid" "$launcher_start_ticks"; then
-    report_launcher_exit 'the updater-setup-done marker'
+    report_launcher_exit 'the window-created marker'
   fi
-  echo "FAIL: desktop AppImage did not emit updater-setup-done within ${startup_timeout_seconds}s" >&2
+  echo "FAIL: desktop AppImage did not emit window-created within ${startup_timeout_seconds}s" >&2
   exit 1
 fi
 if ! identity_alive "$launcher_pid" "$launcher_start_ticks"; then

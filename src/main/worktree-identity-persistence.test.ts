@@ -65,7 +65,7 @@ describe('host-qualified worktree metadata', () => {
       })
     })
   })
-  it('reloads host-specific metadata without collapsing it to the legacy locator', () => {
+  it('reloads local metadata and strips the remote host row', () => {
     const store = createStoreWithRepo()
     store.setWorktreeMetaForHost(worktreeId, 'local', { displayName: 'Local feature' })
     store.setWorktreeMetaForHost(worktreeId, 'ssh:build-box', { displayName: 'Remote feature' })
@@ -73,9 +73,10 @@ describe('host-qualified worktree metadata', () => {
 
     const reloaded = createStore()
     expect(reloaded.getWorktreeMetaForHost(worktreeId, 'local')?.displayName).toBe('Local feature')
-    expect(reloaded.getWorktreeMetaForHost(worktreeId, 'ssh:build-box')?.displayName).toBe(
-      'Remote feature'
-    )
+    // Local-only build: remote host metadata is stripped at load.
+    expect(
+      reloaded.getWorktreeMetaForHost(worktreeId, 'ssh:build-box')?.displayName
+    ).toBeUndefined()
   })
   it('keeps canonical metadata current for legacy writers on a known owner', () => {
     const store = createStore()
@@ -273,36 +274,6 @@ describe('host-qualified worktree metadata', () => {
     expect(persisted.worktreeIdentityAliases ?? {}).toEqual({})
   })
 
-  it('repairs a missing canonical instance id while re-adopting an SSH target', () => {
-    const oldHostId = 'ssh:old-target' as const
-    const newHostId = 'ssh:new-target' as const
-    const seed = createStoreWithRepo()
-    seed.setWorktreeMetaForHost(worktreeId, oldHostId, { displayName: 'Remote feature' })
-    seed.flush()
-    const persisted = readDataFile() as PersistedState
-    const oldAlias = composeWorktreeHostIdentity(oldHostId, worktreeId)
-    const oldKey = persisted.worktreeIdentityAliases?.[oldAlias]?.[0]
-    expect(oldKey).toBeTruthy()
-    delete persisted.worktreeMetaByIdentity?.[oldKey!]?.instanceId
-    writeDataFile(persisted)
-
-    const store = createStore()
-    store.reassignSshTargetId('old-target', 'new-target')
-    store.flush()
-
-    const repaired = readDataFile() as PersistedState
-    const newAlias = composeWorktreeHostIdentity(newHostId, worktreeId)
-    const newKey = repaired.worktreeIdentityAliases?.[newAlias]?.[0]
-    expect(repaired.worktreeIdentityAliases?.[oldAlias]).toBeUndefined()
-    expect(newKey).toBeTruthy()
-    expect(repaired.worktreeMetaByIdentity?.[newKey!]).toMatchObject({
-      displayName: 'Remote feature',
-      hostId: newHostId,
-      instanceId: expect.any(String)
-    })
-    expect(repaired.worktreeMetaByIdentity?.[oldKey!]).toBeUndefined()
-  })
-
   it('preserves source metadata when the re-adoption destination is divergent', () => {
     const oldHostId = 'ssh:old-target' as const
     const newHostId = 'ssh:new-target' as const
@@ -327,39 +298,5 @@ describe('host-qualified worktree metadata', () => {
     expect(
       persisted.worktreeIdentityAliases?.[composeWorktreeHostIdentity(newHostId, worktreeId)]
     ).toHaveLength(1)
-  })
-
-  it('deduplicates an equivalent destination during SSH target re-adoption', () => {
-    const oldHostId = 'ssh:old-target' as const
-    const newHostId = 'ssh:new-target' as const
-    const seed = createStoreWithRepo()
-    seed.setWorktreeMetaForHost(worktreeId, oldHostId, { displayName: 'Remote feature' })
-    seed.flush()
-    const persisted = readDataFile() as PersistedState
-    const oldAlias = composeWorktreeHostIdentity(oldHostId, worktreeId)
-    const oldKey = persisted.worktreeIdentityAliases?.[oldAlias]?.[0]
-    const source = oldKey ? persisted.worktreeMetaByIdentity?.[oldKey] : undefined
-    expect(source?.instanceId).toBeTruthy()
-    const newAlias = composeWorktreeHostIdentity(newHostId, worktreeId)
-    const newKey = canonicalWorktreeIdentity({
-      worktreeId,
-      executionHostId: newHostId,
-      instanceId: source!.instanceId!
-    })
-    persisted.worktreeMetaByIdentity ??= {}
-    persisted.worktreeIdentityAliases ??= {}
-    persisted.worktreeMetaByIdentity[newKey] = { ...source!, hostId: newHostId }
-    persisted.worktreeIdentityAliases[newAlias] = [newKey]
-    writeDataFile(persisted)
-
-    const store = createStore()
-    store.reassignSshTargetId('old-target', 'new-target')
-    store.flush()
-
-    const deduped = readDataFile() as PersistedState
-    expect(deduped.worktreeIdentityAliases?.[oldAlias]).toBeUndefined()
-    expect(deduped.worktreeIdentityAliases?.[newAlias]).toEqual([newKey])
-    expect(deduped.worktreeMetaByIdentity?.[oldKey!]).toBeUndefined()
-    expect(deduped.worktreeMetaByIdentity?.[newKey]).toEqual({ ...source!, hostId: newHostId })
   })
 })

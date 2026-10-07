@@ -53,11 +53,11 @@ describe('daemon lifecycle emitters', () => {
   // Why: both emitters run on the daemon launch/respawn path, where a throw would cost every terminal.
   it('swallows a throwing telemetry client instead of failing the caller', () => {
     trackMock.mockImplementationOnce(() => {
-      throw new Error('posthog exploded')
+      throw new Error('telemetry sink exploded')
     })
     expect(() => trackDaemonReplaced('failed_health_check', null)).not.toThrow()
     trackMock.mockImplementationOnce(() => {
-      throw new Error('posthog exploded')
+      throw new Error('telemetry sink exploded')
     })
     expect(() => trackDaemonRetired('died_respawn')).not.toThrow()
   })

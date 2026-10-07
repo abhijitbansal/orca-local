@@ -18,16 +18,6 @@ import {
   isLocalWorktreeScanGenerationCurrent
 } from './local-worktree-scan-generation'
 
-// Stub the ~/.ssh/config parser so the SSH-import test drives the real Store with deterministic hosts, not the operator's actual ~/.ssh/config.
-const { loadUserSshConfigMock, sshConfigHostsToTargetsMock } = vi.hoisted(() => ({
-  loadUserSshConfigMock: vi.fn(),
-  sshConfigHostsToTargetsMock: vi.fn()
-}))
-
-vi.mock('./ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: loadUserSshConfigMock,
-  sshConfigHostsToTargets: sshConfigHostsToTargetsMock
-}))
 const { trackMock, getCohortAtEmitMock } = vi.hoisted(() => ({
   trackMock: vi.fn(),
   getCohortAtEmitMock: vi.fn()
@@ -155,12 +145,12 @@ describe('Store', () => {
       displayName: 'Cloud Project'
     })
     const independentSetup = makeProjectHostSetup({
-      id: 'cloud-project::gpu-vm',
+      id: 'cloud-project::local',
       projectId: independentProject.id,
-      hostId: 'runtime:gpu-vm',
+      hostId: 'local',
       repoId: '',
       path: '/srv/cloud-project',
-      displayName: 'GPU VM'
+      displayName: 'Local copy'
     })
     writeDataFile({
       ...getDefaultPersistedState(testState.dir),
@@ -186,12 +176,12 @@ describe('Store', () => {
       displayName: 'Cloud Project'
     })
     const independentSetup = makeProjectHostSetup({
-      id: 'cloud-project::gpu-vm',
+      id: 'cloud-project::local',
       projectId: independentProject.id,
-      hostId: 'runtime:gpu-vm',
+      hostId: 'local',
       repoId: '',
       path: '/srv/cloud-project',
-      displayName: 'GPU VM'
+      displayName: 'Local copy'
     })
     writeDataFile({
       ...getDefaultPersistedState(testState.dir),
@@ -203,7 +193,7 @@ describe('Store', () => {
     const result = store.updateProjectHostSetup({
       setupId: independentSetup.id,
       updates: {
-        displayName: 'GPU VM renamed',
+        displayName: 'Local copy renamed',
         path: '/srv/renamed',
         worktreeBasePath: '../worktrees',
         setupState: 'ready',
@@ -216,7 +206,7 @@ describe('Store', () => {
       project: independentProject,
       setup: expect.objectContaining({
         id: independentSetup.id,
-        displayName: 'GPU VM renamed',
+        displayName: 'Local copy renamed',
         path: '/srv/renamed',
         worktreeBasePath: '../worktrees',
         setupState: 'ready',
@@ -225,7 +215,7 @@ describe('Store', () => {
       })
     })
     expect(store.getProjectHostSetups()[0]).toMatchObject({
-      displayName: 'GPU VM renamed',
+      displayName: 'Local copy renamed',
       path: '/srv/renamed'
     })
   })
@@ -342,12 +332,12 @@ describe('Store', () => {
       displayName: 'Cloud Project'
     })
     const independentSetup = makeProjectHostSetup({
-      id: 'cloud-project::gpu-vm',
+      id: 'cloud-project::local',
       projectId: independentProject.id,
-      hostId: 'runtime:gpu-vm',
+      hostId: 'local',
       repoId: '',
       path: '/srv/cloud-project',
-      displayName: 'GPU VM'
+      displayName: 'Local copy'
     })
     writeDataFile({
       ...getDefaultPersistedState(testState.dir),

@@ -56,11 +56,6 @@ export type ComposerStoreActions = {
       startupDraft?: string
       nameWasGenerated?: boolean
       parentWorktreeId?: string
-      provisionedRoot?: {
-        runtimeId: string
-        executionHostId: ExecutionHostId
-        expectedPath: string
-      }
     }
   ) => Promise<CreateWorktreeResult>
   updateRepo: (
@@ -90,14 +85,6 @@ export type ComposerStoreActions = {
   closeModal: () => void
   openSettingsPage: () => void
   openSettingsTarget: (target: NonNullable<UISlice['settingsNavigationTarget']>) => void
-  setActiveRuntimeEnvironmentPreference: (environmentId: string | null) => Promise<boolean>
   prefetchWorktreeCreateBase: (repoId: string, baseBranch?: string) => Promise<void>
-  prefetchWorkItems: (
-    repoId: string,
-    repoPath: string,
-    limit?: number,
-    query?: string,
-    options?: { sourceContext?: TaskSourceContext | null }
-  ) => void
   fetchSparsePresets: (repoId: string) => Promise<void>
 }

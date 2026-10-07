@@ -188,9 +188,6 @@ export async function runSleepWorktrees(worktreeIds: readonly string[]): Promise
         // scrollback. See DESIGN_DOC_TERMINAL_HISTORY_FIX_V2.md §3.3.c.
         await withWorktreeSleepTeardown(worktreeId, async () => {
           await shutdownWorktreeTerminals(worktreeId, { keepIdentifiers: true })
-          if (typeof window !== 'undefined' && window.api?.ephemeralVm?.suspendWorkspace) {
-            await window.api.ephemeralVm.suspendWorkspace({ workspaceId: worktreeId })
-          }
         })
         // Why: a workspace the user activated during the batch is awake by their choice.
         if (useAppStore.getState().activeWorktreeId === worktreeId) {

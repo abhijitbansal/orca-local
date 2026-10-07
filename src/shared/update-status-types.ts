@@ -1,5 +1,3 @@
-import type { DedicatedRepoChannel, ReleaseBuild, ReleaseChannel } from './release-channel'
-
 // ─── Updater ─────────────────────────────────────────────────────────
 
 // Why: the release object sent to the renderer omits `version` (redundant
@@ -20,14 +18,7 @@ export type UpdateCheckOptions = {
   includePrerelease?: boolean
   includePerfPrerelease?: boolean
   localBuild?: boolean
-  /** Dev channel switching; `targetTag` pins an exact build, including older ones. */
-  channel?: ReleaseChannel
-  targetTag?: string
 }
-
-/** Non-release origins for an update. Derived from the dev-channel list so a new
- *  channel with its own repo cannot be reported as an ordinary release. */
-export type UpdateSource = 'local' | DedicatedRepoChannel
 
 /** Root-package Linux install formats whose update installs need privilege escalation. */
 export type LinuxRootPackageType = 'deb' | 'rpm'
@@ -56,7 +47,7 @@ export type LinuxPackageInstallInstructions =
   | { ok: true; command: string; packageFileName: string }
   | { ok: false; reason: LinuxPackageCommandUnavailableReason; message: string }
 
-export type UpdateStatus = (
+export type UpdateStatus =
   | { state: 'idle' }
   | { state: 'checking'; userInitiated?: boolean }
   | {
@@ -92,8 +83,3 @@ export type UpdateStatus = (
       activeNudgeId?: string
       recovery?: LinuxPackageInstallRecovery
     }
-) & { source?: UpdateSource }
-
-export type ReleaseBuildListResult =
-  | { ok: true; channel: ReleaseChannel; builds: ReleaseBuild[] }
-  | { ok: false; channel: ReleaseChannel; message: string }

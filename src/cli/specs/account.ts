@@ -24,9 +24,7 @@ export const ACCOUNT_COMMAND_SPECS: CommandSpec[] = [
     summary: 'List managed Claude and Codex accounts on this Orca host',
     usage: 'orca account list [--json]',
     allowedFlags: [...GLOBAL_FLAGS],
-    notes: [
-      'Lists the accounts on this machine. `--environment` / `--pairing-code` are rejected rather than ignored; run it on the host whose accounts you want to see.'
-    ],
+    notes: ['Lists the accounts on this machine.'],
     examples: ['orca account list']
   }
 ]

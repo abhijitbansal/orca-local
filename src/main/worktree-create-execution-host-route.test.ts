@@ -1,5 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
-import { registerSshGitProvider, unregisterSshGitProvider } from './providers/ssh-git-dispatch'
+import { describe, expect, it } from 'vitest'
 import { ExecutionHostNotDispatchableError } from './providers/execution-host-provider-dispatch'
 import type { Repo } from '../shared/repo-types'
 import {
@@ -21,15 +20,8 @@ function repoRow(fields: Partial<Repo>): Repo {
   } as Repo
 }
 
-afterEach(() => {
-  unregisterSshGitProvider(HOST_A)
-  unregisterSshGitProvider(HOST_B)
-})
-
 describe('resolveWorktreeCreateRoute', () => {
   it('routes a row that names its host only as executionHostId to that SSH target', () => {
-    registerSshGitProvider(HOST_A, { name: 'git-a' } as never)
-
     expect(resolveWorktreeCreateRoute(repoRow({ executionHostId: 'ssh:target-a' }))).toMatchObject({
       kind: 'ssh',
       hostId: 'ssh:target-a',
@@ -47,9 +39,6 @@ describe('resolveWorktreeCreateRoute', () => {
   })
 
   it('keeps two simultaneously registered SSH hosts on their own connections', () => {
-    registerSshGitProvider(HOST_A, { name: 'git-a' } as never)
-    registerSshGitProvider(HOST_B, { name: 'git-b' } as never)
-
     expect(resolveWorktreeCreateRoute(repoRow({ executionHostId: 'ssh:target-a' }))).toMatchObject({
       connectionId: HOST_A,
       repo: { connectionId: HOST_A }
@@ -77,8 +66,6 @@ describe('resolveWorktreeCreateRoute', () => {
   })
 
   it('answers runtime for a runtime row whose nested target is dialable here', () => {
-    registerSshGitProvider(HOST_A, { name: 'git-a' } as never)
-
     expect(
       resolveWorktreeCreateRoute(
         repoRow({ executionHostId: 'runtime:env-1', connectionId: HOST_A })
@@ -95,8 +82,6 @@ describe('requireWorktreeCreateRoute', () => {
   })
 
   it('passes local and SSH hosts through unchanged', () => {
-    registerSshGitProvider(HOST_A, { name: 'git-a' } as never)
-
     expect(requireWorktreeCreateRoute(repoRow({}))).toEqual({ kind: 'local', hostId: 'local' })
     expect(requireWorktreeCreateRoute(repoRow({ executionHostId: 'ssh:target-a' }))).toMatchObject({
       kind: 'ssh',

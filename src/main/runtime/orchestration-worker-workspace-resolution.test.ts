@@ -33,10 +33,6 @@ import type { FolderWorkspace } from '../../shared/folder-workspace-types'
 import type { ProjectGroup } from '../../shared/project-group-types'
 import type { Repo } from '../../shared/repo-types'
 import type { WorktreeMeta } from '../../shared/worktree/meta-types'
-import {
-  registerSshFilesystemProvider,
-  unregisterSshFilesystemProvider
-} from '../providers/ssh-filesystem-dispatch'
 import { OrcaRuntimeService } from './orca-runtime'
 
 const REPO_ID = 'repo-1'
@@ -234,47 +230,33 @@ describe('orchestration worker workspace resolution', () => {
     )
   })
 
-  it('resolves local and SSH folder workspaces without a Git catalog scan', async () => {
+  it('resolves a local folder workspace without a Git catalog scan', async () => {
     const localPath = await mkdtemp(join(tmpdir(), 'orca-worker-local-folder-'))
     tempPaths.push(localPath)
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the resolver reads only id, name and parentPath of the group.
     const group = { id: 'group-1', name: 'Group', parentPath: localPath } as ProjectGroup
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the resolver reads only id, name, folderPath and projectGroupId.
     const localFolder = {
       id: 'local-folder',
       projectGroupId: group.id,
       name: 'Local folder',
       folderPath: localPath
     } as FolderWorkspace
-    const remoteFolder = {
-      ...localFolder,
-      id: 'remote-folder',
-      name: 'Remote folder',
-      folderPath: '/srv/app',
-      connectionId: 'ssh-folder'
-    }
-    registerSshFilesystemProvider('ssh-folder', {
-      stat: vi.fn().mockResolvedValue({ type: 'directory', size: 0, mtime: 1 })
-    } as never)
-    try {
-      const runtime = new OrcaRuntimeService(
-        makeStore({
-          folderWorkspaces: [localFolder, remoteFolder],
-          projectGroups: [group]
-        }) as never
-      )
+    const runtime = new OrcaRuntimeService(
+      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the stub store carries only the folder workspaces and groups the resolver reads.
+      makeStore({
+        folderWorkspaces: [localFolder],
+        projectGroups: [group]
+      }) as never
+    )
 
-      await expect(
-        runtime.showManagedTerminalWorkspace('folder:local-folder')
-      ).resolves.toMatchObject({
-        id: 'folder:local-folder',
-        path: localPath,
-        hostId: 'local'
-      })
-      await expect(
-        runtime.showManagedTerminalWorkspace('id:folder:remote-folder')
-      ).resolves.toMatchObject({ id: 'folder:remote-folder', hostId: 'ssh:ssh-folder' })
-    } finally {
-      unregisterSshFilesystemProvider('ssh-folder')
-    }
+    await expect(
+      runtime.showManagedTerminalWorkspace('folder:local-folder')
+    ).resolves.toMatchObject({
+      id: 'folder:local-folder',
+      path: localPath,
+      hostId: 'local'
+    })
     expect(scanLocalRepoWorktreesForResolution).not.toHaveBeenCalled()
   })
 

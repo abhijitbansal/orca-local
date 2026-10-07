@@ -4,11 +4,6 @@ import {
   createUntitledMarkdownFileWithTemplateSelection
 } from './create-untitled-markdown'
 import { subscribeMarkdownTemplatePicker } from './markdown-template-picker-request'
-import {
-  createCompatibleRuntimeStatusResponseIfNeeded,
-  type RuntimeEnvironmentCallRequest
-} from '@/runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '@/runtime/runtime-rpc-client'
 
 describe('createUntitledMarkdownFile', () => {
   afterEach(() => {
@@ -222,65 +217,5 @@ describe('createUntitledMarkdownFile', () => {
     expect(writeFile).toHaveBeenCalledWith(
       expect.objectContaining({ filePath: '/repo/untitled.md', content: '# Untitled\n' })
     )
-  })
-
-  it('creates untitled files through the selected runtime environment', async () => {
-    clearRuntimeCompatibilityCacheForTests()
-    const stat = vi.fn()
-    const createFile = vi.fn()
-    const runtimeEnvironmentCall = vi
-      .fn()
-      .mockResolvedValueOnce({
-        id: 'rpc-1',
-        ok: false,
-        error: { message: 'ENOENT: no such file' },
-        _meta: { runtimeId: 'remote-runtime' }
-      })
-      .mockResolvedValueOnce({
-        id: 'rpc-2',
-        ok: true,
-        result: { ok: true },
-        _meta: { runtimeId: 'remote-runtime' }
-      })
-    const runtimeEnvironmentTransportCall = vi.fn((args: RuntimeEnvironmentCallRequest) => {
-      return createCompatibleRuntimeStatusResponseIfNeeded(args) ?? runtimeEnvironmentCall(args)
-    })
-
-    vi.stubGlobal('window', {
-      api: {
-        shell: { pathExists: vi.fn() },
-        fs: { createFile, stat },
-        runtimeEnvironments: { call: runtimeEnvironmentTransportCall }
-      }
-    })
-
-    await expect(
-      createUntitledMarkdownFile('/remote/repo', 'wt-1', undefined, {
-        activeRuntimeEnvironmentId: 'env-1'
-      })
-    ).resolves.toMatchObject({
-      filePath: '/remote/repo/untitled.md',
-      relativePath: 'untitled.md'
-    })
-
-    expect(runtimeEnvironmentCall).toHaveBeenNthCalledWith(1, {
-      selector: 'env-1',
-      method: 'files.stat',
-      params: { worktree: 'id:wt-1', relativePath: 'untitled.md' },
-      timeoutMs: 15_000
-    })
-    expect(runtimeEnvironmentCall).toHaveBeenNthCalledWith(2, {
-      selector: 'env-1',
-      method: 'files.createFile',
-      expectedEnvironmentPairingRevision: undefined,
-      params: {
-        worktree: 'id:wt-1',
-        relativePath: 'untitled.md',
-        expectedExecutionHostId: 'local'
-      },
-      timeoutMs: 15_000
-    })
-    expect(stat).not.toHaveBeenCalled()
-    expect(createFile).not.toHaveBeenCalled()
   })
 })

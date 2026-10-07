@@ -1,20 +1,13 @@
 import { extname } from 'node:path'
-import type { RuntimeFilePreviewResult } from '../../shared/runtime-file-contracts'
 import type { DocPreviewFileFailureReason } from '../../shared/doc-preview-scheme'
-import { callRuntimeEnvironment } from '../ipc/runtime-environment-transport-routing'
-import { FileReadCapExceededError } from '../ssh/ssh-filesystem-stream-reader'
-import { getCanonicalUserDataPath } from '../persistence'
 import { requireSshFilesystemProvider } from '../providers/ssh-filesystem-dispatch'
 import {
   resolveDocPreviewAuthorityPaths,
   resolveDocPreviewCandidatePath,
   resolveDocPreviewTargetPath,
-  toRuntimeWorktreeRelativeDirectoryPath,
-  toRuntimeWorktreeRelativePath,
   type DocPreviewGrant
 } from './doc-preview-grant-registry'
 
-const DOC_PREVIEW_READ_TIMEOUT_MS = 15_000
 const DIRECT_SSH_DOC_PREVIEW_TEXT_MAX_BYTES = 10 * 1024 * 1024
 const DIRECT_SSH_DOC_PREVIEW_BINARY_MAX_BYTES = 10 * 1024 * 1024
 
@@ -26,19 +19,11 @@ const UNSERVABLE_ASSET_PREVIEW_MESSAGE = 'This workspace cannot send this file t
  *  render a silently half-finished document. */
 const TRUNCATED_PREVIEW_MESSAGE = 'This document is too large for the server to send in full.'
 
-/** The paired host rejects an over-cap asset outright instead of clamping it. */
-const RUNTIME_TOO_LARGE_ERROR = 'file_too_large'
+/** A provider reports an over-cap file with this message. */
+const TOO_LARGE_ERROR_MESSAGE = 'file_too_large'
 
-/** Same stance as the SSH relay message: previews fail closed on a host without scoped reads. */
-const RUNTIME_DOC_PREVIEW_UPDATE_REQUIRED_MESSAGE =
-  'Secure document previews require a newer Orca on the paired machine. Update it and try again.'
-
-/** Both owners refuse an over-cap file; only their error shapes differ. */
 function isTooLargeReadError(error: unknown): boolean {
-  return (
-    error instanceof FileReadCapExceededError ||
-    (error instanceof Error && error.message === RUNTIME_TOO_LARGE_ERROR)
-  )
+  return error instanceof Error && error.message === TOO_LARGE_ERROR_MESSAGE
 }
 
 export type DocPreviewReadOutcome =
@@ -107,45 +92,6 @@ function toOutcome(source: PreviewFileBytes, contentType: string): DocPreviewRea
       }
 }
 
-async function readRuntimeDocPreviewFile(
-  environmentId: string,
-  worktreeSelector: string,
-  relativePath: string,
-  entryRelativePath: string,
-  implicitRootRelativePath: string | null,
-  authorizedRootRelativePaths: string[]
-): Promise<PreviewFileBytes> {
-  const userDataPath = getCanonicalUserDataPath()
-  const response = await callRuntimeEnvironment(
-    userDataPath,
-    environmentId,
-    'files.readDocPreview',
-    {
-      worktree: worktreeSelector,
-      relativePath,
-      entryRelativePath,
-      implicitRootRelativePath,
-      authorizedRootRelativePaths
-    },
-    DOC_PREVIEW_READ_TIMEOUT_MS
-  )
-  if (!response.ok) {
-    // Why the rewrite: fail-closed on an old host is deliberate, so tell the reader what to do —
-    // the raw method_not_found wording reads as a broken preview, not an out-of-date machine.
-    throw new Error(
-      response.error.code === 'method_not_found'
-        ? RUNTIME_DOC_PREVIEW_UPDATE_REQUIRED_MESSAGE
-        : response.error.message
-    )
-  }
-  const preview = response.result as RuntimeFilePreviewResult
-  return {
-    content: preview.content,
-    isBinary: preview.isBinary,
-    ...(preview.mimeType ? { mimeType: preview.mimeType } : {})
-  }
-}
-
 function notFoundOutcome(message = 'Not found'): DocPreviewReadOutcome {
   return { ok: false, status: 404, reason: 'unreadable', message }
 }
@@ -189,39 +135,8 @@ export async function readDocPreviewFile(
         contentType
       )
     }
-    const runtimeOwner = grant.owner
-    const worktreeRelativePath = toRuntimeWorktreeRelativePath(
-      runtimeOwner.worktreeRoot,
-      absolutePath
-    )
-    const authority = resolveDocPreviewAuthorityPaths(grant)
-    const entryRelativePath = authority.entryPath
-      ? toRuntimeWorktreeRelativePath(runtimeOwner.worktreeRoot, authority.entryPath)
-      : null
-    const implicitRootRelativePath = authority.implicitRootPath
-      ? toRuntimeWorktreeRelativeDirectoryPath(
-          runtimeOwner.worktreeRoot,
-          authority.implicitRootPath
-        )
-      : null
-    const authorizedRootRelativePaths = authority.authorizedRootPaths
-      .map((root) => toRuntimeWorktreeRelativeDirectoryPath(runtimeOwner.worktreeRoot, root))
-      .filter((root): root is string => root !== null)
-    if (!worktreeRelativePath || !entryRelativePath) {
-      // Why: files.read is worktree-scoped, so a doc outside the worktree has no client-side channel.
-      return notFoundOutcome()
-    }
-    return toOutcome(
-      await readRuntimeDocPreviewFile(
-        runtimeOwner.environmentId,
-        runtimeOwner.worktreeSelector,
-        worktreeRelativePath,
-        entryRelativePath,
-        implicitRootRelativePath,
-        authorizedRootRelativePaths
-      ),
-      contentType
-    )
+    // Why: a runtime-owned grant names a paired server's filesystem, which this build can never read.
+    return notFoundOutcome('unsupported_in_local_build: remote Orca runtimes were removed')
   } catch (error) {
     return isTooLargeReadError(error)
       ? { ok: false, status: 413, reason: 'too-large', message: TRUNCATED_PREVIEW_MESSAGE }

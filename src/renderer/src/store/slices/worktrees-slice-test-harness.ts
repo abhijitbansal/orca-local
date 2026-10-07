@@ -8,7 +8,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '../../runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 import { LOCAL_EXECUTION_HOST_ID } from '../../../../shared/execution-host'
 import type {
   ForgetRemovedWorktreesForExecutionHostArgs,
@@ -68,7 +67,6 @@ export const forgetRemovedForExecutionHostMock = vi.fn<
 export const mockApi = {
   worktrees: {
     create: stubMock(),
-    adoptProvisionedRoot: stubMock(),
     prefetchCreateBase: stubMock().mockResolvedValue(undefined),
     list: worktreeListMock,
     listDetected: listDetectedMock,
@@ -79,8 +77,6 @@ export const mockApi = {
     remove: stubMock().mockResolvedValue(undefined),
     forgetLocal: stubMock().mockResolvedValue({}),
     forceDeletePreservedBranch: stubMock().mockResolvedValue({ deleted: true }),
-    resolvePrBase: stubMock(),
-    resolveMrBase: stubMock(),
     updateMeta:
       stubMock<[{ worktreeId: string; updates: Partial<WorktreeMeta> }]>().mockResolvedValue(
         undefined
@@ -105,11 +101,6 @@ export const mockApi = {
       ok: true,
       result: { stoppedWorktreeIds: [] }
     })
-  },
-  ephemeralVm: {
-    cancelProvision: stubMock().mockResolvedValue({ cancelled: true }),
-    cleanup: stubMock().mockResolvedValue({}),
-    listRuntimes: stubMock().mockResolvedValue([])
   }
 }
 
@@ -117,7 +108,6 @@ export const mockApi = {
 globalThis.window = { api: mockApi }
 
 export function resetRemoteRuntimeMocks() {
-  clearRuntimeCompatibilityCacheForTests()
   resetHostedReviewLinkMutationGenerationForTests()
   runtimeEnvironmentCall.mockReset()
   runtimeEnvironmentTransportCall.mockReset()
@@ -224,5 +214,4 @@ export function createLocalLineageTestStore(lineage: WorktreeLineage) {
 export function resetWorktreeSliceModuleMemory() {
   resetAuthoritativelyRemovedWorktreeMemoryForTests()
   mockApi.worktrees.create.mockReset()
-  mockApi.worktrees.adoptProvisionedRoot.mockReset()
 }

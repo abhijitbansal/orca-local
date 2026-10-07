@@ -28,8 +28,8 @@ function lint(file, args = []) {
   return { status: result.status, diagnostics: JSON.parse(result.stdout).diagnostics }
 }
 
-it.each(['config', 'mobile'])('enforces new casts without changing full lint in %s', (parent) => {
-  const directory = mkdtempSync(path.join(root, parent, 'casting-lint-test-'))
+it('enforces new casts without changing full lint in config', () => {
+  const directory = mkdtempSync(path.join(root, 'config', 'casting-lint-test-'))
   const file = path.join(directory, 'fixture.test.ts')
   try {
     writeFileSync(

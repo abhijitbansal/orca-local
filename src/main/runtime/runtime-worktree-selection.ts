@@ -102,7 +102,3 @@ export function getExplicitWorktreeIdSelector(selector: string | undefined): str
   const id = selector.slice(3)
   return id.length > 0 ? id : null
 }
-
-export function hasLocalGitOptions(gitOptions: { wslDistro?: string }): boolean {
-  return Object.keys(gitOptions).length > 0
-}

@@ -1,3 +1,4 @@
+import { isPluginCommandLegacyNoopActionId } from '../../../shared/plugins/plugin-command-actions'
 import type { ActivePluginCommand } from '@/store/plugin-panels'
 import { dispatchAppCommand, type AppCommandSource } from './app-command-dispatch'
 
@@ -6,6 +7,9 @@ export async function executePluginCommand(
   source: AppCommandSource
 ): Promise<void> {
   if (command.handler.type === 'built-in') {
+    if (isPluginCommandLegacyNoopActionId(command.handler.action)) {
+      return
+    }
     if (!dispatchAppCommand(command.handler.action, source)) {
       throw new Error('built-in action is unavailable in the current context')
     }

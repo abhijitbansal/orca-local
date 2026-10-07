@@ -49,8 +49,7 @@ vi.mock('./OnboardingInlineCommandTerminal', () => ({
 const SELECTION = {
   browserUse: false,
   computerUse: false,
-  orchestration: true,
-  linearTickets: false
+  orchestration: true
 }
 
 describe('FeatureSetupInlineTerminal', () => {

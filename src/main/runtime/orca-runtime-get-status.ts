@@ -11,19 +11,15 @@ import {
   BROWSER_HEADLESS_RUNTIME_CAPABILITY,
   BROWSER_IDENTITY_RUNTIME_CAPABILITY,
   MIN_COMPATIBLE_RUNTIME_CLIENT_VERSION,
-  REMOTE_RUNTIME_SHARED_CONTROL_CAPABILITY,
   RUNTIME_CAPABILITIES,
   RUNTIME_PROTOCOL_VERSION,
   SESSION_TABS_AUTHORITATIVE_INVENTORY_RUNTIME_CAPABILITY,
-  TERMINAL_PROMPT_DELIVERY_RUNTIME_CAPABILITY,
-  TERMINAL_PAIRED_PARKING_RUNTIME_CAPABILITY
+  TERMINAL_PROMPT_DELIVERY_RUNTIME_CAPABILITY
 } from '../../shared/protocol-version'
 import {
   BROWSER_UNAVAILABLE_ERROR_CODE,
   browserUnavailableMessage
 } from '../../shared/runtime-types'
-import { MOBILE_WEB_BUNDLE_CAPABILITY } from '../../shared/mobile-web-bundle/mobile-web-bundle-capability'
-import { loadBundledMobileWebBundle } from './bundled-mobile-web-bundle'
 import { runtimeTerminalDegradation } from './native-terminal-availability'
 import { isWindowsProcessStartTimeAvailable } from '../windows/windows-process-table'
 import type { RuntimeWorktreeLifecycleEvent } from './orca-runtime-core'
@@ -82,11 +78,6 @@ export class OrcaRuntimeWithGetStatus extends OrcaRuntimeWithGetRuntimeId {
     const capabilities: RuntimeCapability[] = RUNTIME_CAPABILITIES.filter(
       (capability) =>
         (capability !== 'browser.screencast.v1' || canBrowse) &&
-        // Why: the nested-runtime E2E needs a real legacy transport without maintaining an old binary fixture.
-        (process.env.ORCA_E2E_DISABLE_RUNTIME_SHARED_CONTROL !== '1' ||
-          capability !== REMOTE_RUNTIME_SHARED_CONTROL_CAPABILITY) &&
-        (process.env.ORCA_E2E_DISABLE_PAIRED_TERMINAL_PARKING !== '1' ||
-          capability !== TERMINAL_PAIRED_PARKING_RUNTIME_CAPABILITY) &&
         (process.env.ORCA_E2E_DISABLE_AUTHORITATIVE_SESSION_TABS_INVENTORY !== '1' ||
           capability !== SESSION_TABS_AUTHORITATIVE_INVENTORY_RUNTIME_CAPABILITY) &&
         (capability !== TERMINAL_PROMPT_DELIVERY_RUNTIME_CAPABILITY ||
@@ -106,12 +97,6 @@ export class OrcaRuntimeWithGetStatus extends OrcaRuntimeWithGetRuntimeId {
     // can host a page so remote clients can surface Proceed Anyway (Unsafe).
     if (canBrowse) {
       capabilities.push(BROWSER_CERTIFICATE_TRUST_RUNTIME_CAPABILITY)
-    }
-    // Why not a static capability: dev trees and `orca serve` installs may carry no
-    // out/mobile-web, and advertising a bundle this install cannot produce would promise a
-    // download that only ever answers mobile_web_bundle_unavailable.
-    if (loadBundledMobileWebBundle()) {
-      capabilities.push(MOBILE_WEB_BUNDLE_CAPABILITY)
     }
     // Why the cause and not one fixed sentence: the operator can only act on the reason
     // that actually applies, and a host that says "set ORCA_BROWSER_EXECUTABLE" to someone
@@ -179,9 +164,6 @@ export class OrcaRuntimeWithGetStatus extends OrcaRuntimeWithGetRuntimeId {
 
   setNotifier(notifier: RuntimeNotifier | null): void {
     this.notifier = notifier
-    if (notifier) {
-      this.repositoryForkBackfill.start()
-    }
   }
 
   protected countTerminalSideEffectConsumingClientEventListeners(): number {

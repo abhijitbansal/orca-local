@@ -12,7 +12,6 @@ import { usePendingSidebarReveal } from '../navigation/use-pending-reveal'
 import { usePrimaryActiveWorktreeRow } from '../navigation/use-active-row'
 import { useSidebarRevealHighlight } from '../navigation/use-reveal-highlight'
 import { useVirtualRowMeasurementSync } from './use-row-measurement'
-import { useVisiblePrRefreshReporting } from './use-visible-review-refresh'
 import { useWorkspaceStatusRowDrag } from '../drag/use-status-row-drag'
 import { useWorktreeDragRuntime } from '../drag/use-runtime'
 import { useWorktreeDragSession } from '../drag/use-session'
@@ -240,16 +239,6 @@ export const VirtualizedWorktreeViewport = React.memo(function VirtualizedWorktr
     groupBy,
     onMoveWorktreeToStatus: props.onMoveWorktreeToStatus,
     onPinWorktree: props.onPinWorktree
-  })
-
-  useVisiblePrRefreshReporting({
-    currentWorktreeId: props.currentWorktreeId,
-    worktreeMap,
-    groupBy,
-    newCardStyle,
-    renderRows,
-    virtualItems,
-    scrollRef
   })
 
   // Why: a callback ref that changes identity is re-invoked with null on every render, which

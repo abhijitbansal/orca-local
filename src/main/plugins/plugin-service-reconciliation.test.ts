@@ -193,7 +193,7 @@ describe('PluginService worker reconciliation', () => {
       engines: { orca: '>=1.0.0' },
       pluginApi: 1,
       contributes: {
-        commands: [{ id: 'tasks', title: 'Tasks', action: 'view.tasks' }]
+        commands: [{ id: 'tasks', title: 'Tasks', action: 'workspace.openBoard' }]
       },
       capabilities: []
     })

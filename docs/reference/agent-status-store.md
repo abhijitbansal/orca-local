@@ -46,7 +46,7 @@ the CLI.
 
 **The execution host owns agent status, in one store, and every reader
 subscribes to it.** This follows the boundary in
-[`ssh-execution-boundary.md`](./ssh-execution-boundary.md): the host that runs
+[execution verdicts](../../AGENTS.md#execution-verdicts): the host that runs
 the process is the only party that can observe it, and the client is never
 authoritative for execution state.
 
@@ -189,7 +189,7 @@ path, and the hand-rolled check in `runtime-worktree-agent-rows.ts` goes.
 
 `AgentStatusIpcPayload` gains one optional field, `structuredHost`, and the
 `worktree ps` row gains `structuredHostOwned`. Under rule 1 of
-[`remote-wire-compatibility.md`](./remote-wire-compatibility.md) both are safe:
+the former remote wire compatibility rules (optional fields are safe) both are safe:
 an old client ignores them. `worktree ps` rows keep their shape and vocabulary,
 so the mobile app sees no change.
 

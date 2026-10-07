@@ -6,7 +6,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '../../runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 
 const localRepo: Repo = {
   id: 'local-repo',
@@ -28,7 +27,6 @@ const runtimeEnvironmentTransportCall = vi.fn()
 const dispatchEventMock = vi.fn()
 
 beforeEach(() => {
-  clearRuntimeCompatibilityCacheForTests()
   projectsList.mockReset()
   projectsUpdate.mockReset()
   projectsCreateHostSetup.mockReset()
@@ -205,66 +203,6 @@ describe('repo slice project runtime updates', () => {
       updates: { localWindowsRuntimePreference: { kind: 'windows-host' } }
     })
     expect(runtimeEnvironmentCall).not.toHaveBeenCalled()
-  })
-
-  it('updates remote project runtime preferences through the active runtime', async () => {
-    const project: Project = {
-      id: 'project-1',
-      displayName: 'Project',
-      badgeColor: '#000',
-      sourceRepoIds: ['remote-repo'],
-      createdAt: 1,
-      updatedAt: 1
-    }
-    runtimeEnvironmentCall.mockResolvedValue({
-      id: 'rpc-project-update',
-      ok: true,
-      result: {
-        project: {
-          ...project,
-          localWindowsRuntimePreference: { kind: 'wsl', distro: 'Ubuntu' }
-        }
-      },
-      _meta: { runtimeId: 'runtime-remote' }
-    })
-    const store = createTestStore()
-    store.setState({
-      settings: { activeRuntimeEnvironmentId: 'env-1' } as never,
-      projects: [project],
-      projectHostSetups: [
-        {
-          id: 'setup-1',
-          projectId: project.id,
-          hostId: 'runtime:env-1',
-          repoId: 'remote-repo',
-          path: '/srv/repo',
-          displayName: 'Remote',
-          setupState: 'ready',
-          setupMethod: 'imported-existing-folder',
-          createdAt: 1,
-          updatedAt: 1
-        }
-      ]
-    })
-
-    await store.getState().updateProject(project.id, {
-      localWindowsRuntimePreference: { kind: 'wsl', distro: 'Ubuntu' }
-    })
-
-    expect(store.getState().projects[0]?.localWindowsRuntimePreference).toEqual({
-      kind: 'wsl',
-      distro: 'Ubuntu'
-    })
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-      selector: 'env-1',
-      method: 'project.update',
-      params: {
-        projectId: project.id,
-        updates: { localWindowsRuntimePreference: { kind: 'wsl', distro: 'Ubuntu' } }
-      },
-      timeoutMs: 15_000
-    })
-    expect(projectsUpdate).not.toHaveBeenCalled()
   })
 
   // Why: a host whose repos carry no `addedAt` projects createdAt 0, which means unknown, not

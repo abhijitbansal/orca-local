@@ -9,13 +9,11 @@ import type { RemoteFetchResult, RemoteTrackingBase } from './runtime-remote-fet
 import type { WorktreeBaseStatusEvent } from '../../shared/worktree/base-ref-drift-types'
 import { probeRuntimeWorktreeDrift } from './runtime-worktree-drift-probe'
 import type { WorktreeMeta } from '../../shared/worktree/meta-types'
-import type { GitHubPrStartPoint, GitPushTarget } from '../../shared/worktree/types'
+import type { GitPushTarget } from '../../shared/worktree/types'
 import {
   persistRuntimeManagedWorktreeSortOrder,
   updateRuntimeManagedWorktreeMetadata
 } from './runtime-managed-worktree-metadata'
-import { resolveRuntimeGitHubWorktreeBase } from './runtime-github-worktree-base'
-import { resolveRuntimeGitLabWorktreeBase } from './runtime-gitlab-worktree-base'
 
 export class OrcaRuntimeWithCreateManagedRemoteWorktree extends OrcaRuntimeWithCreateManagedWorktree {
   protected createManagedRemoteWorktree(
@@ -179,34 +177,6 @@ export class OrcaRuntimeWithCreateManagedRemoteWorktree extends OrcaRuntimeWithC
       store: this.store,
       invalidateResolved: () => this.invalidateResolvedWorktreeCache(),
       notifyChanged: (repoId) => this.notifyWorktreesChanged(repoId)
-    })
-  }
-
-  async resolveManagedPrBase(args: {
-    repoSelector: string
-    prNumber: number
-    headRefName?: string
-    baseRefName?: string
-    isCrossRepository?: boolean
-  }): Promise<GitHubPrStartPoint | { error: string }> {
-    return resolveRuntimeGitHubWorktreeBase(args, {
-      store: this.store ? this.requireStore() : null,
-      resolveRepo: (selector) => this.resolveRepoSelector(selector)
-    })
-  }
-
-  async resolveManagedMrBase(args: {
-    repoSelector: string
-    mrIid: number
-    sourceBranch?: string
-    targetBranch?: string
-    isCrossRepository?: boolean
-  }): Promise<
-    { baseBranch: string; compareBaseRef?: string; pushTarget?: GitPushTarget } | { error: string }
-  > {
-    return resolveRuntimeGitLabWorktreeBase(args, {
-      store: this.store ? this.requireStore() : null,
-      resolveRepo: (selector) => this.resolveRepoSelector(selector)
     })
   }
 }

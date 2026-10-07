@@ -14,11 +14,9 @@ export type SettingsNavInstallStatus =
 
 const SETTINGS_NAV_TARGETS = [
   'general',
-  'integrations',
   'accounts',
   'browser',
   'git',
-  'tasks',
   'appearance',
   'input',
   'floating-workspace',
@@ -38,24 +36,15 @@ const SETTINGS_NAV_TARGETS = [
   'plugins',
   'agents',
   'orchestration',
-  'artifacts',
   'session-history',
   'share-skills',
   'automations',
-  'orca-account',
-  'linear',
   'setup-guide',
-  'servers',
-  'mobile',
   'mobile-emulator',
   'repo'
 ] as const
 
-const SETTINGS_NAV_INTENTS = [
-  'add-quick-command',
-  'add-remote-orca-server',
-  'add-ssh-host'
-] as const
+const SETTINGS_NAV_INTENTS = ['add-quick-command', 'add-ssh-host'] as const
 
 const SETTINGS_NAV_TARGET_SET: ReadonlySet<string> = new Set(SETTINGS_NAV_TARGETS)
 const SETTINGS_NAV_INTENT_SET: ReadonlySet<string> = new Set(SETTINGS_NAV_INTENTS)

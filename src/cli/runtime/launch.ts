@@ -1,26 +1,11 @@
 import { spawn as spawnProcess, type SpawnOptions } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
-import { StringDecoder } from 'node:string_decoder'
 import { runProcessSync } from '../../shared/child-process/run-process'
-import {
-  SERVE_UPDATE_HANDOFF_PATH_ENV,
-  getServeUpdateHandoffPath
-} from '../../shared/serve-update-handoff'
-import {
-  getEphemeralVmRecipeResultConnection,
-  parseEphemeralVmRecipeResult
-} from '../../shared/ephemeral-vm-recipes'
-import { getDefaultUserDataPath } from './metadata'
 import { getMacAppBundlePath } from './mac-app-update-bundle'
-import {
-  readServeUpdateHandoffSync,
-  resumeInterruptedServeUpdate,
-  superviseForegroundServe
-} from './serve-update-supervisor'
+import { superviseForegroundServe } from './serve-foreground-supervisor'
 import { RuntimeClientError } from './types'
 
-const IGNORED_NON_RECIPE_STDOUT = '[serve] ignored non-recipe stdout'
 const USER_NAMESPACE_PROBE_TIMEOUT_MS = 2_000
 
 export function launchOrcaApp(): void {
@@ -77,182 +62,22 @@ function spawnDetached(command: string, args: string[], options: SpawnOptions): 
   child.unref()
 }
 
-export function serveOrcaApp(
-  args: {
-    json?: boolean
-    port?: string | null
-    pairingAddress?: string | null
-    noPairing?: boolean
-    mobilePairing?: boolean
-    recipeJson?: boolean
-    projectRoot?: string | null
-  } = {}
-): Promise<number> {
+export function serveOrcaApp(args: { json?: boolean } = {}): Promise<number> {
   const executable = resolveForegroundOrcaExecutable()
   const childArgs = [...getExecutableAppArgs(executable)]
   childArgs.push('--serve')
   if (args.json) {
     childArgs.push('--serve-json')
   }
-  if (args.port) {
-    childArgs.push('--serve-port', args.port)
-  }
-  if (args.pairingAddress) {
-    childArgs.push('--serve-pairing-address', args.pairingAddress)
-  }
-  if (args.noPairing) {
-    childArgs.push('--serve-no-pairing')
-  }
-  if (args.mobilePairing) {
-    childArgs.push('--serve-mobile-pairing')
-  }
-  if (args.recipeJson) {
-    if (!args.projectRoot) {
-      throw new RuntimeClientError(
-        'invalid_argument',
-        'Recipe JSON output requires --project-root.'
-      )
-    }
-    childArgs.push('--serve-recipe-json', '--serve-project-root', args.projectRoot)
-  }
 
-  const handoffPath =
-    args.recipeJson !== true && getMacAppBundlePath(executable)
-      ? getServeUpdateHandoffPath(getDefaultUserDataPath())
-      : null
-  const childEnv = stripElectronRunAsNode(process.env)
-  if (handoffPath) {
-    childEnv[SERVE_UPDATE_HANDOFF_PATH_ENV] = handoffPath
-  }
   const spawnOptions: SpawnOptions = {
-    detached: args.recipeJson === true,
+    detached: false,
     cwd: resolveAppRoot(),
-    stdio:
-      args.recipeJson === true
-        ? ['ignore', 'pipe', 'inherit']
-        : handoffPath
-          ? ['inherit', 'inherit', 'inherit', 'ipc']
-          : 'inherit',
+    stdio: 'inherit',
     ...getExecutableSpawnOptions(executable),
-    env: childEnv
+    env: stripElectronRunAsNode(process.env)
   }
-  const interruptedHandoff = handoffPath ? readServeUpdateHandoffSync(handoffPath) : null
-  if (interruptedHandoff?.phase === 'install-requested') {
-    // Why: the node-mode CLI is not an NSRunningApplication, so it can retain launchd ownership while ShipIt swaps the app.
-    return resumeInterruptedServeUpdate({
-      executable,
-      childArgs,
-      spawnOptions,
-      spawnChild: spawnProcess,
-      handoffPath: handoffPath!,
-      handoff: interruptedHandoff
-    })
-  }
-  const child = spawnProcess(executable, childArgs, spawnOptions)
-
-  if (args.recipeJson) {
-    return waitForRecipeJson(child)
-  }
-  return superviseForegroundServe({
-    executable,
-    childArgs,
-    spawnOptions,
-    spawnChild: spawnProcess,
-    child,
-    handoffPath,
-    expectedHandoff: null
-  })
-}
-
-function waitForRecipeJson(child: ReturnType<typeof spawnProcess>): Promise<number> {
-  return new Promise((resolve, reject) => {
-    let output = ''
-    let settled = false
-    const timeout = setTimeout(() => {
-      finish(new RuntimeClientError('runtime_serve_failed', 'Timed out waiting for recipe JSON.'))
-      child.kill('SIGTERM')
-    }, 60000)
-    const finish = (error?: Error): void => {
-      if (settled) {
-        return
-      }
-      settled = true
-      clearTimeout(timeout)
-      child.stdout?.off('data', onData)
-      child.off('error', onError)
-      child.off('close', onClose)
-      if (error) {
-        reject(error)
-        return
-      }
-      child.stdout?.destroy?.()
-      child.unref()
-      resolve(0)
-    }
-    const writeIgnoredRecipeStdout = (): void => {
-      // Why: non-readiness child stdout is untrusted and cannot be safely
-      // redacted, including schema-valid results with arbitrary user data.
-      process.stderr.write(`${IGNORED_NON_RECIPE_STDOUT}\n`)
-    }
-    const processRecipeOutputLine = (line: string): void => {
-      const normalizedLine = line.endsWith('\r') ? line.slice(0, -1) : line
-      if (!normalizedLine.trim()) {
-        return
-      }
-      const parsed = parseEphemeralVmRecipeResult(normalizedLine)
-      if (!parsed.ok) {
-        writeIgnoredRecipeStdout()
-        return
-      }
-      if (getEphemeralVmRecipeResultConnection(parsed.result).type !== 'orca-server') {
-        writeIgnoredRecipeStdout()
-        return
-      }
-      process.stdout.write(`${normalizedLine.trim()}\n`)
-      finish()
-    }
-    const stdoutDecoder = new StringDecoder('utf8')
-    const onData = (chunk: Buffer | string): void => {
-      output += typeof chunk === 'string' ? chunk : stdoutDecoder.write(chunk)
-      while (!settled) {
-        const newlineIndex = output.indexOf('\n')
-        if (newlineIndex === -1) {
-          return
-        }
-        const line = output.slice(0, newlineIndex)
-        output = output.slice(newlineIndex + 1)
-        processRecipeOutputLine(line)
-      }
-    }
-    const onError = (error: Error): void => {
-      finish(error)
-    }
-    const onClose = (code: number | null, signal: NodeJS.Signals | null): void => {
-      if (settled) {
-        return
-      }
-      output += stdoutDecoder.end()
-      if (output.trim()) {
-        processRecipeOutputLine(output)
-      }
-      if (settled) {
-        return
-      }
-      finish(
-        new RuntimeClientError(
-          'runtime_serve_failed',
-          typeof code === 'number'
-            ? `Orca serve exited before printing valid recipe JSON with code ${code}.`
-            : `Orca serve exited before printing valid recipe JSON via ${signal}.`
-        )
-      )
-    }
-    child.stdout?.on('data', onData)
-    child.once('error', onError)
-    // Why: `exit` can precede the final piped stdout data. `close` waits until
-    // stdio closes so a last recipe chunk is not mistaken for missing output.
-    child.once('close', onClose)
-  })
+  return superviseForegroundServe(spawnProcess(executable, childArgs, spawnOptions))
 }
 
 export function getExecutableAppArgs(executable: string): string[] {

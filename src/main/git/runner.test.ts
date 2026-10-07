@@ -1,16 +1,12 @@
-// Why: covers two recent classifier fixes — Retry-After honoring on 429
-// (transient detection must propagate, not silently retry on 250ms cadence)
-// and stderr extraction from execFile rejections (err.message is unreliable).
+// Why: covers Retry-After parsing and stderr extraction from execFile rejections (err.message is unreliable).
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   appendGitConfigEnv,
   extractExecError,
-  isTransientGhError,
   nonInteractiveGitEnv,
   parseRetryAfterMs,
   promptGuardGitEnv,
   promptGuardShellEnv,
-  redirectPortedHostnameToEnv,
   untranslatedGitOutputEnv
 } from './runner'
 import { mergeGitConfigEnvProtocol } from '../../shared/git-credential-prompt-env'
@@ -29,41 +25,6 @@ function readGitConfigEnv(env: NodeJS.ProcessEnv): Record<string, string> {
   }
   return config
 }
-
-describe('redirectPortedHostnameToEnv', () => {
-  it('moves a ported --hostname into GITLAB_HOST and strips the flag', () => {
-    const { args, options } = redirectPortedHostnameToEnv(
-      ['api', '--hostname', 'gitlab.example.com:8443', 'projects/foo%2Fbar/issues'],
-      { cwd: '/repo' }
-    )
-    expect(args).toEqual(['api', 'projects/foo%2Fbar/issues'])
-    expect(options.env?.GITLAB_HOST).toBe('gitlab.example.com:8443')
-    expect(options.cwd).toBe('/repo')
-  })
-
-  it('leaves a port-less --hostname untouched', () => {
-    const input = ['api', '--hostname', 'gitlab.com', 'user']
-    const { args, options } = redirectPortedHostnameToEnv(input, {})
-    expect(args).toEqual(input)
-    expect(options.env).toBeUndefined()
-  })
-
-  it('is a no-op when no --hostname is present', () => {
-    const input = ['auth', 'status']
-    const { args, options } = redirectPortedHostnameToEnv(input, { env: { A: '1' } })
-    expect(args).toEqual(input)
-    expect(options.env).toEqual({ A: '1' })
-  })
-
-  it('preserves existing env entries alongside GITLAB_HOST', () => {
-    const { options } = redirectPortedHostnameToEnv(
-      ['auth', 'status', '--hostname', 'gl.example.org:3001'],
-      { env: { PATH: '/usr/bin' } }
-    )
-    expect(options.env?.PATH).toBe('/usr/bin')
-    expect(options.env?.GITLAB_HOST).toBe('gl.example.org:3001')
-  })
-})
 
 afterEach(() => {
   vi.restoreAllMocks()
@@ -98,35 +59,6 @@ describe('parseRetryAfterMs', () => {
 
   it('returns null for malformed values', () => {
     expect(parseRetryAfterMs('Retry-After: not-a-date')).toBeNull()
-  })
-})
-
-describe('isTransientGhError', () => {
-  it('retries 5xx errors', () => {
-    expect(isTransientGhError('HTTP 502 Bad Gateway')).toBe(true)
-    expect(isTransientGhError('http 503')).toBe(true)
-  })
-
-  it('retries network resets', () => {
-    expect(isTransientGhError('connect ECONNRESET 10.0.0.1:443')).toBe(true)
-    expect(isTransientGhError('socket hang up')).toBe(true)
-  })
-
-  it('retries 429 without Retry-After', () => {
-    expect(isTransientGhError('HTTP 429 Too Many Requests')).toBe(true)
-  })
-
-  it('does NOT retry 429 with Retry-After', () => {
-    // Why: when GitHub returns Retry-After, the server is telling us how long
-    // to wait. Retrying on our 250ms cadence just earns another 429 and burns
-    // the retry budget.
-    expect(isTransientGhError('HTTP 429 Too Many Requests\nRetry-After: 60\n')).toBe(false)
-  })
-
-  it("does NOT retry 4xx that aren't 429", () => {
-    expect(isTransientGhError('HTTP 401 Unauthorized')).toBe(false)
-    expect(isTransientGhError('HTTP 404 Not Found')).toBe(false)
-    expect(isTransientGhError('HTTP 422 Unprocessable Entity')).toBe(false)
   })
 })
 
@@ -336,20 +268,5 @@ describe('git env forces untranslated diagnostics (issue #7808)', () => {
     const env = nonInteractiveGitEnv({ PATH: '/usr/bin', LANG: 'fr_FR.UTF-8' })
     expect(env.LC_ALL).toBe('en_US.UTF-8')
     expect(env.LANGUAGE).toBe('en')
-  })
-})
-
-describe('redirectPortedHostnameToEnv WSLENV forwarding', () => {
-  it('names GITLAB_HOST in WSLENV so it can cross into a distro', async () => {
-    // A WSL-routed glab only sees Windows variables listed in WSLENV; without
-    // the entry the ported host is silently dropped and glab talks to
-    // gitlab.com (#12557).
-    const { redirectPortedHostnameToEnv } = await import('./runner')
-    const { options } = redirectPortedHostnameToEnv(
-      ['api', '--hostname', 'gitlab.example.com:8443'],
-      { env: { PATH: '/usr/bin' } }
-    )
-    expect(options.env?.GITLAB_HOST).toBe('gitlab.example.com:8443')
-    expect((options.env?.WSLENV ?? '').split(':')).toContain('GITLAB_HOST')
   })
 })

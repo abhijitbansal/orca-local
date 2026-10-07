@@ -12,21 +12,10 @@ import { rmSync, mkdtempSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { isTerminalLeafId, makePaneKey } from '../shared/stable-pane-id'
-import { SshConnectionStore } from './ssh/ssh-connection-store'
 import { LEGACY_DEFAULT_SSH_RELAY_GRACE_PERIOD_SECONDS } from '../shared/ssh-types'
 
 import { TEST_LEAF_1 } from './persistence-session-fixtures'
 
-// Stub the ~/.ssh/config parser so the SSH-import test drives the real Store with deterministic hosts, not the operator's actual ~/.ssh/config.
-const { loadUserSshConfigMock, sshConfigHostsToTargetsMock } = vi.hoisted(() => ({
-  loadUserSshConfigMock: vi.fn(),
-  sshConfigHostsToTargetsMock: vi.fn()
-}))
-
-vi.mock('./ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: loadUserSshConfigMock,
-  sshConfigHostsToTargets: sshConfigHostsToTargetsMock
-}))
 const { trackMock, getCohortAtEmitMock } = vi.hoisted(() => ({
   trackMock: vi.fn(),
   getCohortAtEmitMock: vi.fn()
@@ -91,7 +80,7 @@ describe('Store', () => {
     expect(repos[0].gitUsername).toBe('testuser')
   })
 
-  it('normalizes legacy remote workspace sync fields on SSH targets', async () => {
+  it('strips legacy SSH targets that carry remote workspace sync fields at load', async () => {
     writeDataFile({
       schemaVersion: 1,
       repos: [],
@@ -151,29 +140,13 @@ describe('Store', () => {
     })
 
     const store = await createStore()
-    const targets = store.getSshTargets()
 
-    expect(targets[0]).not.toHaveProperty('relayGracePeriodSeconds')
-    expect(targets[1].relayGracePeriodSeconds).toBe(0)
-    expect(targets[2].relayGracePeriodSeconds).toBe(0)
-    expect(targets[3].relayGracePeriodSeconds).toBe(0)
-    expect(targets[4]).not.toHaveProperty('relayGracePeriodSeconds')
-    for (const target of targets) {
-      expect(target).not.toHaveProperty('remoteWorkspaceSyncEnabled')
-      expect(target).not.toHaveProperty('remoteWorkspaceSyncGracePeriodSeconds')
-    }
+    // Local-only build: legacy SSH targets are stripped at load, never normalized.
+    expect(store.getSshTargets()).toEqual([])
 
     store.flush()
     const persisted = readDataFile() as { sshTargets?: Record<string, unknown>[] }
-    expect(persisted.sshTargets?.[0]).not.toHaveProperty('relayGracePeriodSeconds')
-    expect(persisted.sshTargets?.[1]?.relayGracePeriodSeconds).toBe(0)
-    expect(persisted.sshTargets?.[2]?.relayGracePeriodSeconds).toBe(0)
-    expect(persisted.sshTargets?.[3]?.relayGracePeriodSeconds).toBe(0)
-    expect(persisted.sshTargets?.[4]).not.toHaveProperty('relayGracePeriodSeconds')
-    for (const target of persisted.sshTargets ?? []) {
-      expect(target).not.toHaveProperty('remoteWorkspaceSyncEnabled')
-      expect(target).not.toHaveProperty('remoteWorkspaceSyncGracePeriodSeconds')
-    }
+    expect(persisted.sshTargets ?? []).toEqual([])
   })
 
   it('drops the legacy SSH relay default when updating targets', async () => {
@@ -357,46 +330,6 @@ describe('Store', () => {
     const persisted = readDataFile() as { sshTargets?: Record<string, unknown>[] }
     const target = persisted.sshTargets?.find((entry) => entry.id === 'ssh-source-credit-on')
     expect(target).not.toHaveProperty('experimentalPtySourceCreditV1')
-  })
-
-  it('upserts ~/.ssh/config through the real store: rotated port updates in place and persists', async () => {
-    loadUserSshConfigMock.mockReturnValue([{ host: 'cluster' }])
-    const candidate = (port: number, id: string) => [
-      { id, label: 'cluster', configHost: 'cluster', host: '10.0.0.5', port, username: 'dev' }
-    ]
-
-    const store = await createStore()
-    const sshStore = new SshConnectionStore(store)
-
-    // First sync inserts the config host, stamped as config-managed.
-    sshConfigHostsToTargetsMock.mockReturnValue(candidate(2200, 'ssh-cfg-1'))
-    const inserted = sshStore.importFromSshConfig()
-    expect(inserted).toHaveLength(1)
-    expect(inserted[0]?.source).toBe('ssh-config')
-    expect(inserted[0]?.port).toBe(2200)
-    // Rotated port: upsert updates the same target in place and normalizeSshTarget must keep `source` (no false re-derive into a permanently-dirty state).
-    sshConfigHostsToTargetsMock.mockReturnValue(candidate(2222, 'ssh-cfg-2'))
-    const changed = sshStore.importFromSshConfig()
-    expect(changed).toHaveLength(1)
-    expect(changed[0]?.port).toBe(2222)
-    expect(changed[0]?.source).toBe('ssh-config')
-
-    // A third identical sync is a no-op — repeated auto-sync on every pane open writes nothing.
-    expect(sshStore.importFromSshConfig()).toHaveLength(0)
-
-    // Exactly one cluster target on disk with the rotated port and source kept.
-    store.flush()
-    const onDisk = (readDataFile() as { sshTargets?: Record<string, unknown>[] }).sshTargets
-    const clusterTargets = (onDisk ?? []).filter((t) => t.configHost === 'cluster')
-    expect(clusterTargets).toHaveLength(1)
-    expect(clusterTargets[0]?.port).toBe(2222)
-    expect(clusterTargets[0]?.source).toBe('ssh-config')
-
-    // Survives a fresh load from the same data file.
-    const reloaded = await createStore()
-    const reloadedCluster = reloaded.getSshTargets().find((t) => t.configHost === 'cluster')
-    expect(reloadedCluster?.port).toBe(2222)
-    expect(reloadedCluster?.source).toBe('ssh-config')
   })
 
   it('drops malformed migration-unsupported PTY entries on load', async () => {

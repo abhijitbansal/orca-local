@@ -86,7 +86,7 @@ afterEach(() => {
 // The mirror's hydration verdict is stamped with the connection generation
 // (host-session-mirror-hydration.ts), so anything that advances the generation discards it and
 // every mirrored pane re-parks — the tab list rebuild. A flap is unverifiable, not a new
-// connection (docs/reference/ssh-execution-boundary.md), so it must not discard that verdict.
+// connection (AGENTS.md), so it must not discard that verdict.
 it('keeps the mirror hydrated across an unverifiable probe on the same runtime', () => {
   const store = createSliceStore()
   seedEnvironment(store)

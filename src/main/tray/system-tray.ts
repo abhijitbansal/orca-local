@@ -18,8 +18,6 @@ export type SystemTrayOptions = {
   onOpen: () => void
   /** Restore the main window and open its Settings surface. */
   onOpenSettings: () => void
-  /** Run the existing user-initiated update check. */
-  onCheckForUpdates: () => void
   /** Quit Orca for real (caller must set the quitting latch before quitting). */
   onQuit: () => void
 }
@@ -271,10 +269,6 @@ export function createSystemTray(opts: SystemTrayOptions): Tray | null {
           {
             label: translateMain('menu.settings', 'Settings'),
             click: safeMenuAction(() => opts.onOpenSettings())
-          },
-          {
-            label: translateMain('menu.checkForUpdates', 'Check for Updates...'),
-            click: safeMenuAction(() => opts.onCheckForUpdates())
           },
           { type: 'separator' }
         ] as Electron.MenuItemConstructorOptions[])

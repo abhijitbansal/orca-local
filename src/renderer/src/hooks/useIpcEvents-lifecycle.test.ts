@@ -18,12 +18,9 @@ const EXPECTED_DIRECT_CALLBACK_METHODS = [
   'browser.onPaneFocus',
   'emulator.onAutoAttach',
   'emulator.onPaneFocus',
-  'gh.onPRRefreshEvent',
   'keybindings.onChanged',
-  'orcaProfiles.onAuthStatusChanged',
   'pty.onExit',
   'rateLimits.onUpdate',
-  'remoteWorkspace.onChanged',
   'repos.onChanged',
   'runtime.onBrowserDriverChanged',
   'runtime.onBrowserRemoteViewersChanged',
@@ -33,11 +30,6 @@ const EXPECTED_DIRECT_CALLBACK_METHODS = [
   'runtime.onTerminalFitOverrideChanged',
   'runtimeEnvironments.onStatusChanged',
   'settings.onChanged',
-  'ssh.onCredentialRequest',
-  'ssh.onCredentialResolved',
-  'ssh.onDetectedPortsChanged',
-  'ssh.onPortForwardsChanged',
-  'ssh.onStateChanged',
   'ui.onActivateWorktree',
   'ui.onCloseActiveTab',
   'ui.onCloseFloatingItem',
@@ -63,8 +55,6 @@ const EXPECTED_DIRECT_CALLBACK_METHODS = [
   'ui.onOpenQuickOpen',
   'ui.onOpenSettings',
   'ui.onOpenSetupGuide',
-  'ui.onOpenSkillShare',
-  'ui.onOpenTasks',
   'ui.onOpenWorkspaceBoard',
   'ui.onRenameTerminal',
   'ui.onRequestTabClose',
@@ -82,7 +72,6 @@ const EXPECTED_DIRECT_CALLBACK_METHODS = [
   'ui.onSwitchTab',
   'ui.onSwitchTabAcrossAllTypes',
   'ui.onSwitchTerminalTab',
-  'ui.onSystemResumed',
   'ui.onTerminalShortcutCaptured',
   'ui.onTerminalTabCloseRequest',
   'ui.onTerminalZoom',
@@ -94,8 +83,6 @@ const EXPECTED_DIRECT_CALLBACK_METHODS = [
   'ui.onToggleStatusBar',
   'ui.onToggleWorktreePalette',
   'ui.onWorktreeHistoryNavigate',
-  'updater.onClearDismissal',
-  'updater.onStatus',
   'workspaceSpace.onProgress',
   'worktrees.onBaseStatus',
   'worktrees.onChanged',
@@ -114,11 +101,8 @@ const EXPECTED_CALLBACK_REGISTRATION_SEQUENCE = [
   'worktrees.onBaseStatus',
   'worktrees.onRemoteBranchConflict',
   'worktrees.onCreateProgress',
-  'gh.onPRRefreshEvent',
   'ui.onOpenSettings',
-  'ui.onOpenSkillShare',
   'ui.onOpenSetupGuide',
-  'mobile.onUnpairedDeviceAuthFailure',
   'ui.onOpenFeatureTour',
   'settings.onChanged',
   'ui.onStateChanged',
@@ -128,14 +112,12 @@ const EXPECTED_CALLBACK_REGISTRATION_SEQUENCE = [
   'ui.onToggleWorktreePalette',
   'ui.onToggleFloatingTerminal',
   'ui.onTerminalShortcutCaptured',
-  'orcaProfiles.onAuthStatusChanged',
   'ui.onOpenQuickOpen',
   'ui.onToggleQuickCommandsMenu',
   'ui.onOpenNewWorkspace',
   'ui.onDeleteCurrentWorkspace',
   'ui.onOpenWorkspaceBoard',
   'ui.onToggleAgentDashboard',
-  'ui.onOpenTasks',
   'ui.onJumpToWorktreeIndex',
   'ui.onJumpToTabIndex',
   'ui.onWorktreeHistoryNavigate',
@@ -159,8 +141,6 @@ const EXPECTED_CALLBACK_REGISTRATION_SEQUENCE = [
   'ui.onTerminalTabCloseRequest',
   'ui.onSleepWorktree',
   'ui.onResumeSleepingAgents',
-  'updater.onStatus',
-  'updater.onClearDismissal',
   'ui.onFullscreenChanged',
   'browser.onGuestLoadFailed',
   'browser.onCertificateFailureChanged',
@@ -187,13 +167,6 @@ const EXPECTED_CALLBACK_REGISTRATION_SEQUENCE = [
   'ui.onSwitchTerminalTab',
   'rateLimits.onUpdate',
   'workspaceSpace.onProgress',
-  'ssh.onCredentialRequest',
-  'ssh.onCredentialResolved',
-  'ssh.onPortForwardsChanged',
-  'ssh.onDetectedPortsChanged',
-  'ssh.onStateChanged',
-  'ui.onSystemResumed',
-  'remoteWorkspace.onChanged',
   'ui.onTerminalZoom',
   'agentStatus.onSet',
   'agentStatus.onClear',
@@ -247,11 +220,9 @@ describe('useIpcEvents App-lifetime lifecycle', () => {
     const cleanupOrder: string[] = []
     const listeners = new Map<string, ListenerRecord[]>()
     const storeSubscriptions: { active: boolean; cleanup: Mock }[] = []
-    const setUpdateStatus = vi.fn()
     const storeState = new Proxy(
       createHarnessStoreState({
         tabsByWorktree: { 'wt-1': [] },
-        setUpdateStatus,
         workspaceSessionReady: true,
         runtimeEnvironments: [{ id: 'runtime-1' }],
         runtimeStatusByEnvironmentId: new Map([['runtime-1', { status: 'connected' }]])
@@ -364,10 +335,7 @@ describe('useIpcEvents App-lifetime lifecycle', () => {
     await Promise.resolve()
     await Promise.resolve()
     const directCallbackMethods = [...listeners.keys()]
-      .filter(
-        (method) =>
-          method !== 'mobile.onUnpairedDeviceAuthFailure' && method !== 'ui.onMobileMarkdownRequest'
-      )
+      .filter((method) => method !== 'ui.onMobileMarkdownRequest')
       .sort()
     expect(directCallbackMethods).toEqual(EXPECTED_DIRECT_CALLBACK_METHODS)
     expect([...listeners.keys()].sort()).toEqual(
@@ -390,31 +358,11 @@ describe('useIpcEvents App-lifetime lifecycle', () => {
     ])
     const groupOrder = (names: readonly string[]): string[] =>
       registrationOrder.filter((entry) => names.includes(entry))
-    expect(
-      groupOrder([
-        'ui.onOpenSettings',
-        'ui.onOpenSkillShare',
-        'ui.consumePendingOpenSettings',
-        'ui.consumePendingSkillShare'
-      ])
-    ).toEqual([
+    expect(groupOrder(['ui.onOpenSettings', 'ui.consumePendingOpenSettings'])).toEqual([
       'ui.onOpenSettings',
-      'ui.onOpenSkillShare',
-      'ui.consumePendingOpenSettings',
-      'ui.consumePendingSkillShare'
+      'ui.consumePendingOpenSettings'
     ])
-    expect(
-      groupOrder([
-        'updater.getStatus',
-        'updater.onStatus',
-        'updater.onClearDismissal',
-        'rateLimits.onUpdate',
-        'rateLimits.get'
-      ])
-    ).toEqual([
-      'updater.getStatus',
-      'updater.onStatus',
-      'updater.onClearDismissal',
+    expect(groupOrder(['rateLimits.onUpdate', 'rateLimits.get'])).toEqual([
       'rateLimits.onUpdate',
       'rateLimits.get'
     ])
@@ -488,9 +436,6 @@ describe('useIpcEvents App-lifetime lifecycle', () => {
     expect(cleanupOrder.indexOf('runtimeEnvironment.unsubscribe')).toBeLessThan(
       cleanupOrder.indexOf('ipc.repos.onChanged')
     )
-    expect(cleanupOrder.indexOf('directSsh.stop')).toBeGreaterThan(
-      cleanupOrder.lastIndexOf('ipc.runtime.onBrowserDriverChanged')
-    )
     expect(cleanupOrder.at(-1)).toBe('notifications.reset')
     expect([...listeners.values()].every((records) => records.every((item) => !item.active))).toBe(
       true
@@ -501,14 +446,6 @@ describe('useIpcEvents App-lifetime lifecycle', () => {
         records.every((item) => item.cleanup.mock.calls.length === 1)
       )
     ).toBe(true)
-
-    const statusWritesBeforePostUnmountEvent = setUpdateStatus.mock.calls.length
-    for (const record of listeners.get('updater.onStatus') ?? []) {
-      if (record.active) {
-        record.callback({ state: 'available' })
-      }
-    }
-    expect(setUpdateStatus).toHaveBeenCalledTimes(statusWritesBeforePostUnmountEvent)
 
     const secondCleanup = installAppLifetimeIpcEvents(recordCleanupPhase)
     expect(

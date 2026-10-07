@@ -1,4 +1,3 @@
-import { useAppStore } from '@/store'
 import type { MarkdownViewMode, OpenFile, PendingEditorReveal } from '@/store/slices/editor'
 import type { GitDiffResult } from '../../../../shared/git-diff-compare-types'
 import type { GitStatusEntry } from '../../../../shared/git-status-types'
@@ -111,7 +110,6 @@ export function EditorContent({
   // runtimes, or SSH targets; durable PDF zoom must not cross those owners.
   const pdfPreferenceKey = buildPdfScalePreferenceKey(activeFile)
   const monacoLanguage = resolvedLanguage === 'notebook' ? 'json' : resolvedLanguage
-  const reloadOpenCheckRunDetailsTab = useAppStore((state) => state.reloadOpenCheckRunDetailsTab)
   const markdownDocuments = useMarkdownDocuments(activeFile, isMarkdown, mdViewMode, handleSave)
   const getConflictNavigation = useEditorConflictNavigation()
   const activeConflictEntry =
@@ -144,9 +142,6 @@ export function EditorContent({
         error={checkRunDetails.error}
         openUrl={details?.detailsUrl ?? details?.url ?? checkRunDetails.check.url}
         worktreeId={activeFile.worktreeId}
-        onRefresh={() => {
-          void reloadOpenCheckRunDetailsTab(activeFile.id)
-        }}
       />
     )
   }

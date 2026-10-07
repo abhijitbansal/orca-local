@@ -96,9 +96,7 @@ async function createStore() {
     join(testState.dir, 'orca-data.json'),
     JSON.stringify({
       ...getDefaultPersistedState(testState.dir),
-      repos: REPOS,
-      sshTargets: TARGETS,
-      sshTargetGenerationCounter: 7,
+      repos: [REPOS[0]],
       automations: AUTOMATIONS
     }),
     'utf-8'
@@ -107,7 +105,11 @@ async function createStore() {
   installFakeAppEnvironment({ getPath: () => testState.dir })
   const { Store, initDataPath } = await import('../persistence')
   initDataPath()
-  return createSqliteTestStore(Store, { dataFile: join(testState.dir, 'orca-data.json') })
+  const store = createSqliteTestStore(Store, { dataFile: join(testState.dir, 'orca-data.json') })
+  // Local-only build: remote rows are stripped at load, so the SSH registration is seeded in memory.
+  store.addSshTarget(TARGETS[0])
+  store.addRepo(REPOS[1])
+  return store
 }
 
 beforeEach(() => {

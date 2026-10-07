@@ -15,7 +15,6 @@ import type {
 import { getHeadlessMobileSessionGroupId } from './mobile-session-layout-projection'
 import { DEFAULT_REPO_SEARCH_REFS_LIMIT } from './orca-runtime-postlude'
 import type { Repo } from '../../shared/repo-types'
-import type { GitAdmissionTier } from '../git/command-runner/git-exec-options'
 import {
   getLocalProjectGhExecOptions,
   resolveLocalProjectRuntimeForRepo,
@@ -258,37 +257,6 @@ export class OrcaRuntimeWithRestoreStructuredAgentSessionTabsOnce extends OrcaRu
     limit = DEFAULT_REPO_SEARCH_REFS_LIMIT
   ): Promise<RuntimeRepoSearchRefs> {
     return this.repositoryRefQueries.search(repoSelector, query, limit)
-  }
-
-  protected async resolveHostedReviewTarget(args: {
-    repoSelector: string
-    worktreeSelector?: string
-  }): Promise<{ repo: Repo; repoPath: string }> {
-    const repo = await this.resolveRepoSelector(args.repoSelector)
-    if (!args.worktreeSelector) {
-      return { repo, repoPath: repo.path }
-    }
-
-    const worktree = await this.resolveWorktreeSelector(args.worktreeSelector)
-    if (worktree.repoId !== repo.id) {
-      throw new Error('Access denied: worktree does not belong to repository')
-    }
-    return { repo, repoPath: worktree.path }
-  }
-
-  protected getHostedReviewExecutionOptions(
-    repo: Repo,
-    admissionTier?: GitAdmissionTier
-  ):
-    | { localGitExecOptions: LocalProjectGhExecOptions & { admissionTier?: GitAdmissionTier } }
-    | undefined {
-    const localGitOptions = {
-      ...this.getLocalGitExecutionOptionArgs(repo)[0],
-      ...(admissionTier && { admissionTier })
-    }
-    return Object.keys(localGitOptions).length > 0
-      ? { localGitExecOptions: localGitOptions }
-      : undefined
   }
 
   protected getLocalGitExecutionOptionArgs(repo: Repo): [] | [LocalProjectGhExecOptions] {

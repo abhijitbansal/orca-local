@@ -687,7 +687,7 @@ test.describe('Terminal hidden worktree retention budget', () => {
       // Leaving the terminal view hides BOTH worktrees while keeping them
       // mounted (App.tsx hides the workbench, it does not unmount it).
       await orcaPage.evaluate(() => {
-        window.__store?.getState().setActiveView('tasks')
+        window.__store?.getState().setActiveView('automations')
       })
       // Why stage AFTER hide: while a pane is visible/active, bind can rewrite
       // our remote: fake ids back onto tab/layout state, so the decoy looks

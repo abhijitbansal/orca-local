@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { create } from 'zustand'
 import type { PluginHostListEntry, PluginHostPanel } from '../../../preload/api-types'
+import { isPluginCommandLegacyNoopActionId } from '../../../shared/plugins/plugin-command-actions'
 
 /** A panel contribution from an enabled plugin, flattened for sidebar use. */
 export type ActivePluginPanel = PluginHostPanel & {
@@ -162,6 +163,17 @@ export function collectInstalledPluginTabKeys(
   return new Set(plugins.flatMap((plugin) => plugin.panels.map((panel) => panel.tabKey)))
 }
 
+// Why: legacy no-op actions stay in the consent preview but must not reach the palette, chords, or Shortcuts pane.
+function liveCommands(plugin: PluginHostListEntry): PluginHostListEntry['commands'] {
+  return plugin.commands.filter(
+    (command) =>
+      !(
+        command.handler.type === 'built-in' &&
+        isPluginCommandLegacyNoopActionId(command.handler.action)
+      )
+  )
+}
+
 export function collectActivePluginCommands(
   plugins: readonly PluginHostListEntry[]
 ): ActivePluginCommand[] {
@@ -171,7 +183,7 @@ export function collectActivePluginCommands(
         plugin.status === 'running' || plugin.status === 'restarting' || plugin.status === 'idle'
     )
     .flatMap((plugin) =>
-      plugin.commands.map((command) => ({
+      liveCommands(plugin).map((command) => ({
         ...command,
         pluginKey: plugin.pluginKey,
         pluginName: plugin.name
@@ -185,7 +197,7 @@ export function collectEditablePluginCommands(
   return plugins
     .filter((plugin) => ['running', 'restarting', 'idle', 'errored'].includes(plugin.status))
     .flatMap((plugin) =>
-      plugin.commands.map((command) => ({
+      liveCommands(plugin).map((command) => ({
         ...command,
         pluginKey: plugin.pluginKey,
         pluginName: plugin.name

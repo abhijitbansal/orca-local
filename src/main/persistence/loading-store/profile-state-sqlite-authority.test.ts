@@ -50,11 +50,6 @@ vi.mock('../../telemetry/client', () => ({ track: vi.fn() }))
 vi.mock('../../telemetry/cohort-classifier', () => ({
   getCohortAtEmit: vi.fn(() => ({ nth_repo_added: 2 }))
 }))
-vi.mock('../../ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: vi.fn(() => ({ hosts: [] })),
-  sshConfigHostsToTargets: vi.fn(() => [])
-}))
-
 const { Store } = await import('./store')
 const { createProfileStateStore } = await import('../profile-state/profile-state-store-factory')
 
@@ -433,34 +428,6 @@ describe('Store with an injected SQLite profile-state authority', () => {
     expect(writeDomains).toHaveBeenCalledTimes(1)
     expect(writeDomains.mock.calls[0]?.[0].map(({ domain }) => domain)).toEqual([
       'workspaceSession'
-    ])
-
-    const remoteSession = store.getWorkspaceSession('ssh:build-host')
-    const remoteWorktreeId = remoteSession.activeWorktreeId
-    const remoteTabId = remoteSession.activeTabId
-    const remoteLayout = remoteTabId ? remoteSession.terminalLayoutsByTabId[remoteTabId] : undefined
-    const remoteLeafId = remoteLayout
-      ? Object.keys(remoteLayout.ptyIdsByLeafId ?? {})[0]
-      : undefined
-    const remotePtyId = remoteLeafId ? remoteLayout?.ptyIdsByLeafId?.[remoteLeafId] : undefined
-    if (!remoteWorktreeId || !remoteTabId || !remoteLayout || !remoteLeafId || !remotePtyId) {
-      throw new Error('fixture did not produce a normalized remote PTY binding')
-    }
-    expect(
-      await store.persistPtyBinding(
-        {
-          worktreeId: remoteWorktreeId,
-          tabId: remoteTabId,
-          leafId: remoteLeafId,
-          ptyId: 'pty-remote-rebound',
-          expectedBinding: { ptyId: remotePtyId }
-        },
-        'ssh:build-host'
-      )
-    ).toBe(true)
-    expect(writeDomains).toHaveBeenCalledTimes(2)
-    expect(writeDomains.mock.calls[1]?.[0].map(({ domain }) => domain)).toEqual([
-      'workspaceSessionsByHostId'
     ])
 
     const reloaded = new Store({

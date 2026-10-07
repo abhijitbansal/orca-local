@@ -7,7 +7,6 @@
 //   - Worktree setup (clone / checkout / install)
 //   - PTY session lifecycle
 //   - External editor launches
-//   - Updater operations
 //
 // Each helper wraps `withSpan` from `tracer.ts` with a sensible default
 // span name and a small attribute pack. Call sites that already produce
@@ -309,22 +308,4 @@ export async function withWorktreeRemoveStageSpan<T>(
   return withSpan(`worktree.remove.${stage}`, fn, {
     attributes: { kind: 'worktree', 'worktree.flow': flow }
   })
-}
-
-export type UpdaterSpanArgs = {
-  readonly stage: 'check' | 'download' | 'install'
-}
-
-export async function withUpdaterSpan<T>(
-  meta: UpdaterSpanArgs,
-  fn: (span: ActiveSpan) => Promise<T> | T
-): Promise<T> {
-  return withSpan(
-    `updater.${meta.stage}`,
-    async (span) => {
-      span.setAttribute('updater.stage', meta.stage)
-      return await fn(span)
-    },
-    { attributes: { kind: 'updater' } }
-  )
 }

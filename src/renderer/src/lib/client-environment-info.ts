@@ -39,7 +39,7 @@ export async function resolveClientEnvironmentFooter(): Promise<string> {
 
 async function resolveAppVersion(): Promise<string> {
   try {
-    const version = await window.api?.updater?.getVersion?.()
+    const version = await window.api?.app?.getVersion?.()
     if (typeof version === 'string' && version.trim()) {
       return version.trim()
     }

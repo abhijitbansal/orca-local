@@ -35,22 +35,16 @@ test.describe('Setup guide sidebar entry', () => {
 
     await startSetupGuideFlashMonitor(orcaPage)
 
-    await setActiveViewForFlashProbe(orcaPage, 'tasks')
-    await expect
-      .poll(async () => getStoreState<string>(orcaPage, 'activeView'), { timeout: 5_000 })
-      .toBe('tasks')
-    await orcaPage.waitForTimeout(500)
-
     await setActiveViewForFlashProbe(orcaPage, 'automations')
     await expect
       .poll(async () => getStoreState<string>(orcaPage, 'activeView'), { timeout: 5_000 })
       .toBe('automations')
     await orcaPage.waitForTimeout(500)
 
-    await setActiveViewForFlashProbe(orcaPage, 'mobile')
+    await setActiveViewForFlashProbe(orcaPage, 'activity')
     await expect
       .poll(async () => getStoreState<string>(orcaPage, 'activeView'), { timeout: 5_000 })
-      .toBe('mobile')
+      .toBe('activity')
     await orcaPage.waitForTimeout(500)
 
     const flashSamples = await stopSetupGuideFlashMonitor(orcaPage)
@@ -67,7 +61,7 @@ test.describe('Setup guide sidebar entry', () => {
 
 async function setActiveViewForFlashProbe(
   page: Page,
-  view: 'tasks' | 'automations' | 'mobile'
+  view: 'automations' | 'activity'
 ): Promise<void> {
   await page.evaluate((nextView) => {
     // Why: this spec monitors setup-guide visibility during view transitions;
@@ -266,29 +260,10 @@ async function seedCompletedSetupExceptCapabilityReadiness(page: Page): Promise<
         }
       },
       preflightStatus: {
-        git: { installed: true },
-        gh: { installed: true, authenticated: true },
-        glab: { installed: false, authenticated: false },
-        bitbucket: { configured: false, authenticated: false, account: null },
-        azureDevOps: {
-          configured: false,
-          authenticated: false,
-          account: null,
-          baseUrl: null,
-          tokenConfigured: false
-        },
-        gitea: {
-          configured: false,
-          authenticated: false,
-          account: null,
-          baseUrl: null,
-          tokenConfigured: false
-        }
+        git: { installed: true }
       },
       preflightStatusChecked: true,
       preflightStatusLoading: false,
-      linearStatus: { connected: false, viewer: null },
-      linearStatusChecked: true,
       repos: [primaryRepo, secondaryRepo],
       activeRepoId: primaryRepo.id,
       worktreesByRepo: {

@@ -12,8 +12,6 @@ import type { CodexStatusRuntimeTarget } from './status-bar-runtime-targets'
 
 type CodexSignInActionDependencies = {
   accountState: CodexRateLimitAccountsState
-  accountsExpandedRef: MutableRefObject<boolean>
-  fetchInactiveCodexAccountUsage: AppState['fetchInactiveCodexAccountUsage']
   fetchSettings: AppState['fetchSettings']
   isSwitching: boolean
   mountedRef: MutableRefObject<boolean>
@@ -31,8 +29,6 @@ export async function signInCodexAccount(
 ): Promise<void> {
   const {
     accountState,
-    accountsExpandedRef,
-    fetchInactiveCodexAccountUsage,
     fetchSettings,
     isSwitching,
     mountedRef,
@@ -76,8 +72,6 @@ export async function signInCodexAccount(
       if (mountedRef.current) {
         setAccountsExpanded(false)
       }
-    } else if (mountedRef.current && accountsExpandedRef.current) {
-      await fetchInactiveCodexAccountUsage()
     }
     toast.success(
       translate('auto.components.status.bar.StatusBar.codexSignInSuccess', 'Signed in to Codex')

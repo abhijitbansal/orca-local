@@ -17,7 +17,7 @@ export type ParkRevealNoHostImageReason = 'permanently-unavailable' | 'unavailab
 
 /**
  * What a park-reveal's host snapshot probe proved. Three verdicts, no synonyms
- * (docs/reference/ssh-execution-boundary.md): only `host-snapshot` is positive
+ * (AGENTS.md): only `host-snapshot` is positive
  * evidence of the pane's contents, and a probe that proves nothing must never
  * be read as "the pane is empty". Retention is never inferred from image
  * content: `no-host-image` is reachable only from an explicit host answer.

@@ -72,7 +72,11 @@ describe('architectural invariant — telemetry / observability lane isolation',
     const files = listTsFiles(TELEMETRY_DIR)
     expect(files.length).toBeGreaterThan(0) // sanity: directory exists
     const violations = files.flatMap((f) => {
-      const bad = findOffendingImports(f, 'observability')
+      // Why: `local-file-sink` is a pure NDJSON writer that carries no consent state; it is the
+      // one observability module the telemetry lane may share (local-only fork, Spec A U1).
+      const bad = findOffendingImports(f, 'observability').filter(
+        (spec) => !spec.endsWith('observability/local-file-sink')
+      )
       return bad.map((spec) => `${relative(REPO_ROOT, f)}: imports '${spec}'`)
     })
     expect(violations, violations.join('\n')).toEqual([])

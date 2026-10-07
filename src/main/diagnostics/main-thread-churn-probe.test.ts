@@ -39,7 +39,7 @@ describe('classifySubprocessCommand', () => {
     expect(classifySubprocessCommand('C:\\Program Files\\Git\\git.exe', ['fetch'])).toBe(
       'git fetch'
     )
-    expect(classifySubprocessCommand('gh', ['api', 'rate_limit'])).toBe('gh api')
+    expect(classifySubprocessCommand('gh', ['api', 'rate_limit'])).toBe('gh')
   })
 
   it.each([

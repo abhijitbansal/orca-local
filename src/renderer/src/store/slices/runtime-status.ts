@@ -4,10 +4,6 @@ import type { RuntimeStatusSlice } from './runtime-status-types'
 export type { RuntimeEnvironmentStatus, RuntimeStatusSlice } from './runtime-status-types'
 import { lastVerifiedRuntimeStatus } from '../../../../shared/runtime-host-status'
 import { runtimeEnvironmentStatusesEqual } from './runtime-environment-status-equality'
-import {
-  clearRecentRuntimeCompatibilityFailure,
-  clearRuntimeCompatibilityCache
-} from '@/runtime/runtime-rpc-client'
 import { replaceRuntimeEnvironmentRevisions } from '@/runtime/runtime-environment-revision'
 import { bumpProviderRuntimeSessionGeneration } from '@/lib/provider-runtime-context'
 import { evictInstalledAgentSkillDiscoveryForRuntimeEnvironments } from '@/hooks/installed-agent-skill-discovery'
@@ -145,7 +141,6 @@ export const createRuntimeStatusSlice: StateCreator<AppState, [], [], RuntimeSta
     // A detached environment's mirrored SSH state must not outlive it.
     get().retainEnvironmentSshState?.(environments.map((environment) => environment.id))
     for (const id of replacedEnvironmentIds) {
-      clearRuntimeCompatibilityCache(id)
       get().markEnvironmentSshStateStale?.(id)
     }
     // Why: same-id re-pair publications belong to the retired peer just as surely as removed ids.
@@ -181,12 +176,6 @@ export const createRuntimeStatusSlice: StateCreator<AppState, [], [], RuntimeSta
       previousVerifiedStatus != null &&
       previousVerifiedStatus.runtimeId !== status.status.runtimeId
     )
-    // Why: a non-null status proves the runtime just answered, so drop any stale
-    // "offline" compat failure before this online transition fires the
-    // reuse-flagged background refetches — a recovered host must re-probe.
-    if (status.status !== null) {
-      clearRecentRuntimeCompatibilityFailure(environmentId, status.status)
-    }
     set((s) => {
       const sessionEnded = status.status === null && previous?.status != null
       // A reachable answer where we held none (never asked, or recorded unreachable) or

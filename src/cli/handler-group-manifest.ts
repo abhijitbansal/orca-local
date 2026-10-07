@@ -23,17 +23,6 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
     load: async () => (await import('./handlers/account.js')).ACCOUNT_HANDLERS
   },
   {
-    name: 'artifacts',
-    keys: [
-      'artifacts list',
-      'artifacts share',
-      'artifacts update',
-      'artifacts unshare',
-      'artifacts delete'
-    ],
-    load: async () => (await import('./handlers/artifacts.js')).ARTIFACT_HANDLERS
-  },
-  {
     name: 'automations',
     keys: [
       'automations list',
@@ -200,62 +189,17 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
   },
   {
     name: 'environment',
-    keys: [
-      'host name',
-      'host list',
-      'environment add',
-      'environment list',
-      'environment show',
-      'environment rm'
-    ],
+    keys: ['host name'],
     load: async () => (await import('./handlers/environment.js')).ENVIRONMENT_HANDLERS
   },
   {
-    name: 'linear',
-    keys: [
-      'linear save-issue',
-      'linear list-issues',
-      'linear relation add',
-      'linear relation remove',
-      'linear issue',
-      'linear search',
-      'linear team list',
-      'linear team members',
-      'linear team states',
-      'linear team labels',
-      'linear project list',
-      'linear list',
-      'linear status set',
-      'linear assignee set',
-      'linear assignee clear',
-      'linear priority set',
-      'linear priority clear',
-      'linear estimate set',
-      'linear estimate clear',
-      'linear due-date set',
-      'linear due-date clear',
-      'linear label add',
-      'linear label remove',
-      'linear label set',
-      'linear comment add',
-      'linear attach',
-      'linear create'
-    ],
-    load: async () => (await import('./handlers/linear.js')).LINEAR_HANDLERS
-  },
-  {
-    name: 'vm',
-    keys: ['vm recipe doctor'],
-    load: async () => (await import('./handlers/vm.js')).VM_HANDLERS
-  },
-  {
     name: 'skill-sharing',
-    keys: ['skills installed', 'skills share'],
+    keys: ['skills installed'],
     load: async () => (await import('./handlers/skill-sharing.js')).SKILL_SHARING_HANDLERS
   },
   {
     name: 'skills',
-    keys: ['skills list', 'skills get', 'skills install', 'skills update'],
+    keys: ['skills list', 'skills get'],
     load: async () => (await import('./handlers/skills.js')).SKILL_HANDLERS
   },
   {

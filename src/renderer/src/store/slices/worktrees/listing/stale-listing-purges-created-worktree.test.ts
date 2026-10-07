@@ -103,9 +103,7 @@ function seedCreatedWorkspaceWithPendingLaunch(
     activeGroupIdByWorktree: { [CREATED_ID]: 'group-1' },
     activeWorktreeId: CREATED_ID,
     activeWorkspaceKey: `worktree:${CREATED_ID}`,
-    activeView: 'terminal',
-    refreshGitHubForWorktree: vi.fn(),
-    refreshGitHubForWorktreeIfStale: vi.fn()
+    activeView: 'terminal'
   })
   // The provisional Claude launch: host create RPC in flight, nothing published yet.
   writeStructuredAgentLaunchRecord({

@@ -49,8 +49,10 @@ function hasUsageData(provider: ProviderRateLimits): boolean {
   )
 }
 
-function isProviderSnapshotPending(provider: ProviderRateLimits | null | undefined): boolean {
-  return provider == null || (provider.status === 'fetching' && !hasUsageData(provider))
+// Why: only Claude is fed locally; main reports `null` for it (and every other provider) until a statusline post
+// lands, so `null` is a settled "no data". Pending means the renderer has no payload yet or an optimistic refresh.
+function isClaudeSnapshotPending(provider: ProviderRateLimits | null | undefined): boolean {
+  return provider === undefined || (provider?.status === 'fetching' && !hasUsageData(provider))
 }
 
 // Why: a provider that returns `unavailable` is explicitly not configured
@@ -131,20 +133,15 @@ export function hasUsageProviderSettingsForProvider(
   return false
 }
 
-function createPendingProviderSnapshot(providerId: UsageProviderId): ProviderRateLimits {
+// Why: a skeleton would never resolve until a statusline post arrives, so a configured-but-silent Claude reads "no data".
+function createNoDataClaudeSnapshot(): ProviderRateLimits {
   return {
-    provider: providerId,
+    provider: 'claude',
     session: null,
     weekly: null,
-    ...(providerId === 'opencode-go' ? { monthly: null } : {}),
-    // Why antigravity joins these: it reports one pool per model group, so its pending skeleton
-    // has to be bucket-shaped too or the segment changes shape once the first reading lands.
-    ...(providerId === 'gemini' || providerId === 'cursor' || providerId === 'antigravity'
-      ? { buckets: [] }
-      : {}),
     updatedAt: 0,
     error: null,
-    status: 'fetching'
+    status: 'unavailable'
   }
 }
 
@@ -156,10 +153,12 @@ export function getVisibleUsageProvider(
   if (isProviderConfigured(provider)) {
     return provider
   }
-  if (!hasUsageProviderSettingsForProvider(providerId, settings)) {
+  // Why: only Claude is fed locally (statusline hook); every other provider is never fetched, so a pending
+  // skeleton for it would never resolve.
+  if (providerId !== 'claude' || !hasUsageProviderSettingsForProvider(providerId, settings)) {
     return null
   }
-  return provider ?? createPendingProviderSnapshot(providerId)
+  return provider ?? createNoDataClaudeSnapshot()
 }
 
 export function isUsageEmptyState(
@@ -171,24 +170,9 @@ export function isUsageEmptyState(
   if (!settings) {
     return false
   }
-  // Why: system-default Claude/Codex accounts have no persisted account row;
-  // their first durable signal is the usage snapshot, so wait for snapshots to
-  // settle before teaching the user to connect an account.
-  const antigravitySnapshotPending =
-    hasUsageProviderSettingsForProvider('antigravity', settings) &&
-    isProviderSnapshotPending(providers.antigravity)
-  if (
-    isProviderSnapshotPending(providers.claude) ||
-    isProviderSnapshotPending(providers.codex) ||
-    isProviderSnapshotPending(providers.gemini) ||
-    isProviderSnapshotPending(providers.opencodeGo) ||
-    isProviderSnapshotPending(providers.kimi) ||
-    antigravitySnapshotPending ||
-    isProviderSnapshotPending(providers.minimax) ||
-    isProviderSnapshotPending(providers.grok) ||
-    isProviderSnapshotPending(providers.cursor) ||
-    (providers.zcode !== undefined && isProviderSnapshotPending(providers.zcode))
-  ) {
+  // Why: a system-default Claude has no persisted account row; wait for its first snapshot before teaching the
+  // user to connect one. Every other provider is never fetched, so its null snapshot is already settled.
+  if (isClaudeSnapshotPending(providers.claude)) {
     return false
   }
   return (

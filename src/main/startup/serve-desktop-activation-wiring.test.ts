@@ -16,10 +16,6 @@ describe('serve desktop activation wiring', () => {
     join(process.cwd(), 'src/main/startup/main-process-runtime-service.ts'),
     'utf8'
   )
-  const windowCoreSource = readFileSync(
-    join(process.cwd(), 'src/main/startup/main-window-core-services.ts'),
-    'utf8'
-  )
 
   it('routes second-instance and windowless app activation through one safety gate', () => {
     expect(preflightSource).toContain('createServeDesktopActivationGate({')
@@ -76,11 +72,5 @@ describe('serve desktop activation wiring', () => {
     expect(rpcIndex).toBeGreaterThan(sentinelIndex)
     expect(settleIndex).toBeGreaterThan(rpcIndex)
     expect(runtimeSource).not.toContain('runtime.syncWindowGraph(0,')
-  })
-
-  it('keeps the headless install policy after desktop promotion', () => {
-    expect(windowCoreSource).toContain(
-      'updateInstallMode: resolveUpdateInstallMode(state.isServeMode)'
-    )
   })
 })

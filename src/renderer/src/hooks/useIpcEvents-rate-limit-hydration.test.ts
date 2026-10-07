@@ -54,7 +54,6 @@ describe('useIpcEvents rate-limit hydration', () => {
       useAppStore: {
         subscribe: vi.fn(() => () => {}),
         getState: () => ({
-          setUpdateStatus: vi.fn(),
           fetchRepos: vi.fn(),
           fetchWorktrees: vi.fn(),
           setActiveView: vi.fn(),
@@ -143,11 +142,6 @@ describe('useIpcEvents rate-limit hydration', () => {
         worktrees: makeEvents(),
         keybindings: makeEvents(),
         settings: makeEvents(),
-        updater: {
-          getStatus: () => Promise.resolve({ state: 'idle' }),
-          onStatus: () => () => {},
-          onClearDismissal: () => () => {}
-        },
         browser: makeEvents(),
         rateLimits: {
           get: getRateLimits,
@@ -155,17 +149,6 @@ describe('useIpcEvents rate-limit hydration', () => {
             rateLimitUpdateListener = listener
             return () => {}
           }
-        },
-        ssh: {
-          listTargets: () => Promise.resolve([]),
-          listPortForwards: () => Promise.resolve([]),
-          listDetectedPorts: () => Promise.resolve([]),
-          getState: () => Promise.resolve(null),
-          onStateChanged: () => () => {},
-          onCredentialRequest: () => () => {},
-          onCredentialResolved: () => () => {},
-          onPortForwardsChanged: () => () => {},
-          onDetectedPortsChanged: () => () => {}
         },
         runtime: {
           getTerminalFitOverrides: () => Promise.resolve([]),

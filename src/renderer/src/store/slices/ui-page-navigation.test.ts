@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { getDefaultSettings } from '../../../../shared/constants'
 import type { GitHubWorkItem } from '../../../../shared/github/work-item-types'
 import type { LinearIssue } from '../../../../shared/linear/issue-types'
 import type { GitLabWorkItem } from '../../../../shared/gitlab-types'
@@ -147,127 +146,6 @@ describe('createUISlice settings navigation', () => {
       openSettingsTarget({ pane: 'repo', repoId: 'repo-1', hostId: 'invalid' })
     ).toThrowError('openSettingsTarget received an invalid navigation target')
     expect(store.getState().settingsNavigationTarget).toBeNull()
-  })
-
-  it('prefetches the restored default task source when provider settings drifted', () => {
-    const store = createUIStore()
-    const prefetchWorkItems = vi.fn()
-    const prefetchLinearIssues = vi.fn()
-
-    store.setState({
-      repos: [
-        {
-          id: 'repo-1',
-          path: '/repo',
-          displayName: 'Repo',
-          badgeColor: 'blue',
-          addedAt: 1,
-          kind: 'git'
-        }
-      ],
-      settings: {
-        visibleTaskProviders: ['linear'],
-        defaultTaskSource: 'github',
-        defaultTaskViewPreset: 'all'
-      } as unknown as AppState['settings'],
-      linearStatus: { connected: true } as AppState['linearStatus'],
-      preflightStatus: { glab: { installed: false } } as AppState['preflightStatus'],
-      prefetchWorkItems,
-      prefetchLinearIssues
-    } as unknown as Partial<AppState>)
-
-    store.getState().openTaskPage()
-
-    expect(prefetchWorkItems).toHaveBeenCalledWith(
-      'repo-1',
-      '/repo',
-      expect.any(Number),
-      'is:issue is:open',
-      { sourceContext: null }
-    )
-    expect(prefetchLinearIssues).not.toHaveBeenCalled()
-  })
-
-  it('prefetches direct GitHub task opens with their source context', () => {
-    const store = createUIStore()
-    const prefetchWorkItems = vi.fn()
-    const workItem = makeGitHubWorkItem()
-    const sourceContext: TaskSourceContext = {
-      kind: 'task-source',
-      provider: 'github',
-      projectId: 'project-1',
-      hostId: 'ssh:devbox',
-      projectHostSetupId: 'setup-1',
-      repoId: 'repo-1',
-      providerIdentity: { provider: 'github', owner: 'acme', repo: 'repo' }
-    }
-
-    store.setState({
-      repos: [
-        {
-          id: 'repo-1',
-          path: '/repo',
-          displayName: 'Repo',
-          badgeColor: 'blue',
-          addedAt: 1,
-          kind: 'git'
-        }
-      ],
-      settings: {
-        visibleTaskProviders: ['github'],
-        defaultTaskSource: 'github',
-        defaultTaskViewPreset: 'all'
-      } as unknown as AppState['settings'],
-      prefetchWorkItems
-    } as unknown as Partial<AppState>)
-
-    store.getState().openTaskPage({
-      taskSource: 'github',
-      preselectedRepoId: 'repo-1',
-      openGitHubWorkItem: workItem,
-      openGitHubSourceContext: sourceContext
-    })
-
-    expect(prefetchWorkItems).toHaveBeenCalledWith(
-      'repo-1',
-      '/repo',
-      expect.any(Number),
-      'is:issue is:open',
-      { sourceContext }
-    )
-  })
-
-  it('prefetches direct Linear task opens with their source context', () => {
-    const store = createUIStore()
-    const prefetchLinearIssues = vi.fn()
-    const linearIssue = makeLinearIssue()
-    const sourceContext: TaskSourceContext = {
-      kind: 'task-source',
-      provider: 'linear',
-      projectId: 'project-1',
-      hostId: 'runtime:remote-server',
-      providerIdentity: { provider: 'linear', workspaceId: 'workspace-1' }
-    }
-
-    store.setState({
-      settings: {
-        visibleTaskProviders: ['linear'],
-        defaultTaskSource: 'linear'
-      } as unknown as AppState['settings'],
-      linearStatus: { connected: true } as AppState['linearStatus'],
-      prefetchLinearIssues
-    } as unknown as Partial<AppState>)
-
-    store.getState().openTaskPage({
-      taskSource: 'linear',
-      openLinearIssue: linearIssue,
-      openLinearSourceContext: sourceContext
-    })
-
-    expect(prefetchLinearIssues).toHaveBeenCalledWith(
-      { kind: 'list', filter: 'all', limit: expect.any(Number) },
-      { sourceContext }
-    )
   })
 
   it('returns to the tasks page after visiting settings from an in-progress draft', () => {
@@ -661,34 +539,6 @@ describe('createUISlice space navigation', () => {
     expect(store.getState().activeView).toBe('tasks')
   })
 
-  it('returns to the originating view after closing Artifacts', () => {
-    const store = createUIStore()
-
-    store.getState().openTaskPage()
-    store.getState().openArtifactsPage()
-
-    expect(store.getState().activeView).toBe('artifacts')
-    expect(store.getState().previousViewBeforeArtifacts).toBe('tasks')
-
-    store.getState().closeArtifactsPage()
-
-    expect(store.getState().activeView).toBe('tasks')
-  })
-
-  it('records and rewinds Artifacts visits on close', () => {
-    const store = createUIStore()
-    store.setState({ worktreesByRepo: { 'repo-1': [makeWorktree('a')] } })
-
-    store.getState().recordWorktreeVisit('a')
-    store.getState().openArtifactsPage()
-    expect(store.getState().worktreeNavHistory).toEqual(['a', 'artifacts'])
-    expect(store.getState().worktreeNavHistoryIndex).toBe(1)
-
-    store.getState().closeArtifactsPage()
-    expect(store.getState().activeView).toBe('terminal')
-    expect(store.getState().worktreeNavHistoryIndex).toBe(0)
-  })
-
   it('records and rewinds Skills visits on close', () => {
     const store = createUIStore()
     store.setState({ worktreesByRepo: { 'repo-1': [makeWorktree('a')] } })
@@ -703,37 +553,15 @@ describe('createUISlice space navigation', () => {
     expect(store.getState().worktreeNavHistoryIndex).toBe(0)
   })
 
-  it('records Artifacts and Skills as separate back/forward entries', () => {
+  it('falls back to terminal when a legacy build persisted the removed Artifacts view', () => {
     const store = createUIStore()
-    store.setState({ worktreesByRepo: { 'repo-1': [makeWorktree('a')] } })
+    // Why: JSON round-trip mimics the on-disk payload an upstream build wrote.
+    const legacyUI: ReturnType<typeof makePersistedUI> = JSON.parse(
+      JSON.stringify({ ...makePersistedUI(), activeView: 'artifacts' })
+    )
 
-    store.getState().recordWorktreeVisit('a')
-    store.getState().openArtifactsPage()
-    store.getState().openSkillsPage()
-    store.getState().openSkillsPage()
+    store.getState().hydratePersistedUI(legacyUI, 'startup')
 
-    expect(store.getState().worktreeNavHistory).toEqual(['a', 'artifacts', 'skills'])
-    expect(store.getState().worktreeNavHistoryIndex).toBe(2)
-  })
-
-  it('records a Skills visit when opening a shared skill link', () => {
-    const store = createUIStore()
-
-    store.getState().openSkillShare('share-1')
-    store.getState().openSkillsSharedLinks()
-
-    expect(store.getState().worktreeNavHistory).toEqual(['skills'])
-    expect(store.getState().worktreeNavHistoryIndex).toBe(0)
-  })
-
-  it('opens and restores Artifacts when its sidebar shortcut is hidden', () => {
-    const store = createUIStore()
-    store.setState({ settings: { ...getDefaultSettings('/tmp'), showArtifactsButton: false } })
-
-    store.getState().openArtifactsPage()
-    expect(store.getState().activeView).toBe('artifacts')
-
-    store.getState().hydratePersistedUI(makePersistedUI({ activeView: 'artifacts' }), 'startup')
-    expect(store.getState().activeView).toBe('artifacts')
+    expect(store.getState().activeView).toBe('terminal')
   })
 })

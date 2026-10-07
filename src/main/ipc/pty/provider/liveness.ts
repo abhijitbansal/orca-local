@@ -74,7 +74,7 @@ export function isPtyAlreadyGoneError(err: unknown): boolean {
  * the process may authorise that. The bare `PTY ".+" not found` text is the relay's raw wire
  * wording, which the SSH reattach path always types before it reaches a pane; matching the text
  * instead would let any untyped string carrying that phrase unbind a live pane
- * (docs/reference/ssh-execution-boundary.md).
+ * (AGENTS.md).
  */
 export function isHostReportedPtyAbsenceError(err: unknown): boolean {
   return isSshPtyAbsentFromRelayError(err) || err instanceof SessionNotFoundError
@@ -89,7 +89,7 @@ export function isHostReportedPtyAbsenceError(err: unknown): boolean {
  * one minted. `SessionNotFoundError` is included because the process answering is the one that owns
  * the PTY: the in-process registry itself, or a daemon whose endpoint is live (a gone endpoint
  * raises `isDaemonEndpointGoneError` instead), so its absence is an observation rather than a lost
- * route (docs/reference/ssh-execution-boundary.md).
+ * route (AGENTS.md).
  */
 export function isObservedPtyExitEvidence(err: unknown): boolean {
   return isSshPtyProvenExitedOnRelayError(err) || err instanceof SessionNotFoundError

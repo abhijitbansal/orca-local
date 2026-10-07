@@ -18,8 +18,6 @@ import {
   WorktreeActivate,
   WorktreeForceDeleteBranch,
   WorktreeRemove,
-  WorktreeResolveMrBase,
-  WorktreeResolvePrBase,
   WorktreeSelector,
   WorktreeSet,
   WorktreeSortOrder,
@@ -188,30 +186,6 @@ export const WORKTREE_METHODS = [
     params: WorktreeSortOrder,
     handler: async (params, { runtime }) =>
       runtime.persistManagedWorktreeSortOrder(params.orderedIds)
-  }),
-  defineMethod({
-    name: 'worktree.resolvePrBase',
-    params: WorktreeResolvePrBase,
-    handler: async (params, { runtime }) =>
-      runtime.resolveManagedPrBase({
-        repoSelector: params.repo,
-        prNumber: params.prNumber,
-        headRefName: params.headRefName,
-        baseRefName: params.baseRefName,
-        isCrossRepository: params.isCrossRepository
-      })
-  }),
-  defineMethod({
-    name: 'worktree.resolveMrBase',
-    params: WorktreeResolveMrBase,
-    handler: async (params, { runtime }) =>
-      runtime.resolveManagedMrBase({
-        repoSelector: params.repo,
-        mrIid: params.mrIid,
-        sourceBranch: params.sourceBranch,
-        targetBranch: params.targetBranch,
-        isCrossRepository: params.isCrossRepository
-      })
   }),
   defineMethod({
     name: 'worktree.rm',

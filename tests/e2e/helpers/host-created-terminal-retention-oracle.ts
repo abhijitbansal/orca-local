@@ -47,12 +47,11 @@ const HOST_TERMINAL_SURFACE_SEPARATOR = '::'
 
 /** Daemon session id form. Deliberately excluded from id-shape classification,
  *  which is why a host-created tab needs its own binding to be preserved —
- *  a `serve-`/`ssh-` shaped id would take an already-correct path instead. */
+ *  a `serve-` shaped id would take an already-correct path instead. */
 function isDaemonPtyIdForm(ptyId: string, worktreeId: string): boolean {
   return (
     ptyId.startsWith(`${worktreeId}@@`) &&
     !ptyId.startsWith('serve-') &&
-    !ptyId.startsWith('ssh-') &&
     ptyId.slice(`${worktreeId}@@`.length).length > 0
   )
 }

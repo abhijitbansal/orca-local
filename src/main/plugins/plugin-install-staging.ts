@@ -13,11 +13,7 @@ import type {
   PluginInstallSource,
   PluginLockEntry
 } from '../../shared/plugins/plugin-install-lockfile'
-import {
-  validateDeclaredPluginArtifacts,
-  validatePluginInstallContent,
-  type PluginArtifactValidationResult
-} from './plugin-artifact-validation'
+import { validateDeclaredPluginArtifacts } from './plugin-artifact-validation'
 import { renamePluginFileWithWindowsRetry } from './plugin-atomic-file-write'
 import { hashPluginTree } from './plugin-content-hash'
 import { publishPluginInstall } from './plugin-install-publication'
@@ -44,14 +40,6 @@ export type PluginInstallInspection =
       consentFingerprint: string
     }
   | { ok: false; error: string }
-
-async function validatePluginInstallTree(
-  rootDir: string,
-  manifest: PluginManifest
-): Promise<PluginArtifactValidationResult> {
-  const declared = await validateDeclaredPluginArtifacts(rootDir, manifest)
-  return declared.ok ? validatePluginInstallContent(rootDir, manifest) : declared
-}
 
 async function readInstallManifest(
   rootDir: string,
@@ -97,7 +85,10 @@ export async function inspectPluginInstallTree(input: {
       error: `plugin manifest identity ${pluginKey} does not match marketplace listing ${input.expectedPluginKey}`
     }
   }
-  const declaredArtifacts = await validatePluginInstallTree(input.rootDir, sourceManifest.manifest)
+  const declaredArtifacts = await validateDeclaredPluginArtifacts(
+    input.rootDir,
+    sourceManifest.manifest
+  )
   if (!declaredArtifacts.ok) {
     return { ok: false, error: `invalid declared artifact: ${declaredArtifacts.error}` }
   }
@@ -189,7 +180,7 @@ export async function installStagedPluginTree(input: {
         return { ok: false, error: 'plugin manifest identity changed while it was being staged' }
       }
       manifest = copiedManifest.manifest
-      const copiedArtifacts = await validatePluginInstallTree(stagedVersionDir, manifest)
+      const copiedArtifacts = await validateDeclaredPluginArtifacts(stagedVersionDir, manifest)
       if (!copiedArtifacts.ok) {
         return { ok: false, error: `copied artifact validation failed: ${copiedArtifacts.error}` }
       }
@@ -219,7 +210,7 @@ export async function installStagedPluginTree(input: {
       return { ok: false, error: 'installed plugin manifest identity does not match its directory' }
     }
     manifest = existingManifest.manifest
-    const existingArtifacts = await validatePluginInstallTree(versionDir, manifest)
+    const existingArtifacts = await validateDeclaredPluginArtifacts(versionDir, manifest)
     if (!existingArtifacts.ok) {
       return {
         ok: false,

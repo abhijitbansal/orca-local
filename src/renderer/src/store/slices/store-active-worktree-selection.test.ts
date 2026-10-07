@@ -58,9 +58,7 @@ describe('setActiveWorktree', () => {
             isUnread: false
           })
         ]
-      },
-      refreshGitHubForWorktree: vi.fn(),
-      refreshGitHubForWorktreeIfStale: vi.fn()
+      }
     })
 
     store.getState().setActiveWorktree(worktreeId)
@@ -87,9 +85,7 @@ describe('setActiveWorktree', () => {
             lastActivityAt
           })
         ]
-      },
-      refreshGitHubForWorktree: vi.fn(),
-      refreshGitHubForWorktreeIfStale: vi.fn()
+      }
     })
 
     store.getState().setActiveWorktree(worktreeId)
@@ -127,9 +123,7 @@ describe('setActiveWorktree', () => {
             lastActivityAt: now - 60_000
           })
         ]
-      },
-      refreshGitHubForWorktree: vi.fn(),
-      refreshGitHubForWorktreeIfStale: vi.fn()
+      }
     })
 
     store.getState().setActiveWorktree(focusedId)
@@ -260,9 +254,7 @@ describe('setActiveWorktree', () => {
       },
       activeGroupIdByWorktree: { [wt]: groupId },
       layoutByWorktree: { [wt]: { type: 'leaf', groupId } },
-      everActivatedWorktreeIds: new Set([wt]),
-      refreshGitHubForWorktree: vi.fn(),
-      refreshGitHubForWorktreeIfStale: vi.fn()
+      everActivatedWorktreeIds: new Set([wt])
     })
 
     const before = store.getState()

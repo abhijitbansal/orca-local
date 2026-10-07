@@ -17,11 +17,9 @@ const mocks = vi.hoisted(() => {
   }
   const activateAndRevealWorktree = vi.fn()
   const activateAndRevealFolderWorkspace = vi.fn()
-  const resumeWorkspace = vi.fn().mockResolvedValue(null)
   return {
     activateAndRevealFolderWorkspace,
     activateAndRevealWorktree,
-    resumeWorkspace,
     state,
     toastError: vi.fn()
   }
@@ -47,15 +45,7 @@ describe('sleep flow vs slept-workspace activation', () => {
   beforeEach(() => {
     mocks.activateAndRevealWorktree.mockClear()
     mocks.activateAndRevealFolderWorkspace.mockClear()
-    mocks.resumeWorkspace.mockClear().mockResolvedValue(null)
     mocks.toastError.mockClear()
-    vi.stubGlobal('window', {
-      api: {
-        ephemeralVm: {
-          resumeWorkspace: mocks.resumeWorkspace
-        }
-      }
-    })
     mocks.state.activeWorktreeId = 'wt-parent'
     mocks.state.setActiveWorktree.mockClear()
     mocks.state.shutdownWorktreeBrowsers.mockClear().mockResolvedValue(undefined)
@@ -85,7 +75,6 @@ describe('sleep flow vs slept-workspace activation', () => {
     expect(mocks.state.ptyIdsByTabId['tab-parent']).toEqual([])
 
     await activateWorktreeFromSidebar('wt-parent')
-    expect(mocks.resumeWorkspace).toHaveBeenCalledWith({ workspaceId: 'wt-parent' })
     expect(mocks.activateAndRevealWorktree).toHaveBeenCalledTimes(1)
     expect(mocks.activateAndRevealWorktree).toHaveBeenCalledWith('wt-parent', {
       navigationIntent: 'user-open',
@@ -95,20 +84,5 @@ describe('sleep flow vs slept-workspace activation', () => {
     await runSleepWorktrees(['wt-child-1', 'wt-child-2', 'wt-child-3'])
 
     expect(mocks.activateAndRevealWorktree).toHaveBeenCalledTimes(1)
-  })
-
-  it('keeps the slept worktree selected when VM resume fails', async () => {
-    mocks.resumeWorkspace.mockRejectedValueOnce(new Error('provider unavailable'))
-
-    await activateWorktreeFromSidebar('wt-parent')
-
-    expect(mocks.activateAndRevealWorktree).toHaveBeenCalledWith('wt-parent', {
-      navigationIntent: 'user-open',
-      revealInSidebar: false
-    })
-    expect(mocks.toastError).toHaveBeenCalledWith(
-      'Failed to wake ephemeral VM workspace',
-      expect.objectContaining({ description: 'provider unavailable' })
-    )
   })
 })

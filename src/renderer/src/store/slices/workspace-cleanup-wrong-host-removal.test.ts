@@ -30,7 +30,6 @@ import type * as RuntimeRpcClientModule from '@/runtime/runtime-rpc-client'
 const NOW = 1_700_000_000_000
 const HOST_A_HOST_ID: ExecutionHostId = 'local'
 const HOST_B_HOST_ID: ExecutionHostId = 'ssh:ssh-1'
-const HOST_B_RUNTIME_HOST_ID: ExecutionHostId = 'runtime:hub-1'
 
 const mockApi = {
   worktrees: {
@@ -47,11 +46,8 @@ const mockApi = {
     recordRemovalSnapshotPrune: vi.fn().mockResolvedValue(undefined)
   },
   pty: { kill: vi.fn().mockResolvedValue(undefined) },
-  runtimeEnvironments: { call: vi.fn().mockResolvedValue({ ok: true, result: {} } as never) },
-  ephemeralVm: {
-    listRuntimes: vi.fn().mockResolvedValue([]),
-    cleanup: vi.fn().mockResolvedValue({})
-  }
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: test stub; the mocked runtime call result is never read as a typed value.
+  runtimeEnvironments: { call: vi.fn().mockResolvedValue({ ok: true, result: {} } as never) }
 }
 
 // @ts-expect-error -- minimal window.api stub for the store under test
@@ -212,8 +208,6 @@ function seedCollidingScan(candidates: readonly WorkspaceCleanupCandidate[]): vo
 
 beforeEach(() => {
   resetAuthoritativelyRemovedWorktreeMemoryForTests()
-  mockApi.ephemeralVm.listRuntimes.mockResolvedValue([])
-  mockApi.ephemeralVm.cleanup.mockResolvedValue({})
 })
 
 afterEach(() => {
@@ -224,51 +218,6 @@ afterEach(() => {
 })
 
 describe('STA-4343 wrong-host cleanup removal (git worktree identity)', () => {
-  it('tears down only the confirmed host VM when another VM owns the same id', async () => {
-    const worktreeId = 'repo1::/shared/workspace/path'
-    const worktreePath = '/shared/workspace/path'
-    const hostA: ExecutionHostId = 'ssh:runtime-ssh-a'
-    const hostB: ExecutionHostId = 'ssh:runtime-ssh-b'
-    const hosts = createHostDirectories(worktreeId)
-    installRemovalTransports({ [hostA]: hosts.hostARoot, [hostB]: hosts.hostBRoot }, [])
-    mockApi.ephemeralVm.listRuntimes.mockResolvedValue([
-      {
-        id: 'runtime-a',
-        workspaceId: worktreeId,
-        sshTargetId: 'runtime-ssh-a',
-        cleanupStatus: 'not_started'
-      },
-      {
-        id: 'runtime-b',
-        workspaceId: worktreeId,
-        sshTargetId: 'runtime-ssh-b',
-        cleanupStatus: 'not_started'
-      }
-    ])
-    const hostBCandidate = makeHostCandidate(worktreeId, hostB, worktreePath, 'runtime-ssh-b')
-    seedCollidingScan([
-      makeHostCandidate(worktreeId, hostA, worktreePath, 'runtime-ssh-a'),
-      hostBCandidate
-    ])
-    const store = createTestStore()
-    seedStore(store, {
-      worktreesByRepo: {
-        repo1: [
-          makeWorktree({ id: worktreeId, repoId: 'repo1', path: worktreePath, hostId: hostA }),
-          makeWorktree({ id: worktreeId, repoId: 'repo1', path: worktreePath, hostId: hostB })
-        ]
-      }
-    } as Partial<AppState>)
-
-    const removal = await store
-      .getState()
-      .removeWorkspaceCleanupCandidates([worktreeId], { approvedCandidates: [hostBCandidate] })
-
-    expect(removal.failures).toEqual([])
-    expect(mockApi.ephemeralVm.cleanup).toHaveBeenCalledTimes(1)
-    expect(mockApi.ephemeralVm.cleanup).toHaveBeenCalledWith({ runtimeId: 'runtime-b' })
-  })
-
   it('confirming host B row deletes host B and leaves ACTIVE host A intact', async () => {
     const worktreeId = 'repo1::/shared/workspace/path'
     const worktreePath = '/shared/workspace/path'
@@ -669,105 +618,6 @@ describe('STA-4343 wrong-host cleanup removal (folder workspace identity)', () =
       expect.objectContaining({ id: 'host-a-folder-tab' })
     ])
     expect(store.getState().activeWorktreeId).toBe(worktreeId)
-  })
-})
-
-describe('STA-4343 wrong-host cleanup removal (paired runtime host)', () => {
-  it('confirming a paired runtime row deletes over the runtime RPC, not the local host', async () => {
-    const worktreeId = 'repo1::/shared/workspace/path'
-    const worktreePath = '/shared/workspace/path'
-    const hosts = createHostDirectories(worktreeId)
-    const routedHostIds: string[] = []
-    installRemovalTransports(
-      { [HOST_A_HOST_ID]: hosts.hostARoot, [HOST_B_RUNTIME_HOST_ID]: hosts.hostBRoot },
-      routedHostIds
-    )
-    const hostBCandidate = makeHostCandidate(worktreeId, HOST_B_RUNTIME_HOST_ID, worktreePath, null)
-    seedCollidingScan([makeHostCandidate(worktreeId, HOST_A_HOST_ID, worktreePath), hostBCandidate])
-
-    const store = createTestStore()
-    seedStore(store, {
-      activeWorktreeId: worktreeId,
-      activeWorkspaceExecutionHostId: HOST_A_HOST_ID,
-      worktreesByRepo: {
-        repo1: [
-          makeWorktree({
-            id: worktreeId,
-            repoId: 'repo1',
-            path: worktreePath,
-            hostId: HOST_A_HOST_ID
-          })
-        ]
-      }
-    } as Partial<AppState>)
-
-    const removal = await store
-      .getState()
-      .removeWorkspaceCleanupCandidates([worktreeId], { approvedCandidates: [hostBCandidate] })
-
-    expect(removal.failures).toEqual([])
-    expect(fs.existsSync(hosts.hostAMarkerPath), 'local host A must survive').toBe(true)
-    expect(fs.existsSync(hosts.hostBMarkerPath)).toBe(false)
-    expect(routedHostIds).toEqual([HOST_B_RUNTIME_HOST_ID])
-    // The destructive call left over the paired transport, not the local IPC.
-    expect(mockApi.worktrees.remove).not.toHaveBeenCalled()
-    expect(runtimeRpc.callRuntimeRpc).toHaveBeenCalledWith(
-      { kind: 'environment', environmentId: 'hub-1' },
-      'worktree.rm',
-      expect.objectContaining({ hostId: HOST_B_RUNTIME_HOST_ID }),
-      expect.anything()
-    )
-  })
-
-  // Why: routing depends on the HOST honouring `hostId`. Local main always does —
-  // it ships with this renderer. A paired remote server may be an older build that
-  // strips the field and routes by its own preference, which on a colliding id
-  // deletes the wrong workspace. Fail closed there until a capability gate exists.
-  it('refuses a colliding removal over the paired transport rather than trusting it', async () => {
-    const worktreeId = 'repo1::/shared/workspace/path'
-    const worktreePath = '/shared/workspace/path'
-    const hosts = createHostDirectories(worktreeId)
-    const routedHostIds: string[] = []
-    installRemovalTransports(
-      { [HOST_A_HOST_ID]: hosts.hostARoot, [HOST_B_RUNTIME_HOST_ID]: hosts.hostBRoot },
-      routedHostIds
-    )
-    const hostBCandidate = makeHostCandidate(worktreeId, HOST_B_RUNTIME_HOST_ID, worktreePath, null)
-    seedCollidingScan([makeHostCandidate(worktreeId, HOST_A_HOST_ID, worktreePath), hostBCandidate])
-
-    const store = createTestStore()
-    seedStore(store, {
-      activeWorktreeId: worktreeId,
-      activeWorkspaceExecutionHostId: HOST_A_HOST_ID,
-      // BOTH owners visible to the client: this is the collision the remote host
-      // would have to disambiguate from `hostId` alone.
-      worktreesByRepo: {
-        repo1: [
-          makeWorktree({
-            id: worktreeId,
-            repoId: 'repo1',
-            path: worktreePath,
-            hostId: HOST_A_HOST_ID
-          }),
-          makeWorktree({
-            id: worktreeId,
-            repoId: 'repo1',
-            path: worktreePath,
-            hostId: HOST_B_RUNTIME_HOST_ID
-          })
-        ]
-      }
-    } as Partial<AppState>)
-
-    const removal = await store
-      .getState()
-      .removeWorkspaceCleanupCandidates([worktreeId], { approvedCandidates: [hostBCandidate] })
-
-    expect(removal.removedIds).toEqual([])
-    expect(removal.failures[0]?.message).toContain('exists on multiple hosts')
-    expect(routedHostIds).toEqual([])
-    expect(fs.existsSync(hosts.hostAMarkerPath), 'local host A must survive').toBe(true)
-    expect(fs.existsSync(hosts.hostBMarkerPath), 'runtime host B must survive').toBe(true)
   })
 })
 

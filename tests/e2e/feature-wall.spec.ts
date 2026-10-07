@@ -1,5 +1,5 @@
 import { test, expect } from './helpers/orca-app'
-import { getStoreState, waitForSessionReady } from './helpers/store'
+import { waitForSessionReady } from './helpers/store'
 import type { ElectronApplication } from '@stablyai/playwright-test'
 
 async function openFeatureTourFromMenu(electronApp: ElectronApplication): Promise<void> {
@@ -39,9 +39,9 @@ test.describe('Feature tour modal', () => {
     })
     await expect(orcaPage.getByText('Reopen any time from Help > Explore Orca.')).toBeVisible()
 
-    // Five workflow rows in the rail.
+    // Four workflow rows in the rail.
     const rail = orcaPage.getByRole('navigation', { name: 'Workflows' })
-    await expect(rail.getByRole('tab')).toHaveCount(5)
+    await expect(rail.getByRole('tab')).toHaveCount(4)
     await expect(rail.getByRole('tab', { name: /Workspaces/i })).toHaveAttribute(
       'aria-selected',
       'true'
@@ -51,8 +51,6 @@ test.describe('Feature tour modal', () => {
 
     // ArrowDown moves selection through the rail.
     await rail.getByRole('tab', { name: /Workspaces/i }).focus()
-    await orcaPage.keyboard.press('ArrowDown')
-    await expect(rail.getByRole('tab', { name: /Tasks/i })).toHaveAttribute('aria-selected', 'true')
     await orcaPage.keyboard.press('ArrowDown')
     await expect(rail.getByRole('tab', { name: /Agents/i })).toHaveAttribute(
       'aria-selected',
@@ -74,56 +72,6 @@ test.describe('Feature tour modal', () => {
     await expect(orcaPage.getByText('With the Orca CLI skill', { exact: false })).toHaveCount(0)
   })
 
-  test('shows unified task copy without leaving the walkthrough', async ({ orcaPage }) => {
-    await orcaPage.evaluate(() => {
-      const store = window.__store
-      if (!store) {
-        throw new Error('window.__store is not available')
-      }
-      store.setState({
-        preflightStatus: {
-          git: { installed: true },
-          gh: { installed: true, authenticated: false },
-          glab: { installed: false, authenticated: false },
-          bitbucket: { configured: false, authenticated: false, account: null },
-          azureDevOps: {
-            configured: false,
-            authenticated: false,
-            account: null,
-            baseUrl: null,
-            tokenConfigured: false
-          },
-          gitea: {
-            configured: false,
-            authenticated: false,
-            account: null,
-            baseUrl: null,
-            tokenConfigured: false
-          }
-        },
-        preflightStatusChecked: true,
-        preflightStatusLoading: false,
-        linearStatus: { connected: false, viewer: null },
-        linearStatusChecked: true
-      })
-      store.getState().openModal('feature-wall', { source: 'help_menu' })
-    })
-
-    await expect(orcaPage.getByRole('dialog', { name: 'Get to know Orca' })).toBeVisible({
-      timeout: 10_000
-    })
-    await orcaPage
-      .getByRole('navigation', { name: 'Workflows' })
-      .getByRole('tab', { name: /Tasks/i })
-      .click()
-    await expect(orcaPage.getByText('Start work directly from GitHub or Linear.')).toBeVisible()
-    await expect(orcaPage.getByText('Connect GitHub or Linear once')).toHaveCount(0)
-    await expect(orcaPage.getByRole('dialog', { name: 'Get to know Orca' })).toBeVisible()
-    await expect
-      .poll(async () => getStoreState<string>(orcaPage, 'activeView'))
-      .not.toBe('settings')
-  })
-
   test('continue advances through workflow substeps before the next workflow', async ({
     orcaPage
   }) => {
@@ -137,9 +85,6 @@ test.describe('Feature tour modal', () => {
 
     const rail = orcaPage.getByRole('navigation', { name: 'Workflows' })
     const continueButton = orcaPage.getByRole('button', { name: /^Continue/ })
-
-    await continueButton.click()
-    await expect(rail.getByRole('tab', { name: /Tasks/i })).toHaveAttribute('aria-selected', 'true')
 
     await continueButton.click()
     await expect(rail.getByRole('tab', { name: /Agents/i })).toHaveAttribute(
@@ -186,30 +131,9 @@ test.describe('Feature tour modal', () => {
       ({ ipcMain }, preflightStatus) => {
         ipcMain.removeHandler('preflight:check')
         ipcMain.handle('preflight:check', () => preflightStatus)
-        ipcMain.removeHandler('linear:status')
-        ipcMain.handle('linear:status', () => ({ connected: false, viewer: null }))
-        ipcMain.removeHandler('jira:status')
-        ipcMain.handle('jira:status', () => ({ connected: false, viewer: null }))
       },
       {
-        git: { installed: true },
-        gh: { installed: true, authenticated: true },
-        glab: { installed: false, authenticated: false },
-        bitbucket: { configured: false, authenticated: false, account: null },
-        azureDevOps: {
-          configured: false,
-          authenticated: false,
-          account: null,
-          baseUrl: null,
-          tokenConfigured: false
-        },
-        gitea: {
-          configured: false,
-          authenticated: false,
-          account: null,
-          baseUrl: null,
-          tokenConfigured: false
-        }
+        git: { installed: true }
       }
     )
     await orcaPage.evaluate(async () => {
@@ -230,21 +154,19 @@ test.describe('Feature tour modal', () => {
         throw new Error('window.__store is not available')
       }
       // Seed through the status actions so each result gets the current execution context.
-      await Promise.all([
-        store.getState().refreshPreflightStatus({ force: true }),
-        store.getState().checkLinearConnection(true),
-        store.getState().checkJiraConnection()
-      ])
+      await store.getState().refreshPreflightStatus({ force: true })
       store.getState().openModal('feature-wall', { source: 'help_menu' })
     })
 
     const rail = orcaPage.getByRole('navigation', { name: 'Workflows' })
     const workspacesTab = rail.locator('[data-feature-wall-workflow-id="workspaces"]')
-    const tasksTab = rail.locator('[data-feature-wall-workflow-id="tasks"]')
+    const agentsTab = rail.locator('[data-feature-wall-workflow-id="agents-orchestration"]')
+    const visibilityStep = rail.getByRole('button', { name: /Visibility/i })
     await expect(workspacesTab.locator('[aria-label="Completed"]')).toHaveCount(1)
-    await expect(tasksTab.locator('[aria-label="Completed"]')).toHaveCount(0)
-    await tasksTab.click()
-    await expect(tasksTab.locator('[aria-label="Completed"]')).toHaveCount(1)
+    await expect(agentsTab.locator('[aria-label="Completed"]')).toHaveCount(0)
+    // Agents has setup-backed substeps, so visiting completes only its Visibility substep.
+    await agentsTab.click()
+    await expect(visibilityStep.locator('[aria-label="Completed"]')).toHaveCount(1)
     await expect(workspacesTab.locator('[aria-label="Completed"]')).toHaveCount(1)
   })
 

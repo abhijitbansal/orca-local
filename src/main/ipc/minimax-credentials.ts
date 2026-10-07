@@ -11,8 +11,6 @@ import {
   hasMiniMaxApiKey,
   saveMiniMaxApiKey
 } from '../minimax/minimax-api-key-store'
-import { clearMiniMaxSessionCookieJar } from '../rate-limits/minimax/minimax-request-context'
-import type { RateLimitService } from '../rate-limits/service'
 import type { SecretAtRestProtection } from '../../shared/secret-at-rest-protection'
 
 export type MiniMaxCredentialsStatus = {
@@ -36,19 +34,7 @@ function getMiniMaxCredentialsStatus(): MiniMaxCredentialsStatus {
   }
 }
 
-// Why: fire-and-forget — callers get the persisted credential status immediately;
-// the rate-limit refresh runs in the background and only logs on failure.
-function refreshAfterMiniMaxCredentialChange(
-  rateLimits: RateLimitService | null,
-  action: 'save' | 'clear'
-): void {
-  rateLimits?.invalidateMiniMaxCredentialState()
-  void rateLimits?.refresh().catch((error: unknown) => {
-    console.error(`[minimax] failed to trigger rate-limit refresh after ${action}:`, error)
-  })
-}
-
-export function registerMiniMaxCredentialsHandlers(rateLimits: RateLimitService | null): void {
+export function registerMiniMaxCredentialsHandlers(): void {
   ipcMain.handle('minimaxCredentials:getStatus', () => getMiniMaxCredentialsStatus())
   ipcMain.handle('minimaxCredentials:saveCookie', (_event, cookie: string) => {
     // Validate the IPC argument in the main process; the renderer-declared type
@@ -57,17 +43,10 @@ export function registerMiniMaxCredentialsHandlers(rateLimits: RateLimitService 
       throw new Error('MiniMax session cookie must be a string')
     }
     saveMiniMaxSessionCookie(cookie)
-    refreshAfterMiniMaxCredentialChange(rateLimits, 'save')
     return getMiniMaxCredentialsStatus()
   })
-  ipcMain.handle('minimaxCredentials:clearCookie', async () => {
+  ipcMain.handle('minimaxCredentials:clearCookie', () => {
     clearMiniMaxSessionCookie()
-    try {
-      await clearMiniMaxSessionCookieJar()
-    } catch (error) {
-      console.error('[minimax] failed to clear session cookie jar after credential clear:', error)
-    }
-    refreshAfterMiniMaxCredentialChange(rateLimits, 'clear')
     return getMiniMaxCredentialsStatus()
   })
   ipcMain.handle('minimaxCredentials:saveApiKey', (_event, key: string) => {
@@ -75,12 +54,10 @@ export function registerMiniMaxCredentialsHandlers(rateLimits: RateLimitService 
       throw new Error('MiniMax API key must be a string')
     }
     saveMiniMaxApiKey(key)
-    refreshAfterMiniMaxCredentialChange(rateLimits, 'save')
     return getMiniMaxCredentialsStatus()
   })
   ipcMain.handle('minimaxCredentials:clearApiKey', () => {
     clearMiniMaxApiKey()
-    refreshAfterMiniMaxCredentialChange(rateLimits, 'clear')
     return getMiniMaxCredentialsStatus()
   })
 }

@@ -20,9 +20,6 @@ export function buildComposerCardProps(state: ComposerModel) {
     creating,
     detectedAgentIds,
     eligibleRepos,
-    ephemeralVmRecipeError,
-    ephemeralVmRecipes,
-    ephemeralVmsEnabled,
     filteredLinkItems,
     folderDetectedAgentIds,
     folderSourceRepos,
@@ -43,7 +40,6 @@ export function buildComposerCardProps(state: ComposerModel) {
     handleLinkPopoverChange,
     handleNameValueChange,
     handleOpenAgentSettings,
-    handleOpenJiraSettings,
     handleProjectChange,
     handleProjectHostSetupChange,
     handleRemoveLinkedWorkItem,
@@ -67,8 +63,6 @@ export function buildComposerCardProps(state: ComposerModel) {
     name,
     normalizedLinkQuery,
     note,
-    onConnectSelectedProjectGroup,
-    onConnectSelectedRepo,
     pathStatusProjectError,
     projectError,
     projectHostSetupOptions,
@@ -78,7 +72,6 @@ export function buildComposerCardProps(state: ComposerModel) {
     resolvedSetupDecision,
     reuseEligibleBranch,
     reuseSelectedBranch,
-    selectedEphemeralVmRecipeId,
     selectedProjectHostSetupId,
     selectedProjectId,
     selectedRepo,
@@ -100,7 +93,6 @@ export function buildComposerCardProps(state: ComposerModel) {
     setLinkQuery,
     setNote,
     setParentWorktreeId,
-    setSelectedEphemeralVmRecipeId,
     setSetupDecision,
     setSmartNameMode,
     setTuiAgent,
@@ -148,12 +140,6 @@ export function buildComposerCardProps(state: ComposerModel) {
     projectHostSetupOptions: isProjectGroupTarget ? [] : projectHostSetupOptions,
     selectedProjectHostSetupId: isProjectGroupTarget ? null : selectedProjectHostSetupId,
     onProjectHostSetupChange: handleProjectHostSetupChange,
-    ephemeralVmRecipes: isProjectGroupTarget || !ephemeralVmsEnabled ? [] : ephemeralVmRecipes,
-    selectedEphemeralVmRecipeId:
-      isProjectGroupTarget || !ephemeralVmsEnabled ? null : selectedEphemeralVmRecipeId,
-    onEphemeralVmRecipeChange: setSelectedEphemeralVmRecipeId,
-    ephemeralVmRecipeError:
-      isProjectGroupTarget || !ephemeralVmsEnabled ? null : ephemeralVmRecipeError,
     repoBackedSearchRepos: isProjectGroupTarget ? folderSourceRepos : undefined,
     repoBackedSourcesDisabled: isProjectGroupTarget ? folderSourceRepos.length === 0 : false,
     allowSmartNameAddProject: !isProjectGroupTarget,
@@ -172,7 +158,6 @@ export function buildComposerCardProps(state: ComposerModel) {
     onSmartNameModeChange: setSmartNameMode,
     onSmartLinearIssueSelect: handleSmartLinearIssueSelect,
     onSmartJiraIssueSelect: handleSmartJiraIssueSelect,
-    onOpenJiraSettings: handleOpenJiraSettings,
     smartNameGitHubSourceContext: selectedRepoGitHubSourceContext,
     smartNameJiraSourceContext,
     smartNameMode,
@@ -237,9 +222,6 @@ export function buildComposerCardProps(state: ComposerModel) {
     selectedRepoConnectInProgress: isProjectGroupTarget
       ? folderTargetConnectInProgress
       : selectedRepoConnectInProgress,
-    onConnectSelectedRepo: isProjectGroupTarget
-      ? onConnectSelectedProjectGroup
-      : onConnectSelectedRepo,
     startFromResetHint: isProjectGroupTarget ? null : startFromResetHint,
     forkPushWarning: isProjectGroupTarget ? null : forkPushWarning,
     note,

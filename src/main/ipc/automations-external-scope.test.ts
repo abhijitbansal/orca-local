@@ -120,14 +120,6 @@ describe('scoped external-manager IPC', () => {
     expect(relay.request).not.toHaveBeenCalled()
   })
 
-  it('refuses a runtime-owned SSH target as hidden rather than as a probe failure', async () => {
-    state.targets = [sshTarget({ owner: { type: 'on-demand-runtime', runtimeId: 'env-1' } })]
-    await expect(
-      invoke('automations:listExternalManagerForOwner', { owner: desktopSsh(), provider: 'hermes' })
-    ).rejects.toThrow(EXTERNAL_AUTOMATION_SCOPE_CODES.targetHidden)
-    expect(relay.request).not.toHaveBeenCalled()
-  })
-
   it('refuses a stale host incarnation with the shared conflict vocabulary', async () => {
     state.targets = [sshTarget({ generation: 4 })]
     await expect(

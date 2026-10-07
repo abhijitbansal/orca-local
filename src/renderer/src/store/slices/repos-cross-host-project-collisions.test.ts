@@ -15,7 +15,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '../../runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 
 vi.mock('sonner', () => ({
   toast: { info: vi.fn(), success: vi.fn(), error: vi.fn() }
@@ -80,38 +79,6 @@ function answerRepoRm(options: { failingSelector?: string; code?: string } = {})
   })
 }
 
-/** repo.list per environment, so a catalog refresh sees exactly what that host still has. */
-function answerCatalogs(reposByEnvironment: Record<string, Repo[]>): void {
-  runtimeEnvironmentCall.mockImplementation((args: RuntimeCall) => {
-    const meta = { runtimeId: `runtime-${args.selector}` }
-    if (args.method === 'repo.list') {
-      return {
-        id: 'rpc-repo-list',
-        ok: true,
-        result: { repos: reposByEnvironment[args.selector] ?? [] },
-        _meta: meta
-      }
-    }
-    if (args.method === 'project.list') {
-      return {
-        id: 'rpc-project-list',
-        ok: true,
-        result: { projects: [] },
-        _meta: meta
-      }
-    }
-    if (args.method === 'projectHostSetup.list') {
-      return {
-        id: 'rpc-setup-list',
-        ok: true,
-        result: { setups: [] },
-        _meta: meta
-      }
-    }
-    return { id: 'rpc', ok: true, result: {}, _meta: meta }
-  })
-}
-
 function seed(repos: readonly Repo[], activeRuntimeEnvironmentId: string | null = null) {
   const store = createTestStore()
   store.setState({
@@ -132,7 +99,6 @@ function remainingRepoIds(store: ReturnType<typeof seed>): string[] {
 }
 
 beforeEach(() => {
-  clearRuntimeCompatibilityCacheForTests()
   for (const mock of [
     reposRemove,
     reposRemoveForHost,
@@ -156,22 +122,6 @@ beforeEach(() => {
 })
 
 describe('deleting one host copy of a same-named project', () => {
-  it('removes only the remote row when the same name exists locally', async () => {
-    const store = seed([localTwin, remoteATwin], 'env-a')
-
-    await store.getState().removeProject('env-a-uuid')
-
-    expect(repoRmCalls()).toEqual([
-      expect.objectContaining({
-        selector: 'env-a',
-        params: { repo: 'env-a-uuid' }
-      })
-    ])
-    expect(reposRemove).not.toHaveBeenCalled()
-    expect(reposRemoveForHost).not.toHaveBeenCalled()
-    expect(remainingRepoIds(store)).toEqual(['local-uuid'])
-  })
-
   it('removes only the local row when the same name exists on a remote', async () => {
     const store = seed([localTwin, remoteATwin], 'env-a')
 
@@ -182,28 +132,16 @@ describe('deleting one host copy of a same-named project', () => {
     expect(remainingRepoIds(store)).toEqual(['env-a-uuid'])
   })
 
-  it('removes only remote A when the same name exists on remote B', async () => {
-    const store = seed([remoteATwin, remoteBTwin], 'env-b')
-
-    await store.getState().removeProject('env-a-uuid')
-
-    expect(repoRmCalls()).toEqual([
-      expect.objectContaining({
-        selector: 'env-a',
-        params: { repo: 'env-a-uuid' }
-      })
-    ])
-    expect(remainingRepoIds(store)).toEqual(['env-b-uuid'])
-  })
-
-  it('keeps remote B when remote A reports the project already gone', async () => {
-    // The reporter's #11994 case with a name collision: the ghost purge is host-scoped.
-    answerRepoRm({ failingSelector: 'env-a', code: 'repo_not_found' })
+  it('fails a runtime-owned removal closed and keeps every host row', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
     const store = seed([localTwin, remoteATwin, remoteBTwin], 'env-b')
 
     await store.getState().removeProject('env-a-uuid', { hostId: 'runtime:env-a' })
 
-    expect(remainingRepoIds(store)).toEqual(['local-uuid', 'env-b-uuid'])
+    expect(remainingRepoIds(store)).toEqual(['local-uuid', 'env-a-uuid', 'env-b-uuid'])
+    expect(reposRemove).not.toHaveBeenCalled()
+    expect(reposRemoveForHost).not.toHaveBeenCalled()
+    expect(repoRmCalls()).toEqual([])
   })
 })
 
@@ -229,59 +167,5 @@ describe('deleting one host copy of a project whose id exists on two hosts', () 
       hostId: 'local'
     })
     expect(store.getState().repos.map((entry) => entry.path)).toEqual(['/mini/dup'])
-  })
-
-  it('leaves the local row when the remote copy is removed', async () => {
-    const store = seed([duplicateLocal, duplicateRemote], 'env-a')
-
-    await store.getState().removeProject('dup-id', { hostId: 'runtime:env-a' })
-
-    expect(repoRmCalls()).toEqual([
-      expect.objectContaining({
-        selector: 'env-a',
-        params: { repo: 'dup-id' }
-      })
-    ])
-    expect(reposRemove).not.toHaveBeenCalled()
-    expect(store.getState().repos.map((entry) => entry.path)).toEqual(['/laptop/dup'])
-  })
-
-  it('keeps the row when the owner cannot disambiguate a duplicate id', async () => {
-    // A host holding the id on two of its own hosts answers selector_ambiguous; that is a
-    // real failure, not a ghost, so the tolerance must not swallow it.
-    answerRepoRm({ failingSelector: 'env-a', code: 'selector_ambiguous' })
-    const store = seed([duplicateLocal, duplicateRemote], 'env-a')
-
-    await store.getState().removeProject('dup-id', { hostId: 'runtime:env-a' })
-
-    expect(store.getState().repos.map((entry) => entry.path)).toEqual(['/laptop/dup', '/mini/dup'])
-  })
-})
-
-describe('refetching one host catalog after its own delete', () => {
-  it('prunes only that host rows when the name exists on other hosts', async () => {
-    answerCatalogs({ 'env-a': [], 'env-b': [remoteBTwin] })
-    const store = seed([localTwin, remoteATwin, remoteBTwin], 'env-a')
-
-    await store.getState().fetchRuntimeEnvironmentRepos('env-a')
-
-    expect(remainingRepoIds(store)).toEqual(['local-uuid', 'env-b-uuid'])
-  })
-
-  it('keeps another host row that shares the deleted repo id', async () => {
-    const duplicateLocal = repo('dup-id', {
-      path: '/laptop/dup',
-      executionHostId: 'local'
-    })
-    const duplicateRemote = repo('dup-id', {
-      path: '/mini/dup',
-      executionHostId: 'runtime:env-a'
-    })
-    answerCatalogs({ 'env-a': [] })
-    const store = seed([duplicateLocal, duplicateRemote], 'env-a')
-
-    await store.getState().fetchRuntimeEnvironmentRepos('env-a')
-
-    expect(store.getState().repos.map((entry) => entry.path)).toEqual(['/laptop/dup'])
   })
 })

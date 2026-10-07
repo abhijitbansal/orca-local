@@ -5,11 +5,7 @@ import type {
   OpenCodeUsageSnapshot
 } from '../../shared/opencode-usage-types'
 import type { MuseUsageBreakdownKind, MuseUsageSnapshot } from '../../shared/muse-usage-types'
-import type {
-  CodexRateLimitResetResult,
-  RateLimitRuntimeTarget,
-  RateLimitState
-} from '../../shared/rate-limit-types'
+import type { RateLimitRuntimeTarget, RateLimitState } from '../../shared/rate-limit-types'
 
 export type UsageProviderSnapshot = {
   scanState: unknown
@@ -49,14 +45,7 @@ export type MuseUsageApi = UsageProviderApi<MuseUsageSnapshot, MuseUsageBreakdow
 
 export type RateLimitsApi = {
   get: () => Promise<RateLimitState>
-  refresh: () => Promise<RateLimitState>
   refreshCodexForTarget: (target: RateLimitRuntimeTarget) => Promise<RateLimitState>
-  consumeCodexResetCredit: () => Promise<CodexRateLimitResetResult>
   refreshClaudeForTarget: (target: RateLimitRuntimeTarget) => Promise<RateLimitState>
-  setPollingInterval: (ms: number) => Promise<void>
-  fetchInactiveClaudeAccounts: () => Promise<void>
-  fetchInactiveCodexAccounts: () => Promise<void>
-  refreshMiniMax: () => Promise<RateLimitState>
-  refreshGrok: () => Promise<RateLimitState>
   onUpdate: (callback: (state: RateLimitState) => void) => () => void
 }

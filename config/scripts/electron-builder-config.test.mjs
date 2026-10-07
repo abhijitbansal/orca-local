@@ -3,8 +3,7 @@ import { chmod, lstat, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/p
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { writeMobileWebBundleFixtureTree } from './mobile-web-bundle-fixture-tree.mjs'
+import { describe, expect, it } from 'vitest'
 
 const REPO_ROOT = join(import.meta.dirname, '..', '..')
 const SRC_MAIN_DIR = join(REPO_ROOT, 'src', 'main')
@@ -28,7 +27,6 @@ describe('electron-builder config', () => {
         '!src{,/**/*}',
         '!config{,/**/*}',
         '!docs{,/**/*}',
-        '!mobile{,/**/*}',
         '!native{,/**/*}',
         '!skills{,/**/*}',
         '!skill-guides{,/**/*}',
@@ -39,7 +37,6 @@ describe('electron-builder config', () => {
         '!pr-evidence{,/**/*}',
         '!notes{,/**/*}',
         '!{.claude,.grok,.agents,.codex}{,/**/*}',
-        '!Casks{,/**/*}',
         '!{AGENTS.md,CLAUDE.md,DEVELOPING.md,bundle-size-progress.md,ORCHESTRATION_IMPLEMENTATION_CHECKLIST.md,ORCHESTRATION_STRUCTURED_OUTPUT_DESIGN.md}',
         '!out/**/*.test.js',
         '!resources/plugins/launch/**'
@@ -495,16 +492,6 @@ describe('electron-builder config', () => {
       expect(unrecoverable).toEqual([])
     })
 
-    it('accepts exactly the markers electron-updater maps to a root-package updater', async () => {
-      const source = await readFile(
-        new URL('../../src/main/linux-update-package-type.ts', import.meta.url),
-        'utf8'
-      )
-      for (const target of linuxTargets.filter((entry) => RECOVERABLE_TARGETS.has(entry))) {
-        expect(source).toContain(`value === '${target}'`)
-      }
-    })
-
     it('keeps the pinned FpmTarget overwrite for configured deb and rpm artifacts', async () => {
       const source = await readFile(
         require.resolve('app-builder-lib/out/targets/FpmTarget'),
@@ -527,22 +514,8 @@ describe('arch-aware packaging guard', () => {
   const SHERPA_PLATFORM = process.platform === 'win32' ? 'win' : process.platform
   const otherSherpa = `sherpa-onnx-${SHERPA_PLATFORM}-${OTHER_ARCH_NAME}`
 
-  // beforePack also hash-verifies the mobile web bundle, which the unit-test job never builds.
-  // Point it at a real bundle built into a temp dir: these tests are about the native-variant
-  // guard, and the bundle guard has its own suite.
-  let scratch
-  let bundleDir
-  beforeAll(async () => {
-    scratch = await mkdtemp(join(tmpdir(), 'orca-electron-builder-guard-'))
-    bundleDir = join(scratch, 'mobile-web')
-    await writeMobileWebBundleFixtureTree({ outDir: bundleDir })
-  })
-  afterAll(async () => {
-    await rm(scratch, { recursive: true, force: true })
-  })
-
   const packHost = (arch) =>
-    electronBuilderConfig.beforePack({ electronPlatformName: process.platform, arch }, bundleDir)
+    electronBuilderConfig.beforePack({ electronPlatformName: process.platform, arch })
 
   it('allows packaging the host platform and architecture', () => {
     expect(() => packHost(HOST_ARCH)).not.toThrow()
@@ -570,7 +543,7 @@ describe('arch-aware packaging guard', () => {
       (resource) => resource.to === join('node_modules', '@vscode', 'windows-process-tree')
     )
     const packWindows = () =>
-      electronBuilderConfig.beforePack({ electronPlatformName: 'win32', arch: 1 }, bundleDir)
+      electronBuilderConfig.beforePack({ electronPlatformName: 'win32', arch: 1 })
     if (process.platform === 'win32' || windowsAddon) {
       expect(packWindows).not.toThrow()
     } else {

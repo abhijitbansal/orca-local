@@ -60,6 +60,7 @@ type RetiredGlobalSettings = {
   terminalScrollbackBytes?: unknown
   enableGitHubAttribution?: unknown
   showAgentsSidebar?: unknown
+  activeRuntimeEnvironmentId?: unknown
 }
 
 export function stripRetiredGlobalSettings(
@@ -69,11 +70,13 @@ export function stripRetiredGlobalSettings(
     terminalScrollbackBytes: _legacyScrollbackBytes,
     enableGitHubAttribution: _legacyGitHubAttribution,
     showAgentsSidebar: _legacyShowAgentsSidebar,
+    activeRuntimeEnvironmentId: _legacyActiveRuntimeEnvironmentId,
     ...rest
   } = (settings ?? {}) as Partial<GlobalSettings> & RetiredGlobalSettings
   void _legacyScrollbackBytes
   void _legacyGitHubAttribution
   void _legacyShowAgentsSidebar
+  void _legacyActiveRuntimeEnvironmentId
   return rest
 }
 

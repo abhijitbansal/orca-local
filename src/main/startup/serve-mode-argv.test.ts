@@ -9,7 +9,7 @@ describe('serve-mode-argv', () => {
   it('detects --serve and bare serve subcommand', () => {
     expect(argvRequestsServeMode(['orca', '--serve'])).toBe(true)
     expect(argvRequestsServeMode(['/AppRun', 'serve'])).toBe(true)
-    expect(argvRequestsServeMode(['/AppRun', '--no-sandbox', 'serve', '--port', '8080'])).toBe(true)
+    expect(argvRequestsServeMode(['/AppRun', '--no-sandbox', 'serve', '--json'])).toBe(true)
     expect(argvRequestsServeMode(['orca'])).toBe(false)
   })
 
@@ -25,22 +25,9 @@ describe('serve-mode-argv', () => {
     expect(findServeSubcommandIndex(['app', '--user-data-dir', '/tmp/x', 'serve'])).toBe(3)
   })
 
-  it('skips a space-separated Chromium switch value while locating serve', () => {
-    const argv = ['/AppRun', '--disable-features', 'Vulkan', 'serve', '--port', '6768']
-    expect(findServeSubcommandIndex(argv)).toBe(3)
-    expect(normalizeServeModeArgv(argv)).toEqual([
-      '/AppRun',
-      '--disable-features',
-      'Vulkan',
-      '--serve',
-      '--serve-port',
-      '6768'
-    ])
-  })
-
-  it('refuses a help launch instead of binding a server', () => {
-    // Why: `--help` is not a serve flag, so it used to be swallowed and the launch bound a
-    // network-exposed runtime server with pairing on. The AppImage redirect routes help to the CLI.
+  it('refuses a help launch instead of starting a server', () => {
+    // Why: `--help` is not a serve flag, so it used to be swallowed and the launch started a
+    // runtime server. The AppImage redirect routes help to the CLI.
     for (const argv of [
       ['/AppRun', 'serve', '--help'],
       ['/AppRun', 'serve', '-h'],
@@ -53,23 +40,9 @@ describe('serve-mode-argv', () => {
       expect(normalizeServeModeArgv(argv)).toEqual(argv)
     }
     // A directory named `help` is a value, not a help request.
-    expect(argvRequestsServeMode(['/AppRun', 'serve', '--project-root', 'help'])).toBe(true)
+    expect(argvRequestsServeMode(['/AppRun', 'serve', '--user-data-dir', 'help'])).toBe(true)
     // Past an operator's terminator nothing is reinterpreted, help flags included.
     expect(argvRequestsServeMode(['/AppRun', 'serve', '--', '--help'])).toBe(true)
-  })
-
-  it('does not turn `--no-pairing=false` into no-pairing', () => {
-    // Why: the CLI reads serve booleans as `=== true`, so `=false` leaves pairing ON. Translating
-    // the token dropped the value and disabled pairing instead — the inversion of the bug this
-    // module exists to fix.
-    expect(
-      normalizeServeModeArgv(['/AppRun', 'serve', '--port', '6768', '--no-pairing=false'])
-    ).toEqual(['/AppRun', '--serve', '--serve-port', '6768', '--no-pairing=false'])
-    expect(normalizeServeModeArgv(['/AppRun', 'serve', '--mobile-pairing=0'])).toEqual([
-      '/AppRun',
-      '--serve',
-      '--mobile-pairing=0'
-    ])
   })
 
   it('leaves real GUI launch argv alone', () => {
@@ -80,9 +53,8 @@ describe('serve-mode-argv', () => {
       ['C:\\Program Files\\Orca\\Orca.exe', '--squirrel-firstrun'],
       ['C:\\Program Files\\Orca\\Orca.exe', 'orca://worktree/serve'],
       ['/opt/orca/orca-ide', '/home/u/serve'],
-      // `--pairing-code` takes the next token, so its value is never the subcommand.
-      ['/opt/orca/orca-ide', '--pairing-code', 'serve'],
-      ['/opt/orca/orca-ide', '--environment=serve'],
+      // `--proxy-server` takes the next token, so its value is never the subcommand.
+      ['/opt/orca/orca-ide', '--proxy-server', 'serve'],
       ['/opt/orca/orca-ide', '--', 'serve'],
       ['/opt/orca/orca-ide', 'Serve']
     ]) {
@@ -96,90 +68,19 @@ describe('serve-mode-argv', () => {
     expect(argvRequestsServeMode(['app', 'status', 'serve'])).toBe(false)
   })
 
-  it('rewrites CLI-form serve flags into --serve* form', () => {
-    expect(
-      normalizeServeModeArgv([
-        '/AppRun',
-        'serve',
-        '--port',
-        '9090',
-        '--json',
-        '--pairing-address',
-        '0.0.0.0',
-        '--no-pairing'
-      ])
-    ).toEqual([
-      '/AppRun',
-      '--serve',
-      '--serve-port',
-      '9090',
-      '--serve-json',
-      '--serve-pairing-address',
-      '0.0.0.0',
-      '--serve-no-pairing'
-    ])
-  })
-
   it('keeps Electron-injected Chromium switches while normalizing direct serve', () => {
     expect(
       normalizeServeModeArgv([
         '/opt/orca/orca-ide',
         '--disable-features=FedCm,DirectSockets',
         'serve',
-        '--port',
-        '6768'
+        '--json'
       ])
     ).toEqual([
       '/opt/orca/orca-ide',
       '--disable-features=FedCm,DirectSockets',
       '--serve',
-      '--serve-port',
-      '6768'
-    ])
-  })
-
-  it('leaves already-normalized argv unchanged', () => {
-    // Why every value flag: the CLI's own `orca serve` spawns the app with exactly this shape
-    // (serveOrcaApp), and the rewrite now runs over it too — a bad mapping would drop the port here.
-    const argv = [
-      'orca',
-      '--serve',
-      '--serve-json',
-      '--serve-port',
-      '6768',
-      '--serve-pairing-address',
-      '100.64.1.20',
-      '--serve-no-pairing',
-      '--serve-mobile-pairing',
-      '--serve-recipe-json',
-      '--serve-project-root',
-      '/srv/repo'
-    ]
-    expect(normalizeServeModeArgv(argv)).toEqual(argv)
-  })
-
-  it('splits `--flag=value` CLI form, which getServeOptions cannot read', () => {
-    expect(
-      normalizeServeModeArgv(['/AppRun', 'serve', '--port=9090', '--pairing-address=0.0.0.0'])
-    ).toEqual(['/AppRun', '--serve', '--serve-port', '9090', '--serve-pairing-address', '0.0.0.0'])
-  })
-
-  it('keeps equals-form values that start with a flag marker intact', () => {
-    expect(normalizeServeModeArgv(['/AppRun', 'serve', '--pairing-address=--no-pairng'])).toEqual([
-      '/AppRun',
-      '--serve',
-      '--serve-pairing-address=--no-pairng'
-    ])
-  })
-
-  it('translates serve flags in the mixed `--serve --port` form', () => {
-    // Why: leaving these untranslated silently kept pairing enabled despite --no-pairing.
-    expect(normalizeServeModeArgv(['orca', '--serve', '--port', '9090', '--no-pairing'])).toEqual([
-      'orca',
-      '--serve',
-      '--serve-port',
-      '9090',
-      '--serve-no-pairing'
+      '--serve-json'
     ])
   })
 
@@ -198,34 +99,27 @@ describe('serve-mode-argv', () => {
   })
 
   it('passes args after `--` through verbatim', () => {
-    expect(normalizeServeModeArgv(['/AppRun', 'serve', '--json', '--', '--port', '1'])).toEqual([
-      '/AppRun',
-      '--serve',
-      '--serve-json',
-      '--',
-      '--port',
-      '1'
-    ])
+    expect(
+      normalizeServeModeArgv(['/AppRun', 'serve', '--json', '--', '--user-data-dir', '1'])
+    ).toEqual(['/AppRun', '--serve', '--serve-json', '--', '--user-data-dir', '1'])
   })
 
   it('never disagrees with itself about whether a launch is serve mode', () => {
     // Why exhaustive: index.ts asks `argvRequestsServeMode` and then reads `--serve` out of the
     // rewrite. If the two halves consume values differently one can swallow the `serve` token the
     // other is rewriting, and the launch boots a desktop window with every serve flag dropped —
-    // #12677 again. Found by fuzzing `--port --port serve` and `--port -- serve`.
+    // #12677 again. Found by fuzzing `--user-data-dir --user-data-dir serve` and `--user-data-dir -- serve`.
     const alphabet = [
       'serve',
       '--serve',
-      '--port',
       '--json',
-      '--pairing-code',
+      '--proxy-server',
       '--user-data-dir',
       '--',
       '-h',
       'help',
       'value',
-      '--port=1',
-      '--no-pairing=false'
+      '--user-data-dir=1'
     ]
     const disagreements: string[][] = []
     const walk = (tail: string[]): void => {

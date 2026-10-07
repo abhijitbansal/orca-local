@@ -193,7 +193,7 @@ describeOnWindows('ConPTY job ownership', () => {
     // Measured, not assumed: node-pty drops its handle record and closes the
     // job when the shell exits, so a dead tree is unverifiable here rather than
     // observably empty. Callers must not read null as proof of death -- the
-    // verdict vocabulary in docs/reference/ssh-execution-boundary.md applies.
+    // verdict vocabulary in AGENTS.md applies.
     const { proc } = await spawnShellWithDetachedGrandchild()
     terminatePtyJob(proc)
     await sleep(1_500)

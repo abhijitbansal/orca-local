@@ -9,7 +9,7 @@ import { shouldShowWorktreeCreationSurface } from '@/lib/worktree-creation-surfa
 // so a throw after createWorktree succeeds must be contained per-step and the
 // creation must still reach completeWorktreeCreation, which tears the creation
 // surface down. Also covers the caller-side .catch() backstop: a rejection that
-// still escapes (e.g. pre-create preparation) becomes a visible error state
+// still escapes (e.g. a malformed create result) becomes a visible error state
 // plus toast instead of a panel silently stuck at "creating".
 
 type TestActiveView = 'terminal' | 'tasks'
@@ -90,18 +90,6 @@ vi.mock('@/lib/worktree-creation-agent-seeds', () => ({
   seedAgentTabStateAfterWorktreeCreate: vi.fn()
 }))
 
-vi.mock('@/lib/ephemeral-vm-workspace-target', () => ({
-  prepareEphemeralVmWorkspaceTarget: vi.fn()
-}))
-
-vi.mock('@/lib/ephemeral-vm-worktree-creation', () => ({
-  prepareRequestForCreate: vi.fn(
-    async (_creationId: string, request: WorktreeCreationRequest) => request
-  ),
-  attachEphemeralVmRuntimeToWorkspace: vi.fn(async () => undefined),
-  cleanupEphemeralVmRuntimeForFailedCreate: vi.fn(async () => undefined)
-}))
-
 vi.mock('@/lib/worktree-creation-structured-recovery', () => ({
   markStructuredWorktreeLaunchUnconfirmed: vi.fn(),
   retryStructuredWorktreeLaunch: vi.fn()
@@ -112,7 +100,6 @@ import { activateAndRevealWorktree } from '@/lib/worktree-activation'
 import { ensureWorktreeHasInitialTerminal } from '@/lib/worktree-initial-terminal-seeding'
 import { ensureWebRuntimeWorktreeTerminalAfterWake } from '@/lib/web-runtime-worktree-terminal-after-wake'
 import { ensureAgentStartupInTerminal } from '@/lib/new-workspace'
-import { prepareRequestForCreate } from '@/lib/ephemeral-vm-worktree-creation'
 import { executeWorktreeCreation } from './worktree-creation-flow-execute'
 import { runBackgroundWorktreeCreation } from './worktree-creation-flow'
 
@@ -160,6 +147,14 @@ function surfaceInput(activeView: TestActiveView): {
   }
 }
 
+function throwingCreateResult(): unknown {
+  return {
+    get worktree(): never {
+      throw new Error('result exploded')
+    }
+  }
+}
+
 beforeEach(() => {
   // resetAllMocks: implementations from prior tests (the injected throws) must not leak.
   vi.resetAllMocks()
@@ -200,9 +195,7 @@ describe('a throw after createWorktree succeeds no longer strands the creation s
       undefined
     )
     // Contained: completion still tears the surface down.
-    expect(store.removePendingWorktreeCreation).toHaveBeenCalledWith('creation-1', {
-      cleanupVm: false
-    })
+    expect(store.removePendingWorktreeCreation).toHaveBeenCalledWith('creation-1')
     expect(store.pendingWorktreeCreations['creation-1']).toBeUndefined()
     expect(store.activePendingCreationId).toBeNull()
     expect(shouldShowWorktreeCreationSurface(surfaceInput('terminal'))).toBe(false)
@@ -219,9 +212,7 @@ describe('a throw after createWorktree succeeds no longer strands the creation s
     await executeWorktreeCreation('creation-1', request)
 
     expect(ensureWorktreeHasInitialTerminal).not.toHaveBeenCalled()
-    expect(store.removePendingWorktreeCreation).toHaveBeenCalledWith('creation-1', {
-      cleanupVm: false
-    })
+    expect(store.removePendingWorktreeCreation).toHaveBeenCalledWith('creation-1')
   })
 
   it('activating branch: routes draft and follow-up delivery to the stamped agent tab', async () => {
@@ -280,9 +271,7 @@ describe('a throw after createWorktree succeeds no longer strands the creation s
       expect.any(Error)
     )
     // ...and the creation still completed instead of stranding the entry.
-    expect(store.removePendingWorktreeCreation).toHaveBeenCalledWith('creation-1', {
-      cleanupVm: false
-    })
+    expect(store.removePendingWorktreeCreation).toHaveBeenCalledWith('creation-1')
     expect(store.pendingWorktreeCreations['creation-1']).toBeUndefined()
     expect(store.activePendingCreationId).toBeNull()
     expect(shouldShowWorktreeCreationSurface(surfaceInput('terminal'))).toBe(false)
@@ -331,24 +320,22 @@ describe('a throw after createWorktree succeeds no longer strands the creation s
 
     await executeWorktreeCreation('creation-1', request)
 
-    expect(store.removePendingWorktreeCreation).toHaveBeenCalledWith('creation-1', {
-      cleanupVm: false
-    })
+    expect(store.removePendingWorktreeCreation).toHaveBeenCalledWith('creation-1')
     expect(store.pendingWorktreeCreations['creation-1']).toBeUndefined()
     expect(store.activePendingCreationId).toBeNull()
     expect(shouldShowWorktreeCreationSurface(surfaceInput('terminal'))).toBe(false)
   })
 
   it('backstop: a rejection that escapes the execute promise becomes a visible inline error', async () => {
-    // Pre-create preparation runs before the in-function try/catch.
-    vi.mocked(prepareRequestForCreate).mockRejectedValue(new Error('prepare exploded'))
+    // Reading the result happens after the in-function try/catch.
+    store.createWorktree.mockResolvedValue(throwingCreateResult())
 
     const creationId = runBackgroundWorktreeCreation(makeRequest())
 
     await vi.waitFor(() => {
       expect(store.pendingWorktreeCreations[creationId]).toMatchObject({
         status: 'error',
-        error: 'prepare exploded'
+        error: 'result exploded'
       })
     })
     expect(toast.error).not.toHaveBeenCalled()
@@ -362,15 +349,15 @@ describe('a throw after createWorktree succeeds no longer strands the creation s
 
   it('backstop: a rejection after leaving the panel is announced with a toast', async () => {
     store.activeView = 'tasks'
-    vi.mocked(prepareRequestForCreate).mockRejectedValue(new Error('prepare exploded'))
+    store.createWorktree.mockResolvedValue(throwingCreateResult())
 
     const creationId = runBackgroundWorktreeCreation(makeRequest())
     // The pending surface is revealed synchronously; move away before the
-    // rejected preparation reaches the fire-and-forget backstop.
+    // rejected result reaches the fire-and-forget backstop.
     store.activeView = 'tasks'
 
     await vi.waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('prepare exploded')
+      expect(toast.error).toHaveBeenCalledWith('result exploded')
     })
     expect(store.pendingWorktreeCreations[creationId]).toMatchObject({ status: 'error' })
   })

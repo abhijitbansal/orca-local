@@ -1,12 +1,7 @@
-import { mkdtempSync } from 'node:fs'
-import { tmpdir } from 'node:os'
-import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ZodObject } from 'zod'
 import type { OrchestrationCompatibilityEvidence } from '../../../shared/orchestration-compatibility-evidence'
 import { ORCHESTRATION_SESSION_CALLER_ERROR_CODES as CODES } from '../../../shared/orchestration-session-caller-codes'
-import { DeviceRegistry } from '../device-registry'
-import { OrcaRuntimeRpcServer } from '../runtime-rpc'
 import { buildRegistry } from './core'
 import { ORCHESTRATION_METHODS } from './methods/orchestration'
 import {
@@ -45,7 +40,6 @@ const NAMES_NO_RESOLVED_PARTY: Readonly<Record<string, string>> = {
   'orchestration.runShow from': 'reads a Run by id; `from` is unused',
   'orchestration.dispatchShow from': '`from` only fills the preview preamble text',
   'orchestration.workerStart terminal': 'adopts an existing PTY pane, which a session never has',
-  'orchestration.federationAttachStart terminal': 'names the remote worker terminal',
   'orchestration.workerTerminalUserInput terminal': 'names the worker terminal'
 }
 
@@ -93,9 +87,9 @@ describe('orchestration session callers at the dispatch entry', () => {
       })
       .sort()
 
-    // The population: 41 registered methods carrying 25 party-naming fields.
-    expect(registry.size).toBe(41)
-    expect(partyNaming).toHaveLength(25)
+    // The population: 31 registered methods carrying 24 party-naming fields.
+    expect(registry.size).toBe(31)
+    expect(partyNaming).toHaveLength(24)
     expect(partyNaming).toEqual(
       [
         ...Object.entries(ORCHESTRATION_CALLER_PARAM).map(
@@ -158,50 +152,6 @@ describe('orchestration session callers at the dispatch entry', () => {
       }
     }
   )
-
-  it('admits the session on the real Unix-socket route and refuses it on the real paired route', async () => {
-    const userDataPath = mkdtempSync(join(tmpdir(), 'orca-session-caller-'))
-    const server = new OrcaRuntimeRpcServer({
-      runtime: h.runtime,
-      userDataPath,
-      enableWebSocket: false
-    })
-    server['deviceRegistry'] = new DeviceRegistry(userDataPath)
-    const device = server['deviceRegistry'].addDevice('laptop', 'runtime')
-    const request = orchestrationRequest(
-      'orchestration.runCreate',
-      { objective: 'o' },
-      {
-        sessionId: SESSION_X
-      }
-    )
-
-    const replies: string[] = []
-    await server['handleWebSocketMessage'](
-      JSON.stringify({ ...request, deviceToken: device.token }),
-      (reply) => replies.push(reply),
-      () => {},
-      undefined,
-      undefined,
-      device.token
-    )
-    expect(JSON.parse(replies[0] ?? '{}')).toMatchObject({
-      ok: false,
-      error: { code: CODES.hostBoundary }
-    })
-
-    const local = await server['handleMessage'](
-      JSON.stringify({ ...request, authToken: server['authToken'] })
-    )
-    expect(local).toMatchObject({ ok: true, result: { run: { objective: 'o' } } })
-    expect(
-      h.db.getCurrentRunForCoordinator({
-        terminalHandle: null,
-        paneKey: null,
-        orcaSessionId: SESSION_X
-      })
-    ).toMatchObject({ objective: 'o', coordinator_orca_session_id: SESSION_X })
-  })
 
   describe('refuses a session that cannot act, before any destructive or consuming lookup', () => {
     function seedPendingMail(): { runId: string; messageId: string } {

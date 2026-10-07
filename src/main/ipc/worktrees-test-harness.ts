@@ -32,10 +32,6 @@ import {
   resolveDefaultBaseRefViaExecMock,
   getDefaultRemoteMock,
   getBranchConflictKindMock,
-  getPRForBranchMock,
-  getHostedReviewForBranchMock,
-  getWorkItemMock,
-  getPullRequestPushTargetMock,
   getEffectiveHooksMock,
   createIssueCommandRunnerScriptMock,
   createSetupRunnerScriptMock,
@@ -113,10 +109,6 @@ export function setupWorktreeHandlers(): WorktreeRuntimeStub {
     resolveDefaultBaseRefViaExecMock,
     getDefaultRemoteMock,
     getBranchConflictKindMock,
-    getPRForBranchMock,
-    getHostedReviewForBranchMock,
-    getWorkItemMock,
-    getPullRequestPushTargetMock,
     getEffectiveHooksMock,
     getEffectiveHooksFromConfigMock,
     getDefaultTabsLaunchMock,
@@ -245,10 +237,6 @@ export function setupWorktreeHandlers(): WorktreeRuntimeStub {
   resolveDefaultBaseRefViaExecMock.mockResolvedValue('origin/main')
   getDefaultRemoteMock.mockResolvedValue('origin')
   getBranchConflictKindMock.mockResolvedValue(null)
-  getPRForBranchMock.mockResolvedValue(null)
-  getHostedReviewForBranchMock.mockResolvedValue(null)
-  getWorkItemMock.mockResolvedValue(null)
-  getPullRequestPushTargetMock.mockResolvedValue(null)
   // Why: createLocalWorktree can still hit the legacy git fetch fallback here; resolve so catch/then chains don't trip on undefined.
   gitExecFileAsyncMock.mockResolvedValue({ stdout: '', stderr: '' })
   getEffectiveHooksMock.mockReturnValue(null)

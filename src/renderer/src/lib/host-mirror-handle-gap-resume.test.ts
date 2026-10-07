@@ -22,7 +22,7 @@ import {
 // The window this pins: a paired runtime publishes a workspace's tab rows and its PTY handles on
 // separate frames, so there is a frame where the row exists and `ptyIdsByTabId` is still empty.
 // An empty handle map for a row the host is still publishing is `unverifiable`, never `exited`
-// (docs/reference/ssh-execution-boundary.md), so nothing may be resumed off it.
+// (AGENTS.md), so nothing may be resumed off it.
 //
 // HOW TO ASSERT ON THIS MODULE, because the obvious way cannot fail. "Did the waiter release" is
 // NOT an observable here: a waiter released for the wrong reason is immediately re-parked by the
@@ -479,7 +479,7 @@ describe('resume across the mirror handle gap', () => {
   // advances it on the *reconnect*, under a new runtime id. The deadline therefore fires with a
   // generation that still matches, and its silence is about the outage, not about the host. A
   // verdict recorded there resumes the agent the host is still running (#19735 through the
-  // disconnect door, docs/reference/ssh-execution-boundary.md).
+  // disconnect door, AGENTS.md).
   it('does not turn an outage into a verdict when the environment dropped mid-park', () => {
     const worktree = makeRuntimeOwnedWorktree()
     seedMirroredWorkspace(worktree)

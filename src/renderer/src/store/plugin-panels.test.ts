@@ -2,6 +2,7 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { PluginHostListEntry } from '../../../preload/api-types'
+import { findPluginCommandForKeybinding } from '@/lib/plugin-command-keybindings'
 import {
   collectActivePluginCommands,
   collectEditablePluginCommands,
@@ -44,7 +45,7 @@ describe('plugin panel list loading', () => {
           id: 'tasks',
           title: 'Tasks',
           context: 'global' as const,
-          handler: { type: 'built-in' as const, action: 'view.tasks' },
+          handler: { type: 'built-in' as const, action: 'workspace.openBoard' },
           keybindings: [{ key: 'Mod+Alt+T', when: 'global' as const }]
         }
       ]
@@ -65,6 +66,52 @@ describe('plugin panel list loading', () => {
         { ...enabled, status: 'disabled' }
       ])
     ).toEqual([expect.objectContaining({ pluginKey: enabled.pluginKey, id: 'tasks' })])
+  })
+
+  it('drops legacy no-op commands so they cannot reach the palette or shadow another plugin chord', () => {
+    const chord = [{ key: 'Mod+Alt+T', when: 'global' as const }]
+    const legacy = {
+      ...plugin('orca-samples.legacy'),
+      commands: [
+        {
+          id: 'tasks',
+          title: 'Open Tasks',
+          context: 'global' as const,
+          handler: { type: 'built-in' as const, action: 'view.tasks' },
+          keybindings: chord
+        }
+      ]
+    }
+    const live = {
+      ...plugin('orca-samples.live'),
+      commands: [
+        {
+          id: 'board',
+          title: 'Board',
+          context: 'global' as const,
+          handler: { type: 'built-in' as const, action: 'workspace.openBoard' },
+          keybindings: chord
+        }
+      ]
+    }
+
+    const active = collectActivePluginCommands([legacy, live])
+    expect(active.map((command) => command.pluginKey)).toEqual([live.pluginKey])
+    expect(
+      collectEditablePluginCommands([legacy, live]).map((command) => command.pluginKey)
+    ).toEqual([live.pluginKey])
+    const input = {
+      key: 't',
+      code: 'KeyT',
+      altKey: true,
+      ctrlKey: true,
+      metaKey: false,
+      shiftKey: false
+    }
+    expect(findPluginCommandForKeybinding(active, input, 'linux', undefined, false)).toMatchObject({
+      pluginKey: live.pluginKey
+    })
+    expect(legacy.commands).toHaveLength(1)
   })
 
   it('bounds watchdog errors to installed panels and clears them on recovery', () => {

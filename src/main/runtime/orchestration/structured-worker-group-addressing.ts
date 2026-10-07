@@ -9,8 +9,7 @@
  *
  * Deliberately NOT solved by teaching `listTerminals` about structured sessions: that result is
  * published to paired mobile and remote clients and to every consumer that assumes a summary has a
- * `ptyId` or is writable, so it is its own change under
- * `docs/reference/remote-wire-compatibility.md`. Group addressing needs three fields, and
+ * `ptyId` or is writable, so it is its own change. Group addressing needs three fields, and
  * `RuntimeTerminalSummary` already satisfies them structurally — so the group resolver widens to
  * the smaller shape instead, and nothing here has to invent a `worktreePath` or a `branch`.
  */

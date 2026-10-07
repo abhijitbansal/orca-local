@@ -10,12 +10,10 @@ import { recordCrashBreadcrumb } from '../crash-reporting/crash-breadcrumb-store
 import { mainProcessState as state } from './main-process-state'
 import {
   openSettingsFromSystemMenu,
-  runUserInitiatedUpdateCheck,
   sendOpenCrashReport,
   sendOpenFeatureTour,
   sendOpenSetupGuide
 } from './main-window-actions'
-import { ensureAutoUpdaterConfigured } from '../window/attach-main-window-services'
 import { logStartupMilestone } from './startup-diagnostics'
 
 export async function initializeMainProcessI18nAndMenu(): Promise<void> {
@@ -28,10 +26,6 @@ export async function initializeMainProcessI18nAndMenu(): Promise<void> {
   logStartupMilestone('i18n-ready')
   registerAppMenu({
     appMenuLabel: state.devInstanceIdentity?.name ?? app.name,
-    onCheckForUpdates: (options) => {
-      ensureAutoUpdaterConfigured()
-      runUserInitiatedUpdateCheck(options)
-    },
     onBeforeReload: ({ ignoreCache, webContentsId }) => {
       if (state.mainWindow?.webContents.id === webContentsId) {
         state.expectedRendererReload.mark(webContentsId)
@@ -89,7 +83,6 @@ export async function initializeMainProcessI18nAndMenu(): Promise<void> {
       return {
         showTasksButton: settings.showTasksButton !== false,
         showAutomationsButton: settings.showAutomationsButton !== false,
-        showMobileButton: settings.showMobileButton !== false,
         showTitlebarAppName: settings.showTitlebarAppName !== false,
         statusBarVisible: ui.statusBarVisible !== false
       }

@@ -84,8 +84,8 @@ function renderSidebar(
                 installStatus: 'update-available'
               },
               {
-                id: 'ephemeral-vms',
-                title: 'Ephemeral VMs',
+                id: 'needs-attention-skill',
+                title: 'Attention Skill',
                 icon: Bot,
                 installStatus: 'needs-attention'
               },

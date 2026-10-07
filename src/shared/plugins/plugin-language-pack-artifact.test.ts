@@ -45,8 +45,7 @@ describe('plugin language-pack artifacts', () => {
     'PluginKeybindingConsentPreview',
     'PluginMarketplaceListingRow',
     'PluginMarketplacePreviewDialog',
-    'PluginMarketplaceSourceDialog',
-    'PluginVmRecipeConsentPreview'
+    'PluginMarketplaceSourceDialog'
   ])('prevents language packs from rewriting %s security copy', (component) => {
     expect(
       parsePluginLanguagePackArtifact(

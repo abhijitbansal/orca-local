@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import { getHostedReviewCacheKey } from '@/store/slices/hosted-review-cache-identity'
 import {
   filterWorkspaceCleanupCandidates,
   getWorkspaceCleanupGitLabel,
@@ -13,101 +12,63 @@ import {
   DEFAULT_FILTERS,
   NOW,
   makeCandidate,
-  makeReview,
   makeState
 } from './workspace-cleanup-presentation-fixtures'
 import type { Repo } from '../../../../shared/repo-types'
 
 describe('workspace cleanup presentation', () => {
-  it('finds hosted review details from renderer state', () => {
-    const cacheKey = getHostedReviewCacheKey('/repo', 'alpha', {}, 'repo-1', undefined)
+  it('finds the linked review from persisted worktree metadata', () => {
+    const base = makeState()
     const state = makeState({
-      hostedReviewCache: {
-        [cacheKey]: { data: makeReview(), fetchedAt: NOW }
+      worktreesByRepo: {
+        'repo-1': [{ ...base.worktreesByRepo['repo-1']![0]!, linkedPR: 42 }]
       }
     })
 
     expect(getWorkspaceCleanupReviewInfo(makeCandidate(), state)).toMatchObject({
       hasReview: true,
       label: 'PR #42',
-      state: 'open',
-      title: 'Review alpha cleanup'
+      state: 'unknown',
+      provider: 'github'
     })
   })
 
-  it('hides only the matching suppressed GitHub review', () => {
-    const cacheKey = getHostedReviewCacheKey('/repo', 'alpha', {}, 'repo-1', undefined)
-    const matching = makeState({
+  it('reports no review for a suppressed GitHub PR that is no longer linked', () => {
+    const base = makeState()
+    const state = makeState({
       worktreesByRepo: {
         'repo-1': [
-          {
-            ...makeState().worktreesByRepo['repo-1']![0]!,
-            linkedPR: null,
-            suppressedGitHubPR: 42
-          }
+          { ...base.worktreesByRepo['repo-1']![0]!, linkedPR: null, suppressedGitHubPR: 42 }
         ]
-      },
-      hostedReviewCache: {
-        [cacheKey]: { data: makeReview({ number: 42 }), fetchedAt: NOW }
-      }
-    })
-    const different = makeState({
-      ...matching,
-      hostedReviewCache: {
-        [cacheKey]: { data: makeReview({ number: 43 }), fetchedAt: NOW }
       }
     })
 
-    expect(getWorkspaceCleanupReviewInfo(makeCandidate(), matching).hasReview).toBe(false)
-    expect(getWorkspaceCleanupReviewInfo(makeCandidate(), different)).toMatchObject({
-      hasReview: true,
-      label: 'PR #43'
-    })
+    expect(getWorkspaceCleanupReviewInfo(makeCandidate(), state).hasReview).toBe(false)
   })
 
-  it('preserves explicit GitHub links and non-GitHub reviews despite stale suppression', () => {
-    const cacheKey = getHostedReviewCacheKey('/repo', 'alpha', {}, 'repo-1', undefined)
-    const explicit = makeState({
+  it('labels a linked GitLab merge request', () => {
+    const base = makeState()
+    const state = makeState({
       worktreesByRepo: {
         'repo-1': [
           {
-            ...makeState().worktreesByRepo['repo-1']![0]!,
-            linkedPR: 42,
-            suppressedGitHubPR: 42
-          }
-        ]
-      },
-      hostedReviewCache: {
-        [cacheKey]: { data: makeReview({ number: 42 }), fetchedAt: NOW }
-      }
-    })
-    const gitLab = makeState({
-      worktreesByRepo: {
-        'repo-1': [
-          {
-            ...makeState().worktreesByRepo['repo-1']![0]!,
+            ...base.worktreesByRepo['repo-1']![0]!,
             linkedPR: null,
             suppressedGitHubPR: 42,
             linkedGitLabMR: 42
           }
         ]
-      },
-      hostedReviewCache: {
-        [cacheKey]: {
-          data: makeReview({ provider: 'gitlab', number: 42 }),
-          fetchedAt: NOW
-        }
       }
     })
 
-    expect(getWorkspaceCleanupReviewInfo(makeCandidate(), explicit).hasReview).toBe(true)
-    expect(getWorkspaceCleanupReviewInfo(makeCandidate(), gitLab)).toMatchObject({
+    expect(getWorkspaceCleanupReviewInfo(makeCandidate(), state)).toMatchObject({
       hasReview: true,
+      label: 'MR #42',
       provider: 'gitlab'
     })
   })
 
-  it('host-qualifies same-id repo, worktree, and review cache joins', () => {
+  it('host-qualifies same-id repo and worktree joins', () => {
     const base = makeState()
     const localRepo = { ...base.repos[0]!, executionHostId: 'local' as const }
     const remoteRepo: Repo = {
@@ -126,23 +87,9 @@ describe('workspace cleanup presentation', () => {
       hostId: 'ssh:builder' as const,
       linkedPR: 22
     }
-    const localKey = getHostedReviewCacheKey('/repo', 'alpha', {}, 'repo-1', null, 'local', true)
-    const remoteKey = getHostedReviewCacheKey(
-      '/repo',
-      'alpha',
-      {},
-      'repo-1',
-      'builder',
-      'ssh:builder',
-      true
-    )
     const state = makeState({
       repos: [localRepo, remoteRepo],
-      worktreesByRepo: { 'repo-1': [localWorktree, remoteWorktree] },
-      hostedReviewCache: {
-        [localKey]: { data: makeReview({ number: 11, title: 'Local review' }), fetchedAt: NOW },
-        [remoteKey]: { data: makeReview({ number: 22, title: 'Remote review' }), fetchedAt: NOW }
-      }
+      worktreesByRepo: { 'repo-1': [localWorktree, remoteWorktree] }
     })
 
     expect(
@@ -154,7 +101,7 @@ describe('workspace cleanup presentation', () => {
         }),
         state
       )
-    ).toMatchObject({ label: 'PR #22', title: 'Remote review' })
+    ).toMatchObject({ label: 'PR #22' })
   })
 
   it('does not guess a host for legacy same-id review joins', () => {

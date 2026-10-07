@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DeveloperPermissionRequestResult } from '../../../../shared/developer-permissions-types'
 import type { SpeechModelManifest } from '../../../../shared/speech-types'
 import type { GlobalSettings } from '../../../../shared/global-settings-types'
-import { getDefaultVoiceSettings } from '../../../../shared/constants'
+import { getDefaultPersistedState, getDefaultVoiceSettings } from '../../../../shared/constants'
 import { handleVoiceDictationToggle, VoicePane } from './VoicePane'
 
 const { useAppStoreMock, useShortcutLabelMock } = vi.hoisted(() => ({
@@ -57,9 +57,6 @@ function installWindowApi(
       },
       speech: {
         getCatalog: vi.fn(async () => EMPTY_SPEECH_CATALOG),
-        getOpenAiApiKeyStatus: vi.fn(async () => ({ configured: false })),
-        saveOpenAiApiKey: vi.fn(async () => ({ configured: true })),
-        clearOpenAiApiKey: vi.fn(async () => ({ configured: false })),
         onDownloadProgress: vi.fn(() => () => {}),
         downloadModel: vi.fn()
       }
@@ -256,9 +253,9 @@ describe('VoicePane', () => {
 
   it('merges an in-flight voice write onto the newest settings, not the render-time snapshot', async () => {
     const updateSettings = vi.fn()
-    let resolveClear: () => void = () => {}
-    const clearing = new Promise<{ configured: boolean }>((resolve) => {
-      resolveClear = () => resolve({ configured: false })
+    let resolvePermission: (result: DeveloperPermissionRequestResult) => void = () => {}
+    const permission = new Promise<DeveloperPermissionRequestResult>((resolve) => {
+      resolvePermission = resolve
     })
     useAppStoreMock.mockImplementation((selector: (state: Record<string, unknown>) => unknown) =>
       selector({
@@ -269,49 +266,39 @@ describe('VoicePane', () => {
       })
     )
     useShortcutLabelMock.mockReturnValue('Ctrl+Shift+Y')
-    installWindowApi(vi.fn(async () => deniedMicrophoneResult))
-    window.api.speech.getOpenAiApiKeyStatus = vi.fn(async () => ({
-      configured: true,
-      protection: 'sealed' as const
-    }))
-    window.api.speech.clearOpenAiApiKey = vi.fn(() => clearing)
+    installWindowApi(() => permission)
 
-    const settingsWithKey = (enabled: boolean): GlobalSettings =>
-      ({
-        voice: {
-          ...getDefaultVoiceSettings(),
-          enabled,
-          openAiApiKeyConfigured: true,
-          microphoneDeviceId: 'usb-mic',
-          microphoneDeviceLabel: 'USB Microphone'
-        }
-      }) as GlobalSettings
+    const settingsWithMic = (microphoneDeviceId: string | null): GlobalSettings => ({
+      ...getDefaultPersistedState('/tmp').settings,
+      voice: {
+        ...getDefaultVoiceSettings(),
+        microphoneDeviceId,
+        microphoneDeviceLabel: microphoneDeviceId ? 'USB Microphone' : null
+      }
+    })
 
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
     await act(async () => {
-      root.render(<VoicePane settings={settingsWithKey(true)} updateSettings={updateSettings} />)
+      root.render(<VoicePane settings={settingsWithMic(null)} updateSettings={updateSettings} />)
     })
-
-    const disconnect = container.querySelector<HTMLButtonElement>(
-      'button[aria-label="Disconnect OpenAI API key"]'
-    )
-    if (!disconnect) {
-      throw new Error('Disconnect OpenAI API key button was not rendered')
+    const toggle = container.querySelector<HTMLButtonElement>('button[role="switch"]')
+    if (!toggle) {
+      throw new Error('Voice Dictation switch was not rendered')
     }
+    await clickSwitch(toggle)
+
+    // The microphone changes while the permission request is still in flight.
     await act(async () => {
-      disconnect.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      root.render(
+        <VoicePane settings={settingsWithMic('usb-mic')} updateSettings={updateSettings} />
+      )
     })
 
-    // The user turns dictation off while the clear-key IPC is still in flight.
     await act(async () => {
-      root.render(<VoicePane settings={settingsWithKey(false)} updateSettings={updateSettings} />)
-    })
-
-    await act(async () => {
-      resolveClear()
-      await clearing
+      resolvePermission({ id: 'microphone', status: 'granted', openedSystemSettings: false })
+      await permission
     })
     root.unmount()
 
@@ -319,8 +306,7 @@ describe('VoicePane', () => {
     expect(updateSettings).toHaveBeenCalledWith({
       voice: {
         ...getDefaultVoiceSettings(),
-        enabled: false,
-        openAiApiKeyConfigured: false,
+        enabled: true,
         microphoneDeviceId: 'usb-mic',
         microphoneDeviceLabel: 'USB Microphone'
       }

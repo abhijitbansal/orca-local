@@ -303,58 +303,18 @@ Instead, `windows-process-table.ts` falls back to
   "nothing is running";
 - the scan applies the same self-presence guard as the native path.
 
-`src/main/ssh/relay-native-dependency-coverage.test.ts` asserts that every
-native addon reachable from the relay entry is either installed on relay hosts
-or listed there with the reason its absence is safe. That test exists because
-#15749 shipped this gap: the relay tests injected a fake module through
-`__setWindowsProcessTreeLoaderForTests`, so nothing exercised the real require.
-
-## Shipping the native reader to a relay anyway
+## The native reader
 
 The scan is the floor, not the destination: it costs ~1.4 s and a `powershell.exe`
-where the addon costs ~57 ms. Release builds therefore compile the addon and ship
-it as an optional relay artifact.
-
-`config/scripts/build-windows-process-tree-relay-addon.mjs` builds it from the
-source pnpm has already patched, on a Windows runner, and refuses to run if
-any patch hunk is missing — the Spectre hunk fails loudly, the 1024-process
-hunk fails _silently_, and the relative gyp path dies at configure on Windows.
-The source is checked rather than the install trusted. It also reads the PE
-machine field of the output, because a cross-build that quietly emitted host
-arch would ship a binary the target cannot load.
-
-Windows arm64 cross-compiles from the x64 runner — verified on real hardware,
-producing `IMAGE_FILE_MACHINE_ARM64` (0xaa64) against x64's 0x8664. It needs the
-optional _MSVC v143 ARM64 build tools_ component; without it node-gyp fails with
-`MSB8020`, which is why the addon build runs before the long packaging step.
-`ORCA_REQUIRE_RELAY_NATIVE_ADDONS` is a per-arch list so a future arch can be
-added best-effort before it is promoted to required.
+where the addon costs ~57 ms. The app binds the patched `@vscode/windows-process-tree`
+addon, and the scan stays the fallback when the addon is absent. The SSH relay that
+once shipped a copy of the addon is gone, so no build step compiles or stages one.
 
 `windows-process-table.ts` binds the bare addon directly rather than the package
 wrapper. That wrapper adds only a queue over `getProcessList`, and that queue is
 the wedge described above — it latches a module-global `requestInProgress` with
 no try/catch. This module already holds a single-flight and a deadline, so going
 straight to the addon drops the duplicate.
-
-The artifact is optional in `RELAY_ARTIFACTS`: hashed when present, so a relay
-carrying it never shares an immutable directory with one that does not, and
-never probed, because requiring a file only a Windows build machine can produce
-would make a correct relay read as MISSING and redeploy forever. A local build
-on another OS has no addon, so its Windows relays use the scan.
-
-Every desktop package ships relays for Windows hosts, not just the Windows
-installer, and the addon also carries the relay launcher (`spawnOutsideJob`,
-see `windows-edr-posture.md`). So one Windows job,
-`.github/workflows/relay-windows-process-tree.yml`, compiles both arches and
-uploads the `relay-windows-process-tree` artifact. The release and dev-channel
-macOS and Linux packaging jobs download it into `.build/windows-process-tree`
-and set `ORCA_REQUIRE_RELAY_NATIVE_ADDONS=x64,arm64`, as the Windows jobs do.
-`config/scripts/relay-windows-process-tree-staging.mjs` checks each staged
-binary for its PE machine, the missing `ReadProcessMemory` import, and the
-`spawnOutsideJob` export. Without that last check a pre-launcher build from an
-old `.build` dir or cached artifact would pass. A required arch that fails any
-check fails the build. An unrequired one (a local build) is left out, and that
-relay uses the scan and the WMI launch fallback.
 
 ## Why the package is patched
 
@@ -626,7 +586,7 @@ guarantee forbids.
 
 Once the shell exits, node-pty drops its handle record and closes the job, so a
 terminated tree reports `null` rather than `[]`. Null means _unverifiable_ in
-the sense of [`ssh-execution-boundary.md`](./ssh-execution-boundary.md) — no job
+the sense of [execution verdicts](../../AGENTS.md#execution-verdicts) — no job
 support, not a ConPTY, or no longer tracked. It is never evidence that
 processes died.
 

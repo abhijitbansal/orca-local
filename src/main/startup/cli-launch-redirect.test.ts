@@ -187,7 +187,7 @@ describe('CLI launch redirect: command form', () => {
   it('does not treat a serve option value as a help request', () => {
     expect(
       getCliLaunchArgs(
-        [linux.execPath, 'serve', '--project-root', 'help'],
+        [linux.execPath, 'serve', '--user-data-dir', 'help'],
         linux.cliEntryPath,
         linuxOptions
       )
@@ -210,18 +210,11 @@ describe('CLI launch redirect: command form', () => {
   it('skips flag values when looking for the command positional', () => {
     expect(
       getCliLaunchArgs(
-        [linux.execPath, '--environment', 'status', 'worktree', 'ps'],
+        [linux.execPath, '--selector', 'status', 'worktree', 'ps'],
         linux.cliEntryPath,
         linuxOptions
       )
-    ).toEqual(['--environment', 'status', 'worktree', 'ps'])
-    expect(
-      getCliLaunchArgs(
-        [linux.execPath, '--environment', 'status'],
-        linux.cliEntryPath,
-        linuxOptions
-      )
-    ).toBeNull()
+    ).toEqual(['--selector', 'status', 'worktree', 'ps'])
   })
 
   it.each([

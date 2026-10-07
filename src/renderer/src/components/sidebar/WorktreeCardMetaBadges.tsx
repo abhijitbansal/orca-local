@@ -4,7 +4,6 @@ import { cn } from '@/lib/utils'
 import { LinearIcon } from '@/components/icons/LinearIcon'
 import { JiraIcon } from '@/components/icons/JiraIcon'
 import { MetaIconBadge } from './WorktreeCardMetadataControls'
-import { getReviewLabel, ReviewIcon } from './worktree-review-helpers'
 import type {
   WorktreeCardMetaBadgesProps,
   WorktreeCardMetaBadgesRootProps
@@ -139,17 +138,6 @@ export const WorktreeCardMetaBadges = React.forwardRef<
           )}
         >
           <JiraIcon className="text-muted-foreground" />
-        </MetaIconBadge>
-      )}
-      {review && (
-        <MetaIconBadge
-          label={translate(
-            'auto.components.sidebar.WorktreeCardMeta.3ea2702e62',
-            'Linked {{value0}} #{{value1}}',
-            { value0: getReviewLabel(review), value1: review.number }
-          )}
-        >
-          <ReviewIcon review={review} />
         </MetaIconBadge>
       )}
     </div>

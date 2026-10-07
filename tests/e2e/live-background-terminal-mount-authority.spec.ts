@@ -535,7 +535,7 @@ test('adopts runtime-owned agent and Setup PTYs on first mount', async ({
   await waitForSessionReady(orcaPage)
   await installTerminalPtyWriteSpy(electronApp)
   const userDataDir = await electronApp.evaluate(({ app }) => app.getPath('userData'))
-  const client = new RuntimeClient(userDataDir, 30_000, null, null)
+  const client = new RuntimeClient(userDataDir, 30_000)
   const added = await client.call<{ repo: { id: string } }>('repo.add', {
     path: sourceRepo,
     kind: 'git'

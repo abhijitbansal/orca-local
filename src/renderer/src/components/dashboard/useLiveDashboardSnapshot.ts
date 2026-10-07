@@ -27,8 +27,6 @@ export function useLiveDashboardSnapshot(): DashboardSnapshot {
   const ptyIdsByTabId = useAppStore((s) => s.ptyIdsByTabId)
   const runtimePaneTitlesByTabId = useAppStore((s) => s.runtimePaneTitlesByTabId)
   const acknowledgedAgentsByPaneKey = useAppStore((s) => s.acknowledgedAgentsByPaneKey)
-  const hostedReviewCache = useAppStore((s) => s.hostedReviewCache)
-  const prCache = useAppStore((s) => s.prCache)
   // Why: controls idle visibility and gates generated conversation names.
   const settings = useAppStore((s) => s.settings)
   const workspaceStatuses = useAppStore((s) => s.workspaceStatuses)
@@ -81,8 +79,6 @@ export function useLiveDashboardSnapshot(): DashboardSnapshot {
           ptyIdsByTabId,
           runtimePaneTitlesByTabId,
           acknowledgedAgentsByPaneKey,
-          hostedReviewCache,
-          prCache,
           settings,
           workspaceStatuses,
           detectedWorktreesByRepo,
@@ -124,8 +120,6 @@ export function useLiveDashboardSnapshot(): DashboardSnapshot {
       ptyIdsByTabId,
       runtimePaneTitlesByTabId,
       acknowledgedAgentsByPaneKey,
-      hostedReviewCache,
-      prCache,
       settings,
       workspaceStatuses,
       detectedWorktreesByRepo,

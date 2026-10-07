@@ -46,7 +46,7 @@ for (const count of [1, 16, 64, 256]) {
           commands: Array.from({ length: count }, (_, index) => ({
             id: `command-${index}`,
             title: `Command ${index}`,
-            action: 'view.tasks'
+            action: 'workspace.openBoard'
           })),
           keybindings: Array.from({ length: Math.min(count, 104) }, (_, index) => ({
             command: `command-${index}`,

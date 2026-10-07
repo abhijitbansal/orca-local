@@ -156,7 +156,7 @@ export const WORKTREE_HANDLERS: Record<string, CommandHandler> = {
       'worktree.ps',
       { limit: getOptionalPositiveIntegerFlag(flags, 'limit') }
     )
-    await annotateOmittedHostScope(client, result.result)
+    annotateOmittedHostScope(result.result)
     printResult(result, json, formatWorktreePs)
   },
   'worktree list': async ({ flags, client, json }) => {
@@ -167,7 +167,7 @@ export const WORKTREE_HANDLERS: Record<string, CommandHandler> = {
         limit: getOptionalPositiveIntegerFlag(flags, 'limit')
       }
     )
-    await annotateOmittedHostScope(client, result.result)
+    annotateOmittedHostScope(result.result)
     printResult(result, json, formatWorktreeList)
   },
   'worktree show': async ({ flags, client, cwd, json }) => {

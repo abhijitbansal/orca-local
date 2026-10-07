@@ -17,7 +17,6 @@ function ids(
     isWindows?: boolean
     isWebClient?: boolean
     isDev?: boolean
-    isLinearConnected?: boolean
   } = {}
 ): string[] {
   return buildSettingsNavigationMetadata({
@@ -25,24 +24,20 @@ function ids(
     isWindows: args.isWindows ?? false,
     isWebClient: args.isWebClient ?? false,
     isDev: args.isDev ?? false,
-    isLinearConnected: args.isLinearConnected ?? false,
     repos: [repo]
   }).map((section) => section.id)
 }
 
 describe('settings navigation metadata', () => {
   it('puts AI capability panes at the top on desktop', () => {
-    expect(ids().slice(0, 10)).toEqual([
+    expect(ids().slice(0, 7)).toEqual([
       'agents',
       'accounts',
       'orchestration',
       'computer-use',
       'voice',
-      'orca-account',
       'setup-guide',
-      'general',
-      'integrations',
-      'mobile'
+      'general'
     ])
   })
 
@@ -62,39 +57,7 @@ describe('settings navigation metadata', () => {
     )
   })
 
-  it('adds the Linear capability section right after Orchestration only when connected', () => {
-    expect(ids()).not.toContain('linear')
-
-    const connectedIds = ids({ isLinearConnected: true })
-    expect(connectedIds).toContain('linear')
-    expect(connectedIds.indexOf('linear')).toBe(connectedIds.indexOf('orchestration') + 1)
-
-    const linearSection = buildSettingsNavigationMetadata({
-      isMac: false,
-      isWindows: false,
-      isWebClient: false,
-      isLinearConnected: true,
-      repos: [repo]
-    }).find((section) => section.id === 'linear')
-    expect(linearSection?.group).toBe('capabilities')
-  })
-
-  it('keeps the Linear capability section available on web clients when connected', () => {
-    expect(ids({ isWebClient: true, isLinearConnected: true })).toContain('linear')
-  })
-
-  it('places Mobile under Set Up instead of its own sidebar group', () => {
-    const sections = buildSettingsNavigationMetadata({
-      isMac: false,
-      isWindows: false,
-      isWebClient: false,
-      repos: [repo]
-    })
-
-    expect(sections.find((section) => section.id === 'mobile')?.group).toBe('setup')
-  })
-
-  it('places Automations, Artifacts, and Share Skills first under Workflows', () => {
+  it('places Automations and Skills first under Workflows', () => {
     const sections = buildSettingsNavigationMetadata({
       isMac: false,
       isWindows: false,
@@ -102,7 +65,6 @@ describe('settings navigation metadata', () => {
       repos: [repo]
     })
     const automations = sections.find((section) => section.id === 'automations')
-    const artifacts = sections.find((section) => section.id === 'artifacts')
     const shareSkills = sections.find((section) => section.id === 'share-skills')
     const workflowIds = sections
       .filter((section) => section.group === 'workflows')
@@ -110,38 +72,19 @@ describe('settings navigation metadata', () => {
 
     expect(automations?.group).toBe('workflows')
     expect(automations?.searchEntries[0]?.title).toBe('Show Automations Button')
-    expect(artifacts?.group).toBe('workflows')
-    expect(artifacts?.badge).toBe('Beta')
-    expect(artifacts?.description).toBe(
-      'Share HTML and Markdown files with your team and manage their public links.'
-    )
-    expect(shareSkills).toMatchObject({ group: 'workflows', badge: 'Beta' })
-    expect(shareSkills?.searchEntries[0]?.title).toBe('Unlisted skill links')
-    expect(workflowIds.slice(0, 3)).toEqual(['automations', 'artifacts', 'share-skills'])
-  })
-
-  it('places the Orca account in Set Up on desktop only', () => {
-    const desktopSections = buildSettingsNavigationMetadata({
-      isMac: false,
-      isWindows: false,
-      isWebClient: false,
-      repos: [repo]
-    })
-    const account = desktopSections.find((section) => section.id === 'orca-account')
-
-    expect(account?.group).toBe('setup')
-    expect(account?.searchEntries[0]?.title).toBe('Orca account')
-    expect(ids({ isWebClient: true })).not.toContain('orca-account')
+    expect(shareSkills).toMatchObject({ group: 'workflows', title: 'Skills' })
+    expect(shareSkills?.badge).toBeUndefined()
+    expect(shareSkills?.searchEntries[0]?.title).toBe('Show Skills button')
+    expect(workflowIds.slice(0, 2)).toEqual(['automations', 'share-skills'])
   })
 
   it('puts web-safe AI capability panes at the top while hiding desktop-only panes', () => {
-    expect(ids({ isWebClient: true }).slice(0, 6)).toEqual([
+    expect(ids({ isWebClient: true }).slice(0, 5)).toEqual([
       'agents',
       'accounts',
       'orchestration',
       'setup-guide',
-      'general',
-      'integrations'
+      'general'
     ])
   })
 
@@ -156,11 +99,10 @@ describe('settings navigation metadata', () => {
 
     expect(webIds).not.toContain('browser')
     expect(webIds).not.toContain('ssh')
-    expect(webIds).not.toContain('mobile')
     expect(webIds).not.toContain('computer-use')
     expect(webIds).not.toContain('voice')
     expect(webIds).not.toContain('advanced')
-    expect(webIds).toContain('servers')
+    expect(webIds).not.toContain('servers')
     expect(webIds).toContain('repo-repo-1')
     const floatingWorkspace = webSections.find((section) => section.id === 'floating-workspace')
     expect(floatingWorkspace?.description).toBe('Global terminal and markdown tabs.')
@@ -222,23 +164,6 @@ describe('settings navigation metadata', () => {
 
     expect(sections.find((section) => section.id === 'computer-use')?.badge).toBeUndefined()
     expect(sections.find((section) => section.id === 'voice')?.badge).toBeUndefined()
-  })
-
-  it('places Cloud VM under Experimental instead of as a beta sidebar item', () => {
-    const sections = buildSettingsNavigationMetadata({
-      isMac: false,
-      isWindows: false,
-      isWebClient: false,
-      repos: [repo]
-    })
-    const experimental = sections.find((section) => section.id === 'experimental')
-    const entry = experimental?.searchEntries.find(
-      (searchEntry) => searchEntry.title === 'Cloud VM'
-    )
-
-    expect(sections.map((section) => section.id)).not.toContain('ephemeral-vms')
-    expect(experimental?.group).toBe('experimental')
-    expect(entry?.targetSectionId).toBe('ephemeral-vms')
   })
 
   it('places Plugins under Experimental on desktop and omits it on the web', () => {

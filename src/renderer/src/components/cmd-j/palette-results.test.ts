@@ -270,37 +270,37 @@ describe('Cmd+J palette middle-band ranking', () => {
   })
 
   it('drops candidates that cover a minority of the words typed', () => {
-    // Why: "linear triage" used to surface the Linear and Integrations panes on the
-    // "linear" token alone, with the unmatched word costing nothing. See screenshot report.
-    const integrationSections: SettingsNavSection[] = [
+    // Why: "terminal triage" used to surface the Terminal and Browser panes on the
+    // "terminal" token alone, with the unmatched word costing nothing.
+    const sections: SettingsNavSection[] = [
       {
-        id: 'linear',
-        title: 'Linear',
-        description: 'How Linear works in Orca.',
+        id: 'terminal',
+        title: 'Terminal',
+        description: 'Shells and terminal behavior.',
         icon: Settings,
         searchEntries: [],
-        group: 'capabilities'
+        group: 'workflows'
       },
       {
-        id: 'integrations',
-        title: 'Integrations',
-        description: 'Connect GitHub, GitLab, and Linear.',
+        id: 'browser',
+        title: 'Terminal Browser',
+        description: 'Links opened from the terminal.',
         icon: Settings,
         searchEntries: [],
-        group: 'setup'
+        group: 'workflows'
       }
     ]
     const rank = (query: string): string[] =>
       rankCmdJMiddleResults({
         query,
-        settingsResults: buildCmdJSettingsResults(integrationSections),
+        settingsResults: buildCmdJSettingsResults(sections),
         actionResults: []
       }).map((result) => result.id)
 
-    expect(rank('linear triage')).toEqual([])
-    expect(rank('linear')).toEqual(['settings:linear', 'settings:integrations'])
+    expect(rank('terminal triage')).toEqual([])
+    expect(rank('terminal')).toEqual(['settings:terminal', 'settings:browser'])
     // Why: a majority still counts, so one stray word cannot blank an otherwise good match.
-    expect(rank('linear integrations triage')).toEqual(['settings:integrations'])
+    expect(rank('terminal browser triage')).toEqual(['settings:browser'])
   })
 
   it('drops verb-prefixed settings queries whose middle words match nothing', () => {

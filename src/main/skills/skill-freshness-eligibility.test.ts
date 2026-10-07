@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  buildTargetedSkillUpdateCommand,
-  type SkillFreshnessInstallation
-} from '../../shared/skill-freshness'
+import type { SkillFreshnessInstallation } from '../../shared/skill-freshness'
 import { eligibleSkillUpdateNames } from './skill-freshness-eligibility'
 
 const globallyUpdatableNames = new Set(['computer-use', 'orca-cli', 'orchestration'])
@@ -167,13 +164,5 @@ describe('skill freshness name-scoped update eligibility', () => {
 
   it('does not offer an official canonical copy missing from the updater lock (#10791)', () => {
     expect(eligibleSkillUpdateNames([placement('orca-cli')], new Set())).toEqual([])
-  })
-
-  it('builds only an explicit, deterministic global command', () => {
-    expect(buildTargetedSkillUpdateCommand(['orchestration', 'orca-cli', 'orca-cli'])).toBe(
-      'npx skills update orca-cli orchestration --global'
-    )
-    expect(buildTargetedSkillUpdateCommand([])).toBeNull()
-    expect(buildTargetedSkillUpdateCommand(['orca-cli;echo unsafe'])).toBeNull()
   })
 })

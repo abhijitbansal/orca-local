@@ -19,7 +19,6 @@ const mocks = vi.hoisted(() => ({
   branchName: vi.fn(),
   canCheckout: vi.fn(),
   branchConflict: vi.fn(),
-  githubPr: vi.fn(),
   consume: vi.fn(),
   add: vi.fn(),
   addSparse: vi.fn(),
@@ -55,9 +54,7 @@ vi.mock('../git/git-username', () => ({ resolveLocalGitUsername: async () => '' 
 vi.mock('../git/worktree-base-ref-probe', () => ({ hasLocalWorktreeBaseRef: mocks.hasBase }))
 vi.mock('./runtime-worktree-create-git', () => ({
   resolveCreateBranchName: mocks.branchName,
-  canCheckoutExistingLocalBranch: mocks.canCheckout,
-  getLocalGitHubPrForBranch: mocks.githubPr,
-  getSelectedHostedReviewForBranch: vi.fn()
+  canCheckoutExistingLocalBranch: mocks.canCheckout
 }))
 vi.mock('./runtime-worktree-filesystem', () => ({ runtimePathExists: async () => false }))
 vi.mock('../worktree-create-preparation', () => ({ consumePreparedWorktreeCreate: mocks.consume }))
@@ -125,7 +122,6 @@ beforeEach(() => {
   mocks.branchName.mockResolvedValue('app')
   mocks.canCheckout.mockResolvedValue(false)
   mocks.branchConflict.mockResolvedValue(null)
-  mocks.githubPr.mockResolvedValue(null)
   mocks.consume.mockResolvedValue({ status: 'hit', result: {}, rearm: mocks.rearm })
   mocks.add.mockResolvedValue({})
   mocks.addSparse.mockResolvedValue({})
@@ -237,7 +233,6 @@ describe('runtime create Git priority', () => {
       )
       expect(mocks.canCheckout).toHaveBeenCalledWith('/repo', 'app', 'main', options)
       expect(mocks.branchConflict).toHaveBeenCalledWith('/repo', 'app', 'main', options, undefined)
-      expect(mocks.githubPr).toHaveBeenCalledWith('/repo', 'app', routing)
       expect(mocks.remoteBase).toHaveBeenCalledWith('/repo', 'main', options)
       expect(mocks.hasBase).toHaveBeenCalledWith('/repo', 'main', options)
       expect(mocks.consume).toHaveBeenCalledWith(expect.objectContaining({ options }))

@@ -24,7 +24,7 @@ function releaseExitedProcessPipes(proc: ChildProcess): void {
   if (!hasExited(proc)) {
     return
   }
-  // Detached SSH helpers can retain inherited pipes after Electron itself exits.
+  // Detached helper processes can retain inherited pipes after Electron itself exits.
   for (const stream of proc.stdio) {
     stream?.destroy()
   }

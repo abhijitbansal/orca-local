@@ -9,6 +9,5 @@ export type SettingsNavigationBuildOptions = {
   managedBrowserCreationEnabled: boolean
   mobileEmulatorCreationEnabled: boolean
   isDev: boolean
-  isLinearConnected: boolean
   repos: readonly Repo[]
 }

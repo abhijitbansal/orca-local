@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <title>Orca Agent Dashboard</title>
-    <!-- CSP is relaxed during development; electron-vite injects a stricter policy for production builds -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: file:; media-src 'self' data: blob: file:; font-src 'self' data: file:; worker-src 'self' blob:; connect-src 'self' blob: ws://127.0.0.1:* http://127.0.0.1:* ws://localhost:* http://localhost:*; frame-src 'self' data: blob: file: http: https: orca-preview:; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
   </head>
 
   <body>

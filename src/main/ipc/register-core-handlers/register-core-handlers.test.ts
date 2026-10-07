@@ -2,13 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const {
   getPathMock,
-  listEnvironmentsMock,
-  callRuntimeEnvironmentMock,
   registerCliHandlersMock,
   registerPreflightHandlersMock,
   registerUsageProviderHandlersMock,
-  registerGitHubHandlersMock,
-  registerFeedbackHandlersMock,
   registerStatsHandlersMock,
   registerMemoryHandlersMock,
   registerNotebookHandlersMock,
@@ -27,8 +23,6 @@ const {
   setTrustedUIRendererWebContentsIdMock,
   registerFilesystemHandlersMock,
   registerRuntimeHandlersMock,
-  registerRuntimeEnvironmentHandlersMock,
-  registerEphemeralVmHandlersMock,
   registerAiVaultHandlersMock,
   registerAiVaultSearchHandlersMock,
   registerOrcaProfileHandlersMock,
@@ -40,18 +34,12 @@ const {
   registerCursorAccountHandlersMock,
   registerClipboardHandlersMock,
   setTrustedClipboardRendererWebContentsIdMock,
-  registerUpdaterHandlersMock,
   registerRateLimitHandlersMock,
   registerBrowserHandlersMock,
   setAgentBrowserBridgeRefMock,
   setTrustedBrowserRendererWebContentsIdMock,
   registerFilesystemWatcherHandlersMock,
   registerAppHandlersMock,
-  registerLinearHandlersMock,
-  registerJiraHandlersMock,
-  registerBitbucketHandlersMock,
-  registerGitLabHandlersMock,
-  registerHostedReviewHandlersMock,
   registerExportHandlersMock,
   registerCodexConfigSyncHandlersMock,
   registerOnboardingHandlersMock,
@@ -69,13 +57,9 @@ const {
   registerEmulatorVideoStreamHandlersMock
 } = vi.hoisted(() => ({
   getPathMock: vi.fn(() => '/test/user-data'),
-  listEnvironmentsMock: vi.fn(() => []),
-  callRuntimeEnvironmentMock: vi.fn(),
   registerCliHandlersMock: vi.fn(),
   registerPreflightHandlersMock: vi.fn(),
   registerUsageProviderHandlersMock: vi.fn(),
-  registerGitHubHandlersMock: vi.fn(),
-  registerFeedbackHandlersMock: vi.fn(),
   registerStatsHandlersMock: vi.fn(),
   registerMemoryHandlersMock: vi.fn(),
   registerNotebookHandlersMock: vi.fn(),
@@ -94,8 +78,6 @@ const {
   setTrustedUIRendererWebContentsIdMock: vi.fn(),
   registerFilesystemHandlersMock: vi.fn(),
   registerRuntimeHandlersMock: vi.fn(),
-  registerRuntimeEnvironmentHandlersMock: vi.fn(),
-  registerEphemeralVmHandlersMock: vi.fn(),
   registerAiVaultHandlersMock: vi.fn(),
   registerAiVaultSearchHandlersMock: vi.fn(),
   registerOrcaProfileHandlersMock: vi.fn(),
@@ -107,18 +89,12 @@ const {
   registerCursorAccountHandlersMock: vi.fn(),
   registerClipboardHandlersMock: vi.fn(),
   setTrustedClipboardRendererWebContentsIdMock: vi.fn(),
-  registerUpdaterHandlersMock: vi.fn(),
   registerRateLimitHandlersMock: vi.fn(),
   registerBrowserHandlersMock: vi.fn(),
   setAgentBrowserBridgeRefMock: vi.fn(),
   setTrustedBrowserRendererWebContentsIdMock: vi.fn(),
   registerFilesystemWatcherHandlersMock: vi.fn(),
   registerAppHandlersMock: vi.fn(),
-  registerLinearHandlersMock: vi.fn(),
-  registerJiraHandlersMock: vi.fn(),
-  registerBitbucketHandlersMock: vi.fn(),
-  registerGitLabHandlersMock: vi.fn(),
-  registerHostedReviewHandlersMock: vi.fn(),
   registerExportHandlersMock: vi.fn(),
   registerCodexConfigSyncHandlersMock: vi.fn(),
   registerOnboardingHandlersMock: vi.fn(),
@@ -141,14 +117,6 @@ vi.mock('electron', () => ({
     getPath: getPathMock,
     once: vi.fn()
   }
-}))
-
-vi.mock('../../shared/runtime-environment-store', () => ({
-  listEnvironments: listEnvironmentsMock
-}))
-
-vi.mock('../runtime-environment-transport-routing', () => ({
-  callRuntimeEnvironment: callRuntimeEnvironmentMock
 }))
 
 vi.mock('../codex-config-sync', () => ({
@@ -185,14 +153,6 @@ vi.mock('../preflight', () => ({
 
 vi.mock('../usage-provider-handlers', () => ({
   registerUsageProviderHandlers: registerUsageProviderHandlersMock
-}))
-
-vi.mock('../github', () => ({
-  registerGitHubHandlers: registerGitHubHandlersMock
-}))
-
-vi.mock('../feedback', () => ({
-  registerFeedbackHandlers: registerFeedbackHandlersMock
 }))
 
 vi.mock('../export', () => ({
@@ -300,14 +260,6 @@ vi.mock('../runtime', () => ({
   registerRuntimeHandlers: registerRuntimeHandlersMock
 }))
 
-vi.mock('../runtime-environments', () => ({
-  registerRuntimeEnvironmentHandlers: registerRuntimeEnvironmentHandlersMock
-}))
-
-vi.mock('../ephemeral-vm', () => ({
-  registerEphemeralVmHandlers: registerEphemeralVmHandlersMock
-}))
-
 vi.mock('../ai-vault', () => ({
   registerAiVaultHandlers: registerAiVaultHandlersMock
 }))
@@ -344,10 +296,6 @@ vi.mock('../cursor-accounts', () => ({
   registerCursorAccountHandlers: registerCursorAccountHandlersMock
 }))
 
-vi.mock('../../window/attach-main-window-services', () => ({
-  registerUpdaterHandlers: registerUpdaterHandlersMock
-}))
-
 vi.mock('../../window/clipboard-ipc-handlers', () => ({
   registerClipboardHandlers: registerClipboardHandlersMock,
   setTrustedClipboardRendererWebContentsId: setTrustedClipboardRendererWebContentsIdMock
@@ -370,26 +318,6 @@ vi.mock('../terminal-render-desync-evidence', () => ({
   registerTerminalRenderDesyncEvidenceHandler: registerTerminalRenderDesyncEvidenceHandlerMock
 }))
 
-vi.mock('../linear', () => ({
-  registerLinearHandlers: registerLinearHandlersMock
-}))
-
-vi.mock('../jira', () => ({
-  registerJiraHandlers: registerJiraHandlersMock
-}))
-
-vi.mock('../bitbucket', () => ({
-  registerBitbucketHandlers: registerBitbucketHandlersMock
-}))
-
-vi.mock('../gitlab', () => ({
-  registerGitLabHandlers: registerGitLabHandlersMock
-}))
-
-vi.mock('../hosted-review', () => ({
-  registerHostedReviewHandlers: registerHostedReviewHandlersMock
-}))
-
 vi.mock('../native-chat', () => ({
   registerNativeChatHandlers: registerNativeChatHandlersMock
 }))
@@ -407,14 +335,9 @@ describe('registerCoreHandlers', () => {
   beforeEach(() => {
     getPathMock.mockReset()
     getPathMock.mockReturnValue('/test/user-data')
-    listEnvironmentsMock.mockReset()
-    listEnvironmentsMock.mockReturnValue([])
-    callRuntimeEnvironmentMock.mockReset()
     registerCliHandlersMock.mockReset()
     registerPreflightHandlersMock.mockReset()
     registerUsageProviderHandlersMock.mockReset()
-    registerGitHubHandlersMock.mockReset()
-    registerFeedbackHandlersMock.mockReset()
     registerStatsHandlersMock.mockReset()
     registerMemoryHandlersMock.mockReset()
     registerNotebookHandlersMock.mockReset()
@@ -433,8 +356,6 @@ describe('registerCoreHandlers', () => {
     setTrustedUIRendererWebContentsIdMock.mockReset()
     registerFilesystemHandlersMock.mockReset()
     registerRuntimeHandlersMock.mockReset()
-    registerRuntimeEnvironmentHandlersMock.mockReset()
-    registerEphemeralVmHandlersMock.mockReset()
     registerAiVaultHandlersMock.mockReset()
     registerOrcaProfileHandlersMock.mockReset()
     registerCodexAccountHandlersMock.mockReset()
@@ -443,18 +364,12 @@ describe('registerCoreHandlers', () => {
     registerMiniMaxCredentialsHandlersMock.mockReset()
     registerClipboardHandlersMock.mockReset()
     setTrustedClipboardRendererWebContentsIdMock.mockReset()
-    registerUpdaterHandlersMock.mockReset()
     registerRateLimitHandlersMock.mockReset()
     registerBrowserHandlersMock.mockReset()
     setAgentBrowserBridgeRefMock.mockReset()
     setTrustedBrowserRendererWebContentsIdMock.mockReset()
     registerFilesystemWatcherHandlersMock.mockReset()
     registerAppHandlersMock.mockReset()
-    registerLinearHandlersMock.mockReset()
-    registerJiraHandlersMock.mockReset()
-    registerBitbucketHandlersMock.mockReset()
-    registerGitLabHandlersMock.mockReset()
-    registerHostedReviewHandlersMock.mockReset()
     registerExportHandlersMock.mockReset()
     registerDashboardPopoutHandlersMock.mockReset()
     registerTerminalPreviewHandlersMock.mockReset()
@@ -515,11 +430,6 @@ describe('registerCoreHandlers', () => {
     registeredAiVaultOptions = aiVaultOptions
     registeredRuntime = runtime
 
-    callRuntimeEnvironmentMock.mockResolvedValueOnce({
-      ok: true,
-      result: { sessions: 'bad-shape' }
-    })
-
     expect(registerUsageProviderHandlersMock).toHaveBeenCalledWith({
       claudeUsage,
       codexUsage,
@@ -539,17 +449,10 @@ describe('registerCoreHandlers', () => {
     )
     expect(registerPetHandlersMock).toHaveBeenCalled()
     expect(registerClaudeAccountHandlersMock).toHaveBeenCalledWith(claudeAccounts)
-    expect(registerMiniMaxCredentialsHandlersMock).toHaveBeenCalledWith(rateLimits)
+    expect(registerMiniMaxCredentialsHandlersMock).toHaveBeenCalledWith()
     expect(registerGrokAccountHandlersMock).toHaveBeenCalled()
     expect(registerCursorAccountHandlersMock).toHaveBeenCalled()
-    expect(registerRateLimitHandlersMock).toHaveBeenCalledWith(rateLimits, codexAccounts)
-    expect(registerGitHubHandlersMock).toHaveBeenCalledWith(store, stats)
-    expect(registerLinearHandlersMock).toHaveBeenCalled()
-    expect(registerJiraHandlersMock).toHaveBeenCalled()
-    expect(registerBitbucketHandlersMock).toHaveBeenCalled()
-    expect(registerGitLabHandlersMock).toHaveBeenCalledWith(store)
-    expect(registerHostedReviewHandlersMock).toHaveBeenCalledWith(store, stats)
-    expect(registerFeedbackHandlersMock).toHaveBeenCalled()
+    expect(registerRateLimitHandlersMock).toHaveBeenCalledWith(rateLimits)
     expect(registerStatsHandlersMock).toHaveBeenCalledWith(stats)
     expect(registerMemoryHandlersMock).toHaveBeenCalledWith(store)
     expect(registerNotebookHandlersMock).toHaveBeenCalledWith(store)
@@ -574,83 +477,22 @@ describe('registerCoreHandlers', () => {
     expect(registerEmulatorVideoStreamHandlersMock).toHaveBeenCalled()
     expect(registerFilesystemHandlersMock).toHaveBeenCalledWith(store)
     expect(registerRuntimeHandlersMock).toHaveBeenCalledWith(runtime)
-    expect(registerRuntimeEnvironmentHandlersMock).toHaveBeenCalledWith(store)
-    expect(registerEphemeralVmHandlersMock).toHaveBeenCalledWith(store, undefined)
     expect(registerAiVaultHandlersMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        getAdditionalCodexHomePaths: getAdditionalAiVaultCodexHomePaths,
-        getActiveRuntimeAiVaultHostInfos: expect.any(Function),
-        scanRuntimeAiVaultSessions: expect.any(Function),
-        prepareRuntimeSessionResume: expect.any(Function)
-      })
+      expect.objectContaining({ getAdditionalCodexHomePaths: getAdditionalAiVaultCodexHomePaths })
     )
-    expect(aiVaultOptions.getActiveRuntimeAiVaultHostInfos()).toEqual([])
+    expect(aiVaultOptions).not.toHaveProperty('scanRuntimeAiVaultSessions')
+    expect(aiVaultOptions).not.toHaveProperty('prepareRuntimeSessionResume')
     expect(registerNativeChatHandlersMock).toHaveBeenCalled()
     expect(registerCliHandlersMock).toHaveBeenCalled()
     expect(registerPreflightHandlersMock).toHaveBeenCalled()
     expect(registerShellHandlersMock).toHaveBeenCalledWith(store)
     expect(registerClipboardHandlersMock).toHaveBeenCalledWith(store)
-    expect(registerUpdaterHandlersMock).toHaveBeenCalled()
     expect(setTrustedBrowserRendererWebContentsIdMock).toHaveBeenCalledWith(null)
     expect(setTrustedClipboardRendererWebContentsIdMock).toHaveBeenCalledWith(null)
     expect(setTrustedUIRendererWebContentsIdMock).toHaveBeenCalledWith(null)
     expect(registerBrowserHandlersMock).toHaveBeenCalled()
     expect(registerFilesystemWatcherHandlersMock).toHaveBeenCalled()
     expect(registerSpeechHandlersMock).toHaveBeenCalledWith(store)
-
-    await expect(
-      aiVaultOptions.scanRuntimeAiVaultSessions(
-        'env-123',
-        {
-          limit: 10,
-          scopePaths: ['/workspace']
-        },
-        { timeoutMs: 3000 }
-      )
-    ).resolves.toEqual({
-      sessions: [],
-      issues: [
-        expect.objectContaining({
-          executionHostId: 'runtime:env-123',
-          agent: 'codex',
-          path: 'env-123',
-          message: expect.stringContaining('Invalid aiVault.listSessions response')
-        })
-      ],
-      scannedAt: expect.any(String)
-    })
-    expect(callRuntimeEnvironmentMock).toHaveBeenCalledWith(
-      '/test/user-data',
-      'env-123',
-      'aiVault.listSessions',
-      {
-        limit: 10,
-        force: undefined,
-        scopePaths: ['/workspace'],
-        executionHostId: 'runtime:env-123'
-      },
-      3000
-    )
-
-    callRuntimeEnvironmentMock.mockResolvedValueOnce({
-      ok: true,
-      result: { useRealCodexHome: true }
-    })
-    const prepareArgs = {
-      agent: 'codex',
-      filePath: '/managed/sessions/2026/07/20/rollout-a.jsonl',
-      codexHome: '/managed',
-      executionHostId: 'runtime:env-123'
-    }
-    await expect(
-      aiVaultOptions.prepareRuntimeSessionResume('env-123', prepareArgs)
-    ).resolves.toEqual({ useRealCodexHome: true })
-    expect(callRuntimeEnvironmentMock).toHaveBeenLastCalledWith(
-      '/test/user-data',
-      'env-123',
-      'aiVault.prepareSessionResume',
-      prepareArgs
-    )
   })
 
   // Session history and terminal resume are not chats: the refusal chats get leaves them no host

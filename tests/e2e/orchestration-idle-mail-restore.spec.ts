@@ -89,7 +89,7 @@ test('keeps mail pending across a restart and delivers it when the agent reports
     const first = await session.launch()
     firstApp = first.app
     const worktreeId = await attachRepoAndOpenTerminal(first.page, repoPath)
-    const firstClient = new RuntimeClient(session.userDataDir, 30_000, null, null)
+    const firstClient = new RuntimeClient(session.userDataDir, 30_000)
     await waitForRegisteredWorktree(firstClient, worktreeId)
 
     // The pane attachRepoAndOpenTerminal already opened is mounted, so its leaf
@@ -125,7 +125,7 @@ test('keeps mail pending across a restart and delivers it when the agent reports
 
     const second = await session.launch()
     secondApp = second.app
-    const secondClient = new RuntimeClient(session.userDataDir, 30_000, null, null)
+    const secondClient = new RuntimeClient(session.userDataDir, 30_000)
 
     // The PTY outlives the app, so the restored pane is found by process
     // identity; its handle may or may not be the one the first launch minted.

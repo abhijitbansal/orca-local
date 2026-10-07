@@ -84,7 +84,7 @@ describe('generateCommitMessageFromContext', () => {
     // now sees CONNECTION_LOST where it used to see SSH_MUX_REQUEST_TIMEOUT. Both mean the frame
     // reached the wire and no answer came back, so both must keep "may still be running" — falling
     // through to "could not be reached" asserts absence the client cannot observe
-    // (docs/reference/ssh-execution-boundary.md).
+    // (AGENTS.md).
     const result = await generateCommitMessageFromContext(
       {
         branch: 'main',

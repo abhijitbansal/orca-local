@@ -36,40 +36,6 @@ describe('worktree remote runtime mutations', () => {
     resetRemoteRuntimeMocks()
   })
 
-  it('does not surface remote selector misses while persisting activity timestamps', async () => {
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const store = createTestStore()
-    const wt = makeWorktree({ id: 'repo1::/path/wt1', repoId: 'repo1', path: '/path/wt1' })
-    runtimeEnvironmentCall.mockResolvedValue({
-      id: 'rpc-set',
-      ok: false,
-      error: { code: 'selector_not_found', message: 'selector_not_found' },
-      _meta: { runtimeId: 'runtime-remote' }
-    })
-    store.setState({
-      settings: { activeRuntimeEnvironmentId: 'env-1' } as never,
-      worktreesByRepo: { repo1: [wt] }
-    } as Partial<AppState>)
-
-    try {
-      store.getState().bumpWorktreeActivity(wt.id)
-      await new Promise((resolve) => setTimeout(resolve, 0))
-
-      expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-        selector: 'env-1',
-        method: 'worktree.set',
-        params: expect.objectContaining({
-          worktree: `id:${wt.id}`,
-          lastActivityAt: expect.any(Number)
-        }),
-        timeoutMs: 15_000
-      })
-      expect(errorSpy).not.toHaveBeenCalled()
-    } finally {
-      errorSpy.mockRestore()
-    }
-  })
-
   // Why: Electron IPC re-wraps the main-process message and drops the cause, so the quiet
   // "row is gone" handling must survive a transport that only leaves the token in the text.
   it('stays quiet when a transport-wrapped selector miss rejects the activity write', async () => {

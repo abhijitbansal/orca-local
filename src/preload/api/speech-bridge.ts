@@ -1,4 +1,3 @@
-import type { SecretAtRestProtection } from '../../shared/secret-at-rest-protection'
 import { ipcRenderer } from 'electron'
 import type {
   SpeechErrorEvent,
@@ -12,14 +11,6 @@ import type { PreloadApi } from '../api-types'
 export const speechApi = {
   getCatalog: (): Promise<SpeechModelManifest[]> => ipcRenderer.invoke('speech:getCatalog'),
   getModelStates: (): Promise<SpeechModelState[]> => ipcRenderer.invoke('speech:getModelStates'),
-  getOpenAiApiKeyStatus: (): Promise<{
-    configured: boolean
-    protection: SecretAtRestProtection | null
-  }> => ipcRenderer.invoke('speech:getOpenAiApiKeyStatus'),
-  saveOpenAiApiKey: (apiKey: string): Promise<{ configured: boolean }> =>
-    ipcRenderer.invoke('speech:saveOpenAiApiKey', apiKey),
-  clearOpenAiApiKey: (): Promise<{ configured: boolean }> =>
-    ipcRenderer.invoke('speech:clearOpenAiApiKey'),
   downloadModel: (modelId: string): Promise<void> =>
     ipcRenderer.invoke('speech:downloadModel', modelId),
   cancelDownload: (modelId: string): Promise<void> =>

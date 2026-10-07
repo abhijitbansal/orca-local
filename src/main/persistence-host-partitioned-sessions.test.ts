@@ -16,20 +16,9 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import type { WorkspaceSessionState } from '../shared/workspace-session-state-types'
 import { getDefaultWorkspaceSession } from '../shared/constants'
-import { isTerminalLeafId } from '../shared/stable-pane-id'
 
 import { worktreeWorkspaceKey } from '../shared/workspace-scope'
 
-// Stub the ~/.ssh/config parser so the SSH-import test drives the real Store with deterministic hosts, not the operator's actual ~/.ssh/config.
-const { loadUserSshConfigMock, sshConfigHostsToTargetsMock } = vi.hoisted(() => ({
-  loadUserSshConfigMock: vi.fn(),
-  sshConfigHostsToTargetsMock: vi.fn()
-}))
-
-vi.mock('./ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: loadUserSshConfigMock,
-  sshConfigHostsToTargets: sshConfigHostsToTargetsMock
-}))
 const { trackMock, getCohortAtEmitMock } = vi.hoisted(() => ({
   trackMock: vi.fn(),
   getCohortAtEmitMock: vi.fn()
@@ -116,7 +105,7 @@ describe('Store host-partitioned workspace sessions', () => {
     expect(persisted.workspaceSession?.activeRepoId).toBe('legacy-repo')
   })
 
-  it('is idempotent: re-loading already-partitioned state preserves all hosts', async () => {
+  it('is idempotent: re-loading strips remote partitions once and keeps the local one', async () => {
     writeDataFile({
       schemaVersion: 1,
       workspaceSession: makeHostSession('local-repo'),
@@ -145,10 +134,12 @@ describe('Store host-partitioned workspace sessions', () => {
     second.flush()
     const afterSecond = readSessionPartitions()
 
-    // Re-running the partition migration must not move or reshape any host.
+    // Re-running the load must not reshape what the first load left behind.
     expect(afterSecond).toEqual(afterFirst)
-    expect(second.getWorkspaceSession('runtime:env-a').activeRepoId).toBe('runtime-repo')
-    expect(second.getWorkspaceSession('ssh:host-b').activeRepoId).toBe('ssh-repo')
+    expect(afterFirst).toMatchObject({ workspaceSessionsByHostId: {} })
+    // Local-only build: remote partitions are stripped at load.
+    expect(second.getWorkspaceSession('runtime:env-a').activeRepoId).toBeNull()
+    expect(second.getWorkspaceSession('ssh:host-b').activeRepoId).toBeNull()
     expect(second.getWorkspaceSession('local').activeRepoId).toBe('local-repo')
   })
 
@@ -166,7 +157,7 @@ describe('Store host-partitioned workspace sessions', () => {
     expect(store.getWorkspaceSession('local').activeRepoId).toBe('canonical-local')
   })
 
-  it('rewrites legacy pane ids inside a host partition and remaps its leases', async () => {
+  it('strips an ssh partition and its leases at load while keeping the local session', async () => {
     writeDataFile({
       schemaVersion: 1,
       workspaceSession: makeHostSession('local-repo'),
@@ -190,110 +181,11 @@ describe('Store host-partitioned workspace sessions', () => {
 
     const store = await createStore()
 
-    const root = store.getWorkspaceSession('ssh:ssh-1').terminalLayoutsByTabId['tab-shared']?.root
-    const leafId = root?.type === 'leaf' ? root.leafId : null
-    expect(leafId && isTerminalLeafId(leafId)).toBe(true)
-    // The lease follows the partition's rewritten leaf, not the legacy `pane:1`.
-    expect(store.getSshRemotePtyLeases('ssh-1')[0]?.leafId).toBe(leafId)
-  })
-
-  it('remaps legacy SSH leases within their execution-host partition', async () => {
-    writeDataFile({
-      schemaVersion: 1,
-      workspaceSession: makeHostSession('local-repo'),
-      repos: makeRepos('repo-a', 'repo-b'),
-      workspaceSessionsByHostId: {
-        'ssh:host-a': makeLegacyPaneHostSession('repo-a', 'pty-a'),
-        'ssh:host-b': makeLegacyPaneHostSession('repo-b', 'pty-b')
-      },
-      sshRemotePtyLeases: [
-        {
-          targetId: 'host-a',
-          ptyId: 'pty-a',
-          worktreeId: 'repo-a::/worktree',
-          tabId: 'tab-shared',
-          leafId: 'pane:1',
-          state: 'detached',
-          createdAt: 1,
-          updatedAt: 1
-        },
-        {
-          targetId: 'host-b',
-          ptyId: 'pty-b',
-          worktreeId: 'repo-b::/worktree',
-          tabId: 'tab-shared',
-          leafId: 'pane:1',
-          state: 'detached',
-          createdAt: 1,
-          updatedAt: 1
-        }
-      ]
-    })
-
-    const store = await createStore()
-    const rootA = store.getWorkspaceSession('ssh:host-a').terminalLayoutsByTabId['tab-shared']?.root
-    const rootB = store.getWorkspaceSession('ssh:host-b').terminalLayoutsByTabId['tab-shared']?.root
-    const leafA = rootA?.type === 'leaf' ? rootA.leafId : null
-    const leafB = rootB?.type === 'leaf' ? rootB.leafId : null
-
-    expect(leafA && isTerminalLeafId(leafA)).toBe(true)
-    expect(leafB && isTerminalLeafId(leafB)).toBe(true)
-    expect(leafA).not.toBe(leafB)
-    expect(store.getSshRemotePtyLeases('host-a')[0]?.leafId).toBe(leafA)
-    expect(store.getSshRemotePtyLeases('host-b')[0]?.leafId).toBe(leafB)
-  })
-
-  it('repairs a stable SSH lease leaf copied from another host partition', async () => {
-    const leafA = '11111111-1111-4111-8111-111111111111'
-    const leafB = '22222222-2222-4222-8222-222222222222'
-    const makeStableHostSession = (
-      repoId: string,
-      ptyId: string,
-      leafId: string
-    ): WorkspaceSessionState => {
-      const worktreeId = `${repoId}::/worktree`
-      return {
-        ...getDefaultWorkspaceSession(),
-        activeRepoId: repoId,
-        activeWorktreeId: worktreeId,
-        activeTabId: 'tab-shared',
-        tabsByWorktree: {
-          [worktreeId]: [makeTerminalTab({ id: 'tab-shared', worktreeId, ptyId })]
-        },
-        terminalLayoutsByTabId: {
-          'tab-shared': {
-            root: { type: 'leaf', leafId },
-            activeLeafId: leafId,
-            expandedLeafId: null,
-            ptyIdsByLeafId: { [leafId]: ptyId }
-          }
-        }
-      }
-    }
-    writeDataFile({
-      schemaVersion: 1,
-      workspaceSession: makeHostSession('local-repo'),
-      workspaceSessionsByHostId: {
-        'ssh:host-a': makeStableHostSession('repo-a', 'pty-a', leafA),
-        'ssh:host-b': makeStableHostSession('repo-b', 'pty-b', leafB)
-      },
-      sshRemotePtyLeases: [
-        {
-          targetId: 'host-b',
-          ptyId: 'pty-b',
-          worktreeId: 'repo-b::/worktree',
-          tabId: 'tab-shared',
-          leafId: leafA,
-          state: 'detached',
-          createdAt: 1,
-          updatedAt: 1
-        }
-      ]
-    })
-
-    const store = await createStore()
-
-    expect(store.getSshRemotePtyLeases('host-b')[0]?.leafId).toBe(leafB)
+    expect(store.getWorkspaceSession('ssh:ssh-1').terminalLayoutsByTabId['tab-shared']).toBe(
+      undefined
+    )
+    expect(store.getSshRemotePtyLeases('ssh-1')).toEqual([])
+    expect(store.getWorkspaceSession('local').activeRepoId).toBe('local-repo')
   })
 
   it('isolates writes: setting host A does not mutate host B or local', async () => {
@@ -380,13 +272,16 @@ describe('Store host-partitioned workspace sessions', () => {
     expect(store.getWorkspaceSession('runtime:env-a').activeRepoId).toBe('repo-a')
   })
 
-  it('round-trips host partitions through disk', async () => {
+  it('round-trips the local partition through disk and drops a remote one on reload', async () => {
     const store = await createStore()
+    store.setWorkspaceSession(makeHostSession('repo-local'), 'local')
     store.setWorkspaceSession(makeHostSession('repo-a'), 'runtime:env-a')
+    expect(store.getWorkspaceSession('runtime:env-a').activeRepoId).toBe('repo-a')
     store.flush()
 
     const reloaded = await createStore()
-    expect(reloaded.getWorkspaceSession('runtime:env-a').activeRepoId).toBe('repo-a')
+    expect(reloaded.getWorkspaceSession('local').activeRepoId).toBe('repo-local')
+    expect(reloaded.getWorkspaceSession('runtime:env-a').activeRepoId).toBeNull()
   })
 
   it('removes one orphaned worktree with a host-scoped topology fence', async () => {
@@ -412,16 +307,9 @@ describe('Store host-partitioned workspace sessions', () => {
     store.flush()
 
     const reloaded = await createStore()
-    expect(reloaded.getWorkspaceSession('runtime:env-a')).toMatchObject({
-      tabsByWorktree: {},
-      terminalTopologyRevisionByRepoId: { 'repo-gone': 4 }
-    })
-    expect(reloaded.getWorkspaceSession('runtime:env-b')).toMatchObject({
-      activeWorktreeId: worktreeId,
-      activeWorktreeIdsOnShutdown: [worktreeId],
-      lastVisitedAtByWorktreeId: { [worktreeId]: 123 },
-      terminalTopologyRevisionByRepoId: { 'repo-gone': 3 }
-    })
+    // Local-only build: remote partitions are stripped at load, so neither survives the reload.
+    expect(reloaded.getWorkspaceSession('runtime:env-a').tabsByWorktree).toEqual({})
+    expect(reloaded.getWorkspaceSession('runtime:env-b').tabsByWorktree).toEqual({})
     // The local blob is a co-owner surface for every remote host, since the renderer parks state
     // there whenever worktree ownership is unresolved; leaving it behind leaks the removed worktree.
     expect(reloaded.getWorkspaceSession('local')).toMatchObject({
@@ -628,32 +516,6 @@ describe('Store host-partitioned workspace sessions', () => {
     expect(session.terminalTopologyRevisionByRepoId?.['repo-gone']).toBeUndefined()
   })
 
-  it('resets only the corrupt required field of a host partition, not the partition', async () => {
-    const worktreeId = 'repo-1::/worktree'
-    writeDataFile({
-      schemaVersion: 1,
-      repos: makeRepos('repo-1'),
-      workspaceSessionsByHostId: {
-        'runtime:good': makeHostSession('good-repo'),
-        // activeRepoId must be string|null; a number fails the zod parse.
-        'runtime:bad': {
-          ...makeHostSession('x'),
-          activeRepoId: 123,
-          tabsByWorktree: { [worktreeId]: [makeTerminalTab({ id: 'bad-host-tab', worktreeId })] }
-        }
-      }
-    })
-
-    const store = await createStore()
-
-    expect(store.getWorkspaceSession('runtime:good').activeRepoId).toBe('good-repo')
-    // The unsalvageable field falls back to its default; the partition's tabs survive.
-    expect(store.getWorkspaceSession('runtime:bad').activeRepoId).toBeNull()
-    expect(
-      store.getWorkspaceSession('runtime:bad').tabsByWorktree[worktreeId]?.map((tab) => tab.id)
-    ).toEqual(['bad-host-tab'])
-  })
-
   it('keeps every other worktree when the local session has a corrupt required field', async () => {
     const worktreeId = 'repo-1::/worktree'
     writeDataFile({
@@ -746,44 +608,6 @@ describe('Store host-partitioned workspace sessions', () => {
     expect(persisted.workspaceSession?.tabsByWorktree?.[worktreeId]?.map((tab) => tab.id)).toEqual([
       'tab-keep'
     ])
-  })
-
-  it('schedules a save for salvaged host partitions', async () => {
-    const worktreeId = 'repo-1::/worktree'
-    const profile = await canonicalize({
-      schemaVersion: 1,
-      repos: makeRepos('repo-1'),
-      workspaceSessionsByHostId: {
-        'runtime:env-a': {
-          ...makeHostSession('runtime-repo'),
-          tabsByWorktree: { [worktreeId]: [makeTerminalTab({ id: 'runtime-keep', worktreeId })] }
-        },
-        'ssh:target-b': {
-          ...makeHostSession('ssh-repo'),
-          tabsByWorktree: { [worktreeId]: [makeTerminalTab({ id: 'ssh-keep', worktreeId })] }
-        }
-      }
-    })
-    const partitions = profile.workspaceSessionsByHostId
-    const runtimeTabs = partitions?.['runtime:env-a']?.tabsByWorktree?.[worktreeId]
-    const sshTabs = partitions?.['ssh:target-b']?.tabsByWorktree?.[worktreeId]
-    expect(runtimeTabs).toBeDefined()
-    expect(sshTabs).toBeDefined()
-    runtimeTabs!.push({ id: 'runtime-corrupt' })
-    sshTabs!.push({ id: 'ssh-corrupt' })
-    const mutablePartitions = partitions as Record<string, unknown>
-    mutablePartitions['runtime:broken'] = 'not a session'
-    writeDataFile(profile)
-    await loadAndAwaitScheduledSave()
-
-    const persisted = (readDataFile() as PersistedSessionsFile).workspaceSessionsByHostId
-    expect(
-      persisted?.['runtime:env-a']?.tabsByWorktree?.[worktreeId]?.map((tab) => tab.id)
-    ).toEqual(['runtime-keep'])
-    expect(persisted?.['ssh:target-b']?.tabsByWorktree?.[worktreeId]?.map((tab) => tab.id)).toEqual(
-      ['ssh-keep']
-    )
-    expect(persisted).not.toHaveProperty('runtime:broken')
   })
 
   it('writes back sleeping-agent records dropped during salvage', async () => {

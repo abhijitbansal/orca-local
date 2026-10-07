@@ -15,16 +15,6 @@ import { getDefaultWorkspaceSession } from '../shared/constants'
 
 import { TEST_LEAF_1, TEST_LEAF_2 } from './persistence-session-fixtures'
 
-// Stub the ~/.ssh/config parser so the SSH-import test drives the real Store with deterministic hosts, not the operator's actual ~/.ssh/config.
-const { loadUserSshConfigMock, sshConfigHostsToTargetsMock } = vi.hoisted(() => ({
-  loadUserSshConfigMock: vi.fn(),
-  sshConfigHostsToTargetsMock: vi.fn()
-}))
-
-vi.mock('./ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: loadUserSshConfigMock,
-  sshConfigHostsToTargets: sshConfigHostsToTargetsMock
-}))
 const { trackMock, getCohortAtEmitMock } = vi.hoisted(() => ({
   trackMock: vi.fn(),
   getCohortAtEmitMock: vi.fn()
@@ -284,11 +274,12 @@ describe('Store', () => {
   })
 
   it.each([
-    { label: 'local', hostId: undefined },
-    { label: 'SSH', hostId: 'ssh:ssh-1' }
+    { label: 'local', hostId: undefined, survivesReload: true },
+    // Local-only build: a remote partition is live in memory but stripped on reload.
+    { label: 'SSH', hostId: 'ssh:ssh-1', survivesReload: false }
   ])(
     'preserves a reconciled incarnation across a renderer snapshot ($label)',
-    async ({ hostId }) => {
+    async ({ hostId, survivesReload }) => {
       const store = await createStore()
       const paneKey = `tab1:${TEST_LEAF_1}`
       store.setWorkspaceSession(
@@ -334,7 +325,7 @@ describe('Store', () => {
       )
       const reloaded = await createStore()
       expect(reloaded.getWorkspaceSession(hostId).terminalPtyIncarnationsByPaneKey?.[paneKey]).toBe(
-        'inc-live'
+        survivesReload ? 'inc-live' : undefined
       )
     }
   )

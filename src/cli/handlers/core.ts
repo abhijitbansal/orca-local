@@ -3,7 +3,6 @@ import type { CommandHandler } from '../dispatch'
 import { formatCliStatus, formatStatus, printResult } from '../format'
 import { RuntimeClientError, serveOrcaApp } from '../runtime-client'
 import { stripElectronRunAsNode } from '../runtime/launch'
-import { getServeOptionValidationError } from '../../shared/serve-option-validation'
 
 function envRecord(): Record<string, string> {
   // Why: the `orca` launcher runs Orca's Electron binary as Node, so this CLI
@@ -41,21 +40,6 @@ async function runClaudeAgentTeams(env: Record<string, string>, args: string[]):
       resolve(signal ? 1 : 0)
     })
   })
-}
-
-function getOptionalServePort(flags: Map<string, string | boolean>): string | null {
-  if (!flags.has('port')) {
-    return null
-  }
-  const rawPort = flags.get('port')
-  if (typeof rawPort !== 'string' || rawPort.length === 0) {
-    throw new RuntimeClientError('invalid_argument', 'Missing value for --port.')
-  }
-  const port = Number(rawPort)
-  if (!Number.isInteger(port) || port < 0 || port > 65535) {
-    throw new RuntimeClientError('invalid_argument', `Invalid --port value: ${rawPort}`)
-  }
-  return rawPort
 }
 
 export const CORE_HANDLERS: Record<string, CommandHandler> = {
@@ -96,33 +80,8 @@ export const CORE_HANDLERS: Record<string, CommandHandler> = {
     const result = await client.openOrca()
     printResult(result, json, formatCliStatus)
   },
-  serve: async ({ flags, json }) => {
-    const projectRootValue = flags.get('project-root')
-    const projectRoot = typeof projectRootValue === 'string' ? projectRootValue : null
-    const noPairing = flags.get('no-pairing') === true
-    const mobilePairing = flags.get('mobile-pairing') === true
-    const recipeJson = flags.get('recipe-json') === true
-    const validationError = getServeOptionValidationError({
-      noPairing,
-      mobilePairing,
-      recipeJson,
-      projectRoot
-    })
-    if (validationError) {
-      throw new RuntimeClientError('invalid_argument', validationError)
-    }
-    const port = getOptionalServePort(flags)
-    const pairingAddressValue = flags.get('pairing-address')
-    const exitCode = await serveOrcaApp({
-      json,
-      port,
-      pairingAddress: typeof pairingAddressValue === 'string' ? pairingAddressValue : null,
-      noPairing,
-      mobilePairing,
-      recipeJson,
-      projectRoot
-    })
-    process.exitCode = exitCode
+  serve: async ({ json }) => {
+    process.exitCode = await serveOrcaApp({ json })
   },
   status: async ({ client, json }) => {
     const result = await client.getCliStatus()

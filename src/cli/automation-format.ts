@@ -30,17 +30,11 @@ export type AutomationShowPayload = {
 const ORPHAN_HOST_LABEL = 'orphan (no host can run this automation)'
 
 function formatOwnerSelector(selector: AutomationOwnerPrecondition['selector']): string {
-  if (selector.kind === 'ssh') {
-    return `ssh:${selector.targetId} (generation ${selector.targetGeneration})`
-  }
   return selector.kind === 'orphan' ? ORPHAN_HOST_LABEL : 'self'
 }
 
 function formatListItemSelector(item: AutomationListItem): string {
   const selector = item.selector
-  if (selector.kind === 'ssh') {
-    return `ssh:${selector.targetId} (generation ${selector.targetGeneration})`
-  }
   return selector.kind === 'orphan' ? `orphan — ${selector.issue}` : 'self'
 }
 

@@ -249,34 +249,6 @@ describe('folder composer cache expiry requests', () => {
     expect(hook.result.current.pathStatusBlocksCreate).toBe(false)
   })
 
-  it('uses the selected runtime cache entry instead of a same-group local entry', async () => {
-    const fetchStatus = vi.fn().mockResolvedValue(null)
-    const snapshot = getFolderWorkspaceStatusRequestSnapshot(useAppStore.getState(), request)
-    expect(snapshot).not.toBeNull()
-    const makeEntry = (checkedAt: number): FolderWorkspacePathStatusCacheEntry => ({
-      checkedAt,
-      status: { path: '/folder', exists: true },
-      requestSnapshot: snapshot ?? ''
-    })
-    useAppStore.setState({
-      fetchFolderWorkspacePathStatus: fetchStatus,
-      folderWorkspacePathStatuses: {
-        'local:project-group:selected': makeEntry(90_010),
-        'environment:env-1:project-group:selected': makeEntry(100_000)
-      }
-    })
-    const hook = renderHook(() => useFolderWorkspaceComposerPathStatus(group, true, 'env-1'))
-    await act(async () => {})
-    await act(async () => vi.advanceTimersByTimeAsync(11))
-    expect(fetchStatus).toHaveBeenCalledExactlyOnceWith(request, {
-      force: true,
-      runtimeEnvironmentId: 'env-1'
-    })
-    expect(hook.result.current.pathStatusBlocksCreate).toBe(false)
-    await act(async () => vi.advanceTimersByTimeAsync(9990))
-    expect(fetchStatus).toHaveBeenCalledTimes(2)
-  })
-
   it('replaces the timer when the selected group changes', async () => {
     const secondGroup: ProjectGroup = { ...group, id: 'second', parentPath: '/second' }
     useAppStore.setState({ projectGroups: [group, secondGroup], folderWorkspacePathStatuses: {} })

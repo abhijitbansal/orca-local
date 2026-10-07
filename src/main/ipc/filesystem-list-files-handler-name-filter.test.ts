@@ -46,10 +46,6 @@ vi.mock(
   '../source-control/pull-request-template',
   async () => (await import('./filesystem-test-harness')).pullRequestTemplateMock
 )
-vi.mock(
-  '../source-control/pull-request-linked-issue',
-  async () => (await import('./filesystem-test-harness')).pullRequestLinkedIssueMock
-)
 vi.mock('./filesystem-list-files', () => ({ listQuickOpenFiles: listQuickOpenFilesMock }))
 
 import { registerFilesystemHandlers } from './filesystem'

@@ -52,7 +52,6 @@ export const cancelGenerateCommitMessageLocalMock: IpcMock = vi.fn()
 export const cancelGeneratePullRequestFieldsLocalMock: IpcMock = vi.fn()
 export const getPullRequestDraftContextMock: IpcMock = vi.fn()
 export const resolveHostedReviewBodyForGenerationMock: IpcMock = vi.fn()
-export const loadPullRequestLinkedIssueMock: IpcMock = vi.fn()
 export const getSshFilesystemProviderMock: IpcMock = vi.fn()
 export const getSshGitProviderMock: IpcMock = vi.fn()
 export const tryDeleteWslUncPathMock: IpcMock = vi.fn()
@@ -152,10 +151,6 @@ export const pullRequestTemplateMock = {
   resolveHostedReviewBodyForGeneration: resolveHostedReviewBodyForGenerationMock
 }
 
-export const pullRequestLinkedIssueMock = {
-  loadPullRequestLinkedIssue: loadPullRequestLinkedIssueMock
-}
-
 export const store = {
   getRepos: () => [
     {
@@ -233,8 +228,7 @@ const ALL_MOCKS = [
   sshGitDispatchMock,
   textGenerationModuleMock,
   pullRequestContextMock,
-  pullRequestTemplateMock,
-  pullRequestLinkedIssueMock
+  pullRequestTemplateMock
 ].flatMap(collectMocks)
 
 /** Resets every filesystem IPC mock and reinstalls the defaults every suite starts from. */
@@ -243,7 +237,6 @@ export function resetFilesystemIpcMocks(): void {
   for (const mock of ALL_MOCKS) {
     mock.mockReset()
   }
-  loadPullRequestLinkedIssueMock.mockResolvedValue(null)
 
   handleMock.mockImplementation(
     (channel: string, handler: (_event: unknown, args: unknown) => unknown) => {

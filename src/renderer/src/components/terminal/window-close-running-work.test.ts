@@ -99,7 +99,7 @@ describe('assessWindowCloseRunningWork', () => {
     })
   })
 
-  // The crux of docs/reference/ssh-execution-boundary.md: an unreachable host is `unverifiable`,
+  // The crux of AGENTS.md: an unreachable host is `unverifiable`,
   // and quitting on `unverifiable` as though it were `exited` is what orphans live remote work.
   it('warns rather than quitting silently when a remote host answers unverifiable', async () => {
     setState([SSH_PTY])

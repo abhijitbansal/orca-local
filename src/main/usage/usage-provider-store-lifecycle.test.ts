@@ -178,10 +178,10 @@ describe('UsageProviderStoreLifecycle', () => {
       scan.mockResolvedValue({ ...emptyScanResult(), sessions: [{ id: 'provider-session' }] })
       const original = createStore(cacheFile)
       await original.refresh(true)
-      expect(telemetry.mock.capture).not.toHaveBeenCalled()
+      expect(telemetry.mock.push).not.toHaveBeenCalled()
       await original.setEnabled(true)
       await original.refresh(true)
-      const first = telemetry.mock.capture.mock.calls[0]?.[0]
+      const first = telemetry.mock.push.mock.calls[0]?.[0]
       expect(first).toMatchObject({
         event: 'agent_token_usage',
         properties: { revision: 1, input_tokens: 10 }
@@ -191,7 +191,11 @@ describe('UsageProviderStoreLifecycle', () => {
       const rebuilt = createStore(cacheFile)
       await rebuilt.setEnabled(true)
       await rebuilt.refresh(true)
-      expect(telemetry.mock.capture.mock.calls[1]?.[0]).toEqual(first)
+      // Why: the record timestamp is wall-clock per write; everything else must be identical.
+      expect(telemetry.mock.push.mock.calls[1]?.[0]).toEqual({
+        ...first,
+        timestamp: expect.any(String)
+      })
     } finally {
       cleanupTelemetryClientTest(telemetry.envStash)
     }
@@ -208,7 +212,7 @@ describe('UsageProviderStoreLifecycle', () => {
       await store.refresh(true)
       // Usage cache, identity file, and token-usage snapshot: one write each.
       expect(writeProbe.opens).toBe(3)
-      expect(telemetry.mock.capture).toHaveBeenCalledTimes(sessions.length)
+      expect(telemetry.mock.push).toHaveBeenCalledTimes(sessions.length)
     } finally {
       cleanupTelemetryClientTest(telemetry.envStash)
     }

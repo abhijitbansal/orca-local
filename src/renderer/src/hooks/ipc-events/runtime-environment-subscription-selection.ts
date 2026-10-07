@@ -36,7 +36,7 @@ export function getRuntimeClientEventEnvironmentIds(
  * Why the shared verdict and not `entry.status`: an unverifiable probe nulls `entry.status`
  * while the transport stays up and the host keeps delivering. Reading that as "gone" dropped
  * the client-event subscription and fired the disconnect edge on a live host. Contact is lost
- * only once the transport itself says so (docs/reference/ssh-execution-boundary.md).
+ * only once the transport itself says so (AGENTS.md).
  */
 function isRuntimeHostStillInContact(
   state: RuntimeEnvironmentStoreSyncState,

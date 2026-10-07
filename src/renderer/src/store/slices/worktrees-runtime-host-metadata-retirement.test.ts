@@ -50,24 +50,6 @@ describe('runtime-host persisted metadata retirement', () => {
     resetRemoteRuntimeMocks()
   })
 
-  it('retires metadata for rows an authoritative runtime-host scan proved gone', async () => {
-    const store = seedClientWithBothRows()
-    runtimeEnvironmentCall.mockResolvedValue({
-      id: 'rpc-detected',
-      ok: true,
-      result: makeDetectedResult(REPO_ID, [live]),
-      _meta: { runtimeId: 'runtime-remote' }
-    })
-
-    await store.getState().fetchWorktrees(REPO_ID, { executionHostId: HOST_ID })
-
-    expect(forgetRemovedForExecutionHostMock).toHaveBeenCalledExactlyOnceWith({
-      repoId: REPO_ID,
-      executionHostId: HOST_ID,
-      worktreeIds: [deletedOnHost.id]
-    })
-  })
-
   // A non-authoritative reply is a failed listing, not a report that a checkout is gone.
   it('retires nothing when the runtime host could not scan', async () => {
     const store = seedClientWithBothRows()

@@ -21,8 +21,7 @@ describe('getDefaultAgentCapabilitySetupSelection', () => {
     expect(getDefaultAgentCapabilitySetupSelection(READY_INPUT)).toEqual({
       browserUse: false,
       computerUse: false,
-      orchestration: false,
-      linearTickets: false
+      orchestration: false
     })
   })
 
@@ -36,8 +35,7 @@ describe('getDefaultAgentCapabilitySetupSelection', () => {
     ).toEqual({
       browserUse: true,
       computerUse: false,
-      orchestration: true,
-      linearTickets: false
+      orchestration: true
     })
   })
 
@@ -50,8 +48,7 @@ describe('getDefaultAgentCapabilitySetupSelection', () => {
     ).toEqual({
       browserUse: false,
       computerUse: true,
-      orchestration: false,
-      linearTickets: false
+      orchestration: false
     })
   })
 
@@ -65,8 +62,7 @@ describe('getDefaultAgentCapabilitySetupSelection', () => {
     ).toEqual({
       browserUse: false,
       computerUse: false,
-      orchestration: false,
-      linearTickets: false
+      orchestration: false
     })
   })
 })

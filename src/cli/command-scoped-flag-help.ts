@@ -18,9 +18,6 @@ const COMMAND_SCOPED_FLAG_HELP: Record<string, Record<string, string>> = {
   'file open-changed': {
     focus: FILE_OPEN_FOCUS_HELP
   },
-  'skills install': {
-    agent: '--agent <names>        Comma-separated install targets; default is detected agents'
-  },
   search: {
     query: '--query <text>         Search text; also accepted as the positional argument',
     scope: '--scope <corpus>       conversation (user and assistant turns) or all (default)',

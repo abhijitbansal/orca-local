@@ -18,7 +18,7 @@ test('low-level Dispatches can be abandoned and stopped without closing their pa
   await waitForActivePanePtyId(orcaPage)
 
   const userDataDir = await electronApp.evaluate(({ app }) => app.getPath('userData'))
-  const client = new RuntimeClient(userDataDir, 30_000, null, null)
+  const client = new RuntimeClient(userDataDir, 30_000)
   const pane = await waitForActivePaneHookDescriptor(orcaPage)
   const resolved = await client.call<{ terminal: { handle: string } }>('terminal.resolvePane', {
     paneKey: pane.paneKey

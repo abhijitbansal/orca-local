@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react'
-import { toast } from 'sonner'
 import {
   Dialog,
   DialogContent,
@@ -10,15 +9,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/store'
-import {
-  resolveDismissedOnboardingFolderAgentLaunch,
-  revealOnboardingFolderWithAgentLaunch
-} from '@/lib/onboarding-folder-agent-launch'
-import { isNativeChatTranscriptLocalReadable } from '@/lib/native-chat-transcript-readability'
-import { markOnboardingProjectAdded } from '@/lib/onboarding-project-checklist'
 import { translate } from '@/i18n/i18n'
-import { upsertAddedRepoWithProjectHostSetup } from './add-repo-store-upsert'
-import { worktreeRefreshOptions } from './add-repo-runtime-owner'
 
 const NonGitFolderDialog = React.memo(function NonGitFolderDialog() {
   const activeModal = useAppStore((s) => s.activeModal)
@@ -29,7 +20,6 @@ const NonGitFolderDialog = React.memo(function NonGitFolderDialog() {
 
   const isOpen = activeModal === 'confirm-non-git-folder'
   const folderPath = typeof modalData.folderPath === 'string' ? modalData.folderPath : ''
-  const connectionId = typeof modalData.connectionId === 'string' ? modalData.connectionId : ''
   const runtimeEnvironmentId =
     typeof modalData.runtimeEnvironmentId === 'string' ? modalData.runtimeEnvironmentId : ''
   const displayName = typeof modalData.displayName === 'string' ? modalData.displayName.trim() : ''
@@ -37,91 +27,26 @@ const NonGitFolderDialog = React.memo(function NonGitFolderDialog() {
     runtimeEnvironmentId &&
     (runtimeEnvironments.find((environment) => environment.id === runtimeEnvironmentId)?.name ||
       runtimeEnvironmentId)
-  const checkedHostDescription = connectionId
+  const checkedHostDescription = runtimeEnvironmentName
     ? translate(
-        'auto.components.sidebar.NonGitFolderDialog.9a766f33ac',
-        'This path was checked on the SSH host.'
+        'auto.components.sidebar.NonGitFolderDialog.79fd02cf5f',
+        'This path was checked on {{hostName}}.',
+        { hostName: runtimeEnvironmentName }
       )
-    : runtimeEnvironmentName
-      ? translate(
-          'auto.components.sidebar.NonGitFolderDialog.79fd02cf5f',
-          'This path was checked on {{hostName}}.',
-          { hostName: runtimeEnvironmentName }
-        )
-      : translate(
-          'auto.components.sidebar.NonGitFolderDialog.8851b77327',
-          'This path was checked locally.'
-        )
+    : translate(
+        'auto.components.sidebar.NonGitFolderDialog.8851b77327',
+        'This path was checked locally.'
+      )
 
   const handleConfirm = useCallback(() => {
-    if (connectionId && folderPath) {
-      void (async () => {
-        try {
-          const stateBeforeAdd = useAppStore.getState()
-          const result = await window.api.repos.addRemote({
-            connectionId,
-            remotePath: folderPath,
-            kind: 'folder',
-            ...(displayName ? { displayName } : {})
-          })
-          if ('error' in result) {
-            throw new Error(result.error)
-          }
-          const { repo } = upsertAddedRepoWithProjectHostSetup(result.repo, {
-            sshConnectionId: connectionId
-          })
-          const state = useAppStore.getState()
-          const hadProjectBeforeAdd = stateBeforeAdd.repos.length > 0
-          await markOnboardingProjectAdded('addedFolder')
-          const ownerOptions = worktreeRefreshOptions(undefined, connectionId)
-          await state.fetchWorktrees(repo.id, ownerOptions)
-          // Why: mirror the local non-git folder flow — without this the
-          // dialog closes and the UI shows no visible change, making the
-          // add feel like a no-op. Activating the synthetic folder
-          // worktree reveals it in the sidebar and opens the workspace.
-          const folderWorktree = useAppStore
-            .getState()
-            .worktreesByRepo[repo.id]?.find(
-              (worktree) => worktree.hostId === ownerOptions.executionHostId
-            )
-          if (folderWorktree) {
-            const onboarding = await window.api.onboarding.get().catch(() => null)
-            // Why: SSH users can hit this dialog from Add Project after
-            // dismissing onboarding, bypassing the local addNonGitFolder path.
-            const launch = resolveDismissedOnboardingFolderAgentLaunch({
-              store: useAppStore.getState(),
-              onboarding,
-              hasExistingProject: hadProjectBeforeAdd,
-              executionHostId: ownerOptions.executionHostId ?? connectionId,
-              nativeChatTranscriptIsLocalReadable: isNativeChatTranscriptLocalReadable(connectionId)
-            })
-            await revealOnboardingFolderWithAgentLaunch({
-              worktreeId: folderWorktree.id,
-              executionHostId: ownerOptions.executionHostId,
-              launch
-            })
-          }
-        } catch (err) {
-          // This code path calls addRemote directly (not through the store),
-          // so the store's toast handling does not apply.
-          toast.error(
-            err instanceof Error
-              ? err.message
-              : translate(
-                  'auto.components.sidebar.NonGitFolderDialog.c49fb13492',
-                  'Failed to add folder on this host'
-                )
-          )
-        }
-      })()
-    } else if (folderPath) {
+    if (folderPath) {
       void addNonGitFolder(folderPath, {
         runtimeEnvironmentId: runtimeEnvironmentId || null,
         ...(displayName ? { displayName } : {})
       })
     }
     closeModal()
-  }, [addNonGitFolder, closeModal, displayName, folderPath, connectionId, runtimeEnvironmentId])
+  }, [addNonGitFolder, closeModal, displayName, folderPath, runtimeEnvironmentId])
 
   const handleOpenChange = useCallback(
     (open: boolean) => {

@@ -2,7 +2,6 @@ import { homedir } from 'node:os'
 import { normalizeProxyUrl } from '../../../shared/network-proxy'
 import { normalizeKagiSessionLink } from '../../../shared/browser-url'
 import type { PersistedState } from '../../../shared/persisted-state-types'
-import type { SshPtyConsumerRecovery } from '../../../shared/ssh-types'
 import { getDefaultPersistedState } from '../../../shared/constants'
 import { pruneLocalTerminalScrollbackBuffers } from '../../../shared/workspace-session-terminal-buffers'
 import { pruneWorkspaceSessionBrowserHistory } from '../../../shared/workspace-session-browser-history'
@@ -15,8 +14,7 @@ import {
 } from '../../protected-secret-persistence'
 import {
   isLegacyOpenCodeGoApiKey,
-  isLegacyOpenCodeSessionCookie,
-  isLegacySshPtyOwnerLease
+  isLegacyOpenCodeSessionCookie
 } from '../leasing-ssh-ptys/secret-validation'
 import { readGithubCacheSnapshot } from './user-data-path'
 import {
@@ -26,10 +24,6 @@ import {
 import { backfillLegacyAutomationContexts } from '../scheduling-automations/automation-context-migration'
 import { migrateAutomationOwners } from '../../automations/automation-owner-migration'
 import {
-  ENCRYPTED_SSH_PTY_OWNER_LEASE_MAX_LENGTH,
-  normalizeSshPtyConsumerRecovery
-} from '../leasing-ssh-ptys/ssh-normalization'
-import {
   mergeProjectHostSetupCompatibilityState,
   projectHostSetupCompatibilityStateEqual
 } from '../tracking-repos/project-host-compatibility'
@@ -37,6 +31,7 @@ import { backfillFolderScopeConnectionIds } from '../restoring-sessions/folder-s
 import { prepareLoadedTerminalSettings } from './prepare-loaded-terminal-settings'
 import { prepareLoadedProfileSettings } from './prepare-loaded-profile-settings'
 import { normalizeLoadedProfileState } from './normalize-loaded-profile-state'
+import { stripRemoteExecutionHostState } from './remote-execution-host-strip'
 
 import type { StoreRuntimeState } from './store-runtime-state'
 import type { LoadedCohortMigrationOperations } from './loaded-cohort-migrations'
@@ -152,31 +147,13 @@ export class LoadedStateParsingOperations {
             (value) => normalizeKagiSessionLink(value) !== null
           )
         }
-        parsed.sshPtyConsumerRecoveries = (
-          Array.isArray(parsed.sshPtyConsumerRecoveries) ? parsed.sshPtyConsumerRecoveries : []
-        )
-          .map((record) =>
-            normalizeSshPtyConsumerRecovery(record, ENCRYPTED_SSH_PTY_OWNER_LEASE_MAX_LENGTH)
-          )
-          .filter((record): record is SshPtyConsumerRecovery => record !== null)
-          .map((record) => {
-            const slot = sshPtyOwnerLeaseSecretSlot(record.targetId)
-            const decrypted = this.runtime.protectedSecrets.decryptWithStatus(
-              slot,
-              record.ownerLease,
-              isLegacySshPtyOwnerLease
-            )
-            const normalized =
-              decrypted.status === 'unavailable' ||
-              (decrypted.status === 'failed' && !decrypted.plaintext)
-                ? record
-                : normalizeSshPtyConsumerRecovery({ ...record, ownerLease: decrypted.plaintext })
-            if (!normalized) {
-              this.runtime.protectedSecrets.removeRetainedBlob(slot)
-            }
-            return normalized
-          })
-          .filter((record): record is SshPtyConsumerRecovery => record !== null)
+        const strip = stripRemoteExecutionHostState(parsed)
+        for (const targetId of strip.legacyRecoveryTargetIds) {
+          this.runtime.protectedSecrets.removeRetainedBlob(sshPtyOwnerLeaseSecretSlot(targetId))
+        }
+        if (strip.changed) {
+          this.runtime.loadNeedsSave = true
+        }
 
         const terminalSettings = prepareLoadedTerminalSettings(parsed, () => {
           this.runtime.loadNeedsSave = true

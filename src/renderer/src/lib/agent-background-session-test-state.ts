@@ -1,6 +1,5 @@
 import { expect, vi } from 'vitest'
 import { createCompatibleRuntimeStatusResponseIfNeeded } from '@/runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '@/runtime/runtime-rpc-client'
 import { resetRemoteRuntimeTerminalMultiplexersForTests } from '@/runtime/remote-runtime-terminal-multiplexer'
 
 type TestMock = ReturnType<typeof vi.fn>
@@ -222,7 +221,6 @@ export function resetAgentBackgroundSessionTestHarness(args: {
   subscribeToExit: TestMock
 }): void {
   resetRemoteRuntimeTerminalMultiplexersForTests()
-  clearRuntimeCompatibilityCacheForTests()
   vi.clearAllMocks()
   args.getLaunchPlatform.mockReturnValue('linux')
   args.runtimeTransportCall.mockImplementation(

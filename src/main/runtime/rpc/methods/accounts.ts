@@ -3,7 +3,6 @@ import {
   AccountsUnsubscribeParams,
   AddClaudeFromConfigDirParams,
   AddCodexFromHomeParams,
-  ConsumeCodexResetCreditParams,
   ListAccountsParams,
   RemoveAccountParams,
   SelectAccountParams,
@@ -28,16 +27,8 @@ export const ACCOUNT_METHODS = [
   defineMethod({
     name: 'accounts.list',
     params: ListAccountsParams,
-    handler: async (params, { runtime }) => {
-      // Why: ensure the snapshot reflects the latest provider state before
-      // returning. Desktop polling pauses when the window is unfocused and
-      // inactive-account caches only fill on AccountsPane open, so without
-      // this the mobile UI would render stale nulls / zeroes.
-      if (params.refreshUsage) {
-        await runtime.refreshAccountsForMobile()
-      }
-      return runtime.getAccountsSnapshot()
-    }
+    // Why: `refreshUsage` stays in the schema for older clients; there is no vendor usage to refresh.
+    handler: async (_params, { runtime }) => runtime.getAccountsSnapshot()
   }),
   defineMethod({
     name: 'accounts.selectClaude',
@@ -56,12 +47,6 @@ export const ACCOUNT_METHODS = [
     params: SelectCodexAccountForTargetParams,
     handler: async (params, { runtime }) =>
       runtime.selectCodexAccountForTarget(params.accountId, params.target)
-  }),
-  defineMethod({
-    name: 'accounts.consumeCodexResetCredit',
-    params: ConsumeCodexResetCreditParams,
-    handler: async (params, { runtime }) =>
-      runtime.consumeCodexRateLimitResetCredit(params.idempotencyKey, params.expectedScope)
   }),
   defineMethod({
     name: 'accounts.removeClaude',
@@ -131,12 +116,7 @@ export const ACCOUNT_METHODS = [
           connectionId
         )
 
-        // Why: emit the current snapshot synchronously so the phone has
-        // something to render immediately, then refresh only stale data.
-        // Connection cutovers replay this subscription and must not turn the
-        // manual-force lane into an unbounded provider-fetch loop.
         emit({ type: 'ready', subscriptionId, snapshot: runtime.getAccountsSnapshot() })
-        void runtime.refreshAccountsForMobileSubscriber()
       })
     }
   }),

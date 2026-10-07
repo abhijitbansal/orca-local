@@ -8,11 +8,9 @@ Orca includes built-in viewers for the formats that show up in most repos.
 
 ## HTML
 
-Open a local, SSH, or paired-runtime `.html` file with **Open in Orca Browser** or **Open Preview to the Side**. Orca renders the document locally in a sandboxed browser tab and reads the file and its relative assets through the workspace's file connection, so a remote design document stays crisp without exposing your desktop filesystem.
+Open a local `.html` file with **Open in Orca Browser** or **Open Preview to the Side**. Orca renders the document in a sandboxed browser tab and reads the file and its relative assets through the workspace's file connection.
 
 The preview asks before reading additional folders, and grants only the folders you approve for that tab. External HTTP(S) links require confirmation and open in a normal Orca browser tab; downloads are disabled inside document previews. Use **Preview options** to reload from disk, open the source file, or copy its full or workspace-relative path.
-
-On paired runtimes, the HTML file must be inside the worktree. Very old paired servers may render the document without binary assets; update the server if remote images do not load.
 
 ## Mermaid
 

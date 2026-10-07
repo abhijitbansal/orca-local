@@ -24,7 +24,6 @@ function serviceWith(
   options: {
     activation?: ReturnType<PluginService['activationState']>
     worker?: ReturnType<PluginService['workerState']>
-    vmRecipes?: ReturnType<PluginService['contentPacks']['vmRecipes']['preview']>
     commands?: ReturnType<PluginService['contentPacks']['commands']['preview']>
   } = {}
 ): PluginService {
@@ -38,7 +37,6 @@ function serviceWith(
     workerState: () => options.worker ?? { state: 'inactive', restarts: 0 },
     activationError: () => null,
     contentPacks: {
-      vmRecipes: { preview: () => options.vmRecipes ?? [] },
       commands: { preview: () => options.commands ?? [] }
     }
   } as unknown as PluginService
@@ -129,57 +127,13 @@ describe('buildPluginList consent identity', () => {
     expect(JSON.stringify(projected)).not.toContain(invalid.rootDir)
   })
 
-  it('projects exact VM lifecycle commands for instructional consent', async () => {
-    const recipeManifest = pluginManifestSchema.parse({
-      ...manifest,
-      contributes: { vmRecipes: [{ path: 'recipes/cloud.json' }] }
-    })
-    const plugin: ValidDiscoveredPlugin = {
-      pluginKey: 'orca-samples.demo',
-      rootDir: join(tmpdir(), 'plugins', 'demo'),
-      manifest: recipeManifest,
-      consentFingerprint: 'sha256-current',
-      consentContentHash: 'a'.repeat(64),
-      contentHash: null,
-      isDev: true
-    }
-
-    expect(
-      (
-        await buildPluginList(
-          serviceWith(plugin, {
-            vmRecipes: [
-              {
-                pluginKey: plugin.pluginKey,
-                recipe: {
-                  id: 'cloud',
-                  name: 'Cloud',
-                  create: './create.sh',
-                  destroyDisabled: true
-                }
-              }
-            ]
-          }),
-          emptyPluginLockfile()
-        )
-      )[0]?.vmRecipes
-    ).toEqual([
-      {
-        id: 'cloud',
-        name: 'Cloud',
-        commands: [
-          { phase: 'create', command: './create.sh' },
-          { phase: 'destroy', command: 'none' }
-        ]
-      }
-    ])
-  })
-
   it('projects command handlers and normalized keybindings for consent and dispatch', async () => {
     const commandManifest = pluginManifestSchema.parse({
       ...manifest,
       contributes: {
-        commands: [{ id: 'tasks', title: 'Open Tasks', context: 'worktree', action: 'view.tasks' }],
+        commands: [
+          { id: 'tasks', title: 'Open Tasks', context: 'worktree', action: 'workspace.openBoard' }
+        ],
         keybindings: [{ command: 'tasks', key: 'mod+alt+t' }]
       }
     })
@@ -203,7 +157,7 @@ describe('buildPluginList consent identity', () => {
                 id: 'tasks',
                 title: 'Open Tasks',
                 context: 'worktree',
-                handler: { type: 'built-in', action: 'view.tasks' },
+                handler: { type: 'built-in', action: 'workspace.openBoard' },
                 keybindings: [{ key: 'Mod+Alt+T', when: 'worktree' }]
               }
             ]
@@ -216,7 +170,7 @@ describe('buildPluginList consent identity', () => {
         id: 'tasks',
         title: 'Open Tasks',
         context: 'worktree',
-        handler: { type: 'built-in', action: 'view.tasks' },
+        handler: { type: 'built-in', action: 'workspace.openBoard' },
         keybindings: [{ key: 'Mod+Alt+T', when: 'worktree' }]
       }
     ])

@@ -8,9 +8,6 @@
   "auto.App.98d4ea2823": {
     "ko": "이 워크스페이스에서 Terminal, 브라우저 또는 편집기 렌더링에 실패했습니다. 다시 시도해 보세요."
   },
-  "auto.components.FirstLaunchBanner.958d2cc31b": {
-    "ko": "어떤 기능을 사용하는지에 대한 익명 집계는 무엇을 우선 개발할지 정하는 데 도움이 됩니다. 파일 내용, 프롬프트, terminal 출력 등 사용자를 식별할 수 있는 정보는 수집하지 않습니다. 설정 -> 개인 정보 보호 및 텔레메트리에서 언제든지 변경할 수 있습니다."
-  },
   "auto.components.GitHubItemDialog.03e542fcfe": {
     "ko": "실패한 체크를 수정하기 위해 AI agent를 시작하지 못했습니다: {{value0}}"
   },
@@ -184,51 +181,6 @@
   },
   "auto.components.LinearItemDrawer.fbb90300e2": {
     "ko": "사용자 지정 추정치"
-  },
-  "auto.components.NewWorkspaceComposerCard.cloneHostSetup": {
-    "ko": "클론"
-  },
-  "auto.components.NewWorkspaceComposerCard.cloneProjectOnHost": {
-    "ko": "프로젝트 클론"
-  },
-  "auto.components.NewWorkspaceComposerCard.cloningHostSetup": {
-    "ko": "클론 중..."
-  },
-  "auto.components.NewWorkspaceComposerCard.connectingSsh": {
-    "ko": "SSH 연결 중..."
-  },
-  "auto.components.NewWorkspaceComposerCard.importExistingFolderOnHost": {
-    "ko": "기존 폴더 가져오기"
-  },
-  "auto.components.NewWorkspaceComposerCard.importingHostSetup": {
-    "ko": "가져오는 중..."
-  },
-  "auto.components.NewWorkspaceComposerCard.notConnected": {
-    "ko": "연결되지 않음"
-  },
-  "auto.components.NewWorkspaceComposerCard.preparingSshConnection": {
-    "ko": "SSH 연결 준비 중..."
-  },
-  "auto.components.NewWorkspaceComposerCard.reconnectingSsh": {
-    "ko": "SSH 다시 연결 중..."
-  },
-  "auto.components.NewWorkspaceComposerCard.setupHostExistingFolderHelp": {
-    "ko": "해당 호스트에 이미 있는 체크아웃을 연결한 다음, 그 호스트에서 이 워크스페이스를 만듭니다."
-  },
-  "auto.components.NewWorkspaceComposerCard.setupHostExistingFolderTitle": {
-    "ko": "{{value0}} 설정"
-  },
-  "auto.components.NewWorkspaceComposerCard.setupKindGit": {
-    "ko": "Git 리포지토리"
-  },
-  "auto.components.NewWorkspaceComposerCard.sshAuthenticationFailed": {
-    "ko": "SSH 인증 실패"
-  },
-  "auto.components.NewWorkspaceComposerCard.sshNotConnected": {
-    "ko": "SSH가 연결되지 않음"
-  },
-  "auto.components.NewWorkspaceComposerCard.sshReconnectionFailed": {
-    "ko": "SSH 다시 연결 실패"
   },
   "auto.components.NewWorkspaceComposerModal.fa90f739a5": {
     "ko": "워크스페이스를 만들기 전에 프로젝트, 워크스페이스 이름, agent를 선택하세요."
@@ -500,12 +452,6 @@
   "auto.components.Terminal.e57db40c11": {
     "ko": "{{value0}} 실행 명령을 만들 수 없습니다."
   },
-  "auto.components.UpdateCard.ccd8b0a793": {
-    "ko": "마지막 업데이트 이후 추가됨"
-  },
-  "auto.components.UpdateCard.f58b5c57a6": {
-    "ko": "새 소식:"
-  },
   "auto.components.WorktreeJumpPalette.1628fd7dfa": {
     "ko": "활성 워크트리, 설정, 작업 또는 열린 탭이 없습니다."
   },
@@ -767,20 +713,8 @@
   "auto.components.contextual.tours.contextual.tour.overlay.measurement.automations.results.title": {
     "ko": "결과 확인"
   },
-  "auto.components.crash.report.CrashReportDialog.88fea8e84e": {
-    "ko": "보내지 않음"
-  },
-  "auto.components.crash.report.CrashReportDialog.b082f27490": {
-    "ko": "최근 진단 로그 첨부"
-  },
   "auto.components.crash.report.CrashReportDialog.b2e36f53a1": {
     "ko": "크래시 보고서를 보내지 못했습니다. 진단 티켓 {{value0}}이 업로드되었지만 연결되지 않았습니다."
-  },
-  "auto.components.crash.report.CrashReportDialog.e59f0b9427": {
-    "ko": "보고서와 함께 크기가 제한되고 민감 정보가 제거된 로그 묶음을 보냅니다."
-  },
-  "auto.components.crash.report.CrashReportDialog.ead6fc0510": {
-    "ko": "자동 크래시 보고서가 캡처되지 않았습니다. 그래도 세부 정보를 보내고, 가능한 경우 최근 진단 로그를 포함할 수 있습니다."
   },
   "auto.components.dashboard.DashboardAgentRowMessage.0a01046763": {
     "ko": "중단됨"
@@ -1096,9 +1030,6 @@
   },
   "auto.components.feature.wall.ReviewShipAnimatedVisual.cd8a3a39d7": {
     "ko": "commits 3개 앞섬"
-  },
-  "auto.components.feature.wall.TasksAnimatedVisual.b13375617e": {
-    "ko": "워크트리 선택기가 이름을 자릅니다."
   },
   "auto.components.feature.wall.WorkbenchAnimatedVisual.0b20782e0f": {
     "ko": "워커 4개로 12개 테스트 실행"
@@ -1423,48 +1354,6 @@
   },
   "auto.components.mobile.MobilePage.1b4509a8a1": {
     "ko": "페어링됨"
-  },
-  "auto.components.mobile.MobilePage.e17393c6a3": {
-    "ko": "휴대폰 미리보기"
-  },
-  "auto.components.mobile.PhoneCarousel.93217b41c1": {
-    "ko": "워크트리 목록"
-  },
-  "auto.components.mobile.slides.HomeSlide.0bad5b07c8": {
-    "ko": "GitHub 및 Linear"
-  },
-  "auto.components.mobile.slides.HomeSlide.0bc1881bc4": {
-    "ko": "연결됨 · 워크트리 40개 · 활성 5개"
-  },
-  "auto.components.mobile.slides.HomeSlide.c0e2e9dcd9": {
-    "ko": "다시 오신 것을 환영합니다"
-  },
-  "auto.components.mobile.slides.TerminalSlide.2defc05141": {
-    "ko": "dev@mac"
-  },
-  "auto.components.mobile.slides.TerminalSlide.53ff909568": {
-    "ko": "Tab"
-  },
-  "auto.components.mobile.slides.TerminalSlide.58a9ee6003": {
-    "ko": "도구 호출 형식. 다음으로 diff를 추가할까요?"
-  },
-  "auto.components.mobile.slides.TerminalSlide.80cc356591": {
-    "ko": "읽기"
-  },
-  "auto.components.mobile.slides.TerminalSlide.8d6516312d": {
-    "ko": "terminals 2개 · claude 활성"
-  },
-  "auto.components.mobile.slides.TerminalSlide.a6e7cdc688": {
-    "ko": "pnpm test --filter mobile"
-  },
-  "auto.components.mobile.slides.TerminalSlide.e0f98be657": {
-    "ko": "orca/feat-mobile-page"
-  },
-  "auto.components.mobile.slides.TerminalSlide.e4befee569": {
-    "ko": "셸"
-  },
-  "auto.components.mobile.slides.WorktreeListSlide.17f9e0d226": {
-    "ko": "최근"
   },
   "auto.components.new.workspace.ProjectCombobox.empty": {
     "ko": "검색과 일치하는 프로젝트가 없습니다."
@@ -1796,14 +1685,8 @@
   "auto.components.right.sidebar.PortsPanel.729be0b4e5": {
     "ko": "종류"
   },
-  "auto.components.right.sidebar.PortsPanel.9f475dc994": {
-    "ko": "전달 중..."
-  },
   "auto.components.right.sidebar.PortsPanel.b1ff94fa27": {
     "ko": "프로토콜"
-  },
-  "auto.components.right.sidebar.PortsPanel.c9d106547a": {
-    "ko": "포워드"
   },
   "auto.components.right.sidebar.Search.1ec640c9c7": {
     "ko": "일치"
@@ -1916,9 +1799,6 @@
   "auto.components.right.sidebar.checks.panel.content.ee07b33924": {
     "ko": "알 수 없음"
   },
-  "auto.components.right.sidebar.gitlab.mr.merge.state.49ac4fec10": {
-    "ko": "검사 실패"
-  },
   "auto.components.right.sidebar.index.8bc2bbc3a0": {
     "ko": "탐색기"
   },
@@ -1948,12 +1828,6 @@
   },
   "auto.components.right.sidebar.pull.policy.notice.title": {
     "ko": "Pull 정책 필요"
-  },
-  "auto.components.right.sidebar.right.panel.comment.composer.256300f8ea": {
-    "ko": "굵게"
-  },
-  "auto.components.right.sidebar.right.panel.comment.composer.542bf6a7e2": {
-    "ko": "기울임"
   },
   "auto.components.right.sidebar.source.control.discard.confirmation.2ae5a785b3": {
     "ko": "스테이징되지 않은 변경 사항을 모두 삭제하시겠습니까?"
@@ -2201,9 +2075,6 @@
   "auto.components.settings.DefaultWindowsProjectRuntimeSetting.wslUnavailable": {
     "ko": "WSL을 사용할 수 없습니다. WSL을 상속하는 프로젝트는 복구가 필요합니다."
   },
-  "auto.components.settings.DevToolsPane.orcaCloudDescription": {
-    "ko": "자사 클라우드 로그인의 개발자 전용 미리보기. 프로덕션에서는 숨겨집니다. 개발 환경에서는 ORCA_CLOUD_API_URL과 ORCA_CLOUD_CLIENT_ID가 설정되면 사이드바 계정 전환기에도 표시됩니다."
-  },
   "auto.components.settings.DeveloperPermissionsPane.16381e040a": {
     "ko": "마이크"
   },
@@ -2234,12 +2105,6 @@
   "auto.components.settings.ExperimentalPane.newWorktreeCardStyle.description": {
     "ko": "업데이트된 워크트리 카드 레이아웃, 메타데이터 배치, 카드 표시 메뉴 옵션 및 상태 표시를 미리 봅니다."
   },
-  "auto.components.settings.EphemeralVmsPane.recipes": {
-    "ko": "레시피"
-  },
-  "auto.components.settings.EphemeralVmsPane.whatTitle": {
-    "ko": "이 스킬로 함께 하는 작업"
-  },
   "auto.components.settings.GeneralEditorSettingsSection.45c6e85c4d": {
     "ko": "편집기"
   },
@@ -2251,15 +2116,6 @@
   },
   "auto.components.settings.GeneralPane.projectRuntimeDescription": {
     "ko": "별도로 재정의하지 않은 로컬 Windows 프로젝트의 기본 런타임입니다."
-  },
-  "auto.components.settings.GeneralSupportSection.6922c1fa2b": {
-    "ko": "GitHub에서 Orca 스타 누르기"
-  },
-  "auto.components.settings.GeneralSupportSection.964acc6bb4": {
-    "ko": "스타"
-  },
-  "auto.components.settings.GeneralUpdateSettingsSection.90eb7309d7": {
-    "ko": "사용 불가"
   },
   "auto.components.settings.GeneralWorkspaceSettingsSection.5567191a6e": {
     "ko": "찾아보기"
@@ -2342,9 +2198,6 @@
   "auto.components.settings.MobileEmulatorSettingsPane.ae1612c58c": {
     "ko": "가용성"
   },
-  "auto.components.settings.MobilePane.35100bca5d": {
-    "ko": "휴대폰에서 terminals을 사용하는 동안 Orca는 휴대폰 화면에 맞게 terminals을 축소합니다. 앱을 닫거나 다른 곳으로 전환하면 terminals이 휴대폰 크기로 유지되는지(대화형 CLI 도구가 리플로우되지 않음) 또는 데스크탑으로 다시 크기가 조정되는지 여부가 제어됩니다. 배너에서 '이 terminals 복원' 또는 '모든 terminals 복원'을 사용해 언제든지 수동으로 크기를 조정할 수 있습니다."
-  },
   "auto.components.settings.MobileSettingsPane.b0088412a1": {
     "ko": "또는 다음에서 Android APK를 받으세요"
   },
@@ -2356,9 +2209,6 @@
   },
   "auto.components.settings.NotificationsPane.b6fc369244": {
     "ko": "백그라운드 terminal이 벨 문자를 내보냅니다."
-  },
-  "auto.components.settings.OpenAiTranscriptionKeyDialog.07b26f2742": {
-    "ko": "키 지우기"
   },
   "auto.components.settings.PrivacyPane.79a0f3c16c": {
     "ko": "텔레메트리는 다음에 의해 비활성화됩니다."
@@ -2404,9 +2254,6 @@
   },
   "auto.components.settings.ProjectWindowsRuntimeSetting.wslUnavailable": {
     "ko": "WSL을 사용할 수 없습니다. 이 프로젝트를 Windows로 전환하거나 WSL을 복구하세요."
-  },
-  "auto.components.settings.ProviderHostScopeControl.change_host": {
-    "ko": "원격 서버 열기"
   },
   "auto.components.settings.QuickCommandsPane.9fcfc29519": {
     "ko": "삽입"
@@ -2606,9 +2453,6 @@
   "auto.components.settings.RepositorySourceControlAiHostedReviewDefaults.d32b87e754": {
     "ko": "가능한 경우 리뷰 템플릿 사용"
   },
-  "auto.components.settings.RuntimePairingUrlGenerator.b91e36a986": {
-    "ko": "웹"
-  },
   "auto.components.settings.Settings.2309068a6f": {
     "ko": "파괴적"
   },
@@ -2630,14 +2474,8 @@
   "auto.components.settings.Settings.9b83cc62c2": {
     "ko": "terminal에서 실행되는 개발자 도구의 macOS 개인정보 보호 접근 권한입니다."
   },
-  "auto.components.settings.Settings.b5ee17826b": {
-    "ko": "지속 세션, 더 풍부한 원격 상태, 웹 또는 모바일 핸드오프를 위해 원격 Orca 런타임을 페어링합니다."
-  },
   "auto.components.settings.Settings.b79b5b31e9": {
     "ko": "셸, 렌더러, 세션, terminal 동작."
-  },
-  "auto.components.settings.Settings.c2ee313198": {
-    "ko": "SSH를 통해 기존 머신의 파일, terminals, Git, 워크스페이스를 사용합니다."
   },
   "auto.components.settings.SettingsFormControls.c822571b2e": {
     "ko": " \"{{value0}}\"과(와) 일치"
@@ -2686,42 +2524,6 @@
   },
   "auto.components.settings.SparsePresetSettingsSection.fde7ff2cc3": {
     "ko": "packages/web shared/ui"
-  },
-  "auto.components.settings.SshPane.025e107643": {
-    "ko": "원격 terminal을 종료하지 못했습니다."
-  },
-  "auto.components.settings.SshPane.90e308c98b": {
-    "ko": "원격 terminal 종료됨"
-  },
-  "auto.components.settings.SshPassphraseDialog.405066423c": {
-    "ko": "잠금 해제"
-  },
-  "auto.components.settings.SshTargetCard.c77f1abfe3": {
-    "ko": "원격 terminals 종료 중"
-  },
-  "auto.components.settings.SshTargetDestructiveActions.26be00392d": {
-    "ko": "이 SSH 대상의 원격 릴레이를 강제로 중지합니다. 이 대상의 활성 원격 terminals과 포트 포워딩이 종료됩니다."
-  },
-  "auto.components.settings.SshTargetForm.137e88ce8d": {
-    "ko": "Orca가 이 호스트에서 연결 해제된 뒤에도 원격 터미널은 계속 실행됩니다."
-  },
-  "auto.components.settings.SshTargetForm.2ee9bcd2e8": {
-    "ko": "server, deploy@server:2222, ssh://server"
-  },
-  "auto.components.settings.SshTargetForm.47e082bc17": {
-    "ko": "deploy"
-  },
-  "auto.components.settings.SshTargetForm.63c0c145c1": {
-    "ko": "개인 키 파일"
-  },
-  "auto.components.settings.SshTargetForm.cb91f6375c": {
-    "ko": "선택 사항. 기본적으로 SSH agent가 사용됩니다."
-  },
-  "auto.components.settings.SshTargetForm.d6a5f2ee5c": {
-    "ko": "~/.ssh/id_ed25519(SSH agent를 사용하려면 비워 두세요)"
-  },
-  "auto.components.settings.SshTargetForm.f42d844544": {
-    "ko": "예: cloudflared access ssh --hostname %h"
   },
   "auto.components.settings.TasksPane.6b23a34f6d": {
     "ko": "Jira"
@@ -3035,9 +2837,6 @@
   "auto.components.settings.appearance.search.43cfba3b95": {
     "ko": "서버"
   },
-  "auto.components.settings.appearance.search.57fb424c56": {
-    "ko": "원격 호스트"
-  },
   "auto.components.settings.appearance.search.6cf5f54ce1": {
     "ko": "버튼"
   },
@@ -3064,12 +2863,6 @@
   },
   "auto.components.settings.appearance.search.e5bc35d59e": {
     "ko": "창"
-  },
-  "auto.components.settings.appearance.search.f17d66d0d2": {
-    "ko": "상태 표시줄에 원격 호스트 연결 상태를 표시합니다."
-  },
-  "auto.components.settings.appearance.search.fe192b060e": {
-    "ko": "호스트"
   },
   "auto.components.settings.auto.rename.branch.search.7adefcdd94": {
     "ko": "템플릿"
@@ -3136,30 +2929,6 @@
   },
   "auto.components.settings.browser.use.search.d5afa54d21": {
     "ko": "Edge 프로필"
-  },
-  "auto.components.settings.cli.source.control.integration.cards.2e44dda68a": {
-    "ko": "GitHub CLI가 설치되어 있지만 인증되지 않았습니다. terminal에서 다음 명령을 실행하세요."
-  },
-  "auto.components.settings.cli.source.control.integration.cards.4be0616873": {
-    "ko": "GitLab CLI가 설치되어 있지만 인증되지 않았습니다. terminal에서 다음 명령을 실행하세요."
-  },
-  "auto.components.settings.cli.source.control.integration.cards.54a640af7a": {
-    "ko": "GitLab CLI 설치"
-  },
-  "auto.components.settings.cli.source.control.integration.cards.6f30fc4216": {
-    "ko": "이 런타임에서는 아직 GitHub CLI 상태를 사용할 수 없습니다."
-  },
-  "auto.components.settings.cli.source.control.integration.cards.7755c28af5": {
-    "ko": "GitHub CLI 설치"
-  },
-  "auto.components.settings.cli.source.control.integration.cards.8cbc39f862": {
-    "ko": "자세히 알아보기"
-  },
-  "auto.components.settings.cli.source.control.integration.cards.account_scope_prefix": {
-    "ko": "계정 범위"
-  },
-  "auto.components.settings.cli.source.control.integration.cards.faddeb763d": {
-    "ko": "이 런타임에서는 아직 GitLab CLI 상태를 사용할 수 없습니다."
   },
   "auto.components.settings.commit.message.ai.search.37c65bbb44": {
     "ko": "수정"
@@ -3271,9 +3040,6 @@
   },
   "auto.components.settings.general.search.2f42852568": {
     "ko": "트리"
-  },
-  "auto.components.settings.general.search.36a72f0d9e": {
-    "ko": "GitHub에서 Orca에 스타 주기"
   },
   "auto.components.settings.general.search.3a73054565": {
     "ko": "우회"
@@ -3446,51 +3212,6 @@
   "auto.components.settings.mobile.emulator.search.ea1f51b980": {
     "ko": "Xcode, simctl, serve-sim 및 에뮬레이터 장치가 준비되었는지 확인하세요."
   },
-  "auto.components.settings.mobile.pane.search.16bff559a0": {
-    "ko": "tailnet"
-  },
-  "auto.components.settings.mobile.pane.search.1f70d63998": {
-    "ko": "IP"
-  },
-  "auto.components.settings.mobile.pane.search.2128a21096": {
-    "ko": "스캔"
-  },
-  "auto.components.settings.mobile.pane.search.3a5e31e84b": {
-    "ko": "나가기"
-  },
-  "auto.components.settings.mobile.pane.search.4a0c826f3d": {
-    "ko": "코드"
-  },
-  "auto.components.settings.mobile.pane.search.5e8fda4d7f": {
-    "ko": "페어링됨"
-  },
-  "auto.components.settings.mobile.pane.search.70f505f3c3": {
-    "ko": "LAN"
-  },
-  "auto.components.settings.mobile.pane.search.7b37c2e557": {
-    "ko": "네트워크"
-  },
-  "auto.components.settings.mobile.pane.search.8015fd9523": {
-    "ko": "유지"
-  },
-  "auto.components.settings.mobile.pane.search.d0c89bc4a9": {
-    "ko": "오버레이"
-  },
-  "auto.components.settings.mobile.pane.search.e518cbd61c": {
-    "ko": "페어링"
-  },
-  "auto.components.settings.mobile.pane.search.fadcbfdd99": {
-    "ko": "맞춤"
-  },
-  "auto.components.settings.mobile.settings.search.0b7e585cb9": {
-    "ko": "스캔"
-  },
-  "auto.components.settings.mobile.settings.search.59b1d75fd1": {
-    "ko": "코드"
-  },
-  "auto.components.settings.mobile.settings.search.cf2c93b479": {
-    "ko": "페어링"
-  },
   "auto.components.settings.notifications.search.3014ad1b8f": {
     "ko": "딩"
   },
@@ -3605,24 +3326,6 @@
   "auto.components.settings.repository.search.projectRuntimeDescription": {
     "ko": "이 프로젝트를 Windows에서 실행할지 WSL에서 실행할지 선택합니다."
   },
-  "auto.components.settings.runtime.environments.search.09568ccc65": {
-    "ko": "서버"
-  },
-  "auto.components.settings.runtime.environments.search.104f4d7dbd": {
-    "ko": "페어링"
-  },
-  "auto.components.settings.runtime.environments.search.45501ff2c3": {
-    "ko": "클라우드"
-  },
-  "auto.components.settings.runtime.environments.search.c6e5a03aa0": {
-    "ko": "개발 박스"
-  },
-  "auto.components.settings.runtime.environments.search.d198440ce3": {
-    "ko": "런타임"
-  },
-  "auto.components.settings.runtime.environments.search.d760866285": {
-    "ko": "클라이언트"
-  },
   "auto.components.settings.settingOwnership.agentLaunchDefaults": {
     "ko": "기본 agent, 명령 재정의, CLI 인수, 실행 환경은 클라이언트 환경설정입니다. SSH 및 원격 서버 실행은 실행 시점에 여전히 호스트 사용 가능 여부를 확인합니다."
   },
@@ -3673,18 +3376,6 @@
   },
   "auto.components.settings.shortcuts.search.f1adebbe8c": {
     "ko": "셸"
-  },
-  "auto.components.settings.ssh.search.09395490af": {
-    "ko": "대상"
-  },
-  "auto.components.settings.ssh.search.8cb870b109": {
-    "ko": "테스트"
-  },
-  "auto.components.settings.ssh.search.8fb1cc87cc": {
-    "ko": "호스트"
-  },
-  "auto.components.settings.ssh.search.f9493b80c0": {
-    "ko": "서버"
   },
   "auto.components.settings.source.control.action.recipe.options.commitMessage": {
     "ko": "스테이징된 변경 사항에서 commit 메시지를 생성합니다."
@@ -3742,9 +3433,6 @@
   },
   "auto.components.settings.task.tracker.integration.cards.fe9231215b": {
     "ko": "설정 작업을 표시하기 전에 Linear 액세스를 확인하는 중입니다."
-  },
-  "auto.components.settings.tasks.search.3d81c26d78": {
-    "ko": "소스"
   },
   "auto.components.settings.terminal.clipboard.search.2061d8db1a": {
     "ko": "neovim"
@@ -4058,9 +3746,6 @@
   "auto.components.settings.useWarpThemeImport.unknown_error": {
     "ko": "알 수 없는 오류"
   },
-  "auto.components.settings.voice.pane.search.04c25a6fb0": {
-    "ko": "openai"
-  },
   "auto.components.settings.voice.pane.search.064a9bd94a": {
     "ko": "길게 누르기"
   },
@@ -4075,9 +3760,6 @@
   },
   "auto.components.settings.voice.pane.search.e360027a65": {
     "ko": "마이크"
-  },
-  "auto.components.settings.voice.pane.search.f6e0dfa61c": {
-    "ko": "클라우드"
   },
   "auto.components.setup.guide.SetupGuideProgressRing.dac3a4724a": {
     "ko": "설정 단계 {{value1}}개 중 {{value0}}개 완료"
@@ -4100,12 +3782,6 @@
   "auto.components.sidebar.AddRepoCreateStep.11fd2a7db8": {
     "ko": "Git 리포지토리"
   },
-  "auto.components.sidebar.AddRepoCreateStep.ssh_parent_manual": {
-    "ko": "SSH 상위 경로를 입력하세요."
-  },
-  "auto.components.sidebar.AddRepoHostSelector.host": {
-    "ko": "호스트"
-  },
   "auto.components.sidebar.AddRepoNestedImportStep.220dd32d83": {
     "ko": "스캔 중..."
   },
@@ -4114,18 +3790,6 @@
   },
   "auto.components.sidebar.AddRepoNestedImportStep.e907ec8935": {
     "ko": "모노 repo 이름이란?"
-  },
-  "auto.components.sidebar.AddRepoRemoteStep.35831a7312": {
-    "ko": "추가 중..."
-  },
-  "auto.components.sidebar.AddRepoRemoteStep.80557be85a": {
-    "ko": "연결된 SSH 대상을 선택하고 Git 리포지토리 경로를 입력하세요."
-  },
-  "auto.components.sidebar.AddRepoRemoteStep.lockedDescription": {
-    "ko": "{{value0}}의 Git 리포지토리 경로를 입력하세요."
-  },
-  "auto.components.sidebar.AddRepoRemoteStep.lockedDisconnected": {
-    "ko": "{{value0}} 연결이 끊어졌습니다."
   },
   "auto.components.sidebar.AddRepoServerStartStep.3d0c035483": {
     "ko": "호스트 프로젝트 열기"
@@ -4150,27 +3814,6 @@
   },
   "auto.components.sidebar.DeleteWorktreeWarningPanels.c4f96a6e18": {
     "ko": "메인 워크트리"
-  },
-  "auto.components.sidebar.HostRemoveDialog.1a2b3c4d5e": {
-    "ko": "{{value0}} 제거됨"
-  },
-  "auto.components.sidebar.HostRemoveDialog.2b3c4d5e6f": {
-    "ko": "호스트를 제거하지 못했습니다."
-  },
-  "auto.components.sidebar.HostRemoveDialog.3c4d5e6f7a": {
-    "ko": "{{value0}}을(를) 제거할까요?"
-  },
-  "auto.components.sidebar.HostRemoveDialog.4d5e6f7a8b": {
-    "ko": "이 작업은 이 서버를 제거할 수 있는 Orca 서버 설정을 엽니다."
-  },
-  "auto.components.sidebar.HostRemoveDialog.5e6f7a8b9c": {
-    "ko": "이 컴퓨터에서 저장된 SSH 호스트와 인증 정보를 제거합니다. 원격 파일은 삭제되지 않습니다."
-  },
-  "auto.components.sidebar.HostRemoveDialog.7a8b9c0d1e": {
-    "ko": "설정 열기"
-  },
-  "auto.components.sidebar.HostRemoveDialog.8b9c0d1e2f": {
-    "ko": "호스트 제거"
   },
   "auto.components.sidebar.HostRenameDialog.1a2b3c4d5e": {
     "ko": "호스트 이름 바꾸기"
@@ -4199,14 +3842,8 @@
   "auto.components.sidebar.HostSectionHeaderMenu.5b8b4b6a01": {
     "ko": "서버 업데이트 필요"
   },
-  "auto.components.sidebar.HostSectionHeaderMenu.63f36455cc": {
-    "ko": "다시 연결"
-  },
   "auto.components.sidebar.HostSectionHeaderMenu.6b7c8d9e10": {
     "ko": "호스트 작업"
-  },
-  "auto.components.sidebar.HostSectionHeaderMenu.6e7f8a9b0c": {
-    "ko": "호스트 제거…"
   },
   "auto.components.sidebar.HostSectionHeaderMenu.7f1a2b3c4d": {
     "ko": "{{value0}}에 연결할 수 있습니다."
@@ -4216,9 +3853,6 @@
   },
   "auto.components.sidebar.HostSectionHeaderMenu.9b3c1d2e44": {
     "ko": "클라이언트 업데이트 필요"
-  },
-  "auto.components.sidebar.HostSectionHeaderMenu.bf07aee59e": {
-    "ko": "연결 해제 실패"
   },
   "auto.components.sidebar.ImportedWorktreesVisibilityLine.2251d41ebb": {
     "ko": "숨겨진 워크트리 그룹"
@@ -4231,9 +3865,6 @@
   },
   "auto.components.sidebar.ImportedWorktreesVisibilityLine.f54f2bec5d": {
     "ko": "{{value1}}의 숨겨진 워크트리 {{value0}}개"
-  },
-  "auto.components.sidebar.NonGitFolderDialog.c49fb13492": {
-    "ko": "이 호스트에 폴더를 추가하지 못했습니다."
   },
   "auto.components.sidebar.OrcaYamlTrustDialog.43b7bec4cd": {
     "ko": "실행 안 함"
@@ -4250,9 +3881,6 @@
   "auto.components.sidebar.ProjectOrderManualDefaultNotice.e8c1f4a2b9": {
     "ko": "워크스페이스 옵션에서."
   },
-  "auto.components.sidebar.RemoteFileBrowser.971d85cc84": {
-    "ko": "이 호스트에서 프로젝트로 열립니다 · {{value0}}"
-  },
   "auto.components.sidebar.RemoveFolderDialog.e62415c3d0": {
     "ko": "다음 항목만 제거합니다"
   },
@@ -4262,9 +3890,6 @@
   "auto.components.sidebar.SetupScriptPromptCardViews.bb879db364": {
     "ko": "이 repo는 공유를 무시합니다"
   },
-  "auto.components.sidebar.SidebarFeedbackDialog.3460258a54": {
-    "ko": "X에서 팔로우"
-  },
   "auto.components.sidebar.SidebarHostScopeStrip.backToAll": {
     "ko": "모든 호스트"
   },
@@ -4273,9 +3898,6 @@
   },
   "auto.components.sidebar.SidebarSettingsHelpMenu.2991a0106c": {
     "ko": "도움말"
-  },
-  "auto.components.sidebar.SidebarWorkspaceOptionsMenu.631b97eea9": {
-    "ko": "호스트 범위"
   },
   "auto.components.sidebar.SidebarWorkspaceOptionsMenu.activeRuntimeHost": {
     "ko": "활성 서버"
@@ -4385,15 +4007,6 @@
   "auto.components.sidebar.add.repo.local.start.actions.runtimeBrowseDescription": {
     "ko": "이 호스트의 기존 Git 리포지토리 또는 폴더"
   },
-  "auto.components.sidebar.add.repo.local.start.actions.sshBrowseDescription": {
-    "ko": "이 SSH 호스트의 기존 Git 리포지토리 또는 폴더"
-  },
-  "auto.components.sidebar.add.repo.local.start.actions.sshBrowseTitle": {
-    "ko": "SSH 호스트에서 프로젝트 열기"
-  },
-  "auto.components.sidebar.add.repo.local.start.actions.sshCreateUnavailable": {
-    "ko": "아직 SSH 호스트에서는 사용할 수 없습니다."
-  },
   "auto.components.sidebar.index.b826a98b6f": {
     "ko": "사용 중"
   },
@@ -4462,30 +4075,6 @@
   },
   "auto.components.sparse.SparseCheckoutPresetSelect.ddbcaef7be": {
     "ko": "src/renderer packages/ui"
-  },
-  "auto.components.star.nag.StarNagToastHost.body": {
-    "ko": "Orca가 마음에 드신다면 GitHub 별표가 다른 개발자가 Orca를 발견하는 데 도움이 됩니다."
-  },
-  "auto.components.star.nag.StarNagToastHost.githubOpened": {
-    "ko": "GitHub 열림"
-  },
-  "auto.components.star.nag.StarNagToastHost.onboardingCompleted": {
-    "ko": "온보딩 완료!"
-  },
-  "auto.components.star.nag.StarNagToastHost.openGithub": {
-    "ko": "GitHub 열기"
-  },
-  "auto.components.star.nag.StarNagToastHost.opening": {
-    "ko": "여는 중…"
-  },
-  "auto.components.star.nag.StarNagToastHost.starOnGithub": {
-    "ko": "GitHub에서 별표 누르기"
-  },
-  "auto.components.star.nag.StarNagToastHost.starredThanks": {
-    "ko": "별표를 눌러주셔서 감사합니다!"
-  },
-  "auto.components.star.nag.StarNagToastHost.starring": {
-    "ko": "별표 누르는 중…"
   },
   "auto.components.stats.ClaudeUsagePane.cfe2282ffa": {
     "ko": "알 수 없음"
@@ -4594,66 +4183,6 @@
   },
   "auto.components.status.bar.ResourceUsageStatusSegment.0f9e50eb07": {
     "ko": "기타"
-  },
-  "auto.components.status.bar.SshStatusSegment.3ad70e0365": {
-    "ko": "원격 호스트 관리…"
-  },
-  "auto.components.status.bar.SshStatusSegment.6e8a9a4242": {
-    "ko": "원격 호스트"
-  },
-  "auto.components.status.bar.SshStatusSegment.d09ec41831": {
-    "ko": "원격 호스트"
-  },
-  "auto.components.status.bar.SshStatusSegment.fdc57e9970": {
-    "ko": "원격 호스트 연결 상태"
-  },
-  "auto.components.status.bar.SshStatusSegment.remote_server": {
-    "ko": "원격 서버"
-  },
-  "auto.components.status.bar.SshStatusSegment.runtime_connect_unavailable": {
-    "ko": "원격 호스트에 연결할 수 없습니다."
-  },
-  "auto.components.status.bar.SshStatusSegment.runtime_disconnect_failed": {
-    "ko": "연결 해제 실패"
-  },
-  "auto.components.status.bar.SshStatusSegment.runtime_last_close_reason": {
-    "ko": "닫힘: {{value0}}"
-  },
-  "auto.components.status.bar.SshStatusSegment.runtime_reconnect_attempt": {
-    "ko": "{{value0}}번째 시도"
-  },
-  "auto.components.status.bar.SshStatusSegment.runtime_reconnecting": {
-    "ko": "다시 연결 중"
-  },
-  "auto.components.status.bar.SshStatusSegment.runtime_unavailable": {
-    "ko": "연결 끊김"
-  },
-  "auto.components.status.bar.SshTargetStatusRow.sshHost": {
-    "ko": "SSH 호스트"
-  },
-  "auto.components.status.bar.StatusBar.24ac89df1a": {
-    "ko": "원격 호스트"
-  },
-  "auto.components.status.bar.StatusBar.25d8bbde69": {
-    "ko": "재설정 사용 중…"
-  },
-  "auto.components.status.bar.StatusBar.5e5f9f5160": {
-    "ko": "rate-limit 재설정 1회 사용 가능"
-  },
-  "auto.components.status.bar.StatusBar.5ecae9197c": {
-    "ko": "rate-limit 재설정 {{value0}}회 사용 가능"
-  },
-  "auto.components.status.bar.StatusBar.6d1042aa6f": {
-    "ko": "활성 계정의 Codex rate-limit 재설정 크레딧 1회를 사용해 재설정 가능한 사용량 창을 즉시 초기화합니다."
-  },
-  "auto.components.status.bar.StatusBar.972a1ff497": {
-    "ko": "Codex 한도를 재설정할까요?"
-  },
-  "auto.components.status.bar.StatusBar.e159fc1fd7": {
-    "ko": "지금 재설정"
-  },
-  "auto.components.status.bar.StatusBar.f077f586db": {
-    "ko": "다시 묻지 않기"
   },
   "auto.components.status.bar.WorkspaceSpaceCompactPanel.0582df6d2e": {
     "ko": "스캔"
@@ -4943,14 +4472,8 @@
   "auto.hooks.useComposerState.3db83fc58a": {
     "ko": "이 호스트에 첨부 파일에 사용할 수 있는 프로젝트 경로가 없습니다."
   },
-  "auto.hooks.useSettingsNavigationMetadata.31e57d1c70": {
-    "ko": "SSH를 통해 기존 머신의 파일, terminals, Git, 워크스페이스를 사용합니다."
-  },
   "auto.hooks.useSettingsNavigationMetadata.3d65d3f1b9": {
     "ko": "Orca 및 코딩 agents의 모바일 에뮬레이터 지원을 구성합니다."
-  },
-  "auto.hooks.useSettingsNavigationMetadata.40d80bad8a": {
-    "ko": "베타"
   },
   "auto.hooks.useSettingsNavigationMetadata.7682607591": {
     "ko": "agent 및 terminal 이벤트에 대한 네이티브 데스크톱 알림입니다."
@@ -5006,9 +4529,6 @@
   "auto.store.slices.worktrees.fa9299a66f": {
     "ko": "새 워크트리는 최신이지만 로컬 {{value0}}은(는) {{value1}} {{value2}} 뒤처져 있습니다. AI diff가 최근 commits을 놓칠 수 있습니다."
   },
-  "auto.web.WebConnect.4a4c017be1": {
-    "ko": "엔드포인트:"
-  },
   "components.native-chat.approval.allow": {
     "ko": "허용"
   },
@@ -5017,9 +4537,6 @@
   },
   "settings.appearance.statusBar.resourceUsageToggleDescription": {
     "ko": "리소스 관리자를 표시합니다. 클릭하면 CPU, 메모리, 세션, 데몬 제어, 워크스페이스 디스크 스캔을 볼 수 있습니다."
-  },
-  "settings.appearance.statusBar.sshToggleDescription": {
-    "ko": "사용 가능한 SSH 및 원격 Orca 호스트가 있으면 표시합니다."
   },
   "auto.components.right.sidebar.AiVaultPanelControls.selectAllAgents": {
     "ko": "모두 선택"

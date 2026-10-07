@@ -61,14 +61,12 @@ describe('empty store updates', () => {
     expect(listener).not.toHaveBeenCalled()
   })
 
-  it('does not notify for absent Jira issues, browser pages or diff comments', () => {
+  it('does not notify for absent browser pages or diff comments', () => {
     const store = createTestStore()
     const before = store.getState()
     const listener = vi.fn()
     store.subscribe(listener)
 
-    before.patchJiraIssue('MISSING-1', {})
-    before.patchLinearIssue('missing', {})
     before.switchBrowserTabProfile('missing', null, 'persist:missing')
     before.recordClientHostedBrowserCloseIntents([])
     before.clearClientHostedBrowserCloseIntents('missing', [])

@@ -8,7 +8,6 @@ import {
   resolveOwnedClaudeManagedAuthPath,
   writeClaudeManagedAuthFile
 } from '../managed-auth-path'
-import { isOauthTokenExpiring, refreshClaudeOauthCredentials } from '../oauth-refresh'
 import {
   readManagedClaudeKeychainCredentials,
   writeManagedClaudeKeychainCredentials
@@ -46,34 +45,6 @@ export class ClaudeRuntimeAuthManagedCredentials extends ClaudeRuntimeAuthCreden
       return
     }
     writeClaudeManagedAuthFile(managedAuthPath, '.credentials.json', credentialsJson)
-  }
-
-  /**
-   * Proactively refresh an account's OAuth token and persist the rotation to
-   * managed storage. Returns the refreshed credentials JSON, or null when no
-   * refresh happened (token valid, no refresh token, or network failure).
-   *
-   * Caller guarantees this account isn't the live/active one and runs inside the
-   * serialized mutation queue, so the single-use refresh token can't rotate concurrently.
-   */
-  protected async refreshManagedAccountTokenIfNeeded(
-    account: ClaudeManagedAccount,
-    credentialsJson: string
-  ): Promise<string | null> {
-    if (!isOauthTokenExpiring(credentialsJson)) {
-      return null
-    }
-    const refreshed = await refreshClaudeOauthCredentials(credentialsJson)
-    if (!refreshed || !this.isValidCredentialsJsonObject(refreshed)) {
-      return null
-    }
-    try {
-      await this.writeManagedCredentials(account, refreshed)
-    } catch (error) {
-      console.warn('[claude-runtime-auth] Failed to persist refreshed Claude token:', error)
-      return null
-    }
-    return refreshed
   }
 
   protected async readManagedOauthAccount(account: ClaudeManagedAccount): Promise<unknown> {

@@ -1,15 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type * as AgentStatusModule from '@/lib/agent-status'
-import { getDefaultSettings } from '../../../../shared/constants'
-import { createCompatibleRuntimeStatusResponseIfNeeded } from '../../runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
-import {
-  createTestStore,
-  makeRuntimeOwnedWorktree,
-  makeTab,
-  makeWorktree,
-  seedStore
-} from './store-test-helpers'
+import { createTestStore, makeTab, makeWorktree, seedStore } from './store-test-helpers'
 import { shutdownBufferCaptures } from '@/components/terminal-pane/shutdown-buffer-captures'
 import {
   applySleepRuntimeRpcDefault,
@@ -44,7 +35,6 @@ const mockApi = createStoreCascadesMockApi()
 describe('shutdownWorktreeTerminals (sleep) — agent status hygiene', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    clearRuntimeCompatibilityCacheForTests()
     mockApi.pty.kill.mockResolvedValue(undefined)
     mockUnregisterPtyDataHandlers.mockReturnValue([])
     applySleepRuntimeRpcDefault(mockApi)
@@ -418,107 +408,6 @@ describe('shutdownWorktreeTerminals (sleep) — agent status hygiene', () => {
     expect(mockRestorePtyDataHandlersAfterFailedShutdown).toHaveBeenCalledWith(handlerSnapshots)
   })
 
-  it('uses target-only runtime stop for automatic pane hibernation', async () => {
-    const store = createTestStore()
-    const wt = 'repo1::/path/wt1'
-    const targetLeaf = '11111111-1111-4111-8111-111111111111'
-    const siblingLeaf = '22222222-2222-4222-8222-222222222222'
-    const targetPaneKey = `tab-1:${targetLeaf}`
-
-    mockApi.runtimeEnvironments.call.mockImplementation((args: { method: string }) =>
-      Promise.resolve(
-        createCompatibleRuntimeStatusResponseIfNeeded(args) ?? {
-          id: 'rpc-default',
-          ok: true,
-          result:
-            args.method === 'terminal.stopExact'
-              ? {
-                  stoppedPtyIds: ['terminal-1'],
-                  livePtyIds: ['terminal-1', 'terminal-2'],
-                  postStopVerified: true,
-                  remainingLivePtyIds: ['terminal-2']
-                }
-              : {},
-          _meta: { runtimeId: 'remote-runtime' }
-        }
-      )
-    )
-    seedStore(store, {
-      settings: { ...getDefaultSettings('/tmp'), activeRuntimeEnvironmentId: 'runtime-1' },
-      worktreesByRepo: {
-        repo1: [makeRuntimeOwnedWorktree({ id: wt, repoId: 'repo1', path: '/path/wt1' })]
-      },
-      tabsByWorktree: {
-        [wt]: [makeTab({ id: 'tab-1', worktreeId: wt, title: 'Codex' })]
-      },
-      terminalLayoutsByTabId: {
-        'tab-1': {
-          root: {
-            type: 'split',
-            direction: 'horizontal',
-            first: { type: 'leaf', leafId: targetLeaf },
-            second: { type: 'leaf', leafId: siblingLeaf }
-          },
-          activeLeafId: siblingLeaf,
-          expandedLeafId: null,
-          ptyIdsByLeafId: {
-            [targetLeaf]: 'remote:env-1@@terminal-1',
-            [siblingLeaf]: 'remote:env-1@@terminal-2'
-          }
-        }
-      },
-      ptyIdsByTabId: {
-        'tab-1': ['remote:env-1@@terminal-1', 'remote:env-1@@terminal-2', 'terminal-1']
-      }
-    })
-    store
-      .getState()
-      .setAgentStatus(
-        targetPaneKey,
-        { state: 'done', prompt: 'resume target', agentType: 'codex' },
-        'Codex',
-        { updatedAt: 2000, stateStartedAt: 1000 },
-        { tabId: 'tab-1', worktreeId: wt },
-        { providerSession: { key: 'session_id', id: 'target-session' } }
-      )
-
-    await store.getState().shutdownCompletedAgentPaneForHibernation(wt, {
-      paneKey: targetPaneKey,
-      tabId: 'tab-1',
-      leafId: targetLeaf,
-      ptyId: 'remote:env-1@@terminal-1',
-      expectedRuntimePtyId: 'terminal-1'
-    })
-
-    expect(mockApi.runtimeEnvironments.call).toHaveBeenCalledWith(
-      expect.objectContaining({
-        selector: 'runtime-1',
-        method: 'terminal.stopExact',
-        params: expect.objectContaining({
-          expectedPtyIds: ['terminal-1'],
-          keepHistory: true,
-          targetOnly: true
-        })
-      })
-    )
-    expect(mockApi.runtimeEnvironments.call).not.toHaveBeenCalledWith(
-      expect.objectContaining({ method: 'terminal.stop' })
-    )
-    expect(mockApi.runtimeEnvironments.call).not.toHaveBeenCalledWith(
-      expect.objectContaining({ method: 'terminal.sleep' })
-    )
-    expect(store.getState().ptyIdsByTabId['tab-1']).toEqual([
-      'remote:env-1@@terminal-2',
-      'terminal-1'
-    ])
-    expect(mockUnregisterPtyDataHandlers).toHaveBeenCalledWith(['remote:env-1@@terminal-1'])
-    expect(mockUnregisterPtyDataHandlers).not.toHaveBeenCalledWith(['terminal-1'])
-    expect(store.getState().suppressedPtyExitIds['remote:env-1@@terminal-1']).toBe(true)
-    expect(store.getState().suppressedPtyExitIds['remote:runtime-1@@terminal-1']).toBeUndefined()
-    expect(store.getState().suppressedPtyExitIds['terminal-1']).toBeUndefined()
-    expect(mockApi.pty.kill).not.toHaveBeenCalled()
-  })
-
   it('clears stale relay wake hints when pane hibernation leaves no live PTYs in the tab', async () => {
     const store = createTestStore()
     const wt = 'repo1::/path/wt1'
@@ -631,95 +520,5 @@ describe('shutdownWorktreeTerminals (sleep) — agent status hygiene', () => {
     expect(store.getState().agentStatusByPaneKey[targetPaneKey]).toBeUndefined()
     expect(store.getState().retainedAgentsByPaneKey[targetPaneKey]).toBeUndefined()
     expect(store.getState().retentionSuppressedPaneKeys[targetPaneKey]).toBe(true)
-  })
-
-  it('rolls back target suppressions when target-only runtime stop fails', async () => {
-    const store = createTestStore()
-    const wt = 'repo1::/path/wt1'
-    const targetLeaf = '11111111-1111-4111-8111-111111111111'
-    const siblingLeaf = '22222222-2222-4222-8222-222222222222'
-    const targetPaneKey = `tab-1:${targetLeaf}`
-
-    mockApi.runtimeEnvironments.call.mockImplementation((args: { method: string }) =>
-      Promise.resolve(
-        createCompatibleRuntimeStatusResponseIfNeeded(args) ?? {
-          id: 'rpc-default',
-          ok: true,
-          result:
-            args.method === 'terminal.stopExact'
-              ? {
-                  stoppedPtyIds: ['terminal-1'],
-                  livePtyIds: ['terminal-1', 'terminal-2'],
-                  postStopVerified: false,
-                  postStopFailure: 'target_still_live'
-                }
-              : {},
-          _meta: { runtimeId: 'remote-runtime' }
-        }
-      )
-    )
-    seedStore(store, {
-      settings: { ...getDefaultSettings('/tmp'), activeRuntimeEnvironmentId: 'runtime-1' },
-      worktreesByRepo: {
-        repo1: [makeRuntimeOwnedWorktree({ id: wt, repoId: 'repo1', path: '/path/wt1' })]
-      },
-      tabsByWorktree: {
-        [wt]: [makeTab({ id: 'tab-1', worktreeId: wt, title: 'Codex' })]
-      },
-      terminalLayoutsByTabId: {
-        'tab-1': {
-          root: {
-            type: 'split',
-            direction: 'horizontal',
-            first: { type: 'leaf', leafId: targetLeaf },
-            second: { type: 'leaf', leafId: siblingLeaf }
-          },
-          activeLeafId: siblingLeaf,
-          expandedLeafId: null,
-          ptyIdsByLeafId: {
-            [targetLeaf]: 'remote:env-1@@terminal-1',
-            [siblingLeaf]: 'remote:env-1@@terminal-2'
-          }
-        }
-      },
-      ptyIdsByTabId: {
-        'tab-1': ['remote:env-1@@terminal-1', 'remote:env-1@@terminal-2']
-      }
-    })
-    store
-      .getState()
-      .setAgentStatus(
-        targetPaneKey,
-        { state: 'done', prompt: 'resume target', agentType: 'codex' },
-        'Codex',
-        { updatedAt: 2000, stateStartedAt: 1000 },
-        { tabId: 'tab-1', worktreeId: wt },
-        { providerSession: { key: 'session_id', id: 'target-session' } }
-      )
-
-    await expect(
-      store.getState().shutdownCompletedAgentPaneForHibernation(wt, {
-        paneKey: targetPaneKey,
-        tabId: 'tab-1',
-        leafId: targetLeaf,
-        ptyId: 'remote:env-1@@terminal-1',
-        expectedRuntimePtyId: 'terminal-1'
-      })
-    ).rejects.toThrow('target_still_live')
-
-    const state = store.getState()
-    expect(state.ptyIdsByTabId['tab-1']).toEqual([
-      'remote:env-1@@terminal-1',
-      'remote:env-1@@terminal-2'
-    ])
-    expect(state.suppressedPtyExitIds['remote:env-1@@terminal-1']).toBeUndefined()
-    expect(state.suppressedPtyExitIds['terminal-1']).toBeUndefined()
-    // Why: done resumable agent keeps its origin:'live' anchor (#9454); a failed target-only stop rolls back to it, not undefined, and never commits worktree-sleep.
-    expect(state.sleepingAgentSessionsByPaneKey[targetPaneKey]).toMatchObject({
-      origin: 'live',
-      agent: 'codex',
-      providerSession: { key: 'session_id', id: 'target-session' }
-    })
-    expect(state.agentStatusByPaneKey[targetPaneKey]).toBeDefined()
   })
 })

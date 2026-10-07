@@ -15,17 +15,12 @@ import { getCanonicalUserDataPath } from '../persistence'
 import { createProfileStateStoreForStartup } from '../persistence/profile-state/profile-state-startup-authority'
 import { initializeBrowserClientHostId } from '../browser/browser-client-host-id'
 import { scheduleSecretProtectionGapReport } from '../host/deferred-secret-protection-report'
-import { initSshHostKeyStoreFile } from '../ssh/ssh-host-key-store'
 import { neutralizeLegacyTerminalShimDir } from '../pty/legacy-terminal-shim-dir'
 import { createWindowsShellPathHydration } from './windows-shell-path-hydration'
-import {
-  configureWindowsHostGitEnvironmentReadiness,
-  setDefaultWslDistroOverride
-} from '../git/runner'
+import { configureWindowsHostGitEnvironmentReadiness } from '../git/runner'
 import { wslHookRelayManager } from '../agent-hooks/wsl-hook-relay-manager'
 import {
   attachClaudeLivePtyPersistence,
-  onLiveClaudePtysDrained,
   seedLiveClaudePtysFromPersistence
 } from '../claude-accounts/live-pty-gate'
 import { applyAppIcon } from '../app-icon'
@@ -180,10 +175,6 @@ export async function initializeReadyFoundation(): Promise<void> {
     deferUntilFirstWindow: !state.isServeMode,
     skipInDevelopment: is.dev
   })
-  // Why here: the host key store is a sidecar of the same profile, and every SSH connect consults
-  // it. Left unbound it reports nothing trusted, which is safe but silently discards our own
-  // accept records on every launch.
-  initSshHostKeyStoreFile(profile.dataFile)
   // Why: must precede PTY handler registration and run in headless serve too, which returns before openMainWindow.
   neutralizeLegacyTerminalShimDir(app.getPath('userData'))
   const windowsShellPathHydration = createWindowsShellPathHydration()
@@ -213,8 +204,6 @@ export async function initializeReadyFoundation(): Promise<void> {
     store.getSettings().electronHttp1CompatibilityMode === true,
     profile.profile.id
   )
-  // Why: apply initial fallback WSL distro from store settings for global git/CLI calls.
-  setDefaultWslDistroOverride(store.getSettings().terminalWindowsWslDistro ?? null)
   store.onSettingsChanged((updates, settings) => {
     if ('electronHttp1CompatibilityMode' in updates) {
       writeHttp1CompatibilityMarker(
@@ -222,10 +211,6 @@ export async function initializeReadyFoundation(): Promise<void> {
         settings.electronHttp1CompatibilityMode === true,
         profile.profile.id
       )
-    }
-    if ('terminalWindowsWslDistro' in updates) {
-      // Why: synchronize fallback WSL distro updates to runner.
-      setDefaultWslDistroOverride(settings.terminalWindowsWslDistro ?? null)
     }
     if (
       ('terminalWindowsShell' in updates || 'terminalWindowsPowerShellImplementation' in updates) &&
@@ -260,12 +245,6 @@ export async function initializeReadyFoundation(): Promise<void> {
   })
   // Why: run before ClaudeRuntimeAuthService's constructor sync — a surviving daemon Claude CLI holds the single-use refresh token; early refresh rotates it out mid-session.
   attachClaudeLivePtyPersistence(store)
-  // Why: while a live claude defers the managed OAuth refresh, usage shows
-  // "Waiting for Claude session"; refetch when the last live PTY exits so the
-  // error clears immediately instead of after the failure backoff.
-  onLiveClaudePtysDrained(() => {
-    void state.rateLimits?.refreshAfterClaudeLivePtysDrained()
-  })
   const persistedClaudePtyIds = store.getClaudeLivePtySessionIds()
   seedLiveClaudePtysFromPersistence(persistedClaudePtyIds)
   if (persistedClaudePtyIds.length > 0) {

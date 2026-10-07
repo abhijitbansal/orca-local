@@ -8,7 +8,7 @@ export function inlineImageProducer(): string {
   }
   const encoded = PNG.sync.write(png).toString('base64')
   const payload =
-    `\x1bcSSH / REMOTE INLINE IMAGE PROOF\r\n\r\n` +
+    `\x1bcINLINE IMAGE PROOF\r\n\r\n` +
     `iTerm2: red\r\n` +
     `\x1b]1337;File=inline=1;width=120px;height=36px:${encoded}\x07` +
     `\r\n\r\nSIXEL: green\r\n` +

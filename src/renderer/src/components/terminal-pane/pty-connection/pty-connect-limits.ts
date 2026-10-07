@@ -11,7 +11,7 @@ const SSH_PTY_IDENTITY_MISMATCH_ERROR = 'SSH_PTY_IDENTITY_MISMATCH'
  *
  * The mismatch suffix is excluded because it means the opposite: the relay found a LIVE PTY under
  * that id owned by another pane, and says nothing about this pane's process. Respawning there puts
- * a second agent on one transcript (docs/reference/ssh-execution-boundary.md). Main already refuses
+ * a second agent on one transcript (AGENTS.md). Main already refuses
  * to respawn on it — `isPtyAlreadyGoneError` takes the class, not the message — so a bare substring
  * test here silently disagreed with the gate one process over.
  */

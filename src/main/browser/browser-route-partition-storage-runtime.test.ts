@@ -7,14 +7,10 @@ import {
 const mocks = vi.hoisted(() => ({
   bindings: new Map<string, { fingerprint: string; storageScope: string | null }>(),
   cleared: [] as string[],
-  removedDirectories: [] as string[],
-  environments: [{ id: 'env-1' }]
+  removedDirectories: new Array<string>()
 }))
 
 vi.mock('electron', () => ({ app: { getPath: () => '/tmp/orca-test-user-data' } }))
-vi.mock('../../shared/runtime-environment-store', () => ({
-  listEnvironments: () => mocks.environments
-}))
 vi.mock('./browser-route-partition-binding-runtime', () => ({
   activeBrowserRoutePartitionOrcaProfileId: () => 'local-default'
 }))
@@ -82,11 +78,11 @@ beforeEach(() => {
 })
 
 describe('route partition storage runtime with local SSH scopes', () => {
-  it('keeps partitions of listed targets and sweeps only removed-target scopes', async () => {
+  it('keeps partitions of listed targets and sweeps removed-target and paired-server scopes', async () => {
     const cleared = await collectOrphanedBrowserRoutePartitionStorage(() => ['target-live'])
-    expect(cleared).toEqual([REMOVED_TARGET_PARTITION])
+    expect(cleared).toEqual([ENV_PARTITION, REMOVED_TARGET_PARTITION])
     expect(mocks.bindings.has(LIVE_TARGET_PARTITION)).toBe(true)
-    expect(mocks.bindings.has(ENV_PARTITION)).toBe(true)
+    expect(mocks.bindings.has(ENV_PARTITION)).toBe(false)
   })
 
   it('skips the sweep entirely when no target list is available', async () => {
@@ -116,7 +112,7 @@ describe('route partition storage runtime with local SSH scopes', () => {
     )
     try {
       const swept = await collectOrphanedBrowserRoutePartitionStorage(() => ['target-live'])
-      expect(swept).toEqual([])
+      expect(swept).toEqual([ENV_PARTITION])
       const cleared = await clearBrowserRoutePartitionStorageForLocalSshTarget('target-removed')
       expect(cleared.clearedPartitions).toEqual([])
       expect(cleared.livePartitions).toEqual([REMOVED_TARGET_PARTITION])

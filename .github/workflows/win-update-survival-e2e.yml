@@ -86,7 +86,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: dist/orca-windows-setup.exe
-          key: branch-installer-${{ inputs.trace_installer && format('trace-{0}-', hashFiles('tests/tools/win-update-e2e/trace-installer-branches.mjs')) || '' }}${{ hashFiles('src/**', 'config/**', 'native/**', 'resources/**', 'mobile/**', 'patches/**', 'package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml') }}
+          key: branch-installer-${{ inputs.trace_installer && format('trace-{0}-', hashFiles('tests/tools/win-update-e2e/trace-installer-branches.mjs')) || '' }}${{ hashFiles('src/**', 'config/**', 'native/**', 'resources/**', 'patches/**', 'package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml') }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -94,12 +94,6 @@ jobs:
       - name: Instrument disposable installer and uninstaller
         if: inputs.trace_installer && steps.cache-installer.outputs.cache-hit != 'true'
         run: node tests/tools/win-update-e2e/trace-installer-branches.mjs
-
-      # Why here: electron-builder's beforePack requires out/mobile-web, and the bundle
-      # build resolves React Native and Expo from mobile/node_modules. Gated with the
-      # build it feeds, so a cache hit does not pay for an install nothing consumes.
-      - uses: ./.github/actions/install-mobile-dependencies
-        if: steps.cache-installer.outputs.cache-hit != 'true'
 
       - name: Build Windows installer (unsigned)
         if: steps.cache-installer.outputs.cache-hit != 'true'

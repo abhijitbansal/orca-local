@@ -39,10 +39,7 @@ function makeOnboardingState(): OnboardingState {
   }
 }
 
-function setApi(api: {
-  onboarding: { update: ReturnType<typeof vi.fn> }
-  starNag: { onboardingCompleted: ReturnType<typeof vi.fn> }
-}): void {
+function setApi(api: { onboarding: { update: ReturnType<typeof vi.fn> } }): void {
   ;(window as unknown as { api: typeof api }).api = api
 }
 
@@ -75,8 +72,7 @@ describe('onboarding flow persistence', () => {
     vi.useFakeTimers()
     trackMock.mockClear()
     setApi({
-      onboarding: { update: vi.fn().mockResolvedValue(makeOnboardingState()) },
-      starNag: { onboardingCompleted: vi.fn().mockResolvedValue(undefined) }
+      onboarding: { update: vi.fn().mockResolvedValue(makeOnboardingState()) }
     })
   })
 
@@ -138,29 +134,19 @@ describe('onboarding flow persistence', () => {
     })
   })
 
-  it('schedules the star toast after every completed close path', async () => {
+  it('tracks onboarding_completed when a completed close names its path', async () => {
     let closeWith: CloseWithCallback | null = null
     ;({ root, container } = renderCloseWithProbe((callback) => {
       closeWith = callback
     }))
 
     await act(async () => {
-      await closeWith?.('completed', 5)
+      await closeWith?.('completed', 5, 'add_project_modal')
     })
 
-    const api = (
-      window as unknown as {
-        api: {
-          starNag: { onboardingCompleted: ReturnType<typeof vi.fn> }
-        }
-      }
-    ).api
-    expect(api.starNag.onboardingCompleted).not.toHaveBeenCalled()
-
-    act(() => {
-      vi.advanceTimersByTime(0)
-    })
-
-    expect(api.starNag.onboardingCompleted).toHaveBeenCalledTimes(1)
+    expect(trackMock).toHaveBeenCalledWith(
+      'onboarding_completed',
+      expect.objectContaining({ path: 'add_project_modal' })
+    )
   })
 })

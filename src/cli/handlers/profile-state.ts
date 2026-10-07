@@ -1,6 +1,5 @@
 import type { CommandHandler } from '../dispatch'
 import { printResult } from '../format'
-import { rejectRemoteSelectionFlags } from '../remote-selection-flag-rejection'
 import {
   getDefaultUserDataPath,
   RuntimeClientError,
@@ -60,13 +59,6 @@ function formatRollback(result: ProfileStateRollbackResult): string {
   ].join('\n')
 }
 
-function rejectProfileStateRemoteSelection(flags: ReadonlyMap<string, string | boolean>): void {
-  rejectRemoteSelectionFlags(
-    flags,
-    "profile-state recovery; it operates on this machine's active profile."
-  )
-}
-
 async function requireStoppedRuntime(client: RuntimeClient): Promise<void> {
   const status = await client.getCliStatus()
   if (status.result.runtime.reachable || status.result.app.running) {
@@ -93,13 +85,11 @@ function parseRevision(flags: Map<string, string | boolean>): number {
 }
 
 export const PROFILE_STATE_HANDLERS: Record<string, CommandHandler> = {
-  'profile state exports': async ({ flags, json }) => {
-    rejectProfileStateRemoteSelection(flags)
+  'profile state exports': async ({ json }) => {
     const result = translateRecoveryError(() => getProfileStateExports(getDefaultUserDataPath()))
     printResult(localSuccess(result), json, formatExports)
   },
   'profile state rollback': async ({ client, flags, json }) => {
-    rejectProfileStateRemoteSelection(flags)
     const selector = parseSelector(flags)
     const userDataPath = getDefaultUserDataPath()
     let result: ProfileStateRollbackResult

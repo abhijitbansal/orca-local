@@ -1,7 +1,6 @@
 // @ts-nocheck -- mechanically split declarations.
 import type { FileReadLimits, IFilesystemProvider } from '../providers/types'
 import type { RuntimeFilePreviewResult } from '../../shared/runtime-types'
-import { FileReadCapExceededError } from '../ssh/ssh-filesystem-stream-reader'
 import {
   REMOTE_RPC_MAX_CONTENT_BYTES,
   remoteRpcResultExceedsContentBudget
@@ -48,14 +47,7 @@ export async function readPreviewFileWithinCap(
   filePath: string,
   limits: FileReadLimits
 ): Promise<RuntimeFilePreviewResult> {
-  try {
-    return await provider.readFile(filePath, limits)
-  } catch (error) {
-    if (error instanceof FileReadCapExceededError) {
-      throw new Error('file_too_large')
-    }
-    throw error
-  }
+  return provider.readFile(filePath, limits)
 }
 
 export function assertPreviewWithinTransportBudget(

@@ -205,7 +205,7 @@ describe('useTerminalTabColdParking measure-clock contract', () => {
     expect(result.current).toEqual(new Set(['tab-1']))
   })
 
-  it('parks paired-runtime tabs only when their exact host advertises restore', () => {
+  it('never parks paired-runtime tabs because this build cannot pair with a host', () => {
     const environmentId = 'paired-env'
     const remoteArgs = {
       ...hookArgs(false),
@@ -214,67 +214,16 @@ describe('useTerminalTabColdParking measure-clock contract', () => {
         { ...terminalTab('tab-2'), ptyId: `remote:${environmentId}@@term-2` }
       ]
     }
-    for (const [advertisedEnvironmentId, expected] of [
-      [environmentId, new Set(['tab-2'])],
-      ['other-env', new Set()]
-    ] as const) {
-      mocks.storeState.runtimeStatusByEnvironmentId = new Map([
-        [advertisedEnvironmentId, { status: { capabilities: ['terminal.paired-parking.v1'] } }]
-      ])
-      const { result, unmount } = renderHook(() => useTerminalTabColdParking(remoteArgs))
-
-      act(() => {
-        vi.advanceTimersByTime(TERMINAL_TAB_HOT_RETAIN_MS + 1)
-      })
-
-      expect(result.current).toEqual(expected)
-      unmount()
-    }
-  })
-
-  it('skips parking scans for capability-equivalent status writes and scans membership changes', () => {
-    const args = hookArgs(false)
     mocks.storeState.runtimeStatusByEnvironmentId = new Map([
-      ['runtime-a', { status: { capabilities: ['terminal.multiplex.v1'], runtimeId: 'peer-a' } }]
+      [environmentId, { status: { capabilities: ['terminal.paired-parking.v1'] } }]
     ])
-    const { rerender } = renderHook(
-      (props: ReturnType<typeof hookArgs>) => useTerminalTabColdParking(props),
-      { initialProps: args }
-    )
-    const initialSelectCalls = mocks.coldParkSelectCalls
+    const { result } = renderHook(() => useTerminalTabColdParking(remoteArgs))
 
-    mocks.storeState.runtimeStatusByEnvironmentId = new Map([
-      [
-        'runtime-a',
-        {
-          status: {
-            capabilities: ['terminal.multiplex.v1'],
-            runtimeId: 'peer-a-reconnected',
-            appVersion: '1.5.0'
-          }
-        }
-      ]
-    ])
     act(() => {
-      rerender(args)
+      vi.advanceTimersByTime(TERMINAL_TAB_HOT_RETAIN_MS + 1)
     })
-    expect(mocks.coldParkSelectCalls).toBe(initialSelectCalls)
 
-    mocks.storeState.runtimeStatusByEnvironmentId = new Map([
-      [
-        'runtime-a',
-        {
-          status: {
-            capabilities: ['terminal.multiplex.v1', 'terminal.paired-parking.v1'],
-            runtimeId: 'peer-a-reconnected'
-          }
-        }
-      ]
-    ])
-    act(() => {
-      rerender(args)
-    })
-    expect(mocks.coldParkSelectCalls).toBe(initialSelectCalls + 1)
+    expect(result.current).toEqual(new Set())
   })
 
   // Why: the flip-damping pin removes the tab from the parked set, and every

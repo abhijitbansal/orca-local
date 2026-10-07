@@ -1,78 +1,37 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
+import { isLocalOnlyUnsupportedError } from '../../shared/local-only-unsupported-error'
+import type { SshGitProvider } from './ssh-git-provider'
 import {
-  _getSshGitProviderGenerationCacheSize,
   getSshGitProvider,
   getSshGitProviderGeneration,
   registerSshGitProvider,
   requireSshGitProvider,
-  SSH_GIT_PROVIDER_UNAVAILABLE_MESSAGE,
   unregisterSshGitProvider
 } from './ssh-git-dispatch'
-import { clearSshPlainSshMode, setSshPlainSshMode } from '../ssh/ssh-plain-ssh-mode'
 
-describe('SSH Git provider registry', () => {
-  const connectionId = 'ssh-generation-test'
-
-  afterEach(() => {
-    unregisterSshGitProvider(connectionId)
+describe('ssh-git-dispatch (local-only stub)', () => {
+  it('never resolves a provider for any connection id', () => {
+    expect(getSshGitProvider('target-1')).toBeUndefined()
+    expect(getSshGitProviderGeneration('target-1')).toBe(0)
   })
 
-  it('names the plain SSH reason instead of a dropped connection when git is relay-only', () => {
-    expect(() => requireSshGitProvider(connectionId)).toThrow(SSH_GIT_PROVIDER_UNAVAILABLE_MESSAGE)
-    setSshPlainSshMode(connectionId, { reason: 'no_runtime', message: 'm' })
+  it('fails closed on require', () => {
+    expect(() => requireSshGitProvider('target-1')).toThrow(
+      expect.objectContaining({ code: 'unsupported_in_local_only_build', capability: 'ssh' })
+    )
+  })
+
+  it('refuses registration so no producer can reintroduce SSH git', () => {
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the stub never dereferences the provider; this only proves registration is refused.
+    const provider = {} as SshGitProvider
+    let caught: unknown
     try {
-      expect(() => requireSshGitProvider(connectionId)).toThrow(
-        'Git needs the Orca remote server, which is not running on this host (no_runtime).'
-      )
-    } finally {
-      clearSshPlainSshMode(connectionId)
+      registerSshGitProvider('target-1', provider)
+    } catch (error) {
+      caught = error
     }
-  })
-
-  it('keeps provider generations monotonic across unregister and re-register', () => {
-    const before = getSshGitProviderGeneration(connectionId)
-    registerSshGitProvider(connectionId, {} as never)
-    const registered = getSshGitProviderGeneration(connectionId)
-    unregisterSshGitProvider(connectionId)
-    const unregistered = getSshGitProviderGeneration(connectionId)
-    registerSshGitProvider(connectionId, {} as never)
-    const reRegistered = getSshGitProviderGeneration(connectionId)
-
-    expect(registered).toBe(before + 1)
-    expect(unregistered).toBe(registered + 1)
-    expect(reRegistered).toBe(unregistered + 1)
-  })
-
-  it('bounds retired connection generations', () => {
-    registerSshGitProvider(connectionId, {} as never)
-    const provider = getSshGitProvider(connectionId)
-    if (!provider) {
-      throw new Error('test provider was not registered')
-    }
-    for (let index = 0; index < 600; index += 1) {
-      const id = `retired-${index}`
-      registerSshGitProvider(id, provider)
-      unregisterSshGitProvider(id)
-    }
-
-    expect(_getSshGitProviderGenerationCacheSize()).toBeLessThanOrEqual(512)
-  })
-
-  it('does not reuse a generation after the target leaves both bounded maps', () => {
-    registerSshGitProvider(connectionId, {} as never)
-    const provider = getSshGitProvider(connectionId)
-    if (!provider) {
-      throw new Error('test provider was not registered')
-    }
-    const beforeChurn = getSshGitProviderGeneration(connectionId)
-    for (let index = 0; index < 1_100; index += 1) {
-      const id = `churn-${index}`
-      registerSshGitProvider(id, provider)
-      unregisterSshGitProvider(id)
-    }
-    unregisterSshGitProvider(connectionId)
-    registerSshGitProvider(connectionId, {} as never)
-
-    expect(getSshGitProviderGeneration(connectionId)).toBeGreaterThan(beforeChurn)
+    expect(isLocalOnlyUnsupportedError(caught)).toBe(true)
+    expect(getSshGitProvider('target-1')).toBeUndefined()
+    expect(() => unregisterSshGitProvider('target-1')).not.toThrow()
   })
 })

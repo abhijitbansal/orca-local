@@ -11,14 +11,11 @@ type HostRuntimeEffectsInput = Pick<
   | 'ensureRemoteDetectedAgents'
   | 'ensureRuntimeDetectedAgents'
   | 'fallbackDefaultAgent'
-  | 'folderTargetConnectionId'
   | 'isRemote'
   | 'loadHookCheckForRepo'
   | 'newWorkspaceDraft'
   | 'repoId'
-  | 'repoIdRef'
   | 'runtimeEnvironmentId'
-  | 'selectedRepoConnectionIdRef'
   | 'selectedRepoExecutionHostId'
   | 'selectedRepoHookContextKey'
   | 'selectedRepoIsGit'
@@ -30,14 +27,10 @@ type HostRuntimeEffectsInput = Pick<
   | 'tuiAgent'
 >
 
-import { useEffect, useCallback } from 'react'
+import { useEffect } from 'react'
 import { filterEnabledTuiAgents, isTuiAgentEnabled } from '../../../../shared/tui-agent-selection'
 import { getAgentCatalog } from '@/lib/agent-catalog'
 import { readRuntimeIssueCommand } from '@/runtime/runtime-hooks-client'
-import { useAppStore } from '@/store'
-import { isSshConnectInProgress } from '@/lib/new-workspace-ssh-gate'
-import { toast } from 'sonner'
-import { translate } from '@/i18n/i18n'
 
 export function useHostRuntimeEffects(input: HostRuntimeEffectsInput) {
   const {
@@ -50,14 +43,11 @@ export function useHostRuntimeEffects(input: HostRuntimeEffectsInput) {
     ensureRemoteDetectedAgents,
     ensureRuntimeDetectedAgents,
     fallbackDefaultAgent,
-    folderTargetConnectionId,
     isRemote,
     loadHookCheckForRepo,
     newWorkspaceDraft,
     repoId,
-    repoIdRef,
     runtimeEnvironmentId,
-    selectedRepoConnectionIdRef,
     selectedRepoExecutionHostId,
     selectedRepoHookContextKey,
     selectedRepoIsGit,
@@ -183,56 +173,4 @@ export function useHostRuntimeEffects(input: HostRuntimeEffectsInput) {
     selectedRepoSettingsRef,
     setLoadedIssueCommand
   ])
-
-  const onConnectSelectedRepo = useCallback(async (): Promise<void> => {
-    const targetId = selectedRepoConnectionIdRef.current
-    if (!targetId) {
-      return
-    }
-    const liveState = useAppStore.getState()
-    const liveRepo = liveState.repos.find((repo) => repo.id === repoIdRef.current)
-    if (liveRepo?.connectionId !== targetId) {
-      return
-    }
-    const liveStatus = liveState.sshConnectionStates.get(targetId)?.status ?? null
-    if (liveStatus === 'connected' || isSshConnectInProgress(liveStatus)) {
-      return
-    }
-
-    try {
-      await window.api.ssh.connect({ targetId })
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : translate('auto.hooks.useComposerState.ba6cb77082', 'Failed to connect to project.')
-      )
-    }
-  }, [repoIdRef, selectedRepoConnectionIdRef])
-
-  const onConnectSelectedProjectGroup = useCallback(async (): Promise<void> => {
-    if (!folderTargetConnectionId) {
-      return
-    }
-    const liveStatus = useAppStore
-      .getState()
-      .sshConnectionStates.get(folderTargetConnectionId)?.status
-    if (liveStatus === 'connected' || isSshConnectInProgress(liveStatus ?? null)) {
-      return
-    }
-    try {
-      await window.api.ssh.connect({ targetId: folderTargetConnectionId })
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : translate('auto.hooks.useComposerState.ba6cb77082', 'Failed to connect to project.')
-      )
-    }
-  }, [folderTargetConnectionId])
-
-  return {
-    onConnectSelectedRepo,
-    onConnectSelectedProjectGroup
-  }
 }

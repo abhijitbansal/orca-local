@@ -3,7 +3,6 @@ import {
   activateWebRuntimeSessionWorktree,
   refreshWebRuntimeSessionTabsSnapshot
 } from './web-runtime-session'
-import { clearRuntimeCompatibilityCacheForTests } from './runtime-rpc-client'
 import {
   confirmWebAgentSessionHandoffAfterCreate,
   isWebAgentSessionHandoffPostCreateSnapshotConfirmed,
@@ -209,7 +208,6 @@ describe('activateWebRuntimeSessionWorktree', () => {
 
   afterEach(() => {
     vi.unstubAllGlobals()
-    clearRuntimeCompatibilityCacheForTests()
     vi.clearAllMocks()
   })
 

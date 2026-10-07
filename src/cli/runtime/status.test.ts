@@ -89,7 +89,7 @@ describe.skipIf(process.platform === 'win32')('CLI runtime status', () => {
 // Why: `kill(pid, 0)` answers EPERM when the pid exists under another uid — an Orca the
 // CLI was pointed at with ORCA_USER_DATA_PATH, or one started with sudo. Reading that
 // refusal as absence reports a live app as a dead one
-// (docs/reference/ssh-execution-boundary.md).
+// (AGENTS.md).
 describe.skipIf(process.platform === 'win32')('CLI status pid fallback', () => {
   async function statusWithUnreachableRuntime(
     killError: NodeJS.ErrnoException

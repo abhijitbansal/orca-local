@@ -11,7 +11,6 @@ const {
   previewGhosttyImportMock,
   previewWarpThemeImportMock,
   prepareLocalWorktreeRootsForReposMock,
-  resolveEnvironmentMock,
   rebuildAppMenuMock,
   applyBrowserSessionProxiesMock,
   applySessionSearchSettingsChangeMock,
@@ -26,7 +25,6 @@ const {
   previewGhosttyImportMock: vi.fn(),
   previewWarpThemeImportMock: vi.fn(),
   prepareLocalWorktreeRootsForReposMock: vi.fn(),
-  resolveEnvironmentMock: vi.fn(),
   rebuildAppMenuMock: vi.fn(),
   applyBrowserSessionProxiesMock: vi.fn(),
   applySessionSearchSettingsChangeMock: vi.fn(),
@@ -80,10 +78,6 @@ vi.mock('../menu/register-app-menu', () => ({
   rebuildAppMenu: rebuildAppMenuMock
 }))
 
-vi.mock('../../shared/runtime-environment-store', () => ({
-  resolveEnvironment: resolveEnvironmentMock
-}))
-
 import { registerSettingsHandlers } from './settings'
 
 const settingsInvokeEvent = { sender: { id: 1 } }
@@ -112,12 +106,6 @@ describe('registerSettingsHandlers', () => {
     previewGhosttyImportMock.mockClear()
     previewWarpThemeImportMock.mockClear()
     prepareLocalWorktreeRootsForReposMock.mockReset().mockResolvedValue(undefined)
-    resolveEnvironmentMock.mockReset().mockImplementation((_userDataPath, selector) => {
-      if (selector !== 'windows-2' && selector !== 'Windows 2') {
-        throw new Error('Runtime environment not found')
-      }
-      return { id: 'windows-2' }
-    })
     rebuildAppMenuMock.mockClear()
     applyBrowserSessionProxiesMock.mockReset().mockResolvedValue(undefined)
     applySessionSearchSettingsChangeMock.mockClear()
@@ -212,35 +200,6 @@ describe('registerSettingsHandlers', () => {
       {},
       expect.objectContaining({ originWebContentsId: 1 })
     )
-  })
-
-  it('persists Active Server only through the dedicated preference channel', () => {
-    store.updateSettings.mockReturnValue({ activeRuntimeEnvironmentId: 'windows-2' })
-    registerSettingsHandlers(store as never)
-    const handler = handleMock.mock.calls.find(
-      (call) => call[0] === 'settings:set-active-runtime-environment-preference'
-    )?.[1] as (event: typeof settingsInvokeEvent, args: { environmentId: string | null }) => unknown
-
-    expect(handler(settingsInvokeEvent, { environmentId: '  windows-2  ' })).toEqual({
-      activeRuntimeEnvironmentId: 'windows-2'
-    })
-    expect(store.updateSettings).toHaveBeenCalledWith(
-      { activeRuntimeEnvironmentId: 'windows-2' },
-      { notifyListeners: true, originWebContentsId: 1 }
-    )
-    handler(settingsInvokeEvent, { environmentId: 'Windows 2' })
-    expect(store.updateSettings).toHaveBeenLastCalledWith(
-      { activeRuntimeEnvironmentId: 'windows-2' },
-      { notifyListeners: true, originWebContentsId: 1 }
-    )
-
-    expect(() => handler(settingsInvokeEvent, { environmentId: 42 as never })).toThrow(
-      'Invalid Active Server preference'
-    )
-    expect(() => handler(settingsInvokeEvent, { environmentId: 'does-not-exist' })).toThrow(
-      'Runtime environment not found'
-    )
-    expect(store.updateSettings).toHaveBeenCalledTimes(2)
   })
 
   it('applies bot-author deltas against the authoritative settings snapshot', () => {

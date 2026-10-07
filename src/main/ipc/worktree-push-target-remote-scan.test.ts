@@ -4,7 +4,7 @@
 // across the remote shapes a real repo produces.
 
 import { describe, expect, it } from 'vitest'
-import { parseGitHubOwnerRepo } from '../github/gh-utils'
+import { parseGitHubOwnerRepo } from '../git/github-remote-identity-parsing'
 import { findRemoteForUrl } from './worktree-push-target-setup'
 import type { GitRemoteExec } from './worktree-push-target-cleanup'
 

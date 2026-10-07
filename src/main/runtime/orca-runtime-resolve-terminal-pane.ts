@@ -106,7 +106,7 @@ export class OrcaRuntimeWithResolveTerminalPane extends OrcaRuntimeWithGetTermin
     // check, and a relay restart makes every previously minted id unknown. No writer of
     // `exited` co-occurs with a reattachable `expired` lease either, since a host-delivered exit
     // frame tombstones the lease `terminated`. Demanding one would close this gate permanently, and
-    // an unrecoverable pane is its own failure (docs/reference/ssh-execution-boundary.md,
+    // an unrecoverable pane is its own failure (AGENTS.md,
     // shared/pty-liveness-verdict.ts).
     const liveness = this.getPtyLivenessVerdict(pty.ptyId)
     if (liveness?.status === 'unverifiable' || liveness?.status === 'live') {

@@ -19,7 +19,6 @@ import {
   type WorktreeMetaSavedPayload,
   type WorktreeMetaSnapshot
 } from './worktree-meta-updates'
-import { useWorktreeIssueLink } from './use-worktree-issue-link'
 import { useWorktreeMetaWorkspace } from './use-worktree-meta-workspace'
 import { WorktreeIssueLinkField } from './WorktreeIssueLinkField'
 import { getScreenSubmitShortcutLabel, isScreenSubmitShortcut } from '@/lib/screen-submit-shortcut'
@@ -33,7 +32,6 @@ import {
 } from '../../../../shared/issue-link-input'
 import { parseExecutionHostId } from '../../../../shared/execution-host'
 import { WorktreeDisplayNameField } from './WorktreeDisplayNameField'
-import { WorktreeReviewLinkField } from './WorktreeReviewLinkField'
 
 function resizeCommentTextarea(textarea: HTMLTextAreaElement): void {
   textarea.style.height = 'auto'
@@ -48,6 +46,9 @@ const EMPTY_SNAPSHOT: WorktreeMetaSnapshot = {
   issueProvider: 'github',
   prInput: ''
 }
+
+// Why: no issue lookup remains, so the field's open-issue affordance is never enabled.
+const NOOP_OPEN_ISSUE = async (): Promise<void> => {}
 
 const WorktreeMetaDialog = React.memo(function WorktreeMetaDialog() {
   const activeModal = useAppStore((s) => s.activeModal)
@@ -112,19 +113,8 @@ const WorktreeMetaDialog = React.memo(function WorktreeMetaDialog() {
   const [saveError, setSaveError] = useState<string | null>(null)
   const [snapshot, setSnapshot] = useState<WorktreeMetaSnapshot>(EMPTY_SNAPSHOT)
   const [dialogElement, setDialogElement] = useState<HTMLElement | null>(null)
-  const { canOpenIssue, openingIssue, openIssueFailed, handleOpenIssue, resetOpeningIssue } =
-    useWorktreeIssueLink({
-      worktreeId,
-      ownerRepoId,
-      issueInput,
-      issueProvider,
-      linearOrganizationUrlKey: worktree?.linkedLinearIssueOrganizationUrlKey ?? null,
-      linkedLinearIssue: worktree?.linkedLinearIssue ?? null,
-      linearSourceContext: worktree?.linkedTaskSourceContext ?? null
-    })
 
   const issueInputRef = useRef<HTMLInputElement>(null)
-  const reviewInputRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const prevIsOpenRef = useRef(false)
   const displayNameInputRef = useRef<HTMLInputElement>(null)
@@ -148,7 +138,6 @@ const WorktreeMetaDialog = React.memo(function WorktreeMetaDialog() {
       linkedLinearIssueOrganizationUrlKey: worktree?.linkedLinearIssueOrganizationUrlKey ?? null
     })
     setSaveError(null)
-    resetOpeningIssue()
   }
   prevIsOpenRef.current = isOpen
 
@@ -321,8 +310,6 @@ const WorktreeMetaDialog = React.memo(function WorktreeMetaDialog() {
             displayNameInputRef.current?.focus()
           } else if (focusField === 'issue') {
             issueInputRef.current?.focus()
-          } else if (focusField === 'pr') {
-            reviewInputRef.current?.focus()
           } else {
             textareaRef.current?.focus()
           }
@@ -336,15 +323,10 @@ const WorktreeMetaDialog = React.memo(function WorktreeMetaDialog() {
             )}
           </DialogTitle>
           <DialogDescription className="text-xs">
-            {reviewProvider === 'gitlab'
-              ? translate(
-                  'auto.components.sidebar.WorktreeMetaDialog.gitlabDescription',
-                  'Edit issue links, merge request links, and notes for this workspace.'
-                )
-              : translate(
-                  'auto.components.sidebar.WorktreeMetaDialog.a0d191b7a7',
-                  'Edit issue links, pull request links, and notes for this workspace.'
-                )}
+            {translate(
+              'auto.components.sidebar.WorktreeMetaDialog.issueLinksDescription',
+              'Edit the issue link and notes for this workspace.'
+            )}
           </DialogDescription>
         </DialogHeader>
 
@@ -365,21 +347,13 @@ const WorktreeMetaDialog = React.memo(function WorktreeMetaDialog() {
             isInvalid={issueInvalid}
             displacedLinkLabels={displacedLinkLabels}
             isReadOnly={isFolderWorkspace}
-            canOpenIssue={canOpenIssue}
-            openingIssue={openingIssue}
-            openIssueFailed={openIssueFailed}
+            canOpenIssue={false}
+            openingIssue={false}
+            openIssueFailed={false}
             onValueChange={handleIssueInputChange}
             onProviderChange={setIssueProvider}
-            onOpenIssue={handleOpenIssue}
+            onOpenIssue={NOOP_OPEN_ISSUE}
             onKeyDown={handleIssueKeyDown}
-          />
-
-          <WorktreeReviewLinkField
-            inputRef={reviewInputRef}
-            onKeyDown={handleIssueKeyDown}
-            onValueChange={setReviewInput}
-            provider={reviewProvider}
-            value={reviewInput}
           />
 
           <div className="space-y-1">

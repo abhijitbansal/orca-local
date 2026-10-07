@@ -44,14 +44,6 @@ vi.mock('../host-guest/webview-registry', () => ({
   destroyPersistentWebview: () => {}
 }))
 
-vi.mock('./ssh-routed-browser-page-gate', () => ({
-  SshRoutedBrowserPageGate: ({
-    children
-  }: {
-    children: (routedPartition: string | null) => React.ReactNode
-  }) => <>{children(null)}</>
-}))
-
 vi.mock('./BrowserMobileDriverOverlay', () => ({
   BrowserMobileDriverOverlay: () => null
 }))

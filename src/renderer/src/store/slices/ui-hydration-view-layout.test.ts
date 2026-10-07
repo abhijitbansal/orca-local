@@ -122,9 +122,25 @@ describe('createUISlice hydratePersistedUI', () => {
   it('restores the persisted active top-level view on hydration', () => {
     const store = createUIStore()
 
+    store.getState().hydratePersistedUI(makePersistedUI({ activeView: 'activity' }), 'startup')
+
+    expect(store.getState().activeView).toBe('activity')
+  })
+
+  it('falls back to terminal when the persisted active view is the removed Tasks page', () => {
+    const store = createUIStore()
+
     store.getState().hydratePersistedUI(makePersistedUI({ activeView: 'tasks' }), 'startup')
 
-    expect(store.getState().activeView).toBe('tasks')
+    expect(store.getState().activeView).toBe('terminal')
+  })
+
+  it('falls back to the project grouping when the persisted grouping needs PR data', () => {
+    const store = createUIStore()
+
+    store.getState().hydratePersistedUI(makePersistedUI({ groupBy: 'pr-status' }), 'startup')
+
+    expect(store.getState().groupBy).toBe('repo')
   })
 
   it('falls back to terminal when persisted active view is missing (older data)', () => {
@@ -175,21 +191,21 @@ describe('createUISlice hydratePersistedUI', () => {
     expect(store.getState().activeView).toBe('activity')
   })
 
-  it('restores a default-on view (mobile) even when its nav button is hidden', () => {
+  it('falls back to terminal when the persisted view is the removed upstream mobile view', () => {
     const store = createUIStore()
-    store.setState({
-      settings: { showMobileButton: false } as AppState['settings']
-    })
 
-    store.getState().hydratePersistedUI(makePersistedUI({ activeView: 'mobile' }), 'startup')
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: simulates a legacy upstream value that the current union no longer admits.
+    const legacyView = 'mobile' as unknown as PersistedUIState['activeView']
 
-    expect(store.getState().activeView).toBe('mobile')
+    store.getState().hydratePersistedUI(makePersistedUI({ activeView: legacyView }), 'startup')
+
+    expect(store.getState().activeView).toBe('terminal')
   })
 
   it('does not overwrite the current view on a later cross-window sync hydration', () => {
     const store = createUIStore()
-    store.getState().hydratePersistedUI(makePersistedUI({ activeView: 'tasks' }), 'startup')
-    expect(store.getState().activeView).toBe('tasks')
+    store.getState().hydratePersistedUI(makePersistedUI({ activeView: 'automations' }), 'startup')
+    expect(store.getState().activeView).toBe('automations')
 
     store
       .getState()
@@ -198,7 +214,7 @@ describe('createUISlice hydratePersistedUI', () => {
         'sync'
       )
 
-    expect(store.getState().activeView).toBe('tasks')
+    expect(store.getState().activeView).toBe('automations')
     expect(store.getState().rightSidebarOpen).toBe(false)
   })
 

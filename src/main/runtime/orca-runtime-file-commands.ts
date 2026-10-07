@@ -6,15 +6,6 @@ import { createRuntimeFileWatcherRemoval } from './runtime-file-watcher-removal'
 import { RuntimeGitCommands } from './orca-runtime-git'
 import type { GlobalSettings } from '../../shared/global-settings-types'
 import type { RuntimeTerminalAgentStatus } from '../../shared/runtime-types'
-import { RuntimeHostedReviewCommands } from './runtime-hosted-review-commands'
-import { RuntimeGitHubRepositoryQueryCommands } from './runtime-github-repository-query-commands'
-import { RuntimeGitLabQueryCommands } from './runtime-gitlab-query-commands'
-import { recordGitLabProjectRecent } from '../gitlab/gitlab-project-recents'
-import { RuntimeGitLabMutationCommands } from './runtime-gitlab-mutation-commands'
-import { RuntimeGitHubReviewQueryCommands } from './runtime-github-review-query-commands'
-import { RuntimeGitHubReviewMutationCommands } from './runtime-github-review-mutation-commands'
-import { RuntimeGitHubIssueCommentCommands } from './runtime-github-issue-comment-commands'
-import { RuntimeGitHubProjectCommands } from './runtime-github-project-commands'
 import { RuntimeRepositoryHooksCommands } from './runtime-repository-hooks-commands'
 import { RuntimeRepositoryIssueCommand } from './runtime-repository-issue-command'
 import { ClientHostedBrowserRowPublisher } from './client-hosted-browser-row-publication'
@@ -136,70 +127,6 @@ export class OrcaRuntimeWithFileCommands extends OrcaRuntimeWithPreservedBranchC
   // Why: probe dedupe shares one promise across callers, but each caller's
   // continuation would re-deliver the same unread rows; arm one per pty.
   protected readonly probeDeferredDeliveryPtyIds = new Set<string>()
-
-  protected readonly hostedReviews = new RuntimeHostedReviewCommands({
-    resolveRepo: (selector) => this.resolveRepoSelector(selector),
-    resolveTarget: (args) => this.resolveHostedReviewTarget(args),
-    getExecutionOptions: (repo, admissionTier) =>
-      this.getHostedReviewExecutionOptions(repo, admissionTier),
-    recordCreated: (repoId, number, url) => {
-      if (!this.stats || this.stats.hasCountedPR(url)) {
-        return
-      }
-      this.stats.record({
-        type: 'pr_created',
-        at: Date.now(),
-        repoId,
-        meta: { prNumber: number, prUrl: url }
-      })
-    }
-  })
-
-  protected readonly gitHubRepositoryQueries = new RuntimeGitHubRepositoryQueryCommands({
-    resolveRepo: (selector) => this.resolveRepoSelector(selector),
-    getLocalGitArgs: (repo) => this.getLocalGitExecutionOptionArgs(repo)
-  })
-
-  protected readonly gitLabQueryCommands = new RuntimeGitLabQueryCommands({
-    resolveRepo: (selector) => this.resolveRepoSelector(selector),
-    getLocalGitArgs: (repo) => this.getLocalGitExecutionOptionArgs(repo),
-    recordProjectRecent: (projectRef) => {
-      if (!this.store?.updateSettings) {
-        return
-      }
-      const store = this.store
-      recordGitLabProjectRecent(
-        {
-          getSettings: () => store.getSettings(),
-          updateSettings: (updates) => store.updateSettings?.(updates)
-        },
-        projectRef.host,
-        projectRef.path
-      )
-    }
-  })
-
-  protected readonly gitLabMutationCommands = new RuntimeGitLabMutationCommands({
-    resolveRepo: (selector) => this.resolveRepoSelector(selector),
-    getLocalGitArgs: (repo) => this.getLocalGitExecutionOptionArgs(repo)
-  })
-
-  protected readonly gitHubReviewQueries = new RuntimeGitHubReviewQueryCommands({
-    resolveRepo: (selector) => this.resolveRepoSelector(selector),
-    getLocalGitArgs: (repo) => this.getLocalGitExecutionOptionArgs(repo)
-  })
-
-  protected readonly gitHubReviewMutations = new RuntimeGitHubReviewMutationCommands({
-    resolveRepo: (selector) => this.resolveRepoSelector(selector),
-    getLocalGitArgs: (repo) => this.getLocalGitExecutionOptionArgs(repo)
-  })
-
-  protected readonly gitHubIssueComments = new RuntimeGitHubIssueCommentCommands({
-    resolveRepo: (selector) => this.resolveRepoSelector(selector),
-    getLocalGitArgs: (repo) => this.getLocalGitExecutionOptionArgs(repo)
-  })
-
-  protected readonly gitHubProjectCommands = new RuntimeGitHubProjectCommands()
 
   protected readonly repositoryHooks = new RuntimeRepositoryHooksCommands({
     resolveRepo: (selector) => this.resolveRepoSelector(selector)

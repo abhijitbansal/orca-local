@@ -220,7 +220,7 @@ export abstract class RelayDispatcherClientLifecycle extends RelayDispatcherClie
    * left every PTY it held paused — the shape behind the "SSH degrades until I cannot connect at
    * all" reports. Reaping is a statement about the TRANSPORT only: the cause stays the cautious
    * 'local' default because silence is not evidence the peer died, and the PTYs stay live for the
-   * replacement client to reclaim (docs/reference/ssh-execution-boundary.md).
+   * replacement client to reclaim (AGENTS.md).
    */
   private reapSilentClients(now: number): void {
     for (const client of Array.from(this.clients.values())) {
@@ -245,8 +245,8 @@ export abstract class RelayDispatcherClientLifecycle extends RelayDispatcherClie
         continue
       }
       // Why keepaliveObserved gates this: not every client speaks the keepalive protocol. The
-      // remote `orca` CLI sends one `orca.cli` request and waits for a result budgeted in minutes
-      // (src/relay/remote-cli-timeout.ts), so judging it on inbound silence would kill
+      // remote `orca` CLI sends one `orca.cli` request and waits for a result budgeted in minutes,
+      // so judging it on inbound silence would kill
       // `terminal wait`, `--wait` and `orchestration ask` after 20s.
       if (!client.keepaliveObserved || now - client.lastReceivedAt <= TIMEOUT_MS) {
         continue

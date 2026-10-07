@@ -6,7 +6,6 @@ import type { AiVaultSearchSettings } from '../../shared/ai-vault-search-setting
 import { installInProcessSessionSearchService } from './session-search-in-process-service'
 import {
   openSessionSearchIndexerHarness,
-  writeClaudeTranscript,
   type SessionSearchIndexerHarness
 } from './session-search-indexer-test-fixture'
 import { searchSessionService } from './session-search-service-registry'
@@ -154,33 +153,6 @@ it('disables immediately without root discovery', async () => {
     expect.objectContaining({ settings: settings.aiVaultSearch })
   )
   expect(localAiVaultScanRoots).not.toHaveBeenCalled()
-})
-
-it('orcad resolves no roots while disabled and discovers late roots when enabled', async () => {
-  const { installOrcadSessionSearchService } = await import('../orcad/orcad-session-search')
-  installed = await installOrcadSessionSearchService({
-    userDataPath: harness.root,
-    getSettings: () => ({ aiVaultSearch: { enabled: false, historyDays: null } })
-  })
-  expect(localAiVaultScanRoots).not.toHaveBeenCalled()
-  installed?.dispose()
-  installed = await installOrcadSessionSearchService({
-    userDataPath: harness.root,
-    getSettings: () => ({ aiVaultSearch: { enabled: true, historyDays: null } })
-  })
-  await searchSessionService({ query: 'latehostroot', freshness: 'wait-until-current' }, 'ipc')
-  const late = join(harness.root, 'late-claude')
-  const id = 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee'
-  await writeClaudeTranscript(join(late, 'project', `${id}.jsonl`), ['latehostroot'], id)
-  localAiVaultScanRoots.mockResolvedValue({ ...harness.roots, claudeProjectsDir: late })
-  const response = await searchSessionService(
-    { query: 'latehostroot', freshness: 'wait-until-current' },
-    'ipc'
-  )
-  expect(response.kind).toBe('results')
-  if (response.kind === 'results') {
-    expect(response.hits.map((hit) => hit.sessionId)).toEqual([id])
-  }
 })
 
 // A host with no scanner child has nothing to forward a policy to, so the installed

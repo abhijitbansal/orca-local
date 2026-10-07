@@ -69,7 +69,7 @@ export const TERMINAL_HANDLERS: Record<string, CommandHandler> = {
         includeVisualLayouts: !json || flags.has('include-visual-layouts')
       }
     )
-    await annotateOmittedHostScope(client, result.result)
+    annotateOmittedHostScope(result.result)
     printResult(result, json, formatTerminalList)
   },
   'terminal show': async ({ flags, client, cwd, json }) => {
@@ -148,15 +148,8 @@ export const TERMINAL_HANDLERS: Record<string, CommandHandler> = {
     printResult(result, json, formatTerminalRename)
   },
   'terminal create': async ({ flags, client, cwd, json }) => {
-    if (client.isRemote && !flags.has('worktree')) {
-      throw new RuntimeClientError(
-        'invalid_argument',
-        'Remote terminal create requires --worktree because the client cwd cannot identify a server worktree.'
-      )
-    }
     const command = getOptionalStringFlag(flags, 'command')
-    const useRendererBackedInteractiveTerminal =
-      !client.isRemote && shouldUseRendererBackedInteractiveTerminal(command)
+    const useRendererBackedInteractiveTerminal = shouldUseRendererBackedInteractiveTerminal(command)
     const focus = flags.get('focus') === true
     const shell = getOptionalStringFlag(flags, 'shell')
     if (shell !== undefined) {

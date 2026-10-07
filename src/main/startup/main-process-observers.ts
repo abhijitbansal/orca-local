@@ -55,7 +55,7 @@ export function initializeMainProcessObservers(): void {
     unsubscribeStatusFreshness()
     uninstallHookStatusRepublish()
   }
-  // Why: telemetry must init before any IPC handler/renderer can call track(); it's a no-op in dev and while TELEMETRY_ENABLED is false, so it's safe early.
+  // Why: telemetry must init before any IPC handler/renderer can call track(); without an AppEnvironment it is a no-op, so it's safe early.
   initTelemetry(store)
   const profileStateStartup = state.profileStateStartup
   if (profileStateStartup) {

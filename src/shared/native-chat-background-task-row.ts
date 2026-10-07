@@ -13,7 +13,7 @@ import {
 
 /** The only states a task can still leave. Everything else is an outcome,
  *  including `unverifiable`, which records that we stopped being able to see
- *  the task rather than what it did (docs/reference/ssh-execution-boundary.md).
+ *  the task rather than what it did (AGENTS.md).
  *  A state this build does not know reads as settled, never as in-flight: a row
  *  written by a newer build must not leave the transcript spinning forever. */
 const IN_FLIGHT_TASK_STATES: ReadonlySet<string> = new Set(['working', 'monitoring', 'waiting'])

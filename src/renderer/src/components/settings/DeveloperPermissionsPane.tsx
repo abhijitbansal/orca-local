@@ -20,7 +20,6 @@ import type {
 import { Button } from '../ui/button'
 import { translate } from '@/i18n/i18n'
 import { DeveloperPermissionActions } from './DeveloperPermissionActions'
-import { LocalNetworkConnectionTest } from './LocalNetworkConnectionTest'
 import {
   developerPermissionStatusClass,
   developerPermissionStatusLabel
@@ -376,7 +375,6 @@ export function DeveloperPermissionsPane({
                   onRequest={(id) => void request(id)}
                 />
               </div>
-              {permission.id === 'local-network' && <LocalNetworkConnectionTest />}
             </div>
           )
         })}

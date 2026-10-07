@@ -32,7 +32,7 @@ describe('real WSL terminal lane', () => {
   it.each([
     'docs/reference/wsl-command-execution.md',
     'src/main/wsl-availability.test.ts',
-    'src/main/ssh/connection.ts'
+    'src/main/providers/local-pty-provider.ts'
   ])('excludes unrelated or unit-only change %s', (path) => {
     expect(hasWslSourceChange([path])).toBe(false)
   })

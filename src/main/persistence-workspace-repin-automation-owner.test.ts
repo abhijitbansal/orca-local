@@ -1,19 +1,7 @@
-import {
-  closeTestStores,
-  createSqliteTestStore,
-  readPersistedStateJson,
-  writePersistedStateJson
-} from './persistence-test-harness'
+import { closeTestStores, createSqliteTestStore } from './persistence-test-harness'
 /**
- * A folder workspace can be re-pointed at another SSH host outside the automation
- * editor — the workspace's scope connection moves, and every record inside it
- * moves with it. The capture on those records names the registration they were
- * attached to, so it has to follow the pin or the record reads as a replaced
- * orphan on a host that was never replaced.
- *
- * Following is gated on positive evidence: a live registration carrying the
- * capture proves which pin it came from. Without that the capture stays put, so
- * a host removed and re-added under the same id still cannot re-adopt the record.
+ * A folder workspace that was pinned to an SSH host is stripped at load in a local-only build, so
+ * the automation records inside it can no longer follow a re-pin onto another registration.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
@@ -23,7 +11,6 @@ import type { FolderWorkspace } from '../shared/folder-workspace-types'
 import type { ProjectGroup } from '../shared/project-group-types'
 import type { Repo } from '../shared/repo-types'
 import type { SshTarget } from '../shared/ssh-types'
-import { AUTOMATION_ORPHAN_ISSUES } from '../shared/automation-list-scope'
 import { getDefaultPersistedState } from '../shared/constants'
 import { folderWorkspaceKey } from '../shared/workspace-scope'
 import { installFakeAppEnvironment } from '../../config/scripts/vitest-host-ports-setup'
@@ -149,17 +136,6 @@ async function loadStore(state: Record<string, unknown>) {
   return createSqliteTestStore(Store, { dataFile: join(testState.dir, 'orca-data.json') })
 }
 
-/** The workspace's execution host changes without any automation being edited. */
-function repinWorkspace(connectionId: string, sshTargets?: SshTarget[]): void {
-  const file = join(testState.dir, 'orca-data.json')
-  const state = JSON.parse(readPersistedStateJson(file))
-  state.folderWorkspaces = [folderWorkspace(connectionId)]
-  if (sshTargets) {
-    state.sshTargets = sshTargets
-  }
-  writePersistedStateJson(file, JSON.stringify(state))
-}
-
 beforeEach(() => {
   testState.dir = mkdtempSync(join(tmpdir(), 'orca-workspace-repin-'))
 })
@@ -170,58 +146,13 @@ afterEach(async () => {
   vi.resetModules()
 })
 
-describe('a workspace re-pinned outside the automation editor', () => {
-  it('owns its records on the pin it started on', async () => {
+describe('a workspace pinned to an SSH host in a local-only build', () => {
+  it('is stripped at load with its target, so its records never project onto a host', async () => {
     const store = await loadStore(initialState())
 
-    expect(store.listAutomationsForScope().items[0].selector).toEqual({
-      kind: 'ssh',
-      targetId: 'prod',
-      targetGeneration: PROD_GENERATION
-    })
-  })
-
-  it('moves the captured owner onto the registration it now names', async () => {
-    const store = await loadStore(initialState())
-    store.flush()
-    repinWorkspace('staging')
-
-    vi.resetModules()
-    installFakeAppEnvironment({ getPath: () => testState.dir })
-    const { Store, initDataPath } = await import('./persistence')
-    initDataPath()
-    const reloaded = createSqliteTestStore(Store, {
-      dataFile: join(testState.dir, 'orca-data.json')
-    })
-
-    expect(reloaded.listAutomations()[0].executionTargetGeneration).toBe(STAGING_GENERATION)
-    expect(reloaded.listAutomationsForScope().items[0].selector).toEqual({
-      kind: 'ssh',
-      targetId: 'staging',
-      targetGeneration: STAGING_GENERATION
-    })
-    expect(reloaded.automationCapturedHostIssue(reloaded.listAutomations()[0])).toBeNull()
-  })
-
-  // No live registration carries the capture, so nothing proves it came from the old pin
-  // rather than from this one before it was replaced. The record stays fenced.
-  it('keeps the record fenced when the pin it left is gone too', async () => {
-    const store = await loadStore(initialState())
-    store.flush()
-    repinWorkspace('staging', [target('staging', STAGING_GENERATION)])
-
-    vi.resetModules()
-    installFakeAppEnvironment({ getPath: () => testState.dir })
-    const { Store, initDataPath } = await import('./persistence')
-    initDataPath()
-    const reloaded = createSqliteTestStore(Store, {
-      dataFile: join(testState.dir, 'orca-data.json')
-    })
-
-    expect(reloaded.listAutomations()[0].executionTargetGeneration).toBe(PROD_GENERATION)
-    expect(reloaded.listAutomationsForScope().items[0].selector).toEqual({
-      kind: 'orphan',
-      issue: AUTOMATION_ORPHAN_ISSUES.targetReplaced
-    })
+    expect(store.getFolderWorkspace('fw-1')).toBeUndefined()
+    expect(store.getSshTargets()).toEqual([])
+    expect(store.listAutomations()).toHaveLength(1)
+    expect(store.listAutomationsForScope().items[0].selector.kind).not.toBe('ssh')
   })
 })

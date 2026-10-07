@@ -2,7 +2,6 @@ import { existsSync, globSync, readFileSync } from 'node:fs'
 import { parse } from 'yaml'
 import { describe, expect, it } from 'vitest'
 import { UNIT_EXCLUDE } from './ci-unit-files.mjs'
-import { MOBILE_WEB_APP_DEPENDENCIES_REQUIRED_ENV } from './mobile-web-app-bundle-dependencies.mjs'
 
 const workflow = parse(readFileSync('.github/workflows/pr.yml', 'utf8'))
 const prTestLocWorkflow = parse(readFileSync('.github/workflows/pr-test-loc.yml', 'utf8'))
@@ -25,7 +24,6 @@ const shellContractFiles = [
   'src/main/shell-startup-feature-channel.test.ts',
   'src/main/zsh-scoped-histfile.live-shell.test.ts',
   'src/main/zsh-startup-hook-user-config-equivalence.live-shell.test.ts',
-  'src/main/zsh-wrapper-version-mismatch.live-shell.test.ts',
   'src/main/runtime/structured-session-cli-login-shell.live-shell.test.ts',
   'src/shared/posix-command-path-lookup.test.ts'
 ]
@@ -93,14 +91,7 @@ describe('PR workflow parallelism', () => {
     expect(nodeNextWorkflow.jobs.test.with.runner).toBeUndefined()
     expect(nodeNextWorkflow.jobs.test_native_cache['runs-on']).toBe('ubuntu-latest')
     expect(nodeNextWorkflow.jobs.test_native_cache.strategy.matrix.node).toEqual(['24', '26'])
-    const relay = unitTestWorkflow.jobs.relay_integration
-    expect(relay.strategy.matrix.node).toBe('${{ fromJSON(inputs.node_versions) }}')
-    expect(relay['runs-on']).toBe('ubuntu-latest')
-    expect(
-      relay.steps.find((step) => step.uses === './.github/actions/install-node-dependencies').with[
-        'node-version'
-      ]
-    ).toBe('${{ matrix.node }}')
+    expect(unitTestWorkflow.jobs.relay_integration).toBeUndefined()
     expect(nodeNextWorkflow.on.schedule).toHaveLength(1)
     expect(nodeNextWorkflow.on.workflow_dispatch).toBeNull()
     expect(sharedTest.strategy.matrix.node).toBe('${{ fromJSON(inputs.node_versions) }}')
@@ -246,31 +237,6 @@ describe('PR workflow parallelism', () => {
 
     expect(buildStep.run).toContain('scripts=(build:relay build:electron-vite:parallel)')
     expect(buildStep.run).toContain('pnpm run "$script" &')
-    expect(
-      workflow.jobs.package.steps.find(
-        (step) => step.name === 'Project web client from renderer build'
-      ).run
-    ).toBe('pnpm run build:web-from-renderer')
-    expect(packageJson.scripts['build:desktop']).toContain('pnpm run build:web-from-renderer')
-    expect(packageJson.scripts['build:release']).toContain('pnpm run build:web-from-renderer')
-  })
-
-  it('smokes managed-hook companions under their supported Node 18 runtime', () => {
-    const steps = workflow.jobs.managed_hook_node18.steps
-    const installIndex = steps.findIndex(
-      (step) => step.uses === './.github/actions/install-node-dependencies'
-    )
-    const buildIndex = steps.findIndex((step) => step.run === 'pnpm run build:relay')
-    const node18Index = steps.findIndex(
-      (step) => step.uses === 'actions/setup-node@v6' && step.with['node-version'] === '18'
-    )
-    const smokeIndex = steps.findIndex(
-      (step) => step.run === 'node config/scripts/smoke-managed-hook-runtime-node18.mjs'
-    )
-
-    expect(installIndex).toBeLessThan(buildIndex)
-    expect(buildIndex).toBeLessThan(node18Index)
-    expect(node18Index).toBeLessThan(smokeIndex)
   })
 
   it('restores the pnpm store before dependency installation', () => {
@@ -524,39 +490,14 @@ describe('PR workflow parallelism', () => {
       'xterm_patch_sync',
       'shell_contracts',
       'test',
-      'orcad_browser',
-      'mobile_web_app',
       'cross-version-wire',
-      'managed_hook_node18',
       'package',
       'package_windows'
     ])
     const verifyStep = workflow.jobs.verify.steps.find(
       (step) => step.name === 'Require successful checks'
     )
-    expect(verifyStep.env.MANAGED_HOOK_NODE18).toBe('${{ needs.managed_hook_node18.result }}')
-    expect(verifyStep.run).toContain('"$MANAGED_HOOK_NODE18"')
-    // Why assert this one too: the browser provider test skips itself without
-    // ORCA_BROWSER_EXECUTABLE, so it only guards anything if verify actually reads it.
-    expect(verifyStep.env.ORCAD_BROWSER).toBe('${{ needs.orcad_browser.result }}')
-    expect(verifyStep.run).toContain('"$ORCAD_BROWSER"')
     expect(verifyStep.env.CROSS_VERSION_WIRE).toBe('${{ needs.cross-version-wire.result }}')
     expect(verifyStep.run).toContain('"$CROSS_VERSION_WIRE"')
-    // Same reason as the browser provider: the render check fails loudly on a runner with no
-    // Chrome, which only guards the page if verify reads the job's result.
-    expect(verifyStep.env.MOBILE_WEB_APP).toBe('${{ needs.mobile_web_app.result }}')
-    expect(verifyStep.run).toContain('"$MOBILE_WEB_APP"')
-  })
-
-  it('makes the mobile_web_app job refuse to skip the tests it exists to run', () => {
-    // The bundling tests skip themselves without mobile/node_modules, which is what keeps the
-    // sharded `test` job green. Only this env var stops that skip from spreading to the one job
-    // that installs them, so a typo here would leave the whole job passing vacuously.
-    const step = workflow.jobs.mobile_web_app.steps.find(
-      (entry) => entry.name === 'Builder, override census and render checks'
-    )
-    expect(step.run).toContain('node config/scripts/run-mobile-web-app-checks.mjs')
-    expect(step.run).not.toContain('--prepare-route-snapshot')
-    expect(step.env[MOBILE_WEB_APP_DEPENDENCIES_REQUIRED_ENV]).toBe('1')
   })
 })

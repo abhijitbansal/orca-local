@@ -7,10 +7,7 @@ import {
 } from '@/lib/pending-worktree-creation'
 import { createBrowserUuid } from '@/lib/browser-uuid'
 import { executeWorktreeCreation } from '@/lib/worktree-creation-flow-execute'
-import {
-  getInitialWorktreeCreationPhase,
-  getWorktreeCreationIndeterminate
-} from '@/lib/worktree-creation-flow-startup'
+import { getWorktreeCreationIndeterminate } from '@/lib/worktree-creation-flow-startup'
 import {
   formatWorkspaceCreateError,
   getWorkspaceCreateErrorToastMessage
@@ -84,7 +81,7 @@ export function runBackgroundWorktreeCreation(request: WorktreeCreationRequest):
   // Why: crypto.randomUUID is undefined in non-secure browser contexts (LAN web
   // client over plain HTTP). createBrowserUuid falls back to getRandomValues.
   const creationId = createBrowserUuid()
-  revealPendingCreation(creationId, request, getInitialWorktreeCreationPhase(request))
+  revealPendingCreation(creationId, request, 'fetching')
   startWorktreeCreation(creationId, request)
   return creationId
 }
@@ -110,11 +107,10 @@ export function continueBackgroundWorktreeCreation(
   // checklist would freeze on step 1. Use the request's captured repo owner so
   // Retry does not change shape when focus moves to another runtime.
   store.updatePendingWorktreeCreation(creationId, {
-    phase: getInitialWorktreeCreationPhase(request),
+    phase: 'fetching',
     status: 'creating',
     startedAt: Date.now(),
     error: undefined,
-    provisioningLog: undefined,
     request
   })
   // Why: background work-item preflight can finish after the user moved on; keep
@@ -138,12 +134,8 @@ export function retryBackgroundWorktreeCreation(creationId: string): void {
   store.updatePendingWorktreeCreation(creationId, {
     status: 'creating',
     startedAt: Date.now(),
-    phase:
-      entry.request.ephemeralVmRecipe && !entry.request.ephemeralVmRuntimeId
-        ? 'provisioning-vm'
-        : 'fetching',
-    error: undefined,
-    provisioningLog: undefined
+    phase: 'fetching',
+    error: undefined
   })
   store.setActivePendingWorktreeCreation(creationId)
   store.setActiveView('terminal')

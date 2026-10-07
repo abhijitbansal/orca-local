@@ -9,12 +9,10 @@ import type {
 import type { RuntimeRpcResponse } from '../../shared/runtime-rpc-envelope'
 import type { ClientHostedBrowserRowsEvent } from '../../shared/client-hosted-browser-rows'
 import type { PublicKnownRuntimeEnvironment } from '../../shared/runtime-environments'
-import type { VerifyAndAddRuntimeEnvironmentResult } from '../../shared/remote-pairing-verification'
 import type {
   BrowserClientHostPlacementPreparationRequest,
   BrowserPageCreationPlacement
 } from '../../shared/browser-client-host-placement'
-import type { RemoteRuntimeSharedConnectionDiagnostics } from '../../shared/remote-runtime-shared-control-types'
 
 export type RuntimeEnvironmentSubscriptionHandle = {
   unsubscribe: () => void
@@ -81,17 +79,6 @@ export type RuntimeApi = {
     getStatusSnapshots: () => Promise<RuntimeHostStatusSnapshot[]>
     onStatusChanged: (callback: (snapshot: RuntimeHostStatusSnapshot) => void) => () => void
     list: () => Promise<PublicKnownRuntimeEnvironment[]>
-    addFromPairingCode: (args: {
-      name: string
-      pairingCode: string
-    }) => Promise<{ environment: PublicKnownRuntimeEnvironment }>
-    verifyAndAddFromPairingCode: (args: {
-      name: string
-      pairingCode: string
-      allowLoopback?: boolean
-    }) => Promise<VerifyAndAddRuntimeEnvironmentResult>
-    resolve: (args: { selector: string }) => Promise<PublicKnownRuntimeEnvironment>
-    remove: (args: { selector: string }) => Promise<{ removed: PublicKnownRuntimeEnvironment }>
     disconnect: (args: {
       selector: string
     }) => Promise<{ disconnected: PublicKnownRuntimeEnvironment }>
@@ -104,14 +91,6 @@ export type RuntimeApi = {
       timeoutMs?: number
       observeOnly?: true
     }) => Promise<RuntimeRpcResponse<RuntimeStatus>>
-    retryControlConnection?: (args: { selector: string }) => Promise<void>
-    onSharedControlDiagnostics?: (
-      callback: (event: {
-        environmentId: string
-        transportGeneration: number
-        diagnostics: RemoteRuntimeSharedConnectionDiagnostics
-      }) => void
-    ) => () => void
     prepareBrowserClientHostPlacement: (
       args: BrowserClientHostPlacementPreparationRequest
     ) => Promise<BrowserPageCreationPlacement>

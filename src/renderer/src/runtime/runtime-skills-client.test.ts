@@ -4,7 +4,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from './runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from './runtime-rpc-client'
 import { discoverSkillsForRuntimeTarget } from './runtime-skills-client'
 
 function discoveryResult(skillName: string): SkillDiscoveryResult {
@@ -33,7 +32,6 @@ const discover = vi.fn<(target?: SkillDiscoveryTarget) => Promise<SkillDiscovery
 const runtimeEnvironmentCall = vi.fn()
 
 beforeEach(() => {
-  clearRuntimeCompatibilityCacheForTests()
   discover.mockReset()
   runtimeEnvironmentCall.mockReset()
   vi.stubGlobal('window', {
@@ -63,81 +61,9 @@ describe('discoverSkillsForRuntimeTarget', () => {
     expect(runtimeEnvironmentCall).not.toHaveBeenCalled()
   })
 
-  it('routes to the remote runtime and drops the local-only target', async () => {
-    const result = discoveryResult('orchestration')
-    runtimeEnvironmentCall.mockResolvedValueOnce({ id: 'skills', ok: true, result })
-
-    await expect(
-      discoverSkillsForRuntimeTarget(
-        { kind: 'environment', environmentId: 'env-1' },
-        { runtime: 'wsl', wslDistro: 'Ubuntu' }
-      )
-    ).resolves.toBe(result)
-
-    expect(discover).not.toHaveBeenCalled()
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith(
-      expect.objectContaining({ selector: 'env-1', method: 'skills.discover', params: {} })
-    )
-  })
-
-  it('forwards portable inventory filters without client runtime identity', async () => {
-    const result = discoveryResult('orchestration')
-    runtimeEnvironmentCall.mockResolvedValueOnce({ id: 'skills', ok: true, result })
-
-    await discoverSkillsForRuntimeTarget(
-      { kind: 'environment', environmentId: 'env-1' },
-      {
-        runtime: 'wsl',
-        wslDistro: 'Ubuntu',
-        names: ['orchestration'],
-        sourceKinds: ['home']
-      }
-    )
-
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith(
-      expect.objectContaining({
-        method: 'skills.discover',
-        params: { names: ['orchestration'], sourceKinds: ['home'] }
-      })
-    )
-  })
-
   // Why: no caller can produce these yet, so the remote params must stay empty
   // rather than shipping a client-host target the server would misread.
-  it('sends no target at all to a remote runtime', async () => {
-    runtimeEnvironmentCall.mockResolvedValueOnce({
-      id: 'skills',
-      ok: true,
-      result: discoveryResult('orchestration')
-    })
-
-    await discoverSkillsForRuntimeTarget(
-      { kind: 'environment', environmentId: 'env-1' },
-      { cwd: '/workspace/app', worktreeId: 'wt-1' }
-    )
-
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith(
-      expect.objectContaining({ method: 'skills.discover', params: {} })
-    )
-  })
-
   // Why: refresh describes the request, not the client's host. Dropping it would
   // leave an explicit re-check reading the remote host's shared scan instead of
   // its disk, which is exactly what an install-completed refresh must not do.
-  it('forwards an explicit refresh to a remote runtime', async () => {
-    runtimeEnvironmentCall.mockResolvedValueOnce({
-      id: 'skills',
-      ok: true,
-      result: discoveryResult('orchestration')
-    })
-
-    await discoverSkillsForRuntimeTarget(
-      { kind: 'environment', environmentId: 'env-1' },
-      { runtime: 'wsl', wslDistro: 'Ubuntu', refresh: true }
-    )
-
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith(
-      expect.objectContaining({ method: 'skills.discover', params: { refresh: true } })
-    )
-  })
 })

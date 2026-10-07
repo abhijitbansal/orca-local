@@ -27,7 +27,6 @@ import {
 } from './crash-reporting/crash-breadcrumb-store'
 import { _resetTracerForTests, setActiveSink } from './observability/tracer'
 import { killLocalPrecheckProcessTree } from './automations/precheck-runner'
-import { killRecipeProcess } from '../shared/ephemeral-vm-recipe-process'
 import { killSpawnedCommandTree } from './git/command-runner/spawned-command-tree-kill'
 import { killCodexAppServerProcessTree } from './codex/codex-app-server-process-tree-kill'
 import { signalProcessTree } from '../shared/child-process/process-tree-termination'
@@ -106,16 +105,6 @@ describe('a refused tree-kill still terminates the root it owns', () => {
 
     expect(spawnMock).not.toHaveBeenCalled()
     expect(child.kill).toHaveBeenCalledTimes(1)
-  })
-
-  it('kills the ephemeral-VM recipe root when the tree walk is refused', () => {
-    setPlatform('win32')
-    const child = { pid: RENDERER_PID, kill: vi.fn() }
-
-    killRecipeProcess(child as never, true)
-
-    expect(spawnMock).not.toHaveBeenCalled()
-    expect(child.kill).toHaveBeenCalledWith('SIGKILL')
   })
 
   it('kills the codex app-server root when the deadline tree walk is refused', () => {

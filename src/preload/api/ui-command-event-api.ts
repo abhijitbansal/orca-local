@@ -54,8 +54,6 @@ export type UiCommandEventApi = {
   onOpenSettings: (callback: () => void) => () => void
   /** Consumes a one-shot tray/menu-bar "open settings" intent queued before mount. */
   consumePendingOpenSettings: () => Promise<boolean>
-  onOpenSkillShare: (callback: (shareId: string) => void) => () => void
-  consumePendingSkillShare: () => Promise<string | null>
   /** OS "Open With" markdown paths pushed while a renderer is already listening. */
   onOpenMarkdownFiles: (callback: (documents: MarkdownDocument[]) => void) => () => void
   /** Drains the "Open With" paths queued before this renderer's listener attached. */
@@ -75,7 +73,6 @@ export type UiCommandEventApi = {
   onOpenNewWorkspace: (callback: () => void) => () => void
   onDeleteCurrentWorkspace: (callback: () => void) => () => void
   onOpenWorkspaceBoard: (callback: () => void) => () => void
-  onOpenTasks: (callback: () => void) => () => void
   onToggleAgentDashboard: (callback: () => void) => () => void
   onJumpToWorktreeIndex: (callback: (index: number) => void) => () => void
   onJumpToTabIndex: (callback: (index: number) => void) => () => void

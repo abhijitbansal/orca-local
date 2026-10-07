@@ -1,6 +1,8 @@
 import {
+  isPluginCommandActionId,
+  isPluginCommandLegacyNoopActionId,
   pluginCommandKeybindingActionId,
-  type PluginCommandAliasActionId
+  type PluginCommandActionId
 } from '../../shared/plugins/plugin-command-actions'
 import { getKeybindingConflictIdentity, type KeybindingOverrides } from '../../shared/keybindings'
 import type {
@@ -24,7 +26,7 @@ export type PluginCommandRegistration = {
   id: string
   title: string
   context: 'global' | 'worktree'
-  handler: { type: 'built-in'; action: PluginCommandAliasActionId } | { type: 'worker' }
+  handler: { type: 'built-in'; action: PluginCommandActionId } | { type: 'worker' }
   keybindings: PluginCommandKeybinding[]
 }
 
@@ -72,7 +74,10 @@ export class PluginCommandRegistry {
       this.previews.set(plugin.pluginKey, plugin.commands)
     }
 
-    const approved = registrations.filter((plugin) => plugin.approved)
+    // Why: legacy no-op actions validate for old manifests but must not reach the palette or claim a chord.
+    const approved = registrations
+      .filter((plugin) => plugin.approved)
+      .map((plugin) => ({ ...plugin, commands: plugin.commands.filter(isLiveCommand) }))
     const chordOwners = new Map<string, CommandOwner[]>()
     for (const plugin of approved) {
       for (const command of plugin.commands) {
@@ -109,6 +114,12 @@ export class PluginCommandRegistry {
   }
 }
 
+function isLiveCommand(command: PluginCommandRegistration): boolean {
+  return !(
+    command.handler.type === 'built-in' && isPluginCommandLegacyNoopActionId(command.handler.action)
+  )
+}
+
 function effectiveCommandKeybindings(
   command: PluginCommandRegistration,
   overrides: KeybindingOverrides
@@ -139,10 +150,11 @@ function registrationsForManifest(
     id: command.id,
     title: command.title,
     context: command.context ?? 'global',
+    // Why: manifest validation already rejected unknown actions, so a non-alias action here is a worker command.
     handler:
-      command.action === undefined
-        ? { type: 'worker' as const }
-        : { type: 'built-in' as const, action: command.action as PluginCommandAliasActionId },
+      command.action !== undefined && isPluginCommandActionId(command.action)
+        ? { type: 'built-in' as const, action: command.action }
+        : { type: 'worker' as const },
     keybindings: keybindingsForCommand(command, bindingsByCommand.get(command.id) ?? [])
   }))
 }

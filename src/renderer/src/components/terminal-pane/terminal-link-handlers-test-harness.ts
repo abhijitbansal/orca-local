@@ -5,7 +5,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '@/runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '@/runtime/runtime-rpc-client'
 import type { TerminalLinkTestDoubles } from './terminal-link-handlers-test-fixtures'
 
 export function setPlatform(userAgent: string): void {
@@ -44,7 +43,6 @@ export function installTerminalLinkTestEnvironment(doubles: TerminalLinkTestDoub
   } = doubles
 
   beforeEach(() => {
-    clearRuntimeCompatibilityCacheForTests()
     vi.clearAllMocks()
     runtimeEnvironmentTransportCallMock.mockReset()
     runtimeEnvironmentTransportCallMock.mockImplementation(

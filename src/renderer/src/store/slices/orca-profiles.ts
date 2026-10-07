@@ -2,27 +2,20 @@ import type { StateCreator } from 'zustand'
 import { toast } from 'sonner'
 import { translate } from '@/i18n/i18n'
 import type {
-  OrcaProfileAuthStatus,
   OrcaProfileSummary,
   SwitchOrcaProfileResult,
   TransferOrcaProfileProjectArgs,
   TransferOrcaProfileProjectResult
 } from '../../../../shared/orca-profiles'
 import type { AppState } from '../types'
-import {
-  createOrcaProfilesAuthActions,
-  type OrcaProfilesAuthActions
-} from './orca-profiles-auth-actions'
 
-export type OrcaProfilesSlice = OrcaProfilesAuthActions & {
+export type OrcaProfilesSlice = {
   orcaProfiles: OrcaProfileSummary[]
   activeOrcaProfileId: string | null
-  orcaProfileAuthStatus: OrcaProfileAuthStatus | null
   orcaProfilesMultiProfileUi: boolean
   orcaProfilesLoading: boolean
   orcaProfileSwitching: boolean
   fetchOrcaProfiles: () => Promise<void>
-  fetchOrcaProfileAuthStatus: () => Promise<OrcaProfileAuthStatus | null>
   createLocalOrcaProfile: (name?: string) => Promise<OrcaProfileSummary | null>
   switchOrcaProfile: (profileId: string) => Promise<SwitchOrcaProfileResult | null>
   transferOrcaProfileProject: (
@@ -32,12 +25,10 @@ export type OrcaProfilesSlice = OrcaProfilesAuthActions & {
 
 export const createOrcaProfilesSlice: StateCreator<AppState, [], [], OrcaProfilesSlice> = (
   set,
-  get,
-  api
+  get
 ) => ({
   orcaProfiles: [],
   activeOrcaProfileId: null,
-  orcaProfileAuthStatus: null,
   orcaProfilesMultiProfileUi: false,
   orcaProfilesLoading: false,
   orcaProfileSwitching: false,
@@ -45,31 +36,16 @@ export const createOrcaProfilesSlice: StateCreator<AppState, [], [], OrcaProfile
   fetchOrcaProfiles: async () => {
     set({ orcaProfilesLoading: true })
     try {
-      const [state, authStatus] = await Promise.all([
-        window.api.orcaProfiles.list(),
-        window.api.orcaProfiles.authStatus()
-      ])
+      const state = await window.api.orcaProfiles.list()
       set({
         activeOrcaProfileId: state.activeProfileId,
         orcaProfiles: state.profiles,
         orcaProfilesMultiProfileUi: state.multiProfileUi,
-        orcaProfileAuthStatus: authStatus,
         orcaProfilesLoading: false
       })
     } catch (err) {
       console.error('Failed to fetch Orca profiles:', err)
       set({ orcaProfilesLoading: false })
-    }
-  },
-
-  fetchOrcaProfileAuthStatus: async () => {
-    try {
-      const authStatus = await window.api.orcaProfiles.authStatus()
-      set({ orcaProfileAuthStatus: authStatus })
-      return authStatus
-    } catch (err) {
-      console.error('Failed to fetch Orca profile auth status:', err)
-      return null
     }
   },
 
@@ -80,7 +56,6 @@ export const createOrcaProfilesSlice: StateCreator<AppState, [], [], OrcaProfile
         activeOrcaProfileId: state.activeProfileId,
         orcaProfiles: state.profiles
       })
-      void get().fetchOrcaProfileAuthStatus()
       return state.profile
     } catch (err) {
       console.error('Failed to create Orca profile:', err)
@@ -93,8 +68,6 @@ export const createOrcaProfilesSlice: StateCreator<AppState, [], [], OrcaProfile
       return null
     }
   },
-
-  ...createOrcaProfilesAuthActions(set, get, api),
 
   switchOrcaProfile: async (profileId) => {
     if (!profileId || profileId === get().activeOrcaProfileId) {

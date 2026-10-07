@@ -571,8 +571,7 @@ describe('useIpcEvents agent status snapshot integration', () => {
           activeLeafId: FUTURE_LEAF_ID,
           expandedLeafId: null
         }
-      },
-      refreshGitHubForWorktreeIfStale
+      }
     })
     store
       .getState()

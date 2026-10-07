@@ -18,11 +18,6 @@ vi.mock('../../telemetry/client', () => ({ track: vi.fn() }))
 vi.mock('../../telemetry/cohort-classifier', () => ({
   getCohortAtEmit: () => ({ nth_repo_added: 2 })
 }))
-vi.mock('../../ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: () => ({ hosts: [] }),
-  sshConfigHostsToTargets: () => []
-}))
-
 const directories: string[] = []
 const stores: Store[] = []
 const livePaneKey = 'live-tab:11111111-1111-4111-8111-111111111111'
@@ -94,11 +89,17 @@ it.each([false, true])('isolates imported aliases and live listeners (load failu
   } else {
     const imported = createImport()
     stores.push(imported)
-    expect(JSON.parse(imported.prepareProfileStateExport().json).legacyPaneKeyAliasEntries).toEqual(
+    const aliasEntries = JSON.parse(
+      imported.prepareProfileStateExport().json
+    ).legacyPaneKeyAliasEntries
+    expect(aliasEntries).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ legacyPaneKey: 'tab-local:1', ptyId: 'imported-tab-local' }),
-        expect.objectContaining({ legacyPaneKey: 'tab-remote:1', ptyId: 'imported-tab-remote' })
+        expect.objectContaining({ legacyPaneKey: 'tab-local:1', ptyId: 'imported-tab-local' })
       ])
+    )
+    // Local-only build: the remote host partition is stripped at load, so its aliases never import.
+    expect(aliasEntries).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ legacyPaneKey: 'tab-remote:1' })])
     )
   }
   expect(registerAlias).not.toHaveBeenCalled()

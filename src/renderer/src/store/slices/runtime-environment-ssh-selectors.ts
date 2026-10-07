@@ -17,7 +17,7 @@ type RuntimeAwareSshReadState = Pick<
 
 // Why the shared verdict and not `entry.status`: an unverifiable probe nulls it while the
 // transport is still up, and blanking the mirrored SSH rows of a host that never went away
-// reads as "the targets vanished" (docs/reference/ssh-execution-boundary.md).
+// reads as "the targets vanished" (AGENTS.md).
 function isEnvironmentReachable(state: RuntimeAwareSshReadState, environmentId: string): boolean {
   return isConnectedRuntimeHostState(
     runtimeHostConnectionStateForEntry(state.runtimeStatusByEnvironmentId?.get(environmentId))

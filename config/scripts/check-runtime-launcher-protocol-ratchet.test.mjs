@@ -15,7 +15,7 @@ import { classifyPrJobs } from './pr-code-change-scope.mjs'
 
 const repoRoot = resolve(import.meta.dirname, '..', '..')
 const repos = []
-const LAUNCHER = 'src/main/ssh/orcad-remote-runtime.ts'
+const LAUNCHER = 'src/main/daemon/daemon-launched-child.ts'
 
 function git(repo, args) {
   return execFileSync('git', args, {

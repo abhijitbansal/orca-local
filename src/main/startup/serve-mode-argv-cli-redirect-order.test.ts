@@ -20,8 +20,8 @@ describe('serve argv rewrite vs CLI launch redirect ordering', () => {
     '/opt/orca/orca-ide',
     '--disable-features=Vulkan',
     'serve',
-    '--port',
-    '7777',
+    '--user-data-dir',
+    '/srv/repo',
     '--json'
   ]
 
@@ -33,7 +33,7 @@ describe('serve argv rewrite vs CLI launch redirect ordering', () => {
     const rewritten = rewriteAsIndexDoes(launchArgv)
     expect(rewritten).toContain('--disable-features=Vulkan')
     expect(rewritten).toContain('--serve')
-    expect(rewritten).toContain('--serve-port')
+    expect(rewritten).toContain('--user-data-dir')
     expect(getCliLaunchArgs(rewritten, CLI_ENTRY_PATH, REDIRECT_OPTIONS)).toBeNull()
   })
 

@@ -15,16 +15,6 @@ import type { PersistedState } from '../shared/persisted-state-types'
 import { getDefaultWorkspaceSession } from '../shared/constants'
 import { folderWorkspaceKey } from '../shared/workspace-scope'
 
-// Stub the ~/.ssh/config parser so the SSH-import test drives the real Store with deterministic hosts, not the operator's actual ~/.ssh/config.
-const { loadUserSshConfigMock, sshConfigHostsToTargetsMock } = vi.hoisted(() => ({
-  loadUserSshConfigMock: vi.fn(),
-  sshConfigHostsToTargetsMock: vi.fn()
-}))
-
-vi.mock('./ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: loadUserSshConfigMock,
-  sshConfigHostsToTargets: sshConfigHostsToTargetsMock
-}))
 const { trackMock, getCohortAtEmitMock } = vi.hoisted(() => ({
   trackMock: vi.fn(),
   getCohortAtEmitMock: vi.fn()
@@ -452,7 +442,7 @@ describe('Store', () => {
     ])
   })
 
-  it('backfills folder-scope SSH provenance from unambiguous child repos on load', async () => {
+  it('does not backfill folder-scope SSH provenance from stripped child repos on load', async () => {
     writeDataFile({
       schemaVersion: 1,
       repos: [
@@ -501,11 +491,15 @@ describe('Store', () => {
 
     const store = await createStore()
 
-    expect(store.getProjectGroups()[0]).toMatchObject({ id: 'root', connectionId: 'ssh-1' })
-    expect(store.getFolderWorkspaces()[0]).toMatchObject({ id: 'fw-1', connectionId: 'ssh-1' })
+    // Local-only build: the SSH child repos are stripped at load, so no remote provenance is backfilled.
+    expect(store.getRepos()).toEqual([])
+    expect(store.getProjectGroups()[0]).toMatchObject({ id: 'root' })
+    expect(store.getProjectGroups()[0]?.connectionId ?? null).toBeNull()
+    expect(store.getFolderWorkspaces()[0]).toMatchObject({ id: 'fw-1' })
+    expect(store.getFolderWorkspaces()[0]?.connectionId ?? null).toBeNull()
   })
 
-  it('backfills folder-scope SSH provenance from grouped repos despite unrelated same-path SSH repos', async () => {
+  it('does not backfill folder-scope SSH provenance from stripped grouped repos on load', async () => {
     writeDataFile({
       schemaVersion: 1,
       repos: [
@@ -572,10 +566,12 @@ describe('Store', () => {
 
     const store = await createStore()
 
-    expect(store.getProjectGroups().find((group) => group.id === 'root')).toMatchObject({
-      connectionId: 'ssh-1'
-    })
-    expect(store.getFolderWorkspaces()[0]).toMatchObject({ id: 'fw-1', connectionId: 'ssh-1' })
+    // Local-only build: the SSH repos are stripped at load, so no remote provenance is backfilled.
+    expect(store.getRepos()).toEqual([])
+    expect(
+      store.getProjectGroups().find((group) => group.id === 'root')?.connectionId ?? null
+    ).toBeNull()
+    expect(store.getFolderWorkspaces()[0]?.connectionId ?? null).toBeNull()
   })
 
   it('removes folder workspace metadata and its scoped session state only', async () => {

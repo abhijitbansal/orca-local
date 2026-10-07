@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import { existsSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import {
-  hasSshSourceChange,
   PR_E2E_SOURCE_ROUTES,
   selectPrE2eSpecs,
   shouldRunReusablePrE2e
@@ -32,7 +31,6 @@ const CLOSE_ROUTE = PR_E2E_SOURCE_ROUTES.find(
 describe('pane close and retirement PR E2E routing', () => {
   it('selects the close specs for a pane close lifecycle change', () => {
     expect(selectPrE2eSpecs(PENDING_PANE_CLOSE_CHANGE)).toEqual([
-      'tests/e2e/paired-remote-split-pane-host-retired-ghost.spec.ts',
       'tests/e2e/terminal-pane-close-layout-consistency.spec.ts',
       'tests/e2e/terminal-parked-close-retirement.spec.ts'
     ])
@@ -57,10 +55,7 @@ describe('pane close and retirement PR E2E routing', () => {
     }
   })
 
-  it('leaves the Docker SSH lane and unrelated changes alone', () => {
-    // The lane costs a Docker relay per run. Close changes reach SSH only through the shared
-    // provider, which the non-Docker specs above already cover.
-    expect(hasSshSourceChange(PENDING_PANE_CLOSE_CHANGE)).toBe(false)
+  it('leaves unrelated changes alone', () => {
     // Neighbours in the same directories that this route must not claim.
     for (const file of [
       'src/renderer/src/components/terminal-pane/CloseTerminalDialog.tsx',

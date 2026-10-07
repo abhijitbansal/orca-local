@@ -1,7 +1,6 @@
 import { fstatSync } from 'node:fs'
 import type * as pty from 'node-pty'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
-import { loadNodePtyForTests } from '../orcad/orcad-node-slot-fixture'
 import { createDaemonPtySubprocessHandle } from './pty-subprocess/subprocess-handle'
 import { TerminalHost } from './terminal-host'
 
@@ -10,7 +9,7 @@ const describePosix = process.platform === 'win32' ? describe.skip : describe
 describePosix('failed-I/O teardown with a real native PTY', () => {
   let nodePty: typeof pty
   beforeAll(async () => {
-    nodePty = await loadNodePtyForTests()
+    nodePty = await import('node-pty')
   })
 
   it.each([

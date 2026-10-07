@@ -6,10 +6,6 @@ import { tmpdir } from 'node:os'
 import { getDefaultWorkspaceSession } from '../shared/constants'
 import type { BrowserPage, BrowserWorkspace } from '../shared/browser-workspace-types'
 
-vi.mock('./ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: vi.fn(),
-  sshConfigHostsToTargets: vi.fn()
-}))
 vi.mock('electron', () => ({
   app: { getPath: () => testState.dir },
   safeStorage: { isEncryptionAvailable: () => false }
@@ -70,41 +66,29 @@ describe('remote session startup ownership', () => {
     rmSync(testState.dir, { recursive: true, force: true })
   })
 
-  it('keeps a paired browser row and its hosting identity across two Store reloads', () => {
+  it('strips a paired browser row and its hosting identity at load, keeping local rows across two reloads', () => {
     const seed = createStore()
     seed.addRepo(makeRepo({ id: 'local-repo', path: join(testState.dir, 'local') }))
     seed.setWorkspaceSession(browserSession(), HOST)
+    expect(seed.getWorkspaceSession(HOST).browserPagesByWorkspace).toEqual({ [BROWSER.id]: [PAGE] })
     seed.flush()
 
     for (let i = 0; i < 2; i += 1) {
       const reloaded = createStore()
-      expect(reloaded.getWorkspaceSession(HOST).browserPagesByWorkspace).toEqual({
-        [BROWSER.id]: [PAGE]
-      })
+      expect(reloaded.getWorkspaceSession(HOST).browserPagesByWorkspace).toEqual({})
+      expect(reloaded.getRepos().map((repo) => repo.id)).toEqual(['local-repo'])
       expect(reloaded.sweepDeregisteredRepoResidue()).toEqual([])
       reloaded.flush()
     }
   })
 
-  it('retains remote metadata when no session or local catalog row names its repo', () => {
+  it('strips remote metadata at load even when no session or local catalog row names its repo', () => {
     const seed = createStore()
     seed.setWorktreeMetaForHost(WORKTREE, HOST, { displayName: 'Remote work' })
     seed.flush()
     const reloaded = createStore()
-    expect(reloaded.getWorktreeMeta(WORKTREE)).toMatchObject({ displayName: 'Remote work' })
+    expect(reloaded.getWorktreeMeta(WORKTREE)).toBeUndefined()
     expect(reloaded.sweepDeregisteredRepoResidue()).toEqual([])
     reloaded.flush()
-  })
-
-  it('still applies an explicit remote project removal', () => {
-    const seed = createStore()
-    seed.setWorkspaceSession(browserSession(), HOST)
-    seed.flush()
-    const reloaded = createStore()
-    // Assert the row survived load first, or an empty partition below would prove nothing.
-    expect(reloaded.getWorkspaceSession(HOST).browserPagesByWorkspace).not.toEqual({})
-    reloaded.removeProjectForHost(REPO, HOST)
-    reloaded.flush()
-    expect(createStore().getWorkspaceSession(HOST).browserPagesByWorkspace).toEqual({})
   })
 })

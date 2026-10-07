@@ -187,7 +187,7 @@ describe('PluginWorkerController activation authority', () => {
         ...base.manifest,
         contributes: {
           ...base.manifest.contributes,
-          commands: [{ id: 'tasks', title: 'Tasks', action: 'view.tasks' }]
+          commands: [{ id: 'tasks', title: 'Tasks', action: 'workspace.openBoard' }]
         }
       })
     }

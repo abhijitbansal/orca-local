@@ -5,7 +5,6 @@ import {
   OrcaRuntimeService,
   clearSubmodulePathsCacheForTests,
   execFileSync,
-  getRepoUpstreamMock,
   gitRunner,
   invalidateAuthorizedRootsCacheMock,
   join,
@@ -33,7 +32,6 @@ describe('OrcaRuntimeService', () => {
     const clonePath = join(destination, 'orca')
     const spawnSpy = vi.spyOn(gitRunner, 'gitSpawnAfterWindowsEnvironmentReady')
     const repos: Record<string, unknown>[] = []
-    getRepoUpstreamMock.mockResolvedValue({ owner: 'stablyai', repo: 'orca' })
     const runtimeStore = {
       ...store,
       getRepos: () => [...repos] as never,
@@ -74,6 +72,7 @@ describe('OrcaRuntimeService', () => {
 
       const result = await runtime.setupProjectExistingFolder({
         projectId: 'github:stablyai/orca',
+        projectProviderIdentity: { provider: 'github', owner: 'stablyai', repo: 'orca' },
         hostId: 'runtime:env-1',
         path: clonePath,
         kind: 'git',
@@ -113,7 +112,6 @@ describe('OrcaRuntimeService', () => {
         executionHostId: 'runtime:env-1'
       }
     ]
-    getRepoUpstreamMock.mockResolvedValue({ owner: 'stablyai', repo: 'orca' })
     const runtimeStore = {
       ...store,
       getRepos: () => [...repos] as never,
@@ -148,6 +146,7 @@ describe('OrcaRuntimeService', () => {
     try {
       const result = await runtime.setupProjectClone({
         projectId: 'github:stablyai/orca',
+        projectProviderIdentity: { provider: 'github', owner: 'stablyai', repo: 'orca' },
         hostId: 'runtime:env-2',
         url: 'https://example.com/orca.git',
         destination

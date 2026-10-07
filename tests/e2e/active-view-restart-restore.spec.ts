@@ -55,16 +55,11 @@ test('restores the active top-level view (Tasks) after an app restart', async (/
       if (!store) {
         throw new Error('window.__store is not available')
       }
-      store.getState().openTaskPage()
+      store.getState().setActiveView('automations')
     })
     await expect
       .poll(async () => getStoreState<string>(first.page, 'activeView'), { timeout: 10_000 })
-      .toBe('tasks')
-    // Locale-independent render proof: the tasks source-filter chrome is on
-    // screen (getByRole('Close tasks') is unusable — the label is localized).
-    await expect(
-      first.page.locator('[data-contextual-tour-target="tasks-source-filters"]')
-    ).toBeVisible({ timeout: 10_000 })
+      .toBe('automations')
     // And the terminal grid is not the active surface.
     await expect(first.page.locator('.xterm')).not.toBeVisible({ timeout: 10_000 })
 
@@ -78,17 +73,13 @@ test('restores the active top-level view (Tasks) after an app restart', async (/
     secondApp = second.app
     await waitForSessionReady(second.page)
 
-    // Fix: the restored launch reopens Tasks instead of resetting to terminal,
+    // Fix: the restored launch reopens Automations instead of resetting to terminal,
     // and neither the cross-window sync re-hydration nor startup worktree
     // hydration clobbers the restored view.
     await expect
       .poll(async () => getStoreState<string>(second.page, 'activeView'), { timeout: 10_000 })
-      .toBe('tasks')
-    // Render-layer proof: the Tasks page chrome is on screen and the terminal
-    // is not — i.e. the relaunch did not snap back to the terminal.
-    await expect(
-      second.page.locator('[data-contextual-tour-target="tasks-source-filters"]')
-    ).toBeVisible({ timeout: 10_000 })
+      .toBe('automations')
+    // Render-layer proof: the relaunch did not snap back to the terminal.
     await expect(second.page.locator('.xterm')).not.toBeVisible({ timeout: 10_000 })
   } finally {
     // Guard each step so a failing close still runs the remaining cleanup.

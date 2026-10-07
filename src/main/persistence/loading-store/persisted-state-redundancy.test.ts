@@ -22,7 +22,6 @@ import type { WorkspaceSessionState } from '../../../shared/workspace-session-st
 import type { WorktreeMeta } from '../../../shared/worktree/meta-types'
 import type { BrowserHistoryEntry } from '../../../shared/browser-workspace-types'
 import { WORKTREE_META_PERSISTED_DEFAULTS } from '../../../shared/worktree/meta-persisted-defaults'
-import { HOST_PARTITION_REDUNDANT_GLOBAL_FIELDS } from '../../../shared/workspace-session-host-field-ownership'
 
 vi.mock('electron', () => ({
   app: {
@@ -203,13 +202,9 @@ describe('persisted-state redundancy', () => {
     expect(defaultedSlotOccurrences(rewritten)).toBe(
       (Math.ceil(META_ROWS / LINKED_ROW_STRIDE) + Math.ceil(IDENTITY_ROWS / LINKED_ROW_STRIDE)) * 2
     )
-    // And no non-local partition carries a global the merge only ever reads off 'local'.
+    // Remote partitions are stripped at load (local-only fork), so none is written back.
     const onDisk = JSON.parse(rewritten) as PersistedState
-    for (const hostId of REMOTE_HOSTS) {
-      for (const field of HOST_PARTITION_REDUNDANT_GLOBAL_FIELDS) {
-        expect(onDisk.workspaceSessionsByHostId?.[hostId]).not.toHaveProperty(field)
-      }
-    }
+    expect(onDisk.workspaceSessionsByHostId ?? {}).toEqual({})
     // Apples to apples: re-expand the file we just wrote back into the old shape and compare, so
     // the number is the redundancy alone and not the settings defaults a synthetic fixture lacks.
     expect(Buffer.byteLength(rewritten)).toBeLessThan(

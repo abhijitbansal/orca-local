@@ -197,7 +197,6 @@ describe('run-electron-vite-dev', () => {
           ORCA_ELECTRON_VITE_CLI: fakeCliPath,
           ORCA_SKIP_DEV_CLI_PREPARE: '1',
           ORCA_SKIP_DEV_ELECTRON_APP_PREPARE: '1',
-          ORCA_SKIP_DEV_WEB_PREPARE: '1',
           ORCA_DEV_WRAPPER_TEST_PID_FILE: pidFile
         }),
         stdio: 'ignore'
@@ -242,7 +241,6 @@ describe('run-electron-vite-dev', () => {
         ORCA_ELECTRON_VITE_CLI: fakeCliPath,
         ORCA_SKIP_DEV_CLI_PREPARE: '1',
         ORCA_SKIP_DEV_ELECTRON_APP_PREPARE: '1',
-        ORCA_SKIP_DEV_WEB_PREPARE: '1',
         ORCA_DEV_WRAPPER_TEST_PID_FILE: pidFile,
         ORCA_DEV_WRAPPER_TEST_ENV_FILE: envFile,
         ORCA_DEV_BRANCH: 'feature/billing-shell',
@@ -304,7 +302,6 @@ describe('run-electron-vite-dev', () => {
           ORCA_DEV_USER_DATA_PATH: userDataPath,
           ORCA_ELECTRON_VITE_CLI: fakeCliPath,
           ORCA_SKIP_DEV_ELECTRON_APP_PREPARE: '1',
-          ORCA_SKIP_DEV_WEB_PREPARE: '1',
           ORCA_DEV_WRAPPER_TEST_PID_FILE: pidFile,
           ORCA_DEV_WRAPPER_TEST_ENV_FILE: envFile
         }),
@@ -348,7 +345,6 @@ describe('run-electron-vite-dev', () => {
         env: devWrapperTestEnv({
           ORCA_ELECTRON_VITE_CLI: fakeCliPath,
           ORCA_SKIP_DEV_CLI_PREPARE: '1',
-          ORCA_SKIP_DEV_WEB_PREPARE: '1',
           ORCA_DEV_WRAPPER_TEST_PID_FILE: pidFile,
           ORCA_DEV_WRAPPER_TEST_ENV_FILE: envFile,
           ORCA_DEV_BRANCH: 'feature/stable-name',
@@ -393,7 +389,6 @@ describe('run-electron-vite-dev', () => {
       const baseEnv = devWrapperTestEnv({
         ORCA_ELECTRON_VITE_CLI: fakeCliPath,
         ORCA_SKIP_DEV_CLI_PREPARE: '1',
-        ORCA_SKIP_DEV_WEB_PREPARE: '1',
         ORCA_DEV_BRANCH: 'feature/rebuild-electron-app',
         ORCA_DEV_WORKTREE_NAME: 'electron-app-rebuild'
       })
@@ -470,7 +465,6 @@ describe('run-electron-vite-dev', () => {
         devWrapperTestEnv({
           ORCA_ELECTRON_VITE_CLI: fakeCliPath,
           ORCA_SKIP_DEV_CLI_PREPARE: '1',
-          ORCA_SKIP_DEV_WEB_PREPARE: '1',
           ORCA_DEV_WRAPPER_TEST_PID_FILE: pidFile,
           ORCA_DEV_WRAPPER_TEST_ENV_FILE: envFile,
           ORCA_DEV_BRANCH: 'feature/framework-symlinks',

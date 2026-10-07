@@ -151,7 +151,7 @@ describe('scanSshAiVaultSessions', () => {
     // Declaring a wedged link lost trades SSH_MUX_REQUEST_TIMEOUT for CONNECTION_LOST on this leg.
     // Both are unverifiable, so both must surface as a host issue rather than falling through to a
     // crawl that would publish an authoritative-looking empty list
-    // (docs/reference/ssh-execution-boundary.md).
+    // (AGENTS.md).
     requestActiveSshAiVaultSessionList.mockRejectedValue(createSshDisposalError('connection_lost'))
 
     const result = await scanSshAiVaultSessions('dev-box', undefined, {

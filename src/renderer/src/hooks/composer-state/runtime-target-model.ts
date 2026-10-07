@@ -3,7 +3,6 @@ import type { ExecutionHostId, ParsedExecutionHost } from '../../../../shared/ex
 import type { Repo } from '../../../../shared/repo-types'
 import type { SshConnectionState, SshConnectionStatus } from '../../../../shared/ssh-types'
 import type { TuiAgent } from '../../../../shared/tui-agent'
-import type { OrcaVmRecipe } from '../../../../shared/orca-yaml-hook-types'
 import type { GlobalSettings } from '../../../../shared/global-settings-types'
 import type { AgentStartupShell } from '../../../../shared/tui-agent-startup-shell'
 import type { NewWorkspaceProjectOption } from '@/lib/new-workspace-project-options'
@@ -44,13 +43,6 @@ export type ComposerRuntimeTargetModel = {
   projectHostSetupOptions: ProjectHostSetupOption[]
   projectOptions: NewWorkspaceProjectOption[]
   selectedRepoSettings: Pick<GlobalSettings, 'activeRuntimeEnvironmentId'> | null
-  selectedRecipeRepoId: string | null
-  selectedRecipeRepoConnectionId: string | null
-  ephemeralVmsEnabled: boolean
-  ephemeralVmRecipes: OrcaVmRecipe[]
-  selectedEphemeralVmRecipeId: string | null
-  setSelectedEphemeralVmRecipeId: (recipeId: string | null) => void
-  ephemeralVmRecipeError: string | null
   selectedRepoConnectionId: string | null
   selectedRepoSshState: SshConnectionState | null
   selectedRepoSshStatus: SshConnectionStatus | null

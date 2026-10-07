@@ -13,9 +13,6 @@ import type { ClaudeRuntimeAuthService } from '../claude-accounts/runtime-auth-s
 import type { OrcaRuntimeService } from '../runtime/orca-runtime'
 import type { RateLimitService } from '../rate-limits/service'
 import type { OrcaRuntimeRpcServer } from '../runtime/runtime-rpc'
-import type { DesktopRelayService } from '../runtime/relay/desktop-relay-service'
-import type { DesktopPushService } from '../runtime/push/desktop-push-service'
-import type { StarNagService } from '../star-nag/service'
 import type { AgentAwakeService } from '../agent-awake-service'
 import type { CrashReportStore } from '../crash-reporting/crash-report-store'
 import type { AutomationService } from '../automations/service'
@@ -24,7 +21,6 @@ import type { PluginKillListService } from '../plugins/plugin-kill-list-service'
 import type { PluginMarketplaceService } from '../plugins/plugin-marketplace-service'
 import type { PluginMarketplaceInstaller } from '../plugins/plugin-marketplace-installer'
 import type { KeybindingService } from '../keybindings/keybinding-service'
-import type { RelayBrokerStatus } from '../runtime/relay/relay-session-broker'
 import type { AgentBrowserBridge } from '../browser/agent-browser-bridge'
 import type { EmulatorBridge } from '../emulator/emulator-bridge'
 import type { GpuFallbackMarker, GpuFallbackEnvironment } from './gpu-fallback-marker'
@@ -36,7 +32,6 @@ import type { createWindowsShellPathHydration } from './windows-shell-path-hydra
 import type { ServeOptions } from './main-process-serve'
 import type { HangDetectionMarker } from '../hang-watchdog/hang-detection-marker'
 import { ServeReadinessPublisher } from '../server/serve-readiness'
-import { SkillShareDeepLinkState } from './skill-share-deep-link-state'
 import { OsOpenedMarkdownFileState } from './os-opened-markdown-files'
 import {
   DEFAULT_GPU_CRASH_FALLBACK_THRESHOLD,
@@ -86,14 +81,8 @@ export const mainProcessState = {
   rateLimits: null as RateLimitService | null,
   runtimeRpc: null as OrcaRuntimeRpcServer | null,
   serveReadinessPublisher: new ServeReadinessPublisher(),
-  desktopRelayService: null as DesktopRelayService | null,
-  desktopPushService: null as DesktopPushService | null,
-  desktopRelayStatus: 'offline' as RelayBrokerStatus,
-  desktopRelayCellUrl: undefined as string | undefined,
-  pendingUnpairedDeviceAuthFailure: false,
   // Why: gates whether headless serve installs the offscreen browser backend (and advertises browser pane support).
   headlessBrowserDisplayAvailable: false,
-  starNag: null as StarNagService | null,
   agentAwakeService: null as AgentAwakeService | null,
   uninstallRepoMaintenanceIdleGate: null as (() => Promise<void>) | null,
   repoMaintenanceShutdown: Promise.resolve() as Promise<void>,
@@ -113,7 +102,6 @@ export const mainProcessState = {
   recoveryReloadInFlight: createWebContentsTimedFlag(),
   // Why: a tray "Settings…" click can precede the renderer's ui:openSettings listener; it pulls this one-shot on mount.
   pendingOpenSettings: createWebContentsTimedFlag(),
-  skillShareDeepLinks: new SkillShareDeepLinkState(),
   // Why: a Finder/Explorer "Open With" can land before any window exists; the renderer pulls this buffer on mount.
   osOpenedMarkdownFiles: new OsOpenedMarkdownFileState(),
   // Why a latch and not just "a window exists": a window can be up while its renderer has not

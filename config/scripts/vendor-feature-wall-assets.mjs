@@ -29,11 +29,6 @@ const TILES = [
     posterRelativePath: 'public/whats-new/posters/ghostty-style-terminal.jpg'
   },
   {
-    id: 'tile-03',
-    gifRelativePath: 'public/whats-new/orca-github.gif',
-    posterRelativePath: 'public/whats-new/posters/orca-github.jpg'
-  },
-  {
     id: 'tile-04',
     gifRelativePath: 'public/whats-new/any-cli-agent.gif',
     posterRelativePath: 'public/whats-new/posters/any-cli-agent.jpg'
@@ -42,11 +37,6 @@ const TILES = [
     id: 'tile-05',
     gifRelativePath: 'public/whats-new/orca-design-mode.gif',
     posterRelativePath: 'public/whats-new/posters/orca-design-mode.jpg'
-  },
-  {
-    id: 'tile-06',
-    gifRelativePath: 'public/whats-new/ssh-demo.gif',
-    posterRelativePath: 'public/whats-new/posters/ssh-demo.jpg'
   },
   {
     id: 'tile-07',

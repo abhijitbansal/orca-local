@@ -7,8 +7,7 @@ import { pluginPanelTabKey } from '../../shared/plugins/plugin-manifest'
 import type { PluginLockfile } from '../../shared/plugins/plugin-install-lockfile'
 import { isInvalidDiscoveredPlugin } from './plugin-discovery'
 import type { PluginService } from './plugin-service'
-import { listPluginVmRecipeCommands } from '../../shared/plugins/plugin-vm-recipe-artifact'
-import type { PluginCommandAliasActionId } from '../../shared/plugins/plugin-command-actions'
+import type { PluginCommandActionId } from '../../shared/plugins/plugin-command-actions'
 import {
   isOfficialMarketplaceGitSource,
   isOfficialOrganizationGitSource,
@@ -61,16 +60,10 @@ export type PluginListEntry = {
     id: string
     title: string
     context: 'global' | 'worktree'
-    handler: { type: 'built-in'; action: PluginCommandAliasActionId } | { type: 'worker' }
+    handler: { type: 'built-in'; action: PluginCommandActionId } | { type: 'worker' }
     keybindings: { key: string; when: 'global' | 'worktree' }[]
   }[]
   hasWorker: boolean
-  vmRecipes: {
-    id: string
-    name: string
-    description?: string
-    commands: { phase: 'create' | 'suspend' | 'resume' | 'destroy'; command: string }[]
-  }[]
   restarts: number
   blockedByKillList?: { reason: string; advisoryUrl?: string }
   source?: {
@@ -114,7 +107,6 @@ export async function buildPluginList(
           panels: [],
           commands: [],
           hasWorker: false,
-          vmRecipes: [],
           restarts: 0
         }
       }
@@ -185,12 +177,6 @@ export async function buildPluginList(
           keybindings: command.keybindings
         })),
         hasWorker: Boolean(plugin.manifest.main),
-        vmRecipes: service.contentPacks.vmRecipes.preview(plugin.pluginKey).map(({ recipe }) => ({
-          id: recipe.id,
-          name: recipe.name,
-          ...(recipe.description ? { description: recipe.description } : {}),
-          commands: listPluginVmRecipeCommands(recipe)
-        })),
         restarts: worker.restarts,
         ...(killListEntry
           ? {

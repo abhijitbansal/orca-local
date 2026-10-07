@@ -55,8 +55,6 @@ export function dashboardSnapshotInputsChanged(
     state.ptyIdsByTabId !== previousState.ptyIdsByTabId ||
     state.runtimePaneTitlesByTabId !== previousState.runtimePaneTitlesByTabId ||
     state.acknowledgedAgentsByPaneKey !== previousState.acknowledgedAgentsByPaneKey ||
-    state.hostedReviewCache !== previousState.hostedReviewCache ||
-    state.prCache !== previousState.prCache ||
     // Why: settings controls idle visibility and generated conversation names.
     state.settings !== previousState.settings ||
     state.workspaceStatuses !== previousState.workspaceStatuses ||

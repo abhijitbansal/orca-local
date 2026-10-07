@@ -53,18 +53,11 @@ export function buildWorktreeCardPresentation(card: WorktreeCardController) {
     hoverJiraIssue,
     hoverReview,
     hoverComment,
-    linearIssue,
     handleEditIssue,
     handleEditComment,
-    handleOpenGitHubIssueInOrca,
     handleOpenIssueInBrowser,
-    handleOpenLinearIssueInOrca,
-    handleOpenReviewInOrca,
-    handleOpenReviewInBrowser,
     handleOpenAutomation,
     handleOpenAutomationRun,
-    canUnlinkReview,
-    handleUnlinkReview,
     detailsHoverControl,
     showDeleteQuickAction
   } = card
@@ -164,27 +157,13 @@ export function buildWorktreeCardPresentation(card: WorktreeCardController) {
             // plug force-open the wider title card and race it closed (#9304), so let this title hover own its state.
             onEditIssue={affiliateListMode ? undefined : handleEditIssue}
             onEditComment={affiliateListMode ? undefined : handleEditComment}
-            onOpenGitHubIssueInOrca={
-              metaIssue && 'url' in metaIssue && metaIssue.url
-                ? handleOpenGitHubIssueInOrca
-                : undefined
-            }
             onOpenIssueInBrowser={
               metaIssue && 'url' in metaIssue && metaIssue.url
                 ? handleOpenIssueInBrowser
                 : undefined
             }
-            onOpenLinearIssueInOrca={linearIssue?.url ? handleOpenLinearIssueInOrca : undefined}
-            onOpenReviewInOrca={
-              metaReview?.url && metaReview.provider === 'github'
-                ? handleOpenReviewInOrca
-                : undefined
-            }
-            onOpenReviewInBrowser={metaReview?.url ? handleOpenReviewInBrowser : undefined}
             onOpenAutomation={affiliateListMode ? undefined : handleOpenAutomation}
             onOpenAutomationRun={affiliateListMode ? undefined : handleOpenAutomationRun}
-            // Why: compact mode hides the metadata badge row, so title hover carries the review affordance.
-            onUnlinkReview={!affiliateListMode && canUnlinkReview ? handleUnlinkReview : undefined}
           >
             {title}
           </WorktreeCardDetailsHover>
@@ -234,20 +213,11 @@ export function buildWorktreeCardPresentation(card: WorktreeCardController) {
         hoverControl={detailsHoverControl}
         onEditIssue={affiliateListMode ? undefined : handleEditIssue}
         onEditComment={affiliateListMode ? undefined : handleEditComment}
-        onOpenGitHubIssueInOrca={
-          metaIssue && 'url' in metaIssue && metaIssue.url ? handleOpenGitHubIssueInOrca : undefined
-        }
         onOpenIssueInBrowser={
           metaIssue && 'url' in metaIssue && metaIssue.url ? handleOpenIssueInBrowser : undefined
         }
-        onOpenLinearIssueInOrca={linearIssue?.url ? handleOpenLinearIssueInOrca : undefined}
-        onOpenReviewInOrca={
-          metaReview?.url && metaReview.provider === 'github' ? handleOpenReviewInOrca : undefined
-        }
-        onOpenReviewInBrowser={metaReview?.url ? handleOpenReviewInBrowser : undefined}
         onOpenAutomation={affiliateListMode ? undefined : handleOpenAutomation}
         onOpenAutomationRun={affiliateListMode ? undefined : handleOpenAutomationRun}
-        onUnlinkReview={!affiliateListMode && canUnlinkReview ? handleUnlinkReview : undefined}
       >
         {detailsAndPortsContent}
       </WorktreeCardDetailsHover>

@@ -6,13 +6,8 @@ import type { AppState } from '../types'
 export type RateLimitSlice = {
   rateLimits: RateLimitState
   fetchRateLimits: () => Promise<void>
-  refreshRateLimits: () => Promise<void>
-  refreshGrokRateLimits: () => Promise<void>
   refreshClaudeRateLimitsForTarget: (target: RateLimitRuntimeTarget) => Promise<void>
   refreshCodexRateLimitsForTarget: (target: RateLimitRuntimeTarget) => Promise<void>
-  consumeCodexRateLimitResetCredit: () => Promise<void>
-  fetchInactiveClaudeAccountUsage: () => Promise<void>
-  fetchInactiveCodexAccountUsage: () => Promise<void>
   setRateLimitsFromPush: (state: RateLimitState) => void
 }
 
@@ -25,24 +20,6 @@ export const createRateLimitSlice: StateCreator<AppState, [], [], RateLimitSlice
       set({ rateLimits: state })
     } catch (error) {
       console.error('Failed to fetch rate limits:', error)
-    }
-  },
-
-  refreshRateLimits: async () => {
-    try {
-      const state = await window.api.rateLimits.refresh()
-      set({ rateLimits: state })
-    } catch (error) {
-      console.error('Failed to refresh rate limits:', error)
-    }
-  },
-
-  refreshGrokRateLimits: async () => {
-    try {
-      const state = await window.api.rateLimits.refreshGrok()
-      set({ rateLimits: state })
-    } catch (error) {
-      console.error('Failed to refresh Grok usage:', error)
     }
   },
 
@@ -103,32 +80,6 @@ export const createRateLimitSlice: StateCreator<AppState, [], [], RateLimitSlice
       set({ rateLimits: state })
     } catch (error) {
       console.error('Failed to refresh Codex usage for runtime:', error)
-    }
-  },
-
-  consumeCodexRateLimitResetCredit: async () => {
-    try {
-      const result = await window.api.rateLimits.consumeCodexResetCredit()
-      set({ rateLimits: result.state })
-    } catch (error) {
-      console.error('Failed to consume Codex rate-limit reset:', error)
-      throw error
-    }
-  },
-
-  fetchInactiveClaudeAccountUsage: async () => {
-    try {
-      await window.api.rateLimits.fetchInactiveClaudeAccounts()
-    } catch (error) {
-      console.error('Failed to fetch inactive Claude account usage:', error)
-    }
-  },
-
-  fetchInactiveCodexAccountUsage: async () => {
-    try {
-      await window.api.rateLimits.fetchInactiveCodexAccounts()
-    } catch (error) {
-      console.error('Failed to fetch inactive Codex account usage:', error)
     }
   },
 

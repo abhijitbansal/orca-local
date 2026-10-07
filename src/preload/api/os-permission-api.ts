@@ -7,8 +7,7 @@ import type {
 import type {
   DeveloperPermissionId,
   DeveloperPermissionRequestResult,
-  DeveloperPermissionState,
-  LocalNetworkConnectionTestResult
+  DeveloperPermissionState
 } from '../../shared/developer-permissions-types'
 import type {
   NotificationDeliveryProbeResult,
@@ -43,10 +42,6 @@ export type DeveloperPermissionsApi = {
   getStatus: () => Promise<DeveloperPermissionState[]>
   request: (args: { id: DeveloperPermissionId }) => Promise<DeveloperPermissionRequestResult>
   openSettings: (args: { id: DeveloperPermissionId }) => Promise<void>
-  testLocalNetworkConnection: (args: {
-    host: string
-    port: number
-  }) => Promise<LocalNetworkConnectionTestResult>
 }
 
 export type ComputerUsePermissionsApi = {

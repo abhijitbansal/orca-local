@@ -5,7 +5,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '../../runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 import { createTestStore } from './store-test-helpers'
 import { folderWorkspaceKey } from '../../../../shared/workspace-scope'
 
@@ -48,7 +47,6 @@ function makeFolderWorkspace(overrides: Partial<FolderWorkspace> = {}): FolderWo
 }
 
 beforeEach(() => {
-  clearRuntimeCompatibilityCacheForTests()
   folderWorkspacesUpdate.mockReset()
   folderWorkspacesDelete.mockReset()
   folderWorkspacesList.mockReset()
@@ -112,38 +110,6 @@ describe('folder workspace owner-routed mutations', () => {
       updates: { comment: 'Ready' }
     })
     expect(runtimeEnvironmentCall).not.toHaveBeenCalled()
-    expect(store.getState().folderWorkspaces[0]?.comment).toBe('Ready')
-  })
-
-  it('updates a runtime folder through its owner instead of the focused runtime', async () => {
-    const folderWorkspace = makeFolderWorkspace({ id: 'folder-runtime' })
-    runtimeEnvironmentCall.mockResolvedValue({
-      id: 'rpc-update-folder',
-      ok: true,
-      result: { folderWorkspace: { ...folderWorkspace, comment: 'Ready' } },
-      _meta: { runtimeId: 'runtime-owner' }
-    })
-    const store = createTestStore()
-    store.setState({
-      settings: { activeRuntimeEnvironmentId: 'env-focused' } as never,
-      projectGroups: [{ ...projectGroup, executionHostId: 'runtime:env-owner' }],
-      folderWorkspaces: [folderWorkspace]
-    })
-
-    await expect(
-      store.getState().updateFolderWorkspace(folderWorkspace.id, { comment: 'Ready' })
-    ).resolves.toBe(true)
-
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-      selector: 'env-owner',
-      method: 'folderWorkspace.update',
-      params: {
-        folderWorkspaceId: folderWorkspace.id,
-        updates: { comment: 'Ready' }
-      },
-      timeoutMs: 15_000
-    })
-    expect(folderWorkspacesUpdate).not.toHaveBeenCalled()
     expect(store.getState().folderWorkspaces[0]?.comment).toBe('Ready')
   })
 
@@ -260,56 +226,6 @@ describe('folder workspace owner-routed mutations', () => {
 
     expect(store.getState().folderWorkspaces[0]?.isUnread).toBe(true)
     expect(store.getState().folderWorkspaces[0]?.updatedAt).toBe(2)
-  })
-
-  it('does not fence a runtime update when the local same-ID catalog refreshes', async () => {
-    const localWorkspace = makeFolderWorkspace({ updatedAt: 3 })
-    const runtimeWorkspace = {
-      ...makeFolderWorkspace(),
-      executionHostId: 'runtime:env-owner' as const
-    }
-    let resolveRuntimeUpdate!: (response: {
-      id: string
-      ok: true
-      result: { folderWorkspace: FolderWorkspace }
-      _meta: { runtimeId: string }
-    }) => void
-    runtimeEnvironmentCall.mockImplementation(
-      () =>
-        new Promise((resolve) => {
-          resolveRuntimeUpdate = resolve
-        })
-    )
-    folderWorkspacesList.mockResolvedValue([localWorkspace])
-    const store = createTestStore()
-    store.setState({
-      projectGroups: [{ ...projectGroup, executionHostId: 'local' }],
-      folderWorkspaces: [localWorkspace, runtimeWorkspace]
-    })
-
-    const pendingUpdate = store
-      .getState()
-      .updateFolderWorkspace(
-        runtimeWorkspace.id,
-        { isUnread: true },
-        { executionHostId: 'runtime:env-owner' }
-      )
-    await vi.waitFor(() => expect(runtimeEnvironmentCall).toHaveBeenCalledTimes(1))
-    await store.getState().fetchFolderWorkspaces({ runtimeEnvironmentId: null })
-    resolveRuntimeUpdate({
-      id: 'rpc-update-folder',
-      ok: true,
-      result: {
-        folderWorkspace: { ...runtimeWorkspace, isUnread: true, updatedAt: 2 }
-      },
-      _meta: { runtimeId: 'runtime-owner' }
-    })
-    await pendingUpdate
-
-    expect(store.getState().folderWorkspaces).toEqual([
-      { ...localWorkspace, executionHostId: 'local' },
-      { ...runtimeWorkspace, isUnread: true, updatedAt: 2 }
-    ])
   })
 
   it('does not rewind newer optimistic activity when an older response arrives', async () => {
@@ -461,65 +377,5 @@ describe('folder workspace owner-routed mutations', () => {
     // Delete is owner-scoped: the sibling host's row keeps the bare ID alive.
     expect(store.getState().folderWorkspaces).toEqual([runtimeFolder])
     expect(shutdownWorktreeBrowsers).not.toHaveBeenCalled()
-  })
-
-  it('deletes a runtime folder through its owner instead of the focused runtime', async () => {
-    const folderWorkspace = makeFolderWorkspace({ id: 'folder-runtime' })
-    runtimeEnvironmentCall.mockResolvedValue({
-      id: 'rpc-delete-folder',
-      ok: true,
-      result: { deleted: true },
-      _meta: { runtimeId: 'runtime-owner' }
-    })
-    const store = createTestStore()
-    store.setState({
-      settings: { activeRuntimeEnvironmentId: 'env-focused' } as never,
-      projectGroups: [{ ...projectGroup, executionHostId: 'runtime:env-owner' }],
-      folderWorkspaces: [folderWorkspace]
-    })
-
-    await expect(store.getState().deleteFolderWorkspace(folderWorkspace.id)).resolves.toBe(true)
-
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-      selector: 'env-owner',
-      method: 'folderWorkspace.delete',
-      params: { folderWorkspaceId: folderWorkspace.id },
-      timeoutMs: 15_000
-    })
-    expect(folderWorkspacesDelete).not.toHaveBeenCalled()
-    expect(store.getState().folderWorkspaces).toEqual([])
-  })
-
-  it('deletes only the host-qualified folder when ids collide', async () => {
-    const localFolder = makeFolderWorkspace({ executionHostId: 'local' })
-    const runtimeFolder = makeFolderWorkspace({ executionHostId: 'runtime:env-owner' })
-    runtimeEnvironmentCall.mockResolvedValue({
-      id: 'rpc-delete-folder',
-      ok: true,
-      result: { deleted: true },
-      _meta: { runtimeId: 'runtime-owner' }
-    })
-    const store = createTestStore()
-    store.setState({
-      activeWorktreeId: `folder:${runtimeFolder.id}`,
-      activeWorkspaceExecutionHostId: 'runtime:env-owner',
-      settings: { activeRuntimeEnvironmentId: 'env-owner' } as never,
-      projectGroups: [{ ...projectGroup, executionHostId: 'local' }],
-      folderWorkspaces: [localFolder, runtimeFolder]
-    })
-
-    await expect(
-      store
-        .getState()
-        .deleteFolderWorkspace(runtimeFolder.id, { executionHostId: 'runtime:env-owner' })
-    ).resolves.toBe(true)
-
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-      selector: 'env-owner',
-      method: 'folderWorkspace.delete',
-      params: { folderWorkspaceId: runtimeFolder.id },
-      timeoutMs: 15_000
-    })
-    expect(store.getState().folderWorkspaces).toEqual([localFolder])
   })
 })

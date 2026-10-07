@@ -7,10 +7,6 @@
       "specifier": "./config/oxlint-plugins/sort-comparator-performance.mjs"
     },
     {
-      "name": "mobile-pairing",
-      "specifier": "./config/oxlint-plugins/mobile-pairing-qrcode-import.mjs"
-    },
-    {
       "name": "app-store-performance",
       "specifier": "./config/oxlint-plugins/app-store-performance.mjs"
     },
@@ -97,19 +93,6 @@
     "no-else-return": "error",
     "prefer-exponentiation-operator": "error",
     "prefer-object-has-own": "error",
-    "no-restricted-imports": [
-      "error",
-      {
-        "paths": [
-          {
-            "name": "@linear/sdk",
-            "allowTypeImports": true,
-            "message": "Value-importing @linear/sdk hoists its ~2.6MB CJS bundle into the eager top-level require block and defeats the lazy loader. Use `import type` plus loadLinearSdk() from src/main/linear/linear-sdk.ts."
-          }
-        ]
-      }
-    ],
-    "mobile-pairing/no-eager-qrcode-import": "error",
     "no-useless-return": "error",
     "prefer-template": "error",
     "unicorn/consistent-empty-array-spread": "error",
@@ -212,8 +195,6 @@
     "**/node_modules",
     "**/dist",
     "**/out",
-    "cloud/**",
-    ".github/actions/cloud-sql-rollout-lease/**",
     "tests/e2e/.cross-version-checkouts"
   ]
 }

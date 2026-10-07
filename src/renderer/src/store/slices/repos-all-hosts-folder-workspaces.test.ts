@@ -7,8 +7,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '../../runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
-import { folderWorkspaceKey } from '../../../../shared/workspace-scope'
 
 const localRepo: Repo = {
   id: 'local-repo',
@@ -95,7 +93,6 @@ const runtimeEnvironmentTransportCall = vi.fn()
 const dispatchEventMock = vi.fn()
 
 beforeEach(() => {
-  clearRuntimeCompatibilityCacheForTests()
   reposList.mockReset()
   projectsList.mockReset()
   listHostSetups.mockReset()
@@ -164,99 +161,6 @@ beforeEach(() => {
 })
 
 describe('all-host folder workspace startup catalogs', () => {
-  it('loads project groups and folder workspaces for every host', async () => {
-    const store = createTestStore()
-    store.setState({ settings: { activeRuntimeEnvironmentId: 'env-1' } as never })
-    const restoredFolderKey = folderWorkspaceKey('remote-folder')
-    store.setState({
-      restoredRuntimeHostIdByWorkspaceSessionKey: {
-        [restoredFolderKey]: 'runtime:env-1',
-        'remote-repo::/srv/repo': 'runtime:env-1'
-      }
-    })
-
-    await store.getState().fetchProjectGroupsForAllHosts()
-    await store.getState().fetchFolderWorkspacesForAllHosts()
-
-    expect(store.getState().projectGroups).toEqual([
-      { ...localProjectGroup, executionHostId: 'local' },
-      { ...remoteProjectGroup, executionHostId: 'runtime:env-1' }
-    ])
-    expect(store.getState().folderWorkspaces.map((workspace) => workspace.id)).toEqual([
-      'local-folder',
-      'remote-folder'
-    ])
-    expect(store.getState().restoredRuntimeHostIdByWorkspaceSessionKey).toEqual({
-      'remote-repo::/srv/repo': 'runtime:env-1'
-    })
-
-    const missingGroupStore = createTestStore()
-    missingGroupStore.setState({
-      settings: { activeRuntimeEnvironmentId: 'env-1' } as never,
-      projectGroups: [localProjectGroup],
-      restoredRuntimeHostIdByWorkspaceSessionKey: { [restoredFolderKey]: 'runtime:env-1' }
-    })
-    await missingGroupStore.getState().fetchFolderWorkspacesForAllHosts()
-
-    expect(missingGroupStore.getState().restoredRuntimeHostIdByWorkspaceSessionKey).toEqual({
-      [restoredFolderKey]: 'runtime:env-1'
-    })
-  })
-
-  it('accumulates folder catalogs from concurrent runtime hosts', async () => {
-    const secondRemoteGroup: ProjectGroup = {
-      ...remoteProjectGroup,
-      id: 'remote-group-2',
-      executionHostId: 'runtime:env-2'
-    }
-    const secondRemoteFolder: FolderWorkspace = {
-      ...remoteFolderWorkspace,
-      id: 'remote-folder-2',
-      projectGroupId: secondRemoteGroup.id
-    }
-    runtimeEnvironmentsList.mockResolvedValue([
-      { id: 'env-1', name: 'lobster' },
-      { id: 'env-2', name: 'shrimp' }
-    ])
-    runtimeEnvironmentCall.mockImplementation(
-      (args: RuntimeEnvironmentCallRequest & { selector: string }) => {
-        if (args.method === 'folderWorkspace.list') {
-          const folderWorkspaces =
-            args.selector === 'env-2' ? [secondRemoteFolder] : [remoteFolderWorkspace]
-          return {
-            id: `rpc-folder-workspace-list-${args.selector}`,
-            ok: true,
-            result: { folderWorkspaces },
-            _meta: { runtimeId: `runtime-${args.selector}` }
-          }
-        }
-        return {
-          id: `rpc-other-${args.selector}`,
-          ok: true,
-          result: { projects: [], setups: [] },
-          _meta: { runtimeId: `runtime-${args.selector}` }
-        }
-      }
-    )
-    const store = createTestStore()
-    store.setState({
-      projectGroups: [
-        { ...localProjectGroup, executionHostId: 'local' },
-        { ...remoteProjectGroup, executionHostId: 'runtime:env-1' },
-        secondRemoteGroup
-      ]
-    })
-
-    await store.getState().fetchFolderWorkspacesForAllHosts()
-
-    expect(
-      store
-        .getState()
-        .folderWorkspaces.map((workspace) => workspace.id)
-        .sort()
-    ).toEqual(['local-folder', 'remote-folder', 'remote-folder-2'])
-  })
-
   it('keeps local project groups and folder workspaces when a runtime is unreachable', async () => {
     runtimeEnvironmentCall.mockImplementation((args: RuntimeEnvironmentCallRequest) => {
       if (args.method === 'projectGroup.list' || args.method === 'folderWorkspace.list') {
@@ -281,45 +185,5 @@ describe('all-host folder workspace startup catalogs', () => {
     expect(store.getState().folderWorkspaces).toEqual([
       { ...localFolderWorkspace, executionHostId: 'local' }
     ])
-  })
-
-  it('does not repeat offline runtime compatibility probes across startup catalog loads', async () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    runtimeEnvironmentTransportCall.mockResolvedValue({
-      id: 'status',
-      ok: false,
-      error: { code: 'runtime_unavailable', message: 'offline' },
-      _meta: { runtimeId: 'runtime-remote' }
-    })
-    const store = createTestStore()
-    store.setState({ settings: { activeRuntimeEnvironmentId: 'env-1' } as never })
-    const restoredFolderKey = folderWorkspaceKey('remote-folder')
-    store.setState({
-      restoredRuntimeHostIdByWorkspaceSessionKey: {
-        [restoredFolderKey]: 'runtime:env-1'
-      }
-    })
-
-    try {
-      await store.getState().fetchReposForAllHosts()
-      await store.getState().fetchProjectGroupsForAllHosts()
-      await store.getState().fetchFolderWorkspacesForAllHosts()
-
-      expect(store.getState().repos).toEqual([{ ...localRepo, executionHostId: 'local' }])
-      expect(store.getState().projectGroups).toEqual([
-        { ...localProjectGroup, executionHostId: 'local' }
-      ])
-      expect(store.getState().folderWorkspaces).toEqual([
-        { ...localFolderWorkspace, executionHostId: 'local' }
-      ])
-      expect(runtimeEnvironmentTransportCall.mock.calls.map((call) => call[0].method)).toEqual([
-        'status.get'
-      ])
-      expect(store.getState().restoredRuntimeHostIdByWorkspaceSessionKey).toEqual({
-        [restoredFolderKey]: 'runtime:env-1'
-      })
-    } finally {
-      warn.mockRestore()
-    }
   })
 })

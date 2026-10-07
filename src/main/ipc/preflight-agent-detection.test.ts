@@ -7,9 +7,6 @@ const {
   hydrateShellPathMock,
   mergePathSegmentsMock,
   getActiveMultiplexerMock,
-  getBitbucketAuthStatusMock,
-  getAzureDevOpsAuthStatusMock,
-  getGiteaAuthStatusMock,
   resolveCliCommandsMock,
   isCommandOnLocalPathMock,
   mergePersistedWindowsPathAsyncMock,
@@ -21,9 +18,6 @@ const {
   hydrateShellPathMock: vi.fn(),
   mergePathSegmentsMock: vi.fn(),
   getActiveMultiplexerMock: vi.fn(),
-  getBitbucketAuthStatusMock: vi.fn(),
-  getAzureDevOpsAuthStatusMock: vi.fn(),
-  getGiteaAuthStatusMock: vi.fn(),
   resolveCliCommandsMock: vi.fn(),
   isCommandOnLocalPathMock: vi.fn(),
   mergePersistedWindowsPathAsyncMock: vi.fn(),
@@ -76,22 +70,11 @@ vi.mock('./ssh', () => ({
   getActiveMultiplexer: getActiveMultiplexerMock
 }))
 
-vi.mock('../bitbucket/client', () => ({
-  getBitbucketAuthStatus: getBitbucketAuthStatusMock
-}))
-
-vi.mock('../azure-devops/client', () => ({
-  getAzureDevOpsAuthStatus: getAzureDevOpsAuthStatusMock
-}))
-
-vi.mock('../gitea/client', () => ({
-  getGiteaAuthStatus: getGiteaAuthStatusMock
-}))
-
 import {
   detectInstalledAgents,
   detectInstalledAgentsWithShellPathHydration,
-  registerPreflightHandlers
+  registerPreflightHandlers,
+  runPreflightCheck
 } from './preflight'
 import { resetPreflightMocks, type HandlerMap } from './preflight-test-harness'
 
@@ -108,9 +91,6 @@ describe('preflight', () => {
         hydrateShellPathMock,
         mergePathSegmentsMock,
         getActiveMultiplexerMock,
-        getBitbucketAuthStatusMock,
-        getAzureDevOpsAuthStatusMock,
-        getGiteaAuthStatusMock,
         resolveCliCommandsMock,
         isCommandOnLocalPathMock,
         mergePersistedWindowsPathAsyncMock,
@@ -531,5 +511,24 @@ describe('preflight', () => {
     expect(runWslProcessMock).toHaveBeenCalledWith(
       expect.objectContaining({ distro: undefined, loginPath: 'preferred' })
     )
+  })
+
+  it('reports only the git binary and spawns no forge CLI auth probes', async () => {
+    const seen: string[] = []
+    execFileAsyncMock.mockImplementation(async (command, args) => {
+      seen.push([String(command), ...args.map(String)].join(' '))
+      return {
+        environmentResolved: true,
+        code: 0,
+        stdout: '/usr/bin/git\n',
+        stderr: '',
+        timedOut: false
+      }
+    })
+
+    const status = await runPreflightCheck(true)
+
+    expect(status).toEqual({ git: { installed: true } })
+    expect(seen.some((line) => /\b(gh|glab) auth status\b/.test(line))).toBe(false)
   })
 })

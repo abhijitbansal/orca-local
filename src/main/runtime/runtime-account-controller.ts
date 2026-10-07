@@ -1,16 +1,12 @@
 import type { ClaudeAccountService } from '../claude-accounts/service'
-import type {
-  CodexAccountService,
-  CodexResetCreditRejectedBeforeProviderReason
-} from '../codex-accounts/service'
+import type { CodexAccountService } from '../codex-accounts/service'
 import type { CodexAccountSelectionTarget } from '../codex-accounts/runtime-selection'
 import type { RateLimitService } from '../rate-limits/service'
 import type {
   ClaudeRateLimitAccountsState,
   CodexRateLimitAccountsState
 } from '../../shared/managed-account-types'
-import type { CodexRateLimitResetOutcome, RateLimitState } from '../../shared/rate-limit-types'
-import type { CodexResetCreditExpectedScope } from '../../shared/codex-reset-credit-scope'
+import type { RateLimitState } from '../../shared/rate-limit-types'
 import type { CommitMessageAgentEnvironmentResolvers } from '../text-generation/commit-message-agent-environment'
 import type { ClaudeAccountSelectionTarget } from '../claude-accounts/runtime-selection'
 
@@ -25,18 +21,6 @@ export type AccountsSnapshot = {
   codex: CodexRateLimitAccountsState
   rateLimits: RateLimitState
 }
-
-export type CodexRateLimitResetRpcResult = {
-  scope: CodexResetCreditExpectedScope
-  snapshot: AccountsSnapshot
-} & (
-  | { outcome: CodexRateLimitResetOutcome }
-  | {
-      status: 'rejectedBeforeProvider'
-      retryDisposition: 'discardAttempt'
-      reason: CodexResetCreditRejectedBeforeProviderReason
-    }
-)
 
 export class RuntimeAccountController {
   private services: RuntimeAccountServices | null = null
@@ -67,24 +51,6 @@ export class RuntimeAccountController {
     }
   }
 
-  async refreshForMobile(): Promise<void> {
-    const { rateLimits } = this.requireServices()
-    await Promise.allSettled([
-      rateLimits.refresh(),
-      rateLimits.fetchInactiveClaudeAccountsOnOpen(),
-      rateLimits.fetchInactiveCodexAccountsOnOpen()
-    ])
-  }
-
-  async refreshForMobileSubscriber(): Promise<void> {
-    const { rateLimits } = this.requireServices()
-    await Promise.allSettled([
-      rateLimits.refreshIfStale(),
-      rateLimits.fetchInactiveClaudeAccountsOnOpen(),
-      rateLimits.fetchInactiveCodexAccountsOnOpen()
-    ])
-  }
-
   selectClaude(accountId: string | null): Promise<ClaudeRateLimitAccountsState> {
     return this.requireServices().claudeAccounts.selectAccount(accountId)
   }
@@ -98,29 +64,6 @@ export class RuntimeAccountController {
     target: CodexAccountSelectionTarget
   ): Promise<CodexRateLimitAccountsState> {
     return this.requireServices().codexAccounts.selectAccountForTarget(accountId, target)
-  }
-
-  async consumeCodexResetCredit(
-    idempotencyKey: string,
-    expectedScope: CodexResetCreditExpectedScope
-  ): Promise<CodexRateLimitResetRpcResult> {
-    const { claudeAccounts, codexAccounts } = this.requireServices()
-    const result = await codexAccounts.consumeRateLimitResetCredit(idempotencyKey, expectedScope)
-    const snapshot = {
-      claude: claudeAccounts.listAccounts(),
-      codex: result.codex,
-      rateLimits: result.rateLimits
-    }
-    if ('status' in result) {
-      return {
-        status: result.status,
-        retryDisposition: result.retryDisposition,
-        reason: result.reason,
-        scope: result.scope,
-        snapshot
-      }
-    }
-    return { outcome: result.outcome, scope: result.scope, snapshot }
   }
 
   removeClaude(accountId: string): Promise<ClaudeRateLimitAccountsState> {

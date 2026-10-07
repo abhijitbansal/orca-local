@@ -1,5 +1,3 @@
-import { app } from 'electron'
-import { listEnvironments } from '../../shared/runtime-environment-store'
 import {
   deriveBrowserRoutePartitionStorageScope,
   deriveLocalSshBrowserRoutePartitionStorageScope
@@ -23,8 +21,7 @@ export type BrowserRoutePartitionStorageClear = {
  * Sweeps route partitions whose owning record is gone.
  *
  * Runs at startup only, and never treats a disconnected host as removed: an
- * environment or SSH target that still exists in the store keeps every
- * partition it owns. `listLocalSshTargetIds` comes from the caller because the
+ * SSH target that still exists in the store keeps every partition it owns. `listLocalSshTargetIds` comes from the caller because the
  * SSH store singleton may not be registered yet at sweep time — and a missing
  * target list must skip the sweep, never mistake live jars for orphans.
  */
@@ -36,11 +33,7 @@ export async function collectOrphanedBrowserRoutePartitionStorage(
     return []
   }
   const dependencies = storageDependencies()
-  const liveStorageScopes = new Set(
-    listEnvironments(app.getPath('userData')).map((environment) =>
-      deriveBrowserRoutePartitionStorageScope({ orcaProfileId, environmentId: environment.id })
-    )
-  )
+  const liveStorageScopes = new Set<string>()
   if (!listLocalSshTargetIds) {
     return []
   }

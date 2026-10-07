@@ -622,39 +622,6 @@ describe('account CLI handlers', () => {
     expect(spawnMock).not.toHaveBeenCalled()
   })
 
-  it.each(['environment', 'pairing-code'])(
-    'rejects --%s instead of silently ignoring it',
-    async (flag) => {
-      // Why: account commands are pinned to the local runtime, so honoring these
-      // silently would register the account on the wrong host.
-      await expect(
-        ACCOUNT_HANDLERS['account add']({
-          ...context('codex'),
-          flags: new Map<string, string | boolean>([
-            ['agent', 'codex'],
-            [flag, 'homelab']
-          ])
-        })
-      ).rejects.toThrow(`\`--${flag}\` does not retarget`)
-      expect(spawnMock).not.toHaveBeenCalled()
-    }
-  )
-
-  it.each(['environment', 'pairing-code'])(
-    'rejects --%s on `account list` instead of listing the local host',
-    async (flag) => {
-      // Why: listing is read-only, but answering with the LOCAL machine's accounts
-      // when the user named a remote host is the specific wrong answer they'd act on.
-      await expect(
-        ACCOUNT_HANDLERS['account list']({
-          ...context('claude'),
-          flags: new Map<string, string | boolean>([[flag, 'homelab']])
-        })
-      ).rejects.toThrow(`\`--${flag}\` does not retarget`)
-      expect(callMock).not.toHaveBeenCalled()
-    }
-  )
-
   it('keeps the original add error when cleanup also fails', async () => {
     // Why: cleanup runs in a `finally`, so an unguarded rejection there replaces
     // the error that actually explains why the add failed.

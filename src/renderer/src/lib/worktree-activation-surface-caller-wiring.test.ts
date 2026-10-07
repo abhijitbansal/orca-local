@@ -15,8 +15,6 @@ const SURFACE_PROVIDING_CALLERS = [
   'src/renderer/src/components/terminal-pane/terminal-agent-session-fork.ts',
   'src/renderer/src/components/terminal-pane/terminal-file-open-routing.ts',
   'src/renderer/src/hooks/composer-state/full-creation-execution.ts',
-  'src/renderer/src/lib/fix-checks-agent-launch.ts',
-  'src/renderer/src/lib/launch-work-item-direct.ts',
   'src/renderer/src/lib/worktree-creation-structured-session.ts',
   'src/renderer/src/lib/workspace-port-actions.ts',
   'src/renderer/src/lib/onboarding-folder-agent-launch.ts'

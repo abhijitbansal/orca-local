@@ -25,10 +25,9 @@ import { Label } from '../ui/label'
 import { Switch } from '../ui/switch'
 import { SearchableSetting } from './SearchableSetting'
 import { SourceControlAiActionRecipeDefaults } from './SourceControlAiActionRecipeDefaults'
-import { matchesSettingsSearch } from './settings-search'
 import { getSettingOwnershipSummary } from './setting-ownership'
+import { matchesSettingsSearch } from './settings-search'
 import { translate } from '@/i18n/i18n'
-import { HostedReviewCreationDefaults } from './HostedReviewCreationDefaults'
 
 type CommitMessageAiPaneProps = {
   settings: GlobalSettings
@@ -132,18 +131,6 @@ export function CommitMessageAiPane({
 
   const onCustomCommandChange = (value: string): void => {
     void writeConfig({ customAgentCommand: value })
-  }
-
-  const onPrDefaultChange = (
-    key: keyof NonNullable<SourceControlAiSettings['prCreationDefaults']>,
-    value: boolean
-  ): void => {
-    void writeConfig((current) => ({
-      prCreationDefaults: {
-        ...current.prCreationDefaults,
-        [key]: value
-      }
-    }))
   }
 
   const sections: React.ReactNode[] = []
@@ -294,39 +281,6 @@ export function CommitMessageAiPane({
           className="h-8 font-mono text-xs"
         />
       </SearchableSetting>
-    )
-  }
-
-  if (
-    config.enabled &&
-    matchesSettingsSearch(searchQuery, {
-      title: translate(
-        'auto.components.settings.CommitMessageAiPane.2dafc7646e',
-        'Hosted-review creation defaults'
-      ),
-      description: translate(
-        'auto.components.settings.CommitMessageAiPane.e9d46a544d',
-        'Defaults used when the hosted-review composer opens.'
-      ),
-      keywords: [
-        translate('auto.components.settings.CommitMessageAiPane.19e10a12bb', 'hosted review'),
-        translate('auto.components.settings.CommitMessageAiPane.b388463881', 'pull request'),
-        translate('auto.components.settings.CommitMessageAiPane.fdee745b87', 'merge request'),
-        translate('auto.components.settings.CommitMessageAiPane.02bab6542c', 'pr'),
-        translate('auto.components.settings.CommitMessageAiPane.ebed4d2a29', 'draft'),
-        translate('auto.components.settings.CommitMessageAiPane.6c84ba6de3', 'template'),
-        translate('auto.components.settings.CommitMessageAiPane.34d0348e34', 'generate'),
-        translate('auto.components.settings.CommitMessageAiPane.2c5436c018', 'open')
-      ]
-    })
-  ) {
-    const prDefaults = config.prCreationDefaults ?? {}
-    sections.push(
-      <HostedReviewCreationDefaults
-        key="pr-creation-defaults"
-        prDefaults={prDefaults}
-        onPrDefaultChange={onPrDefaultChange}
-      />
     )
   }
 

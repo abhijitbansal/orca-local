@@ -21,11 +21,9 @@ import {
   stripMutationReplayNudge
 } from '../../../orchestration-mutation-executor'
 import { replayMutationNudge } from './mutation-replay-nudge'
-import { sendRemoteMessage } from './send-remote'
 import { mayNameSession } from './session-recipient'
 import { sendPointToPointMessage } from './send-point-to-point'
 import { sendGroupMessage } from './send-group'
-import { sendFederatedControlMail } from './send-control-mail'
 import { orchestrationCallerIdentity } from '../runs/run-scope'
 import { assertLifecycleCallerIsNotAnotherParty } from './lifecycle-caller-fence'
 
@@ -44,8 +42,7 @@ export const ORCHESTRATION_SEND_METHODS = [
         markWorkerDoneMutationEffectFree,
         replayedMutationReceipt,
         orchestrationCaller,
-        orchestrationCompatibilityEvidence,
-        signal
+        orchestrationCompatibilityEvidence
       }
     ) => {
       const db = runtime.getOrchestrationDb()
@@ -86,20 +83,11 @@ export const ORCHESTRATION_SEND_METHODS = [
       const remoteAttachment = senderPaneKey
         ? db.findActiveRemoteAttachmentForPane(senderPaneKey)
         : undefined
-      if (remoteAttachment && senderPaneKey) {
-        return sendRemoteMessage({
-          params,
-          runtime,
-          db,
-          from,
-          senderPaneKey,
-          remoteAttachment,
-          processIncarnation:
-            attestedCaller?.processIncarnation ??
-            runtime.getTerminalProcessIncarnation(from) ??
-            undefined,
-          signal
-        })
+      if (remoteAttachment) {
+        throw new OrchestrationError(
+          'server_required',
+          'Connected-server orchestration is unavailable in this build.'
+        )
       }
 
       const runGroup =
@@ -175,12 +163,13 @@ export const ORCHESTRATION_SEND_METHODS = [
         const addressedDispatchId = to.startsWith('dispatch:')
           ? to.slice('dispatch:'.length)
           : undefined
-        const federatedTarget =
-          addressedDispatchId && to === `dispatch:${addressedDispatchId}`
-            ? db.getFederatedDispatch(addressedDispatchId)
-            : undefined
-        // Federated targets perform their own liveness check before relaying.
-        if (addressedDispatchId && !federatedTarget) {
+        if (addressedDispatchId && db.getFederatedDispatch(addressedDispatchId)) {
+          throw new OrchestrationError(
+            'server_required',
+            'Connected-server orchestration is unavailable in this build.'
+          )
+        }
+        if (addressedDispatchId) {
           assertDispatchMailboxDeliverable(runtime, db, addressedDispatchId)
           const runBound = resolveRunBoundDispatchRecipient(
             runtime,
@@ -193,20 +182,6 @@ export const ORCHESTRATION_SEND_METHODS = [
             messageRunId = runBound.runId
             sendWarnings.push(runBound.warning)
           }
-        }
-        const federatedControl = sendFederatedControlMail({
-          params,
-          runtime,
-          db,
-          from,
-          to,
-          messageRunId,
-          revalidateLegacyCoordinator,
-          recordMutationReceipt,
-          withSendWarnings
-        })
-        if (federatedControl !== undefined) {
-          return federatedControl
         }
         return sendPointToPointMessage({
           params,

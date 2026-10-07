@@ -183,10 +183,7 @@ function openDialog(
       currentComment: worktree.comment,
       focus: 'comment'
     },
-    updateWorktreeMeta,
-    fetchLinearIssue: fetchLinearIssue as unknown as ReturnType<
-      typeof useAppStore.getState
-    >['fetchLinearIssue']
+    updateWorktreeMeta
   })
   render(<WorktreeMetaDialog />)
 }
@@ -231,28 +228,6 @@ describe('WorktreeMetaDialog issue link row', () => {
 
     expect(providerChip().textContent).toContain('GitHub')
     expect(issueInput().value).toBe('42')
-  })
-
-  it('seeds and saves the GitLab MR row through the GitLab slot', async () => {
-    openDialog({
-      worktree: { linkedGitLabMR: 42 },
-      modalReviewProvider: 'gitlab',
-      modalCurrentReview: 42,
-      modalSuppressHostedReviewRefresh: true
-    })
-    const input = screen.getByPlaceholderText('MR ! or GitLab URL')
-
-    expect(screen.getByText('GitLab MR')).toBeTruthy()
-    expect((input as HTMLInputElement).value).toBe('42')
-    fireEvent.change(input, { target: { value: '!43' } })
-    await act(async () => fireEvent.click(saveButton()))
-
-    await waitFor(() => expect(updateWorktreeMeta).toHaveBeenCalledTimes(1))
-    expect(updateWorktreeMeta.mock.calls[0]?.[1]).toEqual(
-      expect.objectContaining({ linkedGitLabMR: 43 })
-    )
-    expect(updateWorktreeMeta.mock.calls[0]?.[1]).not.toHaveProperty('linkedPR')
-    expect(updateWorktreeMeta.mock.calls[0]?.[2]).toEqual({ suppressHostedReviewRefresh: true })
   })
 
   it('replaces a completed emoji shortcode in the display name', () => {
@@ -489,40 +464,9 @@ describe('WorktreeMetaDialog issue link row', () => {
   // A bare key names no organization. Building one from the connected viewer
   // opens a not-found page — or a colliding issue — for every other workspace
   // the user belongs to, and skips the lookup that would have said so.
-  it('resolves a bare Linear key across workspaces rather than the active organization', async () => {
-    fetchLinearIssue.mockResolvedValue(makeLinearIssue('https://linear.app/other/issue/STA-999'))
-    openDialog({
-      worktree: { linkedLinearIssue: 'STA-335' },
-      linearViewerOrganizationUrlKey: 'active-org'
-    })
-
-    fireEvent.change(issueInput(), { target: { value: 'STA-999' } })
-    await act(async () => {
-      fireEvent.click(openIssueButton())
-    })
-
-    expect(fetchLinearIssue.mock.calls[0]?.slice(0, 2)).toEqual(['STA-999', 'all'])
-    expect(openUrl).toHaveBeenCalledWith('https://linear.app/other/issue/STA-999')
-  })
 
   // The stored key belongs to the persisted identifier, so it stays authoritative
   // for it — no lookup, no round trip.
-  it('opens a stored Linear link directly from its organization key', async () => {
-    openDialog({
-      worktree: {
-        linkedLinearIssue: 'STA-335',
-        linkedLinearIssueOrganizationUrlKey: 'acme'
-      },
-      linearViewerOrganizationUrlKey: 'active-org'
-    })
-
-    await act(async () => {
-      fireEvent.click(openIssueButton())
-    })
-
-    expect(fetchLinearIssue).not.toHaveBeenCalled()
-    expect(openUrl).toHaveBeenCalledWith('https://linear.app/acme/issue/STA-335')
-  })
 
   // Promise.race cannot cancel the lookup, and the field stays editable while it
   // runs — a late result must not open the issue the user just replaced.

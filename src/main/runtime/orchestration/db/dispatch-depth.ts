@@ -73,7 +73,7 @@ function isSelfCreatedDispatch(row: DispatchContextRow): boolean {
  *
  * `start_unknown` means prompt delivery may have succeeded; `stopping` and
  * `stop_unknown` do not establish that the process exited. Loss of contact is
- * never evidence of process death — see docs/reference/ssh-execution-boundary.md.
+ * never evidence of process death — see AGENTS.md.
  * An `unverifiable` worker must still count as a nesting parent.
  */
 export class AmbiguousDispatchParentError extends Error {

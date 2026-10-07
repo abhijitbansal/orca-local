@@ -71,17 +71,18 @@ describe('electron-builder mac channel config', () => {
     expect(electronBuilderConfig.mac.notarize).toBe(false)
   })
 
-  // Why: the main repo's releases atom feed exposes only its 10 newest entries.
-  // Publishing 24 hourly tags a day there would evict every stable/RC entry and
-  // break update checks for every real user.
-  it('publishes hourly builds to the separate hourly repo', () => {
+  // Why: there is no release feed to publish to; publish: null stops electron-builder generating app-update.yml.
+  it('has no publish block on any channel', () => {
     withHourlyEnv((config) => {
-      expect(config.publish).toMatchObject({ repo: 'orca-hourly', releaseType: 'prerelease' })
+      expect(config.publish).toBeNull()
     })
-    expect(electronBuilderConfig.publish).toMatchObject({
-      repo: 'orca',
-      releaseType: 'draft'
+    withDailyEnv((config) => {
+      expect(config.publish).toBeNull()
     })
+    withAdhocEnv((config) => {
+      expect(config.publish).toBeNull()
+    })
+    expect(electronBuilderConfig.publish).toBeNull()
   })
 
   it('stamps hourly packages with the hourly version', () => {
@@ -94,15 +95,13 @@ describe('electron-builder mac channel config', () => {
   })
 
   // Why adhoc carries the identical mac identity to hourly: it installs over a
-  // real Orca through the same updater path, so the same signing and the same TCC
-  // argument apply. Only the destination repo differs.
-  it('builds adhoc artifacts with the release identity and its own repo', () => {
+  // real Orca, so the same signing and the same TCC argument apply.
+  it('builds adhoc artifacts with the release identity', () => {
     withAdhocEnv((config) => {
       expect(config.appId).toBe('com.stablyai.orca')
       expect(config.mac.hardenedRuntime).toBe(true)
       expect(config.mac.notarize).toBe(true)
       expect(config.forceCodeSigning).toBe(true)
-      expect(config.publish).toMatchObject({ repo: 'orca-adhoc', releaseType: 'prerelease' })
     })
   })
 
@@ -115,13 +114,12 @@ describe('electron-builder mac channel config', () => {
     )
   })
 
-  it('builds daily artifacts with the release identity and its own repo', () => {
+  it('builds daily artifacts with the release identity', () => {
     withDailyEnv((config) => {
       expect(config.appId).toBe('com.stablyai.orca')
       expect(config.mac.hardenedRuntime).toBe(true)
       expect(config.mac.notarize).toBe(true)
       expect(config.forceCodeSigning).toBe(true)
-      expect(config.publish).toMatchObject({ repo: 'orca-daily', releaseType: 'prerelease' })
     })
   })
 
@@ -132,21 +130,5 @@ describe('electron-builder mac channel config', () => {
         expect(config.extraMetadata).toEqual({ version: '1.4.160-daily.202607281300' })
       }
     )
-  })
-
-  // Why: the dev channels share every packaging decision except where they
-  // publish, so a future edit that collapses them must not also collapse the
-  // repos — a branch or daily build landing in orca-hourly would be offered to
-  // everyone riding main's hourlies.
-  it('keeps the dev channels on separate repos', () => {
-    withHourlyEnv((hourly) => {
-      withDailyEnv((daily) => {
-        withAdhocEnv((adhoc) => {
-          expect(new Set([hourly.publish.repo, daily.publish.repo, adhoc.publish.repo]).size).toBe(
-            3
-          )
-        })
-      })
-    })
   })
 })

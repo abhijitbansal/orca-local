@@ -120,7 +120,6 @@ const TOOL_CHANNELS = [
 
 const BROWSER_PAGE_CHANNELS = [
   'browser:registerGuest',
-  'browser:prepareSshWorkspacePartition',
   'browser:repairGuestRegistration',
   'browser:isGuestRegistered',
   'browser:unregisterGuest',
@@ -129,7 +128,6 @@ const BROWSER_PAGE_CHANNELS = [
   'browser:activeTabChanged',
   'browser:openDevTools',
   'browser:setViewportOverride',
-  'browser:publishClientPageMetadata',
   'browser:cancelDownload',
   'browser:session:listProfiles',
   'browser:session:createProfile',
@@ -137,10 +135,7 @@ const BROWSER_PAGE_CHANNELS = [
   'browser:session:importCookies',
   'browser:session:resolvePartition',
   'browser:session:clearDefaultCookies',
-  'browser:session:importFromBrowserForClientHost',
-  'browser:session:clientRouteImportSources',
   'browser:session:detectBrowsers',
-  'browser:session:detectBrowsersForClientHost',
   'browser:session:importFromBrowser',
   // Process-wide identity: reads/writes the host's own user-agent choice, never a viewed guest.
   'browser:identity:get',

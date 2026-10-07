@@ -290,25 +290,23 @@ export function PluginMarketplaceSourceDialog({
                     >
                       <RefreshCw className={refreshing ? 'animate-spin' : undefined} />
                     </Button>
-                    {!source.official ? (
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        disabled={Boolean(busyAction)}
-                        aria-label={translate(
-                          'auto.components.settings.PluginMarketplaceSourceDialog.removeLabel',
-                          'Remove {{value0}}',
-                          { value0: source.marketplace?.name ?? source.source.url }
-                        )}
-                        onClick={() => void remove(source.id)}
-                      >
-                        {removing ? (
-                          <Loader2 className="animate-spin" />
-                        ) : (
-                          <Trash2 className="text-destructive" />
-                        )}
-                      </Button>
-                    ) : null}
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      disabled={Boolean(busyAction)}
+                      aria-label={translate(
+                        'auto.components.settings.PluginMarketplaceSourceDialog.removeLabel',
+                        'Remove {{value0}}',
+                        { value0: source.marketplace?.name ?? source.source.url }
+                      )}
+                      onClick={() => void remove(source.id)}
+                    >
+                      {removing ? (
+                        <Loader2 className="animate-spin" />
+                      ) : (
+                        <Trash2 className="text-destructive" />
+                      )}
+                    </Button>
                   </div>
                 )
               })}

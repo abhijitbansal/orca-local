@@ -152,6 +152,6 @@ export type GitHubPRFileContents = {
 
 // Why: declared here as a shared shape so IPC return envelopes and renderer
 // slices can reference the same structural type without importing from main.
-// Aliased as `OwnerRepo` in `src/main/github/gh-utils.ts` so main call sites
+// Aliased as `OwnerRepo` in `src/main/git/github-remote-identity-parsing.ts` so main call sites
 // can continue using the short local name.
 export type GitHubOwnerRepo = GitHubRepositoryIdentity

@@ -8,7 +8,7 @@
 import type { Store } from '../persistence'
 import type { WorktreeMeta } from '../../shared/worktree/meta-types'
 import type { GitPushTarget } from '../../shared/worktree/types'
-import { parseGitHubOwnerRepo } from '../github/gh-utils'
+import { parseGitHubOwnerRepo } from '../git/github-remote-identity-parsing'
 import { getRepoIdFromWorktreeId } from '../../shared/worktree/id'
 import { iterateProcessOutputLines } from '../../shared/process-output-field-scanner'
 

@@ -1,6 +1,4 @@
 import type { AgentStatusOrchestrationContext } from './agent-status-types'
-import type { RemoteServerUpdateSupport } from './remote-server-update'
-import type { RemoteRuntimeSharedConnectionDiagnostics } from './remote-runtime-shared-control-types'
 import type { RuntimeHostConnectionState } from './runtime-host-connection-state'
 import type { RuntimeCapability } from './protocol-version'
 import type {
@@ -61,6 +59,17 @@ export function browserUnavailableMessage(
   return detail ? `${base} (${detail})` : base
 }
 
+/** Last known transport state a client observed for its paired-server control socket. */
+export type RuntimeRemoteControlDiagnostics = {
+  state: 'closed' | 'awaiting_ready' | 'awaiting_authenticated' | 'ready' | 'reconnecting'
+  pendingRequestCount: number
+  subscriptionCount: number
+  reconnectAttempt: number
+  lastConnectedAt: number | null
+  lastClose: { code: number; reason: string } | null
+  lastError: string | null
+}
+
 export type RuntimeStatus = {
   runtimeId: string
   /** Authenticated requester identity. Missing for in-process callers and older hosts. */
@@ -86,8 +95,7 @@ export type RuntimeStatus = {
    */
   degradations?: RuntimeDegradation[]
   appVersion?: string
-  remoteUpdateSupport?: RemoteServerUpdateSupport
-  remoteControl?: RemoteRuntimeSharedConnectionDiagnostics | null
+  remoteControl?: RuntimeRemoteControlDiagnostics | null
   hostPlatform?: NodeJS.Platform
   /** Optional display name reported by the answering runtime. */
   machineName?: string
@@ -120,7 +128,6 @@ export type CliStatusResult = {
     connectionState?: RuntimeHostConnectionState
     runtimeId: string | null
     appVersion?: string
-    remoteUpdateSupport?: RemoteServerUpdateSupport
     capabilities?: RuntimeCapability[]
     degradations?: RuntimeDegradation[]
   }

@@ -1,6 +1,5 @@
 import type { RuntimeMobileSessionTabsResult } from '../../../shared/runtime-types'
-import type { RuntimeRpcResponse } from '../../../shared/runtime-rpc-envelope'
-import { callRuntimeEnvironmentWithRevision } from './runtime-rpc-environment-call'
+import { createUnsupportedInLocalBuildError } from './runtime-environment-unsupported'
 import { toRuntimeWorktreeSelector } from './runtime-worktree-selector'
 import { getSessionTabsRuntimeIdFromResponse } from './web-session-tabs-sync/publisher-identity-fences'
 import {
@@ -286,15 +285,7 @@ export function recoverWebSessionTerminalOrphansBeforeApply(
     return Promise.resolve(mergeRetainedTerminalSurfaces(snapshot, prepared.retained))
   }
   const call: TerminalOrphanRecoveryCall =
-    options.call ??
-    ((args) =>
-      callRuntimeEnvironmentWithRevision({
-        environmentId,
-        method: args.method,
-        params: args.params,
-        timeoutMs: args.timeoutMs,
-        expectedEnvironmentPairingRevision: options.expectedEnvironmentPairingRevision
-      }) as Promise<RuntimeRpcResponse<unknown>>)
+    options.call ?? (() => Promise.reject(createUnsupportedInLocalBuildError()))
   return enqueueLatestTerminalRecovery(key, (isCurrent) =>
     recoverTerminalOrphans(
       state,

@@ -10,7 +10,7 @@ import type { RuntimeListingHostScope } from '../../shared/runtime-listing-host-
  * fleet order: 24 remote worktrees sat at indices 496-520 of 521 and a 200-row cap returned zero
  * of them (#18104). Balancing the page across hosts fixes the starvation; the scope is what makes
  * the remaining gap legible, because a host with no rows in the page is otherwise indistinguishable
- * from a host with no worktrees — which `docs/reference/ssh-execution-boundary.md` forbids a
+ * from a host with no worktrees — which `AGENTS.md` forbids a
  * listing from implying.
  */
 export function buildWorktreeListingPage<TRow extends { hostId?: ExecutionHostId }>(
@@ -72,7 +72,7 @@ export function buildWorktreeListingHostScope(args: {
  * the scope can never report a gap at all, for any host kind, because `covered` and `omitted` are
  * both derived from the returned rows plus this list. A scoped listing whose scan did not succeed
  * then answers `{hostIds: [], omittedHostIds: []}`: byte-identical to a repo that genuinely has no
- * worktrees, which is the one thing docs/reference/ssh-execution-boundary.md forbids a listing from
+ * worktrees, which is the one thing AGENTS.md forbids a listing from
  * implying.
  *
  * Measured before the fix, on one runtime with one refusing SSH host, in the same second: the

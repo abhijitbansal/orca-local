@@ -21,16 +21,8 @@ import { workspaceCleanupApi } from './api/workspace-cleanup-bridge'
 import { workspaceSpaceApi } from './api/workspace-space-bridge'
 import { workspacePortsApi } from './api/workspace-ports-bridge'
 import { ptyApi } from './api/pty-bridge'
-import { feedbackApi } from './api/feedback-bridge'
 import { crashReportsApi } from './api/crash-reports-bridge'
 import { exportApi } from './api/export-bridge'
-import { ghApi } from './api/gh-bridge'
-import { hostedReviewApi } from './api/hosted-review-bridge'
-import { glApiBridge } from './api/gl-bridge'
-import { bitbucketApi } from './api/bitbucket-bridge'
-import { linearApi } from './api/linear-bridge'
-import { jiraApi } from './api/jira-bridge'
-import { starNagApi } from './api/star-nag-bridge'
 import { diagnosticsApi } from './api/diagnostics-bridge'
 import { settingsApi } from './api/settings-bridge'
 import { agentAwakeApi } from './api/agent-awake-bridge'
@@ -54,11 +46,8 @@ import { petApi } from './api/pet-bridge'
 import { browserApi } from './api/browser-bridge'
 import { emulatorApi } from './api/emulator-bridge'
 import { hooksApi } from './api/hooks-bridge'
-import { ephemeralVmApi } from './api/ephemeral-vm-bridge'
 import { cacheApi } from './api/cache-bridge'
 import { sessionApi } from './api/session-bridge'
-import { remoteWorkspaceApi } from './api/remote-workspace-bridge'
-import { updaterApi } from './api/updater-bridge'
 import { docPreviewApi } from './api/doc-preview-bridge'
 import { notebookApi } from './api/notebook-bridge'
 import { fsApi } from './api/fs-bridge'
@@ -78,10 +67,8 @@ import { rateLimitsApi } from './api/rate-limits-bridge'
 import { minimaxCredentialsApi } from './api/minimax-credentials-bridge'
 import { grokAccountsApi } from './api/grok-accounts-bridge'
 import { cursorAccountsApi } from './api/cursor-accounts-bridge'
-import { sshApi } from './api/ssh-bridge'
 import { automationsApi } from './api/automations-bridge'
 import { e2eApi } from './api/e2e-bridge'
-import { mobileApi } from './api/mobile-bridge'
 import { agentStatusApi } from './api/agent-status-bridge'
 import { speechApi } from './api/speech-bridge'
 
@@ -116,16 +103,8 @@ const api = {
   workspaceSpace: workspaceSpaceApi,
   workspacePorts: workspacePortsApi,
   pty: ptyApi,
-  feedback: feedbackApi,
   crashReports: crashReportsApi,
   export: exportApi,
-  gh: ghApi,
-  hostedReview: hostedReviewApi,
-  gl: glApiBridge,
-  bitbucket: bitbucketApi,
-  linear: linearApi,
-  jira: jiraApi,
-  starNag: starNagApi,
   telemetryTrack: telemetryTrackApi,
   telemetrySetOptIn: telemetrySetOptInApi,
   telemetryAcknowledgeBanner: telemetryAcknowledgeBannerApi,
@@ -153,11 +132,8 @@ const api = {
   browser: browserApi,
   emulator: emulatorApi,
   hooks: hooksApi,
-  ephemeralVm: ephemeralVmApi,
   cache: cacheApi,
   session: sessionApi,
-  remoteWorkspace: remoteWorkspaceApi,
-  updater: updaterApi,
   docPreview: docPreviewApi,
   notebook: notebookApi,
   fs: fsApi,
@@ -177,10 +153,8 @@ const api = {
   minimaxCredentials: minimaxCredentialsApi,
   grokAccounts: grokAccountsApi,
   cursorAccounts: cursorAccountsApi,
-  ssh: sshApi,
   automations: automationsApi,
   e2e: e2eApi,
-  mobile: mobileApi,
   agentStatus: agentStatusApi,
   speech: speechApi
 } satisfies PreloadApi

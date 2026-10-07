@@ -1,12 +1,10 @@
 import { useEffect, useRef } from 'react'
-import { Terminal } from 'lucide-react'
 import { toast } from 'sonner'
 import { useSkillFreshness } from '@/hooks/useSkillFreshness'
 import { useActiveProjectSkillRuntime } from '@/hooks/useActiveProjectSkillRuntime'
 import { translate } from '@/i18n/i18n'
 import { useAppStore } from '@/store'
 import { skillPlacementParticipatesInGlobalFreshness } from '../../../../shared/skill-freshness'
-import { requestSkillFreshnessUpdateDialog } from './skill-freshness-update-dialog'
 
 const MAX_DISMISSED_FRESHNESS_NUDGES = 512
 const NO_DISMISSED_FRESHNESS_NUDGES: string[] = []
@@ -159,35 +157,13 @@ export function SkillFreshnessNudge(): null {
         // records nothing, so a still-outdated skill may prompt once next launch.
         duration: Number.POSITIVE_INFINITY,
         // Why: only an explicit dismissal (the close button) records the keys;
-        // opening the review dialog is engagement, not a decision to hide it.
+        // ignoring it is not a decision to hide it.
         onDismiss: () => {
           if (nextActive.persistDismissal) {
             persistDismissal()
           }
           if (activeNudgeRef.current === nextActive) {
             activeNudgeRef.current = null
-          }
-        },
-        action: {
-          label: (
-            <span className="inline-flex items-center gap-1.5">
-              <Terminal className="size-3.5" />
-              {names.size === 1
-                ? translate('auto.components.skills.SkillFreshnessNudge.updateOne', 'Update skill')
-                : translate(
-                    'auto.components.skills.SkillFreshnessNudge.updateMany',
-                    'Update skills'
-                  )}
-            </span>
-          ),
-          onClick: () => {
-            // Sonner closes action toasts without onDismiss; clear ownership so
-            // a later inventory cannot treat the already-closed toast as active.
-            nextActive.persistDismissal = false
-            if (activeNudgeRef.current === nextActive) {
-              activeNudgeRef.current = null
-            }
-            requestSkillFreshnessUpdateDialog()
           }
         }
       }

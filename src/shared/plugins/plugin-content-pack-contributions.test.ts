@@ -25,7 +25,7 @@ describe('content-pack manifest contributions', () => {
             id: 'workspace.openTasks',
             title: 'Open tasks',
             context: 'worktree',
-            action: 'view.tasks'
+            action: 'workspace.openBoard'
           }
         ],
         keybindings: [{ command: 'workspace.openTasks', key: 'Mod+Alt+T' }],
@@ -37,6 +37,14 @@ describe('content-pack manifest contributions', () => {
     expect(parsed.main).toBeUndefined()
     expect(parsed.contributes.languagePacks[0]?.locale).toBe('pt-BR')
     expect(parsed.contributes.keybindings[0]?.key).toBe('Mod+Alt+T')
+  })
+
+  it('still accepts a third-party manifest that targets the removed view.tasks action', () => {
+    expect(
+      parsePluginManifest(
+        manifest({ commands: [{ id: 'open-tasks', title: 'Open tasks', action: 'view.tasks' }] })
+      )
+    ).toMatchObject({ ok: true })
   })
 
   it('defaults every contribution registry to an empty array', () => {
@@ -84,7 +92,7 @@ describe('content-pack manifest contributions', () => {
     [
       'invalid chord',
       {
-        commands: [{ id: 'open', title: 'Open', action: 'view.tasks' }],
+        commands: [{ id: 'open', title: 'Open', action: 'workspace.openBoard' }],
         keybindings: [{ command: 'open', key: 'Mod+NotAKey' }]
       },
       'key'
@@ -92,7 +100,9 @@ describe('content-pack manifest contributions', () => {
     [
       'global binding for a worktree command',
       {
-        commands: [{ id: 'open', title: 'Open', context: 'worktree', action: 'view.tasks' }],
+        commands: [
+          { id: 'open', title: 'Open', context: 'worktree', action: 'workspace.openBoard' }
+        ],
         keybindings: [{ command: 'open', key: 'Mod+K', when: 'global' }]
       },
       'command context'
@@ -101,7 +111,7 @@ describe('content-pack manifest contributions', () => {
       'platform-equivalent duplicate chords',
       {
         commands: [
-          { id: 'first', title: 'First', action: 'view.tasks' },
+          { id: 'first', title: 'First', action: 'workspace.openBoard' },
           { id: 'second', title: 'Second', action: 'sidebar.left.toggle' }
         ],
         keybindings: [
@@ -134,7 +144,7 @@ describe('content-pack manifest contributions', () => {
           { locale: 'pt-BR', path: 'pt-br.json' },
           { locale: 'pt-br', path: 'other.json' }
         ],
-        commands: [{ id: 'open', title: 'Open', action: 'view.tasks' }],
+        commands: [{ id: 'open', title: 'Open', action: 'workspace.openBoard' }],
         keybindings: [
           { command: 'open', key: 'Mod+T' },
           { command: 'open', key: 'mod+t' }

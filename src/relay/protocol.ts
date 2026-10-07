@@ -128,7 +128,7 @@ export function parseHandshakeMessage(payload: Buffer): HandshakeMessage {
 export const KEEPALIVE_SEND_MS = 5_000
 export const TIMEOUT_MS = 20_000
 
-// ── Streaming constants (see docs/relay-file-stream-design.md) ─────
+// ── Streaming constants ─────
 
 export const STREAM_CHUNK_SIZE = 256 * 1024
 export const MAX_CONCURRENT_STREAMS = 16
@@ -144,7 +144,7 @@ export const STREAM_ACK_WINDOW_CHUNKS = 4
  * (and its open file handle) forever. */
 export const STREAM_ACK_STALL_RECHECK_MS = 1_000
 
-// ── Git response streaming (see docs/relay-git-response-stream-design.md) ──
+// ── Git response streaming ──
 
 /** Serialized-JSON size above which a streamable git response (diff family +
  * exec) is chunked onto the bulk lane instead of one JSON-RPC frame, so a large

@@ -202,15 +202,22 @@ describe('dashboard payload validation', () => {
         ...SNAPSHOT,
         repoIconsByRepoId: {
           'repo-1': { type: 'lucide', name: 'Rocket' },
-          'repo-2': null,
-          'repo-3': {
-            type: 'image',
-            src: 'https://github.com/anthropics.png?size=64',
-            source: 'github'
-          }
+          'repo-2': null
         }
       })
     ).toBe(true)
+    // Remote favicon / avatar sources were removed with the local-only build.
+    for (const [src, source] of [
+      ['https://github.com/anthropics.png?size=64', 'github'],
+      ['https://example.com/favicon.ico', 'favicon']
+    ]) {
+      expect(
+        isDashboardSnapshot({
+          ...SNAPSHOT,
+          repoIconsByRepoId: { 'repo-1': { type: 'image', src, source } }
+        })
+      ).toBe(false)
+    }
     // Absent entirely: a pop-out on older code still gets its snapshot.
     expect(isDashboardSnapshot({ ...SNAPSHOT, repoIconsByRepoId: undefined })).toBe(true)
 

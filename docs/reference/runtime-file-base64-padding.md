@@ -53,7 +53,7 @@ newly rejected value was found in this source/history audit.
 Old desktop clients using the audited producer send valid quartets to a new host.
 A new client still sends the same bytes to an old host. No method, field, opcode,
 or host-published content changes. This follows the mixed-version requirements in
-[remote-wire-compatibility.md](./remote-wire-compatibility.md).
+the former remote wire compatibility rules.
 
 The RPC validation runs before workspace resolution and provider selection, so the
 same rule applies to folder workspaces, git worktrees, local hosts, and SSH hosts.

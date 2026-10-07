@@ -21,13 +21,6 @@ export const uiStateAndMenuCommandsApi = {
   },
   consumePendingOpenSettings: (): Promise<boolean> =>
     ipcRenderer.invoke('ui:consumePendingOpenSettings'),
-  onOpenSkillShare: (callback: (shareId: string) => void): (() => void) => {
-    const listener = (_event: Electron.IpcRendererEvent, shareId: string): void => callback(shareId)
-    ipcRenderer.on('ui:openSkillShare', listener)
-    return () => ipcRenderer.removeListener('ui:openSkillShare', listener)
-  },
-  consumePendingSkillShare: (): Promise<string | null> =>
-    ipcRenderer.invoke('ui:consumePendingSkillShare'),
   onOpenMarkdownFiles: (callback: (documents: MarkdownDocument[]) => void): (() => void) => {
     const listener = (_event: Electron.IpcRendererEvent, documents: MarkdownDocument[]): void =>
       callback(documents)
@@ -103,11 +96,6 @@ export const uiStateAndMenuCommandsApi = {
     const listener = (_event: Electron.IpcRendererEvent) => callback()
     ipcRenderer.on('ui:openWorkspaceBoard', listener)
     return () => ipcRenderer.removeListener('ui:openWorkspaceBoard', listener)
-  },
-  onOpenTasks: (callback: () => void): (() => void) => {
-    const listener = (_event: Electron.IpcRendererEvent) => callback()
-    ipcRenderer.on('ui:openTasks', listener)
-    return () => ipcRenderer.removeListener('ui:openTasks', listener)
   },
   onToggleAgentDashboard: (callback: () => void): (() => void) => {
     const listener = (_event: Electron.IpcRendererEvent) => callback()

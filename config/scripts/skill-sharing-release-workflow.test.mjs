@@ -62,7 +62,6 @@ describe('skill-sharing release workflow', () => {
     expect(platformTest.run).toContain('pnpm test:skill-sharing:release')
     expect(linuxTest.run).toContain('pnpm test:skill-sharing:release')
     expect(command).toContain('src/main/skills')
-    expect(command).toContain('src/relay/skill-install-handler.test.ts')
     expect(command).toContain('src/shared/skill-bundle-install-contract.test.ts')
   })
 

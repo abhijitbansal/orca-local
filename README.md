@@ -1,13 +1,9 @@
 <h1 align="center">
-  <a href="https://onOrca.dev"><img src="resources/build/icon.png" alt="Orca" width="64" valign="middle" /></a> Orca
+  <img src="resources/build/icon.png" alt="Orca" width="64" valign="middle" /> Orca
 </h1>
 
 <p align="center">
-  <a href="https://github.com/stablyai/orca"><img src="https://img.shields.io/github/stars/stablyai/orca?style=flat&amp;label=%E2%98%85&amp;color=08C" alt="GitHub stars" /></a>
-  <a href="https://github.com/stablyai/orca/releases"><img src="docs/assets/readme-downloads.svg" alt="Total downloads across all releases" /></a>
   <img src="https://img.shields.io/badge/license-MIT-08C?style=flat" alt="License: MIT" />
-  <a href="https://discord.gg/fzjDKHxv8Q"><img src="https://img.shields.io/badge/Discord-5865F2?logo=discord&logoColor=white" alt="Join the Orca Discord" /></a>
-  <a href="https://x.com/orca_build"><img src="https://img.shields.io/badge/X-000000?logo=x&logoColor=white" alt="Follow Orca on X" /></a>
   <img src="https://img.shields.io/badge/macOS%20%7C%20Windows%20%7C%20Linux-4493F8?style=flat-square" alt="Supported platforms: macOS, Windows, and Linux" />
 </p>
 
@@ -20,11 +16,7 @@
   Run Codex, ClaudeCode, OpenCode or Pi side-by-side — each in its own worktree, tracked in one place.
 </p>
 
-<h3 align="center"><a href="https://onorca.dev/download"><ins>Download Orca</ins></a></h3>
-
-<p align="center">
-  <img src="docs/assets/readme-hero.jpg" alt="Orca desktop app running agents in parallel worktrees, with the Orca mobile companion app in the corner" width="960" />
-</p>
+> **Local-only fork.** This fork of [stablyai/orca](https://github.com/stablyai/orca) runs entirely on your machine. There are no cloud accounts, no mobile app, no auto-update, no telemetry upload, no SSH or remote Orca servers, and no network listener. A local usage record, on by default for new installs and off with one switch, is written to a file and never sent anywhere. Git works through your own `git` CLI against your own remotes. See [What this fork changed](#what-this-fork-changed), [Build from source](#build-from-source) and [Updating from upstream](#updating-from-upstream).
 
 ## Features
 
@@ -32,29 +24,15 @@
 <tr>
 <td width="50%" valign="middle">
 
-### Mobile Companion
-
-Monitor and steer your agents from your phone — get notified when an agent finishes and send follow-ups from anywhere.
-
-[iOS App Store](https://apps.apple.com/us/app/orca-ide/id6766130217) · [Android APK 0.0.50](https://github.com/stablyai/orca/releases/download/mobile-android-v0.0.50/app-release.apk) · [Docs →](https://www.onorca.dev/docs/mobile)
-
-</td>
-<td width="50%">
-  <a href="https://www.onorca.dev/docs/mobile"><picture><source srcset="docs/assets/feature-wall/mobile-companion-app-showcase.gif" type="image/gif"><img src="docs/assets/feature-wall/mobile-companion-app-showcase.jpg" alt="Orca desktop with the mobile companion app" width="100%" /></picture></a>
-</td>
-</tr>
-<tr>
-<td width="50%" valign="middle">
-
 ### Parallel Worktrees
 
 Fan one prompt across five agents, each in its own isolated git worktree — compare the results and merge the winner.
 
-[Docs →](https://www.onorca.dev/docs/model/worktrees)
+[Docs →](docs/site/content/docs/model/worktrees.mdx)
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/model/worktrees"><picture><source srcset="docs/site/public/docs/tab-split.gif" type="image/gif"><img src="docs/site/public/docs/posters/tab-split.jpg" alt="Parallel worktree orchestration" width="100%" /></picture></a>
+  <a href="docs/site/content/docs/model/worktrees.mdx"><picture><source srcset="docs/site/public/docs/tab-split.gif" type="image/gif"><img src="docs/site/public/docs/posters/tab-split.jpg" alt="Parallel worktree orchestration" width="100%" /></picture></a>
 </td>
 </tr>
 <tr>
@@ -64,11 +42,11 @@ Fan one prompt across five agents, each in its own isolated git worktree — com
 
 Ghostty-class terminals with WebGL rendering, infinite splits, and scrollback that survives restarts.
 
-[Docs →](https://www.onorca.dev/docs/terminal)
+[Docs →](docs/site/content/docs/terminal.mdx)
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/terminal"><picture><source srcset="resources/onboarding/feature-wall/tile-02.gif" type="image/gif"><img src="resources/onboarding/feature-wall/tile-02.poster.jpg" alt="Terminal splits" width="100%" /></picture></a>
+  <a href="docs/site/content/docs/terminal.mdx"><picture><source srcset="resources/onboarding/feature-wall/tile-02.gif" type="image/gif"><img src="resources/onboarding/feature-wall/tile-02.poster.jpg" alt="Terminal splits" width="100%" /></picture></a>
 </td>
 </tr>
 <tr>
@@ -78,39 +56,11 @@ Ghostty-class terminals with WebGL rendering, infinite splits, and scrollback th
 
 Click any UI element in a real Chromium window to send its HTML, CSS, and a cropped screenshot straight into your agent's prompt.
 
-[Docs →](https://www.onorca.dev/docs/browser/design-mode)
+[Docs →](docs/site/content/docs/browser/design-mode.mdx)
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/browser/design-mode"><picture><source srcset="docs/site/public/docs/orca-design-mode.gif" type="image/gif"><img src="resources/onboarding/feature-wall/tile-05.poster.jpg" alt="Embedded browser and Design Mode" width="100%" /></picture></a>
-</td>
-</tr>
-<tr>
-<td width="50%" valign="middle">
-
-### GitHub &amp; Linear, Native
-
-Browse PRs, issues, and project boards in-app — open a worktree from any task and review without a context switch.
-
-[Docs →](https://www.onorca.dev/docs/review/linear)
-
-</td>
-<td width="50%">
-  <a href="https://www.onorca.dev/docs/review/linear"><picture><source srcset="resources/onboarding/feature-wall/tile-03.gif" type="image/gif"><img src="resources/onboarding/feature-wall/tile-03.poster.jpg" alt="GitHub and Linear task workflows in Orca" width="100%" /></picture></a>
-</td>
-</tr>
-<tr>
-<td width="50%" valign="middle">
-
-### SSH Worktrees
-
-Run agents on a beefy remote box with full file editing, git, and terminals — auto-reconnect and port forwarding included.
-
-[Docs →](https://www.onorca.dev/docs/ssh)
-
-</td>
-<td width="50%">
-  <a href="https://www.onorca.dev/docs/ssh"><picture><source srcset="resources/onboarding/feature-wall/tile-06.gif" type="image/gif"><img src="resources/onboarding/feature-wall/tile-06.poster.jpg" alt="Remote worktrees over SSH" width="100%" /></picture></a>
+  <a href="docs/site/content/docs/browser/design-mode.mdx"><picture><source srcset="docs/site/public/docs/orca-design-mode.gif" type="image/gif"><img src="resources/onboarding/feature-wall/tile-05.poster.jpg" alt="Embedded browser and Design Mode" width="100%" /></picture></a>
 </td>
 </tr>
 <tr>
@@ -120,11 +70,11 @@ Run agents on a beefy remote box with full file editing, git, and terminals — 
 
 Drop comments on any diff line and ship them back to the agent — review, edit, and commit without leaving Orca.
 
-[Docs →](https://www.onorca.dev/docs/review/annotate-ai-diff)
+[Docs →](docs/site/content/docs/review/annotate-ai-diff.mdx)
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/review/annotate-ai-diff"><picture><source srcset="docs/site/public/docs/annotate-ai-diff.gif" type="image/gif"><img src="resources/onboarding/feature-wall/tile-08.poster.jpg" alt="Annotate AI-generated diffs" width="100%" /></picture></a>
+  <a href="docs/site/content/docs/review/annotate-ai-diff.mdx"><picture><source srcset="docs/site/public/docs/annotate-ai-diff.gif" type="image/gif"><img src="resources/onboarding/feature-wall/tile-08.poster.jpg" alt="Annotate AI-generated diffs" width="100%" /></picture></a>
 </td>
 </tr>
 <tr>
@@ -134,11 +84,11 @@ Drop comments on any diff line and ship them back to the agent — review, edit,
 
 VS Code's editor with autosave everywhere — drag files or images straight into an agent prompt.
 
-[Docs →](https://www.onorca.dev/docs/editing/file-explorer)
+[Docs →](docs/site/content/docs/editing/file-explorer.mdx)
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/editing/file-explorer"><picture><source srcset="resources/onboarding/feature-wall/tile-07.gif" type="image/gif"><img src="resources/onboarding/feature-wall/tile-07.poster.jpg" alt="Drag files and images into an agent prompt" width="100%" /></picture></a>
+  <a href="docs/site/content/docs/editing/file-explorer.mdx"><picture><source srcset="resources/onboarding/feature-wall/tile-07.gif" type="image/gif"><img src="resources/onboarding/feature-wall/tile-07.poster.jpg" alt="Drag files and images into an agent prompt" width="100%" /></picture></a>
 </td>
 </tr>
 <tr>
@@ -148,23 +98,23 @@ VS Code's editor with autosave everywhere — drag files or images straight into
 
 Agents drive Orca too — script every workflow with `orca worktree create`, `snapshot`, `click`, and `fill`.
 
-[Docs →](https://www.onorca.dev/docs/cli/overview)
+[Docs →](docs/site/content/docs/cli/overview.mdx)
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/cli/overview"><picture><source srcset="resources/onboarding/feature-wall/tile-09.gif" type="image/gif"><img src="resources/onboarding/feature-wall/tile-09.poster.jpg" alt="Script Orca from the CLI" width="100%" /></picture></a>
+  <a href="docs/site/content/docs/cli/overview.mdx"><picture><source srcset="resources/onboarding/feature-wall/tile-09.gif" type="image/gif"><img src="resources/onboarding/feature-wall/tile-09.poster.jpg" alt="Script Orca from the CLI" width="100%" /></picture></a>
 </td>
 </tr>
 </table>
 
 **Also in the box:**
 
-- **[Quick open](https://www.onorca.dev/docs/model/quick-open)** — Search across worktrees, files, agents, commands, and repo context without leaving your flow.
-- **[Account switcher &amp; usage tracking](https://www.onorca.dev/docs/agents/usage-tracking)** — See Claude and Codex usage and rate-limit resets, and hot-swap accounts without re-logging in.
-- **[Rich repo previews](https://www.onorca.dev/docs/editing/markdown)** — Preview Markdown, images, PDFs, and repo docs in the workspace.
-- **[Computer Use](https://www.onorca.dev/docs/cli/computer-use)** — Let agents operate desktop apps and visible UI when a workflow needs real interaction.
-- **[Notifications and unread state](https://www.onorca.dev/docs/notifications)** — Know when an agent finishes or needs attention, then mark threads unread to come back later.
-- **And many, many more** — we ship daily, so this list is perpetually behind. The [changelog](https://github.com/stablyai/orca/releases) is the real feature list.
+- **[Quick open](docs/site/content/docs/model/quick-open.mdx)** — Search across worktrees, files, agents, commands, and repo context without leaving your flow.
+- **[Account switcher &amp; usage tracking](docs/site/content/docs/agents/usage-tracking.mdx)** — See Claude and Codex usage from local session data, and hot-swap accounts without re-logging in.
+- **[Rich repo previews](docs/site/content/docs/editing/markdown.mdx)** — Preview Markdown, images, PDFs, and repo docs in the workspace.
+- **[Computer Use](docs/site/content/docs/cli/computer-use.mdx)** — Let agents operate desktop apps and visible UI when a workflow needs real interaction.
+- **[Notifications and unread state](docs/site/content/docs/notifications.mdx)** — Know when an agent finishes or needs attention, then mark threads unread to come back later.
+- **And many more** — upstream ships often, so this list lags. The [upstream changelog](https://github.com/stablyai/orca/releases) is the full feature list; features that need a cloud service are removed in this fork.
 
 ---
 
@@ -212,65 +162,109 @@ Works with **any CLI agent** — if it runs in a terminal, it runs in Orca.
 
 ---
 
-## Install
+## What this fork changed
 
-### Desktop — macOS, Windows, Linux
+Compared with upstream Orca, this fork **removes** everything that let Orca's own code reach the cloud, or let anything on the network reach Orca:
 
-- **[Download from onOrca.dev](https://onorca.dev/download)**
-- Or grab a build directly: [macOS Apple Silicon](https://github.com/stablyai/orca/releases/latest/download/orca-macos-arm64.dmg) · [macOS Intel](https://github.com/stablyai/orca/releases/latest/download/orca-macos-x64.dmg) · [Windows (.exe)](https://github.com/stablyai/orca/releases/latest/download/orca-windows-setup.exe) · [Linux AppImage](https://github.com/stablyai/orca/releases/latest/download/orca-linux.AppImage) · [All builds](https://github.com/stablyai/orca/releases/latest)
-- Running `orca serve` on a headless Linux server? See the [headless Linux server guide](docs/reference/headless-linux-server.md).
+| Area                     | Removed                                                                                                                                                                                                           | Kept                                                                                                                      |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Telemetry and support    | PostHog upload; feedback, crash-report and diagnostics upload; the GitHub star prompt                                                                                                                             | A local, consent-gated usage record (`telemetry.ndjson`); local crash capture and "copy report"                           |
+| Updates and distribution | The auto-updater, release channels, the publish config and Homebrew casks                                                                                                                                         | Building from source (below)                                                                                              |
+| Accounts and sharing     | Orca Cloud sign-in and profile sync; skill and artifact share links; the `orca://` deep links; `npx skills` registry installs; the plugin marketplace seed and kill list                                          | Local profiles, local skills and local plugins                                                                            |
+| Mobile and remote access | The Orca Mobile app, its relay and push service; the runtime WebSocket listener; the browser web client; pairing; `orca serve` network mode                                                                       | `orca serve` as a local headless runtime, reached by the `orca` CLI over a local socket                                   |
+| Remote execution         | SSH remotes, the SSH relay, remote Orca runtime environments, orcad, ephemeral VMs and VM recipes, the skill-transfer rails and pinned Node downloads                                                             | Local and WSL execution; `git` over SSH to your own remotes through your own git client                                   |
+| Integrations             | GitHub, GitLab, Bitbucket, Azure DevOps, Gitea, Jira and Linear API integrations (PR/issue panels, the Tasks view, `gh`/`glab`), vendor usage and quota polling, Claude OAuth refresh, OpenAI cloud transcription | Local diff and source control, AI commit messages, local Claude usage from statusline posts, and on-device speech-to-text |
+| Renderer                 | Remote favicon and avatar loads                                                                                                                                                                                   | A strict Content-Security-Policy on app windows; the embedded browser pane is unrestricted by design                      |
 
-_Or via a package manager:_
+Old profiles upgrade cleanly. SSH and remote-runtime projects, tabs and leases are dropped when the profile loads, and no local data is lost. A guard script (`pnpm run check:local-only`, part of `pnpm lint`) fails the build if a cloud host, cloud SDK, publish block, deep-link protocol, wildcard bind or `ssh2`/`tweetnacl` value import comes back.
 
-```bash
-# macOS (Homebrew)
-brew install --cask stablyai/orca/orca
+More detail:
 
-# Arch Linux (AUR) — or stably-orca-git to build from source
-yay -S stably-orca-bin
-```
-
-### Mobile Companion — iOS, Android
-
-Pair with your desktop app to monitor and steer your agents from your phone.
-
-- **iOS:** [Download on the App Store](https://apps.apple.com/us/app/orca-ide/id6766130217)
-- **Android:** [Download APK 0.0.50](https://github.com/stablyai/orca/releases/download/mobile-android-v0.0.50/app-release.apk) · [Install guide](https://www.onorca.dev/docs/android-apk)
+- What changed and the before/after test and security results: [Spec A summary](docs/local-only/2026-10-01-spec-a-change-summary.md) (cloud, mobile, telemetry, updater, integrations) and [Spec B summary](docs/local-only/2026-10-02-spec-b-change-summary.md) (SSH, remote runtimes, orcad, VMs).
+- The invariants, the sockets that remain, and the few places that still reach the network: [local-only architecture](docs/reference/local-only-architecture.md).
+- An index of all fork docs: [docs/local-only/README.md](docs/local-only/README.md).
 
 ---
 
-## Community &amp; Support
+## Build from source
 
-- **Discord:** Join the community on **[Discord](https://discord.gg/fzjDKHxv8Q)**.
-- **Twitter / X:** Follow **[@orca_build](https://x.com/orca_build)** for updates and announcements.
-- **WeChat:** Scan to join the Orca community WeChat group 11.
+This fork ships no prebuilt downloads, no Homebrew cask, and no auto-update. Build it yourself.
 
-  <img src="docs/assets/wechat-qr-group11.jpg" alt="WeChat group 11 QR code for the Orca community" width="160" />
+**Prerequisites**
 
-- **Feedback &amp; Ideas:** We ship fast. Missing something? [Request a new feature](https://github.com/stablyai/orca/issues).
-- **Privacy:** See the [privacy &amp; telemetry docs](https://www.onorca.dev/docs/telemetry) for what anonymous usage data Orca collects and how to opt out.
-- **Show Support:** [Star](https://github.com/stablyai/orca) this repo to follow along with our daily ships.
+- Node.js 24 (`node -v`).
+- pnpm 12, which is pinned in `package.json`. Enable it with `corepack enable`. If corepack cannot fetch pnpm 12, run every `pnpm` command below as `npx -y pnpm@12.0.0 …`.
+- macOS: Xcode Command Line Tools (`xcode-select --install`), because the build compiles small Swift helpers.
+- Linux and Windows: the native build toolchain listed in [CONTRIBUTING.md](.github/CONTRIBUTING.md).
+
+**Run from source (no packaging)**
+
+```bash
+pnpm install
+pnpm dev
+```
+
+**Package an installable app**
+
+```bash
+# macOS: produces dist/orca-macos-arm64.dmg and dist/orca-macos-x64.dmg (plus .zip)
+pnpm install:release      # installs native modules for both CPU architectures
+pnpm build:mac
+
+# Linux: produces dist/orca-linux.AppImage, plus .deb and .rpm
+pnpm install
+pnpm build:linux
+
+# Windows: produces dist/orca-windows-setup.exe
+pnpm install
+pnpm build:win
+```
+
+**Unsigned macOS builds.** Without an Apple signing identity, build unsigned:
+
+```bash
+ORCA_COMPUTER_MACOS_SIGN_IDENTITY=- CSC_IDENTITY_AUTO_DISCOVERY=false pnpm build:mac
+```
+
+The first time you open the app, right-click it and choose **Open**. You also need these variables if your keychain holds duplicate "Apple Development" certificates, which make `codesign` fail with "ambiguous".
+
+**The `orca` CLI.** The packaged app installs it from Settings → General → CLI. From a source checkout, run `pnpm build:cli`, then `node out/cli/index.js status`.
+
+**Verify a build.** Before you rely on a build, run:
+
+```bash
+pnpm tc && pnpm test && pnpm lint   # lint includes the local-only guard
+```
+
+---
+
+## Updating from upstream
+
+Updates arrive by merging upstream and rebuilding:
+
+```bash
+git remote add upstream https://github.com/stablyai/orca.git   # once
+git fetch upstream
+git merge upstream/main
+pnpm install
+pnpm tc && pnpm run check:local-only && pnpm test
+```
+
+If a merge reintroduces a removed feature, `check:local-only` names the exact file and line. Resolve modify/delete conflicts on removed files with `git rm`. The per-file conflict playbook is in [local-only-upstream-sync.md](docs/reference/local-only-upstream-sync.md).
+
+The documentation under `docs/site/content/docs/` is upstream's docs site. This fork does not publish it; read the pages in the repo.
+
+---
+
+## Privacy
+
+Orca's own code makes no connection to a cloud service, apart from the exceptions listed in [the architecture notes](docs/reference/local-only-architecture.md): your git CLI against your own remotes, the embedded browser pane, links handed to your OS browser, and speech-model and scrcpy downloads you start yourself. A local usage record is on by default for new installs: validated product events are appended to `telemetry.ndjson` under the app's `logs` folder, size-capped and never uploaded. Turn it off in Settings → Privacy, or launch with `ORCA_TELEMETRY_DISABLED=1`. See [Privacy & telemetry](docs/site/content/docs/telemetry.mdx). The agent CLIs you run in Orca (Claude Code, Codex, ...) talk to their own vendors; that traffic is theirs.
 
 ---
 
 ## Developing
 
-Want to contribute or run locally? See our [CONTRIBUTING.md](.github/CONTRIBUTING.md) guide.
-
-The relay that pairs the mobile app with a desktop host is also in this repository under
-[`cloud/`](cloud/README.md), with a separate pnpm workspace and setup guide.
-
-<a href="https://github.com/stablyai/orca/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=stablyai/orca" alt="Orca contributors" />
-</a>
-
-<p align="center">
-  <img src="docs/assets/star-history.png" alt="GitHub star history chart for stablyai/orca" width="880" />
-</p>
-
-## Signed Builds
-
-Windows code signing sponored/provided by [SignPath.io](https://signpath.io), certificate by [SignPath Foundation](https://signpath.org).
+Want to contribute or run locally? See [CONTRIBUTING.md](.github/CONTRIBUTING.md), and run `pnpm run check:local-only` before opening a change. Upstream: [stablyai/orca](https://github.com/stablyai/orca).
 
 ## License
 

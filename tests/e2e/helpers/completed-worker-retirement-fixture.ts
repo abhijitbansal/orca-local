@@ -162,14 +162,7 @@ export function runBuiltOrcaCli(
   args: string[],
   options: { userDataDir: string; cwd: string }
 ): unknown {
-  const {
-    ORCA_ENVIRONMENT: _environment,
-    ORCA_PAIRING_CODE: _pairingCode,
-    ORCA_USER_DATA_PATH: _userDataPath,
-    ...cleanEnv
-  } = process.env
-  void _environment
-  void _pairingCode
+  const { ORCA_USER_DATA_PATH: _userDataPath, ...cleanEnv } = process.env
   void _userDataPath
   const output = execFileSync(
     process.execPath,

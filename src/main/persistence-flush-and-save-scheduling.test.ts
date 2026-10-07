@@ -23,16 +23,6 @@ import type { WorkspaceSessionState } from '../shared/workspace-session-state-ty
 import { _resetTracerForTests, setActiveSink } from './observability/tracer'
 import { _resetPtyBindingSpanSamplingForTests } from './persistence/loading-store/pty-binding-span'
 
-// Stub the ~/.ssh/config parser so the SSH-import test drives the real Store with deterministic hosts, not the operator's actual ~/.ssh/config.
-const { loadUserSshConfigMock, sshConfigHostsToTargetsMock } = vi.hoisted(() => ({
-  loadUserSshConfigMock: vi.fn(),
-  sshConfigHostsToTargetsMock: vi.fn()
-}))
-
-vi.mock('./ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: loadUserSshConfigMock,
-  sshConfigHostsToTargets: sshConfigHostsToTargetsMock
-}))
 const { trackMock, getCohortAtEmitMock } = vi.hoisted(() => ({
   trackMock: vi.fn(),
   getCohortAtEmitMock: vi.fn()
@@ -295,8 +285,8 @@ describe('Store', () => {
 
     expect(kept).toContain(liveKey) // path exists
     expect(kept).toContain(recentKey) // inside the grace window
-    expect(kept).toContain(sshKey) // SSH repo: remote paths never checked locally
-    expect(kept).toContain(remoteHostKey) // remote hostId on the meta itself
+    expect(kept).not.toContain(sshKey) // SSH repo rows are stripped at load
+    expect(kept).not.toContain(remoteHostKey) // remote hostId on the meta itself is stripped
     expect(kept).toContain(wslKey) // WSL UNC path
     expect(kept).not.toContain(deadKey)
     expect(kept).not.toContain(orphanKey)

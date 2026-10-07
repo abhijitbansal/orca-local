@@ -9,7 +9,7 @@ import type { RuntimeStatus } from './runtime-types'
  * a reader as the same `null`. Readers then spend that `null` on decisions of very different
  * weight. This names the four answers so the decision happens where the evidence is understood.
  *
- * `unverifiable` is never `exited` (docs/reference/ssh-execution-boundary.md). `refused` and
+ * `unverifiable` is never `exited` (AGENTS.md). `refused` and
  * `retired` are the only arms carrying positive evidence, and they are separate because they
  * differ in kind: one is the host turning us away, the other is the pairing being ended.
  */

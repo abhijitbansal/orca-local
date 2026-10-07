@@ -14,9 +14,6 @@ export const settingsApi = {
 
   set: (args: Record<string, unknown>) => ipcRenderer.invoke('settings:set', args),
 
-  setActiveRuntimeEnvironmentPreference: (args: { environmentId: string | null }) =>
-    ipcRenderer.invoke('settings:set-active-runtime-environment-preference', args),
-
   updatePRBotAuthorOverride: (args: { author: string; isBot: boolean }) =>
     ipcRenderer.invoke('settings:update-pr-bot-author-override', args),
 

@@ -23,8 +23,6 @@ import {
   WORKTREE_REMOVAL_HOST_CHANGED_ERROR
 } from '../listing/worktree-slice-constants'
 import { translate } from '@/i18n/i18n'
-import { cleanupEphemeralVmRuntimesForDeleted } from '@/lib/ephemeral-vm-runtime-cleanup'
-import { purgeOrphanedRuntimeSshProjects } from './orphaned-runtime-ssh-project-purge'
 import { showPreservedBranchToast } from '@/components/sidebar/preserved-branch-toast'
 
 import { preservedBranchCleanupKey } from '../../../../../../shared/preserved-branch-cleanup'
@@ -226,10 +224,6 @@ export async function completeSameIdHostScopedRemoval(args: {
       )
     )
   }
-  const runtimeCleanup = await cleanupEphemeralVmRuntimesForDeleted({
-    hostScopedWorkspaces: [{ workspaceId: worktreeId, executionHostId: requiredExecutionHostId }]
-  })
-  await purgeOrphanedRuntimeSshProjects(get, runtimeCleanup.destroyedSshTargetIds)
   if (!args.rowAlreadyDropped) {
     dropConfirmedHostRow(set, worktreeId, requiredExecutionHostId)
   }

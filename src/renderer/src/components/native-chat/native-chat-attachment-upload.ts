@@ -1,7 +1,7 @@
 // SSH-aware resolution for composer attachments (STA-1465). The composer's
 // attach surfaces (file drop, file picker, image paste) receive client-local
 // paths, but an SSH worktree's agent runs on the remote host — local paths must
-// be uploaded first, exactly like terminal drops (docs/terminal-drop-ssh.md).
+// be uploaded first, exactly like terminal drops.
 
 import { toast } from 'sonner'
 import { translate } from '@/i18n/i18n'

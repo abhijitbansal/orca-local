@@ -8,7 +8,7 @@ import type {
   RuntimeTerminalDriverState
 } from '../../shared/runtime-types'
 import type { RuntimeRpcResponse } from '../../shared/runtime-rpc-envelope'
-import type { RuntimeEnvironmentSubscriptionHandle } from '../runtime-environment-subscriptions'
+import type { RuntimeEnvironmentSubscriptionHandle } from './runtime-api'
 import type { PreloadApi } from '../api-types'
 
 export const runtimeApi = {

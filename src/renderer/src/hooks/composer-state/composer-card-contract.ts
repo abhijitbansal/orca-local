@@ -9,9 +9,6 @@ export type ComposerCardSourceProps = Pick<
   | 'selectedRepoIsGit'
   | 'projectHostSetupOptions'
   | 'selectedProjectHostSetupId'
-  | 'ephemeralVmRecipes'
-  | 'selectedEphemeralVmRecipeId'
-  | 'ephemeralVmRecipeError'
   | 'name'
   | 'branchNameOverride'
   | 'parentWorktreeId'
@@ -42,7 +39,6 @@ export type ComposerCardSourceProps = Pick<
   | 'selectedRepoSshStatus'
   | 'selectedRepoRequiresConnection'
   | 'selectedRepoConnectInProgress'
-  | 'onConnectSelectedRepo'
   | 'startFromResetHint'
   | 'forkPushWarning'
   | 'setupConfig'
@@ -60,7 +56,6 @@ export type ComposerCardActionProps = {
   onRepoChange: ComposerModel['handleRepoChange']
   onProjectChange: ComposerModel['handleProjectChange']
   onProjectHostSetupChange: ComposerModel['handleProjectHostSetupChange']
-  onEphemeralVmRecipeChange: ComposerModel['setSelectedEphemeralVmRecipeId']
   repoBackedSearchRepos?: ComposerModel['eligibleRepos']
   repoBackedSourcesDisabled?: boolean
   allowSmartNameAddProject?: boolean
@@ -74,7 +69,6 @@ export type ComposerCardActionProps = {
   onSmartNameModeChange?: ComposerModel['setSmartNameMode']
   onSmartLinearIssueSelect: ComposerModel['handleSmartLinearIssueSelect']
   onSmartJiraIssueSelect: ComposerModel['handleSmartJiraIssueSelect']
-  onOpenJiraSettings: ComposerModel['handleOpenJiraSettings']
   smartNameGitHubSourceContext?: ComposerModel['selectedRepoGitHubSourceContext']
   smartNameJiraSourceContext?: ComposerModel['smartNameJiraSourceContext']
   onBaseBranchMrSelect?: ComposerModel['handleBaseBranchMrSelect']

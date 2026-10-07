@@ -17,21 +17,15 @@ const launchHooks = vi.hoisted(() => ({
 
 vi.mock('electron', () => ({ app: electronApp, powerMonitor: { on: vi.fn() } }))
 vi.mock('@electron-toolkit/utils', () => ({ is: { dev: false } }))
-vi.mock('../orca-profiles/profile-cloud-auth-config', () => ({
-  getOrcaCloudAuthConfig: () => ({ configured: false })
-}))
 vi.mock('../orca-profiles/profile-storage-paths', () => ({ getProfileUserDataPath: vi.fn() }))
 vi.mock('../persistence', () => ({
-  getCanonicalUserDataPath: () => '/tmp/orca-user-data',
-  migrateMobilePairingDataToCanonicalUserDataPath: vi.fn()
+  getCanonicalUserDataPath: () => '/tmp/orca-user-data'
 }))
 vi.mock('../runtime/runtime-rpc', () => ({
   OrcaRuntimeRpcServer: class {
     start = vi.fn(async () => {})
-    setOnUnpairedDeviceAuthFailure = vi.fn()
   }
 }))
-vi.mock('../ipc/mobile', () => ({ registerMobileHandlers: vi.fn() }))
 vi.mock('../ipc/pty', () => ({
   getLocalPtyProvider: vi.fn(),
   registerHeadlessPtyRuntime: vi.fn()
@@ -39,11 +33,6 @@ vi.mock('../ipc/pty', () => ({
 vi.mock('../providers/local-pty-provider', () => ({ LocalPtyProvider: class {} }))
 vi.mock('../browser/offscreen-browser-backend', () => ({ OffscreenBrowserBackend: class {} }))
 vi.mock('../browser/browser-manager', () => ({ browserManager: {} }))
-vi.mock('./main-process-relay-status', () => ({
-  getDesktopRelayStatus: vi.fn(),
-  publishDesktopRelayStatus: vi.fn()
-}))
-vi.mock('../runtime/relay/desktop-relay-service', () => ({ DesktopRelayService: class {} }))
 vi.mock('./main-process-serve', () => ({
   getServeOptions: vi.fn(() => null),
   getBundledWebClientRoot: vi.fn(() => null),
@@ -78,7 +67,6 @@ vi.mock('../terminal-history-deletion', () => ({ scheduleAllPendingHistoryTreeRe
 vi.mock('../ipc/startup-notification-registration', () => ({
   triggerStartupNotificationRegistration: vi.fn()
 }))
-vi.mock('./main-process-push-startup', () => ({ startDesktopPushService: vi.fn() }))
 vi.mock('./startup-diagnostics', () => ({ logStartupMilestone: vi.fn() }))
 vi.mock('../server/serve-stdout-boundary', () => ({ emitServeBrowserIdentityActionLine: vi.fn() }))
 vi.mock('../browser/browser-identity-mode-store', () => ({

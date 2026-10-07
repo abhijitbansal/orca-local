@@ -10,11 +10,11 @@ const {
   prunePackagedRuntimeNodeModules
 } = require('../packaged-runtime-node-modules.cjs')
 
-const LINEAR_SDK_PACKAGE_JSON =
-  '{"name":"@linear/sdk","type":"module","main":"./dist/index.cjs","exports":{".":{"require":"./dist/index.cjs","import":"./dist/index.mjs"}}}'
+const WATCHER_PACKAGE_JSON =
+  '{"name":"@parcel/watcher","type":"module","main":"./dist/index.cjs","exports":{".":{"require":"./dist/index.cjs","import":"./dist/index.mjs"}}}'
 
 async function createPackagedNodeModulesFixture(resourcesDir) {
-  const packageDir = join(resourcesDir, 'node_modules', '@linear', 'sdk')
+  const packageDir = join(resourcesDir, 'node_modules', '@parcel', 'watcher')
   const distDir = join(packageDir, 'dist')
   const webhooksDir = join(packageDir, 'webhooks')
   const updaterDir = join(resourcesDir, 'node_modules', 'electron-updater', 'out')
@@ -25,8 +25,8 @@ async function createPackagedNodeModulesFixture(resourcesDir) {
   await mkdir(updaterDir, { recursive: true })
   await mkdir(jsYamlDir, { recursive: true })
   await mkdir(nodePtyDir, { recursive: true })
-  await writeFile(join(packageDir, 'package.json'), LINEAR_SDK_PACKAGE_JSON, 'utf8')
-  await writeFile(join(packageDir, 'README.md'), 'SDK documentation', 'utf8')
+  await writeFile(join(packageDir, 'package.json'), WATCHER_PACKAGE_JSON, 'utf8')
+  await writeFile(join(packageDir, 'README.md'), 'Package documentation', 'utf8')
   await writeFile(join(packageDir, 'metadata.json.map'), '{"keep":true}', 'utf8')
   await writeFile(
     join(distDir, 'index.cjs'),
@@ -35,7 +35,7 @@ async function createPackagedNodeModulesFixture(resourcesDir) {
   )
   await writeFile(
     join(distDir, 'runtime-helper.cjs'),
-    'exports.LinearClient = class LinearClient {}',
+    'exports.WatcherClient = class WatcherClient {}',
     'utf8'
   )
   await writeFile(join(distDir, 'index.mjs'), 'export {}', 'utf8')
@@ -55,7 +55,7 @@ async function createPackagedNodeModulesFixture(resourcesDir) {
 }
 
 describe('packaged runtime type-declaration and source-map pruning', () => {
-  it('removes @linear/sdk source maps while preserving runtime files and non-JS maps', async () => {
+  it('removes @parcel/watcher source maps while preserving runtime files and non-JS maps', async () => {
     const resourcesDir = await mkdtemp(join(tmpdir(), 'orca-source-map-prune-'))
     try {
       const { packageDir, distDir, webhooksDir } =
@@ -70,23 +70,23 @@ describe('packaged runtime type-declaration and source-map pruning', () => {
       ])
       await expect(readdir(webhooksDir)).resolves.toEqual(['index.cjs'])
       await expect(readFile(join(packageDir, 'package.json'), 'utf8')).resolves.toBe(
-        LINEAR_SDK_PACKAGE_JSON
+        WATCHER_PACKAGE_JSON
       )
       await expect(readFile(join(packageDir, 'README.md'), 'utf8')).resolves.toBe(
-        'SDK documentation'
+        'Package documentation'
       )
       // Why: the predicate is filename-based, so a non-JS `.map` payload must survive.
       await expect(readFile(join(packageDir, 'metadata.json.map'), 'utf8')).resolves.toBe(
         '{"keep":true}'
       )
-      const sdk = createRequire(join(resourcesDir, 'consumer.cjs'))('@linear/sdk')
-      expect(typeof sdk.LinearClient).toBe('function')
+      const sdk = createRequire(join(resourcesDir, 'consumer.cjs'))('@parcel/watcher')
+      expect(typeof sdk.WatcherClient).toBe('function')
     } finally {
       await rm(resourcesDir, { recursive: true, force: true })
     }
   })
 
-  it('removes source maps from every packaged dependency, not just @linear/sdk', async () => {
+  it('removes source maps from every packaged dependency, not just @parcel/watcher', async () => {
     const resourcesDir = await mkdtemp(join(tmpdir(), 'orca-source-map-prune-all-'))
     try {
       const { jsYamlDir, nodePtyDir } = await createPackagedNodeModulesFixture(resourcesDir)

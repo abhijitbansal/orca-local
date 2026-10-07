@@ -18,8 +18,6 @@ import {
   timeRendererStartupSyncStep
 } from '../startup/startup-diagnostics'
 import { recoverFromDegradedStartup } from '../startup/startup-degraded-recovery'
-import { restoreSshConnectionsForStartup } from '../startup/startup-ssh-connection-restore'
-import { collectActiveWorkspaceSshTargetIds } from '../startup/active-workspace-ssh-targets'
 import { publishTerminalViewAttributesAtAppStart } from '../components/terminal-pane/terminal-appearance'
 import { getSystemPrefersDark } from '../lib/terminal-theme'
 import {
@@ -28,7 +26,6 @@ import {
 } from '../components/terminal/terminal-provider-snapshot-capability'
 import {
   getRepoExecutionHostId,
-  isRuntimeOwnedSshTargetId,
   parseExecutionHostId,
   toRuntimeExecutionHostId,
   type ExecutionHostId
@@ -237,33 +234,6 @@ export function useAppStartupHydration(onOnboardingLoaded: (state: OnboardingSta
             onOnboardingLoadedRef.current(onboardingState)
           }
 
-          // Why: re-establish SSH before terminal reconnect so SSH-backed tabs route through pty.attach; passphrase targets defer to tab focus to avoid stacked credential dialogs.
-          // Why: never dial runtime-owned (ephemeral-VM) targets from the renderer — ssh.connect would dispose the runtime layer's live relay session; filter them out here too.
-          const connectionIds = (sessionRead.session.activeConnectionIdsAtShutdown ?? []).filter(
-            (targetId) => !isRuntimeOwnedSshTargetId(targetId)
-          )
-          if (connectionIds.length > 0) {
-            try {
-              // Why scoped: an unreachable host used to hold every restored terminal — local ones
-              // included — for the full reconnect timeout. Only the targets whose panes mount as
-              // soon as the gate opens are worth waiting for; the rest reattach on tab focus.
-              const blockingConnectionIds = collectActiveWorkspaceSshTargetIds(
-                useAppStore.getState()
-              )
-              await restoreSshConnectionsForStartup({
-                connectionIds,
-                blockingConnectionIds,
-                setDeferredSshReconnectTargets: actions.setDeferredSshReconnectTargets,
-                removeDeferredSshReconnectTarget: actions.removeDeferredSshReconnectTarget,
-                publishSshConnectionState: actions.setSshConnectionState
-              })
-            } catch (err) {
-              console.warn('SSH startup reconnect failed:', err)
-            }
-          } else {
-            logRendererStartupDiagnostic('ssh-reconnect-skipped', { connectionIds: 0 })
-          }
-
           // Why no explicit barrier here: prepare-terminal-startup-restoration above already awaited
           // the first-window services, and main re-awaits them inside this handler anyway.
           await timeRendererStartupStep('recover-legacy-worker-terminals-pre-reconnect', () =>
@@ -357,7 +327,6 @@ export function useAppStartupHydration(onOnboardingLoaded: (state: OnboardingSta
           abortSignal: abortController.signal
         })
       }
-      void actions.initGitHubCache()
     })()
 
     return () => {

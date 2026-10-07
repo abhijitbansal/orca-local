@@ -143,7 +143,7 @@ async function ensureOrcaRuntimeServed(): Promise<void> {
     const env = await createComputerE2ERuntimeEnv()
     orcaServeStdout = ''
     orcaServeStderr = ''
-    orcaServeProcess = spawn(process.execPath, [devCli, 'serve', '--no-pairing', '--json'], {
+    orcaServeProcess = spawn(process.execPath, [devCli, 'serve', '--json'], {
       env,
       windowsHide: true
     })

@@ -40,7 +40,7 @@ export function executionHostRemovalHome(
 /**
  * Whether the host that executes the removal actually named its home directory.
  *
- * `false` is `unverifiable`, not "no home here" (docs/reference/ssh-execution-boundary.md). Every
+ * `false` is `unverifiable`, not "no home here" (AGENTS.md). Every
  * gate in `worktree-removal-safety.ts` that authorises a delete requires `true`, because nothing
  * else in reach rules out a home directory:
  *

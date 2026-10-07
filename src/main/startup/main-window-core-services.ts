@@ -2,7 +2,6 @@ import type { BrowserWindow } from 'electron'
 import { registerCoreHandlers } from '../ipc/register-core-handlers/register-core-handlers'
 import { attachMainWindowServices } from '../window/attach-main-window-services'
 import { initTccPromptNotice } from '../macos-tcc-prompt-notice'
-import { resolveUpdateInstallMode } from '../updater'
 import { mainProcessState as state } from './main-process-state'
 import { prepareCodexAiVaultSessionResume } from '../codex/codex-ai-vault-session-resume'
 import { resolveHostCodexSessionSourceHome } from '../codex/codex-session-source-home'
@@ -15,7 +14,6 @@ import {
 import { prepareCodexRuntimeHomeForLaunch } from './codex-launch-preparation'
 import { prepareCodexSessionResumeForLaunch } from './codex-session-resume-launch'
 import { isRecoveryReloadInFlight } from './main-window-lifecycle-flags'
-import { RELAY_HOST_CLOSE_REASON } from '../../shared/relay-host-close-reason'
 
 export function attachMainWindowCoreServices(
   window: BrowserWindow,
@@ -86,18 +84,12 @@ export function attachMainWindowCoreServices(
         }),
       onBeforeRelaunch: async () => {
         state.isQuitting = true
-        state.desktopRelayService?.fenceAndCloseNow()
         await preserveAgentAuthBeforeRestart({
           codexRuntimeHome,
           claudeRuntimeAuth,
           store
         })
-      },
-      onOrcaProfileAuthMutation: () => state.desktopRelayService?.authMutated(),
-      // Sign-out is the one fence a paired phone can be told about; quit and
-      // relaunch above stay reasonless so a restart never reads as signed out.
-      onBeforeOrcaProfileSignOut: () =>
-        state.desktopRelayService?.fenceAndCloseNow(RELAY_HOST_CLOSE_REASON.SIGNED_OUT)
+      }
     },
     state.pluginService ?? undefined,
     state.pluginMarketplaceService && state.pluginMarketplaceInstaller
@@ -126,18 +118,10 @@ export function attachMainWindowCoreServices(
       isRecoveryReloadInFlight,
       onCodexHomePtySpawned: handleCodexHomePtySpawned,
       onPtyExit: handlePtyExit,
-      onBeforeUpdateQuit: async () => {
-        await preserveAgentAuthBeforeRestart({ codexRuntimeHome, claudeRuntimeAuth, store })
-        await store.writeLatestProfileStateJsonCompatibilityExportAsync()
-      },
-      onBeforeUpdateQuitFailure: 'abort',
-      updateInstallMode: resolveUpdateInstallMode(state.isServeMode),
       onWorktreeLifecycle: emitPluginWorktreeLifecycle
     }
   )
   // Why: attach the durable renderer pull now, but launch the diagnostic process after first paint.
   initTccPromptNotice(window, { deferWatchUntilReadyToShow: true })
   rateLimits.attach(window)
-  // Why: quota probes spawn CLIs and hit network, so don't fetch immediately and compete with first paint; show/focus listeners refresh later.
-  rateLimits.start({ fetchImmediately: false })
 }

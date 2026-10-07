@@ -109,14 +109,6 @@ it.each(['unary', 'stream'])('mobile %s bytes do no orchestration database work'
   expect(h.db.getWorkerTerminalResourceByOwner(worker.dispatchId)?.ownership_state).toBe('owned')
 })
 
-it('the report is reachable from a mobile-scoped device token', async () => {
-  // Why: mobile tokens are gated by an allowlist before dispatch. The phone reporter swallows a
-  // refusal, so a missing entry silently reverts every phone to the unfenced behaviour.
-  const { MOBILE_RPC_METHOD_ALLOWLIST } =
-    await import('../../../../runtime-rpc/runtime-rpc-mobile-method-allowlist')
-  expect(MOBILE_RPC_METHOD_ALLOWLIST.has('orchestration.workerTerminalUserInput')).toBe(true)
-})
-
 // Round-1 regression (#19337 review): a phone key landing inside the worker's boot wait used to
 // find no `owned` row, report `changed: 0`, and still arm the client's 30 s gate — so the real
 // takeover was suppressed and `worker-release` closed the pane. #19608 writes custody at terminal

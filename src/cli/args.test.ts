@@ -104,26 +104,6 @@ describe('parseArgs', () => {
     expect(parsed.flags.get('project')).toBe('github:stablyai/orca')
   })
 
-  it('preserves a selector value that is also a registered command', () => {
-    const parsed = parseArgs(
-      ['--environment', 'status', 'worktree', 'list'],
-      [['status'], ['worktree', 'list']]
-    )
-
-    expect(parsed.commandPath).toEqual(['worktree', 'list'])
-    expect(parsed.flags.get('environment')).toBe('status')
-  })
-
-  it('preserves a selector value that is also a command group', () => {
-    const parsed = parseArgs(
-      ['--environment', 'worktree', 'status'],
-      [['status'], ['worktree', 'list']]
-    )
-
-    expect(parsed.commandPath).toEqual(['status'])
-    expect(parsed.flags.get('environment')).toBe('worktree')
-  })
-
   it.each([
     ['--project', 'project', 'project', 'setups'],
     ['--project=project', 'project', 'setups']
@@ -265,31 +245,6 @@ describe('validateCommandAndFlags', () => {
       allowedFlags: []
     }
   ]
-
-  it('allows global runtime selector flags even when the command spec omits them', () => {
-    const parsed = parseArgs([
-      'demo',
-      '--pairing-code',
-      'remote-runtime',
-      '--environment',
-      'server',
-      '--json'
-    ])
-
-    expect(() => validateCommandAndFlags(specs, parsed)).not.toThrow()
-  })
-
-  it.each(['environment', 'pairing-code'])('rejects --%s without a value', (flag) => {
-    const parsed = parseArgs([`--${flag}`, 'demo'], [['demo']])
-
-    expect(() => validateCommandAndFlags(specs, parsed)).toThrow(`Flag --${flag} requires a value.`)
-  })
-
-  it.each(['environment', 'pairing-code'])('rejects an empty --%s= value', (flag) => {
-    const parsed = parseArgs(['demo', `--${flag}=`])
-
-    expect(() => validateCommandAndFlags(specs, parsed)).toThrow(`Flag --${flag} requires a value.`)
-  })
 
   it('still rejects unknown command-specific flags', () => {
     const parsed = parseArgs(['demo', '--bogus'])

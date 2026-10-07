@@ -329,7 +329,7 @@ export class SessionSearchStore {
   /**
    * Drops a source's rows. Only a proven deletion may call this: an unreadable
    * source is `unverifiable`, not `missing`, and keeps its rows
-   * (docs/reference/ssh-execution-boundary.md).
+   * (AGENTS.md).
    */
   removeFile(path: string): void {
     try {

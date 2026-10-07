@@ -1,7 +1,11 @@
-import type { PairingOfferUnavailableReason } from '../runtime/runtime-rpc'
-import type { OrcadHealth } from '../orcad/orcad-health'
-
-export type ServePairingUnavailableReason = PairingOfferUnavailableReason | 'disabled_by_operator'
+export type ServePairingUnavailableReason =
+  | 'websocket_unavailable'
+  | 'device_registry_unavailable'
+  | 'e2ee_key_unavailable'
+  | 'invalid_advertised_endpoint'
+  | 'relay_mint_failed'
+  | 'network_exposure_failed'
+  | 'disabled_by_operator'
 
 export type ServePairingReadiness =
   | {
@@ -25,19 +29,9 @@ export type ServeReadiness = {
   advertisedEndpoint: string | null
   managedWslCliReconciliation: 'pending' | 'settled' | 'failed'
   pairing: ServePairingReadiness
-  /**
-   * Build identity, Node ABI and the cross-process terminal-daemon self-test.
-   *
-   * Optional because the Electron `--serve` host does not publish one yet; readers must
-   * treat its absence as "not reported", never as healthy. Additive, so an older client
-   * parsing this payload is unaffected.
-   */
-  health?: OrcadHealth
 }
 
-export type ServeReadinessOutput =
-  | { mode: 'human' | 'json' }
-  | { mode: 'recipe-json'; projectRoot: string }
+export type ServeReadinessOutput = { mode: 'human' | 'json' }
 
 type ReadinessWrite = (output: string) => Promise<void>
 
@@ -65,18 +59,6 @@ export function renderServeReadiness(
   readiness: ServeReadiness,
   output: ServeReadinessOutput
 ): string {
-  if (output.mode === 'recipe-json') {
-    if (!readiness.pairing.available) {
-      throw new Error(
-        `Recipe JSON output requires runtime pairing: ${readiness.pairing.reason}. ${readiness.pairing.guidance}`
-      )
-    }
-    return JSON.stringify({
-      schemaVersion: 1,
-      pairingCode: readiness.pairing.url,
-      projectRoot: output.projectRoot
-    })
-  }
   if (output.mode === 'json') {
     return JSON.stringify({
       type: 'orca_server_ready',
@@ -86,8 +68,7 @@ export function renderServeReadiness(
       boundEndpoint: readiness.boundEndpoint,
       advertisedEndpoint: readiness.advertisedEndpoint,
       managedWslCliReconciliation: readiness.managedWslCliReconciliation,
-      pairing: readiness.pairing,
-      ...(readiness.health ? { health: readiness.health } : {})
+      pairing: readiness.pairing
     })
   }
   return renderHumanReadiness(readiness)
@@ -99,18 +80,6 @@ function renderHumanReadiness(readiness: ServeReadiness): string {
     `Bound endpoint: ${readiness.boundEndpoint ?? 'websocket unavailable'}`,
     `Advertised endpoint: ${readiness.advertisedEndpoint ?? 'unavailable'}`
   ]
-  if (readiness.health) {
-    const daemon = readiness.health.terminalDaemon
-    lines.push(
-      `Build: ${readiness.health.buildVersion} (${readiness.health.buildHash}), Node ` +
-        `${readiness.health.nodeVersion} ABI ${readiness.health.nodeAbi}`
-    )
-    lines.push(
-      `Terminal daemon: ${daemon.state} — PTY self-test ${daemon.selfTest.ok ? 'passed' : 'FAILED'}` +
-        ` (${daemon.selfTest.coverage}: ${daemon.selfTest.verdict})` +
-        `; terminals survive an orcad restart: ${daemon.ownsFreshSessions ? 'yes' : 'NO'}`
-    )
-  }
   if (readiness.pairing.available) {
     if (readiness.pairing.webClientUrl) {
       lines.push(`Web client URL: ${readiness.pairing.webClientUrl}`)

@@ -9,7 +9,6 @@ vi.mock('../runtime-client', async () => {
   // Why: re-export the REAL error classes so format.ts `instanceof` narrowing still matches.
   const { RuntimeClientError, RuntimeRpcFailureError } = await import('../runtime/types.js')
   class RuntimeClient {
-    readonly isRemote = false
     call = callMock
     getCliStatus = vi.fn()
     openOrca = vi.fn()

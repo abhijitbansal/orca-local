@@ -14,7 +14,7 @@ type TerminalBindingRecoveryOperationsRuntime = Pick<StoreRuntimeState, 'state'>
  *
  * `expired` is deliberately not death: every writer of it records that the CLIENT lost its route —
  * a superseded sibling, a recycled relay id, a persistPtyBinding refusal, a failed reattach, a
- * relay reset — and `docs/reference/ssh-execution-boundary.md` grades all of those `unverifiable`.
+ * relay reset — and `AGENTS.md` grades all of those `unverifiable`.
  * Refusing the binding there strands a remote shell that is still running behind a pane that can no
  * longer reach it. Keeping it authorizes a reattach ATTEMPT, never a respawn: when the shell really
  * is gone, `attachStablePaneOwner` retires the binding on the relay's own absence answer and falls

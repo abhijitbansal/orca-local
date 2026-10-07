@@ -6,7 +6,6 @@ import { SPEECH_MODEL_CATALOG } from './model-catalog'
 import { deleteLocalSpeechModel } from './speech-model-deletion'
 
 const localModel = SPEECH_MODEL_CATALOG.find((model) => model.provider === 'local')
-const cloudModel = SPEECH_MODEL_CATALOG.find((model) => model.provider === 'openai')
 
 function makeStore(initialVoice: VoiceSettings) {
   let voice = initialVoice
@@ -104,8 +103,7 @@ describe('deleteLocalSpeechModel', () => {
     expect(store.updateSettings).not.toHaveBeenCalled()
   })
 
-  it('rejects unknown and cloud models before preparing storage deletion', async () => {
-    expect(cloudModel).toBeDefined()
+  it('rejects unknown models before preparing storage deletion', async () => {
     const store = makeStore(getDefaultVoiceSettings())
     const modelManager = { deleteModel: vi.fn(async () => {}) }
     const sttService = { prepareModelForDeletion: vi.fn(async () => {}) }
@@ -118,14 +116,6 @@ describe('deleteLocalSpeechModel', () => {
         modelId: 'missing-model'
       })
     ).rejects.toThrow('voice_model_unknown')
-    await expect(
-      deleteLocalSpeechModel({
-        store,
-        modelManager,
-        sttService,
-        modelId: cloudModel!.id
-      })
-    ).rejects.toThrow('voice_model_not_deletable')
 
     expect(sttService.prepareModelForDeletion).not.toHaveBeenCalled()
     expect(modelManager.deleteModel).not.toHaveBeenCalled()

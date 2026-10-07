@@ -35,8 +35,6 @@ jobs:
       should_run: ${{ steps.filter.outputs.should_run }}
       reused_run_id: ${{ steps.readiness.outputs.run_id }}
       # A proven success masks required work only; advisory routing still uses the full diff.
-      mobile_dependencies: ${{ steps.filter.outputs.mobile_dependencies }}
-      mobile_web_app: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.mobile_web_app }}
       static_analysis: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.static_analysis }}
       typecheck: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.typecheck }}
       git_compatibility: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.git_compatibility }}
@@ -44,14 +42,11 @@ jobs:
       xterm_patch_sync: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.xterm_patch_sync }}
       shell_contracts: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.shell_contracts }}
       test: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.test }}
-      orcad_browser: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.orcad_browser }}
       cross-version-wire: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.cross-version-wire }}
-      managed_hook_node18: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.managed_hook_node18 }}
       package: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.package }}
       package_windows: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.package_windows }}
       e2e_should_run: ${{ steps.e2e_filter.outputs.should_run }}
       test_files: ${{ steps.e2e_filter.outputs.test_files }}
-      ssh_source_changed: ${{ steps.e2e_filter.outputs.ssh_source_changed }}
       native_ime_source_changed: ${{ steps.e2e_filter.outputs.native_ime_source_changed }}
       wsl_source_changed: ${{ steps.e2e_filter.outputs.wsl_source_changed }}
     steps:
@@ -128,11 +123,6 @@ jobs:
           # authorities, exclusions, and sentinels without evaluating workflow shell.
           TEST_FILES_JSON="$(printf '%s\n' "$CHANGED" | node config/scripts/pr-e2e-source-routing.mjs)"
           echo "test_files=$TEST_FILES_JSON" >> "$GITHUB_OUTPUT"
-          # Why a separate signal: the Docker-SSH lane must trigger on SSH source, not on a
-          # spec name surviving in a route's list. Same routes, so the two cannot drift.
-          SSH_SOURCE_CHANGED="$(printf '%s\n' "$CHANGED" | node config/scripts/pr-e2e-source-routing.mjs --ssh-source)"
-          echo "ssh_source_changed=$SSH_SOURCE_CHANGED" >> "$GITHUB_OUTPUT"
-          echo "SSH source changed: $SSH_SOURCE_CHANGED"
           # Why its own signal: the real-IME lane is a whole ibus session, not a spec, so it must
           # trigger on IME source rather than on a spec name in some route's list.
           NATIVE_IME_SOURCE_CHANGED="$(printf '%s\n' "$CHANGED" | node config/scripts/pr-e2e-source-routing.mjs --native-ime-source)"
@@ -172,24 +162,10 @@ jobs:
           fetch-depth: 50
           persist-credentials: false
 
-      # Why two guarded installs: the mixed root+mobile store entry is 537 MB against
-      # 321 MB for root alone, and restoring it costs 8.6s against 4.6s. Most PRs skip the
-      # mobile install below, so they were paying 216 MB for packages they never link. The
-      # root-only key is also the one the hourly warmer reseeds. Only one of these runs.
       - uses: ./.github/actions/install-node-dependencies
-        if: needs.code_paths.outputs.mobile_dependencies != 'true'
         with:
           native-runtime: node
           node-version: '24'
-
-      - uses: ./.github/actions/install-node-dependencies
-        if: needs.code_paths.outputs.mobile_dependencies == 'true'
-        with:
-          native-runtime: node
-          node-version: '24'
-          cache-dependency-path: |
-            pnpm-lock.yaml
-            mobile/pnpm-lock.yaml
 
       # Keep each check in its own log while sharing this runner.
       - name: Lint
@@ -210,14 +186,7 @@ jobs:
       - name: Enforce type-aware code-quality baseline
         run: pnpm run audit:code-quality:type-aware
 
-      # Mobile installation changes import resolution for the native cycle check.
       - wait: native-code-quality
-
-      # Why here: the changed-code gate lints mobile files too, and its type-aware pass
-      # resolves types from mobile/node_modules. Without the install every mobile type
-      # degrades to an `error` type — reported as phantom findings against the changed lines.
-      - uses: ./.github/actions/install-mobile-dependencies
-        if: needs.code_paths.outputs.mobile_dependencies == 'true'
 
       - name: Enforce changed-code quality
         id: changed-code-quality
@@ -238,27 +207,6 @@ jobs:
       - name: Enforce dead design-system classes
         run: pnpm run check:dead-classes
 
-      - name: Check VM runtime rollback compatibility
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-        run: |
-          DIFF_BASE="$(node config/scripts/git-pull-request-diff-base.mjs "$BASE_SHA")"
-          if git diff --quiet "$DIFF_BASE" HEAD -- \
-            src/shared/ephemeral-vm-runtime-store.ts \
-            src/shared/ephemeral-vm-runtime-feature-store.ts \
-            src/shared/ephemeral-vm-runtime-rollback-projection.ts \
-            src/shared/ephemeral-vm-runtimes.ts \
-            src/shared/ephemeral-vm-recipes.ts \
-            src/shared/orca-yaml-hook-types.ts \
-            src/main/ephemeral-vm-runtime-service.ts \
-            src/main/ephemeral-vm-runtime-provisioning-persistence.ts \
-            src/main/ephemeral-vm-failed-start-cleanup.ts; then
-            echo "VM runtime persistence is unchanged."
-            exit 0
-          fi
-          node config/scripts/run-ephemeral-vm-runtime-store-rollback-repro.mjs \
-            config/scripts/ephemeral-vm-runtime-store-cross-version.test.ts
-
       - name: Enforce max-lines ratchet
         run: pnpm run check:max-lines-ratchet
 
@@ -267,9 +215,6 @@ jobs:
 
       - name: Enforce runtime Electron-import ratchet
         run: pnpm run check:runtime-electron-ratchet
-
-      - name: Check Node runtime pin
-        run: pnpm run check:node-runtime-pin
 
       # Why: extraction writes sorted evidence to an isolated temporary path,
       # so feature PRs need one normalized AST pass rather than a three-OS matrix.
@@ -286,23 +231,6 @@ jobs:
             echo "Localization extraction inputs are unchanged."
           else
             pnpm run verify:localization-extraction
-          fi
-
-      # Why both: the ratchet proves nothing reachable from the runtime imports electron,
-      # which is a property of the import graph. This proves the Node artifact it enables
-      # actually boots, pairs, creates a worktree and round-trips a real PTY.
-      - name: Boot orcad and round-trip a terminal
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          ORCA_BACKGROUND_LAUNCH: '1'
-        run: |
-          # Detection failures run the smoke; renames retain the removed input path.
-          DIFF_BASE="$(node config/scripts/git-pull-request-diff-base.mjs "$BASE_SHA")"
-          if git diff --name-only --no-renames -z "$DIFF_BASE" HEAD > "$RUNNER_TEMP/orcad-smoke-changes" &&
-            scope="$(node config/scripts/orcad-terminal-smoke-change-scope.mjs "$RUNNER_TEMP/orcad-smoke-changes")" && [ "$scope" = false ]; then
-            echo "Orcad terminal smoke inputs are unchanged."
-          else
-            pnpm run smoke:orcad-terminal
           fi
 
       - name: Verify the generated RPC params catalog
@@ -669,7 +597,6 @@ jobs:
             src/main/terminal-history-fish-session.node-pty.test.ts \
             src/main/zsh-scoped-histfile.live-shell.test.ts \
             src/main/zsh-startup-hook-user-config-equivalence.live-shell.test.ts \
-            src/main/zsh-wrapper-version-mismatch.live-shell.test.ts \
             src/main/runtime/structured-session-cli-login-shell.live-shell.test.ts \
             src/renderer/src/components/terminal-pane/fish-color-scheme-child-stdin.node-pty.test.ts \
             src/shared/fish-query-reply-child-stdin.node-pty.test.ts \
@@ -699,122 +626,6 @@ jobs:
     needs: [test]
     if: ${{ !cancelled() && needs.test.result == 'success' }}
     uses: ./.github/workflows/unit-selection-evidence.yml
-
-  # Why a separate job: the test needs a real Chrome, and the sharded `test` matrix
-  # would pay for it on every shard to run one file in whichever shard it landed in.
-  orcad_browser:
-    name: orcad browser provider
-    needs: [code_paths]
-    if: needs.code_paths.outputs.orcad_browser == 'true'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-
-      # Why no native-runtime: the provider drives the prebuilt agent-browser binary
-      # shipped in node_modules and never touches node-pty.
-      - uses: ./.github/actions/install-node-dependencies
-
-      # Why the runner's Google Chrome and not its chromium: Ubuntu 24.04 only ships an
-      # AppArmor userns profile for the Chrome .deb, so chromium dies with "No usable
-      # sandbox" and the provider passes no --no-sandbox. Why fail instead of skip: an
-      # unset ORCA_BROWSER_EXECUTABLE is exactly how this test went uncovered for so long.
-      - name: Resolve Chrome for the browser provider
-        run: |
-          set -euo pipefail
-          chrome="$(command -v google-chrome || command -v google-chrome-stable || true)"
-          if [ -z "$chrome" ]; then
-            echo "::error::No Google Chrome on the runner; the browser provider test would silently skip."
-            exit 1
-          fi
-          "$chrome" --version
-          echo "ORCA_BROWSER_EXECUTABLE=$chrome" >> "$GITHUB_ENV"
-
-      - name: Test external Chromium browser provider
-        run: |
-          pnpm exec vitest run --config config/vitest.config.ts \
-            src/main/orcad/external-chromium-browser-process.integration.test.ts
-
-  # Why its own job: it needs mobile/node_modules and a real browser, and the sharded `test`
-  # matrix would pay for both on every shard to run two files. It builds the same bundle the
-  # package job ships, and adds the render and census checks packaging does not run.
-  mobile_web_app:
-    name: mobile web app bundle
-    needs: [code_paths]
-    if: needs.code_paths.outputs.mobile_web_app == 'true'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-
-      # Why no native-runtime: the builder is esbuild and the render check is a browser. Nothing
-      # in this job loads node-pty.
-      - uses: ./.github/actions/install-node-dependencies
-        with:
-          native-runtime: node
-          cache-dependency-path: |
-            pnpm-lock.yaml
-            mobile/pnpm-lock.yaml
-
-      # The drawer check runs on WebKit as well as Chrome, because the shell's iOS WebView is
-      # WebKit and the Chrome above cannot stand in for it. Downloaded rather than resolved from
-      # the runner: Ubuntu ships no WebKit build to point at.
-      - name: Install WebKit for the drawer check
-        id: webkit
-        background: true
-        run: pnpm exec playwright install --with-deps webkit
-
-      # The entry lives in mobile/ so one React resolves; without this every RN import is nothing.
-      - uses: ./.github/actions/install-mobile-dependencies
-
-      - name: Prepare mobile route snapshot
-        id: mobile-routes
-        background: true
-        run: node config/scripts/run-mobile-web-app-checks.mjs --prepare-route-snapshot "$RUNNER_TEMP/mobile-routes.json"
-
-      # Why the runner's Google Chrome and not a downloaded chromium: same reason as the orcad
-      # browser job -- Ubuntu 24.04 only ships an AppArmor userns profile for the Chrome .deb.
-      # Why fail instead of skip: a silently skipped render check is the failure this job exists
-      # to prevent.
-      - name: Resolve Chrome for the render check
-        run: |
-          set -euo pipefail
-          chrome="$(command -v google-chrome || command -v google-chrome-stable || true)"
-          if [ -z "$chrome" ]; then
-            echo "::error::No Google Chrome on the runner; the render check would silently skip."
-            exit 1
-          fi
-          "$chrome" --version
-          echo "ORCA_MOBILE_WEB_RENDER_BROWSER=$chrome" >> "$GITHUB_ENV"
-
-      - name: Build and verify the app bundle
-        run: pnpm run build:mobile-web
-
-      # Browser checks must observe both a finished install and the built bundle.
-      - wait: [webkit, mobile-routes]
-
-      # The bundling tests skip themselves where mobile dependencies are absent, which is how they
-      # stay green in the sharded `test` job. This is the job that installs them, so here a missing
-      # install has to fail rather than skip everything the job exists to run.
-      # Why a prefix and not a file list: the list this replaces had gone stale twice without
-      # anyone noticing, because a census whose closure block skips without the env flag below is
-      # green in the sharded `test` job whether or not it ever runs here. The prefix is the same
-      # one `pr-code-change-scope.mjs` fires this job on, so naming a test into the family is all
-      # it takes to have it run. Quoted because these are vitest filename filters, matched as
-      # substrings against the discovered files, and the shell must not touch them.
-      # Route censuses share fresh dependency lists for this invocation; scratch builds stay independent.
-      - name: Builder, override census and render checks
-        env:
-          ORCA_MOBILE_WEB_APP_DEPS_REQUIRED: '1'
-          ORCA_MOBILE_WEB_PREPARED_ROUTE_SNAPSHOT: ${{ runner.temp }}/mobile-routes.json
-        run: |
-          node config/scripts/run-mobile-web-app-checks.mjs
 
   cross-version-wire:
     name: cross-version wire compatibility
@@ -855,47 +666,6 @@ jobs:
           DIFF_BASE="$(node config/scripts/git-pull-request-diff-base.mjs "$BASE_SHA")"
           pnpm run check:runtime-launcher-protocol-ratchet -- --base "$DIFF_BASE"
 
-      # A path filter that matches nothing exits 1 ("No test files found"), so this
-      # lane cannot report success while running zero tests.
-      - name: Old/new client and server compatibility journeys
-        run: >-
-          pnpm exec vitest run --config config/vitest.config.ts
-          tests/e2e/cross-version-wire/release-checkout.unit.test.ts
-          tests/e2e/cross-version-wire/cross-version-browser-placement.unit.test.ts
-          tests/e2e/cross-version-wire/cross-version-terminal-wire.unit.test.ts
-          tests/e2e/cross-version-wire/reported-lossy-initial-snapshot.unit.test.ts
-          tests/e2e/cross-version-wire/cross-version-agent-session-wire.unit.test.ts
-          tests/e2e/cross-version-wire/cross-version-worktree-identity-downgrade.unit.test.ts
-          tests/e2e/cross-version-wire/cross-version-session-tabs-retirement-proof.unit.test.ts
-          tests/e2e/cross-version-wire/agent-session-resume-marker-downgrade.unit.test.ts
-          tests/e2e/cross-version-wire/cross-version-worktree-ps-verdict.unit.test.ts
-
-  managed_hook_node18:
-    name: managed hooks on Node 18
-    needs: [code_paths]
-    if: needs.code_paths.outputs.managed_hook_node18 == 'true'
-    # Why ARM: Node 18 publishes linux-arm64; the per-platform runtime files are read as data.
-    runs-on: ubuntu-24.04-arm
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-
-      - uses: ./.github/actions/install-node-dependencies
-
-      - name: Build relay companions
-        run: pnpm run build:relay
-
-      - name: Setup Node 18 runtime
-        uses: actions/setup-node@v6
-        with:
-          node-version: '18'
-
-      - name: Smoke managed-hook companions
-        run: node config/scripts/smoke-managed-hook-runtime-node18.mjs
-
   package:
     name: package
     needs: [code_paths, static_analysis, typecheck]
@@ -921,13 +691,6 @@ jobs:
       - uses: ./.github/actions/install-node-dependencies
         with:
           native-runtime: electron
-          cache-dependency-path: |
-            pnpm-lock.yaml
-            mobile/pnpm-lock.yaml
-
-      # Why here: electron-builder's beforePack requires out/mobile-web, and the bundle
-      # build resolves React Native and Expo from mobile/node_modules.
-      - uses: ./.github/actions/install-mobile-dependencies
 
       # The checkout must pass without depending on a historical baseline that leaks.
       - name: Verify Linux daemon shutdown descendant cleanup
@@ -983,21 +746,10 @@ jobs:
           done
           exit "$status"
 
-      - name: Project web client from renderer build
-        id: web-client
-        background: true
-        run: pnpm run build:web-from-renderer
-
-      # Why here and not inside "Build package inputs": this job assembles packaging inputs step by
-      # step instead of calling build:release, and electron-builder's beforePack guard hard-fails
-      # without out/mobile-web. This is the real page, ~8 MB, not a bootstrap document.
-      - name: Build mobile web bundle
-        run: pnpm run build:mobile-web
-
       - name: Build native components
         run: pnpm run build:native
 
-      - wait: [linux-package-tools, web-client]
+      - wait: linux-package-tools
 
       - name: Package unpacked app
         env:
@@ -1075,13 +827,6 @@ jobs:
         with:
           native-runtime: node
           persist-native-cache: 'false'
-          cache-dependency-path: |
-            pnpm-lock.yaml
-            mobile/pnpm-lock.yaml
-
-      # Why here: electron-builder's beforePack requires out/mobile-web, and the bundle
-      # build resolves React Native and Expo from mobile/node_modules.
-      - uses: ./.github/actions/install-mobile-dependencies
 
       - name: Save compiled Node native modules
         if: steps.deps.outputs.native-cache-hit != 'true'
@@ -1157,9 +902,6 @@ jobs:
           src/main/runtime/unreadable-secret-store-preservation.win32.test.ts
           src/main/ipc/pty-codex-account-attribution.test.ts
           src/main/ipc/pty-spawn-env-codex-resume-provenance.test.ts
-          src/relay/windows-port-scan.win32.test.ts
-          src/main/ssh/ssh-relay-upload-stage-windows-identity.test.ts
-          src/main/ssh/remote-node-runtime-store-windows.test.ts
 
       # Why the :parallel variant: identical to build:release except the three
       # electron-vite targets overlap instead of running back to back. The Linux package
@@ -1227,7 +969,6 @@ jobs:
       # workflow is queued. The head SHA is immutable and works for every PR.
       ref: ${{ github.event.pull_request.head.sha }}
       test_files: ${{ needs.code_paths.outputs.test_files }}
-      ssh_source_changed: ${{ needs.code_paths.outputs.ssh_source_changed }}
 
   # Why this is not in verify's needs: it is the first PR-gate run of a harness whose reliability
   # is only known from nightly main runs (20/20 green, 2026-08-09..2026-08-29, p50 3m25s). It
@@ -1265,10 +1006,7 @@ jobs:
       - xterm_patch_sync
       - shell_contracts
       - test
-      - orcad_browser
-      - mobile_web_app
       - cross-version-wire
-      - managed_hook_node18
       - package
       - package_windows
     # Evaluating job results only needs the lightweight container runner.
@@ -1302,14 +1040,8 @@ jobs:
           SHELL_CONTRACTS_SHOULD_RUN: ${{ needs.code_paths.outputs.shell_contracts }}
           TEST: ${{ needs.test.result }}
           TEST_SHOULD_RUN: ${{ needs.code_paths.outputs.test }}
-          ORCAD_BROWSER: ${{ needs.orcad_browser.result }}
-          ORCAD_BROWSER_SHOULD_RUN: ${{ needs.code_paths.outputs.orcad_browser }}
-          MOBILE_WEB_APP: ${{ needs.mobile_web_app.result }}
-          MOBILE_WEB_APP_SHOULD_RUN: ${{ needs.code_paths.outputs.mobile_web_app }}
           CROSS_VERSION_WIRE: ${{ needs.cross-version-wire.result }}
           CROSS_VERSION_WIRE_SHOULD_RUN: ${{ needs.code_paths.outputs.cross-version-wire }}
-          MANAGED_HOOK_NODE18: ${{ needs.managed_hook_node18.result }}
-          MANAGED_HOOK_NODE18_SHOULD_RUN: ${{ needs.code_paths.outputs.managed_hook_node18 }}
           PACKAGE: ${{ needs.package.result }}
           PACKAGE_SHOULD_RUN: ${{ needs.code_paths.outputs.package }}
           PACKAGE_WINDOWS: ${{ needs.package_windows.result }}
@@ -1344,10 +1076,7 @@ jobs:
           check_job xterm_patch_sync "$XTERM_PATCH_SYNC" "$XTERM_PATCH_SYNC_SHOULD_RUN"
           check_job shell_contracts "$SHELL_CONTRACTS" "$SHELL_CONTRACTS_SHOULD_RUN"
           check_job test "$TEST" "$TEST_SHOULD_RUN"
-          check_job orcad_browser "$ORCAD_BROWSER" "$ORCAD_BROWSER_SHOULD_RUN"
-          check_job mobile_web_app "$MOBILE_WEB_APP" "$MOBILE_WEB_APP_SHOULD_RUN"
           check_job cross-version-wire "$CROSS_VERSION_WIRE" "$CROSS_VERSION_WIRE_SHOULD_RUN"
-          check_job managed_hook_node18 "$MANAGED_HOOK_NODE18" "$MANAGED_HOOK_NODE18_SHOULD_RUN"
           check_job package "$PACKAGE" "$PACKAGE_SHOULD_RUN"
           check_job package_windows "$PACKAGE_WINDOWS" "$PACKAGE_WINDOWS_SHOULD_RUN"
           exit "$failed"

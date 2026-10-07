@@ -31,7 +31,7 @@ type SectionRowsArgs = {
   repoMap: Map<string, Repo>
   worktreeMap: Map<string, Worktree>
   worktreeLineageById: Record<string, WorktreeLineage>
-  prCache: AppState['prCache'] | null
+  prCache: Record<string, unknown> | null
   settings: AppState['settings']
   workspaceStatuses: readonly WorkspaceStatusDefinition[]
   effectiveCollapsedGroups: Set<string>

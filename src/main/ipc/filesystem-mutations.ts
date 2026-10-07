@@ -1,4 +1,4 @@
-import { app, ipcMain } from 'electron'
+import { ipcMain } from 'electron'
 import { constants } from 'node:fs'
 import { copyFile, mkdir, writeFile } from 'node:fs/promises'
 import { basename, dirname } from 'node:path'
@@ -6,27 +6,16 @@ import type { Store } from '../persistence'
 import { resolveAuthorizedPath } from './filesystem-auth'
 import { requireSshFilesystemProvider } from '../providers/ssh-filesystem-dispatch'
 import { resolveLocalDroppedPathsForAgent } from './dropped-path-resolution'
-import { importExternalPathsSsh } from './filesystem-import-ssh'
+import { LocalOnlyUnsupportedError } from '../../shared/local-only-unsupported-error'
 import type { SshMutationExpectation } from '../../shared/ssh-types'
 import { assertSshMutationExpectation } from '../ssh/ssh-connection-generation'
 import { renameLocalPathSerializedByDestination } from '../destination-serialized-local-rename'
 import { assertNotExists, rethrowWithUserMessage } from './filesystem-create-path-guards'
 import type {
   ImportItemResult,
-  ImportSkipReason,
-  ResolveDroppedPathsResult,
-  StagedExternalImportSource
+  ResolveDroppedPathsResult
 } from '../../shared/filesystem-import-result-types'
 import { importOneSource } from './filesystem-import-local'
-import {
-  stagedRuntimeUploadByteLength,
-  stageOneSourceForRuntimeUpload
-} from './filesystem-runtime-upload-staging'
-import { streamExternalFileToRuntime } from './runtime-upload-file-stream'
-import { abortWhenRendererGone } from './renderer-lifetime-abort'
-import { sweepAbandonedRuntimeUploadTempPath } from './runtime-upload-temp-sweep'
-import type { RuntimeUploadFileStreamRequest } from '../../shared/runtime-upload-staging-contract'
-import { resolveEnvironment } from '../../shared/runtime-environment-store'
 
 /**
  * IPC handlers for file/folder creation and renaming.
@@ -164,22 +153,11 @@ export function registerFilesystemMutationHandlers(store: Store): void {
         args.expectedExecutionHostId
       )
       if (args.connectionId) {
-        return importExternalPathsSsh(args.sourcePaths, args.destDir, args.connectionId, {
-          ensureDir: args.ensureDir,
-          assertCurrent: () =>
-            assertSshMutationExpectation(
-              args.connectionId,
-              args.expectedSshTargetId,
-              args.expectedSshConnectionGeneration,
-              args.expectedExecutionHostId
-            )
-        })
+        throw new LocalOnlyUnsupportedError('ssh', 'fs:importExternalPaths')
       }
 
       // Why: destDir must be authorized before any copy work begins. If the
       // destination is outside allowed roots, the entire import fails.
-      // This only applies to local imports — remote paths are authorized by
-      // the SSH connection boundary (see importExternalPathsSsh).
       const resolvedDest = await resolveAuthorizedPath(args.destDir, store)
 
       const results: ImportItemResult[] = []
@@ -197,67 +175,10 @@ export function registerFilesystemMutationHandlers(store: Store): void {
     }
   )
 
-  ipcMain.handle(
-    'fs:stageExternalPathsForRuntimeUpload',
-    async (
-      _event,
-      args: { sourcePaths: string[] }
-    ): Promise<{ sources: StagedExternalImportSource[] }> => {
-      const sources: StagedExternalImportSource[] = []
-      // Why: one budget for the whole drop — per-source counters would let five
-      // 2 GB files through a ceiling meant to cap the drop.
-      let totalBytes = 0
-      for (const sourcePath of args.sourcePaths) {
-        const source = await stageOneSourceForRuntimeUpload(sourcePath, totalBytes)
-        totalBytes += stagedRuntimeUploadByteLength(source)
-        sources.push(source)
-      }
-      return { sources }
-    }
-  )
-
-  // Why: the file handle and the runtime socket both live in main, so the byte
-  // pump runs here. The renderer keeps deconflict/commit/rollback orchestration
-  // and never sees file contents.
-  ipcMain.handle(
-    'fs:uploadExternalFileToRuntime',
-    async (event, args: RuntimeUploadFileStreamRequest): Promise<{ byteLength: number }> => {
-      const userDataPath = app.getPath('userData')
-      // Why: the streamer's manual-disconnect check keys on the environment id,
-      // and the renderer may pass any selector the store resolves.
-      const request = {
-        ...args,
-        environmentId: resolveEnvironment(userDataPath, args.environmentId).id
-      }
-      // Why: the renderer's own loop died with its window. Now that the bytes
-      // move in main, a reload or close has to stop the transfer explicitly,
-      // or a multi-GB upload outlives the window that asked for it.
-      const lifetime = abortWhenRendererGone(event.sender)
-      try {
-        return await streamExternalFileToRuntime({
-          ...request,
-          userDataPath,
-          signal: lifetime.signal
-        })
-      } catch (error) {
-        if (lifetime.signal.aborted) {
-          // Why: the renderer owns temp cleanup, and it is gone — so the
-          // abandoned temp path is only collectable from here.
-          await sweepAbandonedRuntimeUploadTempPath(userDataPath, request)
-        }
-        throw error
-      } finally {
-        lifetime.dispose()
-      }
-    }
-  )
-
   // Why: terminal drag-and-drop resolver. Local worktrees pass paths through
-  // unchanged (reference-in-place; preserves zero-latency drop). SSH worktrees
-  // upload each path into `${worktreePath}/.orca/drops/` and return remote
-  // paths the remote agent can read. Kept as a separate IPC from
+  // unchanged (reference-in-place; preserves zero-latency drop). Kept as a separate IPC from
   // fs:importExternalPaths because terminal semantics differ from the
-  // explorer's "copy into user-picked destDir". See docs/terminal-drop-ssh.md.
+  // explorer's "copy into user-picked destDir".
   ipcMain.handle(
     'fs:resolveDroppedPathsForAgent',
     async (
@@ -283,32 +204,7 @@ export function registerFilesystemMutationHandlers(store: Store): void {
           failed: []
         }
       }
-      const worktreePath = args.worktreePath.replace(/\/+$/, '')
-      const destDir = `${worktreePath}/.orca/drops`
-      const { results } = await importExternalPathsSsh(args.paths, destDir, args.connectionId, {
-        ensureDir: true,
-        assertCurrent: () =>
-          assertSshMutationExpectation(
-            args.connectionId,
-            args.expectedSshTargetId,
-            args.expectedSshConnectionGeneration,
-            args.expectedExecutionHostId
-          )
-      })
-      const resolvedPaths: string[] = []
-      const skipped: { sourcePath: string; reason: ImportSkipReason }[] = []
-      const failed: { sourcePath: string; reason: string }[] = []
-      // Iterate in input order so injected paths align with the user's drop order.
-      for (const r of results) {
-        if (r.status === 'imported') {
-          resolvedPaths.push(r.destPath)
-        } else if (r.status === 'skipped') {
-          skipped.push({ sourcePath: r.sourcePath, reason: r.reason })
-        } else {
-          failed.push({ sourcePath: r.sourcePath, reason: r.reason })
-        }
-      }
-      return { resolvedPaths, skipped, failed }
+      throw new LocalOnlyUnsupportedError('ssh', 'fs:resolveDroppedPathsForAgent')
     }
   )
 }

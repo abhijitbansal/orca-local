@@ -7,7 +7,7 @@
 // later event can ever settle them. Opening the journal is the one moment a new
 // host can state the truth about the old one: contact was lost. That is
 // `unverifiable`, never a synthesized exit — see
-// `docs/reference/ssh-execution-boundary.md`.
+// `AGENTS.md`.
 //
 // Reconciles JOURNAL ROWS, not roster state. A producer that continues a roster
 // from the journal reads these rows after this revision, so it inherits the

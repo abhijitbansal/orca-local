@@ -1,10 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import {
-  ELECTRON_REMOTE_RUNTIME_CLIENT_CAPABILITIES,
-  NATIVE_REMOTE_RUNTIME_CLIENT_CAPABILITIES,
-  WORKTREE_BACKGROUND_REMOVAL_RUNTIME_CAPABILITY
-} from '../../../shared/protocol-version'
-import { remoteRuntimeClientCapabilities } from '../../../shared/remote-runtime-client-capabilities'
+import { WORKTREE_BACKGROUND_REMOVAL_RUNTIME_CAPABILITY } from '../../../shared/protocol-version'
 import type {
   RuntimeWorktreeListResult,
   RuntimeWorktreePsResult
@@ -67,7 +62,7 @@ describe('worktree listings while a checkout is being deleted', () => {
   })
 
   it('marks the row for a desktop or web client that negotiated the marker', () => {
-    const context = { clientCapabilities: ELECTRON_REMOTE_RUNTIME_CLIENT_CAPABILITIES }
+    const context = { clientCapabilities: [WORKTREE_BACKGROUND_REMOVAL_RUNTIME_CAPABILITY] }
     expect(
       projectWorktreeListRemovals(listResult(), context, snapshotPendingWorktreeRemovals())
         .worktrees
@@ -85,12 +80,7 @@ describe('worktree listings while a checkout is being deleted', () => {
 
   it('leaves the row out for a client that would show it as a normal workspace', () => {
     // An older desktop or web build, the CLI, the phone, and an in-process caller alike.
-    for (const clientCapabilities of [
-      [],
-      undefined,
-      NATIVE_REMOTE_RUNTIME_CLIENT_CAPABILITIES,
-      remoteRuntimeClientCapabilities()
-    ]) {
+    for (const clientCapabilities of [[], undefined]) {
       const list = projectWorktreeListRemovals(
         listResult(),
         { clientCapabilities },
@@ -106,18 +96,5 @@ describe('worktree listings while a checkout is being deleted', () => {
       expect(ps.worktrees.map((row) => row.worktreeId)).toEqual([keptId])
       expect(ps.totalCount).toBe(1)
     }
-  })
-
-  it('advertises the marker only from the desktop renderer, never the shared remote defaults', () => {
-    // Mobile and the CLI send the shared defaults and have no Deleting affordance to show.
-    expect(ELECTRON_REMOTE_RUNTIME_CLIENT_CAPABILITIES).toContain(
-      WORKTREE_BACKGROUND_REMOVAL_RUNTIME_CAPABILITY
-    )
-    expect(remoteRuntimeClientCapabilities()).not.toContain(
-      WORKTREE_BACKGROUND_REMOVAL_RUNTIME_CAPABILITY
-    )
-    expect(NATIVE_REMOTE_RUNTIME_CLIENT_CAPABILITIES).not.toContain(
-      WORKTREE_BACKGROUND_REMOVAL_RUNTIME_CAPABILITY
-    )
   })
 })

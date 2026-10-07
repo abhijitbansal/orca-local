@@ -11,18 +11,12 @@ import { rmSync, mkdtempSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import type { PersistedState } from '../shared/persisted-state-types'
-import { toRuntimeExecutionHostId, toSshExecutionHostId } from '../shared/execution-host'
+import {
+  LOCAL_EXECUTION_HOST_ID,
+  toRuntimeExecutionHostId,
+  toSshExecutionHostId
+} from '../shared/execution-host'
 
-// Stub the ~/.ssh/config parser so the SSH-import test drives the real Store with deterministic hosts, not the operator's actual ~/.ssh/config.
-const { loadUserSshConfigMock, sshConfigHostsToTargetsMock } = vi.hoisted(() => ({
-  loadUserSshConfigMock: vi.fn(),
-  sshConfigHostsToTargetsMock: vi.fn()
-}))
-
-vi.mock('./ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: loadUserSshConfigMock,
-  sshConfigHostsToTargets: sshConfigHostsToTargetsMock
-}))
 const { trackMock, getCohortAtEmitMock } = vi.hoisted(() => ({
   trackMock: vi.fn(),
   getCohortAtEmitMock: vi.fn()
@@ -399,8 +393,7 @@ describe('Store', () => {
     const store = await createStore()
     store.addRepo(
       makeRepo({
-        upstream: { owner: 'stablyai', repo: 'orca' },
-        connectionId: 'builder'
+        upstream: { owner: 'stablyai', repo: 'orca' }
       })
     )
     const automation = store.createAutomation({
@@ -435,7 +428,7 @@ describe('Store', () => {
     expect(migratedAutomation?.runContext).toMatchObject({
       kind: 'workspace-run',
       projectId: 'github:stablyai/orca',
-      hostId: toSshExecutionHostId('builder'),
+      hostId: LOCAL_EXECUTION_HOST_ID,
       projectHostSetupId: 'r1',
       repoId: 'r1',
       path: '/repo'
@@ -444,7 +437,7 @@ describe('Store', () => {
       kind: 'task-source',
       provider: 'github',
       projectId: 'github:stablyai/orca',
-      hostId: toSshExecutionHostId('builder'),
+      hostId: LOCAL_EXECUTION_HOST_ID,
       projectHostSetupId: 'r1',
       repoId: 'r1',
       providerIdentity: { provider: 'github', owner: 'stablyai', repo: 'orca' }

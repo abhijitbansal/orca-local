@@ -58,10 +58,6 @@ export const resolveDefaultBaseRefWithLocalGitMock: ModuleMock = vi.fn()
 export const resolveDefaultBaseRefViaExecMock: ModuleMock = vi.fn()
 export const getDefaultRemoteMock: ModuleMock = vi.fn()
 export const getBranchConflictKindMock: RepoBranchMock = vi.fn()
-export const getPRForBranchMock: RepoBranchMock = vi.fn()
-export const getHostedReviewForBranchMock: ModuleMock = vi.fn()
-export const getWorkItemMock: ModuleMock = vi.fn()
-export const getPullRequestPushTargetMock: ModuleMock = vi.fn()
 export const getEffectiveHooksMock: Mock<(repo?: unknown, worktreePath?: string) => unknown> =
   vi.fn()
 export const createIssueCommandRunnerScriptMock: ModuleMock = vi.fn()
@@ -146,16 +142,6 @@ export const gitRepoModuleMock = () => ({
     }
     return getBranchConflictKindMock(repoPath, branch, base, options)
   }
-})
-
-export const githubClientModuleMock = () => ({
-  getPRForBranch: getPRForBranchMock,
-  getWorkItem: getWorkItemMock,
-  getPullRequestPushTarget: getPullRequestPushTargetMock
-})
-
-export const hostedReviewModuleMock = () => ({
-  getHostedReviewForBranch: getHostedReviewForBranchMock
 })
 
 export const sshGitDispatchModuleMock = () => ({

@@ -52,8 +52,6 @@ export {
 } from './automation-format'
 export type { AutomationListPayload, AutomationShowPayload } from './automation-format'
 export {
-  formatEnvironment,
-  formatEnvironmentList,
   formatMemorySnapshot,
   formatRepoList,
   formatRepoRefs,
@@ -75,33 +73,6 @@ export function printResult<TResult>(
   console.log(formatter(response.result))
 }
 
-export type HostListEntry = {
-  kind: 'local' | 'ssh' | 'environment'
-  name: string
-  id: string
-  selector: string
-  platform?: string
-  machineName?: string
-  connected?: boolean
-  connectionStatus?: string
-}
-
-// Why: the selector column is the point of this command — the name alone is what callers already
-// had, and passing it on the wrong axis is the mistake this output exists to prevent.
-export function formatHostList(result: { hosts: HostListEntry[] }): string {
-  const kindLabel: Record<HostListEntry['kind'], string> = {
-    local: 'local',
-    ssh: 'ssh target',
-    environment: 'orca server'
-  }
-  return result.hosts
-    .map(
-      (host) =>
-        `${kindLabel[host.kind].padEnd(11)} ${host.name}${host.machineName ? ` (${host.machineName})` : ''}  ${host.platform ?? 'platform unknown'}  ${formatHostConnection(host)}  ->  ${host.selector}`
-    )
-    .join('\n')
-}
-
 /** What one runtime calls itself; `machineName` is absent when the runtime predates the field. */
 export type HostNameResult = {
   machineName?: string
@@ -112,23 +83,8 @@ export function formatHostName(result: HostNameResult): string {
   return `${result.machineName ?? 'unknown'}${result.platform ? ` (${result.platform})` : ''}`
 }
 
-function formatHostConnection(host: HostListEntry): string {
-  if (host.kind !== 'ssh') {
-    return ''
-  }
-  if (host.connected === undefined) {
-    return `connection unknown${host.connectionStatus ? ` (${host.connectionStatus})` : ''}`
-  }
-  return host.connected
-    ? `connected${host.connectionStatus ? ` (${host.connectionStatus})` : ''}`
-    : `not connected${host.connectionStatus ? ` (${host.connectionStatus})` : ''}`
-}
-
 export function formatCliStatus(status: CliStatusResult): string {
   return [
-    ...(status.target && status.target.kind === 'environment'
-      ? [`target: environment ${status.target.environment}`]
-      : []),
     `appRunning: ${status.app.running}`,
     `pid: ${status.app.pid ?? 'none'}`,
     `desktopWindowStatus: ${status.app.desktopWindowStatus ?? 'unknown'}`,

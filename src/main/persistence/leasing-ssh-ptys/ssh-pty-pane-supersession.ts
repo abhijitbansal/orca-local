@@ -178,7 +178,7 @@ export function supersedeSshRemotePtyLeasesForBoundPane(
  *
  * Panes with no binding are skipped rather than pruned: absence of a binding is not evidence about
  * which shell owns the pane, and a genuine orphan has to stay askable
- * (docs/reference/ssh-execution-boundary.md).
+ * (AGENTS.md).
  */
 export function reconcileSshRemotePtyLeasesForTarget(
   operations: SshPtyLeaseOperations,

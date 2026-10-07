@@ -1,5 +1,4 @@
 import type { RuntimeBrowserClientPlacement } from '../../../../shared/runtime-browser-placement'
-import { e2eSuppressesBrowserClientPageMetadataPublish } from './browser-client-page-metadata-publish-e2e-fault'
 import {
   createBrowserClientPageMetadataPublisher,
   type BrowserClientPageMetadataUnpublished
@@ -33,10 +32,7 @@ export function reportUnpublishedBrowserClientPageMetadata(
   console.warn('[browser-client-page] metadata publish did not land:', { browserPageId, ...detail })
 }
 
-/**
- * A publisher wired to the one route that reaches the runtime: main, which holds the host lease.
- * Publishing straight from this renderer is refused as a stale lease and silently never lands.
- */
+/** No paired runtime exists in this build, so every publish is refused and nothing leaves the renderer. */
 export function startBrowserClientPageMetadataPublisher(options: {
   browserPageId: string
   environmentId: string
@@ -47,13 +43,7 @@ export function startBrowserClientPageMetadataPublisher(options: {
     browserPageId: options.browserPageId,
     placement: options.placement,
     nextRevision: options.nextRevision,
-    publish: (params) =>
-      e2eSuppressesBrowserClientPageMetadataPublish()
-        ? Promise.resolve({ status: 'refused' as const })
-        : window.api.browser.publishClientPageMetadata({
-            environmentId: options.environmentId,
-            params
-          }),
+    publish: () => Promise.resolve({ status: 'refused' as const }),
     onUnpublished: (detail) =>
       reportUnpublishedBrowserClientPageMetadata(options.browserPageId, detail)
   })

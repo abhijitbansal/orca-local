@@ -16,11 +16,8 @@ import {
 } from './status-bar-context-menu-policy'
 import { StatusBarUsageEmptyCta } from './StatusBarUsageEmptyCta'
 import { UsagePercentageDisplayChangeNotice } from './UsagePercentageDisplayChangeNotice'
-import { UpdateStatusSegment } from './UpdateStatusSegment'
-import { SkillUpdateStatusSegment } from './SkillUpdateStatusSegment'
 import { NativeChatResumeStatusSegment } from './NativeChatResumeStatusSegment'
 import { CaffeinateStatusSegment } from './CaffeinateStatusSegment'
-import { RemoteServerUpdateStatusSegment } from './RemoteServerUpdateStatusSegment'
 import { TOGGLE_FLOATING_TERMINAL_EVENT } from '@/lib/floating-terminal'
 import { FloatingTerminalIconContextMenu } from '@/components/floating-terminal/FloatingTerminalIconContextMenu'
 import { ClaudeSwitcherMenu } from './ClaudeSwitcherMenu'
@@ -41,9 +38,6 @@ const ResourceUsageStatusSegment = lazyWithRetry(() =>
 )
 const PortsStatusSegment = lazyWithRetry(() =>
   import('./PortsStatusSegment').then((module) => ({ default: module.PortsStatusSegment }))
-)
-const SshStatusSegment = lazyWithRetry(() =>
-  import('./SshStatusSegment').then((module) => ({ default: module.SshStatusSegment }))
 )
 
 export type StatusBarProps = {
@@ -87,7 +81,6 @@ export function StatusBarSurface({
     showFloatingWorkspaceAttentionDot,
     showPorts,
     showResourceUsage,
-    showSsh,
     statusBarUsageMode,
     usageMenuFocusHandoff,
     usageMenuOpen,
@@ -272,10 +265,7 @@ export function StatusBarSurface({
           {!isPairedWebClientWindow() ? (
             <CaffeinateStatusSegment iconOnly={segmentsIconOnly} />
           ) : null}
-          <RemoteServerUpdateStatusSegment iconOnly={segmentsIconOnly} />
-          <SkillUpdateStatusSegment iconOnly={segmentsIconOnly} />
           <NativeChatResumeStatusSegment iconOnly={segmentsIconOnly} />
-          <UpdateStatusSegment compact={compact} iconOnly={segmentsIconOnly} />
           <React.Suspense fallback={null}>
             {petEnabled ? <PetStatusSegment /> : null}
             {showResourceUsage ? (
@@ -284,7 +274,6 @@ export function StatusBarSurface({
             {showPorts ? (
               <PortsStatusSegment compact={compact} iconOnly={segmentsIconOnly} />
             ) : null}
-            {showSsh ? <SshStatusSegment compact={compact} iconOnly={segmentsIconOnly} /> : null}
           </React.Suspense>
           {showFloatingTerminalToggle && (
             <FloatingTerminalIconContextMenu currentLocation="status-bar" className="relative">

@@ -17,9 +17,8 @@ import { AGENT_SESSION_BACKGROUND_TASK_CHILD_VIEWS_CAPABILITY } from '../../shar
  * Main and the renderer ship as one build, so nothing here is about version skew — the renderer
  * arrives as `clientKind: 'runtime'`, not in the `clientKind === undefined` population, so any
  * capability the host uses as an authorization gate has to be named here or the method is refused.
- * That is why this stays a curated set rather than the remote list: several remote-only entries
- * would change local behaviour if adopted (`SESSION_TAB_CLOSE_INTENT` alone would start refusing
- * an unattributed desktop tab close), and the divergence is pinned in this module's test.
+ * That is why this stays a curated set: adopting remote-only entries would change local behaviour
+ * (`SESSION_TAB_CLOSE_INTENT` alone would start refusing an unattributed desktop tab close).
  *
  * One constant, not one list per dispatch path: the unary and streaming handlers held separate
  * copies, and a capability added to one and missed on the other is invisible until a user hits it.
@@ -33,7 +32,6 @@ export const DESKTOP_RENDERER_RUNTIME_CLIENT_CAPABILITIES: readonly RuntimeCapab
   AGENT_SESSION_BACKGROUND_TASK_CHILD_VIEWS_CAPABILITY,
   STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY,
   CLAUDE_STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY,
-  // Without this `supportsAgentLaunch` refuses the renderer outright, while the same renderer
-  // targeting a remote host is admitted — the asymmetry this constant exists to close.
+  // Without this `supportsAgentLaunch` refuses the renderer outright.
   AGENT_LAUNCH_RUNTIME_CAPABILITY
 ] as const

@@ -181,7 +181,7 @@ describe('skill guides only name commands and flags the CLI defines', () => {
   it('checks flags on a prefix reference against every command under it', () => {
     const at = (text: string) => parityFailures({ file: 'x.md', line: 1, text })
     expect(at('ORCA emulator ...')).toEqual([])
-    expect(at('ORCA linear --help')).toEqual([])
+    expect(at('ORCA emulator --help')).toEqual([])
     expect(at('ORCA emulator --webcam')).toEqual([
       expect.stringContaining('--webcam is not a flag of "emulator"')
     ])

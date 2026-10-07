@@ -13,7 +13,6 @@ import {
   MIN_COMPATIBLE_RUNTIME_CLIENT_VERSION,
   RUNTIME_PROTOCOL_VERSION
 } from '../../../shared/protocol-version'
-import { clearRuntimeCompatibilityCacheForTests } from '@/runtime/runtime-rpc-client'
 import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../shared/constants'
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
@@ -61,7 +60,6 @@ async function renderProbe(
 }
 
 beforeEach(() => {
-  clearRuntimeCompatibilityCacheForTests()
   useAppStore.setState(initialAppState, true)
   latestHookResult = null
   detectRemoteAgents.mockReset().mockResolvedValue([])
@@ -278,172 +276,5 @@ describe('useDetectedAgents (runtime call site)', () => {
     expect(latestHookResult?.detectedIds).toBeNull()
     expect(latestHookResult?.isLoading).toBe(false)
     expect(latestHookResult?.detectionFailed).toBe(true)
-  })
-
-  it('probes each empty runtime target at most once per mounted surface', async () => {
-    const root = await renderProbe({ kind: 'runtime', environmentId: 'env-1' })
-
-    await act(async () => {
-      root.render(createElement(HookProbe, { target: { kind: 'runtime', environmentId: 'env-2' } }))
-    })
-    await flushEffects()
-    await act(async () => {
-      root.render(createElement(HookProbe, { target: { kind: 'runtime', environmentId: 'env-1' } }))
-    })
-    await flushEffects()
-
-    expect(
-      runtimeEnvironmentCall.mock.calls.filter(
-        ([{ method }]) => method === 'preflight.detectAgents'
-      )
-    ).toHaveLength(2)
-  })
-
-  it('refreshes a non-empty runtime cache when a new launch surface opens', async () => {
-    useAppStore.setState({ runtimeDetectedAgentIds: { 'env-1': ['claude'] } })
-    runtimeEnvironmentCall.mockImplementation(({ method }: { method: string }) => {
-      const result =
-        method === 'status.get'
-          ? {
-              runtimeId: 'remote-runtime',
-              rendererGraphEpoch: 1,
-              graphStatus: 'ready',
-              authoritativeWindowId: null,
-              liveTabCount: 0,
-              liveLeafCount: 0,
-              runtimeProtocolVersion: RUNTIME_PROTOCOL_VERSION,
-              minCompatibleRuntimeClientVersion: MIN_COMPATIBLE_RUNTIME_CLIENT_VERSION
-            }
-          : {
-              agents: ['claude', 'devin'],
-              addedPathSegments: [],
-              shellHydrationOk: true,
-              pathSource: 'shell_hydrate',
-              pathFailureReason: 'none'
-            }
-      return Promise.resolve({
-        id: method,
-        ok: true,
-        result,
-        _meta: { runtimeId: 'remote-runtime' }
-      })
-    })
-
-    const root = await renderProbe({ kind: 'runtime', environmentId: 'env-1' })
-
-    expect(
-      runtimeEnvironmentCall.mock.calls.filter(
-        ([{ method }]) => method === 'preflight.refreshAgents'
-      )
-    ).toHaveLength(1)
-    expect(useAppStore.getState().runtimeDetectedAgentIds['env-1']).toEqual(['claude', 'devin'])
-
-    await act(async () => {
-      root.render(createElement(HookProbe, { target: { kind: 'runtime', environmentId: 'env-1' } }))
-    })
-    await flushEffects()
-    expect(
-      runtimeEnvironmentCall.mock.calls.filter(
-        ([{ method }]) => method === 'preflight.refreshAgents'
-      )
-    ).toHaveLength(1)
-  })
-
-  it('does not re-probe after an explicit refresh finds no agents', async () => {
-    useAppStore.setState({
-      runtimeDetectedAgentIds: { 'env-1': ['claude'] },
-      isDetectingRuntimeAgents: { 'env-1': false }
-    })
-    let detectCalls = 0
-    let refreshCalls = 0
-    runtimeEnvironmentCall.mockImplementation(({ method }: { method: string }) => {
-      let result: unknown
-      if (method === 'status.get') {
-        result = {
-          runtimeId: 'remote-runtime',
-          rendererGraphEpoch: 1,
-          graphStatus: 'ready',
-          authoritativeWindowId: null,
-          liveTabCount: 0,
-          liveLeafCount: 0,
-          runtimeProtocolVersion: RUNTIME_PROTOCOL_VERSION,
-          minCompatibleRuntimeClientVersion: MIN_COMPATIBLE_RUNTIME_CLIENT_VERSION
-        }
-      } else if (method === 'preflight.refreshAgents') {
-        refreshCalls += 1
-        result = {
-          agents: [],
-          addedPathSegments: [],
-          shellHydrationOk: true,
-          pathSource: 'shell_hydrate',
-          pathFailureReason: 'none'
-        }
-      } else {
-        detectCalls += 1
-        result = ['claude']
-      }
-      return Promise.resolve({
-        id: method,
-        ok: true,
-        result,
-        _meta: { runtimeId: 'remote-runtime' }
-      })
-    })
-
-    const root = await renderProbe({ kind: 'runtime', environmentId: 'env-1' })
-    await flushEffects()
-
-    expect(refreshCalls).toBe(1)
-    expect(detectCalls).toBe(0)
-    expect(useAppStore.getState().runtimeDetectedAgentIds['env-1']).toEqual([])
-
-    await act(async () => {
-      root.render(createElement(HookProbe, { target: { kind: 'runtime', environmentId: 'env-1' } }))
-    })
-    await flushEffects()
-    expect(refreshCalls).toBe(1)
-  })
-
-  it('retries a cached empty runtime result when the launch surface is reopened', async () => {
-    let detectCalls = 0
-    runtimeEnvironmentCall.mockImplementation(({ method }: { method: string }) => {
-      let result: unknown
-      if (method === 'status.get') {
-        result = {
-          runtimeId: 'remote-runtime',
-          rendererGraphEpoch: 1,
-          graphStatus: 'ready',
-          authoritativeWindowId: null,
-          liveTabCount: 0,
-          liveLeafCount: 0,
-          runtimeProtocolVersion: RUNTIME_PROTOCOL_VERSION,
-          minCompatibleRuntimeClientVersion: MIN_COMPATIBLE_RUNTIME_CLIENT_VERSION
-        }
-      } else {
-        detectCalls += 1
-        result = detectCalls === 1 ? [] : ['kilo']
-      }
-      return Promise.resolve({
-        id: method,
-        ok: true,
-        result,
-        _meta: { runtimeId: 'remote-runtime' }
-      })
-    })
-
-    const firstRoot = await renderProbe({ kind: 'runtime', environmentId: 'env-1' })
-
-    expect(detectCalls).toBe(1)
-    expect(useAppStore.getState().runtimeDetectedAgentIds['env-1']).toEqual([])
-
-    await act(async () => {
-      firstRoot.unmount()
-    })
-    roots.splice(roots.indexOf(firstRoot), 1)
-
-    await renderProbe({ kind: 'runtime', environmentId: 'env-1' })
-
-    expect(detectCalls).toBe(2)
-    expect(useAppStore.getState().runtimeDetectedAgentIds['env-1']).toEqual(['kilo'])
   })
 })

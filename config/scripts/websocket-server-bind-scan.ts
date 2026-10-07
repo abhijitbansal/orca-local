@@ -45,7 +45,7 @@ const IGNORED_DIRECTORIES = new Set([
   '.cross-version-checkouts'
 ])
 const SCANNED_EXTENSIONS = /\.(?:ts|tsx|mts|cts)$/
-const SCANNED_ROOTS = ['src', 'mobile', 'config', 'tests']
+const SCANNED_ROOTS = ['src', 'config', 'tests']
 const WS_IMPORT_HINT = /from\s*['"]ws['"]/
 
 function collectSourceFiles(root: string, found: string[] = []): string[] {

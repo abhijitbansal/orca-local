@@ -4,7 +4,6 @@ import { disposeWorktreeBaseDirectoryWatchers } from '../ipc/worktree-base-direc
 import { stopFolderRepoGitUpgradeWatch } from '../ipc/folder-repo-git-upgrade'
 import { killAllPty } from '../ipc/pty'
 import { disconnectDaemon, shutdownDaemon } from '../daemon/daemon-init'
-import { beginSshShutdown } from '../ipc/ssh-shutdown-drain'
 import { agentHookServer } from '../agent-hooks/server'
 import { wslHookRelayManager } from '../agent-hooks/wsl-hook-relay-manager'
 import { removeManagedAgentHooksAsync } from '../agent-hooks/managed-agent-hook-controls'
@@ -12,7 +11,6 @@ import { stopStructuredAgentSessionRuntime } from '../runtime/structured-agent-s
 import { setStructuredAgentSessionTeardownTrigger } from '../runtime/structured-agent-session-runtime-teardown'
 import { awaitRuntimeFileWatcherUnsubscribes } from '../runtime/orca-runtime-files'
 import { clearRuntimeMetadataIfOwned } from '../runtime/runtime-metadata'
-import { shutdownPairedRuntimeBrowserClientHosts } from '../browser/paired-runtime-browser-client-host-runtime'
 import { browserManager } from '../browser/browser-manager'
 import { stopCodexStateDbBackfillRecoveries } from '../codex/codex-state-db-backfill-recovery'
 import { stopCodexAccountSessionBridges } from '../codex/codex-account-session-bridge'
@@ -24,8 +22,6 @@ import { setUnreadDockBadgeCount } from '../dock/unread-badge'
 import { destroySystemTray } from '../tray/system-tray'
 import { shutdownTelemetry } from '../telemetry/client'
 import { shutdownObservability } from '../observability'
-import { isQuittingForUpdate } from '../updater'
-import { recordUpdaterLifecycle } from '../updater-lifecycle-diagnostics'
 import { stopTccPromptNotice } from '../macos-tcc-prompt-notice'
 import { cancelHistoryGc } from '../terminal-history-gc'
 import { shouldQuitWhenAllWindowsClosed } from './window-all-closed-quit-policy'
@@ -68,14 +64,7 @@ function shutdownWatchersOnce(): Promise<void> {
 
 function installBeforeQuitHandler(): void {
   app.on('before-quit', () => {
-    if (isQuittingForUpdate()) {
-      recordUpdaterLifecycle('before_quit_allowed', undefined, {
-        message: 'before-quit allowed for update install'
-      })
-    }
     state.isQuitting = true
-    state.desktopRelayService?.fenceAndCloseNow()
-    state.runtimeRpc?.setMobileRelayPairingProvider(null)
     state.unsubscribeAgentAwakeStatusChanges?.()
     state.unsubscribeAgentAwakeStatusChanges = null
     state.agentAwakeService?.dispose()
@@ -108,24 +97,12 @@ function installWillQuitHandler(): void {
     if (!quitTeardownStartGate.tryStart(event)) {
       return
     }
-    // A renderer can veto before-quit; push must survive until quit is committed.
-    state.desktopPushService?.stop()
     state.unsubscribeSystemResumeBroadcast?.()
     state.unsubscribeSystemResumeBroadcast = null
     // Why: renderer guards can still cancel before this committed phase; `log stream` must survive those vetoes.
     stopTccPromptNotice()
-    const updateQuitInProgress = isQuittingForUpdate()
-    if (updateQuitInProgress) {
-      recordUpdaterLifecycle(
-        'will_quit_cleanup_started',
-        { daemonTeardown: 'disconnect' },
-        { message: 'will-quit cleanup for update install; daemonTeardown=disconnect' }
-      )
-    }
     // Why: before-quit can still be aborted by renderer beforeunload; only remove the Windows tray icon on the committed quit path.
     destroySystemTray()
-    // Why: an agent still working at quit gets no terminating hook, so stats.flushAsync() closes those sessions out synchronously (only the write is deferred) — otherwise their duration is lost.
-    state.starNag?.stop()
     state.automations?.stop()
     // Why: plugin hosts are forked children; dispose sends shutdown and
     // escalates to SIGKILL so they cannot outlive the app. The promise joins
@@ -139,7 +116,7 @@ function installWillQuitHandler(): void {
     stopCodexAccountSessionBridges()
     // Why before the stop: teardown stamps each working session's resume marker with why the app
     // went away, and an update install is a restart the user never chose.
-    setStructuredAgentSessionTeardownTrigger(updateQuitInProgress ? 'update' : 'quit')
+    setStructuredAgentSessionTeardownTrigger('quit')
     const structuredAgentSessionShutdown = stopStructuredAgentSessionRuntime()
     state.pluginService = null
     setUnreadDockBadgeCount(0)
@@ -183,6 +160,7 @@ function installWillQuitHandler(): void {
         : Promise.resolve()
     // Why: cancels relay restart/reinstall timers and kills wsl.exe children deterministically, not via stdio-pipe teardown.
     wslHookRelayManager.disposeAll()
+    // Why: an agent still working at quit gets no terminating hook, so stats.flushAsync() closes those sessions out synchronously (only the write is deferred) — otherwise their duration is lost.
     const statsFlush = state.stats?.flushAsync() ?? Promise.resolve()
     // Why: agent-browser daemon processes would otherwise linger after quit, holding ports and stale session state on disk.
     // Why the barrier below: each session's close is its own agent-browser child taking hundreds of ms,
@@ -192,17 +170,9 @@ function installWillQuitHandler(): void {
       await state.runtime?.getOffscreenBrowserBackend()?.destroyAll?.()
       await state.runtime?.getAgentBrowserBridge()?.destroyAllSessions()
     })()
-    // Why (review P2-4): local SSH browser routes own loopback listeners and, on the
-    // system-ssh path, `ssh -N -D` children that would otherwise outlive the app.
-    const localSshRouteShutdown = import('../browser/local-ssh-browser-route')
-      .then((routes) => routes.closeAllLocalSshBrowserRoutes())
-      .catch(() => {})
     browserManager.setBrowserGuestStateChangedListener(null)
     const emulatorShutdown =
       state.runtime?.getEmulatorBridge()?.destroyAllSessions() ?? Promise.resolve()
-    // Why immediately before the final store flush with no await in between: beginSshShutdown() marks every
-    // active SSH lease detached in memory synchronously, and that flush is what persists it.
-    const sshShutdown = beginSshShutdown()
     killAllPty()
     const watcherShutdown = shutdownWatchersOnce()
     const finalStore = state.store
@@ -227,8 +197,6 @@ function installWillQuitHandler(): void {
       state.openCodeUsage?.flush(),
       state.museUsage?.flush()
     ]).then(() => {})
-    const browserClientHostShutdown = shutdownPairedRuntimeBrowserClientHosts()
-    const skillUploadShutdown = state.runtime?.disposeSkillUploadSessions() ?? Promise.resolve()
     // Why: capture pid/runtimeId synchronously (before any await) so a later teardown path can't null them out mid-chain.
     const ownedPid = process.pid
     const ownedRuntimeId = state.runtime?.getRuntimeId()
@@ -259,11 +227,7 @@ function installWillQuitHandler(): void {
       { name: 'runtime-rpc', promise: rpcStopAndClear },
       { name: 'watchers', promise: watcherShutdown },
       { name: 'emulator', promise: emulatorShutdown },
-      { name: 'browser-client-hosts', promise: browserClientHostShutdown },
-      { name: 'local-ssh-browser-routes', promise: localSshRouteShutdown },
-      { name: 'ssh', promise: sshShutdown },
       { name: 'plugin-hosts', promise: pluginHostShutdown },
-      { name: 'skill-uploads', promise: skillUploadShutdown },
       { name: 'grok-hooks', promise: grokHookCleanup },
       { name: 'ref-maintenance', promise: refMaintenanceShutdown },
       { name: 'codex-backfill-recovery', promise: codexBackfillRecoveryShutdown },

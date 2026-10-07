@@ -1,0 +1,23 @@
+# path:rule entries exempt from config/scripts/check-local-only.mjs.
+# Every entry needs a one-line justification comment above it. Keep this list short.
+
+# Help, docs and issue links: opened in the OS browser via shell.openExternal; Orca opens no connection.
+src/renderer/src/components/sidebar/SidebarSettingsHelpMenu.tsx:forbidden-host
+src/renderer/src/components/link-routing-preference-dialog.tsx:forbidden-host
+src/renderer/src/components/terminal-pane/TerminalErrorToast.tsx:forbidden-host
+src/shared/feature-wall-tiles.ts:forbidden-host
+src/shared/feature-wall-workflows.ts:forbidden-host
+# Share-usage card text and the x.com intent opened in the OS browser.
+src/renderer/src/components/stats/ShareUsageButton.tsx:forbidden-host
+src/renderer/src/components/stats/share-card-utils.tsx:forbidden-host
+# Strings only: CLI help examples, a code comment link, and a pasteable install command Orca never runs.
+src/cli/specs/project.ts:forbidden-host
+src/shared/tui-agent-config.ts:forbidden-host
+src/shared/agent-feature-install-commands.ts:forbidden-host
+src/renderer/src/lib/cmd-j-evaluation-fixture.ts:forbidden-host
+# Proxy resolution only: session.resolveProxy(url) classifies the URL and never connects.
+src/main/network/proxy-settings.ts:forbidden-host
+# Port-scan address classification, not a listener bind.
+src/main/ports/local-workspace-port-address.ts:wildcard-bind
+# JWT claim namespace key read from a local Codex auth file, not a request URL.
+src/main/codex-accounts/codex-auth-identity.ts:forbidden-host

@@ -29,7 +29,7 @@ const WILDCARD_BIND_ALLOWLIST: readonly string[] = readFileSync(
  * May only ever be DECREASED, and only by pinning a host. Raising it is never
  * the fix.
  */
-const WILDCARD_BIND_PIN = 1
+const WILDCARD_BIND_PIN = 0
 
 /**
  * A floor under the constructions the scanner still recognizes.
@@ -38,7 +38,7 @@ const WILDCARD_BIND_PIN = 1
  * following reports zero offenders and reads exactly like a clean tree. During
  * development a single wrong regex dropped this from 24 to 3.
  */
-const RECOGNIZED_CONSTRUCTION_FLOOR = 20
+const RECOGNIZED_CONSTRUCTION_FLOOR = 5
 
 describe('WebSocketServer loopback bind boundary', () => {
   const repoRoot = resolve(__dirname, '..', '..')

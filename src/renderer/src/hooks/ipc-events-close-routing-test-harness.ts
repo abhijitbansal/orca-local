@@ -77,7 +77,6 @@ export async function useIpcEventsForCloseRouting({
         getActiveTab: () => null,
         closeUnifiedTab: vi.fn(),
         reconcileWorktreeTabModel: () => ({ renderableTabCount: 1 }),
-        setUpdateStatus: vi.fn(),
         fetchRepos: vi.fn(),
         fetchWorktrees: vi.fn(),
         setActiveView: vi.fn(),
@@ -260,11 +259,6 @@ export async function useIpcEventsForCloseRouting({
       settings: {
         onChanged: () => () => {}
       },
-      updater: {
-        getStatus: () => Promise.resolve({ state: 'idle' }),
-        onStatus: () => () => {},
-        onClearDismissal: () => () => {}
-      },
       browser: {
         onGuestLoadFailed: () => () => {},
         onOpenLinkInOrcaTab: () => () => {},
@@ -275,17 +269,6 @@ export async function useIpcEventsForCloseRouting({
       rateLimits: {
         get: () => Promise.resolve({ limits: {}, lastUpdatedAt: Date.now() }),
         onUpdate: () => () => {}
-      },
-      ssh: {
-        listTargets: () => Promise.resolve([]),
-        listPortForwards: () => Promise.resolve([]),
-        listDetectedPorts: () => Promise.resolve([]),
-        getState: () => Promise.resolve(null),
-        onStateChanged: () => () => {},
-        onCredentialRequest: () => () => {},
-        onPortForwardsChanged: () => () => {},
-        onDetectedPortsChanged: () => () => {},
-        onCredentialResolved: () => () => {}
       },
       runtime: {
         getTerminalFitOverrides: () => Promise.resolve([]),

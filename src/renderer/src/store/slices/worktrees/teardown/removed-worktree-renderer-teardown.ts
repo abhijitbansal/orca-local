@@ -3,14 +3,12 @@ import type { WorktreeSliceGet, WorktreeSliceSet } from '../listing/worktree-sli
 import type { WorktreeCatalogVersion } from '../../../../../../shared/worktree/catalog-version'
 import { getRepoIdFromWorktreeId } from '../../worktree-helpers'
 import { appliedWorktreeCatalogVersionPatch } from '../listing/worktree-catalog-version-state'
-import { cleanupEphemeralVmRuntimesForDeleted } from '@/lib/ephemeral-vm-runtime-cleanup'
 import { forgetAgentStartupDeliveriesForTabs } from '@/lib/agent-startup-delivery-guards'
 import { forgetForegroundTerminalTabs } from '@/lib/foreground-terminal-tabs'
 import { requestVirtualizedScrollAnchorRecord } from '@/hooks/requestVirtualizedScrollAnchorRecord'
 import { disposeRemovedWorktreeParkedTerminalWatchers } from '../../../../components/terminal-pane/terminal-parked-watcher-registry'
 import { detachedHeadAutoDerivedDisplayNames } from '../metadata/detached-head-display-name'
 import { applyRemoveWorktreeSuccessState } from './remove-worktree-store-cleanup'
-import { purgeOrphanedRuntimeSshProjects } from './orphaned-runtime-ssh-project-purge'
 
 /**
  * Renderer-side teardown after the backend removal succeeded.
@@ -60,18 +58,6 @@ export async function tearDownRemovedWorktreeRendererState(args: {
     // The backend removal above already killed the workspace's PTYs.
     backendOwnsPtyTeardown: true
   })
-  // Why: dispose the SSH relay AFTER terminal teardown so a still-mounted pane can't hit a gone relay and toast "SSH not active".
-  const runtimeCleanup = await cleanupEphemeralVmRuntimesForDeleted(
-    requiredExecutionHostId
-      ? {
-          hostScopedWorkspaces: [
-            { workspaceId: worktreeId, executionHostId: requiredExecutionHostId }
-          ]
-        }
-      : { workspaceIds: [worktreeId] }
-  )
-  // Remove the orphaned project for the destroyed SSH target so it can't surface as a dead project in the composer.
-  await purgeOrphanedRuntimeSshProjects(get, runtimeCleanup.destroyedSshTargetIds)
   const tabs = get().tabsByWorktree[worktreeId] ?? []
   const tabIds = new Set(tabs.map((t) => t.id))
 

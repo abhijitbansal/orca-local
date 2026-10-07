@@ -31,12 +31,9 @@ export type FeatureWallCompletionProgressInput = {
   completedAgentSteps?: ReadonlySet<AgentsStepId>
   completedWorkbenchSteps?: ReadonlySet<WorkbenchStepId>
   completedReviewSteps?: ReadonlySet<ReviewStepId>
-  hasConnectedTaskSource: boolean
-  isCheckingTaskSources: boolean
   hasUsageAccount: boolean
   orchestrationSkillInstalled: boolean
   browserUseSkillInstalled: boolean
-  githubConfigured: boolean
   aiCommitPrConfigured: boolean
 }
 
@@ -44,15 +41,11 @@ export function getFeatureWallCompletionProgress(
   input: FeatureWallCompletionProgressInput
 ): FeatureWallCompletionProgress {
   const workspacesVisited = input.visitedWorkflows.has('workspaces')
-  const tasksVisited = input.visitedWorkflows.has('tasks')
   const agentsVisited = input.visitedWorkflows.has('agents-orchestration')
   const workbenchVisited = input.visitedWorkflows.has('workbench')
   const reviewVisited = input.visitedWorkflows.has('review')
 
   const workspacesDone = workspacesVisited || input.completedWorkflows?.has('workspaces') === true
-  const tasksDone =
-    input.completedWorkflows?.has('tasks') === true ||
-    (tasksVisited && !input.isCheckingTaskSources && input.hasConnectedTaskSource)
   const usageDone =
     input.completedAgentSteps?.has('usage') === true ||
     (input.visitedAgentSteps.has('usage') && input.hasUsageAccount)
@@ -82,8 +75,7 @@ export function getFeatureWallCompletionProgress(
   const reviewNotesDone =
     input.completedReviewSteps?.has('notes') === true || input.visitedReviewSteps.has('notes')
   const reviewPrViewDone =
-    input.completedReviewSteps?.has('pr-view') === true ||
-    (input.visitedReviewSteps.has('pr-view') && input.githubConfigured)
+    input.completedReviewSteps?.has('pr-view') === true || input.visitedReviewSteps.has('pr-view')
   const reviewShipDone =
     input.completedReviewSteps?.has('ship') === true ||
     (input.visitedReviewSteps.has('ship') && input.aiCommitPrConfigured)
@@ -94,7 +86,6 @@ export function getFeatureWallCompletionProgress(
   return {
     workflowDone: {
       workspaces: workspacesDone,
-      tasks: tasksDone,
       'agents-orchestration': agentsWorkflowDone,
       workbench: workbenchAllStepsDone,
       review: reviewAllStepsDone

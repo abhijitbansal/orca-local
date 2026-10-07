@@ -167,7 +167,6 @@ export class OrcaRuntimeWithCreateManagedWorktree extends OrcaRuntimeWithGetWork
         repo,
         store: this.requireStore(),
         createdWithAgent: effectiveCreatedWithAgent,
-        hostedReviewExecutionContext: this.getHostedReviewExecutionOptions(repo),
         resolveRemoteTrackingBase: (path, base, ...options) =>
           this.resolveRemoteTrackingBase(path, base, ...options),
         hasRemoteTrackingRef: (path, base, ...options) =>

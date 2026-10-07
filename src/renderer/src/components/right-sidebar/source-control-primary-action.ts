@@ -6,10 +6,6 @@ import {
 } from '../../../../shared/source-control-primary-action-decision'
 import type { SourceControlPrimaryActionDecision } from '../../../../shared/source-control-primary-action-decision-types'
 import { translate } from '@/i18n/i18n'
-import {
-  localizedHostedReviewCopy,
-  resolveSupportedHostedReviewCopyProvider
-} from '@/i18n/hosted-review-localized-copy'
 import type { PrimaryAction, PrimaryActionInputs } from './source-control-primary-action-types'
 import {
   describeForcePushWithLease,
@@ -17,6 +13,10 @@ import {
   describePushCount,
   describeSyncCounts
 } from './source-control-primary-action-titles'
+
+// Why: no forge integration remains, so review creation is never offered; these branches stay only
+// to keep the shared decision union exhaustive and use the generic pull-request wording.
+const GENERIC_REVIEW_COPY = { shortLabel: 'PR', reviewLabel: 'pull request' } as const
 
 export type {
   PrimaryActionKind,
@@ -82,9 +82,7 @@ function resolvePrimaryActionLabel(
     )
   }
   if (decision.labelIntent === 'create_pr') {
-    const copy = localizedHostedReviewCopy(
-      resolveSupportedHostedReviewCopyProvider(inputs.hostedReviewCreation?.provider)
-    )
+    const copy = GENERIC_REVIEW_COPY
     return translate(
       'auto.components.right.sidebar.source.control.primary.action.e7ffa46946',
       'Create {{value0}}',
@@ -131,9 +129,7 @@ function resolvePrimaryActionTitle(
   decision: SourceControlPrimaryActionDecision,
   inputs: PrimaryActionInputs
 ): string {
-  const copy = localizedHostedReviewCopy(
-    resolveSupportedHostedReviewCopyProvider(inputs.hostedReviewCreation?.provider)
-  )
+  const copy = GENERIC_REVIEW_COPY
   switch (decision.titleIntent) {
     case 'commit_in_progress':
       return translate(

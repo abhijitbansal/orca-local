@@ -21,7 +21,7 @@ describe('terminal.recoverPane liveness gate', () => {
     // `exited` certificate exists to demand here, and no writer of one co-occurs with a
     // reattachable `expired` lease: a host-delivered exit frame tombstones the lease `terminated`
     // instead. Requiring `exited` therefore closes this gate permanently
-    // (docs/reference/ssh-execution-boundary.md).
+    // (AGENTS.md).
     const tabId = 'tab-relay-disowned'
     const ptyId = 'ssh:ssh-target@@pty-10'
     const runtime = createRuntimeWithSshLease(ptyId, tabId)

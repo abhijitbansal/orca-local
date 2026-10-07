@@ -17,20 +17,11 @@ import {
   patchPackagedProcessPath,
   optOutOfHiddenPageWakeUpThrottling
 } from './configure-process'
-import { installServeSupervisorDisconnectQuit } from '../serve-update-handoff'
 import {
   installUncaughtPipeErrorGuard,
   installUnhandledRejectionLogging
 } from './main-process-error-guards'
 import { hydrateShellPath, mergePathSegments } from './hydrate-shell-path'
-import { configureRemoteServerUpdater } from '../runtime/remote-server-updater'
-import {
-  getRemoteServerUpdaterSnapshot,
-  checkForRemoteServerUpdate,
-  downloadRemoteServerUpdate,
-  installRemoteServerUpdate,
-  isQuittingForUpdate
-} from '../updater'
 import { getDevInstanceIdentity, shouldApplyPreReadyAppName } from './dev-instance-identity'
 import { enableRendererHeapHeadroom } from './renderer-heap-headroom'
 import { isStartupDiagnosticsEnabled, logStartupDiagnostic } from './startup-diagnostics'
@@ -63,8 +54,6 @@ import { electronRuntimeDesktopSurface } from '../host/electron-runtime-desktop-
 import { setRuntimeDesktopSurface } from '../runtime/runtime-desktop-surface'
 import { electronRuntimeBrowserCommandsFactory } from '../host/electron-browser-commands'
 import { setRuntimeBrowserCommandsFactory } from '../runtime/runtime-browser-commands-factory'
-import { electronHttpClient } from '../host/electron-http-client'
-import { setMainHttpClient } from '../network/http-client'
 import { electronSpeechServiceFactories } from '../host/electron-speech-services'
 import { setSpeechServiceFactories } from '../speech/speech-runtime-service'
 import { setWorktreeWatcherRemoval } from '../ipc/worktree-watcher-removal'
@@ -156,12 +145,7 @@ function initializeMainProcessPreflight(options: MainProcessPreflightOptions): b
     // Why held for desktop too: an activation before the startup window exists would open a
     // second main window and abort launch; runtime launch releases it once that window exists.
     initialState: 'initializing',
-    activateWindow: () => {
-      // Why: an updater replacement must not resurrect the old app bundle.
-      if (!isQuittingForUpdate()) {
-        options.focusExistingWindow()
-      }
-    },
+    activateWindow: () => options.focusExistingWindow(),
     onBlocked: (reason) => console.error(`[serve] Desktop activation blocked: ${reason}`)
   })
   installUncaughtPipeErrorGuard()
@@ -169,12 +153,6 @@ function initializeMainProcessPreflight(options: MainProcessPreflightOptions): b
   installUnhandledRejectionLogging()
   // Why: expose the app version via process.env so main and the forked daemon can set TERM_PROGRAM_VERSION without importing electron.
   process.env.ORCA_APP_VERSION = app.getVersion()
-  configureRemoteServerUpdater({
-    getSnapshot: getRemoteServerUpdaterSnapshot,
-    check: checkForRemoteServerUpdate,
-    download: downloadRemoteServerUpdate,
-    install: installRemoteServerUpdate
-  })
   patchPackagedProcessPath()
   // Why: the sync seed above covers early IPC (homebrew/nix); the async login-shell probe below (packaged only) then adds the user's rc PATH.
   if (app.isPackaged && process.platform !== 'win32') {
@@ -295,10 +273,6 @@ function initializeMainProcessPreflight(options: MainProcessPreflightOptions): b
   // desktop supplies it; a Node host has no Chromium proxy config to consult, so the
   // environment variables are the whole answer there.
   setDefaultProxySessionResolver(() => session.defaultSession)
-  // Why here: integrations use Chromium's network stack on the desktop. A Node host
-  // falls back to the platform default, which is a real behavioural difference (proxy
-  // read from the environment, Node's user agent) rather than a transparent swap.
-  setMainHttpClient(electronHttpClient)
   // Why here: constructing the speech services is what pulls Electron's streaming net
   // request in. A host without them rejects speech calls rather than pretending.
   setSpeechServiceFactories(electronSpeechServiceFactories)
@@ -308,13 +282,6 @@ function initializeMainProcessPreflight(options: MainProcessPreflightOptions): b
   installDevParentDisconnectQuit(shouldCoupleToDevParent)
   installDevParentWatchdog(shouldCoupleToDevParent)
   installDevParentSignalQuit(shouldCoupleToDevParent)
-  // Why not at module scope with the other lifetime couplings (#16761): this resolves the handoff
-  // path, so it throws until setAppEnvironment() above installs the accessor — which killed every
-  // `orca serve` process before it could listen. After initDataPath() specifically, so the
-  // path-equality check against the CLI's env var uses the dir captured before app.setName().
-  // Safe to defer, and must stay synchronous: no 'disconnect' can be delivered until this module
-  // finishes evaluating, so moving this behind an await would open a real orphan window.
-  installServeSupervisorDisconnectQuit(state.isServeMode)
   // Why here: initDataPath above gives the canonical userData path for the record file; the write
   // itself lands for the next launch (see macos-press-and-hold-default.ts).
   applyMacPressAndHoldDefaultAtStartup(getCanonicalUserDataPath())

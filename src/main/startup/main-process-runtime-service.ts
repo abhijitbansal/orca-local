@@ -17,17 +17,9 @@ import { resolveHostCodexSessionSourceHome } from '../codex/codex-session-source
 import { isAgentStatusHooksEnabled } from '../agent-hooks/managed-agent-hook-controls'
 import { getDaemonProvider } from '../daemon/daemon-init'
 import type { TerminalSideEffectBatch } from '../../shared/terminal-side-effect-facts'
-import type { OrchestrationEnvironmentTransport } from '../runtime/orchestration/environment-transport'
-import { resolveEnvironment } from '../../shared/runtime-environment-store'
-import { getPreferredPairingOffer } from '../../shared/runtime-environments'
-import { fingerprintOrchestrationPeer } from '../runtime/orchestration/environment-transport'
-import { callRuntimeEnvironment } from '../ipc/runtime-environment-transport-routing'
 import { mainProcessState as state } from './main-process-state'
 import { prepareCodexRuntimeHomeForLaunch } from './codex-launch-preparation'
 import type { RuntimeDesktopWindowStatus } from '../../shared/runtime-types'
-import { ArtifactCloudService } from '../artifacts/artifact-cloud-service'
-import { SkillCloudService } from '../skills/skill-cloud-service'
-import { isArtifactSharingEnabled } from '../../shared/artifact-sharing-gate'
 import {
   AgentStatusObservedPaneIdentities,
   recordObservedAgentStatusPaneIdentity
@@ -47,28 +39,6 @@ export function initializeMainProcessRuntime(): OrcaRuntimeService {
   const stats = state.stats
   if (!store || !stats) {
     throw new Error('Store and stats must be initialized before runtime')
-  }
-  const orchestrationEnvironmentTransport: OrchestrationEnvironmentTransport = {
-    resolve: (selector) => {
-      const environment = resolveEnvironment(app.getPath('userData'), selector)
-      const pairing = getPreferredPairingOffer(environment)
-      return {
-        environmentId: environment.id,
-        name: environment.name,
-        peerFingerprint: fingerprintOrchestrationPeer(pairing.publicKeyB64),
-        pairingRevision: environment.pairingRevision ?? environment.createdAt
-      }
-    },
-    call: (selector, method, params, timeoutMs, envelope, expectedPairingRevision) =>
-      callRuntimeEnvironment(
-        app.getPath('userData'),
-        selector,
-        method,
-        params,
-        timeoutMs,
-        expectedPairingRevision,
-        envelope
-      )
   }
   // Why here and not in the window listener: `subscribeEnrichedStatus` also fires under headless
   // `orca serve`, which never opens one, and the fleet path runs there too.
@@ -121,10 +91,6 @@ export function initializeMainProcessRuntime(): OrcaRuntimeService {
     reconcileAgentStatusForEndedProcess: (paneKeys) =>
       agentHookServer.reconcileEndedProcessForPaneKeys(paneKeys),
     canRecoverPersistentLocalPtys: () => getDaemonProvider() !== null,
-    // Why: evaluated per call, not captured — the RPC server that owns the device registry is
-    // constructed with this runtime and does not exist yet at this point.
-    getPairedDeviceName: (pairedDeviceId) =>
-      state.runtimeRpc?.getDeviceRegistry()?.getDevice(pairedDeviceId)?.name ?? null,
     // Why: source codex-home here (runs in window AND serve) so aiVault.listSessions includes managed-Codex sessions; registerCoreHandlers is window-only.
     getAdditionalAiVaultCodexHomePaths: () =>
       state.codexRuntimeHome?.getHostCodexHomePathsForSessionDiscovery() ?? [],
@@ -146,7 +112,6 @@ export function initializeMainProcessRuntime(): OrcaRuntimeService {
     },
     buildAgentHookPtyEnv: () =>
       isAgentStatusHooksEnabled(state.store?.getSettings()) ? agentHookServer.buildPtyEnv() : {},
-    orchestrationEnvironmentTransport,
     // Why the same function the settings IPC handler calls: a paired client's write and a
     // local one must reconcile the scanner child through one path, or they can disagree.
     applySessionSearchSettings: applySessionSearchSettingsChange,
@@ -183,12 +148,6 @@ export function configureRuntimeServices(runtime: OrcaRuntimeService): void {
   if (!store || !claudeAccounts || !codexAccounts || !rateLimits) {
     throw new Error('Account services must be initialized before runtime wiring')
   }
-  runtime.setArtifactService(
-    new ArtifactCloudService(app.getPath('userData'), () =>
-      isArtifactSharingEnabled(state.store?.getSettings())
-    )
-  )
-  runtime.setSkillCloudService(new SkillCloudService(app.getPath('userData')))
   runtime.setAccountServices({ claudeAccounts, codexAccounts, rateLimits })
   runtime.setCommitMessageAgentEnvironmentResolvers({
     // Why: Codex hooks/auth live in Orca's managed runtime home even for the default path, so every launch must resolve CODEX_HOME via runtime-home.

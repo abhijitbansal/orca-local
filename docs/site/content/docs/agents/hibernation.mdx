@@ -21,7 +21,6 @@ Orca only hibernates an agent terminal when **all** of the following are true:
 - It hasn't received keystrokes since the agent finished.
 - The agent is one with a [resumable session](/docs/agents/session-history): Claude, Codex, Gemini, Antigravity, OpenCode, Pi, MiMo Code, Droid, Grok, Devin, or OMP.
 - It's been idle for at least the configured idle window (default 30 minutes).
-- No mobile session is currently driving the terminal.
 - No [orchestration](/docs/cli/orchestration) Dispatch is still unsettled (`pending`, `dispatched`, or unknown). Sleep is allowed again after runtime-confirmed `completed`, `failed`, or `circuit_broken`.
 - No live subagent / teammate roster remains on the pane (provider "done" alone is not enough while children are still attached).
 

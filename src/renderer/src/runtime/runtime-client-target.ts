@@ -6,6 +6,7 @@ export type RuntimeClientTarget = { kind: 'local' } | { kind: 'environment'; env
 export function getActiveRuntimeTarget(
   settings: Pick<GlobalSettings, 'activeRuntimeEnvironmentId'> | null | undefined
 ): RuntimeClientTarget {
+  // Why: a runtime: owner id must reach callRuntimeRpc and fail closed, never resolve to local.
   const environmentId = settings?.activeRuntimeEnvironmentId?.trim()
   return environmentId ? { kind: 'environment', environmentId } : { kind: 'local' }
 }
@@ -17,9 +18,6 @@ export function runtimeTargetForExecutionHostId(
   const parsed = parseExecutionHostId(hostId)
   if (parsed?.kind === 'local') {
     return { kind: 'local' }
-  }
-  if (parsed?.kind === 'runtime') {
-    return { kind: 'environment', environmentId: parsed.environmentId }
   }
   return null
 }

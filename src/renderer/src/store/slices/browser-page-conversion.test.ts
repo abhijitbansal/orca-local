@@ -344,7 +344,7 @@ describe('convertBrowserPage placement and activation', () => {
   })
 
   // Ownership rides provenance both ways, or Back silently moves a remote tab's browsing onto
-  // this desktop (the ssh-execution-boundary concern).
+  // this desktop (the execution-verdict concern).
   it('carries runtime ownership through provenance and honors it on the return leg', () => {
     const store = createStoreWithWorktree()
     const tab = store.getState().createBrowserTab(WORKTREE_ID, 'https://remote.example/', {

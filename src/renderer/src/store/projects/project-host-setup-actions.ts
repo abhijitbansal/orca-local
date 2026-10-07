@@ -13,6 +13,7 @@ import { repoMatchesHostIdentity } from '../slices/repo-host-identity'
 import { callRuntimeRpc } from '../../runtime/runtime-rpc-client'
 import { translate } from '@/i18n/i18n'
 import { getRepoExecutionHostId, parseExecutionHostId } from '../../../../shared/execution-host'
+import { LocalOnlyUnsupportedError } from '../../../../shared/local-only-unsupported-error'
 import type { RepoSlice } from '../repos/repo-state'
 import { ERROR_TOAST_DURATION } from '../repos/repo-state'
 import { repoWithFetchedOwner } from '../repos/owner-routing'
@@ -238,34 +239,29 @@ export function createProjectHostSetupActions(
 
     setupProjectClone: async (args) => {
       try {
-        const parsedHost = parseExecutionHostId(args.hostId)
-        const target = getProjectSetupRuntimeTarget(args.hostId)
-        if (parsedHost?.kind !== 'ssh') {
-          await assertProjectHostSetupMutationRuntimeCapabilities(target)
+        // Why: a legacy ssh host fails closed here instead of cloning on this machine.
+        if (parseExecutionHostId(args.hostId)?.kind === 'ssh') {
+          throw new LocalOnlyUnsupportedError('ssh', 'setupProjectClone')
         }
+        const target = getProjectSetupRuntimeTarget(args.hostId)
+        await assertProjectHostSetupMutationRuntimeCapabilities(target)
         const repo =
-          parsedHost?.kind === 'ssh'
-            ? await window.api.repos.cloneRemote({
-                connectionId: parsedHost.targetId,
+          target.kind === 'local'
+            ? await window.api.repos.clone({
                 url: args.url,
                 destination: args.destination
               })
-            : target.kind === 'local'
-              ? await window.api.repos.clone({
-                  url: args.url,
-                  destination: args.destination
-                })
-              : (
-                  await callRuntimeRpc<{ repo: Repo }>(
-                    target,
-                    'repo.clone',
-                    {
-                      url: args.url,
-                      destination: args.destination
-                    },
-                    { timeoutMs: 10 * 60_000 }
-                  )
-                ).repo
+            : (
+                await callRuntimeRpc<{ repo: Repo }>(
+                  target,
+                  'repo.clone',
+                  {
+                    url: args.url,
+                    destination: args.destination
+                  },
+                  { timeoutMs: 10 * 60_000 }
+                )
+              ).repo
         return await get().setupProjectExistingFolder({
           projectId: args.projectId,
           hostId: args.hostId,

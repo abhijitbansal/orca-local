@@ -30,7 +30,7 @@ export function useTerminalEditorCloseFoundation(
   const [windowCloseDialogOpen, setWindowCloseDialogOpen] = useState(false)
   // Why: "running" and "could not reach the host" are different claims, and telling the user
   // processes are running when the truth is that a host went quiet is the fabricated certainty
-  // docs/reference/ssh-execution-boundary.md forbids.
+  // AGENTS.md forbids.
   const [windowCloseDialogKind, setWindowCloseDialogKind] =
     useState<Exclude<WindowCloseRunningWork['kind'], 'none'>>('running')
   const windowCloseAfterDirtyRef = useRef<{ isQuitting: boolean } | null>(null)

@@ -334,9 +334,8 @@ function findBlockedSignalInLiveWindow(
     ).length
     if (decisionCount >= 2) {
       // Why neutral: an approval dialog with named choices identifies no agent; older hosts publish
-      // 'codex-interactive-prompt' here and clients alias the two. Rule 1 additive member --
-      // remote-wire-compatibility.md names RuntimeTerminalWaitBlockedReason as Rule 1 because no
-      // consumer switches exhaustively on it.
+      // 'codex-interactive-prompt' here and clients alias the two. Additive member --
+      // no consumer switches exhaustively on RuntimeTerminalWaitBlockedReason.
       // Why alias rather than drop the old spelling: preserve the existing remote receipt value for
       // mixed-version clients -- an older host still publishes codex-* on this path.
       candidates.push({ reason: 'agent-interactive-prompt', index: permissionPromptIndex })

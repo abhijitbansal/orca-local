@@ -19,11 +19,6 @@ import { installFakeAppEnvironment } from '../../config/scripts/vitest-host-port
 
 const testState = { dir: '' }
 
-vi.mock('./ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: vi.fn(),
-  sshConfigHostsToTargets: vi.fn()
-}))
-
 const cipherState = {
   encryptionAvailable: true,
   availabilityThrows: false,

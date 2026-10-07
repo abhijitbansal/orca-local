@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
-  ELECTRON_REMOTE_RUNTIME_CLIENT_CAPABILITIES,
   WORKTREE_BACKGROUND_REMOVAL_RUNTIME_CAPABILITY,
   type RuntimeCapability
 } from '../../../../shared/protocol-version'
@@ -36,11 +35,8 @@ async function dispatchRm(
 // older client is answered on acceptance, as its timeouts and listings expect.
 describe('worktree.rm waits for the delete only for clients that can show it', () => {
   it('asks the runtime to wait for a client that advertises background removal', async () => {
-    expect(ELECTRON_REMOTE_RUNTIME_CLIENT_CAPABILITIES).toContain(
-      WORKTREE_BACKGROUND_REMOVAL_RUNTIME_CAPABILITY
-    )
     const runtime = makeRuntime()
-    await dispatchRm(runtime, ELECTRON_REMOTE_RUNTIME_CLIENT_CAPABILITIES)
+    await dispatchRm(runtime, [WORKTREE_BACKGROUND_REMOVAL_RUNTIME_CAPABILITY])
     expect(runtime.removeManagedWorktree).toHaveBeenCalledWith(
       'id:wt-1',
       expect.objectContaining({ waitForBackgroundRemoval: true })

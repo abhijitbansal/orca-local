@@ -47,12 +47,6 @@ vi.mock('../speech/speech-runtime-service', () => ({
   getSpeechModelManager: () => ({ getModelState: async () => ({ status: 'ready' }) }),
   getSpeechSttService: () => environment.service
 }))
-vi.mock('../speech/openai-api-key-store', () => ({
-  readOpenAiSpeechApiKey: vi.fn(),
-  clearOpenAiSpeechApiKey: vi.fn(),
-  hasOpenAiSpeechApiKey: () => false,
-  saveOpenAiSpeechApiKey: vi.fn()
-}))
 vi.mock('../speech/model-catalog', () => ({
   SPEECH_MODEL_CATALOG: [],
   getCatalogModel: () => ({

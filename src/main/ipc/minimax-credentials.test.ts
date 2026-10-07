@@ -16,7 +16,6 @@ vi.mock('electron', () => ({
 const saveMiniMaxSessionCookieMock = vi.hoisted(() => vi.fn())
 const clearMiniMaxSessionCookieMock = vi.hoisted(() => vi.fn())
 const hasMiniMaxSessionCookieMock = vi.hoisted(() => vi.fn(() => false))
-const clearMiniMaxSessionCookieJarMock = vi.hoisted(() => vi.fn(() => Promise.resolve()))
 const saveMiniMaxApiKeyMock = vi.hoisted(() => vi.fn())
 const clearMiniMaxApiKeyMock = vi.hoisted(() => vi.fn())
 const hasMiniMaxApiKeyMock = vi.hoisted(() => vi.fn(() => false))
@@ -41,28 +40,7 @@ vi.mock('../minimax/minimax-api-key-store', () => ({
   hasMiniMaxApiKey: hasMiniMaxApiKeyMock
 }))
 
-vi.mock('../rate-limits/minimax/minimax-request-context', () => ({
-  clearMiniMaxSessionCookieJar: clearMiniMaxSessionCookieJarMock
-}))
-
 import { registerMiniMaxCredentialsHandlers } from './minimax-credentials'
-import type { RateLimitService } from '../rate-limits/service'
-import type { RateLimitState } from '../../shared/rate-limit-types'
-
-function makeRefreshMock(): {
-  refresh: ReturnType<typeof vi.fn>
-  invalidateMiniMaxCredentialState: ReturnType<typeof vi.fn>
-  service: Pick<RateLimitService, 'refresh' | 'invalidateMiniMaxCredentialState'>
-} {
-  const refresh = vi.fn(() => Promise.resolve({} as RateLimitState))
-  const invalidateMiniMaxCredentialState = vi.fn()
-  return {
-    refresh,
-    invalidateMiniMaxCredentialState,
-    service: { refresh, invalidateMiniMaxCredentialState }
-  }
-}
-
 async function invoke<T>(channel: string, ...args: unknown[]): Promise<T> {
   const handler = ipcState.handleHandlers.get(channel)
   if (!handler) {
@@ -76,8 +54,6 @@ describe('registerMiniMaxCredentialsHandlers', () => {
     ipcState.handleHandlers.clear()
     saveMiniMaxSessionCookieMock.mockReset()
     clearMiniMaxSessionCookieMock.mockReset()
-    clearMiniMaxSessionCookieJarMock.mockReset()
-    clearMiniMaxSessionCookieJarMock.mockResolvedValue(undefined)
     hasMiniMaxSessionCookieMock.mockReset()
     hasMiniMaxSessionCookieMock.mockReturnValue(false)
     saveMiniMaxApiKeyMock.mockReset()
@@ -91,7 +67,7 @@ describe('registerMiniMaxCredentialsHandlers', () => {
   })
 
   it('registers all five MiniMax credential channels', () => {
-    registerMiniMaxCredentialsHandlers(null)
+    registerMiniMaxCredentialsHandlers()
     expect(ipcState.handleHandlers.has('minimaxCredentials:getStatus')).toBe(true)
     expect(ipcState.handleHandlers.has('minimaxCredentials:saveCookie')).toBe(true)
     expect(ipcState.handleHandlers.has('minimaxCredentials:clearCookie')).toBe(true)
@@ -101,7 +77,7 @@ describe('registerMiniMaxCredentialsHandlers', () => {
 
   it('returns the configured state on getStatus from the cookie store', async () => {
     hasMiniMaxSessionCookieMock.mockReturnValue(true)
-    registerMiniMaxCredentialsHandlers(null)
+    registerMiniMaxCredentialsHandlers()
     const status = await invoke<{
       configured: boolean
       cookieConfigured: boolean
@@ -119,7 +95,7 @@ describe('registerMiniMaxCredentialsHandlers', () => {
 
   it('returns apiKeyConfigured true on getStatus when the API key store has a key', async () => {
     hasMiniMaxApiKeyMock.mockReturnValue(true)
-    registerMiniMaxCredentialsHandlers(null)
+    registerMiniMaxCredentialsHandlers()
     const status = await invoke<{
       configured: boolean
       cookieConfigured: boolean
@@ -136,7 +112,7 @@ describe('registerMiniMaxCredentialsHandlers', () => {
 
   it('persists the cookie and reports configured after saveCookie', async () => {
     hasMiniMaxSessionCookieMock.mockReturnValueOnce(true)
-    registerMiniMaxCredentialsHandlers(null)
+    registerMiniMaxCredentialsHandlers()
     const status = await invoke<{
       configured: boolean
       cookieConfigured: boolean
@@ -146,84 +122,21 @@ describe('registerMiniMaxCredentialsHandlers', () => {
     expect(status).toMatchObject({ configured: true, cookieConfigured: true })
   })
 
-  it('triggers a rate-limit refresh after saveCookie when a service is provided', async () => {
-    const { refresh, invalidateMiniMaxCredentialState, service } = makeRefreshMock()
-    registerMiniMaxCredentialsHandlers(service as RateLimitService)
-    await invoke('minimaxCredentials:saveCookie', '_token=abc')
-    // Why: the save handler is fire-and-forget — wait a microtask cycle so
-    // the queued `void rateLimits?.refresh()` resolves before we assert.
-    await new Promise((resolve) => setImmediate(resolve))
-    expect(invalidateMiniMaxCredentialState).toHaveBeenCalledTimes(1)
-    expect(refresh).toHaveBeenCalledTimes(1)
-  })
-
-  it('does not throw when saveCookie runs without a rate-limit service', async () => {
-    registerMiniMaxCredentialsHandlers(null)
-    await expect(invoke('minimaxCredentials:saveCookie', '_token=abc')).resolves.toBeDefined()
-  })
-
-  it('clears the cookie and triggers a refresh on clearCookie', async () => {
-    const { refresh, invalidateMiniMaxCredentialState, service } = makeRefreshMock()
+  it('clears the cookie and reports unconfigured on clearCookie', async () => {
     hasMiniMaxSessionCookieMock.mockReturnValueOnce(false)
-    registerMiniMaxCredentialsHandlers(service as RateLimitService)
+    registerMiniMaxCredentialsHandlers()
     const status = await invoke<{
       configured: boolean
       cookieConfigured: boolean
       apiKeyConfigured: boolean
     }>('minimaxCredentials:clearCookie')
     expect(clearMiniMaxSessionCookieMock).toHaveBeenCalledTimes(1)
-    expect(invalidateMiniMaxCredentialState).toHaveBeenCalledTimes(1)
-    expect(clearMiniMaxSessionCookieJarMock).toHaveBeenCalledTimes(1)
     expect(status).toMatchObject({ configured: false, cookieConfigured: false })
-    await new Promise((resolve) => setImmediate(resolve))
-    expect(refresh).toHaveBeenCalledTimes(1)
-  })
-
-  it('still refreshes and reports cleared when session jar cleanup rejects', async () => {
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    const { refresh, invalidateMiniMaxCredentialState, service } = makeRefreshMock()
-    clearMiniMaxSessionCookieJarMock.mockRejectedValueOnce(new Error('jar boom'))
-    hasMiniMaxSessionCookieMock.mockReturnValueOnce(false)
-    registerMiniMaxCredentialsHandlers(service as RateLimitService)
-
-    const status = await invoke<{
-      configured: boolean
-      cookieConfigured: boolean
-      apiKeyConfigured: boolean
-    }>('minimaxCredentials:clearCookie')
-
-    expect(clearMiniMaxSessionCookieMock).toHaveBeenCalledTimes(1)
-    expect(invalidateMiniMaxCredentialState).toHaveBeenCalledTimes(1)
-    expect(clearMiniMaxSessionCookieJarMock).toHaveBeenCalledTimes(1)
-    expect(status).toMatchObject({ configured: false, cookieConfigured: false })
-    expect(errorSpy).toHaveBeenCalledWith(
-      expect.stringContaining('failed to clear session cookie jar after credential clear'),
-      expect.any(Error)
-    )
-    await new Promise((resolve) => setImmediate(resolve))
-    expect(refresh).toHaveBeenCalledTimes(1)
-  })
-
-  it('logs but does not throw when the post-save rate-limit refresh rejects', async () => {
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    const refresh = vi.fn(() => Promise.reject(new Error('refresh boom')))
-    const invalidateMiniMaxCredentialState = vi.fn()
-    registerMiniMaxCredentialsHandlers({
-      refresh,
-      invalidateMiniMaxCredentialState
-    } as Pick<RateLimitService, 'refresh' | 'invalidateMiniMaxCredentialState'> as RateLimitService)
-    await invoke('minimaxCredentials:saveCookie', '_token=abc')
-    await new Promise((resolve) => setImmediate(resolve))
-    expect(invalidateMiniMaxCredentialState).toHaveBeenCalledTimes(1)
-    expect(errorSpy).toHaveBeenCalledWith(
-      expect.stringContaining('failed to trigger rate-limit refresh after save'),
-      expect.any(Error)
-    )
   })
 
   it('persists the API key and reports apiKeyConfigured after saveApiKey', async () => {
     hasMiniMaxApiKeyMock.mockReturnValueOnce(true)
-    registerMiniMaxCredentialsHandlers(null)
+    registerMiniMaxCredentialsHandlers()
     const status = await invoke<{
       configured: boolean
       cookieConfigured: boolean
@@ -234,40 +147,27 @@ describe('registerMiniMaxCredentialsHandlers', () => {
   })
 
   it('rejects non-string API keys on saveApiKey', async () => {
-    registerMiniMaxCredentialsHandlers(null)
+    registerMiniMaxCredentialsHandlers()
     await expect(invoke('minimaxCredentials:saveApiKey', 12345)).rejects.toThrow(/must be a string/)
     expect(saveMiniMaxApiKeyMock).not.toHaveBeenCalled()
   })
 
-  it('triggers a rate-limit refresh after saveApiKey when a service is provided', async () => {
-    const { refresh, invalidateMiniMaxCredentialState, service } = makeRefreshMock()
-    registerMiniMaxCredentialsHandlers(service as RateLimitService)
-    await invoke('minimaxCredentials:saveApiKey', 'sk-test-1234567890')
-    await new Promise((resolve) => setImmediate(resolve))
-    expect(invalidateMiniMaxCredentialState).toHaveBeenCalledTimes(1)
-    expect(refresh).toHaveBeenCalledTimes(1)
-  })
-
-  it('clears the API key and triggers a refresh on clearApiKey', async () => {
-    const { refresh, invalidateMiniMaxCredentialState, service } = makeRefreshMock()
+  it('clears the API key and reports unconfigured on clearApiKey', async () => {
     hasMiniMaxApiKeyMock.mockReturnValueOnce(false)
-    registerMiniMaxCredentialsHandlers(service as RateLimitService)
+    registerMiniMaxCredentialsHandlers()
     const status = await invoke<{
       configured: boolean
       cookieConfigured: boolean
       apiKeyConfigured: boolean
     }>('minimaxCredentials:clearApiKey')
     expect(clearMiniMaxApiKeyMock).toHaveBeenCalledTimes(1)
-    expect(invalidateMiniMaxCredentialState).toHaveBeenCalledTimes(1)
     expect(status).toMatchObject({ configured: false, apiKeyConfigured: false })
-    await new Promise((resolve) => setImmediate(resolve))
-    expect(refresh).toHaveBeenCalledTimes(1)
   })
 
   it('reports configured true when either cookie or API key is set', async () => {
     hasMiniMaxSessionCookieMock.mockReturnValue(true)
     hasMiniMaxApiKeyMock.mockReturnValue(true)
-    registerMiniMaxCredentialsHandlers(null)
+    registerMiniMaxCredentialsHandlers()
     const status = await invoke<{
       configured: boolean
       cookieConfigured: boolean
@@ -281,7 +181,7 @@ describe('registerMiniMaxCredentialsHandlers', () => {
   it('reports a plaintext key through the status so Settings can warn about it', async () => {
     hasMiniMaxApiKeyMock.mockReturnValue(true)
     getApiKeyProtectionMock.mockReturnValue('plaintext')
-    registerMiniMaxCredentialsHandlers(null)
+    registerMiniMaxCredentialsHandlers()
     const status = await invoke('minimaxCredentials:getStatus')
     expect(status).toMatchObject({ apiKeyConfigured: true, apiKeyProtection: 'plaintext' })
   })

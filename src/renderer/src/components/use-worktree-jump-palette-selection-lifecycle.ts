@@ -57,7 +57,6 @@ export function useWorktreeJumpPaletteSelectionLifecycle({
   setSelectedItemId,
   setExpandedSectionCaps,
   selectionMovedByUserRef,
-  taskSourceUrl,
   listRef,
   preserveCreateLookupOnCloseRef,
   selectedItemId,
@@ -132,8 +131,7 @@ export function useWorktreeJumpPaletteSelectionLifecycle({
     currentSelectedItemId: selectedItemId,
     queryChanged: false,
     selectableItemIds: selectionItemIds,
-    showCreateAction,
-    autoSelectCreateAction: taskSourceUrl !== null
+    showCreateAction
   })
   const handleCommandSelectionChange = useCallback(
     (nextItemId: string) => {
@@ -149,8 +147,7 @@ export function useWorktreeJumpPaletteSelectionLifecycle({
         currentSelectedItemId: '',
         queryChanged: true,
         selectableItemIds: selectionItemIds,
-        showCreateAction,
-        autoSelectCreateAction: taskSourceUrl !== null
+        showCreateAction
       })
     )
     // oxlint-disable-next-line react-hooks/exhaustive-deps -- selection resets only when the deferred query commits.

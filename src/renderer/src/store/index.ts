@@ -8,11 +8,7 @@ import { createTabsSlice } from './slices/tabs'
 import { createUISlice } from './slices/ui'
 import { createSettingsSlice } from './slices/settings'
 import { createKeybindingsSlice } from './slices/keybindings'
-import { createGitHubSlice } from './slices/github'
-import { createHostedReviewSlice } from './slices/hosted-review'
-import { createLinearSlice } from './slices/linear'
 import { createPreflightSlice } from './slices/preflight'
-import { createJiraSlice } from './slices/jira'
 import { createEditorSlice } from './slices/editor'
 import { createStatsSlice } from './slices/stats'
 import { createMemorySlice } from './slices/memory'
@@ -43,9 +39,7 @@ import { createPinnedTabCloseConfirmSlice } from './slices/pinned-tab-close-conf
 import { createRecentlyClosedTabsSlice } from './slices/recently-closed-tabs'
 import { createOrcaProfilesSlice } from './slices/orca-profiles'
 import { createNewIssueDraftSlice } from './slices/new-issue-draft'
-import { createFeedbackDraftSlice } from './slices/feedback-draft'
 import { createTaskCreationDraftsSlice } from './slices/task-creation-drafts'
-import { createRemoteServerUpdatesSlice } from './slices/remote-server-updates'
 import { createTerminalQuickCommandHostsSlice } from './slices/terminal-quick-command-hosts'
 import { e2eConfig } from '@/lib/e2e-config'
 import type { createWebRuntimeSessionTerminal } from '@/runtime/web-runtime-session'
@@ -84,11 +78,7 @@ export const useAppStore = create<AppState>()(
         ...createUISlice(...a),
         ...createSettingsSlice(...a),
         ...createKeybindingsSlice(...a),
-        ...createGitHubSlice(...a),
-        ...createHostedReviewSlice(...a),
-        ...createLinearSlice(...a),
         ...createPreflightSlice(...a),
-        ...createJiraSlice(...a),
         ...createEditorSlice(...a),
         ...createStatsSlice(...a),
         ...createMemorySlice(...a),
@@ -117,9 +107,7 @@ export const useAppStore = create<AppState>()(
         ...createRecentlyClosedTabsSlice(...a),
         ...createOrcaProfilesSlice(...a),
         ...createNewIssueDraftSlice(...a),
-        ...createFeedbackDraftSlice(...a),
         ...createTaskCreationDraftsSlice(...a),
-        ...createRemoteServerUpdatesSlice(...a),
         ...createTerminalQuickCommandHostsSlice(...a)
       }
     })

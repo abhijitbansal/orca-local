@@ -1,5 +1,4 @@
 import type { Dispatch, RefObject, SetStateAction } from 'react'
-import { ArtifactPublishButton } from '@/components/artifacts/ArtifactPublishButton'
 import { translate } from '@/i18n/i18n'
 import { useShortcutLabel } from '@/hooks/useShortcutLabel'
 import { useAppStore } from '@/store'
@@ -11,7 +10,6 @@ import { BrowserReloadControl } from './browser-reload-control'
 import { BrowserToolbarMenu } from './BrowserToolbarMenu'
 import { SshEgressIndicator } from './browser-egress-indicator'
 import { destroyPersistentWebview } from '../host-guest/webview-registry'
-import { readBrowserHtmlArtifactRequest } from '../describe-page/browser-artifact-upload'
 import type { GrabModeHook } from '../annotate/useGrabMode'
 import type {
   BrowserPageConversionOrigin,
@@ -60,8 +58,6 @@ export function BrowserPageToolbar({
   markupCancel,
   grabElementShortcut,
   browserAnnotationsLength,
-  shareableArtifactFile,
-  currentBrowserUrl,
   externalUrl
 }: {
   browserPageId: string
@@ -100,8 +96,6 @@ export function BrowserPageToolbar({
   markupCancel: () => void
   grabElementShortcut: string
   browserAnnotationsLength: number
-  shareableArtifactFile: { filePath: string } | null
-  currentBrowserUrl: string
   externalUrl: string | null
 }): React.JSX.Element {
   const annotateElementShortcut = useShortcutLabel('browser.annotateElement')
@@ -192,18 +186,6 @@ export function BrowserPageToolbar({
         onToggle: () => (markupIsActive ? markupCancel() : void markupStart()),
         canShowDiscoveryHint: isActive
       }}
-      shareControl={
-        shareableArtifactFile
-          ? (control) => {
-              const props = {
-                sourceKey: shareableArtifactFile.filePath,
-                className: 'h-7 w-7',
-                createRequest: () => readBrowserHtmlArtifactRequest(currentBrowserUrl)
-              }
-              return <ArtifactPublishButton {...props} {...control} />
-            }
-          : undefined
-      }
       viewSource={{
         onSelect: () => void window.api.browser.openDevTools({ browserPageId }),
         label: translate(

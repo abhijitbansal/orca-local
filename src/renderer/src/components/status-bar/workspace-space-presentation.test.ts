@@ -25,7 +25,6 @@ import {
   getWorkspaceSpaceGitStatusForScan
 } from './workspace-space-state-resolution'
 import type { AgentStatusEntry } from '../../../../shared/agent-status-types'
-import type { Repo } from '../../../../shared/repo-types'
 import type { Worktree } from '../../../../shared/worktree/types'
 import { composeWorktreeHostIdentity } from '../../../../shared/worktree/host-qualified-identity'
 
@@ -94,17 +93,6 @@ function activeAgent(overrides: Partial<AgentStatusEntry> = {}): AgentStatusEntr
   }
 }
 
-function repo(overrides: Partial<Repo> = {}): Repo {
-  return {
-    id: 'repo',
-    path: '/repo',
-    displayName: 'Repo',
-    badgeColor: '#999999',
-    addedAt: 1,
-    ...overrides
-  }
-}
-
 function worktreeRecord(overrides: Partial<Worktree> = {}): Worktree {
   return {
     id: 'wt',
@@ -131,10 +119,8 @@ function worktreeRecord(overrides: Partial<Worktree> = {}): Worktree {
 function decisionInputs(
   overrides: Partial<Parameters<typeof getWorkspaceDecisionDetails>[1]> = {}
 ): Parameters<typeof getWorkspaceDecisionDetails>[1] {
-  const defaultRepo = repo()
   const defaultWorktree = worktreeRecord()
   return {
-    repoMap: new Map([[defaultRepo.id, defaultRepo]]),
     worktreeMap: new Map([[defaultWorktree.id, defaultWorktree]]),
     tabsByWorktree: {},
     ptyIdsByTabId: {},
@@ -147,10 +133,6 @@ function decisionInputs(
     browserTabsByWorktree: {},
     gitStatusByWorktree: {},
     remoteStatusesByWorktree: {},
-    hostedReviewCache: {},
-    issueCache: {},
-    linearIssueCache: {},
-    settings: null,
     activeWorktreeId: null,
     activeWorkspaceExecutionHostId: null,
     now: 1_000,
@@ -397,170 +379,47 @@ describe('workspace space presentation helpers', () => {
     ).toBe(0)
   })
 
-  it('reads review and issue details from local owner cache while a runtime is focused', () => {
+  it('labels reviews and issues from the persisted worktree links', () => {
     const details = getWorkspaceDecisionDetails(
       row({ branch: 'refs/heads/feature/local' }),
       decisionInputs({
-        settings: { activeRuntimeEnvironmentId: 'env-1' },
-        hostedReviewCache: {
-          'local::repo::feature/local': {
-            data: { number: 12, state: 'open', status: 'success', title: 'Local owner PR' }
-          },
-          'runtime:env-1::repo::feature/local': {
-            data: { number: 99, state: 'open', status: 'failure', title: 'Runtime fallback PR' }
-          }
-        },
-        issueCache: {
-          'repo::123': {
-            data: { number: 123, title: 'Local owner issue', state: 'open' }
-          },
-          'runtime:env-1::repo::123': {
-            data: { number: 123, title: 'Runtime fallback issue', state: 'closed' }
-          }
-        },
-        worktreeMap: new Map([
-          ['wt', worktreeRecord({ branch: 'refs/heads/feature/local', linkedIssue: 123 })]
-        ])
-      })
-    )
-
-    expect(details.reviewLabel).toBe('PR #12 Open, success')
-    expect(details.issueLabel).toBe('#123 open: Local owner issue')
-  })
-
-  it('hides a GitHub review explicitly suppressed after unlinking', () => {
-    const details = getWorkspaceDecisionDetails(
-      row({ branch: 'refs/heads/feature/local' }),
-      decisionInputs({
-        hostedReviewCache: {
-          'local::repo::feature/local': {
-            data: {
-              number: 12,
-              state: 'open',
-              status: 'success',
-              title: 'Suppressed review',
-              provider: 'github'
-            }
-          }
-        },
-        worktreeMap: new Map([
-          ['wt', worktreeRecord({ branch: 'refs/heads/feature/local', suppressedGitHubPR: 12 })]
-        ])
-      })
-    )
-
-    expect(details.reviewLabel).toBeNull()
-  })
-
-  it('hides only a matching suppressed GitHub review from workspace decisions', () => {
-    const matching = getWorkspaceDecisionDetails(
-      row({ branch: 'refs/heads/feature/local' }),
-      decisionInputs({
-        hostedReviewCache: {
-          'local::repo::feature/local': {
-            data: {
-              provider: 'github',
-              number: 12,
-              state: 'open',
-              status: 'success',
-              title: 'Suppressed PR'
-            }
-          }
-        },
-        worktreeMap: new Map([
-          [
-            'wt',
-            worktreeRecord({
-              branch: 'refs/heads/feature/local',
-              linkedPR: null,
-              suppressedGitHubPR: 12
-            })
-          ]
-        ])
-      })
-    )
-    const different = getWorkspaceDecisionDetails(
-      row({ branch: 'refs/heads/feature/local' }),
-      decisionInputs({
-        hostedReviewCache: {
-          'local::repo::feature/local': {
-            data: {
-              provider: 'github',
-              number: 13,
-              state: 'open',
-              status: 'success',
-              title: 'Different PR'
-            }
-          }
-        },
-        worktreeMap: new Map([
-          [
-            'wt',
-            worktreeRecord({
-              branch: 'refs/heads/feature/local',
-              linkedPR: null,
-              suppressedGitHubPR: 12
-            })
-          ]
-        ])
-      })
-    )
-
-    expect(matching.reviewLabel).toBeNull()
-    expect(different.reviewLabel).toBe('PR #13 Open, success')
-  })
-
-  it('preserves explicit links and non-GitHub reviews in workspace decisions', () => {
-    const cachedReview = {
-      number: 12,
-      state: 'open',
-      status: 'success',
-      title: 'Review'
-    }
-    const explicit = getWorkspaceDecisionDetails(
-      row({ branch: 'refs/heads/feature/local' }),
-      decisionInputs({
-        hostedReviewCache: {
-          'local::repo::feature/local': {
-            data: { ...cachedReview, provider: 'github' }
-          }
-        },
         worktreeMap: new Map([
           [
             'wt',
             worktreeRecord({
               branch: 'refs/heads/feature/local',
               linkedPR: 12,
-              suppressedGitHubPR: 12
-            })
-          ]
-        ])
-      })
-    )
-    const gitLab = getWorkspaceDecisionDetails(
-      row({ branch: 'refs/heads/feature/local' }),
-      decisionInputs({
-        hostedReviewCache: {
-          'local::repo::feature/local': {
-            data: { ...cachedReview, provider: 'gitlab' }
-          }
-        },
-        worktreeMap: new Map([
-          [
-            'wt',
-            worktreeRecord({
-              branch: 'refs/heads/feature/local',
-              linkedPR: null,
-              suppressedGitHubPR: 12,
-              linkedGitLabMR: 12
+              linkedIssue: 123,
+              linkedLinearIssue: 'ENG-7'
             })
           ]
         ])
       })
     )
 
-    expect(explicit.reviewLabel).toBe('PR #12 Open, success')
-    expect(gitLab.reviewLabel).toBe('PR #12 Open, success')
+    expect(details.reviewLabel).toBe('PR #12')
+    expect(details.issueLabel).toBe('#123')
+    expect(details.linearIssueLabel).toBe('ENG-7')
+  })
+
+  it('shows no review label for an unlinked, suppressed GitHub review', () => {
+    const details = getWorkspaceDecisionDetails(
+      row({ branch: 'refs/heads/feature/local' }),
+      decisionInputs({
+        worktreeMap: new Map([
+          [
+            'wt',
+            worktreeRecord({
+              branch: 'refs/heads/feature/local',
+              linkedPR: null,
+              suppressedGitHubPR: 12
+            })
+          ]
+        ])
+      })
+    )
+
+    expect(details.reviewLabel).toBeNull()
   })
 
   it('counts migration-unsupported agent entries by worktree id', () => {

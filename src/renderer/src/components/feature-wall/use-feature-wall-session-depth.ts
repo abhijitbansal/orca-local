@@ -9,12 +9,9 @@ import { getFeatureWallCompletionProgress } from './feature-wall-completion-prog
 
 type FeatureWallSessionDepthInput = {
   isOpen: boolean
-  hasConnectedTaskSource: boolean
-  isCheckingTaskSources: boolean
   hasUsageAccount: boolean
   orchestrationSkillInstalled: boolean
   browserUseSkillInstalled: boolean
-  githubConfigured: boolean
   aiCommitPrConfigured: boolean
   onTourDepthSummaryChange?: (summary: FeatureWallTourDepthSummary) => void
 }
@@ -32,12 +29,9 @@ export function useFeatureWallSessionDepth(
 ): FeatureWallSessionDepthTracker {
   const {
     isOpen,
-    hasConnectedTaskSource,
-    isCheckingTaskSources,
     hasUsageAccount,
     orchestrationSkillInstalled,
     browserUseSkillInstalled,
-    githubConfigured,
     aiCommitPrConfigured,
     onTourDepthSummaryChange
   } = input
@@ -63,12 +57,9 @@ export function useFeatureWallSessionDepth(
       visitedAgentSteps: session.visitedAgentSteps,
       visitedWorkbenchSteps: session.visitedWorkbenchSteps,
       visitedReviewSteps: session.visitedReviewSteps,
-      hasConnectedTaskSource,
-      isCheckingTaskSources,
       hasUsageAccount,
       orchestrationSkillInstalled,
       browserUseSkillInstalled,
-      githubConfigured,
       aiCommitPrConfigured
     })
     return buildFeatureWallTourDepthSummary({
@@ -79,15 +70,7 @@ export function useFeatureWallSessionDepth(
       visitedReviewSteps: session.visitedReviewSteps,
       lastGroupId: session.lastGroupId
     })
-  }, [
-    aiCommitPrConfigured,
-    browserUseSkillInstalled,
-    githubConfigured,
-    hasConnectedTaskSource,
-    hasUsageAccount,
-    isCheckingTaskSources,
-    orchestrationSkillInstalled
-  ])
+  }, [aiCommitPrConfigured, browserUseSkillInstalled, hasUsageAccount, orchestrationSkillInstalled])
 
   const publishTourDepthSummary = useCallback((): void => {
     onTourDepthSummaryChange?.(getTourDepthSummary())

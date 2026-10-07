@@ -1,5 +1,4 @@
 import { getRepoExecutionHostId, LOCAL_EXECUTION_HOST_ID } from '../../../shared/execution-host'
-import { issueCacheKey as getIssueCacheKey } from '@/store/github/cache-identity'
 import { buildPaletteDocument, type PaletteDocument } from './palette-match/palette-document'
 import type { PaletteComposedEvidence } from './palette-match/evidence-composer'
 import {
@@ -90,25 +89,6 @@ function resolveReviewSource(
   return null
 }
 
-function resolveIssueTitle(
-  worktree: Worktree,
-  repo: Repo | undefined,
-  sources: WorktreePaletteDocumentSources
-): string {
-  if (worktree.linkedIssue == null || !repo || !sources.issueCache) {
-    return ''
-  }
-  const key = getIssueCacheKey(
-    repo.path,
-    repo.id,
-    worktree.linkedIssue,
-    undefined,
-    repo.connectionId,
-    repo.executionHostId
-  )
-  return sources.issueCache[key]?.data?.title ?? ''
-}
-
 function buildEvidence(
   worktree: Worktree,
   repo: Repo | undefined,
@@ -127,7 +107,8 @@ function buildEvidence(
     buildWorktreeReviewEvidence(resolveReviewSource(worktree, repo, sources)),
     buildWorktreeIssueEvidence({
       number: worktree.linkedIssue,
-      title: resolveIssueTitle(worktree, repo, sources)
+      // Why: no forge issue titles are cached any more, so a linked issue contributes only its number.
+      title: ''
     }),
     ...ports.map((port) => buildWorktreePortEvidence(port))
   ]

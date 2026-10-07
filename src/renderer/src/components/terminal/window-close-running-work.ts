@@ -38,7 +38,7 @@ export type WindowCloseRunningWork =
  *   then SIGKILLs that work once the countdown expires.
  * - **Only a remote `unverifiable` warns.** A local probe has no transport to lose, so its failure
  *   means the pty is gone. A remote one that cannot be reached is the case
- *   `docs/reference/ssh-execution-boundary.md` exists to protect: loss of contact is not evidence
+ *   `AGENTS.md` exists to protect: loss of contact is not evidence
  *   of `exited`, so it must fail toward asking rather than toward a silent quit.
  */
 export async function assessWindowCloseRunningWork(params: {

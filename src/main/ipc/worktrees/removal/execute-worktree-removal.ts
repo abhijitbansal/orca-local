@@ -46,7 +46,7 @@ import { removeRegisteredLocalWorktree } from './remove-registered-local-worktre
  * path on THIS machine while the guards vouch for the remote one, and the reverse row does the
  * mirror image (#11163). Neither spelling is evidence about the other, so refuse instead of picking
  * a winner: the worktree is left in place, which is the recoverable outcome
- * (docs/reference/ssh-execution-boundary.md).
+ * (AGENTS.md).
  */
 function assertRemovalHostMatchesRepoRow(
   repo: Repo,

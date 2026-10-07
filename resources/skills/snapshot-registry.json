@@ -593,6 +593,22 @@
             "identitySha256": "aa76f86505010096e8ea9edda1705a78aae7af45e54485f3fe0460664c1d9e4a"
           }
         ]
+      },
+      {
+        "releaseRevision": 38,
+        "packageDigest": "7b5153c511a33876ec1bbb792ec2a20963293faaeed73cea51d0393b7c933e56",
+        "gitTreeSha": "761ffd0f7a61ef145e5dacb45ed50578e60a3a30",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "size": 2343,
+            "executable": false,
+            "classification": "text",
+            "exactSha256": "98f76e82bb786fd2b21ae848b91a6f8d677c1635a1d3222dcba9cd5d10e839e9",
+            "textNormalizedSha256": "98f76e82bb786fd2b21ae848b91a6f8d677c1635a1d3222dcba9cd5d10e839e9",
+            "identitySha256": "98f76e82bb786fd2b21ae848b91a6f8d677c1635a1d3222dcba9cd5d10e839e9"
+          }
+        ]
       }
     ],
     "orchestration": [

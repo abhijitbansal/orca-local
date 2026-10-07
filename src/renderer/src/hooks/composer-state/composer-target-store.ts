@@ -16,7 +16,6 @@ import type { ComposerDecisions } from './composer-decisions'
 
 export type ComposerStateInput = {
   initialRepoId?: string
-  initialEphemeralVmRecipeId?: string
   initialProjectGroupId?: string
   initialName?: string
   initialPrompt?: string
@@ -40,7 +39,6 @@ const NEVER_CANCEL_COMPOSER_SUBMIT = (): boolean => false
 export function useComposerTargetStore(options: ComposerStateInput, decisions: ComposerDecisions) {
   const {
     initialRepoId,
-    initialEphemeralVmRecipeId,
     initialName = '',
     initialPrompt = '',
     initialLinkedWorkItem = null,
@@ -71,9 +69,7 @@ export function useComposerTargetStore(options: ComposerStateInput, decisions: C
       closeModal: s.closeModal,
       openSettingsPage: s.openSettingsPage,
       openSettingsTarget: s.openSettingsTarget,
-      setActiveRuntimeEnvironmentPreference: s.setActiveRuntimeEnvironmentPreference,
       prefetchWorktreeCreateBase: s.prefetchWorktreeCreateBase,
-      prefetchWorkItems: s.prefetchWorkItems,
       fetchSparsePresets: s.fetchSparsePresets
     }))
   )
@@ -89,9 +85,7 @@ export function useComposerTargetStore(options: ComposerStateInput, decisions: C
     closeModal,
     openSettingsPage,
     openSettingsTarget,
-    setActiveRuntimeEnvironmentPreference,
     prefetchWorktreeCreateBase,
-    prefetchWorkItems,
     fetchSparsePresets
   } = actions
 
@@ -163,7 +157,6 @@ export function useComposerTargetStore(options: ComposerStateInput, decisions: C
 
   return {
     initialRepoId,
-    initialEphemeralVmRecipeId,
     initialName,
     initialPrompt,
     initialLinkedWorkItem,
@@ -192,9 +185,7 @@ export function useComposerTargetStore(options: ComposerStateInput, decisions: C
     closeModal,
     openSettingsPage,
     openSettingsTarget,
-    setActiveRuntimeEnvironmentPreference,
     prefetchWorktreeCreateBase,
-    prefetchWorkItems,
     fetchSparsePresets,
     repos,
     projects,

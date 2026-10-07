@@ -130,6 +130,54 @@ describe('profile index store', () => {
     expect(readJson(activeProfile.dataFile)).toEqual(profileData)
   })
 
+  it('hydrates a legacy cloud-linked active profile and ignores its stale account session', async () => {
+    const profileId = 'cloud-profile'
+    const profileDirectory = join(testState.dir, 'profiles', profileId)
+    mkdirSync(profileDirectory, { recursive: true })
+    writeFileSync(join(profileDirectory, 'account-session.json.enc'), 'stale-bytes', 'utf-8')
+    const cloudProfile = {
+      id: profileId,
+      name: 'Cloud',
+      avatar: { kind: 'initials', initials: 'C', color: 'neutral' },
+      kind: 'cloud-linked',
+      createdAt: 1,
+      updatedAt: 1,
+      lastOpenedAt: 1,
+      cloud: {
+        cloudProfileId: 'cp-1',
+        userId: 'user-1',
+        email: 'user@example.com',
+        displayName: 'User',
+        activeOrgId: 'org-1',
+        activeOrgName: 'Org',
+        linkedAt: 1
+      }
+    }
+    writeFileSync(
+      join(testState.dir, 'orca-profile-index.json'),
+      JSON.stringify({
+        schemaVersion: ORCA_PROFILE_INDEX_SCHEMA_VERSION,
+        activeProfileId: profileId,
+        profiles: [cloudProfile]
+      }),
+      'utf-8'
+    )
+
+    const store = await loadProfileIndexStore()
+    const active = store.ensureActiveOrcaProfile()
+
+    expect(active.profile).toMatchObject({ id: profileId, kind: 'cloud-linked' })
+    expect(active.profileDirectory).toBe(profileDirectory)
+    expect(store.getOrcaProfileListState().activeProfileId).toBe(profileId)
+
+    const created = store.createLocalOrcaProfile({ name: 'Local' })
+    expect(store.setActiveOrcaProfile(created.profile.id).activeProfileId).toBe(created.profile.id)
+    expect(store.setActiveOrcaProfile(profileId).activeProfileId).toBe(profileId)
+    expect(readFileSync(join(profileDirectory, 'account-session.json.enc'), 'utf-8')).toBe(
+      'stale-bytes'
+    )
+  })
+
   it('does not copy legacy JSON into a database-only default profile', async () => {
     writeFileSync(
       join(testState.dir, 'orca-data.json'),

@@ -45,23 +45,14 @@ type PointerDragCapture = {
   }) => void
 }
 
-const {
-  syncWorkspaceBoardTaskStatusesMock,
-  headerState,
-  gridState,
-  pointerDragState,
-  selectionState,
-  selectionScopeState
-} = vi.hoisted(() => ({
-  syncWorkspaceBoardTaskStatusesMock: vi.fn(() =>
-    Promise.resolve({ updated: 1, skipped: 0, failed: 0, messages: [] })
-  ),
-  headerState: { current: null as HeaderCapture | null },
-  gridState: { current: null as GridCapture | null },
-  pointerDragState: { current: null as PointerDragCapture | null },
-  selectionState: { current: [] as Worktree[] },
-  selectionScopeState: { current: [] as readonly Worktree[] }
-}))
+const { headerState, gridState, pointerDragState, selectionState, selectionScopeState } =
+  vi.hoisted(() => ({
+    headerState: { current: null as HeaderCapture | null },
+    gridState: { current: null as GridCapture | null },
+    pointerDragState: { current: null as PointerDragCapture | null },
+    selectionState: { current: [] as Worktree[] },
+    selectionScopeState: { current: [] as readonly Worktree[] }
+  }))
 
 ;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 
@@ -159,11 +150,6 @@ vi.mock('./use-workspace-status-drop', () => ({
   useWorkspaceStatusDocumentDrop: vi.fn()
 }))
 
-vi.mock('./workspace-board-task-status-sync', async (importOriginal) => ({
-  ...(await importOriginal<Record<string, unknown>>()),
-  syncWorkspaceBoardTaskStatuses: syncWorkspaceBoardTaskStatusesMock
-}))
-
 type UpdateWorktreesMeta = (
   updates: readonly WorktreeMetaBatchUpdate[] | ReadonlyMap<string, Partial<WorktreeMeta>>
 ) => Promise<void>
@@ -234,7 +220,6 @@ beforeEach(() => {
   pointerDragState.current = null
   selectionState.current = []
   selectionScopeState.current = []
-  syncWorkspaceBoardTaskStatusesMock.mockClear()
   updateWorktreesMeta = vi.fn<UpdateWorktreesMeta>(() => Promise.resolve())
   useAppStore.setState({
     repos: [
@@ -301,26 +286,6 @@ describe('WorkspaceKanbanDrawer search', () => {
 
     expect(headerState.current?.query).toBe('')
     expect(laneIds('todo')).toHaveLength(4)
-  })
-
-  it('still runs the Linear status sync for a drop made under an active query', () => {
-    renderDrawer()
-    typeQuery('gamma')
-
-    act(() => {
-      pointerDragState.current?.onDropWorktreesInStatus({
-        worktreeIds: [omega.id],
-        status: 'todo',
-        dropIndex: 0
-      })
-    })
-
-    expect(syncWorkspaceBoardTaskStatusesMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        worktreeIds: [omega.id],
-        targetStatus: { id: 'todo', label: 'Todo' }
-      })
-    )
   })
 
   it('narrows the pointer-drag payload to the rendered cards', () => {

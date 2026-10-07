@@ -32,7 +32,6 @@ function makeProgress(overrides: Partial<FeatureWallSetupProgress> = {}): Featur
       notifications: false,
       'two-worktrees': false,
       browser: false,
-      'task-sources': false,
       'agent-capabilities': false,
       'setup-script': false
     },
@@ -215,25 +214,17 @@ describe('getSetupGuideProgressReady', () => {
 })
 
 describe('setup script probe readiness', () => {
-  it('derives the probe signature from runtime and ordered git repo inputs', () => {
+  it('derives the probe signature from ordered git repo inputs', () => {
     const localSignature = getSetupScriptProbeSignature({ activeRuntimeEnvironmentId: null }, [
       { id: 'repo-a', hookSettings: undefined },
       { id: 'repo-b', hookSettings: undefined }
     ])
-    const remoteSignature = getSetupScriptProbeSignature(
-      { activeRuntimeEnvironmentId: 'runtime-1' },
-      [
-        { id: 'repo-a', hookSettings: undefined },
-        { id: 'repo-b', hookSettings: undefined }
-      ]
-    )
     const reorderedSignature = getSetupScriptProbeSignature({ activeRuntimeEnvironmentId: null }, [
       { id: 'repo-b', hookSettings: undefined },
       { id: 'repo-a', hookSettings: undefined }
     ])
 
     expect(localSignature).not.toBeNull()
-    expect(remoteSignature).not.toBe(localSignature)
     expect(reorderedSignature).not.toBe(localSignature)
   })
 

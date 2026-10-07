@@ -2,10 +2,6 @@
 // message is handed over: a client that cannot show a rejection after `pending` must not see one.
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import {
-  ELECTRON_REMOTE_RUNTIME_CLIENT_CAPABILITIES,
-  STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY
-} from '../../../../shared/protocol-version'
 import { DESKTOP_RENDERER_RUNTIME_CLIENT_CAPABILITIES } from '../../../ipc/desktop-renderer-runtime-capabilities'
 import { STRUCTURED_AGENT_SESSION_START_WAIT_MS } from '../../../native-chat/agent-session-wire/structured-agent-session-send-settlement'
 import {
@@ -45,13 +41,8 @@ describe('agentSession.send reply timing', () => {
     expect(hostCalls.send.mock.calls[0]?.[1]).toMatchObject({ userSend: true })
   })
 
-  it('answers at acceptance for the local desktop and paired desktop clients (W2)', async () => {
-    for (const clientCapabilities of [
-      DESKTOP_RENDERER_RUNTIME_CLIENT_CAPABILITIES,
-      // A paired desktop gains the structured surface as its own capability; the reply rule rides
-      // on the list it already sends.
-      [...ELECTRON_REMOTE_RUNTIME_CLIENT_CAPABILITIES, STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY]
-    ]) {
+  it('answers at acceptance for the local desktop client (W2)', async () => {
+    for (const clientCapabilities of [DESKTOP_RENDERER_RUNTIME_CLIENT_CAPABILITIES]) {
       hostCalls.send.mockResolvedValueOnce(pendingSendResult())
       const response = await call('agentSession.send', sendParams(), {
         clientKind: 'runtime',

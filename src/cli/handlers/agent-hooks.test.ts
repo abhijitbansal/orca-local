@@ -382,30 +382,6 @@ describe('agent hooks CLI handler', () => {
     }
   )
 
-  it.each(['on', 'off', 'status', 'prepare-codex'])(
-    'refuses explicit remote selection before local hook command %s',
-    async (command) => {
-      const state = getDefaultPersistedState(userDataPath)
-      writeDataFile(userDataPath, state)
-      const before = readFileSync(join(userDataPath, 'orca-data.json'), 'utf8')
-      getDefaultUserDataPathMock.mockReturnValue(userDataPath)
-
-      for (const selector of ['environment', 'pairing-code']) {
-        process.exitCode = undefined
-        await main(
-          ['agent', 'hooks', command, `--${selector}`, 'unreachable-host', '--json'],
-          userDataPath
-        )
-
-        expect(process.exitCode).toBe(1)
-        expect(getCliStatusMock).not.toHaveBeenCalled()
-        expect(callMock).not.toHaveBeenCalled()
-        expect(applyAgentStatusHooksEnabledMock).not.toHaveBeenCalled()
-        expect(readFileSync(join(userDataPath, 'orca-data.json'), 'utf8')).toBe(before)
-      }
-    }
-  )
-
   it('does nothing for a native pane, so an old shell wrapper still exits 0', async () => {
     const home = '/Users/jin/Library/Application Support/orca/codex-runtime-home/home'
     vi.stubEnv('CODEX_HOME', home)

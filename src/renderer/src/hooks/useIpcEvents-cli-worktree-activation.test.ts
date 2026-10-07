@@ -47,7 +47,6 @@ describe('useIpcEvents CLI-created worktree activation', () => {
         getState: () => ({
           fetchRepos: vi.fn(),
           fetchWorktrees,
-          setUpdateStatus: vi.fn(),
           activeModal: null,
           closeModal: vi.fn(),
           openModal: vi.fn(),
@@ -182,11 +181,6 @@ describe('useIpcEvents CLI-created worktree activation', () => {
         settings: {
           onChanged: () => () => {}
         },
-        updater: {
-          getStatus: () => Promise.resolve({ state: 'idle' }),
-          onStatus: () => () => {},
-          onClearDismissal: () => () => {}
-        },
         browser: {
           onGuestLoadFailed: () => () => {},
           onOpenLinkInOrcaTab: () => () => {},
@@ -197,17 +191,6 @@ describe('useIpcEvents CLI-created worktree activation', () => {
         rateLimits: {
           get: () => Promise.resolve({ limits: {}, lastUpdatedAt: Date.now() }),
           onUpdate: () => () => {}
-        },
-        ssh: {
-          listTargets: () => Promise.resolve([]),
-          listPortForwards: () => Promise.resolve([]),
-          listDetectedPorts: () => Promise.resolve([]),
-          getState: () => Promise.resolve(null),
-          onStateChanged: () => () => {},
-          onCredentialRequest: () => () => {},
-          onPortForwardsChanged: () => () => {},
-          onDetectedPortsChanged: () => () => {},
-          onCredentialResolved: () => () => {}
         },
         runtime: {
           getTerminalFitOverrides: () => Promise.resolve([]),
@@ -323,7 +306,6 @@ describe('useIpcEvents CLI-created worktree activation', () => {
           worktreesByRepo: {},
           purgeWorktreeTerminalState: vi.fn(),
           removeWorkspaceSpaceWorktrees: vi.fn(),
-          setUpdateStatus: vi.fn(),
           activeModal: null,
           closeModal: vi.fn(),
           openModal: vi.fn(),
@@ -448,11 +430,6 @@ describe('useIpcEvents CLI-created worktree activation', () => {
         settings: {
           onChanged: () => () => {}
         },
-        updater: {
-          getStatus: () => Promise.resolve({ state: 'idle' }),
-          onStatus: () => () => {},
-          onClearDismissal: () => () => {}
-        },
         browser: {
           onGuestLoadFailed: () => () => {},
           onOpenLinkInOrcaTab: () => () => {},
@@ -463,17 +440,6 @@ describe('useIpcEvents CLI-created worktree activation', () => {
         rateLimits: {
           get: () => Promise.resolve({ limits: {}, lastUpdatedAt: Date.now() }),
           onUpdate: () => () => {}
-        },
-        ssh: {
-          listTargets: () => Promise.resolve([]),
-          listPortForwards: () => Promise.resolve([]),
-          listDetectedPorts: () => Promise.resolve([]),
-          getState: () => Promise.resolve(null),
-          onStateChanged: () => () => {},
-          onCredentialRequest: () => () => {},
-          onPortForwardsChanged: () => () => {},
-          onDetectedPortsChanged: () => () => {},
-          onCredentialResolved: () => () => {}
         },
         runtime: {
           getTerminalFitOverrides: () => Promise.resolve([]),

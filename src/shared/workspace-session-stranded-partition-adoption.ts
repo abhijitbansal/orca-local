@@ -49,7 +49,7 @@ import {
  * not recovering rows stranded beside a populated workspace — which are stranded on main today too,
  * so it is never a new loss. An EMPTY tab row is not such a copy: an empty list is not evidence
  * that anything was closed (`mergeDirectSshRemoteWorkspaceSession` argues this at length, and
- * docs/reference/ssh-execution-boundary.md makes it general — "we could not see it" is
+ * AGENTS.md makes it general — "we could not see it" is
  * `unverifiable`, never proof of absence). Treating it as the truth is what published an empty tab
  * list and let `replace-session` delete the host's copy (#12721).
  */
@@ -167,7 +167,7 @@ function collectWorkspaceIds(
 /**
  * Whether the host has nothing to say about a key. `[]`, `{}` and null/undefined all mean the host
  * holds no rows, which is never evidence that the base's rows are wrong — the same reading the base
- * side already gives an empty tab row, and `docs/reference/ssh-execution-boundary.md` generalises.
+ * side already gives an empty tab row, and `AGENTS.md` generalises.
  * Without this an empty host `openFilesByWorktree` row replaced a populated base one and destroyed
  * an unsaved `dirtyDraftContent`, which no other channel can recover. The symmetric cost is that a
  * row the host really did empty stays visible for one more launch, and a resurrected editor tab is
@@ -217,7 +217,7 @@ function adoptRecord(
  * or skipped because the base already holds the live copy — is erased the moment any sibling
  * workspace writes the same partition. `attachHostSessionShadow` puts these back into the slice
  * first, which is the protection a contested runtime co-claimant already gets. Declining to show a
- * row must never mean deleting it: docs/reference/ssh-execution-boundary.md makes leak, never kill,
+ * row must never mean deleting it: AGENTS.md makes leak, never kill,
  * the safe direction, and a row no partition holds at all is unrecoverable.
  */
 export function partitionRowsTheWriteWontReturn(

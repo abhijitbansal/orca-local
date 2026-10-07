@@ -20,7 +20,6 @@ const {
   hydrateLocalPtyRegistryAtBootMock,
   setWorktreeBaseDirectoryWatcherSyncContextMock,
   scheduleWorktreeBaseDirectoryWatcherSyncMock,
-  setupAutoUpdaterMock,
   browserManagerUnregisterAllMock,
   runWorktreeChangeInvalidatorsMock,
   acknowledgePendingTccPromptNoticeMock,
@@ -45,7 +44,6 @@ const {
   hydrateLocalPtyRegistryAtBootMock: vi.fn(),
   setWorktreeBaseDirectoryWatcherSyncContextMock: vi.fn(),
   scheduleWorktreeBaseDirectoryWatcherSyncMock: vi.fn(),
-  setupAutoUpdaterMock: vi.fn(),
   browserManagerUnregisterAllMock: vi.fn(),
   runWorktreeChangeInvalidatorsMock: vi.fn(),
   acknowledgePendingTccPromptNoticeMock: vi.fn(),
@@ -112,14 +110,6 @@ vi.mock('../browser/browser-manager', () => ({
   browserManager: {
     unregisterAll: browserManagerUnregisterAllMock
   }
-}))
-
-vi.mock('../updater', () => ({
-  checkForUpdates: vi.fn(),
-  getUpdateStatus: vi.fn(),
-  quitAndInstall: vi.fn(),
-  dismissNudge: vi.fn(),
-  setupAutoUpdater: setupAutoUpdaterMock
 }))
 
 vi.mock('../macos-tcc-prompt-notice', () => ({
@@ -218,18 +208,6 @@ function getClosedHandlers(mainWindowOnMock: MockFn): (() => void)[] {
     .map(([, handler]) => handler as () => void)
 }
 
-// Updater setup is deferred to first paint; fire the captured ready-to-show
-// handler and flush its setImmediate hop.
-async function fireReadyToShow(mainWindow: MainWindowStub): Promise<void> {
-  const handler = mainWindow.once.mock.calls.find(([event]) => event === 'ready-to-show')?.[1] as
-    | (() => void)
-    | undefined
-  handler?.()
-  await new Promise((resolve) => {
-    setImmediate(resolve)
-  })
-}
-
 describe('attachMainWindowServices', () => {
   beforeEach(() => {
     vi.resetAllMocks()
@@ -292,52 +270,6 @@ describe('attachMainWindowServices', () => {
     await Promise.resolve()
 
     expect(hydrateLocalPtyRegistryAtBootMock).toHaveBeenCalledExactlyOnceWith(store)
-  })
-
-  it('passes injected update quit cleanup to the auto-updater', async () => {
-    const onBeforeUpdateQuit = vi.fn()
-    const store = createStore()
-    const mainWindow = createMainWindow()
-
-    attachMainWindowServices(
-      mainWindow as never,
-      store,
-      createRuntime() as never,
-      undefined,
-      undefined,
-      {
-        onBeforeUpdateQuit,
-        onBeforeUpdateQuitFailure: 'abort',
-        updateInstallMode: 'supervised-headless-serve'
-      }
-    )
-
-    // Deferred to first paint — must not be configured at attach time.
-    expect(setupAutoUpdaterMock).not.toHaveBeenCalled()
-    await fireReadyToShow(mainWindow)
-    expect(setupAutoUpdaterMock).toHaveBeenCalledTimes(1)
-    const [updaterWindow, updaterOptions] = setupAutoUpdaterMock.mock.calls[0]
-    expect(updaterWindow).toBe(mainWindow)
-    expect(updaterOptions).toMatchObject({
-      installMode: 'supervised-headless-serve',
-      onBeforeQuitFailure: 'abort'
-    })
-    await setupAutoUpdaterMock.mock.calls[0][1].onBeforeQuit()
-
-    expect(onBeforeUpdateQuit).toHaveBeenCalledTimes(1)
-    expect(store.flushPendingAsync).toHaveBeenCalledTimes(1)
-  })
-
-  it('flushes the store before update quit when no cleanup is injected', async () => {
-    const store = createStore()
-    const mainWindow = createMainWindow()
-
-    attachMainWindowServices(mainWindow as never, store, createRuntime() as never)
-
-    await fireReadyToShow(mainWindow)
-    await setupAutoUpdaterMock.mock.calls[0][1].onBeforeQuit()
-
-    expect(store.flushPendingAsync).toHaveBeenCalledTimes(1)
   })
 
   it('replaces the TCC handlers when the main window is reattached', () => {

@@ -1,7 +1,5 @@
 import { useEffect, useMemo } from 'react'
 import { CaseSensitive, LoaderCircle, Search } from 'lucide-react'
-import { parseGitHubIssueOrPRLink } from '@/lib/github-links'
-import { parseGitLabIssueOrMRLink } from '@/lib/gitlab-links'
 import {
   isSmartWorkspaceLinearIssueIntentMatch,
   parseBoundedSmartWorkspaceLinearIssueInput,
@@ -78,20 +76,6 @@ export function useSmartWorkspaceNameFieldPresentation(
     settledLinearUrlQuery === linearQuery.trim() &&
     !linearLoading &&
     linearIssues.length === 0
-  const githubUrlIntent = useMemo(
-    () =>
-      isSmartWorkspaceSourceQueryWithinLimit(value) && (mode === 'smart' || mode === 'github')
-        ? parseGitHubIssueOrPRLink(value)
-        : null,
-    [mode, value]
-  )
-  const gitlabUrlIntent = useMemo(
-    () =>
-      isSmartWorkspaceSourceQueryWithinLimit(value) && (mode === 'smart' || mode === 'gitlab')
-        ? parseGitLabIssueOrMRLink(value)
-        : null,
-    [mode, value]
-  )
   const rows = useMemo<RowEntry[]>(() => {
     if (jiraSource.intent && jiraSource.accountChoices.length > 0) {
       return jiraSource.accountChoices.map((site) => ({
@@ -137,8 +121,8 @@ export function useSmartWorkspaceNameFieldPresentation(
         })
       ),
       linearUrlIntentOwnsResults: true,
-      githubUrlIntent,
-      gitlabUrlIntent,
+      githubUrlIntent: null,
+      gitlabUrlIntent: null,
       mode,
       resultLimit: RESULT_LIMIT,
       value
@@ -148,10 +132,8 @@ export function useSmartWorkspaceNameFieldPresentation(
     branchResultsSource,
     debouncedQuery,
     githubItems,
-    githubUrlIntent,
     gitlabSourceAvailable,
     gitlabItems,
-    gitlabUrlIntent,
     jiraSource.accountChoices,
     jiraSource.intent,
     jiraSource.issue,
@@ -190,12 +172,6 @@ export function useSmartWorkspaceNameFieldPresentation(
     }
     if (jiraSource.intent) {
       return 'jira'
-    }
-    if (/^#\d+$/.test(trimmed) || parseGitHubIssueOrPRLink(trimmed) !== null) {
-      return 'github'
-    }
-    if (parseGitLabIssueOrMRLink(trimmed) !== null) {
-      return 'gitlab'
     }
     if (linearAvailable) {
       const linearIntent = parseBoundedSmartWorkspaceLinearIssueInput(trimmed)

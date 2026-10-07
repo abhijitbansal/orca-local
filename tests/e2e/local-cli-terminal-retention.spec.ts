@@ -85,7 +85,7 @@ test('keeps a locally created CLI terminal, and never resumes it as a ghost', as
   orcaPage.on('pageerror', (error) => pageErrors.push(String(error)))
   const userDataDir = await electronApp.evaluate(({ app }) => app.getPath('userData'))
   // The shipped CLI's own transport, against this app's profile: no pairing.
-  const client = new RuntimeClient(userDataDir, 30_000, null, null)
+  const client = new RuntimeClient(userDataDir, 30_000)
   const call: RuntimeRpcCall = async <TResult>(method: string, params: unknown) =>
     (await client.call<TResult>(method, params)).result
   const createdHandles: string[] = []

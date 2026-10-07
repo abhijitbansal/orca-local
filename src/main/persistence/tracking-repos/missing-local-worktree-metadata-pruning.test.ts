@@ -326,7 +326,7 @@ describe('pruneSessionlessMissingLocalWorktreeMetadataForRepo', () => {
   })
 
   // A plain `expired` lease says only that the CLIENT lost its route, so its pane is still
-  // recoverable and its metadata row is still owned (docs/reference/ssh-execution-boundary.md).
+  // recoverable and its metadata row is still owned (AGENTS.md).
   it('keeps a metadata row pinned by an unmarked expired lease', () => {
     const state = makeState()
     const worktreeId = `${REPO_ID}::/workspace/orphaned`

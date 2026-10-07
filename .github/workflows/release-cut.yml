@@ -1149,19 +1149,6 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
-  # Design D2: every desktop build ships the orcad template (server JS plus every target's
-  # addons), merged from the node-server lanes that qualified each slot at this tag. It needs no
-  # signing quota, so it runs beside the release gates instead of behind them.
-  orcad-template:
-    needs: cut
-    if: needs.cut.outputs.should_release == 'true'
-    permissions:
-      contents: read
-    uses: ./.github/workflows/node-server-tests.yml
-    with:
-      ref: refs/tags/${{ needs.cut.outputs.tag }}
-      build_template: true
-
   # Why: artifact jobs submit Windows binaries to SignPath. Keep every
   # quota-consuming build behind all blocking release gates so a late test
   # failure cannot create signing requests that can never be published.
@@ -1184,29 +1171,12 @@ jobs:
       - name: Confirm blocking release gates passed
         run: echo "All blocking release gates passed; artifact builds may start."
 
-  # Why its own job: every desktop package ships Windows relays, but only a
-  # Windows runner compiles the addon that launches one outside sshd's job.
-  # Needs only cut, so it overlaps the release gates instead of extending them.
-  relay-windows-process-tree:
-    needs: cut
-    if: needs.cut.outputs.should_release == 'true'
-    permissions:
-      contents: read
-    uses: ./.github/workflows/relay-windows-process-tree.yml
-    with:
-      ref: refs/tags/${{ needs.cut.outputs.tag }}
-
   build:
     needs:
       - cut
       - create-release
-      - orcad-template
       - release-preflight
-      - relay-windows-process-tree
     if: needs.cut.outputs.should_release == 'true'
-    env:
-      # beforePack and afterPack fail the package when the template is absent.
-      ORCA_REQUIRE_ORCAD_TEMPLATE: '1'
     strategy:
       fail-fast: false
       matrix:
@@ -1264,8 +1234,6 @@ jobs:
       # ref, so cutting from an older/off-main ref whose tree predates a composite
       # action would fail the step with "Can't find 'action.yml'". Restore the
       # actions directory from the commit this workflow file itself came from.
-      # Not Windows-only: every platform now consumes install-mobile-dependencies, so
-      # any of them can be the one whose cut ref predates the action.
       - name: Restore draft-publish scripts from the workflow ref
         # Why: this job checks out the release tag, so a cut from an older SHA
         # still has electron-builder releaseType:release and no re-draft helper.
@@ -1279,16 +1247,13 @@ jobs:
           git checkout "$WORKFLOW_SHA" -- config/scripts/assert-github-release-is-draft.mjs
 
       - name: Restore composite actions from the workflow ref
+        if: matrix.platform == 'win' && github.run_attempt == 1
         shell: bash
         env:
           WORKFLOW_SHA: ${{ github.workflow_sha }}
-          PLATFORM: ${{ matrix.platform }}
         run: |
           set -euo pipefail
-          required=(.github/actions/install-mobile-dependencies/action.yml)
-          if [ "$PLATFORM" = win ] && [ "$GITHUB_RUN_ATTEMPT" = 1 ]; then
-            required+=(.github/actions/install-signpath-module/action.yml)
-          fi
+          required=(.github/actions/install-signpath-module/action.yml)
           missing=()
           for action_path in "${required[@]}"; do
             [ -f "$action_path" ] || missing+=("$action_path")
@@ -1317,7 +1282,6 @@ jobs:
           cache: pnpm
           cache-dependency-path: |
             pnpm-lock.yaml
-            mobile/pnpm-lock.yaml
 
       # Why: release builds hit the same native-module postinstall path as
       # PR CI, so keep the pinned node-gyp override here too instead of
@@ -1368,10 +1332,6 @@ jobs:
           retry_wait_seconds: 30
           command: pnpm install --frozen-lockfile
 
-      # Why here: electron-builder's beforePack requires out/mobile-web, and the bundle
-      # build resolves React Native and Expo from mobile/node_modules.
-      - uses: ./.github/actions/install-mobile-dependencies
-
       # Why: `pnpm build:release` verifies the Linux computer-use provider by
       # importing AT-SPI bindings, which are runtime package deps but are not
       # present on stock GitHub Ubuntu release runners.
@@ -1411,16 +1371,6 @@ jobs:
           echo "identity=$identity" >>"$GITHUB_OUTPUT"
           echo "Classified $TAG as $identity"
 
-      # Why every leg: each package ships relays for Windows SSH hosts. v1.4.203 and
-      # earlier shipped Windows relays with no windows-process-tree.node, and mac and
-      # Linux packages shipped none until the addon moved to its own Windows job.
-      # Why no run_attempt guard: Build app is ungated, so a rerun needs it staged too.
-      - name: Collect the Windows process-table addons for the relay
-        uses: actions/download-artifact@v8
-        with:
-          name: relay-windows-process-tree
-          path: .build/windows-process-tree
-
       # Why an explicit step rather than trusting the runner image: the packaged
       # CLI launcher is a native Rust binary, and a Windows host without cargo
       # fails deep inside electron-builder's native hook instead of here. Real
@@ -1435,38 +1385,12 @@ jobs:
           }
           cargo --version
 
-      # Why ORCA_POSTHOG_WRITE_KEY here: this is the only build that
-      # produces a published binary, so this is the only place the secret
-      # needs to be in scope. The key is a PostHog *project* API key, not
-      # a server secret — it ships in every official binary's app.asar
-      # and is therefore extractable from any release. We still keep it
-      # in GitHub Actions secrets so the literal stays out of the repo
-      # (and out of fork CI runs / log scrapers / casual greps).
-      # Why ORCA_BUILD_IDENTITY here (not in env at the job level): the
-      # value comes from the per-tag classification above and electron-vite
-      # reads it from `process.env` during `pnpm build:release` only.
-      # Why ORCA_DIAGNOSTICS_TOKEN_URL here: official builds pin crash
-      # diagnostic uploads to Orca's endpoint at compile time, matching the
-      # telemetry gate's "official binary only" behavior.
       - name: Build app
         run: pnpm build:release
         env:
           # Why: Vite's web build crossed Node's default old-space ceiling on
           # the macOS release runner, leaving v1.4.2-rc.8 as an incomplete draft.
           NODE_OPTIONS: --max-old-space-size=4096
-          ORCA_BUILD_IDENTITY: ${{ steps.tag-classify.outputs.identity }}
-          ORCA_DIAGNOSTICS_TOKEN_URL: https://www.onorca.dev/diagnostics/token
-          ORCA_POSTHOG_WRITE_KEY: ${{ secrets.ORCA_POSTHOG_WRITE_KEY }}
-          # Fail the release rather than ship a relay that cannot launch outside
-          # sshd's job for a standard user on a Windows SSH host.
-          ORCA_REQUIRE_RELAY_NATIVE_ADDONS: x64,arm64
-
-      # After the app build so nothing that cleans out/ can drop it; electron-builder ships it.
-      - name: Download the orcad deployment template
-        uses: actions/download-artifact@v8
-        with:
-          name: orcad-template
-          path: out/orcad-template
 
       - name: Gate runtime file-watcher process isolation
         if: runner.os == 'Linux'
@@ -1475,12 +1399,6 @@ jobs:
           # host and the exact Electron runtime survive SIGSEGV before packaging.
           node config/scripts/runtime-file-watcher-fault-harness.mjs
           ELECTRON_RUN_AS_NODE=1 pnpm exec electron config/scripts/runtime-file-watcher-fault-harness.mjs
-
-      - name: Gate SSH relay watcher process isolation
-        run: |
-          # Why: the remote native watcher shares a daemon with live PTYs.
-          # Kill only its child and require both PTY and watch recovery before packaging.
-          node config/scripts/relay-watcher-fault-harness.mjs
 
       # Why: main ships minified with sourcemap:'hidden' and packaging drops
       # out/**/*.map from app.asar, so a crash trace from a released build is
@@ -1617,11 +1535,6 @@ jobs:
             Where-Object { $_.Extension -in '.exe', '.dll', '.node' } |
             ForEach-Object {
               $relative = [System.IO.Path]::GetRelativePath($root, $_.FullName)
-              # The orcad template's Linux/macOS addons are data for SSH hosts, not PE files.
-              if ($relative -match '^resources[\\/]orcad-template[\\/]targets[\\/](?!win32-)') {
-                $skipped.Add("$relative  <non-Windows orcad template payload>")
-                return
-              }
               $signature = Get-AuthenticodeSignature -FilePath $_.FullName
               if ($signature.Status -eq 'Valid') {
                 $skipped.Add("$relative  <already signed: $($signature.SignerCertificate.Subject)>")
@@ -1801,13 +1714,6 @@ jobs:
             $failures | ForEach-Object { Write-Host "::error::$_" }
             throw "Signed inner artifact did not round-trip cleanly ($($failures.Count) failures)."
           }
-
-      # Why: SignPath rewrote the template's Windows binaries, and the client materializer checks
-      # each file against the template manifest, so it must record the signed bytes.
-      - name: Reseal the orcad template over its signed binaries
-        id: reseal-orcad-template
-        if: matrix.platform == 'win' && github.run_attempt == 1 && steps.restore-signed-inner.outcome == 'success'
-        run: node config/scripts/packaged-orcad-template.cjs --reseal-signed dist/win-unpacked inner-signing-list.txt
 
       # The uninstaller must return signed before rebuilding the installer.
       - name: Restore signed uninstaller for the installer rebuild
@@ -2284,28 +2190,11 @@ jobs:
           TAG: ${{ needs.cut.outputs.tag }}
         run: node config/scripts/assert-github-release-is-draft.mjs "${{ needs.cut.outputs.tag }}"
 
-      # Why post-pack for Linux: electron-builder packs and uploads in one
-      # `--publish always` invocation. The previous step re-drafts if that
-      # upload flipped the GitHub release public; this telemetry check still
-      # blocks `publish-release` from undrafting a bad binary.
-      #
-      # Why this guards against: a misconfigured CI run where
-      # `ORCA_POSTHOG_WRITE_KEY` is unset or the tag fails to classify
-      # would otherwise produce a binary with `BUILD_IDENTITY = null` and
-      # `WRITE_KEY = null`, which silently disables transport
-      # (`IS_OFFICIAL_BUILD === false`) — the exact failure mode flagged
-      # in PR #1385's deferred follow-up.
-      - name: Verify telemetry constants present in app.asar
-        run: node config/scripts/verify-telemetry-constants.mjs
-
   build-mac:
     needs:
       - cut
       - create-release
-      - orcad-template
       - release-preflight
-      # release-mac-build.yml downloads the relay addons from this run.
-      - relay-windows-process-tree
     if: needs.cut.outputs.should_release == 'true'
     # Why: SignPath requires every job in this signing workflow to be
     # GitHub-hosted. The actual mac build runs in release-mac-build.yml so
@@ -2465,24 +2354,3 @@ jobs:
           done
           echo "::error::Failed to dispatch docs deployment for $TAG after 3 attempts."
           exit 1
-
-  homebrew-bump-published-rc-draft:
-    needs:
-      - cut
-    # Why: publish-complete-draft-releases can expose a recovered RC without
-    # running the build/publish jobs; still advance the RC cask to that tag.
-    if: ${{ needs.cut.outputs.latest_published_rc_tag != '' }}
-    uses: ./.github/workflows/homebrew-bump.yml
-    with:
-      tag: ${{ needs.cut.outputs.latest_published_rc_tag }}
-    secrets: inherit
-
-  homebrew-bump:
-    needs:
-      - cut
-      - publish-release
-    if: ${{ needs.cut.outputs.tag != '' && startsWith(needs.cut.outputs.tag, 'v') }}
-    uses: ./.github/workflows/homebrew-bump.yml
-    with:
-      tag: ${{ needs.cut.outputs.tag }}
-    secrets: inherit

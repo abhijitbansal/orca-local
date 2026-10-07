@@ -1,110 +1,20 @@
-import { ipcRenderer } from 'electron'
-import {
-  RUNTIME_HOST_STATUS_CHANNEL,
-  type RuntimeHostStatusSnapshot
-} from '../../shared/runtime-host-status'
-import type { VerifyAndAddRuntimeEnvironmentResult } from '../../shared/remote-pairing-verification'
-import type { RuntimeStatus } from '../../shared/runtime-types'
-import type { RuntimeRpcResponse } from '../../shared/runtime-rpc-envelope'
-import type { PublicKnownRuntimeEnvironment } from '../../shared/runtime-environments'
-import type { RemoteRuntimeSharedConnectionDiagnostics } from '../../shared/remote-runtime-shared-control-types'
-import { RUNTIME_ENVIRONMENT_DIAGNOSTICS_CHANNEL } from '../../shared/runtime-environment-diagnostics'
-import {
-  subscribeRuntimeEnvironmentFromPreload,
-  type RuntimeEnvironmentSubscriptionHandle
-} from '../runtime-environment-subscriptions'
 import type { PreloadApi } from '../api-types'
 
+// Why a stub and not a deletion: ~50 renderer call sites gate on a paired environment id that
+// this build can never mint; keeping the shape lets them compile while every call fails closed.
+function unsupported(): never {
+  throw new Error('unsupported_in_local_build: remote Orca runtimes were removed from this build')
+}
+
 export const runtimeEnvironmentsApi = {
-  getStatusSnapshots: (): Promise<RuntimeHostStatusSnapshot[]> =>
-    ipcRenderer.invoke('runtimeEnvironments:getStatusSnapshots'),
-  onStatusChanged: (callback: (snapshot: RuntimeHostStatusSnapshot) => void): (() => void) => {
-    const listener = (
-      _event: Electron.IpcRendererEvent,
-      snapshot: RuntimeHostStatusSnapshot
-    ): void => callback(snapshot)
-    ipcRenderer.on(RUNTIME_HOST_STATUS_CHANNEL, listener)
-    return () => ipcRenderer.removeListener(RUNTIME_HOST_STATUS_CHANNEL, listener)
-  },
-  list: (): Promise<PublicKnownRuntimeEnvironment[]> =>
-    ipcRenderer.invoke('runtimeEnvironments:list'),
-  addFromPairingCode: (args: {
-    name: string
-    pairingCode: string
-  }): Promise<{ environment: PublicKnownRuntimeEnvironment }> =>
-    ipcRenderer.invoke('runtimeEnvironments:addFromPairingCode', args),
-  verifyAndAddFromPairingCode: (args: {
-    name: string
-    pairingCode: string
-    allowLoopback?: boolean
-  }): Promise<VerifyAndAddRuntimeEnvironmentResult> =>
-    ipcRenderer.invoke('runtimeEnvironments:verifyAndAddFromPairingCode', args),
-  resolve: (args: { selector: string }): Promise<PublicKnownRuntimeEnvironment> =>
-    ipcRenderer.invoke('runtimeEnvironments:resolve', args),
-  remove: (args: { selector: string }): Promise<{ removed: PublicKnownRuntimeEnvironment }> =>
-    ipcRenderer.invoke('runtimeEnvironments:remove', args),
-  disconnect: (args: {
-    selector: string
-  }): Promise<{ disconnected: PublicKnownRuntimeEnvironment }> =>
-    ipcRenderer.invoke('runtimeEnvironments:disconnect', args),
-  connect: (args: {
-    selector: string
-    timeoutMs?: number
-  }): Promise<RuntimeRpcResponse<RuntimeStatus>> =>
-    ipcRenderer.invoke('runtimeEnvironments:connect', args),
-  getStatus: (args: {
-    selector: string
-    timeoutMs?: number
-    observeOnly?: true
-  }): Promise<RuntimeRpcResponse<RuntimeStatus>> =>
-    ipcRenderer.invoke('runtimeEnvironments:getStatus', args),
-  retryControlConnection: (args: { selector: string }): Promise<void> =>
-    ipcRenderer.invoke('runtimeEnvironments:retryControlConnection', args),
-  onSharedControlDiagnostics: (
-    callback: (event: {
-      environmentId: string
-      transportGeneration: number
-      diagnostics: RemoteRuntimeSharedConnectionDiagnostics
-    }) => void
-  ): (() => void) => {
-    const listener = (
-      _event: Electron.IpcRendererEvent,
-      data: {
-        environmentId: string
-        transportGeneration: number
-        diagnostics: RemoteRuntimeSharedConnectionDiagnostics
-      }
-    ): void => callback(data)
-    ipcRenderer.on(RUNTIME_ENVIRONMENT_DIAGNOSTICS_CHANNEL, listener)
-    return () => ipcRenderer.removeListener(RUNTIME_ENVIRONMENT_DIAGNOSTICS_CHANNEL, listener)
-  },
-  prepareBrowserClientHostPlacement: (args) =>
-    ipcRenderer.invoke('runtimeEnvironments:prepareBrowserClientHostPlacement', args),
-  retryConnectionsNow: (): Promise<void> =>
-    ipcRenderer.invoke('runtimeEnvironments:retryConnectionsNow'),
-  call: (args: {
-    selector: string
-    method: string
-    params?: unknown
-    timeoutMs?: number
-    expectedEnvironmentPairingRevision?: number
-    expectedEnvironmentRuntimeId?: string
-  }): Promise<RuntimeRpcResponse<unknown>> => ipcRenderer.invoke('runtimeEnvironments:call', args),
-  subscribe: async (
-    args: {
-      selector: string
-      method: string
-      params?: unknown
-      timeoutMs?: number
-      expectedEnvironmentPairingRevision?: number
-      expectedEnvironmentRuntimeId?: string
-    },
-    callbacks: {
-      onResponse: (response: RuntimeRpcResponse<unknown>) => void
-      onBinary?: (bytes: Uint8Array<ArrayBufferLike>) => void
-      onError?: (error: { code: string; message: string }) => void
-      onClose?: () => void
-    }
-  ): Promise<RuntimeEnvironmentSubscriptionHandle> =>
-    subscribeRuntimeEnvironmentFromPreload(ipcRenderer, args, callbacks)
+  getStatusSnapshots: async () => [],
+  onStatusChanged: () => () => {},
+  list: async () => [],
+  disconnect: async () => unsupported(),
+  connect: async () => unsupported(),
+  getStatus: async () => unsupported(),
+  prepareBrowserClientHostPlacement: async () => unsupported(),
+  retryConnectionsNow: async () => {},
+  call: async () => unsupported(),
+  subscribe: async () => unsupported()
 } satisfies PreloadApi['runtimeEnvironments']

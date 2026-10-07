@@ -11,7 +11,6 @@ import {
   forgetLocalWatcherRemovalSnapshotMock,
   getBranchConflictKind,
   getEffectiveHooks,
-  getPRForBranchMock,
   gitRunner,
   invalidateAuthorizedRootsCacheMock,
   listWorktrees,
@@ -389,14 +388,6 @@ describe('OrcaRuntimeService', () => {
       expect(gitSpy).toHaveBeenCalledWith(
         ['rev-parse', '--verify', '--quiet', 'refs/heads/runtime-wsl^{commit}'],
         { cwd: TEST_REPO_PATH, wslDistro: 'Ubuntu' }
-      )
-      expect(getPRForBranchMock).toHaveBeenCalledWith(
-        TEST_REPO_PATH,
-        'runtime-wsl',
-        null,
-        null,
-        null,
-        { localGitExecOptions: { wslDistro: 'Ubuntu' } }
       )
       expect(addWorktree).toHaveBeenCalledWith(
         TEST_REPO_PATH,

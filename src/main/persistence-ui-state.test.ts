@@ -17,16 +17,6 @@ import {
 } from './persistence-test-harness'
 import { installFakeAppEnvironment } from '../../config/scripts/vitest-host-ports-setup'
 
-// Stub the ~/.ssh/config parser so the SSH-import test drives the real Store with deterministic hosts, not the operator's actual ~/.ssh/config.
-const { loadUserSshConfigMock, sshConfigHostsToTargetsMock } = vi.hoisted(() => ({
-  loadUserSshConfigMock: vi.fn(),
-  sshConfigHostsToTargetsMock: vi.fn()
-}))
-
-vi.mock('./ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: loadUserSshConfigMock,
-  sshConfigHostsToTargets: sshConfigHostsToTargetsMock
-}))
 const { trackMock, getCohortAtEmitMock } = vi.hoisted(() => ({
   trackMock: vi.fn(),
   getCohortAtEmitMock: vi.fn()
@@ -715,7 +705,7 @@ describe('Store', () => {
     expect(reloaded.getUI().browserKagiSessionLink).toBe(sessionLink)
   })
 
-  it('durably encrypts SSH PTY consumer ownership for process restart recovery', async () => {
+  it('encrypts SSH PTY consumer ownership on disk and strips it at load', async () => {
     const store = await createStore()
     store.setGitHubCache({ pr: { 'o/r#1': { fetchedAt: 1 } as never }, issue: {} })
     await store.upsertSshPtyConsumerRecovery({
@@ -735,15 +725,7 @@ describe('Store', () => {
     expect(existsSync(join(testState.dir, 'orca-github-cache.json'))).toBe(false)
 
     const reloaded = await createStore()
-    expect(reloaded.getSshPtyConsumerRecovery('ssh-1')).toEqual({
-      targetId: 'ssh-1',
-      clientInstanceId: 'client-1',
-      serverBuildId: 'relay-build-1',
-      clientGeneration: 3,
-      ownerGeneration: 5,
-      ownerLease: 'secret-owner-lease',
-      outputFlowControl: { version: 1, windowSu: 256 * 1024 }
-    })
+    expect(reloaded.getSshPtyConsumerRecovery('ssh-1')).toBeNull()
   })
 
   it('drops decrypted SSH PTY owner leases that exceed the relay protocol bound', async () => {

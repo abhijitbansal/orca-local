@@ -569,10 +569,6 @@ describe('remote hidden-output restore abandonment (issue2-hidden-output-skip)',
     }
     ;(globalThis as unknown as { window: unknown }).window = {
       api: {
-        ssh: {
-          connect: vi.fn().mockResolvedValue({ status: 'connected' }),
-          needsPassphrasePrompt: vi.fn().mockResolvedValue(false)
-        },
         pty: {
           kill: vi.fn(),
           signal: vi.fn(),

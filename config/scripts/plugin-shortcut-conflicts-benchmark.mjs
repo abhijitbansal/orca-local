@@ -48,7 +48,7 @@ for (const count of [1, 8, 32, 128]) {
           {
             id: 'open',
             title: 'Open',
-            action: 'view.tasks',
+            action: 'workspace.openBoard',
             context: index % 2 ? 'worktree' : 'global'
           }
         ],

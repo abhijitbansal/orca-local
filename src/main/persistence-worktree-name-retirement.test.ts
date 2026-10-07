@@ -8,7 +8,6 @@ import { MARINE_CREATURES } from '../shared/marine-creatures'
 import { createRetiredNameLookup } from '../shared/worktree/retired-name-registry'
 import type { SshTarget } from '../shared/ssh-types'
 import { MAX_RETIREMENT_NAMESPACES } from './worktree-retirement-namespace'
-import { getRuntimeOwnedSshTargetId } from './ssh/ssh-connection-store'
 import { installFakeAppEnvironment } from '../../config/scripts/vitest-host-ports-setup'
 
 const testState = { dir: '' }
@@ -190,9 +189,10 @@ describe('worktree name retirement registry', () => {
     const newRepo = { ...oldRepo, id: OTHER_REPO }
     store.addRepo(newRepo)
 
+    // Local-only build: remote retirement namespaces are stripped at load, so nothing carries over.
     await expect(
       getRetiredNameRegistryForRepo(store, newRepo, [newRepo], store.getSettings())
-    ).resolves.toEqual({ exhaustedTiers: 0, names: ['nautilus'] })
+    ).resolves.toEqual({ exhaustedTiers: 0, names: [] })
   })
 
   it('preserves a Codex-only local retirement across remove and re-add', async () => {
@@ -280,9 +280,10 @@ describe('worktree name retirement registry', () => {
     const { getRetiredNameRegistryForRepo } = await import('./worktree-name-retirement')
     const readopted = store.getRepos().find((entry) => entry.id === REPO)!
     expect(readopted.connectionId).toBe('ssh-new')
+    // Local-only build: the legacy remote namespace is stripped at load, so there is nothing to carry.
     await expect(
       getRetiredNameRegistryForRepo(store, readopted, [readopted], store.getSettings())
-    ).resolves.toEqual({ exhaustedTiers: 0, names: ['nautilus'] })
+    ).resolves.toEqual({ exhaustedTiers: 0, names: [] })
   })
 
   it('reassigning a target id carries retirements when the endpoint itself moved', async () => {
@@ -338,54 +339,6 @@ describe('worktree name retirement registry', () => {
     await expect(
       getRetiredNameRegistryForRepo(store, readded, [readded], store.getSettings())
     ).resolves.toEqual({ exhaustedTiers: 0, names: ['nautilus'] })
-  })
-
-  it('does not spend namespace slots on on-demand runtime workspaces', async () => {
-    // Each provision reaches a discarded filesystem under a fresh address, so a mirror written here
-    // could never be read back — it would only consume the cap and evict real projects' tombstones.
-    const store = await createStore()
-    const runtimeId = getRuntimeOwnedSshTargetId('vm-1')
-    store.addSshTarget({
-      ...sshTarget(runtimeId, { host: 'vm-old.example.com' }),
-      owner: { type: 'on-demand-runtime', runtimeId: 'vm-1' }
-    })
-    const repo = { ...REMOTE_REPO, connectionId: runtimeId }
-    store.addRepo(repo)
-    const { retireGeneratedWorktreeName, getRemoteRetirementNamespaceKey } =
-      await import('./worktree-name-retirement')
-    await retireGeneratedWorktreeName(store, repo, store.getSettings(), 'nautilus')
-
-    // The repo-id row still records it for the live session; the shared namespace map does not.
-    expect(store.getRetiredWorktreeNameRegistry(REPO).names).toEqual(['nautilus'])
-    const namespaceKey = getRemoteRetirementNamespaceKey(repo, store.getSettings(), (id) =>
-      store.getSshTarget(id)
-    )!
-    expect(store.getRetiredWorktreeNameRegistryForNamespace(namespaceKey).names).toEqual([])
-  })
-
-  it('does not carry retirements forward when an on-demand runtime target is reprovisioned', async () => {
-    // Each provision mints a fresh address onto a discarded filesystem, so the old names collide
-    // with nothing. Copying per run would also churn the namespace cap out from under real hosts.
-    const store = await createStore()
-    const runtimeId = getRuntimeOwnedSshTargetId('vm-1')
-    store.addSshTarget({
-      ...sshTarget(runtimeId, { host: 'vm-old.example.com' }),
-      owner: { type: 'on-demand-runtime', runtimeId: 'vm-1' }
-    })
-    const repo = { ...REMOTE_REPO, connectionId: runtimeId }
-    store.addRepo(repo)
-    const { getRetiredNameRegistryForRepo, retireGeneratedWorktreeName } =
-      await import('./worktree-name-retirement')
-    await retireGeneratedWorktreeName(store, repo, store.getSettings(), 'nautilus')
-
-    store.updateSshTarget(runtimeId, { host: 'vm-new.example.com' })
-
-    store.removeProject(REPO)
-    const readded = { ...REMOTE_REPO, id: OTHER_REPO, connectionId: runtimeId }
-    store.addRepo(readded)
-    await expect(
-      getRetiredNameRegistryForRepo(store, readded, [readded], store.getSettings())
-    ).resolves.toEqual({ exhaustedTiers: 0, names: [] })
   })
 
   it('keeps a live sibling target its retirements when another row on the same endpoint rotates', async () => {

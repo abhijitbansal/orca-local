@@ -1,6 +1,4 @@
 import type { AppState } from '@/store/types'
-import { translate } from '@/i18n/i18n'
-import type { HostedReviewInfo } from '../../../../shared/hosted-review'
 import type { Repo } from '../../../../shared/repo-types'
 import type { Worktree } from '../../../../shared/worktree/types'
 import {
@@ -83,30 +81,12 @@ export function makeWorktree(overrides: Partial<Worktree> = {}): Worktree {
   }
 }
 
-export function makeReview(overrides: Partial<HostedReviewInfo> = {}): HostedReviewInfo {
-  return {
-    provider: 'github',
-    number: 42,
-    title: translate(
-      'components.workspace.cleanup.presentationFixtures.reviewAlphaCleanup',
-      'Review alpha cleanup'
-    ),
-    state: 'open',
-    url: 'https://example.test/review/42',
-    status: 'neutral',
-    updatedAt: new Date(NOW).toISOString(),
-    mergeable: 'UNKNOWN',
-    ...overrides
-  }
-}
-
 export function makeState(overrides: Partial<AppState> = {}): AppState {
   return {
     worktreesByRepo: {
       'repo-1': [makeWorktree()]
     },
     repos: [REPO],
-    hostedReviewCache: {},
     settings: {},
     ...overrides
   } as AppState & Partial<AppState>

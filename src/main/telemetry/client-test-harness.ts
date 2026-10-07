@@ -1,29 +1,34 @@
-import type { PostHog } from 'posthog-node'
-import { vi } from 'vitest'
+import { vi, type Mock } from 'vitest'
 import type { CommonProps } from '../../shared/telemetry-events'
 import type { GlobalSettings } from '../../shared/global-settings-types'
+import type { LocalFileSink } from '../observability/local-file-sink'
 import type { Store } from '../persistence'
 import { resetBurstCapsForSession } from './burst-cap'
 import {
-  _enableTransportForTests,
   _resetFirstAppOpenedFiredForTests,
   _setCommonPropsForTests,
-  _setPostHogClientForTests,
   _setShuttingDownForTests,
+  _setSinkForTests,
   _setStoreForTests
 } from './client'
 
-export type MockPostHog = {
-  capture: ReturnType<typeof vi.fn>
-  optIn: ReturnType<typeof vi.fn>
-  optOut: ReturnType<typeof vi.fn>
-  shutdown: ReturnType<typeof vi.fn>
-  on: ReturnType<typeof vi.fn>
-  emitForTests: (event: string, payload: unknown) => void
+export type PushedTelemetryRecord = {
+  type: string
+  event: string
+  distinct_id: string
+  timestamp: string
+  properties: Record<string, unknown>
+}
+
+export type MockSink = {
+  filePath: string
+  push: Mock<(record: PushedTelemetryRecord) => void>
+  flush: Mock<LocalFileSink['flush']>
+  close: Mock<LocalFileSink['close']>
 }
 
 export type TelemetryClientTestState = {
-  mock: MockPostHog
+  mock: MockSink
   store: Store
   settings: GlobalSettings
   envStash: Record<string, string | undefined>
@@ -36,42 +41,11 @@ export const BASE_COMMON: CommonProps = {
   os_release: '25.3.0',
   install_id: '00000000-0000-4000-8000-000000000000',
   session_id: 'ffffffff-ffff-4fff-8fff-ffffffffffff',
-  orca_channel: 'stable'
+  orca_channel: 'local'
 }
 
-export function makeMockPostHog(): MockPostHog {
-  const listeners = new Map<string, Set<(payload: unknown) => void>>()
-  const emitForTests = (event: string, payload: unknown): void => {
-    for (const listener of listeners.get(event) ?? []) {
-      listener(payload)
-    }
-  }
-
-  return {
-    capture: vi.fn((message: { event?: string; uuid?: string }) => {
-      queueMicrotask(() => {
-        emitForTests('capture', {
-          event: message.event,
-          uuid: message.uuid
-        })
-      })
-    }),
-    optIn: vi.fn(async () => {}),
-    optOut: vi.fn(async () => {}),
-    shutdown: vi.fn(async () => {}),
-    on: vi.fn((event: string, listener: (payload: unknown) => void) => {
-      let eventListeners = listeners.get(event)
-      if (!eventListeners) {
-        eventListeners = new Set()
-        listeners.set(event, eventListeners)
-      }
-      eventListeners.add(listener)
-      return () => {
-        eventListeners?.delete(listener)
-      }
-    }),
-    emitForTests
-  }
+export function makeMockSink(): MockSink {
+  return { filePath: '/tmp/telemetry.ndjson', push: vi.fn(), flush: vi.fn(), close: vi.fn() }
 }
 
 export function makeFakeSettings(telemetry: GlobalSettings['telemetry']): GlobalSettings {
@@ -138,22 +112,20 @@ export function setupTelemetryClientTest(
   vi.spyOn(console, 'warn').mockImplementation(() => {})
   resetBurstCapsForSession()
 
-  const mock = makeMockPostHog()
+  const mock = makeMockSink()
   const settings = makeFakeSettings(telemetry)
   const store = makeFakeStore(settings)
-  _setPostHogClientForTests(mock as unknown as PostHog)
+  _setSinkForTests(mock)
   _setCommonPropsForTests(BASE_COMMON)
   _setStoreForTests(store)
   _setShuttingDownForTests(false)
-  _enableTransportForTests(true)
   _resetFirstAppOpenedFiredForTests()
 
   return { mock, store, settings, envStash }
 }
 
 export function cleanupTelemetryClientTest(envStash: Record<string, string | undefined>): void {
-  _enableTransportForTests(false)
-  _setPostHogClientForTests(null)
+  _setSinkForTests(null)
   _setCommonPropsForTests(null)
   _setStoreForTests(null)
   _resetFirstAppOpenedFiredForTests()

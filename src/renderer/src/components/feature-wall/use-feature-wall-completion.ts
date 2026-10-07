@@ -36,8 +36,6 @@ export type FeatureWallCompletionState = {
 
 export function useFeatureWallCompletion(
   isOpen: boolean,
-  hasConnectedTaskSource: boolean,
-  isCheckingTaskSources: boolean,
   orchestrationSkillInstalled: boolean,
   browserUseSkillInstalled: boolean,
   options: { onTourDepthSummaryChange?: (summary: FeatureWallTourDepthSummary) => void } = {}
@@ -45,11 +43,8 @@ export function useFeatureWallCompletion(
   const { onTourDepthSummaryChange } = options
   const settings = useAppStore((s) => s.settings)
   const mountedRef = useMountedRef()
-  const preflightStatus = useAppStore((s) => s.preflightStatus)
   const rateLimits = useAppStore((s) => s.rateLimits)
   const fetchRateLimits = useAppStore((s) => s.fetchRateLimits)
-  const githubConfigured =
-    preflightStatus?.gh.installed === true && preflightStatus.gh.authenticated === true
   const commitMessageAi = settings?.commitMessageAi
   const resolvedCommitMessageAgent =
     settings && commitMessageAi?.enabled === true
@@ -110,12 +105,9 @@ export function useFeatureWallCompletion(
 
   const sessionDepth = useFeatureWallSessionDepth({
     isOpen,
-    hasConnectedTaskSource,
-    isCheckingTaskSources,
     hasUsageAccount,
     orchestrationSkillInstalled,
     browserUseSkillInstalled,
-    githubConfigured,
     aiCommitPrConfigured,
     onTourDepthSummaryChange
   })
@@ -156,21 +148,15 @@ export function useFeatureWallCompletion(
         visitedAgentSteps,
         visitedWorkbenchSteps,
         visitedReviewSteps,
-        hasConnectedTaskSource,
-        isCheckingTaskSources,
         hasUsageAccount,
         orchestrationSkillInstalled,
         browserUseSkillInstalled,
-        githubConfigured,
         aiCommitPrConfigured
       }),
     [
       aiCommitPrConfigured,
       browserUseSkillInstalled,
-      githubConfigured,
-      hasConnectedTaskSource,
       hasUsageAccount,
-      isCheckingTaskSources,
       orchestrationSkillInstalled,
       visitedAgentSteps,
       visitedReviewSteps,
@@ -229,12 +215,9 @@ export function useFeatureWallCompletion(
         completedAgentSteps,
         completedWorkbenchSteps,
         completedReviewSteps,
-        hasConnectedTaskSource,
-        isCheckingTaskSources,
         hasUsageAccount,
         orchestrationSkillInstalled,
         browserUseSkillInstalled,
-        githubConfigured,
         aiCommitPrConfigured
       }),
     [
@@ -244,10 +227,7 @@ export function useFeatureWallCompletion(
       completedReviewSteps,
       completedWorkbenchSteps,
       completedWorkflows,
-      githubConfigured,
-      hasConnectedTaskSource,
       hasUsageAccount,
-      isCheckingTaskSources,
       orchestrationSkillInstalled,
       visitedAgentSteps,
       visitedReviewSteps,

@@ -25,8 +25,8 @@ describe('automation owner conflicts read as CLI outcomes', () => {
     expect(output).toContain('Next step: Run the command again')
   })
 
-  // A removed SSH host fails identically forever, so proposing a retry would send
-  // the user in a loop instead of to the two things that actually resolve it.
+  // A removed host fails identically forever, so proposing a retry would send
+  // the user in a loop instead of to the thing that actually resolves it.
   it('never proposes a retry for a removed target', () => {
     const output = formatCliError(
       conflict(AUTOMATION_OWNER_CONFLICT_CODES.targetRemoved, 'Host removed.')
@@ -34,7 +34,6 @@ describe('automation owner conflicts read as CLI outcomes', () => {
 
     expect(output).not.toMatch(/run the command again|try again/i)
     expect(output).toContain('retrying will not change that')
-    expect(output).toContain('Re-add that SSH host')
     expect(output).toContain('orca automations remove')
   })
 

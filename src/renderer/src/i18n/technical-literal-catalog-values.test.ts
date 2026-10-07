@@ -12,7 +12,6 @@ const repairedEntries = [
   ['es', 'auto.components.settings.RepositoryHooksSection.925f9e0dc4'],
   ['es', 'auto.components.settings.RepositoryHooksSection.c90b858573'],
   ['es', 'auto.components.settings.RepositoryHooksSection.32f417fe17'],
-  ['es', 'auto.components.settings.RepositoryIconPicker.03ca1a4e9b'],
   ['es', 'auto.components.right.sidebar.index.6306b48afd'],
   ['es', 'auto.components.feature.wall.ReviewAnimatedVisual.8df4d52b68'],
   ['es', 'auto.components.editor.CombinedDiffViewer.8368d256ec'],
@@ -63,7 +62,7 @@ function readValue(catalog: Record<string, unknown>, key: string): unknown {
 
 describe('technical literal catalog repairs (#13121)', () => {
   it('keeps every repaired value identical to English', () => {
-    expect(repairedEntries).toHaveLength(42)
+    expect(repairedEntries).toHaveLength(41)
 
     for (const [locale, key] of repairedEntries) {
       expect(readValue(catalogs[locale], key), `${locale}:${key}`).toBe(readValue(en, key))

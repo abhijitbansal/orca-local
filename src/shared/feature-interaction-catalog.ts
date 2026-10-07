@@ -28,10 +28,8 @@ export type FeatureInteractionId =
   | 'agent-browser-use'
   | 'agent-orchestration-setup'
   | 'agent-orchestration'
-  | 'ephemeral-vm-setup'
   | 'mobile-emulator-agent-setup'
   | 'ai-commit-generation'
-  | 'ai-pr-generation'
   | 'claude-account-switching'
   | 'computer-use-setup'
   | 'computer-use'
@@ -39,7 +37,6 @@ export type FeatureInteractionId =
   | 'cookie-import'
   | 'floating-workspace'
   | 'floating-workspace-hidden'
-  | 'mobile-pairing'
   | 'notifications'
   | 'ports'
   | 'quick-commands'
@@ -99,7 +96,6 @@ export const FEATURE_INTERACTIONS = [
   { id: 'workspace-creation', interaction: 'workspace creation flow opened' },
   { id: 'agent-browser-setup', interaction: 'Agent Browser Use setup enabled or opened' },
   { id: 'agent-browser-use', interaction: 'agent browser runtime method used' },
-  { id: 'ephemeral-vm-setup', interaction: 'Ephemeral VMs setup opened or scaffold prompt copied' },
   {
     id: 'agent-orchestration-setup',
     interaction: 'Agent Orchestration setup enabled or opened'
@@ -113,7 +109,6 @@ export const FEATURE_INTERACTIONS = [
     id: 'ai-commit-generation',
     interaction: 'AI commit message generation enabled or used'
   },
-  { id: 'ai-pr-generation', interaction: 'AI pull request generation used' },
   {
     id: 'claude-account-switching',
     interaction: 'Claude managed account added, selected, reauthenticated, or removed'
@@ -133,7 +128,6 @@ export const FEATURE_INTERACTIONS = [
     id: 'floating-workspace-hidden',
     interaction: 'Floating Workspace explicitly hidden or disabled'
   },
-  { id: 'mobile-pairing', interaction: 'mobile pairing enabled or QR code generated' },
   { id: 'notifications', interaction: 'desktop notifications enabled or tested' },
   { id: 'ports', interaction: 'Ports popover opened, configured, or port action used' },
   { id: 'quick-commands', interaction: 'terminal quick command created or edited' },

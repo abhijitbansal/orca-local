@@ -34,7 +34,7 @@ describe('Store SSH pending PTY kills', () => {
   })
 
   // The whole point of the record: a laptop closed mid-failure must not lose the kill order.
-  it('survives an app restart', async () => {
+  it('is dropped by an app restart', async () => {
     const store = await createStore()
     store.upsertSshRemotePtyLease({ targetId: 'ssh-1', ptyId: 'pty-1', state: 'attached' })
     store.recordSshRemotePtyKillIntent('ssh-1', 'pty-1', {
@@ -42,25 +42,30 @@ describe('Store SSH pending PTY kills', () => {
       incarnationId: 'inc-a',
       attempts: 0
     })
-    store.flush()
-
-    const reloaded = await createStore()
-    expect(reloaded.getSshRemotePtyKillIntents('ssh-1', NOW)).toEqual([
+    expect(store.getSshRemotePtyKillIntents('ssh-1', NOW)).toEqual([
       { ptyId: 'pty-1', intent: { requestedAt: NOW, incarnationId: 'inc-a', attempts: 0 } }
     ])
+    store.flush()
+
+    // Local-only build: remote leases and their kill intents are stripped at load.
+    const reloaded = await createStore()
+    expect(reloaded.getSshRemotePtyKillIntents('ssh-1', NOW)).toEqual([])
   })
 
-  it('keeps an epoch-scoped intent with no incarnation across a restart, and drops a legacy one', async () => {
+  it('drops epoch-scoped and legacy intents alike on restart', async () => {
     const store = await createStore()
     for (const ptyId of ['pty2:epoch-a:1', 'pty-2']) {
       store.recordSshRemotePtyKillIntent('ssh-1', ptyId, { requestedAt: NOW, attempts: 0 })
     }
+    expect(store.getSshRemotePtyKillIntents('ssh-1', NOW).map((e) => e.ptyId)).toEqual([
+      'pty2:epoch-a:1',
+      'pty-2'
+    ])
     store.flush()
 
+    // Local-only build: remote leases and their kill intents are stripped at load.
     const reloaded = await createStore()
-    expect(reloaded.getSshRemotePtyKillIntents('ssh-1', NOW)).toEqual([
-      { ptyId: 'pty2:epoch-a:1', intent: { requestedAt: NOW, attempts: 0 } }
-    ])
+    expect(reloaded.getSshRemotePtyKillIntents('ssh-1', NOW)).toEqual([])
   })
 
   // A kill issued while the provider was already unregistered writes no lease of its own, and that
@@ -72,10 +77,12 @@ describe('Store SSH pending PTY kills', () => {
       incarnationId: 'inc-z',
       attempts: 0
     })
+    expect(store.getSshRemotePtyKillIntents('ssh-1', NOW).map((e) => e.ptyId)).toEqual(['pty-9'])
     store.flush()
 
+    // Local-only build: remote leases and their kill intents are stripped at load.
     const reloaded = await createStore()
-    expect(reloaded.getSshRemotePtyKillIntents('ssh-1', NOW).map((e) => e.ptyId)).toEqual(['pty-9'])
+    expect(reloaded.getSshRemotePtyKillIntents('ssh-1', NOW)).toEqual([])
   })
 
   // The row it invents must not be reattachable: the user closed this PTY, and reattach fences only
@@ -103,12 +110,13 @@ describe('Store SSH pending PTY kills', () => {
       attempts: 0
     })
     store.pruneExpiredSshRemotePtyKillIntents('ssh-1', NOW + SSH_PENDING_PTY_KILL_TTL_MS + 1)
+    expect(store.getSshRemotePtyLeases('ssh-1')[0]?.pendingKill).toBeUndefined()
+    // Ageing out observes nothing about the process, so the lease state is left exactly as it was.
+    expect(store.getSshRemotePtyLeases('ssh-1')[0]?.state).toBe('attached')
     store.flush()
 
-    const reloaded = await createStore()
-    expect(reloaded.getSshRemotePtyLeases('ssh-1')[0]?.pendingKill).toBeUndefined()
-    // Ageing out observes nothing about the process, so the lease state is left exactly as it was.
-    expect(reloaded.getSshRemotePtyLeases('ssh-1')[0]?.state).toBe('attached')
+    // Local-only build: remote leases and their kill intents are stripped at load.
+    expect((await createStore()).getSshRemotePtyLeases('ssh-1')).toEqual([])
   })
 
   it('leaves an intent that is still inside its TTL alone', async () => {
@@ -147,11 +155,8 @@ describe('Store SSH pending PTY kills', () => {
       attempts: 0
     })
     store.clearSshRemotePtyKillIntent('ssh-1', 'pty-1')
-    store.flush()
-
-    const reloaded = await createStore()
-    expect(reloaded.getSshRemotePtyKillIntents('ssh-1', NOW)).toEqual([])
-    expect(reloaded.getSshRemotePtyLeases('ssh-1')[0]?.state).toBe('attached')
+    expect(store.getSshRemotePtyKillIntents('ssh-1', NOW)).toEqual([])
+    expect(store.getSshRemotePtyLeases('ssh-1')[0]?.state).toBe('attached')
   })
 
   it('drops intents past the TTL on read', async () => {
@@ -179,19 +184,18 @@ describe('Store SSH pending PTY kills', () => {
         attempts: 0
       })
     }
-    store.flush()
-
-    const reloaded = await createStore()
-    const persisted = reloaded
+    const persisted = store
       .getSshRemotePtyLeases('ssh-1')
       .filter((lease) => lease.pendingKill !== undefined)
     expect(persisted).toHaveLength(MAX_SSH_PENDING_PTY_KILLS_PER_TARGET)
-    expect(reloaded.getSshRemotePtyLeases('ssh-1')).toHaveLength(
-      MAX_SSH_PENDING_PTY_KILLS_PER_TARGET
-    )
+    expect(store.getSshRemotePtyLeases('ssh-1')).toHaveLength(MAX_SSH_PENDING_PTY_KILLS_PER_TARGET)
     // Newest kept: the oldest orders are the ones least likely to still name a live process.
     expect(persisted.some((lease) => lease.ptyId === `pty-${total - 1}`)).toBe(true)
     expect(persisted.some((lease) => lease.ptyId === 'pty-0')).toBe(false)
+    store.flush()
+
+    // Local-only build: remote leases and their kill intents are stripped at load.
+    expect((await createStore()).getSshRemotePtyLeases('ssh-1')).toEqual([])
   })
 
   it('does not let a repeated close extend the TTL, and carries attempts forward', async () => {

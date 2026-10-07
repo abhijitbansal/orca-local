@@ -13,7 +13,7 @@ import type { GitHubWorkItem } from '../../../../shared/github/work-item-types'
 import type { GitLabWorkItem } from '../../../../shared/gitlab-types'
 import type { JiraIssue } from '../../../../shared/jira-types'
 import type { LinearIssue } from '../../../../shared/linear/issue-types'
-import type { OrcaHooks, SetupAgentStartupPolicy } from '../../../../shared/orca-yaml-hook-types'
+import type { SetupAgentStartupPolicy } from '../../../../shared/orca-yaml-hook-types'
 import type { SparsePreset } from '../../../../shared/worktree/create-types'
 import type { SshConnectionStatus } from '../../../../shared/ssh-types'
 import type { TaskSourceContext } from '../../../../shared/task-source-context'
@@ -21,11 +21,9 @@ import type { TuiAgent } from '../../../../shared/tui-agent'
 import type { ExecutionHostId } from '../../../../shared/execution-host'
 
 export type RepoOption = React.ComponentProps<typeof RepoCombobox>['repos'][number]
-export type EphemeralVmRecipeOption = NonNullable<OrcaHooks['environmentRecipes']>[number]
 
 export const EMPTY_PROJECT_OPTIONS: NewWorkspaceProjectOption[] = []
 export const EMPTY_PROJECT_HOST_SETUP_OPTIONS: ProjectHostSetupOption[] = []
-export const EMPTY_EPHEMERAL_VM_RECIPES: EphemeralVmRecipeOption[] = []
 
 export type NewWorkspaceComposerCardProps = {
   contextualTourSource?: string
@@ -46,10 +44,6 @@ export type NewWorkspaceComposerCardProps = {
   projectHostSetupOptions?: ProjectHostSetupOption[]
   selectedProjectHostSetupId?: string | null
   onProjectHostSetupChange?: (setupId: string) => void
-  ephemeralVmRecipes?: EphemeralVmRecipeOption[]
-  selectedEphemeralVmRecipeId?: string | null
-  onEphemeralVmRecipeChange?: (recipeId: string | null) => void
-  ephemeralVmRecipeError?: string | null
   repoBackedSearchRepos?: readonly RepoOption[]
   repoBackedSourcesDisabled?: boolean
   allowSmartNameAddProject?: boolean
@@ -78,7 +72,6 @@ export type NewWorkspaceComposerCardProps = {
   smartNameMode?: SmartNameMode
   onSmartLinearIssueSelect: (issue: LinearIssue) => void
   onSmartJiraIssueSelect?: (issue: JiraIssue, sourceContext: TaskSourceContext) => void
-  onOpenJiraSettings?: () => void
   smartNameSelection: SmartWorkspaceNameSelection | null
   onClearSmartNameSelection: () => void
   canReuseSelectedBranch: boolean
@@ -113,7 +106,6 @@ export type NewWorkspaceComposerCardProps = {
   selectedRepoSshStatus: SshConnectionStatus | null
   selectedRepoRequiresConnection: boolean
   selectedRepoConnectInProgress: boolean
-  onConnectSelectedRepo: () => Promise<void>
   branchesEnabled?: boolean
   setupControlsEnabled?: boolean
   canUseSparseCheckout: boolean

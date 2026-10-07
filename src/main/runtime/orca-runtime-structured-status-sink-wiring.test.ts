@@ -56,10 +56,9 @@ function runtimeConstruction(relativePath: string): string {
  *  field here would install a host that never writes to the agent-status store — and every reader
  *  of that store would simply list no structured sessions. Pin it behaviourally. */
 /** `worktree ps` reads structured rows only from the agent-status store, so an entry point that
- *  constructs a runtime without these lists no agents at all — and `orcad` serves `worktree.ps`
- *  and `agentSession.*` exactly like the desktop does. */
+ *  constructs a runtime without these lists no agents at all. */
 describe('every host that constructs a runtime wires the agent-status store', () => {
-  it.each([['orcad/orcad-entry.ts'], ['startup/main-process-runtime-service.ts']])(
+  it.each([['startup/main-process-runtime-service.ts']])(
     '%s passes both store deps',
     (relativePath) => {
       const construction = runtimeConstruction(relativePath)

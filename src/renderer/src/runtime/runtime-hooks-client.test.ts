@@ -9,7 +9,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from './runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from './runtime-rpc-client'
 
 const runtimeEnvironmentCall = vi.fn()
 const runtimeEnvironmentTransportCall = vi.fn()
@@ -19,7 +18,6 @@ const hooksReadIssueCommand = vi.fn()
 const hooksWriteIssueCommand = vi.fn()
 
 beforeEach(() => {
-  clearRuntimeCompatibilityCacheForTests()
   runtimeEnvironmentCall.mockReset()
   runtimeEnvironmentTransportCall.mockReset()
   hooksCheck.mockReset()
@@ -64,49 +62,6 @@ describe('runtime hooks client', () => {
     expect(hooksReadIssueCommand).toHaveBeenCalledWith({ repoId: 'repo-1' })
     expect(hooksWriteIssueCommand).toHaveBeenCalledWith({ repoId: 'repo-1', content: 'Fix it' })
     expect(runtimeEnvironmentCall).not.toHaveBeenCalled()
-  })
-
-  it('routes hook operations through the active runtime environment', async () => {
-    runtimeEnvironmentCall.mockResolvedValue({
-      id: 'rpc-1',
-      ok: true,
-      result: { ok: true },
-      _meta: { runtimeId: 'runtime-1' }
-    })
-
-    await checkRuntimeHooks({ activeRuntimeEnvironmentId: 'env-1' }, 'repo-1')
-    await inspectRuntimeSetupScriptImports({ activeRuntimeEnvironmentId: 'env-1' }, 'repo-1')
-    await readRuntimeIssueCommand({ activeRuntimeEnvironmentId: 'env-1' }, 'repo-1')
-    await writeRuntimeIssueCommand({ activeRuntimeEnvironmentId: 'env-1' }, 'repo-1', 'Fix it')
-
-    expect(runtimeEnvironmentCall).toHaveBeenNthCalledWith(1, {
-      selector: 'env-1',
-      method: 'repo.hooksCheck',
-      params: { repo: 'repo-1' },
-      timeoutMs: 15_000
-    })
-    expect(runtimeEnvironmentCall).toHaveBeenNthCalledWith(2, {
-      selector: 'env-1',
-      method: 'repo.setupScriptImports',
-      params: { repo: 'repo-1' },
-      timeoutMs: 15_000
-    })
-    expect(runtimeEnvironmentCall).toHaveBeenNthCalledWith(3, {
-      selector: 'env-1',
-      method: 'repo.issueCommandRead',
-      params: { repo: 'repo-1' },
-      timeoutMs: 15_000
-    })
-    expect(runtimeEnvironmentCall).toHaveBeenNthCalledWith(4, {
-      selector: 'env-1',
-      method: 'repo.issueCommandWrite',
-      params: { repo: 'repo-1', content: 'Fix it' },
-      timeoutMs: 15_000
-    })
-    expect(hooksCheck).not.toHaveBeenCalled()
-    expect(hooksInspectSetupScriptImports).not.toHaveBeenCalled()
-    expect(hooksReadIssueCommand).not.toHaveBeenCalled()
-    expect(hooksWriteIssueCommand).not.toHaveBeenCalled()
   })
 
   it('forwards an explicit SSH host to local hook IPC', async () => {

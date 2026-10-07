@@ -16,7 +16,6 @@ import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { StoreApi } from 'zustand/vanilla'
 import { getDefaultUIState } from '../../../shared/constants'
-import { omitPairingLocalUiFields } from '../../../shared/pairing-local-ui-fields'
 import type { PersistedUIState } from '../../../shared/persisted-ui-state-types'
 import type { PersistedState } from '../../../shared/persisted-state-types'
 import { getPersistedUI } from '../../../main/persistence/applying-settings/ui-state-read'
@@ -135,7 +134,7 @@ function createMobileClient(authority: Authority) {
     /** ui.get on connect/focus: merge the shared state onto the local mirror
      *  (mirrors applyDesktopViewSettings' ??-per-field semantics). */
     sync() {
-      const ui = omitPairingLocalUiFields(authority.get())
+      const ui = authority.get()
       view = {
         ...view,
         hideSleeping: ui.hideSleepingWorkspaces ?? view.hideSleeping,
@@ -150,7 +149,7 @@ function createMobileClient(authority: Authority) {
     tap(patch: Partial<MobileViewState>) {
       view = { ...view, ...patch }
       const payload = patchOnlyUpdate(patch, view)
-      authority.set(omitPairingLocalUiFields(payload) as Partial<PersistedUIState>)
+      authority.set(payload)
     }
   }
 }

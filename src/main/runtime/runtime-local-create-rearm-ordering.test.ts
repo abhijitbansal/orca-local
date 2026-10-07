@@ -49,7 +49,6 @@ type RuntimeInternals = {
   resolveLineageForWorktreeCreate: (input: unknown) => Promise<unknown>
   recordCreatedWorktreeLineage: (created: unknown, resolution: unknown) => unknown
   getLocalGitExecutionOptionArgs: (repo: unknown) => unknown[]
-  getHostedReviewExecutionOptions: (repo: unknown) => unknown
   invalidateResolvedWorktreeCache: () => void
   invalidateWorktreeScanCacheForRepo: (repoId: string) => void
   notifyWorktreesChanged: (repoId: string) => void
@@ -73,7 +72,6 @@ function makeRuntime(): OrcaRuntimeService {
     warnings: []
   })
   vi.spyOn(internals, 'getLocalGitExecutionOptionArgs').mockReturnValue([{}])
-  vi.spyOn(internals, 'getHostedReviewExecutionOptions').mockReturnValue(undefined)
   vi.spyOn(internals, 'invalidateResolvedWorktreeCache').mockReturnValue(undefined)
   vi.spyOn(internals, 'invalidateWorktreeScanCacheForRepo').mockReturnValue(undefined)
   vi.spyOn(internals, 'notifyWorktreesChanged').mockReturnValue(undefined)

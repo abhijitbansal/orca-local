@@ -6,9 +6,7 @@ import {
   addWorktreeMock,
   removeWorktreeMock,
   resolveDefaultBaseRefWithLocalGitMock,
-  getDefaultRemoteMock,
   getBranchConflictKindMock,
-  getPRForBranchMock,
   getEffectiveHooksMock,
   createSetupRunnerScriptMock,
   getEffectiveHooksFromConfigMock,
@@ -42,12 +40,6 @@ vi.mock('../git/git-username', async (importOriginal) => ({
   resolveLocalGitUsername: (await import('./worktrees-test-module-mocks'))
     .resolveLocalGitUsernameMock
 }))
-vi.mock('../github/client', async () =>
-  (await import('./worktrees-test-module-mocks')).githubClientModuleMock()
-)
-vi.mock('../source-control/hosted-review', async () =>
-  (await import('./worktrees-test-module-mocks')).hostedReviewModuleMock()
-)
 vi.mock('../providers/ssh-git-dispatch', async () =>
   (await import('./worktrees-test-module-mocks')).sshGitDispatchModuleMock()
 )
@@ -370,104 +362,6 @@ describe('registerWorktreeHandlers', () => {
       )
     )
     expect(distros).toEqual(new Set(['Ubuntu']))
-  })
-
-  it('routes selected PR branch conflict lookup through the selected WSL project runtime', async () => {
-    mockSelectedWslProjectRuntime()
-    getBranchConflictKindMock.mockResolvedValueOnce('remote')
-    getPRForBranchMock.mockResolvedValueOnce({
-      number: 42,
-      title: 'Selected PR',
-      state: 'open',
-      url: 'https://example.com/pr/42',
-      checksStatus: 'success',
-      updatedAt: '2026-06-16T00:00:00.000Z',
-      mergeable: 'UNKNOWN'
-    })
-    listWorktreesMock.mockResolvedValue([
-      {
-        path: '/workspace/fix-title',
-        head: 'abc123',
-        branch: 'refs/heads/feature/fix',
-        isBare: false,
-        isMainWorktree: false
-      }
-    ])
-
-    await handlers['worktrees:create'](null, {
-      repoId: 'repo-1',
-      name: 'fix-title',
-      baseBranch: 'abc123',
-      branchNameOverride: 'feature/fix',
-      linkedPR: 42,
-      pushTarget: { remoteName: 'origin', branchName: 'feature/fix' }
-    })
-
-    expect(getPRForBranchMock).toHaveBeenCalledWith(
-      '/workspace/repo',
-      'feature/fix',
-      null,
-      null,
-      null,
-      { localGitExecOptions: { wslDistro: 'Ubuntu' } }
-    )
-    expect(addWorktreeMock).toHaveBeenCalledWith(
-      '/workspace/repo',
-      '/workspace/fix-title',
-      'feature/fix',
-      'abc123',
-      false,
-      false,
-      { wslDistro: 'Ubuntu' }
-    )
-  })
-
-  it('routes PR base git calls through the selected WSL project runtime', async () => {
-    setPlatform('win32')
-    store.getProjects.mockReturnValue([
-      {
-        id: 'project-1',
-        displayName: 'repo',
-        badgeColor: '#000',
-        sourceRepoIds: ['repo-1'],
-        localWindowsRuntimePreference: { kind: 'wsl', distro: 'Ubuntu' },
-        createdAt: 0,
-        updatedAt: 0
-      }
-    ])
-    gitExecFileAsyncMock.mockImplementation(async (args: string[]) => {
-      if (args[0] === 'rev-parse') {
-        return { stdout: 'def456\n', stderr: '' }
-      }
-      return { stdout: '', stderr: '' }
-    })
-
-    const result = await handlers['worktrees:resolvePrBase'](null, {
-      repoId: 'repo-1',
-      prNumber: 42,
-      headRefName: 'feature/add-feature',
-      isCrossRepository: false
-    })
-
-    expect(gitExecFileAsyncMock).toHaveBeenCalledWith(
-      [
-        'fetch',
-        'origin',
-        '+refs/heads/feature/add-feature:refs/remotes/origin/feature/add-feature'
-      ],
-      { cwd: '/workspace/repo', wslDistro: 'Ubuntu' }
-    )
-    expect(gitExecFileAsyncMock).toHaveBeenCalledWith(
-      ['rev-parse', '--verify', 'origin/feature/add-feature'],
-      { cwd: '/workspace/repo', wslDistro: 'Ubuntu' }
-    )
-    expect(getDefaultRemoteMock).toHaveBeenCalledWith('/workspace/repo', { wslDistro: 'Ubuntu' })
-    expect(result).toMatchObject({
-      baseBranch: 'def456',
-      headSha: 'def456',
-      branchNameOverride: 'feature/add-feature',
-      pushTarget: { remoteName: 'origin', branchName: 'feature/add-feature' }
-    })
   })
 
   it('lists detected worktrees through the selected WSL project runtime', async () => {

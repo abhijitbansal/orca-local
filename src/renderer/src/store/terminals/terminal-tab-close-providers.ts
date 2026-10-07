@@ -3,7 +3,7 @@ import {
   getRuntimeEnvironmentRevision
 } from '@/runtime/runtime-environment-revision'
 import type { AppState } from '../types'
-import { callRuntimeRpc, ensureRuntimeEnvironmentCompatible } from '@/runtime/runtime-rpc-client'
+import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
 import { resolveTerminalWorktreeRoute } from '@/lib/terminal-worktree-route'
 import {
   classifyTerminalRetirementWorktree,
@@ -83,25 +83,17 @@ async function retireRuntimeTerminal(
   const revision = environmentId
     ? captureRuntimeEnvironmentRequestRevision(environmentId)
     : undefined
-  if (environmentId) {
-    await ensureRuntimeEnvironmentCompatible(environmentId, {
-      expectedEnvironmentPairingRevision: revision
-    })
-  }
   if (
     (environmentId && getRuntimeEnvironmentRevision(environmentId) !== revision) ||
     !canRetire()
   ) {
     return
   }
-  // Compatibility was checked above; recheck pane ownership at the actual dispatch boundary.
+  // Recheck pane ownership at the actual dispatch boundary.
   return callRuntimeRpc(
     target,
     'terminal.close',
     { terminal: handle },
-    {
-      skipCompatibilityCheck: true,
-      expectedEnvironmentPairingRevision: revision
-    }
+    { expectedEnvironmentPairingRevision: revision }
   )
 }

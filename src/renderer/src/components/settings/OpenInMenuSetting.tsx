@@ -100,7 +100,7 @@ function OpenInMenuRow({
     <div className="py-3">
       <div className="flex flex-wrap items-start gap-3">
         <div className="flex size-7 shrink-0 items-center justify-center rounded-md border border-border/50 bg-background/50">
-          <OpenInApplicationIcon application={application} size={16} />
+          <OpenInApplicationIcon size={16} />
         </div>
 
         <div className="min-w-0 flex-1 sm:min-w-[12rem]">
@@ -324,7 +324,7 @@ export function OpenInMenuSetting({
                   onSelect={() => addPreset(preset)}
                   className="gap-2"
                 >
-                  <OpenInApplicationIcon application={preset} size={14} />
+                  <OpenInApplicationIcon size={14} />
                   <span className="min-w-0 truncate">{preset.label}</span>
                   {isAdded && (
                     <DropdownMenuShortcut className="inline-flex items-center gap-1">
@@ -336,7 +336,7 @@ export function OpenInMenuSetting({
               )
             })}
             <DropdownMenuItem disabled={isAtLimit} onSelect={addCustomApp} className="gap-2">
-              <OpenInApplicationIcon application={{ command: '' }} size={14} />
+              <OpenInApplicationIcon size={14} />
               <span className="min-w-0 truncate">
                 {translate('auto.components.settings.OpenInMenuSetting.03b00b1f64', 'Custom app')}
               </span>

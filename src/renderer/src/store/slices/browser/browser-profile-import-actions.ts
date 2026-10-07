@@ -110,24 +110,17 @@ export function createBrowserProfileImportActions(
       if (runtimeEnvironmentId) {
         const hostLabel = selectExecutionHostDisplayLabel(get(), hostId)
         try {
-          // Why: the import runs on whichever machine hosts the pages, so the picker must offer that
-          // machine's browsers -- client-hosted means this desktop, not the (usually headless) remote.
-          const clientHostBrowsers = await window.api.browser.sessionDetectBrowsersForClientHost({
-            environmentId: runtimeEnvironmentId
-          })
-          const browsers =
-            clientHostBrowsers ??
-            (
-              await callRuntimeRpc<BrowserDetectProfilesResult>(
-                { kind: 'environment', environmentId: runtimeEnvironmentId },
-                'browser.profileDetectBrowsers',
-                undefined,
-                { timeoutMs: 15_000 }
-              )
-            ).browsers
+          const browsers = (
+            await callRuntimeRpc<BrowserDetectProfilesResult>(
+              { kind: 'environment', environmentId: runtimeEnvironmentId },
+              'browser.profileDetectBrowsers',
+              undefined,
+              { timeoutMs: 15_000 }
+            )
+          ).browsers
           // Why: retain which machine answered so import menus can say where imports read and store.
           const detectedBrowsersHost = {
-            machine: clientHostBrowsers ? ('client' as const) : ('remote' as const),
+            machine: 'remote' as const,
             hostLabel
           }
           set((s) =>

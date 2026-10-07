@@ -10,10 +10,6 @@ import type {
   ShellHydrationFailureReason
 } from '../../shared/shell-path-hydration-types'
 import { hydrateShellPath, mergePathSegments } from '../startup/hydrate-shell-path'
-import { getAzureDevOpsAuthStatus } from '../azure-devops/client'
-import { getBitbucketAuthStatus } from '../bitbucket/client'
-import { getGiteaAuthStatus } from '../gitea/client'
-import { _resetKnownHostsCache } from '../gitlab/gl-utils'
 import { mergePersistedWindowsPathAsync } from '../pty/windows-environment-path'
 import { getActiveMultiplexer } from '../ssh/ssh-target-registry'
 import {
@@ -28,13 +24,7 @@ import {
 
 export type { PreflightRuntimeContext }
 import { hydrateShellPathForAgentDetection } from '../ipc/agent-detection-shell-path'
-import {
-  execCommandInWslOrThrow,
-  execLocalPreflightCommandOrThrow,
-  isCommandAvailable,
-  isCommandOnPath,
-  shellQuote
-} from '../ipc/preflight-command-exec'
+import { isCommandAvailable, isCommandOnPath } from '../ipc/preflight-command-exec'
 import {
   detectRemoteWindowsTerminalCapabilities,
   type RemoteWindowsTerminalCapabilities
@@ -47,30 +37,7 @@ import {
 import { invalidateWslGuestEnvironment } from '../wsl/wsl-guest-environment'
 import { prunePreflightWslCache } from '../preflight-wsl-cache'
 
-export type PreflightStatus = {
-  git: { installed: boolean }
-  gh: { installed: boolean; authenticated: boolean }
-  // Why: optional so existing renderer call sites that only render git/gh
-  // status keep typechecking. Consumers that surface GitLab-specific
-  // affordances (the GitLab tab in the source picker, MR list, etc.)
-  // gate on `glab?.authenticated`.
-  glab?: { installed: boolean; authenticated: boolean }
-  bitbucket?: { configured: boolean; authenticated: boolean; account: string | null }
-  azureDevOps?: {
-    configured: boolean
-    authenticated: boolean
-    account: string | null
-    baseUrl: string | null
-    tokenConfigured: boolean
-  }
-  gitea?: {
-    configured: boolean
-    authenticated: boolean
-    account: string | null
-    baseUrl: string | null
-    tokenConfigured: boolean
-  }
-}
+export type PreflightStatus = { git: { installed: boolean } }
 
 export { detectRemoteWindowsTerminalCapabilities }
 export type { RemoteWindowsTerminalCapabilities }
@@ -253,41 +220,6 @@ export async function detectRemoteAgents(args: { connectionId: string }): Promis
   return uniqueAgentIds(result.agents)
 }
 
-async function isGhAuthenticated(wslTarget?: WslPreflightTarget): Promise<boolean> {
-  try {
-    await (wslTarget
-      ? execCommandInWslOrThrow(wslTarget, `${shellQuote('gh')} auth status`)
-      : execLocalPreflightCommandOrThrow('gh', ['auth', 'status']))
-    // Why: for plain-text `gh auth status`, exit 0 means gh did not detect any
-    // authentication issues for the checked hosts/accounts.
-    return true
-  } catch (error) {
-    // Why: some environments may surface partial command output on the thrown
-    // error object. Keep a compatibility fallback so we avoid a false auth
-    // warning if success markers are present despite a non-zero result.
-    const stdout = (error as { stdout?: string }).stdout ?? ''
-    const stderr = (error as { stderr?: string }).stderr ?? ''
-    const output = `${stdout}\n${stderr}`
-    return output.includes('Logged in') || output.includes('Active account: true')
-  }
-}
-
-// Why: parallel to isGhAuthenticated for the glab CLI. glab writes auth
-// status to stderr in some versions and stdout in others; check both.
-async function isGlabAuthenticated(wslTarget?: WslPreflightTarget): Promise<boolean> {
-  try {
-    await (wslTarget
-      ? execCommandInWslOrThrow(wslTarget, `${shellQuote('glab')} auth status`)
-      : execLocalPreflightCommandOrThrow('glab', ['auth', 'status']))
-    return true
-  } catch (error) {
-    const stdout = (error as { stdout?: string }).stdout ?? ''
-    const stderr = (error as { stderr?: string }).stderr ?? ''
-    const output = `${stdout}\n${stderr}`
-    return output.includes('Logged in')
-  }
-}
-
 export async function runPreflightCheck(
   force = false,
   context?: PreflightRuntimeContext
@@ -363,38 +295,6 @@ async function executePreflightCheck(
     await mergePersistedWindowsPathAsync(process.env, { forceRefresh: force })
   }
 
-  if (force) {
-    // Why: the GitLab known-hosts cache (gl-utils) is populated lazily on the
-    // first GitLab request and never invalidated within a session. A user who
-    // runs `glab auth login` for a self-hosted host after Orca starts would
-    // otherwise see "No GitLab project found" until app relaunch. The Re-check
-    // path in IntegrationsPane forces preflight, so piggyback on that signal
-    // to refresh the host list too.
-    _resetKnownHostsCache()
-  }
-
-  const [gitProbe, ghProbe, glabProbe] = await Promise.all([
-    detectCommandRuntime('git', context),
-    detectCommandRuntime('gh', context),
-    detectCommandRuntime('glab', context)
-  ])
-
-  const [ghAuthenticated, glabAuthenticated, bitbucket, azureDevOps, gitea] = await Promise.all([
-    ghProbe.installed ? isGhAuthenticated(ghProbe.wslTarget) : Promise.resolve(false),
-    glabProbe.installed ? isGlabAuthenticated(glabProbe.wslTarget) : Promise.resolve(false),
-    getBitbucketAuthStatus(),
-    getAzureDevOpsAuthStatus(),
-    getGiteaAuthStatus()
-  ])
-
-  const result = {
-    git: { installed: gitProbe.installed },
-    gh: { installed: ghProbe.installed, authenticated: ghAuthenticated },
-    glab: { installed: glabProbe.installed, authenticated: glabAuthenticated },
-    bitbucket,
-    azureDevOps,
-    gitea
-  }
-
-  return result
+  const gitProbe = await detectCommandRuntime('git', context)
+  return { git: { installed: gitProbe.installed } }
 }

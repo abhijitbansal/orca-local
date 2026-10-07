@@ -7,7 +7,6 @@ import {
   exposeWorker,
   inspectWorkerTerminal,
   projectFleetWorker,
-  resolvePinnedFederatedServer,
   showContextOnlyWorker
 } from './worker-observation'
 import { readArchivedWorkerOutput } from './worker-archive-read'
@@ -15,8 +14,6 @@ import { readStructuredWorkerOutput } from '../../orchestration-structured-worke
 import { releaseStructuredWorkerSession } from '../../orchestration-structured-worker-session'
 import { readExactWorkerOutput } from './worker-output'
 import { exposeWorkerTerminalResource } from './worker-release-completion'
-import { readFederatedWorkerOutput } from '../federation/federated-worker-read'
-import { showFederatedWorker } from '../federation/federated-worker-show'
 import {
   WorkerDispatchParams,
   WorkerReadParams
@@ -36,15 +33,11 @@ export const ORCHESTRATION_WORKER_CONTROL_METHODS = [
           `Worker Dispatch ${params.dispatch} was not found.`
         )
       }
-      const federated = db.getFederatedDispatch(params.dispatch)
-      if (federated) {
-        return showFederatedWorker({
-          runtime,
-          db,
-          dispatchId: params.dispatch,
-          dispatch,
-          federated
-        })
+      if (db.getFederatedDispatch(params.dispatch)) {
+        throw new OrchestrationError(
+          'server_required',
+          'Connected-server orchestration is unavailable in this build.'
+        )
       }
       if (!worker) {
         return showContextOnlyWorker(runtime, db, dispatch)
@@ -81,19 +74,11 @@ export const ORCHESTRATION_WORKER_CONTROL_METHODS = [
     params: WorkerReadParams,
     handler: async (params, { runtime }) => {
       const db = runtime.getOrchestrationDb()
-      const federated = db.getFederatedDispatch(params.dispatch)
-      if (federated) {
-        const server = resolvePinnedFederatedServer(runtime, federated)
-        return readFederatedWorkerOutput({
-          runtime,
-          db,
-          server,
-          federated,
-          dispatchId: params.dispatch,
-          source: params.source,
-          cursor: params.cursor,
-          limit: params.limit
-        })
+      if (db.getFederatedDispatch(params.dispatch)) {
+        throw new OrchestrationError(
+          'server_required',
+          'Connected-server orchestration is unavailable in this build.'
+        )
       }
       const dispatch = db.getDispatchContextById(params.dispatch)
       const worker = db.getWorkerDispatch(params.dispatch)

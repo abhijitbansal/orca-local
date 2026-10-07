@@ -248,6 +248,8 @@ export function registerAppHandlers(store: Store, options: RegisterAppHandlersOp
   registerRendererShutdownCheckpointHandler(store)
   registerMacKeyboardLayoutChangeNotifications()
 
+  ipcMain.handle('app:getVersion', (): string => app.getVersion())
+
   ipcMain.handle('app:getFeatureWallAssetBaseUrl', (): string => getFeatureWallAssetBaseUrl())
 
   ipcMain.handle('app:getIdentity', (): AppIdentity => {

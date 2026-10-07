@@ -26,8 +26,8 @@ import { recordCoalescedDurableCrashBreadcrumb } from './durable-crash-breadcrum
  *   point, reached from the CLI, relay and daemon too), the codex app-server
  *   deadline kill (compiled into the CLI as well) and the ephemeral-VM recipe
  *   kill. Also host-spanning but recording directly: the POSIX PTY
- *   process-group sweep and the Windows PTY Job Object (relay `pty-handler`,
- *   daemon `subprocess-handle`). When any of these run outside main they record
+ *   process-group sweep and the Windows PTY Job Object (daemon
+ *   `subprocess-handle`). When any of these run outside main they record
  *   into that process's own ring, which nothing reads — no gate is installed
  *   there, and the tracer sink is a no-op.
  * - Never instrumented, and none of them a pid-addressed kill issued from main:

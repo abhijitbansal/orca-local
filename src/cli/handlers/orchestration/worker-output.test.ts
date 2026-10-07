@@ -334,7 +334,7 @@ describe('formatWorkerRead', () => {
   // reconciliation, and cannot re-check whether those children still exist. A
   // sentence frozen mid-flight outlives the process that wrote it, so it must
   // not keep asserting a liveness only that process could have observed —
-  // `docs/reference/ssh-execution-boundary.md` calls that loss of contact
+  // `AGENTS.md` calls that loss of contact
   // reported as a live state.
   it('replays a mid-flight roster row without claiming a child is still working', () => {
     const midFlight: readonly NativeChatSubagentEntry[] = [

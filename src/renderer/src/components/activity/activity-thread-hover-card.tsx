@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { ExternalLink, MonitorUp, Pencil, StickyNote } from 'lucide-react'
+import { ExternalLink, Pencil, StickyNote } from 'lucide-react'
 import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
@@ -15,18 +15,15 @@ import {
 } from '../sidebar/WorktreeCardDetailSection'
 import { LinearStateBadge } from '../sidebar/WorktreeCardMetadataStatusBadges'
 import { WorktreeCardIssueDetailSection } from '../sidebar/WorktreeCardIssueDetailSection'
-import { WorktreeCardReviewDetailSection } from '../sidebar/WorktreeCardReviewDetailSection'
 import { WorktreeCardAutomationDetailSection } from '../sidebar/WorktreeCardAutomationDetailSection'
 import { WorktreeCardCliDetailSection } from '../sidebar/WorktreeCardCliDetailSection'
 import { WorktreeCardPortsDetails } from '../sidebar/WorktreeCardPorts'
 import { WORKTREE_NATIVE_CONTEXT_MENU_ATTR } from '../sidebar/WorktreeContextMenu'
 import { useWorktreeCardDetailsHoverControl } from '../sidebar/worktree-card-details-hover-state'
 import { useWorktreeCardFoundation } from '../sidebar/use-worktree-card-foundation'
-import { useWorktreeCardReviewDetails } from '../sidebar/use-worktree-card-review-details'
+import { useWorktreeCardIdentity } from '../sidebar/use-worktree-card-identity'
 import { useWorktreeCardLinkedDetails } from '../sidebar/use-worktree-card-linked-details'
-import { useWorktreeCardLifecycleEffects } from '../sidebar/use-worktree-card-lifecycle-effects'
 import { useWorktreeCardSecondaryDetails } from '../sidebar/use-worktree-card-secondary-details'
-import { getReviewLabel } from '../sidebar/worktree-review-helpers'
 import { ActivityThreadHoverCardSummary } from './activity-thread-hover-card-summary'
 import type { AgentPaneThread } from './activity-thread-types'
 
@@ -82,10 +79,9 @@ function ActivityThreadHoverCardContent({
 }): React.JSX.Element {
   const { worktree, repo } = thread
   const foundation = useWorktreeCardFoundation({ worktree, repo: repo ?? undefined })
-  const review = useWorktreeCardReviewDetails({
+  const identity = useWorktreeCardIdentity({
     worktree,
     repo: repo ?? undefined,
-    settings: foundation.settings,
     projectGroups: foundation.projectGroups,
     cardProps: foundation.cardProps,
     newCardStyle: foundation.newCardStyle
@@ -94,41 +90,11 @@ function ActivityThreadHoverCardContent({
     worktree,
     newCardStyle: foundation.newCardStyle,
     deleteState: foundation.deleteState,
-    branch: review.branch,
-    issueEntry: review.issueEntry,
-    linearIssueEntry: review.linearIssueEntry,
-    linearIssueFallbackEntry: review.linearIssueFallbackEntry,
-    prDisplay: review.prDisplay
-  })
-
-  const hoverDetailsOpen = detailsHoverControl.hoverOpen
-
-  useWorktreeCardLifecycleEffects({
-    worktree,
-    repo: repo ?? undefined,
-    isFolder: review.isFolder,
-    hostedReviewCacheKey: review.hostedReviewCacheKey,
-    cachedBranchFallbackGitHubPRNumber: review.cachedBranchFallbackGitHubPRNumber,
-    linkedGitLabMR: review.linkedGitLabMR,
-    linkedBitbucketPR: review.linkedBitbucketPR,
-    linkedAzureDevOpsPR: review.linkedAzureDevOpsPR,
-    linkedGiteaPR: review.linkedGiteaPR,
-    branch: review.branch,
-    fetchHostedReviewForBranch: foundation.fetchHostedReviewForBranch,
-    shouldRefreshHostedReview: false,
-    newCardStyle: true,
-    hoverDetailsOpen,
-    showIssue: true,
-    issueCacheKey: review.issueCacheKey,
-    fetchIssue: foundation.fetchIssue,
-    showLinearIssue: true,
-    fetchLinearIssue: foundation.fetchLinearIssue
+    branch: identity.branch
   })
 
   const secondary = useWorktreeCardSecondaryDetails({
     worktree,
-    repo: repo ?? undefined,
-    statusPrDisplay: null,
     showStatus: true,
     showIssue: true,
     showLinearIssue: true,
@@ -139,21 +105,13 @@ function ActivityThreadHoverCardContent({
     showComment: true,
     showPorts: true,
     issueDisplay: linked.issueDisplay,
-    linearIssue: linked.linearIssue,
     linearIssueDisplay: linked.linearIssueDisplay,
     jiraIssueDisplay: linked.jiraIssueDisplay,
-    prDisplay: review.prDisplay,
-    linkedGitLabMR: review.linkedGitLabMR,
-    linkedBitbucketPR: review.linkedBitbucketPR,
-    linkedAzureDevOpsPR: review.linkedAzureDevOpsPR,
-    linkedGiteaPR: review.linkedGiteaPR,
     cardProps: foundation.cardProps,
     newCardStyle: foundation.newCardStyle,
     compactCards: foundation.compactCards,
     agentActivityDisplayMode: foundation.agentActivityDisplayMode,
     workspacePorts: foundation.workspacePorts,
-    openTaskPage: foundation.openTaskPage,
-    updateWorktreeMeta: foundation.updateWorktreeMeta,
     settings: foundation.settings
   })
 
@@ -182,18 +140,6 @@ function ActivityThreadHoverCardContent({
       translate('auto.components.sidebar.WorktreeCardMeta.issueLinkLabel', 'Issue link')
     )
   }, [copyLinkedWorkItemLink, detailsHoverControl, secondary.hoverIssue?.url])
-
-  const handleCopyReviewLink = useCallback(() => {
-    if (!secondary.hoverReview?.url) {
-      return
-    }
-    void copyLinkedWorkItemLink(
-      secondary.hoverReview.url,
-      translate('auto.components.sidebar.WorktreeCardMeta.reviewLinkLabel', '{{value0}} link', {
-        value0: getReviewLabel(secondary.hoverReview)
-      })
-    )
-  }, [copyLinkedWorkItemLink, secondary.hoverReview])
 
   const dismissAndRun = useCallback(
     (handler: ((event: React.MouseEvent) => void) | undefined) => (event: React.MouseEvent) => {
@@ -230,11 +176,6 @@ function ActivityThreadHoverCardContent({
           onIssueMenuOpenChange={detailsHoverControl.handleIssueMenuOpenChange}
           onCopyIssueLink={secondary.hoverIssue?.url ? handleCopyIssueLink : undefined}
           onEditIssue={foundation.handleEditIssue}
-          onOpenGitHubIssueInOrca={
-            secondary.handleOpenGitHubIssueInOrca
-              ? dismissAndRun(secondary.handleOpenGitHubIssueInOrca)
-              : undefined
-          }
           onOpenIssueInBrowser={
             secondary.hoverIssue?.url
               ? (url: string) => {
@@ -257,17 +198,6 @@ function ActivityThreadHoverCardContent({
               )}
               actions={
                 <>
-                  {secondary.hoverLinearIssue.url && secondary.handleOpenLinearIssueInOrca && (
-                    <MetadataActionIcon
-                      label={translate(
-                        'auto.components.sidebar.WorktreeCardMeta.2c67730e07',
-                        'Open in Orca'
-                      )}
-                      onClick={dismissAndRun(secondary.handleOpenLinearIssueInOrca)}
-                    >
-                      <MonitorUp className="size-3" />
-                    </MetadataActionIcon>
-                  )}
                   {secondary.hoverLinearIssue.url && (
                     <MetadataActionIcon
                       label={translate(
@@ -333,20 +263,6 @@ function ActivityThreadHoverCardContent({
             </WorktreeCardDetailSectionContent>
           </WorktreeCardDetailSection>
         )}
-
-        {/* Pull Request / Review */}
-        <WorktreeCardReviewDetailSection
-          review={secondary.hoverReview}
-          reviewMenuOpen={detailsHoverControl.reviewMenuOpen}
-          onReviewMenuOpenChange={detailsHoverControl.handleReviewMenuOpenChange}
-          onOpenReviewInOrca={secondary.handleOpenReviewInOrca}
-          onOpenReviewInBrowser={
-            secondary.hoverReview?.url ? secondary.handleOpenReviewInBrowser : undefined
-          }
-          onCopyReviewLink={secondary.hoverReview?.url ? handleCopyReviewLink : undefined}
-          onUnlinkReview={secondary.canUnlinkReview ? secondary.handleUnlinkReview : undefined}
-          closeHover={detailsHoverControl.closeHover}
-        />
 
         {/* Automation Provenance */}
         {secondary.metaAutomationProvenance && (

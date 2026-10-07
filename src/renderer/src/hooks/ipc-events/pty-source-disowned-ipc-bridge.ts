@@ -12,7 +12,7 @@ import { useAppStore } from '../../store'
  * relay will ever hand this id back. That is enough to give the pane a working shell — respawning
  * leaks the old process rather than killing it — and deliberately short of `exited`. A lost link, a
  * timeout and an identity mismatch send no exit at all
- * (docs/reference/ssh-execution-boundary.md).
+ * (AGENTS.md).
  */
 export function registerPtySourceDisownedIpcBridge(unsubs: (() => void)[]): void {
   const unsubscribe = window.api.pty?.onExit?.((payload) => {

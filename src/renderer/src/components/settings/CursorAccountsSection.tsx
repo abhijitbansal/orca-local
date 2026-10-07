@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ExternalLink, Loader2, RefreshCw, ShieldCheck } from 'lucide-react'
+import { ExternalLink, ShieldCheck } from 'lucide-react'
 import { AgentIcon } from '@/lib/agent-catalog'
 import { translate } from '@/i18n/i18n'
 import { cn } from '@/lib/utils'
 import { useAppStore } from '../../store'
 import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
 import type { CursorAccountStatus } from '../../../../shared/rate-limit-types'
 import { SearchableSetting } from './SearchableSetting'
 
@@ -32,11 +31,9 @@ function credentialSourceLabel(source: CursorAccountStatus['credentialSource']):
 }
 
 export function CursorAccountsSection(): React.JSX.Element {
-  const refreshRateLimits = useAppStore((s) => s.refreshRateLimits)
   const cursorUsage = useAppStore((s) => s.rateLimits.cursor)
   const [status, setStatus] = useState<CursorAccountStatus | null>(null)
   const [loading, setLoading] = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
 
   // Why a generation counter: two usage updates can overlap, and the slower read
   // would otherwise land last and repaint the pane with the older account.
@@ -72,17 +69,6 @@ export function CursorAccountsSection(): React.JSX.Element {
   useEffect(() => {
     void loadStatus()
   }, [loadStatus, cursorUsage?.updatedAt])
-
-  // Why: the effect below already reloads status when the refresh lands a new
-  // snapshot, and each load is a keychain read for an item Orca does not own.
-  const handleRefreshUsage = async (): Promise<void> => {
-    setRefreshing(true)
-    try {
-      await refreshRateLimits()
-    } finally {
-      setRefreshing(false)
-    }
-  }
 
   const signedIn = status?.signedIn === true
   const tokenFresh = status?.tokenFresh === true
@@ -171,8 +157,8 @@ export function CursorAccountsSection(): React.JSX.Element {
                         'Signed in. Orca reads the Cursor session stored on this computer.'
                       )
                   : translate(
-                      'auto.components.settings.CursorAccountsSection.expired',
-                      'Sign-in expired — run cursor-agent login on the computer running Orca, then click Refresh usage.'
+                      'auto.components.settings.CursorAccountsSection.03b21c8df6',
+                      'Sign-in expired — run cursor-agent login on the computer running Orca.'
                     )}
               </p>
             </>
@@ -186,31 +172,14 @@ export function CursorAccountsSection(): React.JSX.Element {
               </p>
               <p className="text-xs text-muted-foreground">
                 {translate(
-                  'auto.components.settings.CursorAccountsSection.signedOutHelp',
-                  'Sign in with Cursor IDE, or run cursor-agent login in a terminal, then click Refresh usage here.'
+                  'auto.components.settings.CursorAccountsSection.0c5273f43d',
+                  'Sign in with Cursor IDE, or run cursor-agent login in a terminal.'
                 )}
               </p>
             </>
           )}
           {status?.error ? <p className="text-xs text-destructive">{status.error}</p> : null}
         </div>
-        <Button
-          variant="outline"
-          size="xs"
-          disabled={refreshing}
-          onClick={() => void handleRefreshUsage()}
-          className="shrink-0"
-        >
-          {refreshing ? (
-            <Loader2 className="size-3 animate-spin" />
-          ) : (
-            <RefreshCw className="size-3" />
-          )}
-          {translate(
-            'auto.components.settings.CursorAccountsSection.refreshUsage',
-            'Refresh usage'
-          )}
-        </Button>
       </div>
 
       {pools.length > 0 || monthly ? (

@@ -23,7 +23,6 @@ import type {
   ExternalAutomationTarget
 } from '../../shared/automations-types'
 import type { SshTarget } from '../../shared/ssh-types'
-import { isRuntimeOwnedSshTarget } from '../ssh/ssh-connection-store'
 
 /** Current SSH registrations, hidden ones included so the guard can reject them itself. */
 export type DesktopSshTargetRegistry = {
@@ -48,10 +47,6 @@ function resolveSshScope(
   const target = registry.getSshTargets().find((entry) => entry.id === targetId)
   if (!target) {
     throw externalAutomationTargetRemovedError()
-  }
-  // Why: checked before the generation compare so a hidden target reveals nothing about its registration.
-  if (isRuntimeOwnedSshTarget(target)) {
-    throw new ExternalAutomationScopeError(EXTERNAL_AUTOMATION_SCOPE_CODES.targetHidden)
   }
   const current = sanitizeSshTargetGeneration(target.generation)
   if (current === undefined || current !== capturedGeneration) {

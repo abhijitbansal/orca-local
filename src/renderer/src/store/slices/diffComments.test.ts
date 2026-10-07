@@ -5,7 +5,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '../../runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 
 // Mock sonner (imported transitively by other slices)
 vi.mock('sonner', () => ({ toast: { info: vi.fn(), success: vi.fn(), error: vi.fn() } }))
@@ -157,7 +156,6 @@ function seed(
 describe('addDiffComment', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    clearRuntimeCompatibilityCacheForTests()
     runtimeEnvironmentTransportCall.mockReset()
     runtimeEnvironmentTransportCall.mockImplementation((args: RuntimeEnvironmentCallRequest) => {
       return createCompatibleRuntimeStatusResponseIfNeeded(args) ?? runtimeEnvironmentCall(args)
@@ -212,7 +210,6 @@ describe('addDiffComment', () => {
 describe('updateDiffComment', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    clearRuntimeCompatibilityCacheForTests()
     runtimeEnvironmentTransportCall.mockReset()
     runtimeEnvironmentTransportCall.mockImplementation((args: RuntimeEnvironmentCallRequest) => {
       return createCompatibleRuntimeStatusResponseIfNeeded(args) ?? runtimeEnvironmentCall(args)
@@ -251,47 +248,6 @@ describe('updateDiffComment', () => {
     expect(saved.createdAt).toBe(1000)
     expect(saved.sentAt).toBeUndefined()
     expect(updateMeta).toHaveBeenCalledTimes(1)
-  })
-
-  it('persists through the selected runtime environment', async () => {
-    const store = createTestStore()
-    store.setState({
-      settings: { activeRuntimeEnvironmentId: 'env-1' } as never,
-      worktreesByRepo: {
-        [REPO]: [
-          { id: WT, repoId: REPO, hostId: 'local', runtimeOwnerEnvironmentId: 'env-1' } as never
-        ]
-      }
-    })
-    seed(
-      store,
-      [
-        {
-          id: 'c1',
-          worktreeId: WT,
-          filePath: 'src/foo.ts',
-          lineNumber: 10,
-          body: 'old body',
-          createdAt: 1000,
-          side: 'modified'
-        }
-      ],
-      { hostId: 'local', runtimeOwnerEnvironmentId: 'env-1' }
-    )
-
-    const ok = await store.getState().updateDiffComment(WT, 'c1', 'remote body')
-
-    expect(ok).toBe(true)
-    expect(updateMeta).not.toHaveBeenCalled()
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-      selector: 'env-1',
-      method: 'worktree.set',
-      params: {
-        worktree: `id:${WT}`,
-        diffComments: [expect.objectContaining({ id: 'c1', body: 'remote body' })]
-      },
-      timeoutMs: 15_000
-    })
   })
 
   it('persists explicit local worktree comments locally while a runtime is focused', async () => {
@@ -401,7 +357,6 @@ describe('updateDiffComment', () => {
 describe('markDiffCommentsSent', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    clearRuntimeCompatibilityCacheForTests()
     runtimeEnvironmentTransportCall.mockReset()
     runtimeEnvironmentTransportCall.mockImplementation((args: RuntimeEnvironmentCallRequest) => {
       return createCompatibleRuntimeStatusResponseIfNeeded(args) ?? runtimeEnvironmentCall(args)
@@ -458,7 +413,6 @@ describe('markDiffCommentsSent', () => {
 describe('clearDeliveredDiffComments', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    clearRuntimeCompatibilityCacheForTests()
     runtimeEnvironmentTransportCall.mockReset()
     runtimeEnvironmentTransportCall.mockImplementation((args: RuntimeEnvironmentCallRequest) => {
       return createCompatibleRuntimeStatusResponseIfNeeded(args) ?? runtimeEnvironmentCall(args)
@@ -524,7 +478,6 @@ describe('clearDeliveredDiffComments', () => {
 describe('bulk clear diff comments', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    clearRuntimeCompatibilityCacheForTests()
     runtimeEnvironmentTransportCall.mockReset()
     runtimeEnvironmentTransportCall.mockImplementation((args: RuntimeEnvironmentCallRequest) => {
       return createCompatibleRuntimeStatusResponseIfNeeded(args) ?? runtimeEnvironmentCall(args)
@@ -629,36 +582,6 @@ describe('bulk clear diff comments', () => {
     expect(updateMeta).not.toHaveBeenCalled()
   })
 
-  it('persists clear through the selected runtime environment', async () => {
-    const store = createTestStore()
-    store.setState({
-      settings: { activeRuntimeEnvironmentId: 'env-1' } as never,
-      worktreesByRepo: {
-        [REPO]: [
-          { id: WT, repoId: REPO, hostId: 'local', runtimeOwnerEnvironmentId: 'env-1' } as never
-        ]
-      }
-    })
-    seed(store, [makeComment({ id: 'c1' })], {
-      hostId: 'local',
-      runtimeOwnerEnvironmentId: 'env-1'
-    })
-
-    const ok = await store.getState().clearDiffComments(WT)
-
-    expect(ok).toBe(true)
-    expect(updateMeta).not.toHaveBeenCalled()
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-      selector: 'env-1',
-      method: 'worktree.set',
-      params: {
-        worktree: `id:${WT}`,
-        diffComments: []
-      },
-      timeoutMs: 15_000
-    })
-  })
-
   it('rolls back to the previous note array on persist failure', async () => {
     const store = createTestStore()
     const comments = [makeComment({ id: 'c1' }), makeComment({ id: 'c2' })]
@@ -705,7 +628,6 @@ describe('worktree diff comment rollback convergence', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    clearRuntimeCompatibilityCacheForTests()
     runtimeEnvironmentTransportCall.mockReset()
     runtimeEnvironmentTransportCall.mockImplementation((args: RuntimeEnvironmentCallRequest) => {
       return createCompatibleRuntimeStatusResponseIfNeeded(args) ?? runtimeEnvironmentCall(args)
@@ -762,20 +684,5 @@ describe('worktree diff comment rollback convergence', () => {
     await expect(marked).resolves.toBe(false)
     expect(store.getState().getDiffComments(WT)).toBe(comments)
     expect(errSpy).toHaveBeenCalled()
-  })
-
-  it('converges on the runtime branch when two consecutive writes fail', async () => {
-    const store = createTestStore()
-    store.setState({ settings: { activeRuntimeEnvironmentId: 'env-1' } as never })
-    const comments = [makeComment({ id: 'c1' })]
-    seed(store, comments, { hostId: 'local', runtimeOwnerEnvironmentId: 'env-1' })
-    runtimeEnvironmentCall.mockRejectedValue(new Error('runtime unreachable'))
-
-    await expect(Promise.all([addNote(store, 'A', 11), addNote(store, 'B', 12)])).resolves.toEqual([
-      null,
-      null
-    ])
-    expect(updateMeta).not.toHaveBeenCalled()
-    expect(store.getState().getDiffComments(WT)).toBe(comments)
   })
 })

@@ -41,10 +41,6 @@ export class SttService {
     if (currentOwner !== owner) {
       throw new Error('dictation_owner_mismatch')
     }
-    if (this.state.cloudSession) {
-      this.state.cloudSession.feedAudio(samples, sampleRate)
-      return
-    }
     this.state.worker?.postMessage({ type: 'feed', samples, sampleRate }, [
       samples.buffer as ArrayBuffer
     ])
@@ -58,7 +54,7 @@ export class SttService {
   }
 
   isActive(): boolean {
-    return this.state.worker !== null || this.state.cloudSession !== null
+    return this.state.worker !== null
   }
 
   getActiveModelId(): string | null {

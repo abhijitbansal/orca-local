@@ -22,6 +22,7 @@ import {
 import { resolveFolderWorkspaceHost } from '../../../shared/folder-workspace-execution-host'
 import type { Worktree } from '../../../shared/worktree/types'
 import { parseWorkspaceKey } from '../../../shared/workspace-scope'
+import { LocalOnlyUnsupportedError } from '../../../shared/local-only-unsupported-error'
 
 type AutomationDispatchStoreState = ReturnType<typeof useAppStore.getState>
 type MarkDispatchResult = (result: AutomationDispatchResult) => Promise<void>
@@ -114,40 +115,15 @@ export async function prepareAutomationDispatchWorkspace(args: {
       ? (folderWorkspaceConnectionId ?? null)
       : (repo.connectionId ?? null)
   if (sshTargetId) {
-    const needsPrompt = await window.api.ssh.needsPassphrasePrompt({
-      targetId: sshTargetId
+    // Why: SSH targets are unsupported in this build; a run that cannot reach its host must skip, never run locally.
+    await markDispatchResult({
+      runId: run.id,
+      status: 'skipped_unavailable',
+      workspaceId: context.workspaceId,
+      workspaceDisplayName: context.workspaceDisplayName,
+      error: new LocalOnlyUnsupportedError('ssh', 'automation dispatch').message
     })
-    if (needsPrompt) {
-      await markDispatchResult({
-        runId: run.id,
-        status: 'skipped_needs_interactive_auth',
-        workspaceId: context.workspaceId,
-        workspaceDisplayName: context.workspaceDisplayName,
-        error: translate(
-          'auto.hooks.useAutomationDispatchEvents.16a21d6413',
-          'SSH reconnect requires interactive credentials.'
-        )
-      })
-      return null
-    }
-    const sshState = await window.api.ssh.getState({ targetId: sshTargetId })
-    if (sshState?.status !== 'connected') {
-      try {
-        const connected = await window.api.ssh.connect({ targetId: sshTargetId })
-        if (connected?.status !== 'connected') {
-          throw new Error('SSH target is unavailable.')
-        }
-      } catch (error) {
-        await markDispatchResult({
-          runId: run.id,
-          status: 'skipped_unavailable',
-          workspaceId: context.workspaceId,
-          workspaceDisplayName: context.workspaceDisplayName,
-          error: error instanceof Error ? error.message : String(error)
-        })
-        return null
-      }
-    }
+    return null
   }
 
   if (automation.workspaceMode === 'existing' && !automationWorktree) {

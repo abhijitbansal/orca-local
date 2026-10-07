@@ -145,7 +145,7 @@ for (const daemonSessionGone of [false, true]) {
         }
       )
       const isolatedHome = await firstApp.evaluate(({ app }) => app.getPath('home'))
-      const client = new RuntimeClient(session.userDataDir, 30_000, null, null)
+      const client = new RuntimeClient(session.userDataDir, 30_000)
       const coordinatorPane = await waitForActivePaneHookDescriptor(first.page)
       const coordinatorHandle = (
         await client.call<{ terminal: { handle: string } }>('terminal.resolvePane', {

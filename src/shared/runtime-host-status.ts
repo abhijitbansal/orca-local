@@ -1,8 +1,6 @@
-import type { RemoteRuntimeSharedConnectionDiagnostics } from './remote-runtime-shared-control-types'
+import type { RuntimeRemoteControlDiagnostics } from './runtime-session-contracts'
 import type { RuntimeRpcFailure, RuntimeRpcResponse } from './runtime-rpc-envelope'
 import type { RuntimeStatus } from './runtime-types'
-
-export const RUNTIME_HOST_STATUS_CHANNEL = 'runtimeEnvironments:statusChanged'
 
 /** Local client state; never exchanged with the paired host. */
 export type RuntimeHostStatusSnapshot = {
@@ -13,7 +11,7 @@ export type RuntimeHostStatusSnapshot = {
   status: RuntimeStatus | null
   verification: 'checking' | 'verified' | 'unavailable' | 'blocked'
   transport: 'unknown' | 'connecting' | 'ready' | 'disconnected'
-  remoteControl?: RemoteRuntimeSharedConnectionDiagnostics | null
+  remoteControl?: RuntimeRemoteControlDiagnostics | null
   retired?: true
 }
 
@@ -56,7 +54,7 @@ export function lastVerifiedRuntimeStatus<Status = RuntimeStatus>(
  * The host's own verdict that this pairing is over: retired by an explicit disconnect, or
  * refused — auth rejected or protocol mismatch, which stops every retry for good. Positive
  * evidence, unlike a lost transport, so this is the only state that may withdraw a fact the
- * host already gave us (docs/reference/ssh-execution-boundary.md).
+ * host already gave us (AGENTS.md).
  */
 export function isRuntimeHostContactRevoked(
   entry:

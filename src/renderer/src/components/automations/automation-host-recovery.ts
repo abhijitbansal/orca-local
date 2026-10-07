@@ -15,20 +15,11 @@ import type { AutomationHostRecoveryAction } from './automation-host-status-desc
 export type AutomationHostRecoveryDeps = {
   /** Forces one fresh query for this host, bypassing TTL and retry cooldown. */
   retry: (entry: AutomationHostCatalogEntry) => void
-  connectSshTarget: (targetId: string) => void
   connectRuntimeEnvironment: (environmentId: string) => void
   openSettings: (target: SettingsNavigationTarget) => void
 }
 
-/** The Remote Orca Servers pane owns each runtime's version status and update action. */
 function versionSettingsTarget(entry: AutomationHostCatalogEntry): SettingsNavigationTarget {
-  if (entry.stableRef.authority.kind === 'runtime') {
-    return {
-      pane: 'servers',
-      repoId: null,
-      sectionId: entry.stableRef.authority.environmentId
-    }
-  }
   // A desktop SSH host with no registration generation is a stale registration,
   // repaired by re-adding the target rather than by updating anything.
   return { pane: entry.stableRef.selector.kind === 'ssh' ? 'ssh' : 'automations', repoId: null }
@@ -39,10 +30,6 @@ function reconnect(entry: AutomationHostCatalogEntry, deps: AutomationHostRecove
   // Authority first: an unreachable server cannot be asked to dial its own targets.
   if (authority.kind === 'runtime' && entry.authorityHealth === 'unavailable') {
     deps.connectRuntimeEnvironment(authority.environmentId)
-    return
-  }
-  if (entry.stableRef.selector.kind === 'ssh') {
-    deps.connectSshTarget(entry.stableRef.selector.targetId)
     return
   }
   if (authority.kind === 'runtime') {

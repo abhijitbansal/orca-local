@@ -4,7 +4,6 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import type { GlobalSettings } from '../../shared/global-settings-types'
 import { createCodexAccountSettings } from './codex-account-settings-fixture'
-import type { CodexResetCreditAttemptLedger } from '../../shared/codex-reset-credit-attempt-ledger'
 import type { CodexRateLimitHomeResolution } from './runtime-home-service'
 
 export const testState = {
@@ -41,7 +40,6 @@ export function createSettings(overrides: Partial<GlobalSettings> = {}): GlobalS
 }
 
 export function createStore(settings: GlobalSettings) {
-  let resetLedger: CodexResetCreditAttemptLedger = { version: 1, attempts: [] }
   return {
     getSettings: vi.fn(() => settings),
     updateSettings: vi.fn((updates: Partial<GlobalSettings>) => {
@@ -54,13 +52,7 @@ export function createStore(settings: GlobalSettings) {
         }
       }
       return settings
-    }),
-    getCodexResetCreditAttemptLedger: vi.fn(() => structuredClone(resetLedger)),
-    replaceCodexResetCreditAttemptLedgerAndFlush: vi.fn(
-      async (next: CodexResetCreditAttemptLedger) => {
-        resetLedger = structuredClone(next)
-      }
-    )
+    })
   }
 }
 

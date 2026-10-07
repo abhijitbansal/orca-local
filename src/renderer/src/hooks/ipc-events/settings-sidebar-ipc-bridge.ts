@@ -1,9 +1,6 @@
 import { canShowRightSidebarForView } from '@/lib/right-sidebar-visibility'
 import { showTerminalShortcutCaptureNotification } from '@/lib/terminal-shortcut-capture-notification'
 import { TOGGLE_FLOATING_TERMINAL_EVENT } from '@/lib/floating-terminal'
-import { subscribeToUnpairedDeviceAuthNotification } from '../unpaired-device-auth-notification'
-import { translate } from '@/i18n/i18n'
-import { toast } from 'sonner'
 import { useAppStore } from '../../store'
 
 function getShortcutPlatform(): NodeJS.Platform {
@@ -23,13 +20,6 @@ export function registerSettingsAndSidebarIpcBridge(unsubs: (() => void)[]): voi
     })
   )
 
-  const unsubscribeOpenSkillShare = window.api.ui.onOpenSkillShare?.((shareId) => {
-    useAppStore.getState().openSkillShare(shareId)
-  })
-  if (unsubscribeOpenSkillShare) {
-    unsubs.push(unsubscribeOpenSkillShare)
-  }
-
   // Why: a tray "Settings…" click can fire before this attaches; consume any queued intent (?. guards stale preload).
   void window.api.ui
     .consumePendingOpenSettings?.()
@@ -40,51 +30,10 @@ export function registerSettingsAndSidebarIpcBridge(unsubs: (() => void)[]): voi
     })
     .catch(() => {})
 
-  const pendingSkillShare = window.api.ui.consumePendingSkillShare?.()
-  if (pendingSkillShare && typeof pendingSkillShare.then === 'function') {
-    void pendingSkillShare
-      .then((shareId) => {
-        if (shareId) {
-          useAppStore.getState().openSkillShare(shareId)
-        }
-      })
-      .catch(() => {})
-  }
-
   unsubs.push(
     window.api.ui.onOpenSetupGuide?.(() => {
       useAppStore.getState().openModal('setup-guide', { telemetrySource: 'help_menu' })
     }) ?? (() => {})
-  )
-
-  // Why: a phone stuck in a silent 4001 auth loop (lost device registry) reads as
-  // "phone won't connect" with no clue on either end; main throttles to once per session.
-  unsubs.push(
-    subscribeToUnpairedDeviceAuthNotification(window.api.mobile, () => {
-      toast.warning(
-        translate(
-          'auto.hooks.useIpcEvents.ef223fbb6b',
-          'A device tried to connect but is not paired'
-        ),
-        {
-          id: 'unpaired-device-auth-failure',
-          description: translate(
-            'auto.hooks.useIpcEvents.11992d0337',
-            'If this was your phone or another Orca client, re-pair it from Settings → Mobile.'
-          ),
-          // Why: main emits this recovery path once per session, so it must remain visible until acted on or dismissed.
-          duration: Infinity,
-          action: {
-            label: translate('auto.hooks.useIpcEvents.6573cfe955', 'Open Mobile Settings'),
-            onClick: () => {
-              const store = useAppStore.getState()
-              store.openSettingsTarget({ pane: 'mobile', repoId: null })
-              store.openSettingsPage()
-            }
-          }
-        }
-      )
-    })
   )
 
   unsubs.push(

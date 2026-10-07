@@ -1,7 +1,6 @@
 import { dirname, join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { RuntimeFileCommandHost } from './runtime-file-command-host'
-import type { SshChannelMultiplexer } from '../ssh/ssh-channel-multiplexer'
 
 const mocks = vi.hoisted(() => ({
   resolvePath: vi.fn(),
@@ -32,7 +31,6 @@ vi.mock('node:fs/promises', async (importOriginal) => ({
 }))
 
 import { RuntimeFileCommandsWithWriteFileExplorerFile } from './runtime-file-commands-write-file-explorer-file'
-import { SshFilesystemProvider } from '../providers/ssh-filesystem-provider'
 
 function unexpectedHostCall(): never {
   throw new Error('Unexpected access beyond the isolated file command')
@@ -50,21 +48,9 @@ const host: RuntimeFileCommandHost = {
 const commands = new RuntimeFileCommandsWithWriteFileExplorerFile(host)
 const destination = join('workspace', 'uploads', 'binary.dat')
 const target = { executionHostId: 'local', path: destination }
-let remote = false
-
-function sshProvider(): SshFilesystemProvider {
-  remote = true
-  mocks.resolvePath.mockResolvedValue({ ...target, executionHostId: 'ssh:target' })
-  const mux = { onNotification: vi.fn(() => () => {}), request: unexpectedHostCall }
-  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: construction only subscribes; writes use the injected raw transfer and any mux request fails.
-  return new SshFilesystemProvider('target', mux as unknown as SshChannelMultiplexer, undefined, {
-    writeBuffer: mocks.writeBuffer
-  })
-}
 
 beforeEach(() => {
   vi.resetAllMocks()
-  remote = false
   mocks.resolvePath.mockResolvedValue(target)
   mocks.provider.mockReturnValue(null)
   mocks.authorize.mockResolvedValue(destination)
@@ -77,26 +63,6 @@ afterEach(() => vi.restoreAllMocks())
 
 describe.each(['whole', 'first', 'append'] as const)('runtime %s base64 write', (mode) => {
   const write = (base64: string) => {
-    if (remote) {
-      return mode === 'whole'
-        ? commands.writeFileExplorerFileBase64(
-            'folder:workspace',
-            'uploads/binary.dat',
-            base64,
-            7,
-            'target',
-            'ssh:target'
-          )
-        : commands.writeFileExplorerFileBase64Chunk(
-            'folder:workspace',
-            'uploads/binary.dat',
-            base64,
-            mode === 'append',
-            7,
-            'target',
-            'ssh:target'
-          )
-    }
     return mode === 'whole'
       ? commands.writeFileExplorerFileBase64(
           'folder:workspace',
@@ -146,41 +112,6 @@ describe.each(['whole', 'first', 'append'] as const)('runtime %s base64 write', 
     }
   )
 
-  it.each(['', 'AAH+/w==', 'AA', '%%%'])(
-    'decodes once through the SSH provider for %j',
-    async (base64) => {
-      const expected = Buffer.from(base64, 'base64')
-      const provider = sshProvider()
-      mocks.provider.mockReturnValue(provider)
-      const decode = vi.spyOn(Buffer, 'from')
-      await expect(write(base64)).resolves.toEqual({ ok: true })
-      expect(
-        decode.mock.calls.filter((args) => args.at(0) === base64 && args.at(1) === 'base64')
-      ).toHaveLength(1)
-      expect(mocks.expectation).toHaveBeenCalledWith('ssh:target', 'ssh:target', 'target', 7)
-      expect(mocks.writeBuffer).toHaveBeenCalledWith(destination, expected, {
-        append: mode === 'append',
-        exclusive: mode !== 'append'
-      })
-      expect(mocks.authorize).not.toHaveBeenCalled()
-      expect(mocks.mkdir).not.toHaveBeenCalled()
-      expect(mocks.writeFile).not.toHaveBeenCalled()
-      provider.dispose()
-    }
-  )
-
-  it('avoids a second decoded slice for a full upload chunk', async () => {
-    mocks.provider.mockReturnValue(sshProvider())
-    const bytes = Buffer.alloc(384 * 1024, 0xb7)
-    const base64 = bytes.toString('base64')
-    const decode = vi.spyOn(Buffer, 'from')
-    await write(base64)
-    expect(
-      decode.mock.calls.filter((args) => args.at(0) === base64 && args.at(1) === 'base64')
-    ).toHaveLength(1)
-    expect(mocks.writeBuffer.mock.calls[0][1]).toEqual(bytes)
-  })
-
   it.each(['resolve', 'expectation', 'provider'] as const)(
     'preserves %s failure before decoding or writes',
     async (stage) => {
@@ -223,14 +154,4 @@ describe.each(['whole', 'first', 'append'] as const)('runtime %s base64 write', 
       }
     }
   )
-
-  it('propagates SSH sink errors without a local fallback', async () => {
-    mocks.provider.mockReturnValue(sshProvider())
-    const failure = new Error('SSH sink failed')
-    mocks.writeBuffer.mockRejectedValue(failure)
-    await expect(write('AA==')).rejects.toBe(failure)
-    expect(mocks.authorize).not.toHaveBeenCalled()
-    expect(mocks.mkdir).not.toHaveBeenCalled()
-    expect(mocks.writeFile).not.toHaveBeenCalled()
-  })
 })

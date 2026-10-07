@@ -38,7 +38,6 @@ import { RuntimeRepositorySettingsController } from './runtime-repository-settin
 import { RuntimeRepositorySparsePresets } from './runtime-repository-sparse-presets'
 import { RuntimeRepositoryRefQueries } from './runtime-repository-ref-queries'
 import { RuntimeServerEnvironmentCommands } from './runtime-server-environment-commands'
-import { RuntimeRepositoryForkBackfill } from './runtime-repository-fork-backfill'
 import { RuntimeWorkspaceSessionController } from './runtime-workspace-session-controller'
 import { RuntimeAiVaultCommands } from './runtime-ai-vault-commands'
 import { ClaudeAgentTeamsService } from './claude-agent-teams-service'
@@ -290,11 +289,6 @@ export class OrcaRuntimeWithPreservedBranchCleanup extends OrcaRuntimeWithTermin
   })
 
   protected readonly serverEnvironment = new RuntimeServerEnvironmentCommands()
-
-  protected readonly repositoryForkBackfill = new RuntimeRepositoryForkBackfill(
-    () => this.store,
-    () => this.notifyReposChanged()
-  )
 
   protected readonly workspaceSessions = new RuntimeWorkspaceSessionController({
     getStore: () => this.store,

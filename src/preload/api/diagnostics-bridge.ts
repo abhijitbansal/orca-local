@@ -8,9 +8,5 @@ export const diagnosticsApi = {
   openBundlePreview: (bundleSubmissionId: string): Promise<void> =>
     ipcRenderer.invoke('diagnostics:openBundlePreview', bundleSubmissionId),
   discardBundlePreview: (bundleSubmissionId: string): Promise<void> =>
-    ipcRenderer.invoke('diagnostics:discardBundlePreview', bundleSubmissionId),
-  uploadBundle: (bundleSubmissionId: string) =>
-    ipcRenderer.invoke('diagnostics:uploadBundle', bundleSubmissionId),
-  deleteBundle: (ticketId: string): Promise<void> =>
-    ipcRenderer.invoke('diagnostics:deleteBundle', ticketId)
+    ipcRenderer.invoke('diagnostics:discardBundlePreview', bundleSubmissionId)
 } satisfies PreloadApi['diagnostics']

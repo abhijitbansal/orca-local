@@ -1,5 +1,3 @@
-import type { RuntimeGitHubRepositoryQueryCommands } from './runtime-github-repository-query-commands'
-import type { RuntimeHostedReviewCommands } from './runtime-hosted-review-commands'
 import type { RuntimeNestedRepoImport } from './runtime-nested-repo-import'
 import type { RuntimeProjectGroupController } from './runtime-project-group-controller'
 import type { RuntimeProjectHostSetupController } from './runtime-project-host-setup-controller'
@@ -11,27 +9,6 @@ import type { RuntimeRepositoryRegistrationController } from './runtime-reposito
 import type { RuntimeRepositorySettingsController } from './runtime-repository-settings-controller'
 import type { RuntimeRepositorySparsePresets } from './runtime-repository-sparse-presets'
 import type { RuntimeServerEnvironmentCommands } from './runtime-server-environment-commands'
-
-type HostedReviewCommandName =
-  | 'getRepoSlug'
-  | 'getRepoUpstream'
-  | 'getRepoPRForBranch'
-  | 'getHostedReviewForBranch'
-  | 'getHostedReviewCreationEligibility'
-  | 'createHostedReview'
-  | 'createStackedHostedReview'
-type GitHubRepositoryQueryCommandName =
-  | 'listRepoWorkItems'
-  | 'listRepoIssues'
-  | 'getRepoWorkItem'
-  | 'getRepoWorkItemByOwnerRepo'
-  | 'getRepoWorkItemDetails'
-  | 'countRepoWorkItems'
-  | 'listRepoLabels'
-  | 'listRepoAssignableUsers'
-  | 'getGitHubRateLimit'
-  | 'listGitHubBindableAccounts'
-  | 'validateGitHubAccountBinding'
 
 export type RuntimeRepositoryCommandSurface = {
   listProjects: RuntimeProjectHostSetupController['listProjects']
@@ -72,8 +49,7 @@ export type RuntimeRepositoryCommandSurface = {
   inspectRepoSetupScriptImports: RuntimeRepositoryHooksCommands['inspectRepoSetupScriptImports']
   readRepoIssueCommand: RuntimeRepositoryIssueCommand['read']
   writeRepoIssueCommand: RuntimeRepositoryIssueCommand['write']
-} & Pick<RuntimeHostedReviewCommands, HostedReviewCommandName> &
-  Pick<RuntimeGitHubRepositoryQueryCommands, GitHubRepositoryQueryCommandName>
+}
 
 type RuntimeRepositoryCommandOwners = {
   projectHostSetups: RuntimeProjectHostSetupController
@@ -85,8 +61,6 @@ type RuntimeRepositoryCommandOwners = {
   repositoryClones: RuntimeRepositoryCloneController
   repositorySettings: RuntimeRepositorySettingsController
   repositoryRefQueries: RuntimeRepositoryRefQueries
-  hostedReviews: RuntimeHostedReviewCommands
-  gitHubRepositoryQueries: RuntimeGitHubRepositoryQueryCommands
   repositoryHooks: RuntimeRepositoryHooksCommands
   repositoryIssueCommand: RuntimeRepositoryIssueCommand
 }
@@ -104,8 +78,6 @@ export function installRuntimeRepositoryCommandSurface(
   const clones = owners.repositoryClones
   const settings = owners.repositorySettings
   const refs = owners.repositoryRefQueries
-  const reviews = owners.hostedReviews
-  const queries = owners.gitHubRepositoryQueries
   const hooks = owners.repositoryHooks
   const issueCommand = owners.repositoryIssueCommand
   Object.assign(target, {
@@ -142,24 +114,6 @@ export function installRuntimeRepositoryCommandSurface(
     removeProject: settings.remove.bind(settings),
     reorderRepos: settings.reorder.bind(settings),
     getRepoBaseRefDefault: refs.getDefault.bind(refs),
-    getRepoSlug: reviews.getRepoSlug.bind(reviews),
-    getRepoUpstream: reviews.getRepoUpstream.bind(reviews),
-    getRepoPRForBranch: reviews.getRepoPRForBranch.bind(reviews),
-    getHostedReviewForBranch: reviews.getHostedReviewForBranch.bind(reviews),
-    getHostedReviewCreationEligibility: reviews.getHostedReviewCreationEligibility.bind(reviews),
-    createHostedReview: reviews.createHostedReview.bind(reviews),
-    createStackedHostedReview: reviews.createStackedHostedReview.bind(reviews),
-    listRepoWorkItems: queries.listRepoWorkItems.bind(queries),
-    listRepoIssues: queries.listRepoIssues.bind(queries),
-    getRepoWorkItem: queries.getRepoWorkItem.bind(queries),
-    getRepoWorkItemByOwnerRepo: queries.getRepoWorkItemByOwnerRepo.bind(queries),
-    getRepoWorkItemDetails: queries.getRepoWorkItemDetails.bind(queries),
-    countRepoWorkItems: queries.countRepoWorkItems.bind(queries),
-    listRepoLabels: queries.listRepoLabels.bind(queries),
-    listRepoAssignableUsers: queries.listRepoAssignableUsers.bind(queries),
-    getGitHubRateLimit: queries.getGitHubRateLimit.bind(queries),
-    listGitHubBindableAccounts: queries.listGitHubBindableAccounts.bind(queries),
-    validateGitHubAccountBinding: queries.validateGitHubAccountBinding.bind(queries),
     getRepoHooks: hooks.getRepoHooks.bind(hooks),
     checkRepoHooks: hooks.checkRepoHooks.bind(hooks),
     inspectRepoSetupScriptImports: hooks.inspectRepoSetupScriptImports.bind(hooks),

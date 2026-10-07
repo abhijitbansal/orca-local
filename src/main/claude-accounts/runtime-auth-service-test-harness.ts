@@ -35,14 +35,10 @@ export function createElectronMock() {
   }
 }
 
-// Why: these tests exercise materialize/read-back/snapshot logic, not the
-// network OAuth refresh (covered by oauth-refresh.test.ts). Default the token
-// to "not expiring" so the proactive switch-in refresh never fires here and
-// existing expectations hold; individual tests can override these mocks.
+// Why: the proactive switch-in refresh no longer exists; keep the token not-expiring so live-PTY gating never trips here.
 export function createOauthRefreshMock() {
   return {
-    isOauthTokenExpiring: vi.fn(() => false),
-    refreshClaudeOauthCredentials: vi.fn(async () => null)
+    isOauthTokenExpiring: vi.fn(() => false)
   }
 }
 

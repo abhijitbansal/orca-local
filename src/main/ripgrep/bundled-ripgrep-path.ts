@@ -30,7 +30,6 @@ function candidatePaths(platform: string): string[] {
   }
   // Why nothing else: a packaged app must never run a binary from whatever checkout it was launched in.
   if (isPackagedApp()) {
-    // Why: plain-Node orcad has no resourcesPath; its build copies rg into its own install root.
     candidates.push(
       join(getAppEnvironment().getAppPath(), BUNDLED_RIPGREP_RESOURCE_DIR, platform, binaryName)
     )

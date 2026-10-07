@@ -36,9 +36,7 @@ export function useSettingsPageEffects(
     setHighlightedSettingsTargetId,
     setMountedSectionIds,
     setQuickCommandAddIntentSignal,
-    setRemoteServerAddIntentSignal,
     setSettingsProjectHostSelection,
-    setSshHostAddIntentSignal,
     setPendingNavRequestTick,
     setVoiceModelStatesLoading,
     settings,
@@ -205,10 +203,6 @@ export function useSettingsPageEffects(
     }
     if (settingsNavigationTarget.intent === 'add-quick-command') {
       setQuickCommandAddIntentSignal((signal) => signal + 1)
-    } else if (settingsNavigationTarget.intent === 'add-ssh-host') {
-      setSshHostAddIntentSignal((signal) => signal + 1)
-    } else if (settingsNavigationTarget.intent === 'add-remote-orca-server') {
-      setRemoteServerAddIntentSignal((signal) => signal + 1)
     }
     setMountedSectionIds((previous) => {
       if (previous.has(paneSectionId)) {
@@ -229,9 +223,7 @@ export function useSettingsPageEffects(
     setMountedSectionIds,
     setPendingNavRequestTick,
     setQuickCommandAddIntentSignal,
-    setRemoteServerAddIntentSignal,
     setSettingsProjectHostSelection,
-    setSshHostAddIntentSignal,
     settings,
     settingsProjectList,
     settingsNavigationTarget

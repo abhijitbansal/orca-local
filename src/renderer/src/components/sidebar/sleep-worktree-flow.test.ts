@@ -22,7 +22,6 @@ const mocks = vi.hoisted(() => {
     tabsByWorktree: {} as Record<string, { id: string }[]>,
     ptyIdsByTabId: {} as Record<string, string[]>
   }
-  const suspendWorkspace = vi.fn().mockResolvedValue(null)
   const toastError = vi.fn()
   const markWorktreeSleepIntent = vi.fn()
   const clearWorktreeSleepIntent = vi.fn()
@@ -30,7 +29,6 @@ const mocks = vi.hoisted(() => {
     clearWorktreeSleepIntent,
     markWorktreeSleepIntent,
     state,
-    suspendWorkspace,
     toastError
   }
 })
@@ -53,20 +51,12 @@ import { runSleepWorktree, runSleepWorktrees } from './sleep-worktree-flow'
 describe('runSleepWorktree', () => {
   beforeEach(() => {
     vi.unstubAllGlobals()
-    vi.stubGlobal('window', {
-      api: {
-        ephemeralVm: {
-          suspendWorkspace: mocks.suspendWorkspace
-        }
-      },
-      requestAnimationFrame: vi.fn()
-    })
+    vi.stubGlobal('window', { requestAnimationFrame: vi.fn() })
     mocks.state.setActiveWorktree.mockClear()
     mocks.state.shutdownWorktreeBrowsers.mockClear().mockResolvedValue(undefined)
     mocks.state.shutdownWorktreeTerminals.mockClear().mockResolvedValue(undefined)
     mocks.state.suppressPtyExit.mockClear()
     mocks.state.consumeSuppressedPtyExit.mockClear()
-    mocks.suspendWorkspace.mockClear().mockResolvedValue(null)
     mocks.markWorktreeSleepIntent.mockClear()
     mocks.clearWorktreeSleepIntent.mockClear()
     mocks.toastError.mockClear()
@@ -88,12 +78,9 @@ describe('runSleepWorktree', () => {
     expect(mocks.state.shutdownWorktreeTerminals).toHaveBeenCalledWith('wt-1', {
       keepIdentifiers: true
     })
-    expect(mocks.suspendWorkspace).toHaveBeenCalledWith({ workspaceId: 'wt-1' })
     const browsersCallOrder = mocks.state.shutdownWorktreeBrowsers.mock.invocationCallOrder[0]
     const terminalsCallOrder = mocks.state.shutdownWorktreeTerminals.mock.invocationCallOrder[0]
-    const suspendCallOrder = mocks.suspendWorkspace.mock.invocationCallOrder[0]
     expect(browsersCallOrder).toBeLessThan(terminalsCallOrder)
-    expect(terminalsCallOrder).toBeLessThan(suspendCallOrder)
   })
 
   it('clears activeWorktreeId before teardown when the slept worktree is active', async () => {
@@ -252,7 +239,6 @@ describe('runSleepWorktree', () => {
     await runSleepWorktree('wt-1')
 
     expect(mocks.state.shutdownWorktreeTerminals).not.toHaveBeenCalled()
-    expect(mocks.suspendWorkspace).not.toHaveBeenCalled()
     expect(mocks.clearWorktreeSleepIntent).toHaveBeenCalledWith('wt-1')
     expect(mocks.state.setActiveWorktree).toHaveBeenLastCalledWith('wt-1')
     expect(mocks.toastError).toHaveBeenCalledWith(
@@ -273,7 +259,6 @@ describe('runSleepWorktree', () => {
     await runSleepWorktree('wt-1')
 
     expect(mocks.state.setActiveWorktree.mock.calls).toEqual([[null], ['wt-1']])
-    expect(mocks.suspendWorkspace).not.toHaveBeenCalled()
     expect(mocks.toastError).toHaveBeenCalledWith(
       'Failed to sleep workspace',
       expect.objectContaining({
@@ -300,7 +285,6 @@ describe('runSleepWorktree', () => {
     expect(mocks.state.shutdownWorktreeTerminals).toHaveBeenCalledWith('wt-2', {
       keepIdentifiers: true
     })
-    expect(mocks.suspendWorkspace).toHaveBeenCalledWith({ workspaceId: 'wt-2' })
     expect(mocks.toastError).toHaveBeenCalledWith(
       'Failed to sleep some workspaces',
       expect.objectContaining({
@@ -325,7 +309,5 @@ describe('runSleepWorktree', () => {
     expect(mocks.state.shutdownWorktreeTerminals).toHaveBeenNthCalledWith(2, 'wt-2', {
       keepIdentifiers: true
     })
-    expect(mocks.suspendWorkspace).toHaveBeenNthCalledWith(1, { workspaceId: 'wt-1' })
-    expect(mocks.suspendWorkspace).toHaveBeenNthCalledWith(2, { workspaceId: 'wt-2' })
   })
 })

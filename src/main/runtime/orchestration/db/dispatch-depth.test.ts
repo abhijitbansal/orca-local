@@ -127,7 +127,7 @@ describe('nested worker depth', () => {
     }
 
     // Loss of contact is never evidence of process death: an unverifiable remote
-    // worker must still block nesting. See docs/reference/ssh-execution-boundary.md.
+    // worker must still block nesting. See AGENTS.md.
     for (const state of ['starting', 'ready', 'start_unknown', 'stopping', 'stop_unknown']) {
       it(`counts a '${state}' attachment as a live parent`, () => {
         db = new OrchestrationDb(':memory:')

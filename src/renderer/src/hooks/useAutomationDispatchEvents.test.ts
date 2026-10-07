@@ -1,6 +1,7 @@
 import type * as ReactModule from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AUTOMATIONS_CHANGED_EVENT } from '@/lib/automations-changed-window-event'
+import { LocalOnlyUnsupportedError } from '../../../shared/local-only-unsupported-error'
 import { countUnchangedObserverHistoryReads } from './automation-dispatch-observer-test-probe'
 
 const mockDispatchEvent = vi.fn()
@@ -16,9 +17,6 @@ const mockOnDispatchRequested = vi.fn()
 const mockRendererReady = vi.fn()
 const mockFinalizeTerminalOwnership = vi.fn()
 const mockReleaseTerminalOwnership = vi.fn()
-const mockSshNeedsPassphrasePrompt = vi.fn()
-const mockSshGetState = vi.fn()
-const mockSshConnect = vi.fn()
 let latestStoreSubscriber: (() => void) | null = null
 const mockStoreSubscribe = vi.fn((listener: () => void) => {
   latestStoreSubscriber = listener
@@ -215,9 +213,6 @@ describe('useAutomationDispatchEvents setup launch', () => {
       }
     })
     mockOnDispatchRequested.mockReturnValue(() => {})
-    mockSshNeedsPassphrasePrompt.mockResolvedValue(false)
-    mockSshGetState.mockResolvedValue({ status: 'connected' })
-    mockSshConnect.mockResolvedValue({ status: 'connected' })
     mockSubmitPromptToAgentPty.mockResolvedValue(true)
     vi.stubGlobal('window', {
       api: {
@@ -226,11 +221,6 @@ describe('useAutomationDispatchEvents setup launch', () => {
           rendererReady: mockRendererReady,
           markDispatchResult: mockMarkDispatchResult,
           runPrecheck: vi.fn()
-        },
-        ssh: {
-          needsPassphrasePrompt: mockSshNeedsPassphrasePrompt,
-          getState: mockSshGetState,
-          connect: mockSshConnect
         }
       },
       dispatchEvent: mockDispatchEvent
@@ -399,7 +389,7 @@ describe('useAutomationDispatchEvents setup launch', () => {
     )
   })
 
-  it('dispatches an existing SSH folder workspace on its resolved host', async () => {
+  it('skips an existing SSH folder workspace because SSH is unsupported', async () => {
     const folderWorkspace = {
       id: 'folder:fw-1',
       repoId: 'folder-workspace:group-1',
@@ -424,7 +414,6 @@ describe('useAutomationDispatchEvents setup launch', () => {
     ]
     state.projectGroups = [{ id: 'group-1', connectionId: 'ssh-folder' }]
     state.getKnownWorktreeById.mockReturnValue(folderWorkspace)
-    mockSshGetState.mockResolvedValue({ status: 'disconnected' })
 
     await registerAndDispatch(
       makeAutomation({
@@ -435,19 +424,12 @@ describe('useAutomationDispatchEvents setup launch', () => {
       })
     )
 
-    expect(state.allWorktrees).not.toHaveBeenCalled()
-    expect(mockSshConnect).toHaveBeenCalledWith({ targetId: 'ssh-folder' })
-    expect(mockLaunchAgentBackgroundSession).toHaveBeenCalledWith(
-      expect.objectContaining({
-        worktreeId: folderWorkspace.id,
-        prompt: 'run this'
-      })
-    )
+    expect(mockLaunchAgentBackgroundSession).not.toHaveBeenCalled()
     expect(mockMarkDispatchResult).toHaveBeenCalledWith(
       expect.objectContaining({
-        status: 'dispatched',
+        status: 'skipped_unavailable',
         workspaceId: folderWorkspace.id,
-        workspaceDisplayName: folderWorkspace.displayName
+        error: new LocalOnlyUnsupportedError('ssh', 'automation dispatch').message
       })
     )
   })
@@ -478,7 +460,6 @@ describe('useAutomationDispatchEvents setup launch', () => {
       })
     )
 
-    expect(mockSshNeedsPassphrasePrompt).not.toHaveBeenCalled()
     expect(mockLaunchAgentBackgroundSession).toHaveBeenCalledWith(
       expect.objectContaining({ worktreeId: folderWorkspace.id })
     )

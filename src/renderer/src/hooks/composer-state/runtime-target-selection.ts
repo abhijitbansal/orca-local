@@ -17,7 +17,6 @@ import { resolveLocalWindowsAgentStartupShell } from '../../../../shared/windows
 import { buildProjectHostSetupOptions } from '@/lib/project-host-setup-options'
 import { buildNewWorkspaceCreateTargetOptions } from '@/lib/new-workspace-project-options'
 import { getSettingsForRepoRuntimeOwner } from '@/lib/repo-runtime-owner'
-import { useEphemeralVmRecipeOptions } from '@/hooks/useEphemeralVmRecipeOptions'
 
 export function useComposerRuntimeTargetSelection(input: ComposerRuntimeTargetSelectionInput) {
   const {
@@ -25,7 +24,6 @@ export function useComposerRuntimeTargetSelection(input: ComposerRuntimeTargetSe
     activeRepoId,
     eligibleRepos,
     hostOptions,
-    initialEphemeralVmRecipeId,
     projectGroups,
     projectHostSetups,
     projects,
@@ -203,29 +201,6 @@ export function useComposerRuntimeTargetSelection(input: ComposerRuntimeTargetSe
     )
   }, [selectedRepo, settings])
 
-  // Why: key on repo id, not the repo object — updateRepo replaces it by reference and would re-run this effect, wiping the user's chosen recipe.
-  const selectedRecipeRepoId = selectedRepo?.id ?? null
-
-  const selectedRecipeRepoConnectionId = selectedRepo?.connectionId ?? null
-
-  // Why: gate recipe probing on the experimental toggle, since discovery can surface setup errors for a hidden feature.
-  const ephemeralVmsEnabled = settings?.experimentalEphemeralVms === true
-
-  const {
-    recipes: ephemeralVmRecipes,
-    selectedRecipeId: selectedEphemeralVmRecipeId,
-    setSelectedRecipeId: setSelectedEphemeralVmRecipeId,
-    error: ephemeralVmRecipeError
-  } = useEphemeralVmRecipeOptions({
-    enabled: ephemeralVmsEnabled,
-    repoId: selectedRecipeRepoId,
-    repoIsGit: selectedRepoIsGit,
-    repoConnectionId: selectedRecipeRepoConnectionId,
-    repoExecutionHostId: selectedRepo ? getRepoExecutionHostId(selectedRepo) : null,
-    projectGroupTarget: isProjectGroupTarget,
-    initialRecipeId: initialEphemeralVmRecipeId
-  })
-
   const selectedRepoConnectionId = selectedRepo?.connectionId ?? null
 
   const selectedRepoSshState = selectedRepoConnectionId
@@ -274,13 +249,6 @@ export function useComposerRuntimeTargetSelection(input: ComposerRuntimeTargetSe
     projectHostSetupOptions,
     projectOptions,
     selectedRepoSettings,
-    selectedRecipeRepoId,
-    selectedRecipeRepoConnectionId,
-    ephemeralVmsEnabled,
-    ephemeralVmRecipes,
-    selectedEphemeralVmRecipeId,
-    setSelectedEphemeralVmRecipeId,
-    ephemeralVmRecipeError,
     selectedRepoConnectionId,
     selectedRepoSshState,
     selectedRepoSshStatus,

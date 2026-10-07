@@ -29,7 +29,6 @@ describe('Phase 1 launch plugin content', () => {
       await readJson(join(launchRoot, 'orca-marketplace.json'))
     )
     expect(marketplace.plugins.map((plugin) => plugin.id).sort()).toEqual([
-      'stablyai.orca-multipass-recipes',
       'stablyai.orca-navigation-shortcuts',
       'stablyai.orca-portuguese'
     ])
@@ -65,14 +64,11 @@ describe('Phase 1 launch plugin content', () => {
       if (contributes.languagePacks.length > 0) {
         contributionKinds.add('language')
       }
-      if (contributes.vmRecipes.length > 0) {
-        contributionKinds.add('vm-recipe')
-      }
       if (contributes.commands.length > 0 && contributes.keybindings.length > 0) {
         contributionKinds.add('command-keybinding')
       }
     }
-    expect(contributionKinds).toEqual(new Set(['language', 'vm-recipe', 'command-keybinding']))
+    expect(contributionKinds).toEqual(new Set(['language', 'command-keybinding']))
   })
 
   it('publishes every bundled pack only when its release hash matches exact bytes', async () => {

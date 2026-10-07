@@ -4,7 +4,7 @@ import type { TerminalSlice, TerminalStoreSet } from './terminal-state'
  * Session-scoped record of PTY ids a reachable relay disowned.
  *
  * Main raises it solely on the branch where the relay replied about that exact id, never on a lost
- * link, a timeout or an identity mismatch (docs/reference/ssh-execution-boundary.md). It is not
+ * link, a timeout or an identity mismatch (AGENTS.md). It is not
  * `exited` — a restarted relay disowns ids it never minted — but it is the only signal strong
  * enough to let a reconnect retire the binding and respawn, which leaks the old process rather than
  * killing it. Every other absence signal the client holds is `unverifiable` and licenses nothing.

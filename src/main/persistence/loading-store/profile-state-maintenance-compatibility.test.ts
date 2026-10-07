@@ -8,11 +8,6 @@ vi.mock('../../telemetry/client', () => ({ track: vi.fn() }))
 vi.mock('../../telemetry/cohort-classifier', () => ({
   getCohortAtEmit: () => ({ nth_repo_added: 2 })
 }))
-vi.mock('../../ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: () => ({ hosts: [] }),
-  sshConfigHostsToTargets: () => []
-}))
-
 describe('maintenance compatibility checkpoint', () => {
   it('exports the current worker state before a clean profile switch releases its writer', async () => {
     const { store, dataFile, readState } = await createWorkerMaintenanceFixture()

@@ -134,14 +134,12 @@ vi.mock('../browser/browser-client-host-id', () => ({ initializeBrowserClientHos
 vi.mock('../host/deferred-secret-protection-report', () => ({
   scheduleSecretProtectionGapReport: vi.fn()
 }))
-vi.mock('../ssh/ssh-host-key-store', () => ({ initSshHostKeyStoreFile: vi.fn() }))
 vi.mock('../pty/legacy-terminal-shim-dir', () => ({ neutralizeLegacyTerminalShimDir: vi.fn() }))
 vi.mock('./windows-shell-path-hydration', () => ({
   createWindowsShellPathHydration: () => ({ whenReady: Promise.resolve() })
 }))
 vi.mock('../git/runner', () => ({
-  configureWindowsHostGitEnvironmentReadiness: vi.fn(),
-  setDefaultWslDistroOverride: vi.fn()
+  configureWindowsHostGitEnvironmentReadiness: vi.fn()
 }))
 vi.mock('../agent-hooks/wsl-hook-relay-manager', () => ({
   wslHookRelayManager: { setManagedHookSettingsResolver: vi.fn() }
@@ -171,9 +169,6 @@ vi.mock('../ipc/doc-preview-grant-ipc', () => ({ registerDocPreviewGrantHandlers
 // and the identity write are all real.
 vi.mock('../browser/browser-route-session-runtime', () => ({
   configureRouteSessionsForOrcaProfile: vi.fn()
-}))
-vi.mock('../browser/paired-runtime-browser-client-host-runtime', () => ({
-  configurePairedRuntimeBrowserClientHostsForOrcaProfile: vi.fn()
 }))
 vi.mock('../browser/browser-route-partition-storage-runtime', () => ({
   collectOrphanedBrowserRoutePartitionStorage: vi.fn(async () => {})

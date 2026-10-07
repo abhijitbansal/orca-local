@@ -4,6 +4,7 @@ import {
   parseBrowserNetworkExecutionHostKey,
   resolveNativeBrowserNetworkExecutionRoute
 } from './browser-network-execution-route'
+import { resolveBrowserNetworkExecutionRoute } from './browser-network-execution-route-dispatch'
 
 describe('browser network execution route', () => {
   it('uses structural keys for delimiter-containing execution-host identities', () => {
@@ -78,5 +79,20 @@ describe('browser network execution route', () => {
         'browser_tunnel_execution_host_key_invalid'
       )
     }
+  })
+
+  it('fails closed with the typed unsupported error for an ssh execution host', async () => {
+    await expect(
+      resolveBrowserNetworkExecutionRoute({
+        executionHost: {
+          kind: 'ssh',
+          targetId: 'ssh-a',
+          providerEpoch: 'provider-a',
+          connectionGeneration: 3
+        },
+        runtimeId: 'runtime-a',
+        runtimeRevision: 1
+      })
+    ).rejects.toMatchObject({ code: 'unsupported_in_local_only_build', capability: 'ssh' })
   })
 })

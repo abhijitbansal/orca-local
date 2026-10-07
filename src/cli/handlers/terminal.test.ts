@@ -714,7 +714,6 @@ describe('terminal create --shell', () => {
   ): RuntimeClient => {
     const client = {
       call,
-      isRemote: false,
       getCliStatus: vi.fn().mockResolvedValue({
         result: {
           runtime: reachable
@@ -727,7 +726,7 @@ describe('terminal create --shell', () => {
         }
       })
     }
-    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: `terminal create` reads only `call`, `isRemote`, and `getCliStatus`, all stubbed above; RuntimeClient is a class, so a structural double cannot satisfy it without the cast.
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: `terminal create` reads only `call` and `getCliStatus`, all stubbed above; RuntimeClient is a class, so a structural double cannot satisfy it without the cast.
     return client as unknown as RuntimeClient
   }
 

@@ -5,8 +5,7 @@ const {
   initTccPromptNoticeMock,
   preserveAgentAuthBeforeRestartMock,
   registerCoreHandlersMock,
-  state,
-  store
+  state
 } = vi.hoisted(() => {
   const store = {
     writeLatestProfileStateJsonCompatibilityExportAsync: vi.fn(async () => {}),
@@ -38,12 +37,10 @@ const {
       pluginService: null,
       pluginMarketplaceService: null,
       pluginMarketplaceInstaller: null,
-      desktopRelayService: null,
       isServeMode: false,
       localPtyStartupReady: Promise.resolve(),
       localPtyProviderStartupReady: Promise.resolve()
-    },
-    store
+    }
   }
 })
 
@@ -54,7 +51,6 @@ vi.mock('../window/attach-main-window-services', () => ({
   attachMainWindowServices: attachMainWindowServicesMock
 }))
 vi.mock('../macos-tcc-prompt-notice', () => ({ initTccPromptNotice: initTccPromptNoticeMock }))
-vi.mock('../updater', () => ({ resolveUpdateInstallMode: vi.fn(() => 'interactive') }))
 vi.mock('./main-process-state', () => ({ mainProcessState: state }))
 vi.mock('../agent-auth-restart-preservation', () => ({
   preserveAgentAuthBeforeRestart: preserveAgentAuthBeforeRestartMock
@@ -81,7 +77,7 @@ describe('main window profile-state update preparation', () => {
     vi.clearAllMocks()
   })
 
-  it('publishes both recovery forms with one profile checkpoint before an update quit', async () => {
+  it('wires no update-quit cleanup now that the auto-updater is gone', () => {
     const window = { webContents: { id: 17 } }
 
     // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: mocked BrowserWindow only needs webContents for this composition-root wiring test.
@@ -91,24 +87,7 @@ describe('main window profile-state update preparation', () => {
     })
 
     const options = attachMainWindowServicesMock.mock.calls[0]?.[5]
-    if (
-      typeof options !== 'object' ||
-      options === null ||
-      !('onBeforeUpdateQuit' in options) ||
-      typeof options.onBeforeUpdateQuit !== 'function'
-    ) {
-      throw new Error('Expected update quit cleanup to be wired')
-    }
-
-    await options.onBeforeUpdateQuit()
-
-    expect(preserveAgentAuthBeforeRestartMock).toHaveBeenCalledWith({
-      codexRuntimeHome: state.codexRuntimeHome,
-      claudeRuntimeAuth: state.claudeRuntimeAuth,
-      store
-    })
-    expect(store.writeLatestProfileStateJsonExportAsync).not.toHaveBeenCalled()
-    expect(store.writeLatestProfileStateJsonCompatibilityExportAsync).toHaveBeenCalledOnce()
-    expect(options).toHaveProperty('onBeforeUpdateQuitFailure', 'abort')
+    expect(options).not.toHaveProperty('onBeforeUpdateQuit')
+    expect(options).not.toHaveProperty('updateInstallMode')
   })
 })

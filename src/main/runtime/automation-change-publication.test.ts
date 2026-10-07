@@ -97,9 +97,7 @@ async function makeRuntime() {
     join(testState.dir, 'orca-data.json'),
     JSON.stringify({
       ...getDefaultPersistedState(testState.dir),
-      repos: REPOS,
-      sshTargets: TARGETS,
-      sshTargetGenerationCounter: 7,
+      repos: REPOS.filter((repo) => !repo.connectionId),
       automations: AUTOMATIONS
     }),
     'utf-8'
@@ -108,6 +106,13 @@ async function makeRuntime() {
   const { Store, initDataPath } = await import('../persistence')
   initDataPath()
   const store = createSqliteTestStore(Store, { dataFile: join(testState.dir, 'orca-data.json') })
+  // Local-only build: remote rows are stripped at load, so the SSH registration is seeded in memory.
+  for (const target of TARGETS) {
+    store.addSshTarget(target)
+  }
+  for (const repo of REPOS.filter((entry) => entry.connectionId)) {
+    store.addRepo(repo)
+  }
   const { OrcaRuntimeService } = await import('./orca-runtime')
   const runtime = new OrcaRuntimeService(store as never)
   const published: AutomationsChangedPayload[] = []

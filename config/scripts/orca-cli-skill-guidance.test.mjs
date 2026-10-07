@@ -94,11 +94,7 @@ describe('orca CLI skill guidance', () => {
     expect(skill).toContain(
       'If the CLI rejects `--reference`, run `ORCA skills get orca-cli --full`'
     )
-    for (const reference of [
-      'references/browser.md',
-      'references/automations.md',
-      'references/publishing.md'
-    ]) {
+    for (const reference of ['references/browser.md', 'references/automations.md']) {
       expect(skill).toContain(reference)
       expect(readSkill(join(projectDir, 'skill-guides', 'orca-cli', reference)).trim()).not.toBe('')
     }
@@ -157,23 +153,6 @@ describe('orca CLI skill guidance', () => {
     expect(skill).not.toContain('password123')
     expect(skill).not.toContain('sk_live_')
     expect(skill).not.toContain('live_sk_')
-  })
-
-  // Publishing defaults to off, so an agent that follows the unconditional share workflow
-  // just loops on denials. The guide has to teach the opt-in and the recovery.
-  it('teaches the artifact publish opt-in and its recovery path', () => {
-    // Normalized so the assertions survive reflowing the guide's prose.
-    const skill = readSkill().replace(/\s+/gu, ' ')
-
-    expect(skill).toContain('**Publishing is off by default and only a human can turn it on.**')
-    expect(skill).toContain('Settings → Artifacts')
-    expect(skill).toContain('Allow publishing public artifact links')
-    expect(skill).toContain('artifact_sharing_disabled')
-    expect(skill).toContain('There is no CLI or RPC way to grant it')
-    expect(skill).toContain('Do not retry')
-    // The gate is device-wide, and revocation surfaces stay reachable.
-    expect(skill).toContain('every caller on the device, agent or human')
-    expect(skill).toContain('`list`, `unshare`, and `delete` are never gated')
   })
 })
 

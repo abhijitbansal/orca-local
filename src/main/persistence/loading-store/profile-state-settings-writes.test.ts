@@ -15,11 +15,6 @@ vi.mock('../../telemetry/client', () => ({ track: vi.fn() }))
 vi.mock('../../telemetry/cohort-classifier', () => ({
   getCohortAtEmit: () => ({ nth_repo_added: 2 })
 }))
-vi.mock('../../ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: () => ({ hosts: [] }),
-  sshConfigHostsToTargets: () => []
-}))
-
 const ORIGINAL = {
   opencodeSessionCookie: 'original-cookie',
   httpProxyUrl: 'http://original:password@proxy.test:8080'
@@ -265,9 +260,11 @@ describe('selective SQLite settings persistence', () => {
       state.store.updateSettings({ terminalFontSize: 26 })
       await state.store.flushPendingOrThrowAsync()
       expect(wholeWrite).toHaveBeenCalledTimes(2)
+      expect(state.store.getSshPtyConsumerRecovery('ssh-test')?.ownerLease).toBe('pending-lease')
       const reopened = state.reopen()
       expect(reopened.getUI().browserKagiSessionLink).toBe('pending-link')
-      expect(reopened.getSshPtyConsumerRecovery('ssh-test')?.ownerLease).toBe('pending-lease')
+      // Local-only build: the SSH recovery is stripped at load.
+      expect(reopened.getSshPtyConsumerRecovery('ssh-test')).toBeNull()
       expect(JSON.stringify(state.read().state)).not.toMatch(/pending-link|pending-lease/)
 
       state.store.updateSettings({ terminalFontSize: 27 })

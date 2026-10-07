@@ -13,7 +13,7 @@ export async function stopSttDictation(
   if (options.cancelStarting !== false && state.startingOwner === owner) {
     state.canceledOwners.add(owner)
   }
-  if (!state.worker && !state.cloudSession) {
+  if (!state.worker) {
     return
   }
   const currentOwner = state.activeOwner ?? state.startingOwner
@@ -21,38 +21,7 @@ export async function stopSttDictation(
     throw new Error('dictation_owner_mismatch')
   }
 
-  if (state.cloudSession) {
-    state.stopping = true
-    try {
-      const session = state.cloudSession
-      state.cloudSession = null
-      try {
-        const text = await session.finish()
-        if (text) {
-          state.eventSink?.({ type: 'final', text })
-        }
-      } catch (error) {
-        state.eventSink?.({
-          type: 'error',
-          error: error instanceof Error ? error.message : String(error)
-        })
-      } finally {
-        state.eventSink?.({ type: 'stopped' })
-        state.activeModelId = null
-        state.activeHotwordsFilePath = undefined
-        state.activeOwner = null
-        state.eventSink = null
-      }
-    } finally {
-      state.stopping = false
-    }
-    return
-  }
-
   const worker = state.worker
-  if (!worker) {
-    return
-  }
   if (state.stopInFlight?.worker === worker) {
     if (state.stopInFlight.owner !== owner) {
       throw new Error('dictation_owner_mismatch')

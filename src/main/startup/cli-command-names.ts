@@ -3,7 +3,6 @@ export const CLI_COMMAND_NAMES = [
   'account',
   'agent',
   'agent-context',
-  'artifacts',
   'automations',
   'back',
   'browser',
@@ -22,7 +21,6 @@ export const CLI_COMMAND_NAMES = [
   'download',
   'drag',
   'emulator',
-  'environment',
   'eval',
   'exec',
   'file',
@@ -70,7 +68,6 @@ export const CLI_COMMAND_NAMES = [
   'uncheck',
   'upload',
   'viewport',
-  'vm',
   'wait',
   'worktree'
 ] as const

@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { RequestContext } from './dispatcher-contract'
 import { RelayWorkAdmission } from './relay-work-admission'
-import { SKILL_SSH_RELAY_CANCEL_UPLOAD_METHOD } from '../shared/skill-ssh-relay-contract'
 
 function context(): RequestContext {
   return { clientId: 1, isStale: () => false }
@@ -55,25 +54,23 @@ describe('RelayWorkAdmission', () => {
     expect(drained).toHaveBeenCalledOnce()
   })
 
-  it.each([
-    'relay.status',
-    'fs.unwatchAndWait',
-    'agent.cancelExec',
-    SKILL_SSH_RELAY_CANCEL_UPLOAD_METHOD
-  ])('admits cleanup request %s while draining', async (method) => {
-    const admission = new RelayWorkAdmission()
-    const mutation = pendingOperation()
-    const running = admission.run('git.diff', context(), () => mutation.promise)
-    const drain = admission.beginDrain()
-    await expect(
-      admission.run(method, context(), () => {
-        mutation.resolve()
-        return 'acknowledged'
-      })
-    ).resolves.toBe('acknowledged')
-    await running
-    await drain
-  })
+  it.each(['relay.status', 'fs.unwatchAndWait', 'agent.cancelExec'])(
+    'admits cleanup request %s while draining',
+    async (method) => {
+      const admission = new RelayWorkAdmission()
+      const mutation = pendingOperation()
+      const running = admission.run('git.diff', context(), () => mutation.promise)
+      const drain = admission.beginDrain()
+      await expect(
+        admission.run(method, context(), () => {
+          mutation.resolve()
+          return 'acknowledged'
+        })
+      ).resolves.toBe('acknowledged')
+      await running
+      await drain
+    }
+  )
 
   it.each([
     'rpc.cancel',

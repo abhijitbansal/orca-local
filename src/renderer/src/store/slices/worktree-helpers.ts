@@ -228,12 +228,10 @@ export type WorktreeSlice = {
       error?: string
       loaderVisible?: boolean
       request?: PendingWorktreeCreation['request']
-      provisioningLog?: string
     }
   ) => void
-  /** Drop a pending entry, clearing the active surface if it pointed at this
-   *  creation. VM cleanup is for cancellation/dismissal, not successful handoff. */
-  removePendingWorktreeCreation: (creationId: string, options?: { cleanupVm?: boolean }) => void
+  /** Drop a pending entry, clearing the active surface if it pointed at this creation. */
+  removePendingWorktreeCreation: (creationId: string) => void
   /** Point the content panel at a pending creation (or clear it with null). */
   setActivePendingWorktreeCreation: (creationId: string | null) => void
   prefetchWorktreeCreateBase: (repoId: string, baseBranch?: string) => Promise<void>
@@ -266,7 +264,6 @@ export type WorktreeSlice = {
     updates: Partial<WorktreeMeta>,
     options?: WorktreeMetaUpdateOptions
   ) => Promise<{ ok: true } | { ok: false; error: string }>
-  ensureHostedReviewPushTarget: (worktreeId: string) => Promise<void>
   updateWorktreesMeta: (updatesByWorktreeId: readonly WorktreeMetaBatchUpdate[]) => Promise<void>
   /**
    * Pin/unpin worktrees, then reveal the first changed one. The reveal keeps

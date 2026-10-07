@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useAppStore } from '@/store'
-import { clearRuntimeCompatibilityCacheForTests } from '@/runtime/runtime-rpc-client'
 import { markRestoredStaleCodexSessionsForRestart } from './codex-session-restart'
 
 // Why one shared email: doAddAccount has no duplicate-email check, so one OpenAI
@@ -25,7 +24,6 @@ describe('stale Codex panes are decided by account id, not label', () => {
   const originalWindow = (globalThis as { window?: typeof window }).window
 
   beforeEach(() => {
-    clearRuntimeCompatibilityCacheForTests()
     useAppStore.setState({
       settings: null as never,
       tabsByWorktree: {

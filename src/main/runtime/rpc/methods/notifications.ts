@@ -2,7 +2,6 @@ import { createNotificationStreamFilter } from './notification-stream-policy'
 import { defineStreamingMethod, defineMethod } from '../core'
 import {
   NotificationGetMissedSinceParams,
-  NotificationRegisterPushParams,
   NotificationUnsubscribeParams,
   NotificationsSubscribeParams
 } from '../../../../shared/rpc-contract/notifications-params'
@@ -71,42 +70,6 @@ export const NOTIFICATION_METHODS = [
           ? { dismissedPushes: runtime.reconcileDismissedPushes(params.deliveredPushes) }
           : {})
       }
-    }
-  }),
-  defineMethod({
-    name: 'notifications.registerPush',
-    params: NotificationRegisterPushParams,
-    // Why: the registration is keyed by the revocable paired device identity, never
-    // by anything the caller can assert, so an in-process or CLI caller has no device
-    // to register and is refused outright.
-    handler: async (params, { runtime, clientKind, pairedDeviceId }) => {
-      if (clientKind !== 'mobile' || !pairedDeviceId) {
-        return { registered: false, reason: 'not_mobile' }
-      }
-      // The paired identity is spread last so no parameter can ever override it.
-      return await runtime.registerMobilePushDevice({ ...params, deviceId: pairedDeviceId })
-    }
-  }),
-  defineMethod({
-    name: 'notifications.testPush',
-    params: null,
-    handler: async (_params, { runtime, clientKind, pairedDeviceId }) => {
-      if (clientKind !== 'mobile' || !pairedDeviceId) {
-        return { accepted: false, reason: 'not_registered' }
-      }
-      return await runtime.testMobilePushDevice(pairedDeviceId)
-    }
-  }),
-  defineMethod({
-    name: 'notifications.unregisterPush',
-    params: null,
-    // Deleting the gateway token is durable (outbox), so an offline gateway still
-    // reports success to the phone that asked to stop being pushed to.
-    handler: async (_params, { runtime, clientKind, pairedDeviceId }) => {
-      if (clientKind !== 'mobile' || !pairedDeviceId) {
-        return { unregistered: false }
-      }
-      return await runtime.unregisterMobilePushDevice(pairedDeviceId)
     }
   })
 ]

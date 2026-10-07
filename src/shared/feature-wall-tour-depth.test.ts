@@ -34,7 +34,6 @@ describe('feature wall tour depth summary', () => {
         visitedReviewSteps: new Set<ReviewStepId>(),
         workflowDone: {
           workspaces: true,
-          tasks: false,
           'agents-orchestration': false,
           workbench: false,
           review: false

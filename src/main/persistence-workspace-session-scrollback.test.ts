@@ -26,16 +26,6 @@ import {
 import { installFakeAppEnvironment } from '../../config/scripts/vitest-host-ports-setup'
 import { Store, initDataPath } from './persistence'
 
-// Stub the ~/.ssh/config parser so the SSH-import test drives the real Store with deterministic hosts, not the operator's actual ~/.ssh/config.
-const { loadUserSshConfigMock, sshConfigHostsToTargetsMock } = vi.hoisted(() => ({
-  loadUserSshConfigMock: vi.fn(),
-  sshConfigHostsToTargetsMock: vi.fn()
-}))
-
-vi.mock('./ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: loadUserSshConfigMock,
-  sshConfigHostsToTargets: sshConfigHostsToTargetsMock
-}))
 const { trackMock, getCohortAtEmitMock } = vi.hoisted(() => ({
   trackMock: vi.fn(),
   getCohortAtEmitMock: vi.fn()
@@ -412,7 +402,7 @@ describe('Store', () => {
     expect(buffer?.endsWith('tail')).toBe(true)
   })
 
-  it('strips legacy local terminal scrollback buffers when loading workspace session', async () => {
+  it('strips legacy local terminal scrollback buffers and drops remote-repo layouts when loading workspace session', async () => {
     writeDataFile({
       schemaVersion: 1,
       repos: [
@@ -429,12 +419,9 @@ describe('Store', () => {
     const store = await createStore()
     const session = store.getWorkspaceSession()
     expect(session.terminalLayoutsByTabId['local-tab'].buffersByLeafId).toBeUndefined()
-    expect(session.terminalLayoutsByTabId['remote-tab'].buffersByLeafId).toBeUndefined()
-    expect(session.terminalLayoutsByTabId['remote-tab'].scrollbackRefsByLeafId).toEqual({
-      [TEST_LEAF_2]: expect.stringMatching(/^v1-[0-9a-f]{32}$/)
-    })
-    const ref = session.terminalLayoutsByTabId['remote-tab'].scrollbackRefsByLeafId?.[TEST_LEAF_2]
-    expect(ref ? store.readTerminalScrollbackSnapshot(ref) : null).toBe('remote-scrollback')
+    // Local-only build: the remote repo is stripped at load and takes its terminal layout with it.
+    expect(store.getRepos().map((repo) => repo.id)).toEqual(['local-repo'])
+    expect(session.terminalLayoutsByTabId['remote-tab']).toBeUndefined()
   })
 
   it('caps oversized legacy browser history when loading workspace session', async () => {
@@ -454,7 +441,7 @@ describe('Store', () => {
     expect(session.browserUrlHistory?.at(-1)?.url).toBe('https://example.com/199')
   })
 
-  it('remaps legacy SSH lease leaf ids when loading legacy workspace layouts', async () => {
+  it('remaps legacy pane leaf ids when loading legacy workspace layouts', async () => {
     writeDataFile({
       schemaVersion: 1,
       repos: [],
@@ -488,19 +475,7 @@ describe('Store', () => {
             ptyIdsByLeafId: { 'pane:1': 'remote-pty' }
           }
         }
-      },
-      sshRemotePtyLeases: [
-        {
-          targetId: 'ssh-1',
-          ptyId: 'remote-pty',
-          worktreeId: 'wt1',
-          tabId: 'tab1',
-          leafId: 'pane:1',
-          state: 'detached',
-          createdAt: 1,
-          updatedAt: 1
-        }
-      ]
+      }
     })
 
     const store = await createStore()
@@ -511,7 +486,6 @@ describe('Store', () => {
     }
     expect(isTerminalLeafId(leafId)).toBe(true)
     expect(layout.ptyIdsByLeafId).toEqual({ [leafId]: 'remote-pty' })
-    expect(store.getSshRemotePtyLeases('ssh-1')[0].leafId).toBe(leafId)
   })
 
   it('hydrates legacy numeric agent status cache through the pane identity migration', async () => {

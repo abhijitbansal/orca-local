@@ -1,4 +1,3 @@
-import { NotificationCardStack } from '../components/NotificationCardStack'
 import { Suspense } from 'react'
 import { lazyWithRetry as lazy } from '@/lib/lazy-with-retry'
 import { translate } from '@/i18n/i18n'
@@ -7,16 +6,11 @@ import NewWorkspaceComposerModal from '../components/NewWorkspaceComposerModal'
 import { CrashReportDialog } from '../components/crash-report/CrashReportDialog'
 import { MarkdownTemplatePicker } from '../components/editor/MarkdownTemplatePicker'
 import RecentTabSwitcher from '../components/tab-bar/RecentTabSwitcher'
-import { SkillFreshnessUpdateDialog } from '../components/skills/SkillFreshnessUpdateDialog'
-import { StarNagCard } from '../components/StarNagCard'
 import { NativeChatResumeOnRestartModal } from '../components/NativeChatResumeOnRestartModal'
-import { StarNagAgentValueMomentObserver } from '../components/star-nag/StarNagAgentValueMomentObserver'
-import { StarNagToastHost } from '../components/star-nag/StarNagToastHost'
 import { TelemetryFirstLaunchSurface } from '../components/TelemetryFirstLaunchSurface'
 import { ZoomOverlay } from '../components/ZoomOverlay'
 import { shouldRenderPetOverlay } from '../components/pet/pet-overlay-visibility'
 import { useAppStore } from '../store'
-import type { UpdateStatus } from '../../../shared/update-status-types'
 import { useLazyModalMounts } from './use-lazy-modal-mounts'
 import {
   selectAppRootSurfacePetEnabled,
@@ -51,22 +45,6 @@ const DictationController = lazy(() =>
   import('../components/dictation/DictationController').then((module) => ({
     default: module.DictationController
   }))
-)
-const SshPassphraseDialog = lazy(() =>
-  import('../components/settings/SshPassphraseDialog').then((module) => ({
-    default: module.SshPassphraseDialog
-  }))
-)
-const UpdateCard = lazy(() =>
-  import('../components/UpdateCard').then((module) => ({ default: module.UpdateCard }))
-)
-const UnexpectedSignoutCard = lazy(() =>
-  import('../components/UnexpectedSignoutCard').then((module) => ({
-    default: module.UnexpectedSignoutCard
-  }))
-)
-const RemoteServerUpdateDialog = lazy(
-  () => import('../components/settings/RemoteServerUpdateDialog')
 )
 const ContextualTourOverlay = lazy(() =>
   import('../components/contextual-tours/ContextualTourOverlay').then((module) => ({
@@ -112,16 +90,6 @@ function OverlayBoundary({ children, ...props }: BoundaryProps): React.JSX.Eleme
   )
 }
 
-function shouldMountUpdateCardForStatus(status: UpdateStatus): boolean {
-  if (status.state === 'idle') {
-    return false
-  }
-  if (status.state === 'checking' || status.state === 'not-available') {
-    return status.userInitiated === true
-  }
-  return true
-}
-
 /**
  * Every overlay and modal hosted at the App root, in a fixed sibling order so stacking stays
  * stable. Each is gated so its chunk is only fetched once the surface can actually appear.
@@ -143,12 +111,9 @@ export function AppRootSurfaces(props: {
   const persistedUIReady = useAppStore((s) => s.persistedUIReady)
   const petVisible = useAppStore((s) => s.petVisible)
   const dictationState = useAppStore((s) => s.dictationState)
-  const updateStatus = useAppStore((s) => s.updateStatus)
   const activeContextualTourId = useAppStore((s) => s.activeContextualTourId)
-  const hasSshCredentialRequest = useAppStore((s) => s.sshCredentialQueue.length > 0)
 
   const shouldMountSetupGuideTelemetryObserver = persistedUIReady
-  const shouldMountUpdateCard = shouldMountUpdateCardForStatus(updateStatus)
   const shouldMountDictationController = voiceEnabled || dictationState !== 'idle'
   const renderPetOverlay = shouldRenderPetOverlay({ persistedUIReady, petEnabled, petVisible })
 
@@ -280,30 +245,9 @@ export function AppRootSurfaces(props: {
           </OverlayBoundary>
         </Suspense>
       ) : null}
-      <NotificationCardStack>
-        {shouldMountUpdateCard ? (
-          <Suspense fallback={null}>
-            <OverlayBoundary boundaryId="overlay.update-card" resetKey={activeView}>
-              <UpdateCard />
-            </OverlayBoundary>
-          </Suspense>
-        ) : null}
-        <Suspense fallback={null}>
-          <OverlayBoundary boundaryId="overlay.unexpected-signout" resetKey={activeView}>
-            <UnexpectedSignoutCard />
-          </OverlayBoundary>
-        </Suspense>
-        <OverlayBoundary boundaryId="overlay.star-nag" resetKey={activeView}>
-          <StarNagCard />
-        </OverlayBoundary>
-      </NotificationCardStack>
       <OverlayBoundary boundaryId="overlay.native-chat-resume-on-restart" resetKey={activeView}>
         <NativeChatResumeOnRestartModal />
       </OverlayBoundary>
-      <OverlayBoundary boundaryId="overlay.star-nag-toast" resetKey={activeView}>
-        <StarNagToastHost />
-      </OverlayBoundary>
-      <StarNagAgentValueMomentObserver />
       {/* Why: mount at App root to render once per session; internal cohort gate limits it to pre-telemetry users — see telemetry-plan.md §First-launch experience. */}
       <OverlayBoundary boundaryId="overlay.telemetry-first-launch" resetKey={telemetryOptedIn}>
         <TelemetryFirstLaunchSurface />
@@ -323,13 +267,6 @@ export function AppRootSurfaces(props: {
           </ModalBoundary>
         ) : null}
       </Suspense>
-      {hasSshCredentialRequest ? (
-        <Suspense fallback={null}>
-          <ModalBoundary boundaryId="modal.ssh-passphrase" resetKey={activeModal}>
-            <SshPassphraseDialog />
-          </ModalBoundary>
-        </Suspense>
-      ) : null}
       <ModalBoundary boundaryId="modal.markdown-template-picker" resetKey={activeModal}>
         <MarkdownTemplatePicker />
       </ModalBoundary>
@@ -375,15 +312,6 @@ export function AppRootSurfaces(props: {
       <OverlayBoundary boundaryId="overlay.recent-tab-switcher" resetKey={activeView}>
         <RecentTabSwitcher />
       </OverlayBoundary>
-      {/* Why: hosts a live terminal pane needing the link-routing preference context; mounting outside crashes it. */}
-      <OverlayBoundary boundaryId="overlay.skill-freshness-update-dialog">
-        <SkillFreshnessUpdateDialog />
-      </OverlayBoundary>
-      <Suspense fallback={null}>
-        <OverlayBoundary boundaryId="overlay.remote-server-update-dialog">
-          <RemoteServerUpdateDialog />
-        </OverlayBoundary>
-      </Suspense>
     </>
   )
 }

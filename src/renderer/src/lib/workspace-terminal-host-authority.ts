@@ -31,7 +31,7 @@ import {
  * - resuming a sleeping agent forks a second `claude --resume` onto a transcript the host is still
  *   writing (STA-3500, STA-3498, STA-3374), which no later evidence can undo.
  *
- * See docs/reference/ssh-execution-boundary.md.
+ * See AGENTS.md.
  */
 export type WorkspaceTerminalHostAuthority = HostLiveTerminalProbeVerdict
 

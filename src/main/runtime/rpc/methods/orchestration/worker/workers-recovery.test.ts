@@ -246,13 +246,44 @@ describe('orchestration worker recovery', () => {
     expect(db.getTask(task.id)?.status).toBe('blocked')
   })
 
-  it('reconciles a stop_unknown Dispatch from an authoritative remote stopped receipt', async () => {
+  it.each(['orchestration.workerShow', 'orchestration.workerRead', 'orchestration.workerRelease'])(
+    'fails %s closed for a persisted federated Dispatch without calling a server',
+    async (method) => {
+      const run = db.createRun({
+        objective: 'Persisted federated worker',
+        coordinatorHandle: 'term_coord',
+        coordinatorPaneKey: 'tab_coord:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
+      })
+      const task = db.createTask({ spec: 'remote worker', runId: run.id })
+      const started = db.createStartingWorkerDispatch({
+        creator: { kind: 'system' },
+        maxDepth: Number.MAX_SAFE_INTEGER,
+        taskId: task.id,
+        startOptions: {},
+        runtimeEpoch: runtime.getRuntimeId(),
+        federation: {
+          environmentId: 'environment_windows',
+          environmentName: 'windows',
+          peerFingerprint: 'windows_peer',
+          protocolVersion: 1
+        }
+      })
+      const remoteCall = vi.spyOn(runtime, 'callOrchestrationWorkerServer')
+
+      await expect(call(method, { dispatch: started.dispatch.id })).rejects.toMatchObject({
+        code: 'server_required'
+      })
+      expect(remoteCall).not.toHaveBeenCalled()
+    }
+  )
+
+  it('fails workerStop closed for a persisted federated Dispatch before beginning a stop', async () => {
     const run = db.createRun({
-      objective: 'Lost remote stop response',
+      objective: 'Persisted federated worker',
       coordinatorHandle: 'term_coord',
       coordinatorPaneKey: 'tab_coord:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
     })
-    const task = db.createTask({ spec: 'stop remote worker', runId: run.id })
+    const task = db.createTask({ spec: 'remote worker', runId: run.id })
     const started = db.createStartingWorkerDispatch({
       creator: { kind: 'system' },
       maxDepth: Number.MAX_SAFE_INTEGER,
@@ -266,124 +297,12 @@ describe('orchestration worker recovery', () => {
         protocolVersion: 1
       }
     })
-    db.markWorkerStartUnknown(started.dispatch.id, 'remote_attach', 'response lost')
-    db.beginWorkerStop(started.dispatch.id, runtime.getRuntimeId())
-    db.markWorkerStopUnknown(started.dispatch.id, 'stop response lost')
-    vi.spyOn(runtime, 'resolveOrchestrationWorkerServer').mockReturnValue({
-      environmentId: 'environment_windows',
-      name: 'windows',
-      peerFingerprint: 'windows_peer'
-    })
-    vi.spyOn(runtime, 'callOrchestrationWorkerServer').mockResolvedValue({
-      runtimeEpoch: 'windows_epoch',
-      attachment: {
-        state: 'stopped',
-        stage: 'process_stopped',
-        last_error: null,
-        worktree_id: 'repo::windows-worktree',
-        terminal_handle: 'term_windows_worker',
-        setup_state: 'running',
-        effects: [],
-        residualResources: []
-      },
-      terminal: { handle: 'term_windows_worker', connected: false },
-      observation: { status: 'exited', exactWorker: true }
-    })
 
     await expect(
-      call('orchestration.workerShow', { dispatch: started.dispatch.id })
-    ).resolves.toMatchObject({
-      worker: { state: 'stopped', stage: 'process_stopped', lastError: null },
-      observation: { status: 'exited', exactWorker: true }
+      call('orchestration.workerStop', { dispatch: started.dispatch.id })
+    ).rejects.toMatchObject({
+      code: 'server_required'
     })
-    expect(db.getTask(task.id)?.status).toBe('blocked')
-  })
-
-  it('does not let a delayed remote show revive a released worker projection', async () => {
-    const run = db.createRun({
-      objective: 'Fence delayed remote show',
-      coordinatorHandle: 'term_coord',
-      coordinatorPaneKey: 'tab_coord:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
-    })
-    const task = db.createTask({ spec: 'release remote worker', runId: run.id })
-    const started = db.createStartingWorkerDispatch({
-      creator: { kind: 'system' },
-      maxDepth: Number.MAX_SAFE_INTEGER,
-      taskId: task.id,
-      startOptions: {},
-      federation: {
-        environmentId: 'environment_windows',
-        environmentName: 'windows',
-        peerFingerprint: 'windows_peer',
-        protocolVersion: 1
-      }
-    })
-    db.reconcileFederatedWorkerStart({
-      dispatchId: started.dispatch.id,
-      state: 'ready',
-      stage: 'remote_input_accepted',
-      worktreeId: 'repo::windows-worktree',
-      terminalHandle: 'term_windows_worker'
-    })
-    db.updateFederatedDispatchResources({
-      dispatchId: started.dispatch.id,
-      remoteRuntimeEpoch: 'windows_epoch_old',
-      worktreeId: 'repo::windows-worktree',
-      terminalHandle: 'term_windows_worker'
-    })
-    const pendingShow = deferred<unknown>()
-    vi.spyOn(runtime, 'resolveOrchestrationWorkerServer').mockReturnValue({
-      environmentId: 'environment_windows',
-      name: 'windows',
-      peerFingerprint: 'windows_peer'
-    })
-    vi.spyOn(runtime, 'callOrchestrationWorkerServer').mockReturnValue(pendingShow.promise)
-
-    const show = call('orchestration.workerShow', { dispatch: started.dispatch.id })
-    await vi.waitFor(() => expect(runtime.callOrchestrationWorkerServer).toHaveBeenCalledOnce())
-    db.transitionLifecycle({
-      entity: 'worker',
-      id: started.dispatch.id,
-      from: 'ready',
-      to: 'ready',
-      projection: { stage: 'released', agent_terminal_handle: null }
-    })
-    db.db
-      .prepare(
-        `UPDATE federated_dispatches
-         SET remote_runtime_epoch = 'windows_epoch_new', remote_terminal_handle = NULL
-         WHERE dispatch_id = ?`
-      )
-      .run(started.dispatch.id)
-    pendingShow.resolve({
-      runtimeEpoch: 'windows_epoch_old',
-      attachment: {
-        state: 'ready',
-        stage: 'remote_input_accepted',
-        last_error: null,
-        worktree_id: 'repo::windows-worktree',
-        terminal_handle: 'term_windows_worker',
-        setup_state: 'not_applicable',
-        effects: [],
-        residualResources: []
-      },
-      terminal: { handle: 'term_windows_worker', connected: true },
-      observation: { status: 'live', exactWorker: true }
-    })
-
-    await expect(show).resolves.toMatchObject({
-      worker: { stage: 'released', agentTerminalHandle: null },
-      remoteRuntimeEpoch: 'windows_epoch_new',
-      terminal: null,
-      observation: {
-        status: 'unverifiable',
-        exactWorker: false,
-        reason: 'observation_superseded'
-      }
-    })
-    expect(db.getFederatedDispatch(started.dispatch.id)).toMatchObject({
-      remote_runtime_epoch: 'windows_epoch_new',
-      remote_terminal_handle: null
-    })
+    expect(db.getWorkerDispatch(started.dispatch.id)?.state).not.toBe('stopping')
   })
 })

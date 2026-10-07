@@ -15,11 +15,7 @@ import {
   runtimeHostConnectionStateForEntry
 } from '@/runtime/runtime-host-connection-state'
 import { useAppStore } from '@/store'
-import {
-  selectRuntimeAwareSshStatus,
-  selectRuntimeAwareSshTargetLabel,
-  selectRuntimeAwareSshTargetRemoved
-} from '@/store/slices/runtime-environment-ssh'
+import { selectRuntimeAwareSshStatus } from '@/store/slices/runtime-environment-ssh'
 import { EMPTY_WORKSPACE_PORTS, type WorktreeCardProps } from './worktree-card-model'
 import { getDeleteStateForWorktreeHost } from './worktree-delete-state-host-match'
 
@@ -28,7 +24,6 @@ export function useWorktreeCardFoundation({
   repo
 }: Pick<WorktreeCardProps, 'worktree' | 'repo'>) {
   const openModal = useAppStore((s) => s.openModal)
-  const openTaskPage = useAppStore((s) => s.openTaskPage)
   const openAutomationsPage = useAppStore((s) => s.openAutomationsPage)
   const setPendingAutomationRunNavigation = useAppStore((s) => s.setPendingAutomationRunNavigation)
   const updateWorktreeMeta = useAppStore((s) => s.updateWorktreeMeta)
@@ -36,10 +31,7 @@ export function useWorktreeCardFoundation({
   const setActiveWorktree = useAppStore((s) => s.setActiveWorktree)
   const renamingWorktreeId = useAppStore((s) => s.renamingWorktreeId)
   const setRenamingWorktreeId = useAppStore((s) => s.setRenamingWorktreeId)
-  const fetchHostedReviewForBranch = useAppStore((s) => s.fetchHostedReviewForBranch)
   const settings = useAppStore((s) => s.settings)
-  const fetchIssue = useAppStore((s) => s.fetchIssue)
-  const fetchLinearIssue = useAppStore((s) => s.fetchLinearIssue)
   const cardProps = useAppStore((s) => s.worktreeCardProperties)
   const agentActivityDisplayMode =
     useAppStore((s) => s.agentActivityDisplayMode) ?? DEFAULT_AGENT_ACTIVITY_DISPLAY_MODE
@@ -156,14 +148,6 @@ export function useWorktreeCardFoundation({
     }
   }, [sshOwnerEnvironmentId])
   const isSshDisconnected = sshStatus != null && sshStatus !== 'connected'
-  // Why: only reported on positive evidence, so a removed host never offers a Connect that can
-  // only fail. Runtime-owned targets are excluded for the same reason sshStatus excludes them —
-  // ssh:listTargets filters them out, so "absent from the target list" is not evidence of removal.
-  const sshTargetRemoved = useAppStore((s) =>
-    repo?.connectionId && !isRuntimeOwnedSshTargetId(repo.connectionId)
-      ? selectRuntimeAwareSshTargetRemoved(s, sshOwnerEnvironmentId, repo.connectionId)
-      : false
-  )
 
   const parsedRepoHost = parseExecutionHostId(repo?.executionHostId)
   const runtimeOwnerEnvironmentId =
@@ -195,25 +179,15 @@ export function useWorktreeCardFoundation({
   })
   const [titleRenaming, setTitleRenaming] = useState(false)
   const [showRenameErrorDialog, setShowRenameErrorDialog] = useState(false)
-  // Why: read the target label from its owning host's store instead of exposing HUB-private SSH metadata as client-local state.
-  const sshTargetLabel = useAppStore((s) =>
-    repo?.connectionId
-      ? selectRuntimeAwareSshTargetLabel(s, sshOwnerEnvironmentId, repo.connectionId)
-      : ''
-  )
 
   return {
     openModal,
-    openTaskPage,
     updateWorktreeMeta,
     deleteFolderWorkspace,
     setActiveWorktree,
     renamingWorktreeId,
     setRenamingWorktreeId,
-    fetchHostedReviewForBranch,
     settings,
-    fetchIssue,
-    fetchLinearIssue,
     cardProps,
     agentActivityDisplayMode,
     projectGroups,
@@ -227,17 +201,13 @@ export function useWorktreeCardFoundation({
     conflictOperation,
     remoteBranchConflict,
     workspacePorts,
-    sshOwnerEnvironmentId,
-    sshStatus,
     isSshDisconnected,
-    sshTargetRemoved,
     parsedRepoHost,
     runtimeHostLabel,
     isRuntimeDisconnected,
     titleRenaming,
     setTitleRenaming,
     showRenameErrorDialog,
-    setShowRenameErrorDialog,
-    sshTargetLabel
+    setShowRenameErrorDialog
   }
 }

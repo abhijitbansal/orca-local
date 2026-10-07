@@ -25,7 +25,6 @@ function entry(
 function deps() {
   return {
     retry: vi.fn<AutomationHostRecoveryDeps['retry']>(),
-    connectSshTarget: vi.fn<AutomationHostRecoveryDeps['connectSshTarget']>(),
     connectRuntimeEnvironment: vi.fn<AutomationHostRecoveryDeps['connectRuntimeEnvironment']>(),
     openSettings: vi.fn<AutomationHostRecoveryDeps['openSettings']>()
   }
@@ -51,13 +50,6 @@ describe('automation host recovery', () => {
     expect(target.retry).toHaveBeenCalledWith(DESKTOP_SSH)
   })
 
-  it('dials the SSH target when the authority is fine', () => {
-    const target = deps()
-    runAutomationHostRecovery('reconnect', DESKTOP_SSH, target)
-    expect(target.connectSshTarget).toHaveBeenCalledWith('t1')
-    expect(target.connectRuntimeEnvironment).not.toHaveBeenCalled()
-  })
-
   it('dials the runtime first when the server itself is unreachable', () => {
     const target = deps()
     // Why: an unreachable server cannot be asked to dial its own SSH target.
@@ -67,7 +59,6 @@ describe('automation host recovery', () => {
       target
     )
     expect(target.connectRuntimeEnvironment).toHaveBeenCalledWith(RUNTIME_ENVIRONMENT_ID)
-    expect(target.connectSshTarget).not.toHaveBeenCalled()
   })
 
   it('re-asks a desktop Self host, which has no transport to dial', () => {
@@ -77,17 +68,6 @@ describe('automation host recovery', () => {
     })
     runAutomationHostRecovery('reconnect', desktopSelf, target)
     expect(target.retry).toHaveBeenCalledWith(desktopSelf)
-  })
-
-  it('deep-links a runtime to its update row in Remote Orca Servers settings', () => {
-    const target = deps()
-    runAutomationHostRecovery('update-server', RUNTIME_SSH, target)
-    expect(target.openSettings).toHaveBeenCalledWith({
-      pane: 'servers',
-      repoId: null,
-      // Runtime environment IDs are nested scroll anchors within the pane.
-      sectionId: RUNTIME_ENVIRONMENT_ID
-    })
   })
 
   it('sends a stale desktop SSH registration to the SSH pane instead', () => {

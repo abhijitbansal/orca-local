@@ -58,7 +58,7 @@ export type WindowsCachedAgentJobVerdict =
   | 'unproven'
   /** No anchor and the bound elapsed: the superset answer stops standing in for a scan. */
   | 'expired'
-  /** No job answer: unverifiable per ssh-execution-boundary.md, never exit proof. */
+  /** No job answer: unverifiable per AGENTS.md, never exit proof. */
   | 'unavailable'
 
 /**

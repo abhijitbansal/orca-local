@@ -48,9 +48,6 @@ export function sendResolvedWindowShortcutAction(
     case 'openWorkspaceBoard':
       mainWindow.webContents.send('ui:openWorkspaceBoard')
       return
-    case 'openTasks':
-      mainWindow.webContents.send('ui:openTasks')
-      return
     case 'toggleAgentDashboard':
       mainWindow.webContents.send('ui:toggleAgentDashboard')
       return

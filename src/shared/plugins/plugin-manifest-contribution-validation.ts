@@ -1,5 +1,5 @@
 import type { RefinementCtx } from 'zod'
-import { isPluginCommandAliasActionId } from './plugin-command-actions'
+import { isPluginCommandActionId } from './plugin-command-actions'
 import { getKeybindingConflictIdentity } from '../keybindings'
 
 type IdentifiedContribution = { id: string }
@@ -86,7 +86,7 @@ export function validatePluginManifestContributions(
 
   const commands = new Map(manifest.contributes.commands.map((command) => [command.id, command]))
   for (const [index, command] of manifest.contributes.commands.entries()) {
-    if (command.action !== undefined && !isPluginCommandAliasActionId(command.action)) {
+    if (command.action !== undefined && !isPluginCommandActionId(command.action)) {
       ctx.addIssue({
         code: 'custom',
         path: ['contributes', 'commands', index, 'action'],

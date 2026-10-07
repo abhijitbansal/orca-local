@@ -100,6 +100,29 @@ export type SmartWorkspaceNameFieldSearchState = {
 
 export type CachedRepoSlug = RepoSlug
 
+export type JiraUrlSourceState = {
+  intent: boolean
+  loading: boolean
+  issue: JiraIssue | null
+  boundSourceContext: TaskSourceContext | null
+  accountChoices: JiraSite[]
+  errorKind: 'disconnected' | 'site-not-connected' | 'read-failed' | 'update-runtime' | null
+  selectAccount: (siteId: string) => void
+  retry: () => void
+}
+
+// Why: no Jira integration remains, so a pasted Jira URL never resolves to an issue.
+export const NO_JIRA_URL_SOURCE: JiraUrlSourceState = {
+  intent: false,
+  loading: false,
+  issue: null,
+  boundSourceContext: null,
+  accountChoices: [],
+  errorKind: null,
+  selectAccount: () => {},
+  retry: () => {}
+}
+
 export const EMPTY_REPO_SEARCH_REPOS: readonly RepoOption[] = []
 export const SEARCH_DEBOUNCE_MS = 200
 export const RESULT_LIMIT = 12

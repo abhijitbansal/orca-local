@@ -547,158 +547,16 @@ describe('registerShellHandlers', () => {
       expect(spawnMock).not.toHaveBeenCalled()
     })
 
-    it('rejects missing and runtime-owned SSH targets', async () => {
+    it('fails closed for any SSH connection id instead of opening the path locally', async () => {
       const handler = getHandler('shell:openInExternalEditor')
 
       await expect(
-        handler({}, { path: '/srv/project', command: 'code', connectionId: 'missing' })
+        handler({}, { path: '/srv/project', command: 'code', connectionId: 'ssh-1' })
       ).resolves.toEqual({ ok: false, reason: 'ssh-target-not-found' })
-
-      sshTargets.set(
-        'ssh-1',
-        createSshTarget({ owner: { type: 'on-demand-runtime', runtimeId: 'runtime-1' } })
-      )
-      await expect(
-        handler({}, { path: '/srv/project', command: 'code', connectionId: 'ssh-1' })
-      ).resolves.toEqual({ ok: false, reason: 'remote-runtime-unsupported' })
-      expect(spawnMock).not.toHaveBeenCalled()
-    })
-
-    it('opens POSIX SSH paths through a persisted config alias without local validation', async () => {
-      sshTargets.set('ssh-1', createSshTarget())
-      resolveCliCommandMock.mockReturnValueOnce('/usr/local/bin/code')
-      const handler = getHandler('shell:openInExternalEditor')
-      const remotePath = '/home/Ada Lovelace/project'
-
-      await expect(
-        handler({}, { path: remotePath, command: 'code', connectionId: 'ssh-1' })
-      ).resolves.toEqual({ ok: true })
       expect(statMock).not.toHaveBeenCalled()
-      expect(getSpawnArgsForWindowsMock).toHaveBeenCalledWith(
-        '/usr/local/bin/code',
-        ['--remote', 'ssh-remote+builder', remotePath],
-        {
-          detachedGui: false
-        }
-      )
-    })
-
-    it('preserves Windows-form SSH paths and uses the manual port-22 authority', async () => {
-      sshTargets.set(
-        'ssh-1',
-        createSshTarget({
-          source: 'manual',
-          configHost: 'win-builder.example.com',
-          host: 'win-builder.example.com',
-          username: 'Ada'
-        })
-      )
-      resolveCliCommandMock.mockReturnValueOnce('C:\\Tools\\code.cmd')
-      const handler = getHandler('shell:openInExternalEditor')
-      const remotePath = 'C:\\Users\\Ada Lovelace\\project'
-
-      await expect(
-        handler({}, { path: remotePath, command: 'code', connectionId: 'ssh-1' })
-      ).resolves.toEqual({ ok: true })
-      expect(statMock).not.toHaveBeenCalled()
-      expect(getSpawnArgsForWindowsMock).toHaveBeenCalledWith(
-        'C:\\Tools\\code.cmd',
-        ['--remote', 'ssh-remote+Ada@win-builder.example.com', remotePath],
-        {
-          detachedGui: false
-        }
-      )
-    })
-
-    it('opens a manual port-22 target with a host-only authority when username is blank', async () => {
-      sshTargets.set(
-        'ssh-1',
-        createSshTarget({
-          source: 'manual',
-          configHost: 'builder.example.com',
-          host: 'builder.example.com',
-          username: ''
-        })
-      )
-      resolveCliCommandMock.mockReturnValueOnce('/usr/local/bin/code')
-      const handler = getHandler('shell:openInExternalEditor')
-
-      await expect(
-        handler({}, { path: '/srv/project', command: 'code', connectionId: 'ssh-1' })
-      ).resolves.toEqual({ ok: true })
-      expect(getSpawnArgsForWindowsMock).toHaveBeenCalledWith(
-        '/usr/local/bin/code',
-        ['--remote', 'ssh-remote+builder.example.com', '/srv/project'],
-        {
-          detachedGui: false
-        }
-      )
-    })
-
-    it('rejects relative SSH paths before resolving or spawning a launcher', async () => {
-      sshTargets.set('ssh-1', createSshTarget())
-      const handler = getHandler('shell:openInExternalEditor')
-
-      await expect(
-        handler({}, { path: 'relative/project', command: 'code', connectionId: 'ssh-1' })
-      ).resolves.toEqual({ ok: false, reason: 'not-absolute' })
-      expect(statMock).not.toHaveBeenCalled()
-      expect(resolveCliCommandMock).not.toHaveBeenCalled()
       expect(spawnMock).not.toHaveBeenCalled()
     })
 
-    it('returns alias recovery details for manual custom-port targets', async () => {
-      sshTargets.set(
-        'ssh-1',
-        createSshTarget({
-          source: 'manual',
-          configHost: 'builder.example.com',
-          host: 'builder.example.com',
-          port: 2222
-        })
-      )
-      const handler = getHandler('shell:openInExternalEditor')
-
-      await expect(
-        handler({}, { path: '/srv/project', command: 'code', connectionId: 'ssh-1' })
-      ).resolves.toEqual({
-        ok: false,
-        reason: 'ssh-alias-required',
-        host: 'builder.example.com',
-        port: 2222
-      })
-      expect(spawnMock).not.toHaveBeenCalled()
-    })
-
-    it.each(['cursor', 'zed', 'code --reuse-window'])(
-      'rejects the unsupported SSH launcher %s',
-      async (command) => {
-        sshTargets.set('ssh-1', createSshTarget())
-        const handler = getHandler('shell:openInExternalEditor')
-
-        await expect(
-          handler({}, { path: '/srv/project', command, connectionId: 'ssh-1' })
-        ).resolves.toEqual({ ok: false, reason: 'remote-editor-unsupported' })
-        expect(spawnMock).not.toHaveBeenCalled()
-      }
-    )
-
-    it('maps unsafe Windows batch arguments to a closed launch failure', async () => {
-      sshTargets.set('ssh-1', createSshTarget())
-      resolveCliCommandMock.mockReturnValueOnce('C:\\Tools\\code.cmd')
-      getSpawnArgsForWindowsMock.mockImplementationOnce(() => {
-        throw new Error('unsafe batch arguments')
-      })
-      const handler = getHandler('shell:openInExternalEditor')
-
-      await expect(
-        handler({}, { path: '/srv/project&whoami', command: 'code', connectionId: 'ssh-1' })
-      ).resolves.toEqual({ ok: false, reason: 'launch-failed' })
-      expect(spawnMock).not.toHaveBeenCalled()
-    })
-  })
-
-  describe('legacy file open handlers', () => {
     it('does not open relative file paths', async () => {
       const handler = getHandler('shell:openFilePath')
 

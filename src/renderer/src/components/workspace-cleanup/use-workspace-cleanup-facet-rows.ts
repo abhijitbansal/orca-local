@@ -99,7 +99,6 @@ export function useWorkspaceCleanupFacetRows({
   const sources = useAppStore(
     useShallow((s) => ({
       worktreesByRepo: s.worktreesByRepo,
-      hostedReviewCache: s.hostedReviewCache,
       repos: s.repos,
       settings: s.settings,
       // Statuses are a top-level UI-slice field, not part of GlobalSettings.
@@ -112,7 +111,7 @@ export function useWorkspaceCleanupFacetRows({
       spaceMeasurements: s.workspaceSpaceMeasurements
     }))
   )
-  const { hostedReviewCache, repos, settings, worktreesByRepo } = sources
+  const { repos, settings, worktreesByRepo } = sources
   const candidateIdCounts = useMemo(
     () => countWorkspaceCleanupCandidateIds(candidates),
     [candidates]
@@ -123,11 +122,11 @@ export function useWorkspaceCleanupFacetRows({
   // interior fills are content-addressed and idempotent.
   const reviewContext = useMemo(
     () => ({
-      sources: { hostedReviewCache, repos, settings, worktreesByRepo },
+      sources: { repos, settings, worktreesByRepo },
       lookup: buildWorkspaceCleanupReviewLookup({ repos, worktreesByRepo }),
       cache: createWorkspaceCleanupReviewInfoCache()
     }),
-    [hostedReviewCache, repos, settings, worktreesByRepo]
+    [repos, settings, worktreesByRepo]
   )
   const facetContext = useMemo(
     () => ({

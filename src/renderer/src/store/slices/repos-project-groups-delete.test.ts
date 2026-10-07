@@ -7,7 +7,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '../../runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 
 const remoteRepo: Repo = {
   id: 'remote-repo',
@@ -37,7 +36,6 @@ const runtimeEnvironmentCall = vi.fn()
 const runtimeEnvironmentTransportCall = vi.fn()
 
 beforeEach(() => {
-  clearRuntimeCompatibilityCacheForTests()
   reposRemove.mockReset()
   reposRemoveForHost.mockReset()
   reposRemoveForHost.mockResolvedValue(undefined)
@@ -106,34 +104,6 @@ describe('project group deletion store routing', () => {
       { id: 'nested', projectGroupId: null },
       { id: 'sibling', projectGroupId: siblingGroup.id }
     ])
-  })
-
-  it('uses the remote delete response shape before mutating local state', async () => {
-    runtimeEnvironmentCall.mockResolvedValue({
-      id: 'rpc-delete-group',
-      ok: true,
-      result: { deleted: false },
-      _meta: { runtimeId: 'runtime-remote' }
-    })
-    const groupedRepo = { ...remoteRepo, projectGroupId: projectGroup.id }
-    const store = createTestStore()
-    store.setState({
-      settings: { activeRuntimeEnvironmentId: 'env-1' } as never,
-      projectGroups: [projectGroup],
-      repos: [groupedRepo]
-    })
-
-    await expect(store.getState().deleteProjectGroup(projectGroup.id)).resolves.toBe(false)
-
-    expect(store.getState().projectGroups).toEqual([projectGroup])
-    expect(store.getState().repos).toEqual([groupedRepo])
-    expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-      selector: 'env-1',
-      method: 'projectGroup.delete',
-      params: { groupId: projectGroup.id },
-      timeoutMs: 15_000
-    })
-    expect(projectGroupsDelete).not.toHaveBeenCalled()
   })
 
   it('deletes only the group when contained project removal is not requested', async () => {

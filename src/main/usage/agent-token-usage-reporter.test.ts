@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { agentTokenUsageSchema } from '../../shared/telemetry-agent-token-usage-schema'
-import { _enableTransportForTests, _setShuttingDownForTests } from '../telemetry/client'
+import { _setShuttingDownForTests, _setSinkForTests } from '../telemetry/client'
 import {
   cleanupTelemetryClientTest,
   setupTelemetryClientTest,
@@ -32,7 +32,7 @@ function reporter(): AgentTokenUsageReporter {
   return instance
 }
 function captures() {
-  return telemetry.mock.capture.mock.calls.map(([message]) => message.properties)
+  return telemetry.mock.push.mock.calls.map(([message]) => message.properties)
 }
 beforeEach(() => {
   directory = mkdtempSync(join(tmpdir(), 'orca-token-usage-'))
@@ -50,7 +50,7 @@ afterEach(async () => {
 
 describe('agent token usage', () => {
   it('persists before capture, omits provider IDs, and retains revisions across restarts', async () => {
-    telemetry.mock.capture.mockImplementation(() => {
+    telemetry.mock.push.mockImplementation(() => {
       expect(JSON.parse(readFileSync(file, 'utf8')).snapshots[0].revision).toBeGreaterThan(0)
     })
     const original = reporter()
@@ -84,7 +84,7 @@ describe('agent token usage', () => {
         process.env.DO_NOT_TRACK = '1'
       }
       if (gate === 'build') {
-        _enableTransportForTests(false)
+        _setSinkForTests(null)
       }
       if (gate === 'shutdown') {
         _setShuttingDownForTests(true)

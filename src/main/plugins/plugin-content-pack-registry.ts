@@ -5,25 +5,22 @@ import {
   type ValidDiscoveredPlugin
 } from './plugin-discovery'
 import { PluginLanguagePackRegistry } from './plugin-language-pack-registry'
-import { PluginVmRecipeRegistry } from './plugin-vm-recipe-registry'
 import { PluginCommandRegistry } from './plugin-command-registry'
 import { verifyInstructionalPluginContent } from './plugin-instructional-content-integrity'
 import type { KeybindingOverrides } from '../../shared/keybindings'
 
 export class PluginContentPackRegistry {
   readonly languagePacks: PluginLanguagePackRegistry
-  readonly vmRecipes: PluginVmRecipeRegistry
   readonly commands: PluginCommandRegistry
   private readonly activationErrors = new Map<string, string>()
 
   constructor(
     contentVerifier: PluginContentVerifier,
     /** Revocation chokepoint: no caller-supplied predicate can readmit a
-     *  killed plugin's language packs, VM recipes, or commands. */
+     *  killed plugin's language packs or commands. */
     private readonly isKilled: (pluginKey: string) => boolean
   ) {
     this.languagePacks = new PluginLanguagePackRegistry(contentVerifier)
-    this.vmRecipes = new PluginVmRecipeRegistry()
     this.commands = new PluginCommandRegistry()
   }
 
@@ -43,11 +40,7 @@ export class PluginContentPackRegistry {
 
     await Promise.all(
       discovered.map(async (plugin) => {
-        if (
-          isInvalidDiscoveredPlugin(plugin) ||
-          !approvedKeys.has(plugin.pluginKey) ||
-          plugin.manifest.contributes.vmRecipes.length > 0
-        ) {
+        if (isInvalidDiscoveredPlugin(plugin) || !approvedKeys.has(plugin.pluginKey)) {
           return
         }
         try {
@@ -71,9 +64,8 @@ export class PluginContentPackRegistry {
         !excluded.has(plugin.pluginKey) &&
         !this.isKilled(plugin.pluginKey)
       const languagePacks = this.languagePacks.reconcile(discovered, approveAtomically)
-      const vmRecipes = this.vmRecipes.reconcile(discovered, approveAtomically)
       this.commands.reconcile(discovered, approveAtomically, keybindings)
-      await Promise.all([languagePacks, vmRecipes])
+      await languagePacks
 
       let foundNewError = false
       for (const pluginKey of approvedKeys) {
@@ -95,10 +87,6 @@ export class PluginContentPackRegistry {
   }
 
   private registryError(pluginKey: string): string | null {
-    return (
-      this.languagePacks.error(pluginKey) ??
-      this.vmRecipes.error(pluginKey) ??
-      this.commands.error(pluginKey)
-    )
+    return this.languagePacks.error(pluginKey) ?? this.commands.error(pluginKey)
   }
 }

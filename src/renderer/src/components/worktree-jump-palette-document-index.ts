@@ -1,13 +1,16 @@
 import { getPaletteHostBadge } from '@/components/cmd-j/palette-host-badge'
 import type { SidebarHostOption } from '@/components/sidebar/sidebar-host-options'
 import { getWorkspacePortsByWorktreeId } from '@/lib/workspace-port-groups'
-import { buildWorktreePaletteDocuments } from '@/lib/worktree-palette-document'
+import {
+  buildWorktreePaletteDocuments,
+  type IssueCacheEntry,
+  type PRCacheEntry
+} from '@/lib/worktree-palette-document'
 import {
   getPaletteWorktreeIdentity,
   resolvePaletteRepoForWorktree
 } from '@/lib/palette-repo-resolution'
 import type { PaletteDocument } from '@/lib/palette-match/palette-document'
-import type { AppState } from '@/store/types'
 import type { Repo } from '../../../shared/repo-types'
 import type { Worktree } from '../../../shared/worktree/types'
 import type { WorkspacePortScanResult } from '../../../shared/workspace-ports'
@@ -29,8 +32,8 @@ export function buildWorktreeJumpPaletteDocumentIndex({
   repoByHostIdentity: ReadonlyMap<string, Repo>
   hostOptions: readonly SidebarHostOption[]
   hostFilterActive: boolean
-  prCache: AppState['prCache'] | null
-  issueCache: AppState['issueCache'] | null
+  prCache: Record<string, PRCacheEntry> | null
+  issueCache: Record<string, IssueCacheEntry> | null
   workspacePortScan: WorkspacePortScanResult | null
   checksReviewByWorktree: ReadonlyMap<Worktree, HostedReviewInfo | null>
 }): Map<string, PaletteDocument> {

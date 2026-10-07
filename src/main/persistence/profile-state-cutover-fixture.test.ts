@@ -40,11 +40,6 @@ vi.mock('electron', () => ({
 
 vi.mock('../telemetry/client', () => ({ track: trackMock }))
 vi.mock('../telemetry/cohort-classifier', () => ({ getCohortAtEmit: getCohortAtEmitMock }))
-vi.mock('../ssh/ssh-config-parser', () => ({
-  loadUserSshConfig: vi.fn(() => ({ hosts: [] })),
-  sshConfigHostsToTargets: vi.fn(() => [])
-}))
-
 describe('profile-state cutover fixture', () => {
   beforeEach(() => {
     testState.dir = mkdtempSync(join(tmpdir(), 'orca-profile-cutover-fixture-'))
@@ -75,22 +70,16 @@ describe('profile-state cutover fixture', () => {
     store.flushOrThrow()
     store.freezeWrites()
 
-    expect(store.getRepos().map((repo) => repo.id)).toEqual(['repo-local', 'repo-remote'])
-    expect(store.getProjects().map((project) => project.id)).toEqual([
-      'repo:repo-local',
-      'repo:repo-remote'
-    ])
-    expect(store.getProjectHostSetups().map((setup) => setup.id)).toEqual([
-      'repo-local',
-      'repo-remote'
-    ])
+    expect(store.getRepos().map((repo) => repo.id)).toEqual(['repo-local'])
+    expect(store.getProjects().map((project) => project.id)).toEqual(['repo:repo-local'])
+    expect(store.getProjectHostSetups().map((setup) => setup.id)).toEqual(['repo-local'])
     expect(store.getWorktreeMeta('repo-local::/fixture/local')).toMatchObject({
       instanceId: 'instance-local',
       linkedPR: 42,
       comment: 'Preserve this comment'
     })
     expect(store.getWorkspaceSession().activeTabId).toBe('tab-local')
-    expect(store.getWorkspaceSession('ssh:build-host').activeTabId).toBe('tab-remote')
+    expect(store.getWorkspaceSession('ssh:build-host').activeTabId).toBeNull()
     expect(store.listAutomations().map((automation) => automation.id)).toEqual([
       'automation-fixture'
     ])
@@ -112,7 +101,7 @@ describe('profile-state cutover fixture', () => {
     const reloaded = createStore()
     reloaded.freezeWrites()
     expect(reloaded.getWorkspaceSession().activeTabId).toBe('tab-local')
-    expect(reloaded.getWorkspaceSession('ssh:build-host').activeTabId).toBe('tab-remote')
+    expect(reloaded.getWorkspaceSession('ssh:build-host').activeTabId).toBeNull()
     expect(reloaded.listAutomationRuns('automation-fixture')[0]?.outputSnapshot?.content).toBe(
       'fixture output'
     )
@@ -144,7 +133,7 @@ describe('profile-state cutover fixture', () => {
 
       expect(candidate.getSettings().opencodeSessionCookie).toBe('fixture-secret')
       expect(candidate.getWorkspaceSession().activeTabId).toBe('tab-local')
-      expect(candidate.getWorkspaceSession('ssh:build-host').activeTabId).toBe('tab-remote')
+      expect(candidate.getWorkspaceSession('ssh:build-host').activeTabId).toBeNull()
       expect(candidate.listAutomationRuns('automation-fixture')[0]?.outputSnapshot?.content).toBe(
         'fixture output'
       )

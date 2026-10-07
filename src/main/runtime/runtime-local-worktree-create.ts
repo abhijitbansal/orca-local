@@ -14,7 +14,6 @@ import { computeWorkspaceRoot, getWorktreePathSettings } from '../ipc/worktree-l
 import { resolveWorktreeCreateBase } from '../worktree-create-base'
 import type { RuntimeManagedWorktreeCreateArgs } from './runtime-managed-worktree-create-types'
 import type { RemoteFetchResult, RemoteTrackingBase } from './runtime-remote-fetch-controller'
-import type { HostedReviewExecutionOptions } from '../source-control/hosted-review-git-options'
 import { hasLocalWorktreeBaseRef } from '../git/worktree-base-ref-probe'
 import { resolveRuntimeLocalWorktreeCreateCandidate } from './runtime-local-worktree-create-candidate'
 import { createRuntimeLocalGitWorktree } from './runtime-local-git-worktree-create'
@@ -26,7 +25,6 @@ type RuntimeLocalWorktreeCreateArgs<T> = {
   repo: Repo
   store: Store
   createdWithAgent: RuntimeManagedWorktreeCreateArgs['createdWithAgent']
-  hostedReviewExecutionContext?: HostedReviewExecutionOptions
   resolveRemoteTrackingBase: (
     path: string,
     base: string,
@@ -97,8 +95,7 @@ async function performRuntimeLocalWorktreeCreate<T>(args: RuntimeLocalWorktreeCr
     username,
     store,
     baseBranch,
-    localWorktreeGitOptions: worktreeGitOptions,
-    hostedReviewExecutionContext: args.hostedReviewExecutionContext
+    localWorktreeGitOptions: worktreeGitOptions
   })
   const git = await createRuntimeLocalGitWorktree({
     request,

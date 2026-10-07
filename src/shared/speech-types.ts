@@ -1,11 +1,5 @@
-export type SpeechModelType =
-  | 'transducer'
-  | 'paraformer'
-  | 'whisper'
-  | 'senseVoice'
-  | 'nemo-ctc'
-  | 'openai'
-export type SpeechModelProvider = 'local' | 'openai'
+export type SpeechModelType = 'transducer' | 'paraformer' | 'whisper' | 'senseVoice' | 'nemo-ctc'
+export type SpeechModelProvider = 'local'
 
 export type ModelingUnit = 'bpe' | 'cjkchar' | 'cjkchar+bpe'
 
@@ -74,7 +68,6 @@ export type VoiceSettings = {
   dictationMode: DictationMode
   terminalConfirmBeforeInsert: boolean
   userModels: UserModelConfig[]
-  openAiApiKeyConfigured: boolean
   /** null = system default input device */
   microphoneDeviceId: string | null
   /** Cached label for display when the preferred device is unplugged */

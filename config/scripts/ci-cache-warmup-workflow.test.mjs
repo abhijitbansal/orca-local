@@ -1,7 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { expect, it } from 'vitest'
 import { parse } from 'yaml'
-import { NODE_SERVER_RUNNERS } from './node-server-qualification.mjs'
 
 const readWorkflow = (name) =>
   parse(readFileSync(new URL(`../../.github/workflows/${name}.yml`, import.meta.url), 'utf8'))
@@ -65,9 +64,7 @@ it('bounds warming to the required platforms and validates changes without grant
 
 it('warms and probes both Windows images with the persistence job runtime', () => {
   const job = workflow.jobs['warm-windows']
-  expect(job.strategy.matrix.os).toEqual(
-    NODE_SERVER_RUNNERS.filter((os) => os.startsWith('windows-'))
-  )
+  expect(job.strategy.matrix.os).toEqual(['windows-2022', 'windows-11-arm'])
   expect(job['runs-on']).toBe('${{ matrix.os }}')
   expect(job.strategy['fail-fast']).toBe(false)
   expect(job['timeout-minutes']).toBeLessThanOrEqual(20)

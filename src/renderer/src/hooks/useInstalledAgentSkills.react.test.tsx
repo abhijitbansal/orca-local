@@ -11,9 +11,6 @@ import type {
 } from '../../../shared/skills'
 import type { ProjectExecutionRuntimeResolution } from '../../../shared/project-execution-runtime'
 import type { GlobalSettings } from '../../../shared/global-settings-types'
-import type { PublicKnownRuntimeEnvironment } from '../../../shared/runtime-environments'
-import { createCompatibleRuntimeStatusResponseIfNeeded } from '@/runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '@/runtime/runtime-rpc-client'
 import { useAppStore } from '@/store'
 import { INSTALLED_AGENT_SKILL_DISCOVERY_FRESH_MS } from './installed-agent-skill-discovery-cache'
 import {
@@ -103,22 +100,6 @@ const projectWslRuntime: ProjectExecutionRuntimeResolution = {
   }
 }
 
-function runtimeEnvironment(
-  overrides: Partial<PublicKnownRuntimeEnvironment> = {}
-): PublicKnownRuntimeEnvironment {
-  return {
-    id: 'env-1',
-    name: 'Remote Mac',
-    createdAt: 1,
-    updatedAt: 1,
-    lastUsedAt: null,
-    runtimeId: null,
-    endpoints: [{ id: 'ws-env-1', kind: 'websocket', label: 'Remote', endpoint: 'wss://env-1' }],
-    preferredEndpointId: 'ws-env-1',
-    ...overrides
-  }
-}
-
 function Probe({ discoveryTarget }: { discoveryTarget?: SkillDiscoveryTarget }): null {
   latestState = useInstalledAgentSkillNames(LINEAR_AGENT_SKILL_NAMES, {
     discoveryTarget,
@@ -173,7 +154,6 @@ afterEach(async () => {
   renderedStates.length = 0
   suspendNextProbeRender = null
   _installedAgentSkillDiscoveryInternalsForTests.reset()
-  clearRuntimeCompatibilityCacheForTests()
   useAppStore.setState({
     settings: null,
     runtimeEnvironments: [],
@@ -601,44 +581,6 @@ describe('useInstalledAgentSkill', () => {
     expect(latestState?.installed).toBe(false)
   })
 
-  it('scans the connected remote runtime and keeps that result out of the local cache', async () => {
-    const discover = vi
-      .fn<(target?: SkillDiscoveryTarget) => Promise<SkillDiscoveryResult>>()
-      .mockResolvedValue(discoveryResult([]))
-    const call = vi.fn(
-      async (args: { method: string; selector?: string }) =>
-        createCompatibleRuntimeStatusResponseIfNeeded(args) ?? {
-          id: 'skills',
-          ok: true,
-          result: discoveryResult([skill({ name: 'linear-tickets' })])
-        }
-    )
-    Object.defineProperty(window, 'api', {
-      configurable: true,
-      value: { skills: { discover }, runtimeEnvironments: { call } }
-    })
-    setRuntimeOwner('env-1')
-
-    await renderProbe()
-    await flushMicrotasks()
-
-    expect(latestState?.installed).toBe(true)
-    expect(discover).not.toHaveBeenCalled()
-    expect(call).toHaveBeenCalledWith(
-      expect.objectContaining({ selector: 'env-1', method: 'skills.discover' })
-    )
-
-    // Why: the remote hit is keyed per environment, so switching back to the
-    // local host must re-scan the client instead of replaying the server's list.
-    await act(async () => {
-      setRuntimeOwner(null)
-    })
-    await flushMicrotasks()
-
-    expect(discover).toHaveBeenCalledTimes(1)
-    expect(latestState?.installed).toBe(false)
-  })
-
   // Why: the skill INSTALL terminal routes through getSingleFocusedRuntimeEnvironmentId,
   // which refuses to guess an owner while several runtimes are saved. Scanning the
   // focused remote here would leave the badge stuck on "Not installed" forever,
@@ -768,89 +710,6 @@ describe('useInstalledAgentSkill', () => {
   // Why: a same-id re-pair keeps the environment id, so nothing else the hook
   // keys on moves. The store evicts the module cache, but a mounted consumer
   // must also drop the retired peer's list and scan the new one.
-  it('rescans a mounted consumer when the focused runtime re-pairs under the same id', async () => {
-    const discover = vi.fn<(target?: SkillDiscoveryTarget) => Promise<SkillDiscoveryResult>>()
-    let remoteSkills = [skill({ name: 'linear-tickets' })]
-    const call = vi.fn(
-      async (args: { method: string; selector?: string }) =>
-        createCompatibleRuntimeStatusResponseIfNeeded(args) ?? {
-          id: 'skills',
-          ok: true,
-          result: discoveryResult(remoteSkills)
-        }
-    )
-    Object.defineProperty(window, 'api', {
-      configurable: true,
-      value: { skills: { discover }, runtimeEnvironments: { call } }
-    })
-    setRuntimeOwner('env-1')
-    useAppStore.getState().setRuntimeEnvironments([runtimeEnvironment()])
-
-    await renderProbe()
-    await flushMicrotasks()
-    expect(latestState?.installed).toBe(true)
-    const scansBeforeRepair = call.mock.calls.filter(
-      (entry) => entry[0].method === 'skills.discover'
-    ).length
-    expect(scansBeforeRepair).toBe(1)
-
-    remoteSkills = []
-    await act(async () => {
-      useAppStore.getState().setRuntimeEnvironments([runtimeEnvironment({ pairingRevision: 2 })])
-    })
-    await flushMicrotasks()
-
-    expect(call.mock.calls.filter((entry) => entry[0].method === 'skills.discover')).toHaveLength(2)
-    expect(latestState?.installed).toBe(false)
-    expect(discover).not.toHaveBeenCalled()
-  })
-
-  it('drops an in-flight scan from the retired peer when its runtime re-pairs', async () => {
-    const discover = vi.fn<(target?: SkillDiscoveryTarget) => Promise<SkillDiscoveryResult>>()
-    const staleScan = deferred<SkillDiscoveryResult>()
-    const freshScan = deferred<SkillDiscoveryResult>()
-    const scans = [staleScan, freshScan]
-    const call = vi.fn(async (args: { method: string; selector?: string }) => {
-      const status = createCompatibleRuntimeStatusResponseIfNeeded(args)
-      if (status) {
-        return status
-      }
-      const scan = scans.shift()
-      if (!scan) {
-        throw new Error('unexpected extra skills.discover call')
-      }
-      return { id: 'skills', ok: true, result: await scan.promise }
-    })
-    Object.defineProperty(window, 'api', {
-      configurable: true,
-      value: { skills: { discover }, runtimeEnvironments: { call } }
-    })
-    setRuntimeOwner('env-1')
-    useAppStore.getState().setRuntimeEnvironments([runtimeEnvironment()])
-
-    await renderProbe()
-    await flushMicrotasks()
-    expect(latestState?.loading).toBe(true)
-
-    await act(async () => {
-      useAppStore.getState().setRuntimeEnvironments([runtimeEnvironment({ pairingRevision: 2 })])
-    })
-    await flushMicrotasks()
-    staleScan.resolve(discoveryResult([skill({ name: 'linear-tickets' })]))
-    await flushMicrotasks()
-
-    expect(latestState?.installed).toBe(false)
-    expect(latestState?.loading).toBe(true)
-
-    freshScan.resolve(discoveryResult([]))
-    await flushMicrotasks()
-
-    expect(scans).toHaveLength(0)
-    expect(latestState?.installed).toBe(false)
-    expect(latestState?.loading).toBe(false)
-    expect(renderedStates.some((state) => state.installed)).toBe(false)
-  })
-
   // Why: the reset once lived in a ref written during render. React drops the
   // state updates of a render it throws away but not the ref write, so the retry
   // saw "already reset" and kept painting the old target's list until a rescan.

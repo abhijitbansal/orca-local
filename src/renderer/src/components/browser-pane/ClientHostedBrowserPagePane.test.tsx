@@ -6,7 +6,6 @@ import type { BrowserPage } from '../../../../shared/browser-workspace-types'
 
 const mocks = vi.hoisted(() => ({
   attach: vi.fn(),
-  publishMetadata: vi.fn(),
   createBrowserTab: vi.fn(async () => true),
   addressBar: {
     current: null as {
@@ -62,9 +61,8 @@ function render(ui: React.ReactElement) {
 describe('ClientHostedBrowserPagePane', () => {
   beforeEach(() => {
     mocks.attach.mockReset()
-    mocks.publishMetadata.mockReset().mockResolvedValue({ status: 'published', accepted: true })
     // Download, popup and permission notices subscribe on mount; each has its own suite.
-    installClientHostedPaneApi({ browser: { publishClientPageMetadata: mocks.publishMetadata } })
+    installClientHostedPaneApi()
   })
   afterEach(() => cleanup())
 
@@ -399,45 +397,6 @@ describe('ClientHostedBrowserPagePane', () => {
     } finally {
       useAppStore.setState(prior)
     }
-  })
-
-  it('publishes full guest metadata through the exact runtime placement', async () => {
-    const { webview, setUrl, setTitle } = createWebview()
-    mocks.attach.mockReturnValue(retainedAttachment(webview))
-    render(
-      <ClientHostedBrowserPagePane
-        browserTab={page()}
-        workspaceId="workspace-a"
-        chromeShortcutScope="focused"
-        runtimeEnvironmentId="environment-a"
-        worktreeId="worktree-a"
-        placement={PLACEMENT}
-        isActive
-        onUpdatePageState={vi.fn()}
-        onSetUrl={vi.fn()}
-      />
-    )
-    setUrl('https://remote.internal/path')
-    setTitle('Remote page')
-
-    act(() => webview.dispatchEvent(new Event('did-navigate')))
-
-    await vi.waitFor(() => expect(mocks.publishMetadata).toHaveBeenCalledTimes(2))
-    expect(mocks.publishMetadata).toHaveBeenLastCalledWith({
-      environmentId: 'environment-a',
-      params: {
-        browserHostClientId: 'host-a',
-        browserHostGeneration: 3,
-        browserPageId: 'page-a',
-        pageHostGeneration: 7,
-        revision: 2,
-        url: 'https://remote.internal/path',
-        title: 'Remote page',
-        loading: false,
-        canGoBack: true,
-        canGoForward: false
-      }
-    })
   })
 })
 

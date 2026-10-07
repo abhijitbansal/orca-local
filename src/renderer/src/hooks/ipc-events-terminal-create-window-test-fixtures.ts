@@ -151,11 +151,6 @@ export function buildTerminalCreateWindow(args: {
       settings: {
         onChanged: () => () => {}
       },
-      updater: {
-        getStatus: () => Promise.resolve({ state: 'idle' }),
-        onStatus: () => () => {},
-        onClearDismissal: () => () => {}
-      },
       browser: {
         onGuestLoadFailed: () => () => {},
         onOpenLinkInOrcaTab: () => () => {},
@@ -176,17 +171,6 @@ export function buildTerminalCreateWindow(args: {
         onBrowserDriverChanged: () => () => {},
         onClientHostedBrowserRowsChanged: () => () => {},
         getClientHostedBrowserRows: async () => []
-      },
-      ssh: {
-        listTargets: () => Promise.resolve([]),
-        listPortForwards: () => Promise.resolve([]),
-        listDetectedPorts: () => Promise.resolve([]),
-        getState: () => Promise.resolve(null),
-        onStateChanged: () => () => {},
-        onCredentialRequest: () => () => {},
-        onPortForwardsChanged: () => () => {},
-        onDetectedPortsChanged: () => () => {},
-        onCredentialResolved: () => () => {}
       },
       agentStatus: { onSet: () => () => {} }
     }

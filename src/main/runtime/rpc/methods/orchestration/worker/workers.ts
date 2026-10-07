@@ -1,6 +1,5 @@
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
 import { defineMethod } from '../../../core'
-import { startFederatedWorker } from '../federation/federated-worker-start'
 import { startLocalWorker } from './local-worker-start'
 import {
   decideWorkerStartMode,
@@ -55,18 +54,10 @@ export const ORCHESTRATION_WORKER_START_METHODS = [
         settings: readWorkerStartModeSettings(runtime)
       })
       if (params.on) {
-        // A remote worker is always a terminal agent; the mode receipt rides along so the
-        // coordinator still learns why its structured default did not apply.
-        const receipt = await startFederatedWorker({
-          params,
-          runtime,
-          db,
-          runId: run.id,
-          task: existingTask,
-          orchestrationMutation,
-          callerSession: orchestrationCaller
-        })
-        return receipt && typeof receipt === 'object' ? { ...receipt, mode } : receipt
+        throw new OrchestrationError(
+          'server_required',
+          'Connected-server orchestration is unavailable in this build.'
+        )
       }
       return startLocalWorker({
         params: { ...params, timeoutMs: readinessTimeoutMs },

@@ -16,7 +16,6 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from '../runtime/runtime-compatibility-test-fixture'
-import { clearRuntimeCompatibilityCacheForTests } from '../runtime/runtime-rpc-client'
 
 export const NOW = 10_000_000
 export const LEAF = '11111111-1111-4111-8111-111111111111'
@@ -187,7 +186,6 @@ export function deferred<T>(): {
 
 export function resetAgentHibernationCoordinatorFixture(): void {
   resetAgentHibernationCoordinatorForTests()
-  clearRuntimeCompatibilityCacheForTests()
   resetForegroundTerminalTabIdsForTests()
   resetAgentHibernationOutputActivityForTests()
   resetHibernationPaneAgeForTests()

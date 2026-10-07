@@ -11,7 +11,6 @@
 // Re-exported for existing importers; lightweight consumers should import from './exec-error' to avoid this heavy module.
 export { extractExecError, parseRetryAfterMs } from './exec-error'
 
-export { setDefaultWslDistroOverride } from './command-runner/wsl-command-resolution'
 export {
   awaitWindowsHostGitEnvironmentReady,
   configureWindowsHostGitEnvironmentReadiness
@@ -38,10 +37,6 @@ export {
   gitSpawnAfterWindowsEnvironmentReady,
   withGitAdmission
 } from './command-runner/git-spawn'
-export { isTransientGhError } from './command-runner/gh-retry-policy'
-export { applyGhHostToArgs } from './command-runner/gh-host-args'
-export { ghExecFileAsync, ghExecFileWithScopeAsync } from './command-runner/gh-exec-file'
-export { glabExecFileAsync, redirectPortedHostnameToEnv } from './command-runner/glab-exec-file'
 export { wslAwareSpawn } from './command-runner/wsl-aware-spawn'
 export { translateWslOutputPaths } from './command-runner/wsl-path-translation'
 

@@ -1,7 +1,4 @@
-# The desktop app is a single-project install. `mobile/` is a separate workspace
-# with its own pnpm-workspace.yaml and lockfile, so keep it out of the root
-# package graph. Without this file `pnpm -r` auto-discovers mobile/ and its
-# nested package, and the root's patchedDependencies fail as ERR_PNPM_UNUSED_PATCH.
+# The desktop app is a single-project install; only the packages listed below join the root graph.
 #
 # native/windows-registry is listed explicitly rather than reached by a glob: as a `file:`
 # dependency pnpm re-linked it on every install (including --frozen-lockfile), and that
@@ -47,13 +44,11 @@ allowBuilds:
   '@swc/core': false
   '@vscode/windows-process-tree': false
   agent-browser: false
-  cpu-features: true
   electron-winstaller: false
   esbuild: true
   msw: false
   node-pty: true
   sherpa-onnx: true
-  ssh2: false
   '@orca/windows-registry': false
 
 overrides:
