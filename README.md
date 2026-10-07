@@ -250,7 +250,7 @@ Only do this if no upstream Orca install uses that folder. Grant macOS permissio
    pnpm build:mac:release:local
    ```
 
-The script finds the Developer ID certificate in your keychain and passes it to electron-builder and `codesign` by its SHA-1 hash. Passing the hash avoids the "ambiguous identity" failure that duplicate certificates cause. The script then notarizes the app with the API key. To pick a specific certificate, set `CSC_NAME=<sha1>`. To keep the key somewhere else, set `ORCA_ASC_DIR`.
+The script finds the Developer ID certificate in your keychain and passes it to electron-builder and `codesign` by its SHA-1 hash. Passing the hash avoids the "ambiguous identity" failure that duplicate certificates cause. The script then notarizes the app with the API key. After that it signs, notarizes and staples each `dist/orca-macos-*.dmg`, so the DMG passes Gatekeeper when it is mounted as well as when the app opens. If a notarization request fails partway through, run `node config/scripts/build-mac-release-local.mjs --dmg-only` to repeat only the DMG step. To pick a specific certificate, set `CSC_NAME=<sha1>`. To keep the key somewhere else, set `ORCA_ASC_DIR`.
 
 **Unsigned macOS builds.** Without a Developer ID certificate, build unsigned:
 

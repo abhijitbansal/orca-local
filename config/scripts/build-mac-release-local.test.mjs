@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { parseAscConfig, pickDeveloperIdIdentity } from './build-mac-release-local.mjs'
+import {
+  isNotarizationAccepted,
+  parseAscConfig,
+  pickDeveloperIdIdentity
+} from './build-mac-release-local.mjs'
 
 const FIND_IDENTITY_WITH_DEVELOPER_ID = `  1) 1111111111111111111111111111111111111111 "Apple Development: dev@example.com (DEVTEAM001)"
   2) 1111111111111111111111111111111111111111 "Apple Development: dev@example.com (DEVTEAM001)"
@@ -46,5 +50,16 @@ describe('pickDeveloperIdIdentity', () => {
   it('refuses to guess between two distinct Developer ID Application certs', () => {
     const twoCerts = `${FIND_IDENTITY_WITH_DEVELOPER_ID}  5) 4444444444444444444444444444444444444444 "Developer ID Application: Jane Doe (TEAM123456)"\n`
     expect(() => pickDeveloperIdIdentity(twoCerts)).toThrow(/CSC_NAME/)
+  })
+})
+
+describe('isNotarizationAccepted', () => {
+  it('accepts only an Accepted notarytool verdict', () => {
+    expect(isNotarizationAccepted('{"id":"x","status":"Accepted","message":"ok"}')).toBe(true)
+    expect(isNotarizationAccepted('{"id":"x","status":"Invalid","message":"bad"}')).toBe(false)
+  })
+
+  it('treats unparseable notarytool output as not accepted', () => {
+    expect(isNotarizationAccepted('Error: HTTP status code: 401')).toBe(false)
   })
 })

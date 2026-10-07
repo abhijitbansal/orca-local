@@ -5,7 +5,7 @@
 // No credential value is read into the repo or printed.
 
 import { execFileSync, spawnSync } from 'node:child_process'
-import { existsSync, readFileSync, realpathSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, realpathSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 
@@ -87,6 +87,52 @@ function resolveNotarizationEnv(ascDir) {
   return { APPLE_API_KEY: keyPath, APPLE_API_KEY_ID: keyId, APPLE_API_ISSUER: issuerId }
 }
 
+export function isNotarizationAccepted(notarytoolJson) {
+  try {
+    return JSON.parse(notarytoolJson).status === 'Accepted'
+  } catch {
+    return false
+  }
+}
+
+/** Why: electron-builder notarizes only the .app; a signed + stapled DMG is also assessed
+ *  (and tamper-checked) when a recipient mounts it, not just when the app first runs. */
+function signAndNotarizeDmgs(distDir, signingIdentity, notarizationEnv) {
+  const dmgs = readdirSync(distDir).filter((name) => /^orca-macos-.+\.dmg$/.test(name))
+  if (dmgs.length === 0) {
+    throw new Error(`No orca-macos-*.dmg in ${distDir}.`)
+  }
+  for (const name of dmgs) {
+    const dmgPath = join(distDir, name)
+    console.log(`[build:mac:release:local] signing and notarizing ${name}`)
+    execFileSync('codesign', ['--force', '--sign', signingIdentity, '--timestamp', dmgPath], {
+      stdio: 'inherit'
+    })
+    const verdict = execFileSync(
+      'xcrun',
+      [
+        'notarytool',
+        'submit',
+        dmgPath,
+        '--key',
+        notarizationEnv.APPLE_API_KEY,
+        '--key-id',
+        notarizationEnv.APPLE_API_KEY_ID,
+        '--issuer',
+        notarizationEnv.APPLE_API_ISSUER,
+        '--wait',
+        '--output-format',
+        'json'
+      ],
+      { encoding: 'utf8' }
+    )
+    if (!isNotarizationAccepted(verdict)) {
+      throw new Error(`Notarization of ${name} was not accepted: ${verdict.trim()}`)
+    }
+    execFileSync('xcrun', ['stapler', 'staple', dmgPath], { stdio: 'inherit' })
+  }
+}
+
 function main() {
   if (process.platform !== 'darwin') {
     throw new Error('macOS release builds must run on macOS.')
@@ -105,14 +151,21 @@ function main() {
   for (const key of CONFLICTING_ENV) {
     delete childEnv[key]
   }
-  const result = spawnSync('pnpm', ['run', 'build:mac:release'], {
-    env: childEnv,
-    stdio: 'inherit'
-  })
-  if (result.error) {
-    throw result.error
+  // Why --dmg-only: re-run just the DMG step after a notary hiccup without repackaging.
+  if (!process.argv.includes('--dmg-only')) {
+    const result = spawnSync('pnpm', ['run', 'build:mac:release'], {
+      env: childEnv,
+      stdio: 'inherit'
+    })
+    if (result.error) {
+      throw result.error
+    }
+    if (result.status !== 0) {
+      process.exitCode = result.status ?? 1
+      return
+    }
   }
-  process.exitCode = result.status ?? 1
+  signAndNotarizeDmgs(join(process.cwd(), 'dist'), signingIdentity, notarizationEnv)
 }
 
 // Why realpath: a symlinked invocation must still run the gate, never silently skip it.
