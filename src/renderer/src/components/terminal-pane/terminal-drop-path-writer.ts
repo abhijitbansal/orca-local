@@ -78,13 +78,20 @@ export async function writeTerminalDropPathsToCapturedTarget({
       canPasteImageDropPathRaw(nextPath, targetShell)
     const needsSeparatorAfterImage =
       nextPath !== undefined && !(pathIsRawPasteImage && nextPathIsRawPasteImage)
+    const typedPath = imagePasteText === null ? shellEscapePath(path, targetShell) : null
     const payload =
       imagePasteText !== null
         ? separateImagePasteFromFollowingText(
             wrapTerminalBracketedPasteText(imagePasteText),
             needsSeparatorAfterImage
           )
-        : `${shellEscapePath(path, targetShell)} `
+        : typedPath !== null
+          ? `${typedPath} `
+          : null
+    if (payload === null) {
+      // Why: typing a path no quoting can keep literal would run its name as a command.
+      return { sentAnyPath, targetCurrent: true, pathsWritten, failureReason: 'write-rejected' }
+    }
     const writeResult = await runTerminalPasteOperationWithTimeout(
       () => writeTerminalPastePtyInput(liveTransport, payload, 'driving'),
       operationTimeoutMs
