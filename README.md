@@ -229,7 +229,7 @@ Some state is still shared with upstream Orca:
 - the `orca` shell command (`/usr/local/bin/orca`). Installing the CLI from either app takes the command over.
 - the `/usr/bin/orca-ide` link on Linux
 - the `Orca.exe` process name on Windows. Uninstalling the fork stops running `Orca.exe` processes, including upstream's.
-- the `orca-dev` profile used by `pnpm dev`
+- the `orca-dev` profile used by `pnpm dev`. Dev builds now encrypt with an `Orca Local Dev Safe Storage` Keychain item. Secrets already saved in `orca-dev` under the old `Orca Dev` key cannot be decrypted, so enter them again once.
 
 **Moving from an earlier build of this fork.** Builds before this change used upstream's identity and the `orca` profile folder. To keep your projects and settings, copy the old profile once, before you first launch Orca Local. If `orca-local` already exists, `cp` nests the copy inside it instead of replacing it. Quit both apps first:
 
