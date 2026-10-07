@@ -220,13 +220,45 @@ pnpm install
 pnpm build:win
 ```
 
-**Unsigned macOS builds.** Without an Apple signing identity, build unsigned:
+**App identity.** The packaged app is **Orca Local** (`Orca Local.app`, bundle id `com.abhijitbansal.orca-local`). Its profile lives in `~/Library/Application Support/orca-local` (`%APPDATA%\orca-local` on Windows, `~/.config/orca-local` on Linux). That keeps it apart from upstream Orca, which uses `com.stablyai.orca` and the `orca` folder. The two apps can be installed side by side. They never share a profile, macOS permission grants, the Keychain item, the Windows daemon host (`%LOCALAPPDATA%\Orca Local`) or the Linux package (`orca-local`, installed to `/opt/Orca Local`).
+
+Some state is still shared with upstream Orca:
+
+- the agent hook scripts and the MiniMax stores in `~/.orca`
+- the WSL-side state in `~/.local/share/orca`
+- the `orca` shell command (`/usr/local/bin/orca`). Installing the CLI from either app takes the command over.
+- the `/usr/bin/orca-ide` link on Linux
+- the `Orca.exe` process name on Windows. Uninstalling the fork stops running `Orca.exe` processes, including upstream's.
+- the `orca-dev` profile used by `pnpm dev`
+
+**Moving from an earlier build of this fork.** Builds before this change used upstream's identity and the `orca` profile folder. To keep your projects and settings, copy the old profile once, before you first launch Orca Local. If `orca-local` already exists, `cp` nests the copy inside it instead of replacing it. Quit both apps first:
+
+```bash
+cp -R ~/Library/Application\ Support/orca ~/Library/Application\ Support/orca-local
+```
+
+Only do this if no upstream Orca install uses that folder. Grant macOS permissions again on first launch.
+
+**Signed and notarized macOS builds (for sharing).** Use this build when you send the DMG to other people. It opens without a Gatekeeper warning, and permission grants survive updates.
+
+1. Once only, create a **Developer ID Application** certificate. Only the Apple Developer account holder can do this, and the App Store Connect API key is refused. In Xcode, go to Settings → Accounts, select your team, choose Manage Certificates, then click **+** → **Developer ID Application**. An "Apple Distribution" certificate does not work, because it is for the App Store only.
+2. Put the App Store Connect API key in `~/.app-store-connect/`: the `AuthKey_<KEY_ID>.p8` file, plus a `config` file containing `KEY_ID=` and `ISSUER_ID=` lines.
+3. Build:
+
+   ```bash
+   pnpm install:release
+   pnpm build:mac:release:local
+   ```
+
+The script finds the Developer ID certificate in your keychain and passes it to electron-builder and `codesign` by its SHA-1 hash. Passing the hash avoids the "ambiguous identity" failure that duplicate certificates cause. The script then notarizes the app with the API key. To pick a specific certificate, set `CSC_NAME=<sha1>`. To keep the key somewhere else, set `ORCA_ASC_DIR`.
+
+**Unsigned macOS builds.** Without a Developer ID certificate, build unsigned:
 
 ```bash
 ORCA_COMPUTER_MACOS_SIGN_IDENTITY=- CSC_IDENTITY_AUTO_DISCOVERY=false pnpm build:mac
 ```
 
-The first time you open the app, right-click it and choose **Open**. You also need these variables if your keychain holds duplicate "Apple Development" certificates, which make `codesign` fail with "ambiguous".
+This build is fine for your own Mac. A recipient who downloads it sees "Apple could not verify…". They can open it through System Settings → Privacy & Security → **Open Anyway**, or by running `xattr -dr com.apple.quarantine "/Applications/Orca Local.app"`. Each new build also makes them grant permissions again. You also need these variables if your keychain holds duplicate "Apple Development" certificates, which make `codesign` fail with "ambiguous".
 
 **The `orca` CLI.** The packaged app installs it from Settings → General → CLI. From a source checkout, run `pnpm build:cli`, then `node out/cli/index.js status`.
 
