@@ -3,7 +3,8 @@ name: Orca Local release
 # Builds a signed + notarized macOS release on every push to main and publishes it as a
 # GitHub release (v<version>-local.<n>) with both DMGs, SHA256SUMS.txt and generated notes.
 #
-# Repository secrets (Settings > Secrets and variables > Actions):
+# Secrets live in the `release` environment (Settings > Environments > release), which only
+# deploys from main, so a run from any other ref cannot read them:
 #   MAC_CERTS            base64 of the "Developer ID Application" .p12
 #   MAC_CERTS_PASSWORD   that .p12's password
 #   ASC_KEY_ID           App Store Connect API key id
@@ -28,6 +29,7 @@ jobs:
   release:
     if: github.repository == 'abhijitbansal/orca-local'
     runs-on: macos-15
+    environment: release
     timeout-minutes: 120
     env:
       NODE_OPTIONS: --max-old-space-size=4096
