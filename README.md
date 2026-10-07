@@ -16,7 +16,7 @@
   Run Codex, ClaudeCode, OpenCode or Pi side-by-side — each in its own worktree, tracked in one place.
 </p>
 
-> **Local-only fork.** This fork of [stablyai/orca](https://github.com/stablyai/orca) runs entirely on your machine. There are no cloud accounts, no mobile app, no auto-update, no telemetry upload, no SSH or remote Orca servers, and no network listener. A local usage record, on by default for new installs and off with one switch, is written to a file and never sent anywhere. Git works through your own `git` CLI against your own remotes. See [What this fork changed](#what-this-fork-changed), [Build from source](#build-from-source) and [Updating from upstream](#updating-from-upstream).
+> **Local-only fork.** This fork of [stablyai/orca](https://github.com/stablyai/orca) runs entirely on your machine. There are no cloud accounts, no mobile app, no auto-update, no telemetry upload, no SSH or remote Orca servers, and no network listener. A local usage record, on by default for new installs and off with one switch, is written to a file and never sent anywhere. Git works through your own `git` CLI against your own remotes. See [Download](#download), [What this fork changed](#what-this-fork-changed), [Build from source](#build-from-source) and [Updating from upstream](#updating-from-upstream).
 
 ## Features
 
@@ -169,7 +169,7 @@ Compared with upstream Orca, this fork **removes** everything that let Orca's ow
 | Area                     | Removed                                                                                                                                                                                                           | Kept                                                                                                                      |
 | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | Telemetry and support    | PostHog upload; feedback, crash-report and diagnostics upload; the GitHub star prompt                                                                                                                             | A local, consent-gated usage record (`telemetry.ndjson`); local crash capture and "copy report"                           |
-| Updates and distribution | The auto-updater, release channels, the publish config and Homebrew casks                                                                                                                                         | Building from source (below)                                                                                              |
+| Updates and distribution | The auto-updater, release channels, the publish config and Homebrew casks                                                                                                                                         | Signed macOS releases on GitHub (no updater); building from source                                                        |
 | Accounts and sharing     | Orca Cloud sign-in and profile sync; skill and artifact share links; the `orca://` deep links; `npx skills` registry installs; the plugin marketplace seed and kill list                                          | Local profiles, local skills and local plugins                                                                            |
 | Mobile and remote access | The Orca Mobile app, its relay and push service; the runtime WebSocket listener; the browser web client; pairing; `orca serve` network mode                                                                       | `orca serve` as a local headless runtime, reached by the `orca` CLI over a local socket                                   |
 | Remote execution         | SSH remotes, the SSH relay, remote Orca runtime environments, orcad, ephemeral VMs and VM recipes, the skill-transfer rails and pinned Node downloads                                                             | Local and WSL execution; `git` over SSH to your own remotes through your own git client                                   |
@@ -186,9 +186,15 @@ More detail:
 
 ---
 
+## Download
+
+Signed and notarized macOS builds are on the [Releases page](https://github.com/abhijitbansal/orca-local/releases/latest). Download `orca-local-macos-arm64.dmg` for an Apple Silicon (M-series) Mac, or `orca-local-macos-x64.dmg` for an Intel Mac. Open the DMG and drag **Orca Local** to Applications. There is no auto-update, so download a new release to upgrade. Linux and Windows users build from source, as described below.
+
+Each push to `main` publishes a release through [`.github/workflows/orca-local-release.yml`](.github/workflows/orca-local-release.yml). The workflow builds, signs and notarizes the app, then attaches both DMGs, a `SHA256SUMS.txt` and notes listing the commits since the previous release. It needs five repository secrets, listed at the top of the workflow file. Until all five are set, it skips the build.
+
 ## Build from source
 
-This fork ships no prebuilt downloads, no Homebrew cask, and no auto-update. Build it yourself.
+This fork has no Homebrew cask and no auto-update. Linux and Windows builds always come from source.
 
 **Prerequisites**
 
