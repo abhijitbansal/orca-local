@@ -62,13 +62,23 @@ export function shouldPreserveEditableFocus(element: Element | null): boolean {
   )
 }
 
+// Backticks, `$(`/`${`/`$[` expansions, bash history `!word`, and `"` plus
+// PowerShell's curly double quotes (which also close a "..." string).
+const WINDOWS_DOUBLE_QUOTE_LIVE_RE = /[`"\u201C\u201D\u201E]|\$[({[]|![^\s=(]/
+
 // Why: escape rules are a property of the *target* shell receiving the path,
 // not the client OS. A Windows client dropping onto a Linux SSH worktree must
 // produce POSIX-quoted output; passing a userAgent string here coupled escape
 // rules to the client and silently misquoted cross-platform SSH drops.
-export function shellEscapePath(path: string, targetShell: 'posix' | 'windows'): string {
+// Returns null when no quoting keeps the path literal in the target shell.
+export function shellEscapePath(path: string, targetShell: 'posix' | 'windows'): string | null {
   if (targetShell === 'windows') {
-    return /^[a-zA-Z0-9_./@:\\-]+$/.test(path) ? path : `"${path}"`
+    if (/^[a-zA-Z0-9_./@:\\-]+$/.test(path)) {
+      return path
+    }
+    // Why: the pane may run cmd, PowerShell or Git Bash, and only cmd keeps all of
+    // these literal inside double quotes; the others run them as code (CWE-78).
+    return WINDOWS_DOUBLE_QUOTE_LIVE_RE.test(path) ? null : `"${path}"`
   }
 
   if (/^[a-zA-Z0-9_./@:-]+$/.test(path)) {

