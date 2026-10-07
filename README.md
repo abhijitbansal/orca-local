@@ -190,7 +190,7 @@ More detail:
 
 Signed and notarized macOS builds are on the [Releases page](https://github.com/abhijitbansal/orca-local/releases/latest). Download `orca-local-macos-arm64.dmg` for an Apple Silicon (M-series) Mac, or `orca-local-macos-x64.dmg` for an Intel Mac. Open the DMG and drag **Orca Local** to Applications. There is no auto-update, so download a new release to upgrade. Linux and Windows users build from source, as described below.
 
-Each push to `main` publishes a release through [`.github/workflows/orca-local-release.yml`](.github/workflows/orca-local-release.yml). The workflow builds, signs and notarizes the app, then attaches both DMGs, a `SHA256SUMS.txt` and notes listing the commits since the previous release. It needs five repository secrets, listed at the top of the workflow file. Until all five are set, it skips the build.
+Each push to `main` publishes a release through [`.github/workflows/orca-local-release.yml`](.github/workflows/orca-local-release.yml). The workflow builds, signs and notarizes the app, then attaches both DMGs, a `SHA256SUMS.txt` and notes listing the commits since the previous release. It needs five secrets in the `release` environment, listed at the top of the workflow file. That environment deploys only from `main`. Until all five are set, the workflow skips the build. Only the repository owner can merge into `main` or create `v*` tags, so only the owner can publish a release.
 
 ## Build from source
 
