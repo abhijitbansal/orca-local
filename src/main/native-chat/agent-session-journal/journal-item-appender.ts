@@ -8,6 +8,11 @@ import type { JournalReducerState } from './journal-reducer'
 import type { JournalAppendResult, JournalItemAppendOptions } from './journal-store-contracts'
 import type { JournalRow } from './journal-row-schema'
 
+// A module-level Error's lazy stack retains the bundle's startup code and read buffer.
+class NothingResolvedError extends Error {}
+
+export type JournalResolvedItem = { identity: AgentJournalItemIdentity; body: AgentJournalItemBody }
+
 export class JournalItemAppender {
   constructor(
     private readonly deps: {
@@ -24,10 +29,45 @@ export class JournalItemAppender {
     const itemId = agentJournalItemKey(identity)
     return this.deps
       .enqueue(journalItemRowBuilder(this.deps.state, identity, body, options))
-      .then((row) => ({
-        cursor: { epoch: row.epoch, sequence: row.seq },
-        itemId,
-        revision: (row as Extract<JournalRow, { kind: 'item' }>).revision
-      }))
+      .then((row) => appendResult(row, itemId))
+  }
+
+  /** `resolve` reads the fold at the write's own place in the queue; null writes nothing. */
+  appendResolved(
+    resolve: () => JournalResolvedItem | null,
+    options: JournalItemAppendOptions
+  ): Promise<JournalAppendResult | null> {
+    let itemId = ''
+    return this.deps
+      .enqueue((seq, ts) => {
+        const resolved = resolve()
+        if (resolved === null) {
+          throw new NothingResolvedError('journal_item_resolved_to_nothing')
+        }
+        itemId = agentJournalItemKey(resolved.identity)
+        return journalItemRowBuilder(
+          this.deps.state,
+          resolved.identity,
+          resolved.body,
+          options
+        )(seq, ts)
+      })
+      .then(
+        (row) => appendResult(row, itemId),
+        (error: unknown) => {
+          if (error instanceof NothingResolvedError) {
+            return null
+          }
+          throw error
+        }
+      )
+  }
+}
+
+function appendResult(row: JournalRow, itemId: string): JournalAppendResult {
+  return {
+    cursor: { epoch: row.epoch, sequence: row.seq },
+    itemId,
+    revision: (row as Extract<JournalRow, { kind: 'item' }>).revision
   }
 }

@@ -234,12 +234,24 @@ export class OrcaRuntimeWithGetStatus extends OrcaRuntimeWithGetRuntimeId {
     return { tabId, worktreeId: pty.worktreeId }
   }
 
-  protected notifyWorktreesChanged(repoId: string): void {
-    // Why here: the listing re-runs a scan this generation overtook, and a headless host has no
-    // window notifier to bump it, so the runtime's own change event bumps before it is sent.
-    runWorktreeChangeInvalidators(repoId)
-    this.notifier?.worktreesChanged(repoId)
-    this.emitClientEvent({ type: 'worktreesChanged', repoId })
+  protected notifyWorktreesChanged(
+    repoId: string,
+    options?: { invalidateGitScans?: boolean; sortOrderOnly?: boolean }
+  ): void {
+    // Why here: a headless host has no window notifier to bump the overtaken scan, unless only metadata changed.
+    if (options?.invalidateGitScans !== false) {
+      runWorktreeChangeInvalidators(repoId)
+    }
+    if (options) {
+      this.notifier?.worktreesChanged(repoId, undefined, options)
+    } else {
+      this.notifier?.worktreesChanged(repoId)
+    }
+    this.emitClientEvent({
+      type: 'worktreesChanged',
+      repoId,
+      ...(options?.sortOrderOnly === true ? { sortOrderOnly: true } : {})
+    })
   }
 
   /** Detail-level worktree lifecycle tap (plugin event bus). The coarse

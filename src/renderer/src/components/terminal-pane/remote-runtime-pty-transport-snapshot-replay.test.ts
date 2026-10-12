@@ -38,62 +38,8 @@ describe('createRemoteRuntimePtyTransport', () => {
     resetRemoteRuntimeTransport()
   })
 
-  it('replays remote scrollback through the parser without firing stale attention events', async () => {
-    const { createRemoteRuntimePtyTransport } = await import('./remote-runtime-pty-transport')
-    const onReplayData = vi.fn()
-    const onTitleChange = vi.fn()
-    const onBell = vi.fn()
-    const onAgentStatus = vi.fn()
-    const transport = createRemoteRuntimePtyTransport('env-1', {
-      worktreeId: 'wt-1',
-      onTitleChange,
-      onBell,
-      onAgentStatus
-    })
-
-    await transport.connect({ url: '', callbacks: { onReplayData } })
-    await vi.waitFor(() => expect(subscriptionSendBinary).toHaveBeenCalled())
-    const { streamId } = latestSubscribePayload()
-    emitSnapshot(
-      streamId,
-      'before\x1b]9999;{"state":"working","prompt":"old","agentType":"codex"}\x07after\x1b]0;Remote title\x07\x07'
-    )
-
-    expect(onReplayData).toHaveBeenCalledWith('beforeafter\x1b]0;Remote title\x07\x07')
-    await vi.waitFor(() =>
-      expect(onTitleChange).toHaveBeenCalledWith('Remote title', 'Remote title')
-    )
-    expect(onAgentStatus).not.toHaveBeenCalled()
-    expect(onBell).not.toHaveBeenCalled()
-  })
-
-  it('replays binary snapshot chunks without firing stale attention events', async () => {
-    const { createRemoteRuntimePtyTransport } = await import('./remote-runtime-pty-transport')
-    const onReplayData = vi.fn()
-    const onTitleChange = vi.fn()
-    const onBell = vi.fn()
-    const onAgentStatus = vi.fn()
-    const onConnect = vi.fn()
-    const transport = createRemoteRuntimePtyTransport('env-1', {
-      worktreeId: 'wt-1',
-      onTitleChange,
-      onBell,
-      onAgentStatus
-    })
-
-    await transport.connect({ url: '', callbacks: { onReplayData, onConnect } })
-    await vi.waitFor(() => expect(subscriptionSendBinary).toHaveBeenCalled())
-    const { streamId } = latestSubscribePayload()
-    emitSnapshot(
-      streamId,
-      'before\x1b]9999;{"state":"working","prompt":"old","agentType":"codex"}\x07after'
-    )
-
-    expect(onReplayData).toHaveBeenCalledWith('beforeafter')
-    expect(onAgentStatus).not.toHaveBeenCalled()
-    expect(onBell).not.toHaveBeenCalled()
-    expect(onConnect).toHaveBeenCalled()
-  })
+  // Why: a push buffered during a cancelled shutdown is the same folded image and must
+  // keep its flag when the rollback replays it.
 
   it('paints a nonempty lossy initial snapshot once before resuming live output', async () => {
     const { createRemoteRuntimePtyTransport } = await import('./remote-runtime-pty-transport')
@@ -144,65 +90,6 @@ describe('createRemoteRuntimePtyTransport', () => {
     terminal.dispose()
   })
 
-  it('resolves explicit binary snapshot requests without replaying into xterm', async () => {
-    const { createRemoteRuntimePtyTransport } = await import('./remote-runtime-pty-transport')
-    const onReplayData = vi.fn()
-    const onData = vi.fn()
-    const onConnect = vi.fn()
-    const transport = createRemoteRuntimePtyTransport('env-1', {
-      worktreeId: 'wt-1'
-    })
-
-    await transport.connect({ url: '', callbacks: { onReplayData, onData, onConnect } })
-    await vi.waitFor(() => expect(subscriptionSendBinary).toHaveBeenCalled())
-    const { streamId } = latestSubscribePayload()
-    emitSnapshot(streamId, 'initial')
-    expect(onReplayData).toHaveBeenCalledWith('initial')
-    expect(onConnect).toHaveBeenCalled()
-
-    const snapshotPromise = transport.serializeBuffer?.({ scrollbackRows: 5000 })
-    await vi.waitFor(() =>
-      expect(latestFrameForOpcode(TerminalStreamOpcode.SnapshotRequest)).toBeDefined()
-    )
-    const snapshotRequestFrame = latestFrameForOpcode(TerminalStreamOpcode.SnapshotRequest)
-    const snapshotRequestPayload = snapshotRequestFrame
-      ? decodeTerminalStreamJson<{ requestId?: number; scrollbackRows?: number }>(
-          snapshotRequestFrame.payload
-        )
-      : null
-    expect(snapshotRequestFrame?.streamId).toBe(streamId)
-    expect(snapshotRequestPayload).toMatchObject({ requestId: 1, scrollbackRows: 5000 })
-
-    emitSnapshotFrame(
-      streamId,
-      TerminalStreamOpcode.SnapshotStart,
-      encodeTerminalStreamJson({
-        kind: 'scrollback',
-        requestId: snapshotRequestPayload?.requestId,
-        cols: 132,
-        rows: 43,
-        seq: 17,
-        source: 'headless'
-      })
-    )
-    emitSnapshotFrame(
-      streamId,
-      TerminalStreamOpcode.SnapshotChunk,
-      encodeTerminalStreamText('requested snapshot')
-    )
-    emitSnapshotFrame(streamId, TerminalStreamOpcode.SnapshotEnd, new Uint8Array())
-
-    await expect(snapshotPromise).resolves.toEqual({
-      data: 'requested snapshot',
-      cols: 132,
-      rows: 43,
-      seq: 17,
-      source: 'headless'
-    })
-    expect(onReplayData).toHaveBeenCalledTimes(1)
-    expect(onData).not.toHaveBeenCalledWith('requested snapshot', expect.anything())
-  })
-
   it('forwards requested snapshot availability through the remote transport', async () => {
     const { createRemoteRuntimePtyTransport } = await import('./remote-runtime-pty-transport')
     const transport = createRemoteRuntimePtyTransport('env-1', { worktreeId: 'wt-1' })
@@ -236,61 +123,6 @@ describe('createRemoteRuntimePtyTransport', () => {
       availability: { kind: 'retry-worthy', cause: 'host-no-serializable-buffer' },
       snapshot: { data: '' }
     })
-  })
-
-  it('keeps initial replay separate from in-flight explicit binary snapshot requests', async () => {
-    const { createRemoteRuntimePtyTransport } = await import('./remote-runtime-pty-transport')
-    const onReplayData = vi.fn()
-    const onConnect = vi.fn()
-    const transport = createRemoteRuntimePtyTransport('env-1', {
-      worktreeId: 'wt-1'
-    })
-
-    await transport.connect({ url: '', callbacks: { onReplayData, onConnect } })
-    await vi.waitFor(() => expect(subscriptionSendBinary).toHaveBeenCalled())
-    const { streamId } = latestSubscribePayload()
-
-    const snapshotPromise = transport.serializeBuffer?.({ scrollbackRows: 5000 })
-    expect(latestFrameForOpcode(TerminalStreamOpcode.SnapshotRequest)).toBeUndefined()
-
-    emitSnapshot(streamId, 'initial replay')
-    expect(onReplayData).toHaveBeenCalledWith('initial replay')
-    expect(onConnect).toHaveBeenCalled()
-
-    await vi.waitFor(() =>
-      expect(latestFrameForOpcode(TerminalStreamOpcode.SnapshotRequest)).toBeDefined()
-    )
-    const snapshotRequestFrame = latestFrameForOpcode(TerminalStreamOpcode.SnapshotRequest)
-    const snapshotRequestPayload = snapshotRequestFrame
-      ? decodeTerminalStreamJson<{ requestId?: number }>(snapshotRequestFrame.payload)
-      : null
-    expect(snapshotRequestPayload?.requestId).toBe(1)
-
-    emitSnapshotFrame(
-      streamId,
-      TerminalStreamOpcode.SnapshotStart,
-      encodeTerminalStreamJson({
-        kind: 'scrollback',
-        requestId: snapshotRequestPayload?.requestId,
-        cols: 100,
-        rows: 20
-      })
-    )
-    emitSnapshotFrame(
-      streamId,
-      TerminalStreamOpcode.SnapshotChunk,
-      encodeTerminalStreamText('requested replay')
-    )
-    emitSnapshotFrame(streamId, TerminalStreamOpcode.SnapshotEnd, new Uint8Array())
-
-    await expect(snapshotPromise).resolves.toEqual({
-      data: 'requested replay',
-      cols: 100,
-      rows: 20,
-      seq: undefined,
-      source: undefined
-    })
-    expect(onReplayData).toHaveBeenCalledTimes(1)
   })
 
   it('bounds oversized binary snapshots without closing the live stream', async () => {

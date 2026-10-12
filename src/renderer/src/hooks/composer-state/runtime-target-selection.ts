@@ -16,7 +16,7 @@ import { repoIsRemote } from '../../../../shared/agent-launch-remote'
 import { resolveLocalWindowsAgentStartupShell } from '../../../../shared/windows-terminal-shell'
 import { buildProjectHostSetupOptions } from '@/lib/project-host-setup-options'
 import { buildNewWorkspaceCreateTargetOptions } from '@/lib/new-workspace-project-options'
-import { getSettingsForRepoRuntimeOwner } from '@/lib/repo-runtime-owner'
+import { getRepoOwnerRoutedSettings } from '@/lib/repo-runtime-owner'
 
 export function useComposerRuntimeTargetSelection(input: ComposerRuntimeTargetSelectionInput) {
   const {
@@ -195,10 +195,7 @@ export function useComposerRuntimeTargetSelection(input: ComposerRuntimeTargetSe
       return settings
     }
     // Why: probes and attachment uploads inspect the selected repo, even though creation defaults still follow host scope.
-    return getSettingsForRepoRuntimeOwner(
-      { repos: selectedRepo ? [selectedRepo] : [], settings },
-      selectedRepo?.id ?? null
-    )
+    return getRepoOwnerRoutedSettings(settings, selectedRepo)
   }, [selectedRepo, settings])
 
   const selectedRepoConnectionId = selectedRepo?.connectionId ?? null

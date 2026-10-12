@@ -10,6 +10,7 @@ import { recordCrashBreadcrumb } from '../crash-reporting/crash-breadcrumb-store
 import { mainProcessState as state } from './main-process-state'
 import {
   openSettingsFromSystemMenu,
+  quitFromUserCommand,
   sendOpenCrashReport,
   sendOpenFeatureTour,
   sendOpenSetupGuide
@@ -26,6 +27,7 @@ export async function initializeMainProcessI18nAndMenu(): Promise<void> {
   logStartupMilestone('i18n-ready')
   registerAppMenu({
     appMenuLabel: state.devInstanceIdentity?.name ?? app.name,
+    ...(state.isServeMode ? { onQuit: quitFromUserCommand } : {}),
     onBeforeReload: ({ ignoreCache, webContentsId }) => {
       if (state.mainWindow?.webContents.id === webContentsId) {
         state.expectedRendererReload.mark(webContentsId)

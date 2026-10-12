@@ -18,6 +18,7 @@ export type ComposerProviderRuntimeSyncInput = Pick<
   | 'updateRepo'
 >
 
+import { LOCAL_EXECUTION_HOST_ID } from '../../../../shared/execution-host'
 import { useEffect, useCallback, useRef } from 'react'
 import type { SetupAgentStartupPolicy, OrcaHooks } from '../../../../shared/orca-yaml-hook-types'
 import { useAppStore } from '@/store'
@@ -190,9 +191,8 @@ export function useComposerProviderRuntimeSync(input: ComposerProviderRuntimeSyn
       // Why: drop the cache entry on failure so a transient IPC error doesn't pin every later
       // check for this repo/host to the same rejection.
       const promise: Promise<HookCheckResult> = checkRuntimeHooks(
-        selectedRepoSettingsRef.current,
-        targetRepoId,
-        selectedRepoExecutionHostId ?? undefined
+        selectedRepoExecutionHostId ?? LOCAL_EXECUTION_HOST_ID,
+        targetRepoId
       ).catch((error: unknown) => {
         if (hookCheckRef.current?.promise === promise) {
           hookCheckRef.current = null

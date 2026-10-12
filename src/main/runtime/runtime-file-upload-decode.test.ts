@@ -31,6 +31,7 @@ vi.mock('node:fs/promises', async (importOriginal) => ({
 }))
 
 import { RuntimeFileCommandsWithWriteFileExplorerFile } from './runtime-file-commands-write-file-explorer-file'
+import { createLocalFilesystemProvider } from '../providers/local-filesystem-provider'
 
 function unexpectedHostCall(): never {
   throw new Error('Unexpected access beyond the isolated file command')
@@ -48,11 +49,18 @@ const host: RuntimeFileCommandHost = {
 const commands = new RuntimeFileCommandsWithWriteFileExplorerFile(host)
 const destination = join('workspace', 'uploads', 'binary.dat')
 const target = { executionHostId: 'local', path: destination }
+let remote = false
 
 beforeEach(() => {
   vi.resetAllMocks()
+  remote = false
   mocks.resolvePath.mockResolvedValue(target)
-  mocks.provider.mockReturnValue(null)
+  mocks.provider.mockImplementation((_target, host) =>
+    createLocalFilesystemProvider({
+      requireStore: () => host.requireStore(),
+      resolveAuthorizedPath: mocks.authorize
+    })
+  )
   mocks.authorize.mockResolvedValue(destination)
   mocks.requireStore.mockReturnValue({})
   mocks.mkdir.mockResolvedValue(undefined)
@@ -63,6 +71,26 @@ afterEach(() => vi.restoreAllMocks())
 
 describe.each(['whole', 'first', 'append'] as const)('runtime %s base64 write', (mode) => {
   const write = (base64: string) => {
+    if (remote) {
+      return mode === 'whole'
+        ? commands.writeFileExplorerFileBase64(
+            'folder:workspace',
+            'uploads/binary.dat',
+            base64,
+            7,
+            'target',
+            'ssh:target'
+          )
+        : commands.writeFileExplorerFileBase64Chunk(
+            'folder:workspace',
+            'uploads/binary.dat',
+            base64,
+            mode === 'append',
+            7,
+            'target',
+            'ssh:target'
+          )
+    }
     return mode === 'whole'
       ? commands.writeFileExplorerFileBase64(
           'folder:workspace',
@@ -93,7 +121,7 @@ describe.each(['whole', 'first', 'append'] as const)('runtime %s base64 write', 
         decode.mock.calls.filter((args) => args.at(0) === base64 && args.at(1) === 'base64')
       ).toHaveLength(1)
       expect(mocks.expectation).toHaveBeenCalledWith('local', 'local', undefined, undefined)
-      expect(mocks.provider).toHaveBeenCalledWith(target)
+      expect(mocks.provider).toHaveBeenCalledWith(target, expect.anything())
       expect(mocks.authorize).toHaveBeenCalledWith(
         destination,
         mocks.requireStore.mock.results[0].value

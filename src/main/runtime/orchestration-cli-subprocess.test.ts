@@ -198,6 +198,8 @@ describeIfBuilt('orca orchestration check --wait subprocess (§3.4)', () => {
     } finally {
       db.close()
       await server.stop()
+      vi.restoreAllMocks()
+      rmSync(userDataPath, { recursive: true, force: true })
     }
   }, 30_000)
 })

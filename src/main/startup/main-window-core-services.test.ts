@@ -8,7 +8,7 @@ const {
   state
 } = vi.hoisted(() => {
   const store = {
-    writeLatestProfileStateJsonCompatibilityExportAsync: vi.fn(async () => {}),
+    flushPendingOrThrowAsync: vi.fn(async () => {}),
     writeLatestProfileStateJsonExportAsync: vi.fn(async () => {}),
     getSettings: vi.fn(() => ({}))
   }

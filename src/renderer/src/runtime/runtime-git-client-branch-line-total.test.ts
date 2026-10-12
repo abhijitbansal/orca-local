@@ -43,7 +43,7 @@ afterEach(() => {
 describe('branch line total merge base on git status requests', () => {
   it('forwards the merge base to local git status only when the chip asked for it', async () => {
     const context = {
-      settings: { activeRuntimeEnvironmentId: null },
+      target: { kind: 'local' as const },
       worktreeId: 'wt-1',
       worktreePath: '/repo'
     }

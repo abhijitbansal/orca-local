@@ -99,7 +99,7 @@ describe('Electron Vite output contract', () => {
     expect(output.chunkFileNames).toBe('chunks/[name]-[hash].js')
   })
 
-  it('keeps offline profile-state CLI imports unpacked at stable paths', () => {
+  it('keeps CLI main imports unpacked at stable paths', () => {
     const input = electronViteConfig.main?.build?.rollupOptions?.input
     if (!input || typeof input !== 'object' || Array.isArray(input)) {
       throw new Error('Expected named main-process inputs')
@@ -140,12 +140,17 @@ describe('Electron Vite output contract', () => {
     expect(external('@parcel/watcher', undefined, false)).toBe(true)
     expect(external('electron', undefined, false)).toBe(true)
     expect(external('node:fs', undefined, false)).toBe(true)
+    expect(external('@orca/process-host', undefined, false)).toBe(true)
+    expect(external('@orca/process-host/spawn-observer', undefined, false)).toBe(true)
     expect(external('@xterm/headless', undefined, false)).toBe(false)
     expect(external('@xterm/addon-serialize', undefined, false)).toBe(false)
     expect(external('tldts', undefined, false)).toBe(false)
     expect(external('zod', undefined, false)).toBe(false)
+    expect(external('smol-toml', undefined, false)).toBe(false)
+    expect(external('smol-toml/package.json', undefined, false)).toBe(false)
     expect(electronViteConfig.main?.build?.externalizeDeps?.exclude).toContain('tldts')
     expect(electronViteConfig.main?.build?.externalizeDeps?.exclude).toContain('zod')
+    expect(electronViteConfig.main?.build?.externalizeDeps?.exclude).toContain('smol-toml')
   })
 
   it('bundles validation dependencies used by the sandboxed preload', () => {

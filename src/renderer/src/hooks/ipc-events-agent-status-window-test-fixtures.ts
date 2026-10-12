@@ -49,6 +49,8 @@ export function buildWindowApi(args: {
         onActivateWorktree: () => () => {},
         onCreateTerminal: () => () => {},
         onRequestTerminalCreate: () => () => {},
+        onPublishAgentLaunchTab: () => () => {},
+        onAgentLaunchPaneVerdict: () => () => {},
         onRequestTerminalTabMount: () => () => {},
         replyTerminalCreate: () => {},
         onSplitTerminal: () => () => {},

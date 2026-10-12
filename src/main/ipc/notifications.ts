@@ -99,7 +99,7 @@ export function registerNotificationHandlers(store: Store, runtime?: OrcaRuntime
       // from a row start that has since moved and so can no longer be rebuilt by the renderer.
       for (const paneKey of Array.isArray(paneKeys) ? paneKeys : []) {
         if (typeof paneKey === 'string') {
-          for (const id of announced.take(paneKey)) {
+          for (const { id } of announced.take(paneKey)) {
             uniqueIds.add(id)
           }
         }

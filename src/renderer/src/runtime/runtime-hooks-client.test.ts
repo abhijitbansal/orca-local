@@ -52,15 +52,22 @@ describe('runtime hooks client', () => {
       source: 'none'
     })
 
-    await checkRuntimeHooks({ activeRuntimeEnvironmentId: null }, 'repo-1')
-    await inspectRuntimeSetupScriptImports({ activeRuntimeEnvironmentId: null }, 'repo-1')
-    await readRuntimeIssueCommand({ activeRuntimeEnvironmentId: null }, 'repo-1')
-    await writeRuntimeIssueCommand({ activeRuntimeEnvironmentId: null }, 'repo-1', 'Fix it')
+    await checkRuntimeHooks('local', 'repo-1')
+    await inspectRuntimeSetupScriptImports('local', 'repo-1')
+    await readRuntimeIssueCommand('local', 'repo-1')
+    await writeRuntimeIssueCommand('local', 'repo-1', 'Fix it')
 
-    expect(hooksCheck).toHaveBeenCalledWith({ repoId: 'repo-1' })
-    expect(hooksInspectSetupScriptImports).toHaveBeenCalledWith({ repoId: 'repo-1' })
-    expect(hooksReadIssueCommand).toHaveBeenCalledWith({ repoId: 'repo-1' })
-    expect(hooksWriteIssueCommand).toHaveBeenCalledWith({ repoId: 'repo-1', content: 'Fix it' })
+    expect(hooksCheck).toHaveBeenCalledWith({ repoId: 'repo-1', hostId: 'local' })
+    expect(hooksInspectSetupScriptImports).toHaveBeenCalledWith({
+      repoId: 'repo-1',
+      hostId: 'local'
+    })
+    expect(hooksReadIssueCommand).toHaveBeenCalledWith({ repoId: 'repo-1', hostId: 'local' })
+    expect(hooksWriteIssueCommand).toHaveBeenCalledWith({
+      repoId: 'repo-1',
+      content: 'Fix it',
+      hostId: 'local'
+    })
     expect(runtimeEnvironmentCall).not.toHaveBeenCalled()
   })
 
@@ -75,23 +82,10 @@ describe('runtime hooks client', () => {
       source: 'none'
     })
 
-    await checkRuntimeHooks(
-      { activeRuntimeEnvironmentId: 'focused-elsewhere' },
-      'same-repo',
-      'ssh:server'
-    )
-    await inspectRuntimeSetupScriptImports(
-      { activeRuntimeEnvironmentId: 'focused-elsewhere' },
-      'same-repo',
-      'ssh:server'
-    )
-    await readRuntimeIssueCommand({ activeRuntimeEnvironmentId: null }, 'same-repo', 'ssh:server')
-    await writeRuntimeIssueCommand(
-      { activeRuntimeEnvironmentId: null },
-      'same-repo',
-      'Fix it',
-      'ssh:server'
-    )
+    await checkRuntimeHooks('ssh:server', 'same-repo')
+    await inspectRuntimeSetupScriptImports('ssh:server', 'same-repo')
+    await readRuntimeIssueCommand('ssh:server', 'same-repo')
+    await writeRuntimeIssueCommand('ssh:server', 'same-repo', 'Fix it')
 
     expect(hooksCheck).toHaveBeenCalledWith({ repoId: 'same-repo', hostId: 'ssh:server' })
     expect(hooksInspectSetupScriptImports).toHaveBeenCalledWith({

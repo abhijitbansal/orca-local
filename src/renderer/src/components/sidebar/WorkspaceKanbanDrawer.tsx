@@ -67,7 +67,6 @@ function WorkspaceKanbanDrawerContent({
   const workspaceBoardColumnWidth = useAppStore((s) => s.workspaceBoardColumnWidth)
   const setWorkspaceBoardColumnWidth = useAppStore((s) => s.setWorkspaceBoardColumnWidth)
   const sortBy = useAppStore((s) => s.sortBy)
-  const setSortBy = useAppStore((s) => s.setSortBy)
   const sidebarOpen = useAppStore((s) => s.sidebarOpen)
   const sidebarWidth = useAppStore((s) => s.sidebarWidth)
   const boardRef = useRef<HTMLDivElement>(null)
@@ -128,7 +127,6 @@ function WorkspaceKanbanDrawerContent({
     boardDragGroups,
     laneFullWorktreeIds,
     laneViews,
-    setSortBy,
     sortBy,
     updateWorktreeMeta,
     updateWorktreesMeta,

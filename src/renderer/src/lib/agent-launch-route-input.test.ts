@@ -109,7 +109,7 @@ describe('buildAgentLaunchRouteInput', () => {
       promptDelivery: 'auto-submit',
       launchText: 'fix the flaky test',
       nativeChatTranscriptIsLocalReadable: true,
-      requiresTuiLaunchCommand: false,
+      startsOutsideWorkspaceRoot: false,
       initialSessionOptions: { model: 'gpt-5.4' }
     })
     expect(mocks.getExecutionHostIdForWorktree).toHaveBeenCalledWith(appStore, 'wt-1')
@@ -221,12 +221,13 @@ describe('buildAgentLaunchRouteInput', () => {
     expect(input.workspaceKind).toBe('floating')
     expect(input.projectRuntime).toBeUndefined()
     expect(mocks.getLocalProjectExecutionRuntimeContext).not.toHaveBeenCalled()
+    // Feasible: the floating workspace resolves to its configured local directory.
     expect(
       structuredFeasibleFor(store(), {
         agent: 'codex',
         workspace: { kind: 'floating', worktreeId: FLOATING_TERMINAL_WORKTREE_ID }
       })
-    ).toBe(false)
+    ).toBe(true)
   })
 
   it('passes a draft prompt through and never turns it into a blocker', () => {
@@ -241,20 +242,20 @@ describe('buildAgentLaunchRouteInput', () => {
     expect(structuredFeasibleFor(store(), args)).toBe(true)
   })
 
-  it.each([
-    ['a cwd', { cwd: '/repo/sub' }, {}],
-    ['a settings command override', {}, { agentCmdOverrides: { codex: 'codex-nightly' } }]
-  ] as const)('requires a terminal for %s', (_name, tuiCustomization, settingsOverride) => {
-    const input = buildAgentLaunchRouteInput(
-      store({ ...STRUCTURED_SETTINGS, ...settingsOverride }),
-      {
-        agent: 'codex',
-        workspace: { kind: 'git-worktree', worktreeId: 'wt-1' },
-        tuiCustomization
-      }
-    )
-    expect(input.requiresTuiLaunchCommand).toBe(true)
-  })
+  it.each([['a cwd', { cwd: '/repo/sub' }, {}]] as const)(
+    'requires a terminal for %s',
+    (_name, tuiCustomization, settingsOverride) => {
+      const input = buildAgentLaunchRouteInput(
+        store({ ...STRUCTURED_SETTINGS, ...settingsOverride }),
+        {
+          agent: 'codex',
+          workspace: { kind: 'git-worktree', worktreeId: 'wt-1' },
+          tuiCustomization
+        }
+      )
+      expect(input.startsOutsideWorkspaceRoot).toBe(true)
+    }
+  )
 
   // The reported P0: `--dangerously-skip-permissions --model Opus` matched no blessed string, so
   // every new Claude tab was silently demoted to the terminal-backed chat. The Arguments field is
@@ -274,7 +275,6 @@ describe('buildAgentLaunchRouteInput', () => {
       workspace: { kind: 'git-worktree' as const, worktreeId: 'wt-1' }
     }
     expect(routeFor(appStore, args)).toBe('structured-native-chat')
-    expect(buildAgentLaunchRouteInput(appStore, args).requiresTuiLaunchCommand).toBe(false)
   })
 
   // Grok reads its transcript off local disk, so it is the agent the readability answer routes on.
@@ -367,7 +367,7 @@ describe('a cwd that names the workspace root', () => {
         workspace: { kind: 'git-worktree' as const, worktreeId: 'wt-1' },
         tuiCustomization: { cwd }
       }
-      expect(buildAgentLaunchRouteInput(withRoot(), args).requiresTuiLaunchCommand).toBe(false)
+      expect(buildAgentLaunchRouteInput(withRoot(), args).startsOutsideWorkspaceRoot).toBe(false)
       expect(routeFor(withRoot(), args)).toBe('structured-native-chat')
     }
   )
@@ -378,7 +378,7 @@ describe('a cwd that names the workspace root', () => {
       workspace: { kind: 'git-worktree' as const, worktreeId: 'wt-1' },
       tuiCustomization: { cwd: '/repo/app/packages/web' }
     }
-    expect(buildAgentLaunchRouteInput(withRoot(), args).requiresTuiLaunchCommand).toBe(true)
+    expect(buildAgentLaunchRouteInput(withRoot(), args).startsOutsideWorkspaceRoot).toBe(true)
     expect(routeFor(withRoot(), args)).not.toBe('structured-native-chat')
   })
 
@@ -389,7 +389,7 @@ describe('a cwd that names the workspace root', () => {
         agent: 'codex',
         workspace: { kind: 'folder', worktreeId: workspaceId },
         tuiCustomization: { cwd }
-      }).requiresTuiLaunchCommand
+      }).startsOutsideWorkspaceRoot
     expect(at('/srv/notes/')).toBe(false)
     expect(at('/srv/notes/drafts')).toBe(true)
   })

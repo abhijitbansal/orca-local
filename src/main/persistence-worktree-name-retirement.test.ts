@@ -1,16 +1,23 @@
-import { closeTestStores, createSqliteTestStore } from './persistence-test-harness'
+import {
+  closeTestStores,
+  createSqliteTestStore,
+  createStore as createFreshStore,
+  testState
+} from './persistence-test-harness'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { getDefaultPersistedState } from '../shared/constants'
+import { getRepoExecutionHostId } from '../shared/execution-host'
 import { MARINE_CREATURES } from '../shared/marine-creatures'
 import { createRetiredNameLookup } from '../shared/worktree/retired-name-registry'
 import type { SshTarget } from '../shared/ssh-types'
 import { MAX_RETIREMENT_NAMESPACES } from './worktree-retirement-namespace'
 import { installFakeAppEnvironment } from '../../config/scripts/vitest-host-ports-setup'
+import { resetRetirementCollisionKeyCacheForTests } from './worktree-name-retirement'
 
-const testState = { dir: '' }
+let hasCreatedStoreInCase = false
 
 vi.mock('electron', () => ({
   app: { getPath: () => testState.dir },
@@ -60,10 +67,16 @@ async function createStore(persisted: Record<string, unknown> = {}) {
     JSON.stringify({ ...getDefaultPersistedState(testState.dir), ...persisted }),
     'utf-8'
   )
+  if (!hasCreatedStoreInCase) {
+    hasCreatedStoreInCase = true
+    return createFreshStore()
+  }
   return reloadStore()
 }
 
 beforeEach(() => {
+  hasCreatedStoreInCase = false
+  resetRetirementCollisionKeyCacheForTests()
   testState.dir = mkdtempSync(join(tmpdir(), 'orca-worktree-name-retirement-'))
 })
 
@@ -163,7 +176,7 @@ describe('worktree name retirement registry', () => {
     store.addRepo({ id: REPO, path: '/repos/a', displayName: 'a', badgeColor: '', addedAt: 0 })
     store.addRetiredWorktreeName(REPO, 'nautilus')
 
-    store.removeProject(REPO)
+    store.removeProjectForHost(REPO, 'local')
 
     expect(store.getRetiredWorktreeNameRegistry(REPO).names).toEqual([])
   })
@@ -182,7 +195,7 @@ describe('worktree name retirement registry', () => {
     const { getRetiredNameRegistryForRepo, retireGeneratedWorktreeName } =
       await import('./worktree-name-retirement')
     await retireGeneratedWorktreeName(store, oldRepo, store.getSettings(), 'nautilus')
-    store.removeProject(REPO)
+    store.removeProjectForHost(REPO, getRepoExecutionHostId(oldRepo))
     store.flush()
 
     store = await reloadStore()
@@ -212,7 +225,7 @@ describe('worktree name retirement registry', () => {
     await retireGeneratedWorktreeName(store, oldRepo, store.getSettings(), 'nautilus')
 
     // The deleted workspace has no Claude bucket; Codex rollout files are not backfilled.
-    store.removeProject(REPO)
+    store.removeProjectForHost(REPO, 'local')
     const newRepo = { ...oldRepo, id: OTHER_REPO }
     store.addRepo(newRepo)
 
@@ -231,7 +244,7 @@ describe('worktree name retirement registry', () => {
     await retireGeneratedWorktreeName(store, oldRepo, store.getSettings(), 'nautilus')
 
     // Removing and re-adding the host mints a fresh row id for the same machine and account.
-    store.removeProject(REPO)
+    store.removeProjectForHost(REPO, getRepoExecutionHostId(oldRepo))
     store.removeSshTarget('ssh-old')
     store.addSshTarget(sshTarget('ssh-new'))
     const newRepo = { ...oldRepo, id: OTHER_REPO, connectionId: 'ssh-new' }
@@ -252,7 +265,7 @@ describe('worktree name retirement registry', () => {
       await import('./worktree-name-retirement')
     await retireGeneratedWorktreeName(store, oldRepo, store.getSettings(), 'nautilus')
 
-    store.removeProject(REPO)
+    store.removeProjectForHost(REPO, getRepoExecutionHostId(oldRepo))
     const otherRepo = { ...oldRepo, id: OTHER_REPO, connectionId: 'ssh-other' }
     store.addRepo(otherRepo)
 
@@ -296,7 +309,7 @@ describe('worktree name retirement registry', () => {
     await retireGeneratedWorktreeName(store, repo, store.getSettings(), 'nautilus')
 
     // Drop the repo row, so the namespace copy is the only thing left holding the tombstone.
-    store.removeProject(REPO)
+    store.removeProjectForHost(REPO, getRepoExecutionHostId(repo))
     // The ssh-config alias is unchanged, so re-adoption matches even though the host moved.
     store.removeSshTarget('ssh-old')
     store.addRemovedSshTargetTombstone({
@@ -333,7 +346,7 @@ describe('worktree name retirement registry', () => {
     store.updateSshTarget('ssh-1', { host: 'new.example.com' })
 
     // Drop the repo row the way a project remove/re-add does, leaving the mirror as the only source.
-    store.removeProject(REPO)
+    store.removeProjectForHost(REPO, getRepoExecutionHostId(repo))
     const readded = { ...REMOTE_REPO, id: OTHER_REPO, connectionId: 'ssh-1' }
     store.addRepo(readded)
     await expect(
@@ -370,7 +383,7 @@ describe('worktree name retirement registry', () => {
 
     // `ssh-y` never moved. Drop its repo row the way a project remove/re-add does, so the namespace
     // copy is the only thing left holding the tombstone.
-    store.removeProject(REPO)
+    store.removeProjectForHost(REPO, getRepoExecutionHostId(sibling))
     const readded = { ...REMOTE_REPO, id: OTHER_REPO, connectionId: 'ssh-y' }
     store.addRepo(readded)
     await expect(
@@ -388,7 +401,7 @@ describe('worktree name retirement registry', () => {
       await import('./worktree-name-retirement')
     await retireGeneratedWorktreeName(store, oldRepo, store.getSettings(), 'nautilus')
 
-    store.removeProject(REPO)
+    store.removeProjectForHost(REPO, getRepoExecutionHostId(oldRepo))
     const newRepo = { ...oldRepo, id: OTHER_REPO, connectionId: 'ssh-new' }
     store.addRepo(newRepo)
 

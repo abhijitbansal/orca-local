@@ -22,6 +22,8 @@ import {
   AccountsUnsubscribeParams,
   AddClaudeFromConfigDirParams,
   AddCodexFromHomeParams,
+  BeginClaudeSignInParams,
+  FinishClaudeSignInParams,
   ListAccountsParams,
   RemoveAccountParams,
   SelectAccountParams,
@@ -29,12 +31,23 @@ import {
 } from './accounts-params'
 import { PrepareCodexForWslPaneParams } from './agent-hooks-params'
 import { AgentLaunch, AgentLaunchReplay } from './agent-launch-params'
+import {
+  AttachmentReadParams,
+  AttachmentUploadAppendParams,
+  AttachmentUploadIdParams,
+  AttachmentUploadStartParams
+} from './agent-session-attachment-params'
 import { CreateAgentSessionParams, EnsureAgentSessionParams } from './agent-session-params'
+import { ReadVisualParams } from './agent-session-visual-params'
 import {
   AiVaultListSessionsParams,
   AiVaultPrepareSessionResumeParams,
   AiVaultSessionTitlesParams
 } from './ai-vault-params'
+import {
+  AntigravityAccountMutationParams,
+  AntigravityAccountTargetParams
+} from './antigravity-accounts-params'
 import {
   AutomationCreate,
   AutomationId,
@@ -185,6 +198,7 @@ import {
   GitBranchCompare,
   GitBranchDiff,
   GitBulkPaths,
+  GitBulkStage,
   GitCheckIgnored,
   GitCheckout,
   GitCommit,
@@ -225,8 +239,10 @@ import {
   DispatchParams,
   DispatchShowParams,
   InboxParams,
+  PartyLocationParams,
   ReplyParams,
   ResetParams,
+  SessionAddressParams,
   TaskCreateParams,
   TaskListParams
 } from './orchestration-params'
@@ -254,6 +270,7 @@ import {
   PluginsPanelActionParams
 } from './plugins-params'
 import {
+  PreflightAgentDetection,
   PreflightCheck,
   PreflightDetectRemoteAgents,
   PreflightDetectRemoteWindowsTerminalCapabilities
@@ -306,7 +323,10 @@ import {
   DictationStart,
   SpeechModelAction
 } from './speech-params'
+import { ContinueInterruptedParams } from './structured-agent-session-continue-params'
 import {
+  AcknowledgeAttentionParams,
+  AgentsParams,
   AttachParams,
   CancelParams,
   ConversationCommandParams,
@@ -327,9 +347,14 @@ import {
   SendParams,
   SetOptionParams,
   SubscribeParams,
+  SubscribeTurnCompletionsParams,
   ThreadGoalParams,
   UnsubscribeParams
 } from './structured-agent-session-params'
+import {
+  QueuedMessageEditHoldParams,
+  QueuedMessageUpdateParams
+} from './structured-agent-session-queued-edit-params'
 import { TerminalAdoptOrphans } from './terminal-orphan-params'
 import { TerminalQuickCommandsUpdate } from './terminal-quick-command-params'
 import {
@@ -364,7 +389,12 @@ import {
   TerminalUnsubscribe,
   TerminalUpdateViewport
 } from './terminal-viewport-schemas-params'
-import { WorkspacePortKillParams, WorkspacePortScanParams } from './workspace-ports-params'
+import {
+  WorkspacePortKillHostParams,
+  WorkspacePortKillParams,
+  WorkspacePortScanHostParams,
+  WorkspacePortScanParams
+} from './workspace-ports-params'
 import { WorktreeCreate, WorktreePrefetchCreateBase } from './worktree-create-params'
 import {
   WorktreeActivate,
@@ -390,6 +420,13 @@ import {
 export const RPC_PARAMS_BY_METHOD = {
   'accounts.addClaudeFromConfigDir': AddClaudeFromConfigDirParams,
   'accounts.addCodexFromHome': AddCodexFromHomeParams,
+  'accounts.antigravityAddCurrent': AntigravityAccountTargetParams,
+  'accounts.antigravityList': AntigravityAccountTargetParams,
+  'accounts.antigravityRemove': AntigravityAccountMutationParams,
+  'accounts.antigravitySelect': AntigravityAccountMutationParams,
+  'accounts.beginClaudeSignIn': BeginClaudeSignInParams,
+  'accounts.cancelClaudeSignIn': FinishClaudeSignInParams,
+  'accounts.finishClaudeSignIn': FinishClaudeSignInParams,
   'accounts.list': ListAccountsParams,
   'accounts.removeClaude': RemoveAccountParams,
   'accounts.removeCodex': RemoveAccountParams,
@@ -401,9 +438,12 @@ export const RPC_PARAMS_BY_METHOD = {
   'agent.launch': AgentLaunch,
   'agent.launchReplay': AgentLaunchReplay,
   'agentHooks.prepareCodexForWslPane': PrepareCodexForWslPaneParams,
+  'agentSession.acknowledgeAttention': AcknowledgeAttentionParams,
+  'agentSession.agents': AgentsParams,
   'agentSession.cancel': CancelParams,
   'agentSession.close': OptionsParams,
   'agentSession.commands': OptionsParams,
+  'agentSession.continueInterrupted': ContinueInterruptedParams,
   'agentSession.conversationCommand': ConversationCommandParams,
   'agentSession.conversationOutline': OptionsParams,
   'agentSession.create': CreateParams,
@@ -415,8 +455,11 @@ export const RPC_PARAMS_BY_METHOD = {
   'agentSession.modelCatalog': ModelCatalogParams,
   'agentSession.options': OptionsParams,
   'agentSession.queuedMessageDelete': QueuedMessageActionParams,
+  'agentSession.queuedMessageEditHold': QueuedMessageEditHoldParams,
   'agentSession.queuedMessageSend': QueuedMessageActionParams,
+  'agentSession.queuedMessageUpdate': QueuedMessageUpdateParams,
   'agentSession.queuedMessagesResume': QueuedMessagesResumeParams,
+  'agentSession.readVisual': ReadVisualParams,
   'agentSession.release': HoldParams,
   'agentSession.respondToApproval': RespondParams,
   'agentSession.respondToQuestion': RespondToQuestionParams,
@@ -430,9 +473,14 @@ export const RPC_PARAMS_BY_METHOD = {
   'agentSession.setOption': SetOptionParams,
   'agentSession.subscribe': SubscribeParams,
   'agentSession.subscribeStatus': null,
-  'agentSession.subscribeTurnCompletions': null,
+  'agentSession.subscribeTurnCompletions': SubscribeTurnCompletionsParams,
   'agentSession.threadGoal': ThreadGoalParams,
   'agentSession.unsubscribe': UnsubscribeParams,
+  'agentSessionAttachment.read': AttachmentReadParams,
+  'agentSessionAttachment.uploadAbort': AttachmentUploadIdParams,
+  'agentSessionAttachment.uploadAppend': AttachmentUploadAppendParams,
+  'agentSessionAttachment.uploadCommit': AttachmentUploadIdParams,
+  'agentSessionAttachment.uploadStart': AttachmentUploadStartParams,
   'agentTeams.prepareLaunch': AgentTeamsPrepareLaunch,
   'agentTeams.tmuxCompat': AgentTeamsTmuxCompat,
   'aiVault.listSessions': AiVaultListSessionsParams,
@@ -619,7 +667,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'git.branchCompare': GitBranchCompare,
   'git.branchDiff': GitBranchDiff,
   'git.bulkDiscard': GitBulkPaths,
-  'git.bulkStage': GitBulkPaths,
+  'git.bulkStage': GitBulkStage,
   'git.bulkUnstage': GitBulkPaths,
   'git.cancelGenerateCommitMessage': WorktreeSelectorOfGitParams,
   'git.cancelGeneratePullRequestFields': WorktreeSelectorOfGitParams,
@@ -664,6 +712,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'notifications.subscribe': NotificationsSubscribeParams,
   'notifications.unsubscribe': NotificationUnsubscribeParams,
   'orchestration.ask': AskParams,
+  'orchestration.callerShow': null,
   'orchestration.check': CheckParams,
   'orchestration.dispatch': DispatchParams,
   'orchestration.dispatchShow': DispatchShowParams,
@@ -671,6 +720,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'orchestration.gateList': GateListParams,
   'orchestration.gateResolve': GateResolveParams,
   'orchestration.inbox': InboxParams,
+  'orchestration.partyLocation': PartyLocationParams,
   'orchestration.reply': ReplyParams,
   'orchestration.requestShow': RequestShowParams,
   'orchestration.reset': ResetParams,
@@ -681,6 +731,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'orchestration.runShow': RunShowParams,
   'orchestration.runStop': RunStopParams,
   'orchestration.runUse': RunUseParams,
+  'orchestration.sessionAddress': SessionAddressParams,
   'orchestration.taskCreate': TaskCreateParams,
   'orchestration.taskList': TaskListParams,
   'orchestration.workerAbandon': WorkerDispatchParams,
@@ -699,11 +750,11 @@ export const RPC_PARAMS_BY_METHOD = {
   'plugins.readPanelEntry': PluginReadPanelEntryParams,
   'plugins.setEnabled': PluginSetEnabledParams,
   'preflight.check': PreflightCheck,
-  'preflight.detectAgents': null,
+  'preflight.detectAgents': PreflightAgentDetection,
   'preflight.detectRemoteAgents': PreflightDetectRemoteAgents,
   'preflight.detectRemoteWindowsTerminalCapabilities':
     PreflightDetectRemoteWindowsTerminalCapabilities,
-  'preflight.refreshAgents': null,
+  'preflight.refreshAgents': PreflightAgentDetection,
   'project.list': null,
   'project.update': ProjectUpdate,
   'projectGroup.create': ProjectGroupCreate,
@@ -817,7 +868,9 @@ export const RPC_PARAMS_BY_METHOD = {
   'ui.recordFeatureInteraction': FeatureInteractionIdParam,
   'ui.set': UiUpdate,
   'workspacePorts.kill': WorkspacePortKillParams,
+  'workspacePorts.killHost': WorkspacePortKillHostParams,
   'workspacePorts.scan': WorkspacePortScanParams,
+  'workspacePorts.scanHost': WorkspacePortScanHostParams,
   'worktree.activate': WorktreeActivate,
   'worktree.create': WorktreeCreate,
   'worktree.detectedList': WorktreeDetectedListParams,

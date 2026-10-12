@@ -169,7 +169,7 @@ export class OrcaRuntimeWithHasExactPersistedTerminalSurfaceIdentity extends Orc
     }
     const reveal = await this.notifier.revealTerminalSession(candidate.worktreeId, {
       ptyId: candidate.ptyId,
-      title: getLatestPtyTitle(pty) ?? pty.controllerTitle,
+      title: getLatestPtyTitle(this.getPtyDisplayRecord(pty)) ?? pty.controllerTitle,
       activate: false,
       presentation: 'background',
       tabId: candidate.tabId,

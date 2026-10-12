@@ -25,7 +25,7 @@ describe('runtime file client', () => {
 
     await expect(
       readRuntimeFileContent({
-        settings: { activeRuntimeEnvironmentId: null },
+        target: { kind: 'local' as const },
         filePath: '/repo/readme.md',
         relativePath: 'readme.md',
         worktreeId: 'wt-1',
@@ -43,7 +43,7 @@ describe('runtime file client', () => {
 
     await expect(
       readRuntimeFileContent({
-        settings: { activeRuntimeEnvironmentId: null },
+        target: { kind: 'local' as const },
         filePath: '/tmp/external.md',
         relativePath: '/tmp/external.md',
         worktreeId: 'wt-1',
@@ -62,7 +62,7 @@ describe('runtime file client', () => {
   it('rejects an external SSH file read after the target changes', async () => {
     await expect(
       readRuntimeFileContent({
-        settings: { activeRuntimeEnvironmentId: null },
+        target: { kind: 'local' as const },
         filePath: '/tmp/external.md',
         relativePath: '/tmp/external.md',
         worktreeId: 'wt-1',
@@ -76,7 +76,7 @@ describe('runtime file client', () => {
 
   it('binds direct SSH mutations to the captured target and generation', async () => {
     const context = {
-      settings: { activeRuntimeEnvironmentId: null },
+      target: { kind: 'local' as const },
       worktreeId: 'wt-1',
       worktreePath: '/repo',
       connectionId: 'ssh-1',
@@ -121,7 +121,7 @@ describe('runtime file client', () => {
 
     await expect(
       readRuntimeFileContent({
-        settings: { activeRuntimeEnvironmentId: 'env-1' },
+        target: { kind: 'environment' as const, environmentId: 'env-1' },
         filePath: '/Users/me/scratch.md',
         relativePath: '/Users/me/scratch.md'
       })
@@ -138,7 +138,7 @@ describe('runtime file client', () => {
     await expect(
       readRuntimeFilePreview(
         {
-          settings: { activeRuntimeEnvironmentId: null },
+          target: { kind: 'local' as const },
           worktreeId: 'wt-1',
           worktreePath: '/remote/repo',
           connectionId: 'ssh-2',

@@ -12,6 +12,7 @@ import type {
 import type { CodexConfigSyncStatus } from '../../../../shared/codex-config-sync-types'
 import type { FeatureInteractionId } from '../../../../shared/feature-interaction-catalog'
 import type { ProviderAccountRuntimeView } from './provider-account-visibility'
+import type { RuntimeClientTarget } from '@/runtime/runtime-client-target'
 
 export type AccountsPaneProps = {
   settings: GlobalSettings
@@ -62,6 +63,8 @@ export type ClaudeAccountActionRunner = (
 
 export type AccountsPaneSectionModel = {
   settings: GlobalSettings
+  /** Host whose accounts the pane lists and mutates. */
+  accountOwner: RuntimeClientTarget
   updateSettings: (updates: Partial<GlobalSettings>) => void
   searchQuery: string
   recordFeatureInteraction: (featureId: FeatureInteractionId) => void

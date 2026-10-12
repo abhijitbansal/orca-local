@@ -1,10 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import {
-  callRuntimeRpc,
-  getActiveRuntimeTarget,
-  RuntimeRpcCallError,
-  unwrapRuntimeRpcResult
-} from './runtime-rpc-client'
+import { callRuntimeRpc, RuntimeRpcCallError, unwrapRuntimeRpcResult } from './runtime-rpc-client'
 import {
   ORCA_RUNTIME_RPC_BROWSER_UI_SOURCE,
   ORCA_RUNTIME_RPC_FEATURE_INTERACTION_SOURCE_KEY
@@ -25,27 +20,6 @@ beforeEach(() => {
 })
 
 describe('runtime RPC client routing', () => {
-  it('uses the local runtime when no active environment is selected', () => {
-    expect(getActiveRuntimeTarget(null)).toEqual({ kind: 'local' })
-    expect(getActiveRuntimeTarget({ activeRuntimeEnvironmentId: null })).toEqual({ kind: 'local' })
-    expect(getActiveRuntimeTarget({ activeRuntimeEnvironmentId: '   ' })).toEqual({ kind: 'local' })
-  })
-
-  it('keeps a non-empty runtime owner id as an environment target so it fails closed', () => {
-    expect(getActiveRuntimeTarget({ activeRuntimeEnvironmentId: ' env-1 ' })).toEqual({
-      kind: 'environment',
-      environmentId: 'env-1'
-    })
-  })
-
-  it('refuses an environment target without touching the preload bridge', async () => {
-    await expect(
-      callRuntimeRpc({ kind: 'environment', environmentId: 'env-1' }, 'status.get')
-    ).rejects.toMatchObject({ code: 'unsupported_in_local_build' })
-    expect(runtimeCall).not.toHaveBeenCalled()
-    expect(runtimeEnvironmentCall).not.toHaveBeenCalled()
-  })
-
   it('routes local runtime calls through window.api.runtime.call', async () => {
     runtimeCall.mockResolvedValue({
       id: 'local',

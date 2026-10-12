@@ -11,6 +11,7 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import type { PersistedState } from '../shared/persisted-state-types'
 import { isTerminalLeafId, makePaneKey } from '../shared/stable-pane-id'
+import { agentHookServer } from './agent-hooks/server'
 
 import {
   TEST_LEAF_1,
@@ -57,6 +58,7 @@ describe('Store', () => {
   })
 
   afterEach(async () => {
+    agentHookServer.stop()
     await closeTestStores()
     rmSync(testState.dir, { recursive: true, force: true })
   })

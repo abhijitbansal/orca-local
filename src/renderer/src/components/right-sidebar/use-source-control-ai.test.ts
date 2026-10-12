@@ -1,13 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { getDefaultSettings } from '../../../../shared/constants'
 import { getSourceControlAiControllerDiscoveryHostKey } from './source-control/ai/use-ai'
 
 describe('getSourceControlAiControllerDiscoveryHostKey', () => {
   it('keys generation settings by the active workspace connection', () => {
-    const settings = getDefaultSettings('/tmp')
+    const local = { kind: 'local' } as const
 
-    expect(getSourceControlAiControllerDiscoveryHostKey(settings, null)).toBe('local')
-    expect(getSourceControlAiControllerDiscoveryHostKey(settings, undefined)).toBe('unknown')
-    expect(getSourceControlAiControllerDiscoveryHostKey(settings, 'ssh-1')).toBe('ssh:ssh-1')
+    expect(getSourceControlAiControllerDiscoveryHostKey(local, null)).toBe('local')
+    expect(getSourceControlAiControllerDiscoveryHostKey(local, undefined)).toBe('unknown')
+    expect(getSourceControlAiControllerDiscoveryHostKey(local, 'ssh-1')).toBe('ssh:ssh-1')
   })
 })

@@ -1,19 +1,15 @@
 import type { AppState } from '../../../types'
-import type { Worktree } from '../../../../../../shared/worktree/types'
-import type { WorktreeMeta } from '../../../../../../shared/worktree/meta-types'
-import { getRepoIdFromWorktreeId } from '../../worktree-helpers'
 import { findRepoForHost } from '../../repo-host-identity'
 import {
   getRepoExecutionHostId,
   parseExecutionHostId,
   type ExecutionHostId
 } from '../../../../../../shared/execution-host'
-import {
-  resolveWorktreeOperationRoute,
-  resolveWorktreeOperationRouteForHost,
-  settingsForWorktreeOperationRoute
-} from '@/lib/worktree-operation-route'
 import { WORKTREE_REMOVAL_AMBIGUOUS_ERROR } from './worktree-slice-constants'
+import { getActiveRuntimeTarget } from '@/runtime/runtime-client-target'
+import type { Worktree } from '../../../../../../shared/worktree/types'
+import type { WorktreeMeta } from '../../../../../../shared/worktree/meta-types'
+import { getRepoIdFromWorktreeId } from '../../worktree-helpers'
 import { isRuntimeSelectorNotFoundError } from './runtime-worktree-rpc-errors'
 import { persistWorktreeMeta } from '../metadata/worktree-meta-persist'
 import type { WorktreeSliceGet } from './worktree-slice-types'
@@ -33,93 +29,6 @@ export function replaceWorktreeInRepoLists(
       worktree.id === updatedWorktree.id ? updatedWorktree : worktree
     )
   }
-}
-
-export function settingsForRepoOwner(
-  state: Pick<AppState, 'repos' | 'settings'>,
-  repoId: string,
-  hostId?: ExecutionHostId | null,
-  honorMissingHostId = false
-) {
-  const repo = findRepoForHost(state.repos, repoId, { hostId, settings: state.settings })
-  if (repo) {
-    return settingsForKnownRepoOwner(state.settings, repo)
-  }
-  const parsedHost = honorMissingHostId && hostId ? parseExecutionHostId(hostId) : null
-  if (parsedHost?.kind === 'runtime') {
-    return state.settings
-      ? { ...state.settings, activeRuntimeEnvironmentId: parsedHost.environmentId }
-      : ({ activeRuntimeEnvironmentId: parsedHost.environmentId } as AppState['settings'])
-  }
-  if (parsedHost?.kind === 'local' || parsedHost?.kind === 'ssh') {
-    return state.settings
-      ? { ...state.settings, activeRuntimeEnvironmentId: null }
-      : ({ activeRuntimeEnvironmentId: null } as AppState['settings'])
-  }
-  return state.settings
-}
-
-export function settingsForKnownRepoOwner(
-  settings: AppState['settings'],
-  repo: { connectionId?: string | null; executionHostId?: ExecutionHostId | null }
-) {
-  if (!repo.executionHostId && !repo.connectionId) {
-    return settings
-  }
-  const parsed = parseExecutionHostId(getRepoExecutionHostId(repo))
-  if (parsed?.kind === 'runtime') {
-    return settings
-      ? { ...settings, activeRuntimeEnvironmentId: parsed.environmentId }
-      : ({ activeRuntimeEnvironmentId: parsed.environmentId } as AppState['settings'])
-  }
-  if (parsed?.kind === 'local' && settings?.activeRuntimeEnvironmentId) {
-    return { ...settings, activeRuntimeEnvironmentId: null }
-  }
-  if (parsed?.kind !== 'ssh') {
-    return settings
-  }
-  // Why: SSH repos are owned by the desktop client/SSH provider, not the focused runtime server.
-  return settings
-    ? { ...settings, activeRuntimeEnvironmentId: null }
-    : ({ activeRuntimeEnvironmentId: null } as AppState['settings'])
-}
-
-export function trySettingsForWorktreeOwner(
-  state: Pick<
-    AppState,
-    | 'repos'
-    | 'settings'
-    | 'worktreesByRepo'
-    | 'detectedWorktreesByRepo'
-    | 'folderWorkspaces'
-    | 'projectGroups'
-    | 'restoredRuntimeHostIdByWorkspaceSessionKey'
-    | 'runtimeEnvironments'
-    | 'runtimeEnvironmentCatalogHydrated'
-    | 'removedRuntimeEnvironmentIds'
-  >,
-  worktreeId: string,
-  executionHostId?: ExecutionHostId
-): AppState['settings'] | null {
-  const route = executionHostId
-    ? resolveWorktreeOperationRouteForHost(state, worktreeId, executionHostId)
-    : resolveWorktreeOperationRoute(state, worktreeId)
-  if (!route) {
-    return null
-  }
-  return settingsForWorktreeOperationRoute(state.settings, route)
-}
-
-export function settingsForWorktreeOwner(
-  state: Parameters<typeof trySettingsForWorktreeOwner>[0],
-  worktreeId: string,
-  executionHostId?: ExecutionHostId
-) {
-  const settings = trySettingsForWorktreeOwner(state, worktreeId, executionHostId)
-  if (!settings) {
-    throw new Error(WORKTREE_REMOVAL_AMBIGUOUS_ERROR)
-  }
-  return settings
 }
 
 // Why: activity bumps fire on every PTY event, so an ambiguous workspace would warn continuously.
@@ -147,12 +56,13 @@ export function persistPassiveWorktreeMetaForOwner(
   updates: Partial<WorktreeMeta>,
   errorLabel: string
 ): void {
-  const ownerSettings = trySettingsForWorktreeOwner(get(), worktreeId)
-  if (!ownerSettings) {
+  const repoId = getRepoIdFromWorktreeId(worktreeId)
+  if (!repoId) {
     warnAmbiguousOwnerOnce(worktreeId, errorLabel)
     return
   }
-  void persistWorktreeMeta(ownerSettings, worktreeId, updates).catch((err) => {
+  const ownerTarget = getActiveRuntimeTarget(settingsForRepoOwner(get(), repoId, undefined, true))
+  void persistWorktreeMeta(ownerTarget, worktreeId, updates).catch((err) => {
     if (isRuntimeSelectorNotFoundError(err)) {
       void get().fetchWorktrees(getRepoIdFromWorktreeId(worktreeId))
       return
@@ -160,4 +70,66 @@ export function persistPassiveWorktreeMetaForOwner(
     console.error(`Failed to ${errorLabel}:`, err)
     void get().fetchWorktrees(getRepoIdFromWorktreeId(worktreeId))
   })
+}
+
+function settingsForRuntimeEnvironment(
+  settings: AppState['settings'],
+  activeRuntimeEnvironmentId: string | null
+): AppState['settings'] {
+  return settings ? { ...settings, activeRuntimeEnvironmentId } : settings
+}
+
+// Why: a runtime: owner keeps its environment id so the RPC seam fails closed instead of running locally.
+export function settingsForKnownRepoOwner(
+  settings: AppState['settings'],
+  repo: { connectionId?: string | null; executionHostId?: ExecutionHostId | null }
+): AppState['settings'] {
+  if (!repo.executionHostId && !repo.connectionId) {
+    return settings
+  }
+  const parsed = parseExecutionHostId(getRepoExecutionHostId(repo))
+  if (parsed?.kind === 'runtime') {
+    return settingsForRuntimeEnvironment(settings, parsed.environmentId)
+  }
+  return settings?.activeRuntimeEnvironmentId
+    ? settingsForRuntimeEnvironment(settings, null)
+    : settings
+}
+
+export function settingsForRepoOwner(
+  state: Pick<AppState, 'repos' | 'settings'>,
+  repoId: string,
+  hostId?: ExecutionHostId | null,
+  honorMissingHostId = false
+): AppState['settings'] {
+  const repo = findRepoForHost(state.repos, repoId, { hostId, settings: state.settings })
+  if (repo) {
+    return settingsForKnownRepoOwner(state.settings, repo)
+  }
+  const parsedHost = honorMissingHostId && hostId ? parseExecutionHostId(hostId) : null
+  if (parsedHost?.kind === 'runtime') {
+    return settingsForRuntimeEnvironment(state.settings, parsedHost.environmentId)
+  }
+  return parsedHost ? settingsForRuntimeEnvironment(state.settings, null) : state.settings
+}
+
+export function trySettingsForWorktreeOwner(
+  state: Pick<AppState, 'repos' | 'settings'>,
+  worktreeId: string,
+  executionHostId?: ExecutionHostId
+): AppState['settings'] | null {
+  const repoId = getRepoIdFromWorktreeId(worktreeId)
+  return repoId ? settingsForRepoOwner(state, repoId, executionHostId, true) : null
+}
+
+export function settingsForWorktreeOwner(
+  state: Pick<AppState, 'repos' | 'settings'>,
+  worktreeId: string,
+  executionHostId?: ExecutionHostId
+): AppState['settings'] {
+  const repoId = getRepoIdFromWorktreeId(worktreeId)
+  if (!repoId) {
+    throw new Error(WORKTREE_REMOVAL_AMBIGUOUS_ERROR)
+  }
+  return settingsForRepoOwner(state, repoId, executionHostId, true)
 }

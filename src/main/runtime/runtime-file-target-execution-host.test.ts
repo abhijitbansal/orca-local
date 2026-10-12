@@ -148,7 +148,7 @@ describe('runtime file target execution host', () => {
     )
 
     await expect(runtime.listRuntimeMarkdownDocuments(`id:${WORKTREE_ID}`)).rejects.toThrow(
-      /Remote connection dropped/
+      /SSH remotes are not supported in this build/
     )
     expect(mocks.listMarkdownDocuments).not.toHaveBeenCalled()
   })

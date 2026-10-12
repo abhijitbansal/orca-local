@@ -1,4 +1,5 @@
 import { Loader2, RefreshCw, Trash2 } from 'lucide-react'
+import { settingsForRuntimeTarget } from '@/runtime/runtime-client-target'
 import type { CodexRateLimitAccountsState } from '../../../../shared/managed-account-types'
 import { translate } from '@/i18n/i18n'
 import { getCodexAccountDisplayDetail } from '@/lib/codex-account-display-label'
@@ -29,7 +30,7 @@ export function renderCodexAccountRow(
     isRemoteAccountScope,
     runCodexAccountAction,
     setRemoveCodexTarget,
-    settings
+    accountOwner
   } = model
   const isActive = providerAccountIsActiveInView(
     account,
@@ -73,7 +74,7 @@ export function renderCodexAccountRow(
             void runCodexAccountAction(
               `select:${account.id}`,
               () =>
-                selectCodexProviderAccount(settings, {
+                selectCodexProviderAccount(settingsForRuntimeTarget(accountOwner), {
                   accountId: account.id,
                   ...accountRuntimeView
                 }),

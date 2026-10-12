@@ -176,6 +176,7 @@ describe('serveOrcaApp', () => {
     const platformDescriptor = Object.getOwnPropertyDescriptor(process, 'platform')
     Object.defineProperty(process, 'platform', { value: 'win32' })
     process.env.ORCA_APP_EXECUTABLE = 'C:\\repo\\node_modules\\.bin\\electron.cmd'
+    process.env.ORCA_USER_DATA_PATH = 'C:\\Users\\orca\\serve-profile'
     const child = {
       kill: vi.fn(),
       once: vi.fn(
@@ -199,6 +200,7 @@ describe('serveOrcaApp', () => {
         })
       )
     } finally {
+      delete process.env.ORCA_USER_DATA_PATH
       if (platformDescriptor) {
         Object.defineProperty(process, 'platform', platformDescriptor)
       }

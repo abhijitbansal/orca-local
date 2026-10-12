@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { getConnectionId } from '@/lib/connection-context'
 import { getLocalProjectExecutionRuntimeContext } from '@/lib/local-preflight-context'
 import { getRepoOwnerRoutedSettings } from '@/lib/repo-runtime-owner'
+import { runtimeTargetForOwnerHostId } from '@/runtime/runtime-client-target'
 import { resolveSourceControlLaunchPlatform } from '@/lib/source-control-launch-platform'
 import { getWorktreeGitIdentityDisplay } from '@/lib/worktree-git-identity-display'
 import { useAppStore } from '@/store'
@@ -9,6 +10,7 @@ import { useActiveWorktree, useRepoById, useWorktreeMap } from '@/store/selector
 import type { GitBranchChangeEntry } from '../../../../../../shared/git-diff-compare-types'
 import type { GitStatusEntry } from '../../../../../../shared/git-status-types'
 import { isFolderRepo } from '../../../../../../shared/repo-kind'
+import { getRepoExecutionHostId } from '../../../../../../shared/execution-host'
 
 const EMPTY_GIT_STATUS_ENTRIES: GitStatusEntry[] = []
 const EMPTY_BRANCH_CHANGE_ENTRIES: GitBranchChangeEntry[] = []
@@ -89,6 +91,19 @@ export function useSourceControlWorktreeContext() {
     [activeRepoConnectionId, activeRepoExecutionHostId, activeRepoId, settings]
   )
   const activeRepoRuntimeEnvironmentId = activeRepoSettings?.activeRuntimeEnvironmentId ?? null
+  // Why: git calls go to the repo's OWNER host; `null` (no repo row) runs nothing.
+  const activeRepoTarget = useMemo(
+    () =>
+      activeRepoId
+        ? runtimeTargetForOwnerHostId(
+            getRepoExecutionHostId({
+              connectionId: activeRepoConnectionId,
+              executionHostId: activeRepoExecutionHostId
+            })
+          )
+        : null,
+    [activeRepoConnectionId, activeRepoExecutionHostId, activeRepoId]
+  )
   const rightSidebarOpen = useAppStore((s) => s.rightSidebarOpen)
 
   const isFolder = activeRepo ? isFolderRepo(activeRepo) : false
@@ -118,6 +133,7 @@ export function useSourceControlWorktreeContext() {
     activeRepoPath,
     activeRepoRuntimeEnvironmentId,
     activeRepoSettings,
+    activeRepoTarget,
     activeSourceControlLaunchPlatform,
     activeWorktree,
     activeWorktreeId,

@@ -1,5 +1,9 @@
 import { spawn } from 'node:child_process'
-import { createHash } from 'node:crypto'
+import {
+  buildWslExecArgs,
+  buildWslLoginShellCommand,
+  quotePosixShell
+} from '../../shared/wsl-login-shell-command'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { delimiter, join } from 'node:path'
@@ -7,11 +11,6 @@ import type { CommandHandler, HandlerContext } from '../dispatch'
 import { printResult } from '../format'
 import { RuntimeClientError } from '../runtime-client'
 import { stripElectronRunAsNode } from '../runtime/launch'
-import {
-  deleteActiveClaudeKeychainCredentialsStrict,
-  readActiveClaudeKeychainCredentialsStrict,
-  writeActiveClaudeKeychainCredentials
-} from '../../main/claude-accounts/keychain'
 import {
   getVersionManagerBinPaths,
   resolveCliCommand,
@@ -26,6 +25,7 @@ import { stdioForWindowsInteractiveChild } from '../../shared/windows-console-in
 import { ACCOUNT_IMPORT_RUNTIME_CAPABILITY } from '../../shared/protocol-version'
 import type { RuntimeStatus } from '../../shared/runtime-types'
 import type {
+  ClaudeAccountSignIn,
   ClaudeRateLimitAccountsState,
   CodexRateLimitAccountsState
 } from '../../shared/managed-account-types'
@@ -44,7 +44,7 @@ type AccountsListSnapshot = {
 // Why: Claude and Codex managed-account summaries both carry id+email+active id,
 // so one formatter renders either provider's block.
 type AccountsBlock = {
-  accounts: readonly { id: string; email: string }[]
+  accounts: readonly { id: string; email: string; needsSignIn?: true }[]
   activeAccountId: string | null
   activeAccountIdsByRuntime?: {
     host: string | null
@@ -63,7 +63,10 @@ function formatAccountsBlock(label: string, block: AccountsBlock): string {
     ...Object.values(block.activeAccountIdsByRuntime?.wsl ?? {})
   ])
   const lines = block.accounts.map(
-    (account) => `  ${account.email}${activeAccountIds.has(account.id) ? ' (active)' : ''}`
+    (account) =>
+      `  ${account.email}${activeAccountIds.has(account.id) ? ' (active)' : ''}${
+        account.needsSignIn ? ' (sign in again in Orca Settings > AI Provider Accounts)' : ''
+      }`
   )
   return `Managed ${label} accounts (${block.accounts.length}):\n${lines.join('\n')}`
 }
@@ -161,79 +164,53 @@ async function runAgentLoginInTerminal(
   })
 }
 
-async function cleanupClaudeLoginArtifacts(
-  configDir: string,
-  legacyCredentials: string | null,
-  restoreLegacyCredentials: boolean
-): Promise<void> {
-  const errors: unknown[] = []
-  if (process.platform === 'darwin') {
-    try {
-      await deleteActiveClaudeKeychainCredentialsStrict(configDir)
-    } catch (error) {
-      errors.push(error)
-    }
-    if (restoreLegacyCredentials) {
-      try {
-        await (legacyCredentials
-          ? writeActiveClaudeKeychainCredentials(legacyCredentials)
-          : deleteActiveClaudeKeychainCredentialsStrict())
-      } catch (error) {
-        errors.push(error)
-      }
-    }
-  }
-  try {
-    rmSync(configDir, { recursive: true, force: true })
-  } catch (error) {
-    errors.push(error)
-  }
-  if (errors.length > 0) {
-    throw new AggregateError(errors, 'Failed to clean up Claude login artifacts.')
-  }
-}
-
-/** Logs into a Claude account in a temp config dir, then registers it with the local runtime. */
+/** Signs in to a new account folder the host created, then registers it (superset AddAccountDialog). */
 async function addClaudeAccount({ client, cwd, json }: HandlerContext): Promise<void> {
-  const configDir = mkdtempSync(join(tmpdir(), 'orca-account-add-claude-'))
+  const { result: signIn } = await client.call<ClaudeAccountSignIn>(
+    'accounts.beginClaudeSignIn',
+    getWslAccountTarget(cwd) ?? {},
+    { timeoutMs: 300_000 }
+  )
   const session: InteractiveLoginSession = {
     child: null,
     registering: false,
     terminationPromise: null
   }
-  let legacyCredentials: string | null = null
-  let restoreLegacyCredentials = false
   const result = await withInteractiveLoginCleanup(
     session,
+    // Why always: the host keeps a folder that became an account, and deletes an abandoned one.
+    // Never thrown: an older running Orca lacks the method, and the add itself already finished.
     async () => {
-      await cleanupClaudeLoginArtifacts(configDir, legacyCredentials, restoreLegacyCredentials)
+      const { accountId, runtime, wslDistro } = signIn
+      await client
+        .call('accounts.cancelClaudeSignIn', { accountId, runtime, wslDistro })
+        .catch((error: unknown) => console.warn('[account] Could not clean up sign-in:', error))
     },
     async () => {
-      if (process.platform === 'darwin') {
-        legacyCredentials = await readActiveClaudeKeychainCredentialsStrict()
-        restoreLegacyCredentials = true
+      if (signIn.runtime === 'wsl' && signIn.wslDistro) {
+        const login = `exec env CLAUDE_CONFIG_DIR=${quotePosixShell(signIn.configDir)} claude auth login`
+        await runAgentLoginInTerminal(
+          'wsl.exe',
+          buildWslExecArgs(signIn.wslDistro, ['/bin/sh', '-c', buildWslLoginShellCommand(login)]),
+          {},
+          json,
+          session
+        )
+      } else {
+        await runAgentLoginInTerminal(
+          'claude',
+          ['auth', 'login'],
+          { CLAUDE_CONFIG_DIR: signIn.configDir },
+          json,
+          session
+        )
       }
-      await runAgentLoginInTerminal(
-        'claude',
-        ['auth', 'login', '--claudeai'],
-        {
-          CLAUDE_CONFIG_DIR: configDir
-        },
-        json,
-        session
-      )
       session.registering = true
-      return client.call<ClaudeRateLimitAccountsState>('accounts.addClaudeFromConfigDir', {
-        configDir,
-        ...getWslAccountTarget(cwd),
-        ...(process.platform === 'darwin'
-          ? {
-              previousLegacyCredentialsSha256: legacyCredentials
-                ? createHash('sha256').update(legacyCredentials).digest('hex')
-                : null
-            }
-          : {})
-      })
+      return client.call<ClaudeRateLimitAccountsState>(
+        'accounts.finishClaudeSignIn',
+        { accountId: signIn.accountId, runtime: signIn.runtime, wslDistro: signIn.wslDistro },
+        { timeoutMs: 300_000 }
+      )
     }
   )
   printResult(result, json, (state) => formatAccountsBlock('Claude', state))

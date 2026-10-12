@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react'
+import { getRepoExecutionHostId, LOCAL_EXECUTION_HOST_ID } from '../../../../shared/execution-host'
 import { searchRuntimeRepoBaseRefDetails } from '@/runtime/runtime-repo-client'
 import { RESULT_LIMIT } from './smart-workspace-name-field-model'
 import { getBranchSearchRequest } from './smart-workspace-source-results'
@@ -19,7 +20,6 @@ export function useSmartWorkspaceSecondarySearches({
     mode,
     selectedRepo,
     debouncedQuery,
-    selectedRepoOwnerSettings,
     setBranches,
     setBranchResultsSource,
     setBranchesLoading
@@ -46,6 +46,10 @@ export function useSmartWorkspaceSecondarySearches({
     ]
   )
 
+  const branchSearchHostId = selectedRepo
+    ? getRepoExecutionHostId(selectedRepo)
+    : LOCAL_EXECUTION_HOST_ID
+
   useEffect(() => {
     if (!branchSearchRequest) {
       setBranches([])
@@ -57,7 +61,7 @@ export function useSmartWorkspaceSecondarySearches({
     // Why: visibility retains prior rows while typing ahead of the debounced query.
     setBranchesLoading(true)
     void searchRuntimeRepoBaseRefDetails(
-      selectedRepoOwnerSettings,
+      branchSearchHostId,
       branchSearchRequest.repoId,
       branchSearchRequest.query,
       branchSearchRequest.limit
@@ -86,8 +90,8 @@ export function useSmartWorkspaceSecondarySearches({
       stale = true
     }
   }, [
+    branchSearchHostId,
     branchSearchRequest,
-    selectedRepoOwnerSettings,
     setBranches,
     setBranchResultsSource,
     setBranchesLoading

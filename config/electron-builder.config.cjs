@@ -1,13 +1,24 @@
 const { chmodSync, existsSync, readdirSync, readFileSync, writeFileSync } = require('node:fs')
 const { execFileSync } = require('node:child_process')
 const { join, resolve } = require('node:path')
+const {
+  MACOS_FOLDER_USAGE_DESCRIPTIONS,
+  applyMacHelperFolderUsageDescriptions
+} = require('./scripts/macos-folder-usage-descriptions.cjs')
 const electronBuilderNativeRebuild = require('./scripts/electron-builder-native-rebuild.cjs')
 const {
   assertPackagedDaemonEntryExists,
-  verifyPackagedDaemonEntryBoots
+  verifyPackagedDaemonEntryBoots,
+  verifyPackagedMacTerminalHostBoots
 } = require('./scripts/verify-packaged-daemon-entry.cjs')
 const {
+  buildMacTerminalHost,
+  macTerminalHostSignIgnore,
+  verifyMacTerminalHost
+} = require('./scripts/macos-terminal-host-bundle.cjs')
+const {
   assertPackagedNativeVariantsInstalled,
+  assertProcessHostOutputBuilt,
   createPackagedRuntimeNodeModuleResources,
   prunePackagedRuntimeNodeModules,
   verifyPackagedMainRuntimeDeps
@@ -74,6 +85,12 @@ const skillFreshnessResources = {
   from: 'resources/skills',
   to: 'skills'
 }
+// Why a real directory: native-chat agents load this skill plugin by path (Claude --plugin-dir,
+// Codex skill roots), and neither can read inside app.asar.
+const nativeChatVisualsResource = {
+  from: 'resources/native-chat-visuals',
+  to: 'native-chat-visuals'
+}
 // Why: SSH relay deploy resolves bundles from process.resourcesPath in packaged
 // apps. Keeping relay assets as extraResources makes them real directories
 // instead of paths hidden inside app.asar.
@@ -103,6 +120,7 @@ const commonExtraResources = [
   ...bundledRipgrepExtraResources,
   bundledPluginResources,
   skillFreshnessResources,
+  nativeChatVisualsResource,
   emojiShortcodeDatasetResource
 ]
 // Why: native speech addons must be real files outside app.asar; copy only the
@@ -144,9 +162,10 @@ const rpmElectronRuntimeDependencies = [
 ]
 
 // Why mirrored, not imported: this config is CJS loaded by electron-builder outside the TS build.
-// Keep in sync with isMarkdownDocumentName() in src/main/ipc/markdown-documents.ts and with
+// Keep in sync with isOsOpenedDocumentName() in src/main/startup/os-opened-documents.ts and with
 // config/nsis/orca-installer-hooks.nsh, which registers the same set on Windows.
 const MARKDOWN_FILE_EXTENSIONS = ['md', 'markdown', 'mdx']
+const TABULAR_FILE_EXTENSIONS = ['csv', 'tsv']
 
 // Why: the config must load on a host-only install without resolving unused Windows addons.
 // This is load-time tolerance only; beforePack enforces that the target's natives are installed.
@@ -157,6 +176,28 @@ const windowsRuntimeResources = existsSync(
 )
   ? createPackagedRuntimeNodeModuleResources('win32')
   : []
+
+// Shared with the terminal host helper so its purpose strings cannot drift from the app's.
+const macUsageDescriptions = {
+  NSAppleEventsUsageDescription:
+    'Orca allows terminal-launched developer tools to automate local apps when you request it.',
+  NSBluetoothAlwaysUsageDescription:
+    'Orca allows terminal-launched developer tools to access Bluetooth devices when you request it.',
+  NSBluetoothPeripheralUsageDescription:
+    'Orca allows terminal-launched developer tools to access Bluetooth devices when you request it.',
+  NSCameraUsageDescription: "Application requests access to the device's camera.",
+  NSLocationUsageDescription:
+    'Orca allows terminal-launched developer tools to access location when you request it.',
+  NSLocalNetworkUsageDescription:
+    'Orca allows terminal-launched developer tools to discover and connect to local development servers when you request it.',
+  NSMicrophoneUsageDescription: "Application requests access to the device's microphone.",
+  NSAudioCaptureUsageDescription:
+    'Orca allows terminal-launched developer tools to capture desktop audio when you request it.',
+  NSBonjourServices: ['_http._tcp', '_https._tcp'],
+  ...MACOS_FOLDER_USAGE_DESCRIPTIONS
+}
+// Developer ID team that signs every release-channel mac build.
+const ORCA_MAC_TEAM_ID = '6CX3WHS9HZ'
 
 /** @type {import('electron-builder').Configuration} */
 module.exports = {
@@ -176,6 +217,8 @@ module.exports = {
     // extraResources. Shipping them in app.asar bloats the desktop bundle.
     '!src{,/**/*}',
     '!config{,/**/*}',
+    // Release archives and other build staging are not runtime resources.
+    '!.build{,/**/*}',
     '!docs{,/**/*}',
     '!native{,/**/*}',
     '!skills{,/**/*}',
@@ -222,6 +265,7 @@ module.exports = {
     // it from process.resourcesPath; exclude the source copy from app.asar.
     '!resources/onboarding/feature-wall/**',
     '!resources/skills/**',
+    '!resources/native-chat-visuals/**',
     // Why: bundled plugins ship via extraResources to resources/plugins/launch;
     // packing the source tree into app.asar would duplicate those exact bytes.
     '!resources/plugins/launch/**',
@@ -252,12 +296,13 @@ module.exports = {
   // before the GUI process starts, so those deps need the same treatment.
   // Why: out/package.json pins compiled output to CommonJS so parent
   // package.json files with type=module cannot change the packaged CLI loader.
-  // Why: the OpenCode SQLite worker entry is also spawned by the scanner
+  // Why: the foreign SQLite reader entry is also spawned by the scanner
   // service, which runs under ELECTRON_RUN_AS_NODE and so cannot see into
   // app.asar. Left packed, that spawn fails closed and every OpenCode session
   // disappears from Agent Session History in packaged builds only. Worker
   // entries reached solely from the Electron main process stay packed, since
   // asar redirects their app.asar paths.
+  // Why: `orca serve` runs the orcad selection entry under ELECTRON_RUN_AS_NODE too (#27307).
   asarUnpack: [
     'out/package.json',
     'out/cli/**',
@@ -279,7 +324,7 @@ module.exports = {
     'out/main/daemon-entry.js',
     'out/main/session-scanner-service-entry.js',
     'out/main/wsl-transcript-fs-process-entry.js',
-    'out/main/session-scanner-opencode-sqlite-worker-entry.js',
+    'out/main/foreign-sqlite-reader-entry.js',
     'out/main/plugin-host-entry.js',
     'out/main/computer-sidecar.js',
     'out/main/parcel-watcher-process-entry.js',
@@ -297,6 +342,7 @@ module.exports = {
   beforePack: (context) => {
     assertPackagedNativeVariantsInstalled(context.electronPlatformName, context.arch)
     assertBundledRipgrepInstalled()
+    assertProcessHostOutputBuilt()
   },
   afterPack: async (context) => {
     const resourcesDir =
@@ -316,11 +362,11 @@ module.exports = {
       writeFileSync(join(resourcesDir, 'package-type'), 'AppImage')
     }
     if (context.electronPlatformName === 'darwin') {
-      const architectureByEnum = { 1: 'x64', 3: 'arm64' }
-      const architecture = architectureByEnum[context.arch]
-      if (!architecture) {
-        throw new Error(`Unsupported local-build compatibility architecture: ${context.arch}`)
-      }
+      applyMacHelperFolderUsageDescriptions(
+        join(context.appOutDir, `${context.packager.appInfo.productFilename}.app`),
+        context.packager.appInfo.productFilename
+      )
+      const architecture = macSliceArch(context.arch, 'local-build compatibility')
       const version = context.packager.appInfo.version
       let commit = process.env.ORCA_BUILD_COMMIT || process.env.GITHUB_SHA || 'unknown'
       if (commit === 'unknown') {
@@ -406,6 +452,7 @@ module.exports = {
         'orca-keyboard-layout',
         context.packager
       )
+      await packageMacTerminalHost(join(resourcesDir, '..', '..'), context)
     }
   },
   win: {
@@ -468,41 +515,30 @@ module.exports = {
     include: resolve(__dirname, 'nsis', 'orca-installer-hooks.nsh')
   },
   mac: {
-    // Why rank Alternate: Orca joins Finder's "Open With" list for Markdown without claiming
+    // Why rank Alternate: Orca joins Finder's "Open With" list without claiming
     // LSHandlerRank ownership, so whichever editor the user already prefers stays the default.
     // Why one entry per extension: app-builder-lib globs `*.${ext}`, which an array would break.
-    fileAssociations: MARKDOWN_FILE_EXTENSIONS.map((ext) => ({
-      ext,
-      name: 'Markdown Document',
-      description: 'Markdown Document',
-      role: 'Editor',
-      rank: 'Alternate'
-    })),
+    fileAssociations: [
+      ...MARKDOWN_FILE_EXTENSIONS.map((ext) => ({
+        ext,
+        name: 'Markdown Document',
+        description: 'Markdown Document',
+        role: 'Editor',
+        rank: 'Alternate'
+      })),
+      ...TABULAR_FILE_EXTENSIONS.map((ext) => ({
+        ext,
+        name: `${ext.toUpperCase()} Document`,
+        description: `${ext.toUpperCase()} Document`,
+        role: 'Editor',
+        rank: 'Alternate'
+      }))
+    ],
     icon: 'resources/build/icon.icns',
     entitlements: 'resources/build/entitlements.mac.plist',
     entitlementsInherit: 'resources/build/entitlements.mac.plist',
-    signIgnore: [...bundledRipgrepMacSignIgnore],
-    extendInfo: {
-      NSAppleEventsUsageDescription:
-        'Orca allows terminal-launched developer tools to automate local apps when you request it.',
-      NSBluetoothAlwaysUsageDescription:
-        'Orca allows terminal-launched developer tools to access Bluetooth devices when you request it.',
-      NSBluetoothPeripheralUsageDescription:
-        'Orca allows terminal-launched developer tools to access Bluetooth devices when you request it.',
-      NSCameraUsageDescription: "Application requests access to the device's camera.",
-      NSLocationUsageDescription:
-        'Orca allows terminal-launched developer tools to access location when you request it.',
-      NSLocalNetworkUsageDescription:
-        'Orca allows terminal-launched developer tools to discover and connect to local development servers when you request it.',
-      NSMicrophoneUsageDescription: "Application requests access to the device's microphone.",
-      NSAudioCaptureUsageDescription:
-        'Orca allows terminal-launched developer tools to capture desktop audio when you request it.',
-      NSBonjourServices: ['_http._tcp', '_https._tcp'],
-      NSDocumentsFolderUsageDescription:
-        "Application requests access to the user's Documents folder.",
-      NSDownloadsFolderUsageDescription:
-        "Application requests access to the user's Downloads folder."
-    },
+    signIgnore: [...bundledRipgrepMacSignIgnore, ...macTerminalHostSignIgnore],
+    extendInfo: macUsageDescriptions,
     // Why: local macOS validation builds should launch without Apple release
     // credentials. Hardened runtime + notarization stay enabled only on the
     // explicit release path so production artifacts remain strict while dev
@@ -570,7 +606,7 @@ module.exports = {
     // override. A desktop entry's MimeType only adds a handler - mimeapps.list still owns the
     // default. .mdx is deliberately absent: Ubuntu 24.04's mime database maps it to
     // application/x-genesis-32x-rom, so claiming it here would need a glob override.
-    mimeTypes: ['text/markdown'],
+    mimeTypes: ['text/markdown', 'text/csv', 'text/tab-separated-values'],
     // Why: Ubuntu desktop ships GNOME Orca as the `orca` package and /usr/bin/orca.
     // The Linux installer should not claim those system package/file names.
     executableName: 'orca-ide',
@@ -715,7 +751,41 @@ async function signMacComputerUseHelper(helperAppPath, packager) {
   })
 }
 
-async function signMacStandaloneHelper(helperPath, helperName, packager) {
+// electron-builder `Arch` enum: x64=1, arm64=3. A universal (4) slice has no single arch.
+function macSliceArch(archEnum, purpose) {
+  const arch = { 1: 'x64', 3: 'arm64' }[archEnum]
+  if (!arch) {
+    throw new Error(`Unsupported ${purpose} architecture: ${archEnum}`)
+  }
+  return arch
+}
+
+// Why after the node_modules prune: the helper copies this slice's node-pty.
+async function packageMacTerminalHost(appPath, context) {
+  const arch = macSliceArch(context.arch, 'macOS terminal host')
+  await buildMacTerminalHost({
+    appPath,
+    arch,
+    iconPath: resolve(__dirname, '../resources/build/icon.icns'),
+    entitlementsPath: resolve(__dirname, '../resources/build/entitlements.mac.plist'),
+    usageDescriptions: macUsageDescriptions,
+    signCode: (path, { entitlements }) =>
+      signMacStandaloneHelper(path, 'terminal host', context.packager, entitlements)
+  })
+  // Only a local build may skip a slice this host cannot run; a shipped slice must serve a PTY.
+  await verifyPackagedMacTerminalHostBoots(appPath, {
+    arch,
+    required: isMacRelease || process.env.CI === 'true'
+  })
+  await verifyMacTerminalHost({
+    appPath,
+    arch,
+    usageDescriptions: macUsageDescriptions,
+    expectedTeamId: isMacRelease ? ORCA_MAC_TEAM_ID : null
+  })
+}
+
+async function signMacStandaloneHelper(helperPath, helperName, packager, entitlements) {
   if (!existsSync(helperPath)) {
     if (isMacRelease) {
       throw new Error(`Missing ${helperName} helper at ${helperPath}`)
@@ -737,6 +807,9 @@ async function signMacStandaloneHelper(helperPath, helperName, packager) {
   const args = ['--force', '--sign', identity]
   if (isMacRelease) {
     args.push('--options', 'runtime', '--timestamp')
+  }
+  if (entitlements) {
+    args.push('--entitlements', entitlements)
   }
   args.push(helperPath)
   execFileSync('codesign', args, { stdio: 'inherit' })

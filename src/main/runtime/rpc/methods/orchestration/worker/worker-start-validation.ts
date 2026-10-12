@@ -15,6 +15,7 @@ export function prepareLocalWorkerStart(args: {
   params: WorkerStartInput
   createsWorktree: boolean
   runtime: OrcaRuntimeService
+  openCodeModelLaunchSupported?: boolean
 }): { agent: TuiAgent | undefined; launch: WorkerStartLaunch } {
   const { params, createsWorktree, runtime } = args
   assertWorkerLaunchPreferencesCreateTerminal(params)
@@ -41,6 +42,8 @@ export function prepareLocalWorkerStart(args: {
   }
   return resolveWorkerStartAgent({
     runtime,
+    openCodeModelLaunchSupported: args.openCodeModelLaunchSupported,
+    createsWorktree,
     terminal: params.terminal,
     agent: params.agent,
     model: params.model,
@@ -51,22 +54,30 @@ export function prepareLocalWorkerStart(args: {
 
 function resolveWorkerStartAgent(args: {
   runtime: OrcaRuntimeService
+  openCodeModelLaunchSupported?: boolean
+  createsWorktree: boolean
   terminal?: string
   agent?: string
   model?: string
   effort?: string
   missingAgentMessage: string
 }): { agent: TuiAgent | undefined; launch: WorkerStartLaunch } {
-  if (!args.terminal && (!args.agent || !isTuiAgent(args.agent))) {
+  const agent = args.agent
+    ? isTuiAgent(args.agent)
+      ? args.agent
+      : args.runtime.resolveOrchestrationAgentLauncher?.(args.agent)
+    : undefined
+  if (!args.terminal && !agent) {
     throw new OrchestrationError('agent_unconfigured', args.missingAgentMessage)
   }
-  const agent = args.agent as TuiAgent | undefined
   if (agent) {
     args.runtime.validateOrchestrationAgentLauncher(agent)
     return {
       agent,
       launch: resolveWorkerLaunchPreferences({
         agent,
+        openCodeModelLaunchSupported: args.openCodeModelLaunchSupported,
+        createsWorktree: args.createsWorktree,
         model: args.model,
         effort: args.effort
       })

@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react'
+import { toast } from 'sonner'
 import { translate } from '@/i18n/i18n'
+import { LOCAL_EXECUTION_HOST_ID } from '../../../../shared/execution-host'
 import type { DiscoveredSkill } from '../../../../shared/skills'
 import { SkillRow } from './SkillRow'
 import { SkillDetailDialog } from './SkillDetailDialog'
@@ -90,6 +92,18 @@ export function SkillsList({
     }
   }
 
+  const revealSkill = async (skill: DiscoveredSkill): Promise<void> => {
+    const result = await window.api.shell.openInFileManager(
+      skill.skillFilePath,
+      LOCAL_EXECUTION_HOST_ID
+    )
+    if (!result.ok) {
+      toast.error(
+        translate('auto.components.skills.SkillsPage.995fde8337', 'Could not reveal skill file')
+      )
+    }
+  }
+
   return (
     <>
       <SkillDetailDialog
@@ -97,6 +111,11 @@ export function SkillsList({
         agentByRootPath={agentByRootPath}
         deletable={detailSkill ? deleteSupported && isSkillDeleteEligible(detailSkill) : false}
         deleteDisabledReason={detailSkill ? deleteReasonFor(detailSkill) : null}
+        onReveal={() => {
+          if (detailSkill) {
+            void revealSkill(detailSkill)
+          }
+        }}
         onOpenChange={(open) => {
           if (!open) {
             setDetailSkill(null)
@@ -137,6 +156,7 @@ export function SkillsList({
               onOpenDetail={() => setDetailSkill(skill)}
               onSelectionChange={(selected, range) => handleSelection(index, selected, range)}
               onDelete={() => onDelete(skill)}
+              onReveal={() => void revealSkill(skill)}
               onKeyDown={onListKeyDown}
             />
           )

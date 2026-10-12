@@ -9,6 +9,7 @@ import type {
 
 function makeSettings(overrides: Partial<NotificationSettings> = {}): NotificationSettings {
   return {
+    mutedNotificationSourceIds: [],
     enabled: true,
     agentTaskComplete: true,
     terminalBell: true,

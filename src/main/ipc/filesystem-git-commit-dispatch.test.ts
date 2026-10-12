@@ -4,7 +4,6 @@ import {
   store,
   WORKTREE_FEATURE_PATH,
   commitChangesMock,
-  bulkDiscardChangesMock,
   getSshGitProviderMock,
   resetFilesystemIpcMocks
 } from './filesystem-test-harness'
@@ -81,42 +80,6 @@ describe('registerFilesystemHandlers', () => {
     })
   })
 
-  it('routes ssh git:commit through the SSH provider instead of local commitChanges', async () => {
-    const sshCommitMock = vi.fn().mockResolvedValue({ success: true })
-    getSshGitProviderMock.mockReturnValue({ commit: sshCommitMock })
-
-    registerFilesystemHandlers(store as never)
-
-    await expect(
-      handlers.get('git:commit')!(null, {
-        worktreePath: '/remote/repo',
-        message: 'feat: remote commit',
-        connectionId: 'conn-1'
-      })
-    ).resolves.toEqual({ success: true })
-
-    expect(sshCommitMock).toHaveBeenCalledWith('/remote/repo', 'feat: remote commit')
-    expect(commitChangesMock).not.toHaveBeenCalled()
-  })
-
-  it('routes ssh git:remoteCommitUrl through the SSH provider', async () => {
-    const sha = '0123456789abcdef0123456789abcdef01234567'
-    const sshRemoteCommitUrlMock = vi.fn().mockResolvedValue('https://github.com/org/repo/commit/x')
-    getSshGitProviderMock.mockReturnValue({ getRemoteCommitUrl: sshRemoteCommitUrlMock })
-
-    registerFilesystemHandlers(store as never)
-
-    await expect(
-      handlers.get('git:remoteCommitUrl')!(null, {
-        worktreePath: '/remote/repo',
-        sha,
-        connectionId: 'conn-1'
-      })
-    ).resolves.toBe('https://github.com/org/repo/commit/x')
-
-    expect(sshRemoteCommitUrlMock).toHaveBeenCalledWith('/remote/repo', sha)
-  })
-
   it('rejects git:remoteCommitUrl with a short hash before SSH dispatch', async () => {
     const sshRemoteCommitUrlMock = vi.fn()
     getSshGitProviderMock.mockReturnValue({ getRemoteCommitUrl: sshRemoteCommitUrlMock })
@@ -132,38 +95,6 @@ describe('registerFilesystemHandlers', () => {
     ).rejects.toThrow('sha must be a full git object id')
 
     expect(sshRemoteCommitUrlMock).not.toHaveBeenCalled()
-  })
-
-  it('routes ssh git:bulkDiscard through the SSH provider', async () => {
-    const sshBulkDiscardMock = vi.fn().mockResolvedValue(undefined)
-    getSshGitProviderMock.mockReturnValue({ bulkDiscardChanges: sshBulkDiscardMock })
-
-    registerFilesystemHandlers(store as never)
-
-    await handlers.get('git:bulkDiscard')!(null, {
-      worktreePath: '/remote/repo',
-      filePaths: ['a.ts', 'b.ts'],
-      connectionId: 'conn-1'
-    })
-
-    expect(sshBulkDiscardMock).toHaveBeenCalledWith('/remote/repo', ['a.ts', 'b.ts'])
-    expect(bulkDiscardChangesMock).not.toHaveBeenCalled()
-  })
-
-  it('routes ssh git:fastForward through the SSH provider', async () => {
-    const sshFastForwardMock = vi.fn().mockResolvedValue(undefined)
-    const pushTarget = { remoteName: 'fork', branchName: 'feature/fix' }
-    getSshGitProviderMock.mockReturnValue({ fastForwardBranch: sshFastForwardMock })
-
-    registerFilesystemHandlers(store as never)
-
-    await handlers.get('git:fastForward')!(null, {
-      worktreePath: '/remote/repo',
-      connectionId: 'conn-1',
-      pushTarget
-    })
-
-    expect(sshFastForwardMock).toHaveBeenCalledWith('/remote/repo', pushTarget)
   })
 
   it('rejects git:commit with whitespace-only message and does not call commitChanges', async () => {

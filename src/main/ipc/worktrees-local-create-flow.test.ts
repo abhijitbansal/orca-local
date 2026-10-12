@@ -364,28 +364,6 @@ describe('registerWorktreeHandlers', () => {
     })
   })
 
-  it('suffixes a remote branch collision without probing a forge for an existing PR', async () => {
-    getBranchConflictKindMock.mockResolvedValueOnce('remote').mockResolvedValueOnce(null)
-    listWorktreesMock.mockResolvedValue([
-      {
-        path: '/workspace/fix-title-2',
-        head: 'abc123',
-        branch: 'fix-title-2',
-        isBare: false,
-        isMainWorktree: false
-      }
-    ])
-
-    await handlers['worktrees:create'](null, {
-      repoId: 'repo-1',
-      name: 'fix-title',
-      baseBranch: 'origin/main'
-    })
-
-    expect(getBranchConflictKindMock).toHaveBeenCalledTimes(2)
-    expect(addWorktreeMock).toHaveBeenCalledTimes(1)
-  })
-
   it('keeps an emoji-only display name while using safe branch and path names', async () => {
     listWorktreesMock.mockResolvedValue([
       {
@@ -501,7 +479,7 @@ describe('registerWorktreeHandlers', () => {
     expect(listWorktreesMock).toHaveBeenCalledTimes(listWorktreesCallsAfterCreate)
   })
 
-  it('completes a create the listing failed and keeps sibling worktrees authorized', async () => {
+  it('verifies a create without re-listing and keeps sibling worktrees authorized', async () => {
     const sibling = {
       path: '/workspace/existing-sibling',
       head: 'sib123',
@@ -520,8 +498,9 @@ describe('registerWorktreeHandlers', () => {
       sibling
     ])
     await handlers['worktrees:create'](null, { repoId: 'repo-1', name: 'existing-sibling' })
+    const listingCalls = listWorktreesMock.mock.calls.length
 
-    // The create Git could no longer list, recovered by reading the worktree directly.
+    // Only the new checkout needs verification, even when the full listing is unavailable.
     listWorktreesMock.mockRejectedValue(new Error('git worktree list timed out.'))
     describeCreatedWorktreeMock.mockResolvedValue({
       path: '/workspace/improve-dashboard',
@@ -542,6 +521,7 @@ describe('registerWorktreeHandlers', () => {
     await expect(
       resolveRegisteredWorktreePath('/workspace/improve-dashboard', store as never)
     ).resolves.toBe(resolve('/workspace/improve-dashboard'))
+    expect(listWorktreesMock).toHaveBeenCalledTimes(listingCalls)
   })
 
   it('uses branchNameOverride for the git branch while keeping the sanitized worktree path', async () => {
@@ -703,7 +683,8 @@ describe('registerWorktreeHandlers', () => {
           request_kind: 'new'
         },
         surfaceOwner: false
-      }
+      },
+      expect.objectContaining({ id: 'repo-1::/workspace/improve-dashboard' })
     )
     expect(runtimeStub.createTerminal).toHaveBeenNthCalledWith(
       2,
@@ -717,7 +698,8 @@ describe('registerWorktreeHandlers', () => {
         },
         activate: false,
         surfaceOwner: false
-      }
+      },
+      expect.objectContaining({ id: 'repo-1::/workspace/improve-dashboard' })
     )
     const startupCreateCall = runtimeStub.createTerminal.mock.calls[0]
     const setupCreateCall = runtimeStub.createTerminal.mock.calls[1]
@@ -834,13 +816,17 @@ describe('registerWorktreeHandlers', () => {
 
     expect(runtimeStub.createTerminal).toHaveBeenCalledTimes(1)
     // A user who moved on must not be scrolled to the new workspace by its setup pane (#9944).
-    expect(runtimeStub.splitTerminal).toHaveBeenCalledWith('term-startup', {
-      direction: 'vertical',
-      command: expect.stringContaining('setup-runner.sh'),
-      env: expect.any(Object),
-      activate: false,
-      surfaceOwner: false
-    })
+    expect(runtimeStub.splitTerminal).toHaveBeenCalledWith(
+      'term-startup',
+      {
+        direction: 'vertical',
+        command: expect.stringContaining('setup-runner.sh'),
+        env: expect.any(Object),
+        activate: false,
+        surfaceOwner: false
+      },
+      expect.objectContaining({ id: 'repo-1::/workspace/improve-dashboard' })
+    )
   })
 
   it('rejects ask-policy creates before mutating git state when setup decision is missing', async () => {

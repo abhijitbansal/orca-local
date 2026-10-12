@@ -167,6 +167,12 @@ jobs:
           native-runtime: node
           node-version: '24'
 
+      # Why: verify:localization-catalogs runs under bun.
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: config/.bun-version
+
       # Keep each check in its own log while sharing this runner.
       - name: Lint
         id: root-lint
@@ -648,6 +654,11 @@ jobs:
           filter: blob:none
           persist-credentials: false
 
+      # Why: this fork publishes only -local tags; the release baseline is upstream's newest tag.
+      - name: Fetch upstream release tags
+        shell: bash
+        run: git fetch --quiet --no-tags --filter=blob:none https://github.com/stablyai/orca.git 'refs/tags/v*:refs/tags/v*'
+
       - uses: ./.github/actions/install-node-dependencies
         with:
           native-runtime: node
@@ -764,12 +775,12 @@ jobs:
         run: |
           set -euo pipefail
           version="$(node -p "require('./package.json').version")"
-          deb="dist/orca-ide_${version}_amd64.deb"
-          rpm="dist/orca-ide-${version}.x86_64.rpm"
+          deb="dist/orca-local_${version}_amd64.deb"
+          rpm="dist/orca-local-${version}.x86_64.rpm"
           test -s "$deb"
           test -s "$rpm"
-          deb_marker="$(dpkg-deb --fsys-tarfile "$deb" | tar -xOf - ./opt/Orca/resources/package-type)"
-          rpm_marker="$(rpm2cpio "$rpm" | cpio --quiet --extract --to-stdout ./opt/Orca/resources/package-type)"
+          deb_marker="$(dpkg-deb --fsys-tarfile "$deb" | tar -xOf - --wildcards './opt/*/resources/package-type')"
+          rpm_marker="$(rpm2cpio "$rpm" | cpio --quiet --extract --to-stdout './opt/*/resources/package-type')"
           [[ "$deb_marker" == deb ]] || { echo "Expected deb marker, got: $deb_marker"; exit 1; }
           [[ "$rpm_marker" == rpm ]] || { echo "Expected rpm marker, got: $rpm_marker"; exit 1; }
 

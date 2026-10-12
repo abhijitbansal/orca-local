@@ -491,4 +491,26 @@ describe('registerWorktreeHandlers', () => {
       {}
     )
   })
+
+  it('suffixes a remote branch collision without probing a forge for an existing PR', async () => {
+    getBranchConflictKindMock.mockResolvedValueOnce('remote').mockResolvedValueOnce(null)
+    listWorktreesMock.mockResolvedValue([
+      {
+        path: '/workspace/fix-title-2',
+        head: 'abc123',
+        branch: 'fix-title-2',
+        isBare: false,
+        isMainWorktree: false
+      }
+    ])
+
+    await handlers['worktrees:create'](null, {
+      repoId: 'repo-1',
+      name: 'fix-title',
+      baseBranch: 'origin/main'
+    })
+
+    expect(getBranchConflictKindMock).toHaveBeenCalledTimes(2)
+    expect(addWorktreeMock).toHaveBeenCalledTimes(1)
+  })
 })

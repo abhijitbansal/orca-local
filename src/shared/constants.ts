@@ -221,6 +221,9 @@ export function getDefaultUIState(): PersistedUIState {
     filterRepoIds: [],
     agentsVisibleHostIds: null,
     agentsFilterRepoIds: [],
+    agentsHideWorkspacesFromOtherDevices: false,
+    agentsHideAutomationGeneratedWorkspaces: false,
+    agentsHideCliCreatedWorkspaces: false,
     agentsShowChildAgents: false,
     agentsCompactMode: true,
     agentsShowSearch: true,
@@ -265,6 +268,7 @@ export function getDefaultUIState(): PersistedUIState {
     projectOrderManualDefaultNoticeDismissed: true,
     // Why: only upgraded profiles saw the old default, so only they get the one-time change notice.
     usagePercentageDisplayChangeNoticeDismissed: true,
+    statusBarCompactChangeNoticeDismissed: true,
     workspaceCleanup: { dismissals: {} },
     featureTipsSeenIds: [],
     featureInteractions: {},

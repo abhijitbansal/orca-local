@@ -1,4 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type * as LocalCommandResolver from './command-path-resolver'
+import type { ProcessSpec } from '@orca/process-host/process-spec'
 
 const {
   handleMock,
@@ -7,9 +9,9 @@ const {
   runWslProcessMock,
   hydrateShellPathMock,
   mergePathSegmentsMock,
-  getActiveMultiplexerMock,
   resolveCliCommandsMock,
   isCommandOnLocalPathMock,
+  listLocalCommandPathsMock,
   mergePersistedWindowsPathAsyncMock,
   mergePersistedWindowsPathMock
 } = vi.hoisted(() => ({
@@ -19,9 +21,9 @@ const {
   runWslProcessMock: vi.fn(),
   hydrateShellPathMock: vi.fn(),
   mergePathSegmentsMock: vi.fn(),
-  getActiveMultiplexerMock: vi.fn(),
   resolveCliCommandsMock: vi.fn(),
   isCommandOnLocalPathMock: vi.fn(),
+  listLocalCommandPathsMock: vi.fn(),
   mergePersistedWindowsPathAsyncMock: vi.fn(),
   mergePersistedWindowsPathMock: vi.fn()
 }))
@@ -42,6 +44,19 @@ vi.mock('child_process', () => {
   }
 })
 
+vi.mock('@orca/process-host', () => ({
+  runProcess: async (spec: ProcessSpec) => ({
+    ...(await execFileAsyncMock(spec.program, spec.args, {
+      encoding: 'utf-8',
+      timeout: spec.timeoutMs,
+      windowsHide: true,
+      ...(spec.env ? { env: spec.env } : {})
+    })),
+    code: 0,
+    timedOut: false
+  })
+}))
+
 // WSL commands now route through the runner, not execFile('wsl.exe', ...).
 vi.mock('../wsl/wsl-runner', () => ({ runWslProcess: runWslProcessMock }))
 
@@ -57,17 +72,15 @@ vi.mock('../../shared/node-cli-command-resolution', () => ({
 // Why (#9297): local PATH resolution is now fs-based (no where/which spawn).
 // These tests express "which commands are on PATH" via the where/which mock,
 // so route the resolver through that same mock to preserve their intent.
-vi.mock('./command-path-resolver', () => ({
-  isCommandOnLocalPath: isCommandOnLocalPathMock
+vi.mock('./command-path-resolver', async (importOriginal) => ({
+  ...(await importOriginal<typeof LocalCommandResolver>()),
+  isCommandOnLocalPath: isCommandOnLocalPathMock,
+  listLocalCommandPaths: listLocalCommandPathsMock
 }))
 
 vi.mock('../pty/windows-environment-path', () => ({
   mergePersistedWindowsPathAsync: mergePersistedWindowsPathAsyncMock,
   mergePersistedWindowsPath: mergePersistedWindowsPathMock
-}))
-
-vi.mock('./ssh', () => ({
-  getActiveMultiplexer: getActiveMultiplexerMock
 }))
 
 import { _resetPreflightCache, registerPreflightHandlers, runPreflightCheck } from './preflight'
@@ -85,9 +98,9 @@ describe('preflight', () => {
         runWslProcessMock,
         hydrateShellPathMock,
         mergePathSegmentsMock,
-        getActiveMultiplexerMock,
         resolveCliCommandsMock,
         isCommandOnLocalPathMock,
+        listLocalCommandPathsMock,
         mergePersistedWindowsPathAsyncMock,
         mergePersistedWindowsPathMock
       },
@@ -96,6 +109,7 @@ describe('preflight', () => {
   })
 
   afterEach(() => {
+    vi.restoreAllMocks()
     Object.defineProperty(process, 'platform', {
       configurable: true,
       value: originalPlatform
@@ -150,7 +164,9 @@ describe('preflight', () => {
       await Promise.resolve()
 
       expect(settled).toBe(true)
-      await expect(statusPromise).resolves.toEqual({ git: { installed: false } })
+      await expect(statusPromise).resolves.toEqual({
+        git: { installed: false }
+      })
     } finally {
       vi.useRealTimers()
     }
@@ -196,7 +212,10 @@ describe('preflight', () => {
     // Why win32 + these stubs: a WSL target probes git through the runner, so
     // every case below counts runner spawns rather than execFile.
     function stubWslProbes(): void {
-      Object.defineProperty(process, 'platform', { configurable: true, value: 'win32' })
+      Object.defineProperty(process, 'platform', {
+        configurable: true,
+        value: 'win32'
+      })
       execFileAsyncMock.mockImplementation(async () => {
         throw Object.assign(new Error('spawn ENOENT'), { code: 'ENOENT' })
       })
@@ -342,7 +361,9 @@ describe('preflight', () => {
         stubWslProbes()
         runWslProcessMock.mockClear()
         vi.advanceTimersByTime(30_000 + 1)
-        const recovered = await runPreflightCheck(false, { wslDistro: 'Ubuntu' })
+        const recovered = await runPreflightCheck(false, {
+          wslDistro: 'Ubuntu'
+        })
 
         expect(runWslProcessMock.mock.calls.length).toBeGreaterThan(0)
         expect(recovered.git).toEqual({ installed: true })
@@ -353,6 +374,7 @@ describe('preflight', () => {
   })
 
   it('uses the persisted Windows Path when probing host CLIs', async () => {
+    vi.spyOn(Date, 'now').mockReturnValue(1_000)
     Object.defineProperty(process, 'platform', {
       configurable: true,
       value: 'win32'
@@ -406,7 +428,9 @@ describe('preflight', () => {
       await Promise.resolve()
 
       expect(settled).toBe(true)
-      await expect(statusPromise).resolves.toEqual({ git: { installed: false } })
+      await expect(statusPromise).resolves.toEqual({
+        git: { installed: false }
+      })
     } finally {
       vi.useRealTimers()
     }
@@ -423,6 +447,23 @@ describe('preflight', () => {
     expect(firstStatus.git).toEqual({ installed: false })
     expect(refreshedStatus.git).toEqual({ installed: true })
     expect(execFileAsyncMock).toHaveBeenCalledTimes(2)
+  })
+
+  it('uses the inherited PATH when POSIX shell hydration fails', async () => {
+    hydrateShellPathMock.mockResolvedValue({
+      ok: false,
+      segments: [],
+      failureReason: 'timeout'
+    })
+    execFileAsyncMock.mockResolvedValue({
+      stdout: 'version fixture',
+      stderr: ''
+    })
+
+    await expect(runPreflightCheck()).resolves.toMatchObject({
+      git: { installed: true }
+    })
+    expect(mergePathSegmentsMock).not.toHaveBeenCalled()
   })
 
   it('awaits the persisted Windows Path refresh before a forced host CLI preflight', async () => {
@@ -477,6 +518,7 @@ describe('preflight', () => {
     })
 
     expect(mergePersistedWindowsPathAsyncMock).not.toHaveBeenCalled()
+    expect(hydrateShellPathMock).not.toHaveBeenCalled()
   })
 
   it('registers the preflight handler', async () => {
@@ -497,7 +539,9 @@ describe('preflight', () => {
     registerPreflightHandlers()
 
     const firstStatus = await handlers['preflight:check']()
-    const refreshedStatus = await handlers['preflight:check'](null, { force: true })
+    const refreshedStatus = await handlers['preflight:check'](null, {
+      force: true
+    })
 
     expect(firstStatus).toEqual({ git: { installed: false } })
     expect(refreshedStatus).toEqual({ git: { installed: true } })

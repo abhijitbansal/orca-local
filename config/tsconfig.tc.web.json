@@ -16,6 +16,8 @@
     "../src/preload/renderer-restart-wiring.ts",
     "../src/preload/usage-provider-api.ts",
     "../src/shared/**/*",
+    "../src/packages/process-host/src/__fixtures__/**/*",
+    "../src/main/gitlab/mappers.ts",
     "../src/main/ipc/deferred-emoji-shortcode-dataset.ts",
     "../src/main/ipc/worktree-branch-name.ts",
     "../src/main/ipc/worktree-logic.ts",

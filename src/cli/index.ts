@@ -86,10 +86,8 @@ export async function main(
     // lookup so users do not get misleading "Orca is not running" failures for
     // simple command typos or unsupported flags.
     validateCommandAndFlags(COMMAND_SPECS, parsed)
-    refuseConflictingSessionCallerFlags(
-      findCommandSpec(COMMAND_SPECS, parsed.commandPath),
-      parsed.flags
-    )
+    const commandSpec = findCommandSpec(COMMAND_SPECS, parsed.commandPath)
+    refuseConflictingSessionCallerFlags(commandSpec, parsed.flags)
     refusePairedServerEnvironment()
     const RuntimeClientClass = await loadRuntimeClientClass()
     let client: RuntimeClient | undefined

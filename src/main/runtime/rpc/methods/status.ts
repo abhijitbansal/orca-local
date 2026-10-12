@@ -3,6 +3,7 @@ import { defineMethod } from '../core'
 export const STATUS_METHODS = [
   defineMethod({
     name: 'status.get',
+    permission: 'workspace',
     params: null,
     handler: async (_params, { runtime, pairedDeviceId }) => {
       // Why: a status answered while the friendly-name lookup is still in flight publishes the bare

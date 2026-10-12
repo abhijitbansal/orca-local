@@ -13,8 +13,7 @@ export function useSourceControlBranchContext(panelState: SourceControlPanelStat
     activeRepoConnectionId,
     activeRepoExecutionHostId,
     activeRepoId,
-    activeRepoRuntimeEnvironmentId,
-    activeRepoSettings,
+    activeRepoTarget,
     activeWorktree,
     activeWorktreeId,
     branchName,
@@ -29,7 +28,6 @@ export function useSourceControlBranchContext(panelState: SourceControlPanelStat
     activeRepoConnectionId,
     activeRepoExecutionHostId,
     activeRepoId,
-    activeRepoRuntimeEnvironmentId,
     activeRepoWorktreeBaseRef: activeRepo?.worktreeBaseRef,
     activeWorktreeBaseRef: activeWorktree?.baseRef,
     isBranchVisible,
@@ -39,7 +37,7 @@ export function useSourceControlBranchContext(panelState: SourceControlPanelStat
   })
   const { compareBaseRef } = baseRefs
   const branchCompare = useSourceControlBranchCompare({
-    activeRepoSettings,
+    activeRepoTarget,
     activeWorktreeId,
     worktreePath,
     compareBaseRef,

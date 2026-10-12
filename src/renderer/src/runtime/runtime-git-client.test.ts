@@ -96,7 +96,7 @@ describe('runtime git client', () => {
 
     await getRuntimeGitBranchCompare(
       {
-        settings: { activeRuntimeEnvironmentId: null },
+        target: { kind: 'local' as const },
         worktreeId: 'wt-1',
         worktreePath: '/repo',
         connectionId: 'ssh-1'
@@ -117,7 +117,7 @@ describe('runtime git client', () => {
     gitStatus.mockResolvedValue({ entries: [], conflictOperation: 'unknown' })
 
     await getRuntimeGitStatus({
-      settings: { activeRuntimeEnvironmentId: null },
+      target: { kind: 'local' as const },
       worktreeId: 'wt-1',
       worktreePath: '/repo',
       connectionId: 'ssh-1'
@@ -132,7 +132,7 @@ describe('runtime git client', () => {
     const workspaceId = '123e4567-e89b-12d3-a456-426614174000'
 
     await getRuntimeGitStatus({
-      settings: { activeRuntimeEnvironmentId: null },
+      target: { kind: 'local' as const },
       worktreeId: `folder-repo::/home/user::workspace:${workspaceId}`,
       worktreePath: `/home/user::workspace:${workspaceId}`
     })
@@ -151,7 +151,7 @@ describe('runtime git client', () => {
     gitSubmoduleStatus.mockResolvedValue({ entries: [], conflictOperation: 'unknown' })
     const workspaceId = '123e4567-e89b-12d3-a456-426614174000'
     const context = {
-      settings: { activeRuntimeEnvironmentId: null },
+      target: { kind: 'local' as const },
       worktreeId: `folder-repo::/home/user::workspace:${workspaceId}`,
       worktreePath: `/home/user::workspace:${workspaceId}`
     }
@@ -170,7 +170,7 @@ describe('runtime git client', () => {
 
     await getRuntimeGitStatus(
       {
-        settings: { activeRuntimeEnvironmentId: null },
+        target: { kind: 'local' as const },
         worktreeId: 'wt-1',
         worktreePath: '/repo'
       },
@@ -178,7 +178,7 @@ describe('runtime git client', () => {
     )
     await getRuntimeGitStatus(
       {
-        settings: { activeRuntimeEnvironmentId: null },
+        target: { kind: 'local' as const },
         worktreeId: 'wt-1',
         worktreePath: '/repo'
       },
@@ -205,7 +205,7 @@ describe('runtime git client', () => {
 
     const result = await getRuntimeGitStatus(
       {
-        settings: { activeRuntimeEnvironmentId: null },
+        target: { kind: 'local' as const },
         worktreeId: 'wt-1',
         worktreePath: '/repo'
       },
@@ -225,7 +225,7 @@ describe('runtime git client', () => {
 
     await getRuntimeGitStatus(
       {
-        settings: { activeRuntimeEnvironmentId: null },
+        target: { kind: 'local' as const },
         worktreeId: 'wt-1',
         worktreePath: '/repo'
       },
@@ -233,7 +233,7 @@ describe('runtime git client', () => {
     )
     await getRuntimeGitStatus(
       {
-        settings: { activeRuntimeEnvironmentId: null },
+        target: { kind: 'local' as const },
         worktreeId: 'wt-1',
         worktreePath: '/repo'
       },
@@ -263,7 +263,7 @@ describe('runtime git client', () => {
 
     const request = getRuntimeGitStatus(
       {
-        settings: { activeRuntimeEnvironmentId: null },
+        target: { kind: 'local' as const },
         worktreeId: 'wt-1',
         worktreePath: '/repo'
       },
@@ -291,7 +291,7 @@ describe('runtime git client', () => {
 
     const result = await getRuntimeGitIgnoredPaths(
       {
-        settings: { activeRuntimeEnvironmentId: null },
+        target: { kind: 'local' as const },
         worktreeId: 'wt-1',
         worktreePath: '/repo',
         connectionId: 'ssh-1'
@@ -313,7 +313,7 @@ describe('runtime git client', () => {
 
     await getRuntimeGitSubmoduleStatus(
       {
-        settings: { activeRuntimeEnvironmentId: null },
+        target: { kind: 'local' as const },
         worktreeId: 'wt-1',
         worktreePath: '/repo',
         connectionId: 'ssh-1'
@@ -342,7 +342,7 @@ describe('runtime git client', () => {
 
     await getRuntimeGitHistory(
       {
-        settings: { activeRuntimeEnvironmentId: null },
+        target: { kind: 'local' as const },
         worktreeId: 'wt-1',
         worktreePath: '/repo',
         connectionId: 'ssh-1'
@@ -364,7 +364,7 @@ describe('runtime git client', () => {
     const workspaceId = '123e4567-e89b-12d3-a456-426614174000'
     const worktreeId = `folder-repo::/home/user::workspace:${workspaceId}`
     const context = {
-      settings: { activeRuntimeEnvironmentId: null },
+      target: { kind: 'local' as const },
       worktreeId,
       worktreePath: `/home/user::workspace:${workspaceId}`
     }
@@ -387,7 +387,7 @@ describe('runtime git client', () => {
 
   it('omits worktreeId from local generation IPC when the context has none', async () => {
     const context = {
-      settings: { activeRuntimeEnvironmentId: null },
+      target: { kind: 'local' as const },
       worktreeId: null,
       worktreePath: '/repo'
     }

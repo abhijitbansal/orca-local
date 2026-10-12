@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { LOCAL_EXECUTION_HOST_ID } from '../../../../shared/execution-host'
 import { getDefaultSettings } from '../../../../shared/constants'
 import type { ProjectGroup } from '../../../../shared/project-group-types'
 import {
@@ -72,9 +73,9 @@ describe('project group creation on the local host', () => {
   it('does not roll back a successful refresh if the create response fails', async () => {
     const { store, created, createStarted } = setup(null)
     vi.spyOn(console, 'error').mockImplementation(() => {})
-    const pendingCreate = store.getState().createProjectGroup('Platform')
+    const pendingCreate = store.getState().createProjectGroup('Platform', LOCAL_EXECUTION_HOST_ID)
     await createStarted.promise
-    await store.getState().fetchProjectGroups()
+    await store.getState().fetchProjectGroups({ runtimeEnvironmentId: null })
     const refreshedState = store.getState()
     created.reject(new Error('Create response lost'))
     await expect(pendingCreate).resolves.toBeNull()
@@ -87,7 +88,7 @@ it('fails a runtime-owned group creation closed without creating locally', async
   vi.spyOn(console, 'error').mockImplementation(() => {})
   const state = store.getState()
 
-  await expect(state.createProjectGroup('Platform')).resolves.toBeNull()
+  await expect(state.createProjectGroup('Platform', 'runtime:env-1')).resolves.toBeNull()
 
   expect(create).not.toHaveBeenCalled()
   expect(store.getState()).toBe(state)
@@ -98,7 +99,7 @@ it('recognizes an unstamped local group without conflating an SSH catalog row', 
   const sshGroup = { ...projectGroup, connectionId: 'server' }
   store.setState({ projectGroups: [sshGroup, refreshedGroup] })
   const state = store.getState()
-  const pendingCreate = state.createProjectGroup('Platform')
+  const pendingCreate = state.createProjectGroup('Platform', LOCAL_EXECUTION_HOST_ID)
   created.resolve(projectGroup)
   await pendingCreate
   expect(store.getState()).toBe(state)
@@ -108,7 +109,7 @@ it('does not suppress a local group whose ID matches a direct SSH group', async 
   const { store, created } = setup(null)
   const sshGroup = { ...projectGroup, connectionId: 'server' }
   store.setState({ projectGroups: [sshGroup] })
-  const pendingCreate = store.getState().createProjectGroup('Platform')
+  const pendingCreate = store.getState().createProjectGroup('Platform', LOCAL_EXECUTION_HOST_ID)
   created.resolve(projectGroup)
   await pendingCreate
   expect(store.getState().projectGroups).toEqual([

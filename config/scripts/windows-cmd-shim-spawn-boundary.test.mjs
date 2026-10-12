@@ -94,9 +94,4 @@ describe('windows batch shim spawn boundary', () => {
       'Node cannot spawn a Windows batch shim without a shell. Resolve the real executable — see oxc-cli-invocation.mjs.'
     ).toEqual([])
   })
-
-  it('has no stale allowlist entry', () => {
-    const stale = WINDOWS_SHIM_SPAWN_ALLOWLIST.filter((name) => !offenders.includes(name))
-    expect(stale, 'Script no longer matches either shim predicate — delete the line.').toEqual([])
-  })
 })

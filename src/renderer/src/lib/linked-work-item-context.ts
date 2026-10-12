@@ -150,32 +150,6 @@ function capLinkedContextSourceLines(args: { sourceLines: string; fixedChars: nu
   return [capped, truncationLine].filter(Boolean).join('\n')
 }
 
-export function getLinkedWorkItemPromptContext(
-  linkedWorkItem:
-    | (Pick<
-        { provider?: TaskProvider; url: string; title?: string; linearIdentifier?: string },
-        'provider' | 'url' | 'title' | 'linearIdentifier'
-      > & { linkedContext?: LinkedWorkItemContext })
-    | null
-    | undefined
-): { linkedUrls: string[]; linkedContextBlocks: string[] } {
-  if (isLinearWorkItemReference(linkedWorkItem)) {
-    const linearBlock = buildLinearLaunchContextBlock({
-      provider: linkedWorkItem?.provider,
-      identifier: linkedWorkItem?.linearIdentifier,
-      title: linkedWorkItem?.title,
-      url: linkedWorkItem?.url
-    })
-    return linearBlock
-      ? { linkedUrls: [], linkedContextBlocks: [linearBlock] }
-      : { linkedUrls: [], linkedContextBlocks: [] }
-  }
-  const linkedUrl = linkedWorkItem?.url?.trim()
-  return linkedUrl
-    ? { linkedUrls: [linkedUrl], linkedContextBlocks: [] }
-    : { linkedUrls: [], linkedContextBlocks: [] }
-}
-
 export function getLaunchableWorkItemDraftContent(args: {
   provider?: TaskProvider
   pasteContent?: string
@@ -236,4 +210,13 @@ export function resolveQuickCreateLinkedWorkItemPrompt(
     prompt: isLinearTypedOnly ? trimmedNote : '',
     draftPrompt
   }
+}
+
+export function getLinkedWorkItemPromptContext(
+  linkedWorkItem: { url: string } | null | undefined
+): { linkedUrls: string[]; linkedContextBlocks: string[] } {
+  const linkedUrl = linkedWorkItem?.url?.trim()
+  return linkedUrl
+    ? { linkedUrls: [linkedUrl], linkedContextBlocks: [] }
+    : { linkedUrls: [], linkedContextBlocks: [] }
 }

@@ -12,7 +12,7 @@ describe('runtime file client', () => {
   it('keeps copy operations on local filesystem IPC when no runtime is active', async () => {
     await copyRuntimePath(
       {
-        settings: { activeRuntimeEnvironmentId: null },
+        target: { kind: 'local' as const },
         worktreeId: 'wt-1',
         worktreePath: '/repo'
       },
@@ -32,7 +32,7 @@ describe('runtime file client', () => {
   it('preserves the SSH connection for copy operations when no runtime is active', async () => {
     await copyRuntimePath(
       {
-        settings: { activeRuntimeEnvironmentId: null },
+        target: { kind: 'local' as const },
         worktreeId: 'wt-1',
         worktreePath: '/repo',
         connectionId: 'ssh-1',

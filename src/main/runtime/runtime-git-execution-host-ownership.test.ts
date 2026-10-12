@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { SSH_HOST_NOT_SERVED_MESSAGE } from '../providers/ssh-host-not-served-error'
 import type { GlobalSettings } from '../../shared/global-settings-types'
 import type * as GitRemoteModule from '../git/remote'
 import type * as GitStatusModule from '../git/status'
 import type * as SshGitDispatchModule from '../providers/ssh-git-dispatch'
 import type { ResolvedRuntimeGitWorktree } from './orca-runtime-git'
 import { RuntimeGitCommands } from './orca-runtime-git'
-import { SSH_GIT_PROVIDER_UNAVAILABLE_MESSAGE } from '../providers/ssh-git-dispatch'
 
 const mocks = vi.hoisted(() => ({
   getSshGitProvider: vi.fn(),
@@ -31,14 +31,23 @@ vi.mock('../git/remote', async () => ({
 }))
 
 function remoteCommands(): RuntimeGitCommands {
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the commands under test read only the stubbed worktree and repo fields.
   const worktree = {
     id: 'wt-1',
     repoId: 'repo-1',
     path: '/remote/repo',
-    git: { path: '/remote/repo', branch: 'main', isBare: false, isMainWorktree: false }
+    git: {
+      path: '/remote/repo',
+      branch: 'main',
+      isBare: false,
+      isMainWorktree: false
+    }
   } as unknown as ResolvedRuntimeGitWorktree
   return new RuntimeGitCommands({
-    resolveRuntimeGitTarget: async () => ({ worktree, executionHostId: 'ssh:ssh-1' }),
+    resolveRuntimeGitTarget: async () => ({
+      worktree,
+      executionHostId: 'ssh:ssh-1'
+    }),
     getRuntimeSettings: () => ({}) as GlobalSettings
   })
 }
@@ -55,13 +64,11 @@ describe('runtime Git execution-host ownership', () => {
     const commands = remoteCommands()
 
     await expect(commands.getRuntimeGitStatus('id:wt-1')).rejects.toThrow(
-      SSH_GIT_PROVIDER_UNAVAILABLE_MESSAGE
+      SSH_HOST_NOT_SERVED_MESSAGE
     )
-    await expect(commands.fetchRuntimeGit('id:wt-1')).rejects.toThrow(
-      SSH_GIT_PROVIDER_UNAVAILABLE_MESSAGE
-    )
+    await expect(commands.fetchRuntimeGit('id:wt-1')).rejects.toThrow(SSH_HOST_NOT_SERVED_MESSAGE)
     await expect(commands.stageRuntimeGitPath('id:wt-1', 'src/a.ts')).rejects.toThrow(
-      SSH_GIT_PROVIDER_UNAVAILABLE_MESSAGE
+      SSH_HOST_NOT_SERVED_MESSAGE
     )
     expect(mocks.getStatus).not.toHaveBeenCalled()
     expect(mocks.gitFetch).not.toHaveBeenCalled()

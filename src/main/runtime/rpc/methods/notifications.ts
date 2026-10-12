@@ -15,6 +15,7 @@ let notificationsSubscriptionSeq = 0
 export const NOTIFICATION_METHODS = [
   defineStreamingMethod({
     name: 'notifications.subscribe',
+    permission: 'workspace',
     params: NotificationsSubscribeParams,
     handler: async (params, { runtime, connectionId }, emit) => {
       const shouldEmit = createNotificationStreamFilter(params?.includeDesktopSuppressed)
@@ -47,6 +48,7 @@ export const NOTIFICATION_METHODS = [
   }),
   defineMethod({
     name: 'notifications.unsubscribe',
+    permission: 'workspace',
     params: NotificationUnsubscribeParams,
     handler: async (params, { runtime }) => {
       runtime.cleanupSubscription(params.subscriptionId)
@@ -55,6 +57,7 @@ export const NOTIFICATION_METHODS = [
   }),
   defineMethod({
     name: 'notifications.getMissedSince',
+    permission: 'workspace',
     params: NotificationGetMissedSinceParams,
     // Why: returns only notifications with seq > lastSeenSeq. The runtime owns
     // the monotonic seq, so this is the single source of truth for what the

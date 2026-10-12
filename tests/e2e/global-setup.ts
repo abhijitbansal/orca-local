@@ -17,10 +17,25 @@ import path from 'node:path'
 import os from 'node:os'
 
 export const E2E_TEST_REPO_PATH_FILE_ENV = 'ORCA_E2E_TEST_REPO_PATH_FILE'
-/** Temp file where the test repo path is stored for the fixture to read. */
-export const TEST_REPO_PATH_FILE =
+const RUN_TEST_REPO_PATH_FILE =
   process.env[E2E_TEST_REPO_PATH_FILE_ENV] ??
   path.join(os.tmpdir(), `orca-e2e-test-repo-path-${randomUUID()}.txt`)
+
+export function workerTestRepositoryPathFile(runPathFile: string, workerIndex?: string): string {
+  if (workerIndex === undefined) {
+    return runPathFile
+  }
+  if (!/^\d+$/.test(workerIndex)) {
+    throw new Error('Invalid Playwright worker index')
+  }
+  return `${runPathFile}.worker-${workerIndex}`
+}
+
+// Restart helpers and the app fixture must read the same worker-owned repository.
+export const TEST_REPO_PATH_FILE = workerTestRepositoryPathFile(
+  RUN_TEST_REPO_PATH_FILE,
+  process.env.TEST_WORKER_INDEX
+)
 const ELECTRON_E2E_BUILD_TIMEOUT_MS = 300_000
 const CLI_E2E_BUILD_TIMEOUT_MS = 120_000
 

@@ -7,6 +7,7 @@ import type {
 import type { CodexConfigSyncStatus } from '../../../../shared/codex-config-sync-types'
 import { toast } from 'sonner'
 import { useAppStore } from '../../store'
+import { getActiveRuntimeTarget } from '@/runtime/runtime-client-target'
 import { translate } from '@/i18n/i18n'
 import { isWebClientLocation } from '@/lib/web-client-location'
 import {
@@ -104,6 +105,14 @@ export function AccountsPane({
   // (see #7973); every list/select/remove below must scope to it, not host/WSL.
   const isRemoteAccountScope = hasRemoteProviderAccountOwner(settings)
   const activeRuntimeEnvironmentId = settings.activeRuntimeEnvironmentId?.trim() || null
+  // Why: a select/remove can outlive an owner change; its result belongs to the owner it was sent to.
+  const accountOwner = getActiveRuntimeTarget(settings)
+  const accountOwnerKey = activeRuntimeEnvironmentId ?? 'local'
+  const currentAccountOwnerKeyRef = useRef(accountOwnerKey)
+  useEffect(() => {
+    currentAccountOwnerKeyRef.current = accountOwnerKey
+  }, [accountOwnerKey])
+  const isCurrentAccountOwner = (): boolean => currentAccountOwnerKeyRef.current === accountOwnerKey
   // Why: keep the real name separate from the prose fallback below; the scope
   // label must not interpolate the fallback.
   const remoteServerName = isRemoteAccountScope
@@ -297,6 +306,8 @@ export function AccountsPane({
     settings,
     accountRuntime,
     isRemoteAccountScope,
+    accountOwner,
+    isCurrentAccountOwner,
     codexAccounts,
     setCodexAccounts,
     setCodexAccountsLoaded,
@@ -308,6 +319,7 @@ export function AccountsPane({
     settings,
     accountRuntime,
     isRemoteAccountScope,
+    isCurrentAccountOwner,
     claudeAccounts,
     setClaudeAccounts,
     setClaudeAction,
@@ -316,6 +328,7 @@ export function AccountsPane({
   })
   const model: AccountsPaneSectionModel = {
     settings,
+    accountOwner,
     updateSettings,
     searchQuery,
     recordFeatureInteraction,

@@ -47,6 +47,7 @@ function skillDeleteDependencies(
 export const SKILL_METHODS = [
   defineMethod({
     name: 'skills.discover',
+    permission: 'workspace',
     params: SkillsDiscoverParams,
     handler: async (params, { runtime }) => {
       // Why: the executing runtime owns WSL project preferences. Remote callers
@@ -61,6 +62,7 @@ export const SKILL_METHODS = [
   }),
   defineMethod({
     name: 'skills.previewDelete',
+    permission: 'workspace',
     params: SkillDeleteRequestSchema,
     handler: async (params, { runtime }) =>
       previewSkillDeleteRequest(
@@ -71,6 +73,7 @@ export const SKILL_METHODS = [
   }),
   defineMethod({
     name: 'skills.delete',
+    permission: 'skills-admin',
     params: SkillDeleteRequestSchema,
     handler: async (params, { runtime }) =>
       runSkillDeleteRequest(
@@ -81,16 +84,19 @@ export const SKILL_METHODS = [
   }),
   defineMethod({
     name: 'skills.previewInstall',
+    permission: 'workspace',
     params: SkillInstallPreviewRequestSchema,
     handler: (params, { runtime }) => runtime.previewSharedSkillInstallRequest(params)
   }),
   defineMethod({
     name: 'skills.removeInstall',
+    permission: 'skills-admin',
     params: SkillRemoveRequestSchema,
     handler: (params, { runtime }) => runtime.removeSharedSkillInstallRequest(params)
   }),
   defineMethod({
     name: 'skills.listManagedInstalls',
+    permission: 'workspace',
     params: null,
     handler: (_params, { runtime }) => runtime.listManagedSkillInstalls()
   })

@@ -125,14 +125,14 @@ describe('runtime Git target execution host', () => {
 
   // Losing contact with a remote host is never evidence that its files are here
   // (AGENTS.md).
-  it('reports the dropped connection instead of reading a remote path locally', async () => {
+  it('fails closed instead of reading an SSH repo path locally', async () => {
     const runtime = makeRuntime(
       [{ id: 'repo-shared', path: '/srv/app', connectionId: 'm4air' }],
       'ssh:m4air'
     )
 
     await expect(runtime.getRuntimeGitStatus(`id:${WORKTREE_ID}`)).rejects.toThrow(
-      /Remote connection dropped/
+      /SSH remotes are not supported in this build/
     )
     expect(mocks.getStatus).not.toHaveBeenCalled()
   })

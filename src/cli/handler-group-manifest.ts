@@ -13,9 +13,19 @@ export type HandlerGroup = {
 // real exports by handler-group-manifest.test.ts, so drift fails CI, not dispatch.
 export const HANDLER_GROUPS: readonly HandlerGroup[] = [
   {
+    name: 'reference',
+    keys: ['reference list', 'reference add', 'reference remove', 'reference find'],
+    load: async () => (await import('./handlers/reference.js')).REFERENCE_HANDLERS
+  },
+  {
     name: 'core',
     keys: ['claude-teams', 'open', 'serve', 'status'],
     load: async () => (await import('./handlers/core.js')).CORE_HANDLERS
+  },
+  {
+    name: 'serve-restore',
+    keys: ['serve restore resume'],
+    load: async () => (await import('./handlers/serve-restore.js')).SERVE_RESTORE_HANDLERS
   },
   {
     name: 'account',
@@ -50,7 +60,14 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
   },
   {
     name: 'repo',
-    keys: ['repo list', 'repo add', 'repo show', 'repo set-base-ref', 'repo search-refs'],
+    keys: [
+      'repo list',
+      'repo add',
+      'repo show',
+      'repo set',
+      'repo set-base-ref',
+      'repo search-refs'
+    ],
     load: async () => (await import('./handlers/repo.js')).REPO_HANDLERS
   },
   {

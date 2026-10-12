@@ -81,6 +81,7 @@ describe('planAgentSessionLaunch', () => {
       'folder:ws-1',
       'claude',
       {
+        requestId: expect.any(String),
         prompt: 'Review this',
         promptDelivery: 'submit-after-ready',
         resumeFrom,
@@ -100,7 +101,7 @@ describe('planAgentSessionLaunch', () => {
     expect(mocks.beginStructuredAgentLaunchSettlement).toHaveBeenCalledWith(
       'folder:ws-1',
       'codex',
-      {},
+      { requestId: expect.any(String) },
       hooks
     )
   })
@@ -128,7 +129,7 @@ describe('planAgentSessionLaunch', () => {
     expect(mocks.beginStructuredAgentLaunchSettlement).toHaveBeenCalledWith(
       'wt-created',
       'codex',
-      { prompt: 'Fix it', promptDelivery: 'auto-submit' },
+      { requestId: expect.any(String), prompt: 'Fix it', promptDelivery: 'auto-submit' },
       hooks
     )
   })
@@ -210,7 +211,7 @@ describe('adoptAgentSessionLaunchVerdict', () => {
     expect(mocks.beginStructuredAgentLaunchSettlement).toHaveBeenCalledWith(
       'wt-recovered',
       'codex',
-      { prompt: 'Fix it', promptDelivery: 'draft' },
+      { requestId: expect.any(String), prompt: 'Fix it', promptDelivery: 'draft' },
       hooks
     )
   })

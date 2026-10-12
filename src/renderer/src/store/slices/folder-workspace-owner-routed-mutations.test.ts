@@ -193,7 +193,7 @@ describe('folder workspace owner-routed mutations', () => {
     const pendingUpdate = store
       .getState()
       .updateFolderWorkspace(folderWorkspace.id, { isUnread: true })
-    await store.getState().fetchFolderWorkspaces()
+    await store.getState().fetchFolderWorkspaces({ runtimeEnvironmentId: null })
     resolveUpdate({ ...folderWorkspace, isUnread: true, updatedAt: 2 })
     await pendingUpdate
 
@@ -220,7 +220,7 @@ describe('folder workspace owner-routed mutations', () => {
     const pendingUpdate = store
       .getState()
       .updateFolderWorkspace(folderWorkspace.id, { isUnread: true })
-    await store.getState().fetchFolderWorkspaces()
+    await store.getState().fetchFolderWorkspaces({ runtimeEnvironmentId: null })
     resolveUpdate({ ...folderWorkspace, isUnread: true, updatedAt: 2 })
     await pendingUpdate
 

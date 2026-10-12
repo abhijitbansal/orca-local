@@ -17,6 +17,7 @@ export type RuntimeRepositoryCommandSurface = {
   createProjectHostSetup: RuntimeProjectHostSetupController['createSetup']
   setupProjectExistingFolder: RuntimeProjectHostSetupController['setupExistingFolder']
   setupProjectClone: RuntimeProjectHostSetupController['setupClone']
+  addSshRepo: RuntimeProjectHostSetupController['addSshRepo']
   updateProjectHostSetup: RuntimeProjectHostSetupController['updateSetup']
   deleteProjectHostSetup: RuntimeProjectHostSetupController['deleteSetup']
   listProjectGroups: RuntimeProjectGroupController['listGroups']
@@ -87,6 +88,7 @@ export function installRuntimeRepositoryCommandSurface(
     createProjectHostSetup: host.createSetup.bind(host),
     setupProjectExistingFolder: host.setupExistingFolder.bind(host),
     setupProjectClone: host.setupClone.bind(host),
+    addSshRepo: host.addSshRepo.bind(host),
     updateProjectHostSetup: host.updateSetup.bind(host),
     deleteProjectHostSetup: host.deleteSetup.bind(host),
     listProjectGroups: groups.listGroups.bind(groups),

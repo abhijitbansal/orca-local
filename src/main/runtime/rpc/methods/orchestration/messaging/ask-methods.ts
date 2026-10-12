@@ -14,6 +14,7 @@ import { assertWorkerCanReport } from '../../../../orchestration/worker-report-a
 export const ORCHESTRATION_ASK_METHODS = [
   defineMethod({
     name: 'orchestration.ask',
+    permission: 'workspace',
     params: AskParams,
     handler: async (
       params,

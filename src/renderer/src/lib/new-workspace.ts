@@ -1,8 +1,5 @@
 import { useAppStore } from '@/store'
-import {
-  getSettingsForAgentTabRuntimeOwner,
-  pasteDraftToAgentPtyWhenReady
-} from '@/lib/agent-paste-draft'
+import { pasteDraftToAgentPtyWhenReady } from '@/lib/agent-paste-draft'
 import { sendFollowupPromptWhenAgentReady } from '@/lib/agent-followup-delivery'
 import { showAutomationPromptNotSentToast } from '@/lib/agent-background-session-timeout-toast'
 import type { AgentStartupPlan } from '@/lib/tui-agent-startup'
@@ -128,9 +125,7 @@ export function buildAgentPromptWithContext(
   if (linkedContextBlocks.length > 0) {
     sections.push(linkedContextBlocks.join('\n\n'))
   }
-  // Why: the new-workspace flow launches each agent with a single plain-text
-  // startup prompt. Appending attachments and bounded linked context keeps
-  // extra data visible to Claude/Codex/OpenCode without cluttering the textarea.
+  // Why: one plain-text startup prompt carries attachments and linked context to the agent.
   if (!trimmedPrompt) {
     return sections.join('\n\n')
   }
@@ -277,12 +272,11 @@ export async function ensureAgentStartupInTerminal(args: {
 }
 
 async function deliverAgentStartupToTerminal(
-  tabId: string,
+  _tabId: string,
   ptyId: string,
   startup: AgentStartupPlan
 ): Promise<void> {
   const draftPrompt = startup.draftPrompt ?? null
-  const runtimeSettings = getSettingsForAgentTabRuntimeOwner(tabId)
   // Why: followupPrompt is the legacy path for stdin-after-start agents
   // (aider, goose, etc.) that need their initial prompt typed into the live
   // session and submitted. Wait until the agent owns the PTY before writing.
@@ -290,8 +284,7 @@ async function deliverAgentStartupToTerminal(
     const delivered = await sendFollowupPromptWhenAgentReady({
       ptyId,
       expectedProcess: startup.expectedProcess,
-      prompt: startup.followupPrompt,
-      settings: runtimeSettings
+      prompt: startup.followupPrompt
     })
     // Why: a dropped follow-up is otherwise silent — surface the same toast the
     // draft path uses so the user knows to open the workspace and paste it.
@@ -305,7 +298,6 @@ async function deliverAgentStartupToTerminal(
   // launch-work-item-direct flow so both behave identically.
   if (draftPrompt) {
     await pasteDraftToAgentPtyWhenReady({
-      tabId,
       ptyId,
       content: draftPrompt,
       agent: startup.agent,
