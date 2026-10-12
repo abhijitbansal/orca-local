@@ -33,7 +33,6 @@
       "config/scripts/check-terminal-perf-report-budgets.test.mjs": 1481,
       "config/scripts/check-ts-nocheck-ratchet.test.mjs": 68,
       "config/scripts/ci-closed-pr-caches.test.mjs": 123,
-      "config/scripts/ci-closed-pr-cancellation.test.mjs": 128,
       "config/scripts/ci-dependency-download-cache.test.mjs": 557,
       "config/scripts/ci-e2e-failure-summary.test.mjs": 56,
       "config/scripts/ci-e2e-shard-selection.test.mjs": 2569,

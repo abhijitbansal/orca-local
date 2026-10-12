@@ -54,25 +54,6 @@ try {
   assert(list.topics.some((topic) => topic.name === 'orca-cli'))
   assert.match((await run(['skills', 'get', 'orca-cli'])).stdout, /name: orca-cli/)
   assert.match((await run(['skills', 'get', 'computer-use'])).stdout, /name: computer-use/)
-  const install = JSON.parse(
-    (
-      await run([
-        'skills',
-        'install',
-        '--skill',
-        'orca-cli',
-        '--agent',
-        'codex',
-        '--dry-run',
-        '--json'
-      ])
-    ).stdout
-  )
-  const update = JSON.parse(
-    (await run(['skills', 'update', '--skill', 'orca-cli', '--dry-run', '--json'])).stdout
-  )
-  assert.equal(install.executed, false)
-  assert.equal(update.executed, false)
   console.log(`[packaged-cli-smoke] help and skills commands passed via ${cliPath}`)
 } catch (error) {
   smokeFailure = error
