@@ -648,6 +648,11 @@ jobs:
           filter: blob:none
           persist-credentials: false
 
+      # Why: this fork publishes only -local tags; the release baseline is upstream's newest tag.
+      - name: Fetch upstream release tags
+        shell: bash
+        run: git fetch --quiet --no-tags --filter=blob:none https://github.com/stablyai/orca.git 'refs/tags/v*:refs/tags/v*'
+
       - uses: ./.github/actions/install-node-dependencies
         with:
           native-runtime: node

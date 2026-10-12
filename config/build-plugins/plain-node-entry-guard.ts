@@ -20,7 +20,6 @@ type OutputChunk = Rollup.OutputChunk
 // The CLI loads these paths after electron-vite replaces out/main.
 export const CLI_MAIN_ENTRY_NAMES = [
   'agent-hooks/managed-agent-hook-controls',
-  'gitlab/project-ref-parser',
   'orca-profiles/profile-index-store',
   'claude-accounts/keychain',
   ...[
@@ -45,7 +44,6 @@ const PLAIN_NODE_ENTRY_NAMES = [
   'session-scanner-service-entry',
   'computer-sidecar',
   'wsl-transcript-fs-process-entry',
-  'orcad/orcad-local-serve-selection-entry',
   ...CLI_MAIN_ENTRY_NAMES
 ] as const
 
