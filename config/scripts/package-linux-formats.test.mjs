@@ -89,7 +89,7 @@ describe('independent Linux package formats', () => {
       runBuilder: async (args) => {
         const app = valueAfter(args, '--prepackaged')
         const format = valueAfter(args, '--linux')
-        expect(readFileSync(join(app, 'resources/package-type'), 'utf8')).toBe('AppImage')
+        expect(readFileSync(join(app, 'resources/package-type'), 'utf8')).toBe(format)
         expect(readFileSync(join(app, 'resources/app.asar'), 'utf8')).toBe('verified application')
         if (process.platform !== 'win32') {
           expect(readlinkSync(join(app, 'marker-link'))).toBe('resources/package-type')
