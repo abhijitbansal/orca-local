@@ -504,7 +504,6 @@ async function canCheckoutExistingLocalBranch(
   return !worktrees.some((worktree) => normalizeLocalBranchName(worktree.branch) === branchName)
 }
 
-
 type ForgeProviderId = 'github' | 'gitlab' | 'bitbucket' | 'azure-devops' | 'gitea'
 type BranchPullRequest = { number: number }
 
@@ -589,7 +588,6 @@ function isAllowedPushTargetRemoteConflict(
     args.pushTarget?.branchName === branchName
   )
 }
-
 
 async function getSelectedHostedReviewForBranch(
   _repo: Pick<Repo, 'path' | 'connectionId' | 'executionHostId'>,

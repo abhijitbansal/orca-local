@@ -132,11 +132,7 @@ export async function attemptStructuredAgentSessionSend(args: {
   let answer: StructuredAgentSessionSendAnswer
   try {
     // Checked above, so the request goes out now or not at all.
-    const result = await callStructuredAgentSession<SendAnswer>(
-      target,
-      'agentSession.send',
-      params
-    )
+    const result = await callStructuredAgentSession<SendAnswer>(target, 'agentSession.send', params)
     answer = { kind: 'result', result }
   } catch (error) {
     // This window answers it before forwarding anything (the server was re-paired, as a managed

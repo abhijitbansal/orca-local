@@ -17,10 +17,7 @@ import {
   finishAutomationWorkspaceProvenanceRequest
 } from '../../../automations/workspace-provenance'
 import { isFolderRepo } from '../../../../shared/repo-kind'
-import {
-  createLocalWorktree,
-  notifyWorktreesChanged
-} from '../../worktree-remote'
+import { createLocalWorktree, notifyWorktreesChanged } from '../../worktree-remote'
 import { track } from '../../../telemetry/client'
 import { classifyWorkspaceCreateError } from '../../workspace-create-error-classifier'
 import { getCohortAtEmit } from '../../../telemetry/cohort-classifier'

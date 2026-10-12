@@ -3,9 +3,7 @@ import { wslGatedAccess } from './wsl-transcript-fs-access'
 import { join } from 'node:path'
 import { waitForPromiseWithSignal } from '../../shared/abort-signal-reason'
 import { getAiVaultWslHomeDirs } from '../ai-vault/cached-session-list'
-import {
-  openCodeWslPath
-} from '../ai-vault/session-scanner-opencode-wsl-client'
+import { openCodeWslPath } from '../ai-vault/session-scanner-opencode-wsl-client'
 import { readOpenCodeTranscriptSignalViaWorker } from '../ai-vault/session-scanner-opencode-sqlite-worker-spawn'
 import {
   compareOpenCodeClaimPriority,

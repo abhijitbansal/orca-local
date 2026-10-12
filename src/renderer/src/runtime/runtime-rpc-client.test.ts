@@ -1,9 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import {
-  callRuntimeRpc,
-  RuntimeRpcCallError,
-  unwrapRuntimeRpcResult
-} from './runtime-rpc-client'
+import { callRuntimeRpc, RuntimeRpcCallError, unwrapRuntimeRpcResult } from './runtime-rpc-client'
 import {
   ORCA_RUNTIME_RPC_BROWSER_UI_SOURCE,
   ORCA_RUNTIME_RPC_FEATURE_INTERACTION_SOURCE_KEY

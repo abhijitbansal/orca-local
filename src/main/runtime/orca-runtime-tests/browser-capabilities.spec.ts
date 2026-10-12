@@ -33,7 +33,6 @@ import {
 import { runtimeAdvertisesBrowserClientHosting } from '../../../shared/browser-client-hosting-eligibility'
 
 describe('OrcaRuntimeService', () => {
-
   it('does not offer client placement through a server-only external browser provider', () => {
     setRuntimeBrowserCommandsFactory((host) => new RuntimeBrowserCommands(host), {
       headless: true

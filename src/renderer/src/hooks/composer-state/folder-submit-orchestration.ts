@@ -31,9 +31,7 @@ import { useCallback } from 'react'
 import type { TuiAgent } from '../../../../shared/tui-agent'
 import { settleComposerSubmit } from '@/lib/composer-submit-cancellation'
 import { isTuiAgentEnabled } from '../../../../shared/tui-agent-selection'
-import {
-  submitFolderWorkspaceCreate
-} from '@/components/sidebar/folder-workspace-composer-submit'
+import { submitFolderWorkspaceCreate } from '@/components/sidebar/folder-workspace-composer-submit'
 import {
   resolveTuiAgentLaunchArgs,
   resolveTuiAgentLaunchEnv

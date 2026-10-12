@@ -127,5 +127,4 @@ describe('SSH target cleanup tab map', () => {
     store.getState().clearRemovedSshTargetState('removed')
     expect(store.getState().tabsByWorktree).toBe(tabsByWorktree)
   })
-
 })

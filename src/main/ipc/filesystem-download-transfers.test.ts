@@ -103,9 +103,7 @@ describe('registerFilesystemHandlers', () => {
           connectionId: 'ssh-1'
         }
       )
-    ).rejects.toThrow(
-      'SSH remotes are not supported in this build.'
-    )
+    ).rejects.toThrow('SSH remotes are not supported in this build.')
 
     expect(showSaveDialogMock).not.toHaveBeenCalled()
   })

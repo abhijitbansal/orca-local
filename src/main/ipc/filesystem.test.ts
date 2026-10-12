@@ -91,9 +91,7 @@ describe('registerFilesystemHandlers', () => {
 
     await expect(
       handlers.get('fs:readDir')!(null, { dirPath: '/remote/repo', connectionId: 'ssh-1' })
-    ).rejects.toThrow(
-      'SSH remotes are not supported in this build.'
-    )
+    ).rejects.toThrow('SSH remotes are not supported in this build.')
   })
 
   // Why: handler-level WSL UNC authorization depends on native Windows path

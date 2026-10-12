@@ -85,10 +85,5 @@ export function useSmartWorkspaceSecondarySearches({
     return () => {
       stale = true
     }
-  }, [
-    branchSearchRequest,
-    setBranches,
-    setBranchResultsSource,
-    setBranchesLoading
-  ])
+  }, [branchSearchRequest, setBranches, setBranchResultsSource, setBranchesLoading])
 }

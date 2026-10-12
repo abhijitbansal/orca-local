@@ -91,7 +91,9 @@ export function settingsForKnownRepoOwner(
   if (parsed?.kind === 'runtime') {
     return settingsForRuntimeEnvironment(settings, parsed.environmentId)
   }
-  return settings?.activeRuntimeEnvironmentId ? settingsForRuntimeEnvironment(settings, null) : settings
+  return settings?.activeRuntimeEnvironmentId
+    ? settingsForRuntimeEnvironment(settings, null)
+    : settings
 }
 
 export function settingsForRepoOwner(

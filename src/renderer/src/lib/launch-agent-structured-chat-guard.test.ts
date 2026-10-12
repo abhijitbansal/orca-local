@@ -259,7 +259,13 @@ describe('structured chat adoption guard on the launch path', () => {
     expect(result).toMatchObject({
       surface: { kind: 'local-agent-session', sessionId: 'codex-session-1' }
     })
-    expect(mockCreateStructuredCodexSessionLaunchIntent).toHaveBeenCalledWith('wt-1', 'codex', undefined, undefined, undefined)
+    expect(mockCreateStructuredCodexSessionLaunchIntent).toHaveBeenCalledWith(
+      'wt-1',
+      'codex',
+      undefined,
+      undefined,
+      undefined
+    )
     expect(mockCreateTab).not.toHaveBeenCalled()
   })
 
@@ -271,7 +277,13 @@ describe('structured chat adoption guard on the launch path', () => {
     expect(result).toMatchObject({
       surface: { kind: 'local-agent-session', sessionId: 'codex-session-1' }
     })
-    expect(mockCreateStructuredCodexSessionLaunchIntent).toHaveBeenCalledWith('wt-1', 'claude', undefined, undefined, undefined)
+    expect(mockCreateStructuredCodexSessionLaunchIntent).toHaveBeenCalledWith(
+      'wt-1',
+      'claude',
+      undefined,
+      undefined,
+      undefined
+    )
     expect(mockCreateTab).not.toHaveBeenCalled()
   })
 

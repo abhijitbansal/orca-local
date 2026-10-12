@@ -1,4 +1,12 @@
-import { chmodSync, closeSync, fsyncSync, openSync, renameSync, unlinkSync, writeSync } from 'node:fs'
+import {
+  chmodSync,
+  closeSync,
+  fsyncSync,
+  openSync,
+  renameSync,
+  unlinkSync,
+  writeSync
+} from 'node:fs'
 
 // Why (STA-3941): a direct write can truncate the previous credential if it
 // fails or the app dies mid-write, leaving nothing to authenticate with. Write

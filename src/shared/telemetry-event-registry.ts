@@ -195,7 +195,6 @@ export const eventSchemas = {
   editor_external_change_conflict_shown: editorExternalChangeConflictShownSchema,
   editor_external_change_conflict_action: editorExternalChangeConflictActionSchema,
 
-
   smart_sort_class_distribution: smartSortClassDistributionSchema,
   smart_sort_class_1_promotion: smartSortClass1PromotionSchema,
   smart_to_recent_switch: smartToRecentSwitchSchema

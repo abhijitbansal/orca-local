@@ -40,7 +40,6 @@ vi.mock('../startup/hydrate-shell-path', () => ({
   mergePathSegments: mergePathSegmentsMock
 }))
 
-
 // Isolate the subprocess-spawn assertion from the fs-based install-dir fallback.
 vi.mock('./local-agent-install-dir-detection', () => ({
   detectCommandsInInstallDirs: detectCommandsInInstallDirsMock

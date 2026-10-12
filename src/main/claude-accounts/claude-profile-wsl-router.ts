@@ -281,5 +281,7 @@ async function runGuest(distro: string, spec: WslSpec, timeoutMs = 15_000): Prom
 // Why: the upstream helper runs on a pinned Node materialized by the removed orcad/SSH runtime
 // pipeline; this build ships neither, so WSL account setup fails closed instead.
 const runWslSetup: WslSetup = async (distro) => {
-  throw new Error(`WSL ${distro}: Claude account profiles inside WSL are not supported in this build.`)
+  throw new Error(
+    `WSL ${distro}: Claude account profiles inside WSL are not supported in this build.`
+  )
 }
