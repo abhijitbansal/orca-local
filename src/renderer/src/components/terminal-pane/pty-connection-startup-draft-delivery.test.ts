@@ -186,16 +186,8 @@ describe('connectPanePty', () => {
     expect(capturedDataCallback.current).not.toBeNull()
 
     // A focused xterm emits CSI I after Codex enables focus reporting; the startup draft must reuse the same transport instead of racing a direct IPC.
-    ;(
-      pane.terminal.onData as unknown as {
-        mock: { calls: [(data: string) => void][] }
-      }
-    ).mock.calls[0]?.[0]('\x1b[I')
-    ;(
-      pane.terminal.onData as unknown as {
-        mock: { calls: [(data: string) => void][] }
-      }
-    ).mock.calls[0]?.[0]('USER_DRAFT')
+    vi.mocked(pane.terminal.onData).mock.calls[0]?.[0]('\x1b[I')
+    vi.mocked(pane.terminal.onData).mock.calls[0]?.[0]('USER_DRAFT')
     ;(mockStoreState.recordTerminalInput as ReturnType<typeof vi.fn>).mockClear()
     await vi.advanceTimersByTimeAsync(waitMs)
     expect(transport.sendInputAccepted).not.toHaveBeenCalled()
@@ -313,6 +305,7 @@ describe('connectPanePty', () => {
     const binding = connectPanePty(
       createPane(1) as never,
       createManager(1) as never,
+      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: connectPanePty touches only the members these test doubles stub.
       createDeps({
         startup: {
           command: 'codex',

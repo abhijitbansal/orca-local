@@ -46,6 +46,10 @@ export function useSmartWorkspaceSecondarySearches({
     ]
   )
 
+  const branchSearchHostId = selectedRepo
+    ? getRepoExecutionHostId(selectedRepo)
+    : LOCAL_EXECUTION_HOST_ID
+
   useEffect(() => {
     if (!branchSearchRequest) {
       setBranches([])
@@ -57,7 +61,7 @@ export function useSmartWorkspaceSecondarySearches({
     // Why: visibility retains prior rows while typing ahead of the debounced query.
     setBranchesLoading(true)
     void searchRuntimeRepoBaseRefDetails(
-      selectedRepo ? getRepoExecutionHostId(selectedRepo) : LOCAL_EXECUTION_HOST_ID,
+      branchSearchHostId,
       branchSearchRequest.repoId,
       branchSearchRequest.query,
       branchSearchRequest.limit
@@ -85,5 +89,11 @@ export function useSmartWorkspaceSecondarySearches({
     return () => {
       stale = true
     }
-  }, [branchSearchRequest, setBranches, setBranchResultsSource, setBranchesLoading])
+  }, [
+    branchSearchHostId,
+    branchSearchRequest,
+    setBranches,
+    setBranchResultsSource,
+    setBranchesLoading
+  ])
 }

@@ -161,6 +161,7 @@ describe('connectPanePty', () => {
     connectPanePty(createPane(1) as never, createManager(1) as never, createDeps() as never)
     await flushAsyncTicks()
 
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the pty diagnostic is an untyped global; the test only checks it is absent.
     expect((globalThis as Record<string, unknown>).__ptyConnectDiag).toBeUndefined()
     expect(logSpy).not.toHaveBeenCalledWith(expect.stringContaining('[pty-connect]'))
     logSpy.mockRestore()
@@ -223,6 +224,7 @@ describe('connectPanePty', () => {
     )
     await flushAsyncTicks()
     firstBinding.dispose()
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: connectPanePty touches only the members these test doubles stub.
     connectPanePty(createPane(1) as never, createManager(1) as never, remountDeps as never)
     await flushAsyncTicks()
 

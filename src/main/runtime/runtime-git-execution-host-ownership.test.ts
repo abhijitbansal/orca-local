@@ -31,6 +31,7 @@ vi.mock('../git/remote', async () => ({
 }))
 
 function remoteCommands(): RuntimeGitCommands {
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the commands under test read only the stubbed worktree and repo fields.
   const worktree = {
     id: 'wt-1',
     repoId: 'repo-1',

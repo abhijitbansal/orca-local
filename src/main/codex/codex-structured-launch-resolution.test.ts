@@ -319,8 +319,8 @@ describe('codex structured launch resolution', () => {
     const resolveRollout = vi.fn(async () => '/home/work/.codex/sessions/rollout.jsonl')
     const launch = await resolverFor(
       record({
-        // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the resolver reads only each link's handle, so the link's other fields stay unset.
         launchArgs: ['--enable', 'unified_exec', '-c', 'model_reasoning_effort=high'],
+        // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the resolver reads only each link's handle, so the link's other fields stay unset.
         providerHandleChain: [
           { handle: codexProviderHandle('thread-current') }
         ] as AgentSessionRecord['providerHandleChain']

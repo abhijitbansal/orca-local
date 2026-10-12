@@ -24,6 +24,7 @@ describe('account RPC methods', () => {
     }
   ])('allows local-socket $methodName calls', async (testCase) => {
     const add = vi.fn().mockResolvedValue({ accounts: [] })
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the RPC handler under test calls only the stubbed account methods.
     const runtime = {
       [testCase.runtimeMethod]: add
     } as unknown as OrcaRuntimeService
@@ -86,6 +87,7 @@ describe('account RPC methods', () => {
     const selectCodexAccountForTarget = vi
       .fn()
       .mockResolvedValue({ accounts: [], activeAccountId: null })
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the RPC handler under test calls only the stubbed account methods.
     const runtime = {
       selectCodexAccountForTarget
     } as unknown as OrcaRuntimeService

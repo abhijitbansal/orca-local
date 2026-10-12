@@ -205,6 +205,7 @@ export function useCreateRepo(
     mountedRef,
     closeModal,
     onGitRepoReady,
+    options.hostId,
     options.runtimeEnvironmentId
   ])
 
