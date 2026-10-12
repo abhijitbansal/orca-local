@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/store'
 import { translate } from '@/i18n/i18n'
 import {
+  LOCAL_EXECUTION_HOST_ID,
   getRepoExecutionHostId,
   isRuntimeOwnedSshTargetId,
   type ExecutionHostId
@@ -77,7 +78,7 @@ const RemoveFolderDialog = React.memo(function RemoveFolderDialog() {
   const handleConfirm = useCallback(() => {
     if (repoId) {
       void removeProject(repoId, {
-        ...(hostId ? { hostId } : {}),
+        hostId: hostId ?? LOCAL_EXECUTION_HOST_ID,
         errorFeedback: 'toast'
       })
     }

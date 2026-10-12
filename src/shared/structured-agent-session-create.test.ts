@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import {
-  AGENT_SESSION_CREATE_TAB_ID_RUNTIME_CAPABILITY,
-  RUNTIME_CAPABILITIES
-} from './protocol-version'
+import { RUNTIME_CAPABILITIES } from './protocol-version'
+import { AGENT_SESSION_CREATE_TAB_ID_RUNTIME_CAPABILITY } from './agent-session-create-capabilities'
 import { structuredAgentSessionCreateParams } from './structured-agent-session-create'
 import {
   structuredAgentSessionCreateFingerprint,

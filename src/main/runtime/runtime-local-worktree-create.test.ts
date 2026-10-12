@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { createWorktreeCreateTimingRecorder } from '../worktree-create-timing'
 import { resolve } from 'node:path'
 import type { Store } from '../persistence'
 import type { WorktreeMeta } from '../../shared/worktree/meta-types'
@@ -106,7 +107,8 @@ function createWorktree(
     refreshRemoteTrackingBase: mocks.refresh,
     fetchRemote: mocks.fetch,
     onWorktreeMetadataPersisted: () => undefined,
-    rearm
+    rearm,
+    timing: createWorktreeCreateTimingRecorder()
   })
 }
 

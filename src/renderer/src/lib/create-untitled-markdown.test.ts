@@ -4,6 +4,9 @@ import {
   createUntitledMarkdownFileWithTemplateSelection
 } from './create-untitled-markdown'
 import { subscribeMarkdownTemplatePicker } from './markdown-template-picker-request'
+import type { RuntimeClientTarget } from '@/runtime/runtime-client-target'
+
+const LOCAL: RuntimeClientTarget = { kind: 'local' }
 
 describe('createUntitledMarkdownFile', () => {
   afterEach(() => {
@@ -12,7 +15,7 @@ describe('createUntitledMarkdownFile', () => {
 
   it('rejects captured ownership without a current-generation assertion', async () => {
     await expect(
-      createUntitledMarkdownFile('/repo', 'wt-1', undefined, undefined, {
+      createUntitledMarkdownFile('/repo', 'wt-1', undefined, LOCAL, {
         operationProvenance: {} as never
       })
     ).rejects.toThrow("Couldn't verify which host owns this file")
@@ -42,7 +45,7 @@ describe('createUntitledMarkdownFile', () => {
       }
     })
 
-    await expect(createUntitledMarkdownFile('/repo', 'wt-1')).resolves.toEqual({
+    await expect(createUntitledMarkdownFile('/repo', 'wt-1', undefined, LOCAL)).resolves.toEqual({
       filePath: '/repo/untitled-3.md',
       relativePath: 'untitled-3.md',
       worktreeId: 'wt-1',
@@ -76,42 +79,12 @@ describe('createUntitledMarkdownFile', () => {
       }
     })
 
-    await expect(createUntitledMarkdownFile('/repo', 'wt-1')).rejects.toThrow(
+    await expect(createUntitledMarkdownFile('/repo', 'wt-1', undefined, LOCAL)).rejects.toThrow(
       'Unable to create untitled markdown file after 100 attempts.'
     )
 
     expect(createFile).not.toHaveBeenCalled()
     expect(pathExists).toHaveBeenCalledTimes(100)
-  })
-
-  it('passes connectionId to pathExists and createFile for SSH worktrees', async () => {
-    const pathExists = vi.fn(async () => false)
-    const stat = vi.fn().mockRejectedValue(new Error('ENOENT: no such file'))
-    const createFile = vi.fn().mockResolvedValueOnce(undefined)
-
-    vi.stubGlobal('window', {
-      api: {
-        shell: { pathExists: vi.fn() },
-        fs: { createFile, pathExists, stat }
-      }
-    })
-
-    await expect(createUntitledMarkdownFile('/repo', 'wt-1', 'conn-1')).resolves.toMatchObject({
-      filePath: '/repo/untitled.md'
-    })
-
-    // Why: shell.pathExists is main-process local-only; SSH worktrees must
-    // probe through the same filesystem API that receives the connectionId.
-    expect(pathExists).toHaveBeenCalledWith({
-      filePath: '/repo/untitled.md',
-      connectionId: 'conn-1'
-    })
-    expect(stat).not.toHaveBeenCalled()
-    expect(createFile).toHaveBeenCalledWith({
-      filePath: '/repo/untitled.md',
-      connectionId: 'conn-1',
-      expectedExecutionHostId: 'ssh:conn-1'
-    })
   })
 
   it('writes selected template content with placeholders after creating the untitled file', async () => {
@@ -131,7 +104,7 @@ describe('createUntitledMarkdownFile', () => {
     })
 
     await expect(
-      createUntitledMarkdownFile('/repo', 'wt-1', undefined, undefined, {
+      createUntitledMarkdownFile('/repo', 'wt-1', undefined, LOCAL, {
         now: new Date(2026, 4, 29, 7, 5),
         template: {
           id: '.orca/templates/daily.md',
@@ -201,7 +174,7 @@ describe('createUntitledMarkdownFile', () => {
 
     try {
       await expect(
-        createUntitledMarkdownFileWithTemplateSelection('/repo', 'wt-1')
+        createUntitledMarkdownFileWithTemplateSelection('/repo', 'wt-1', undefined, LOCAL)
       ).resolves.toMatchObject({
         filePath: '/repo/untitled.md',
         relativePath: 'untitled.md',

@@ -87,7 +87,6 @@ describe('resolveAgentLaunchRoute', () => {
     // openclaude and grok render native chat but have no structured adapter.
     expect(route({ agent: 'openclaude' })).toBe('legacy-native-chat')
     expect(route({ agent: 'grok' })).toBe('legacy-native-chat')
-    expect(route({ requiresTuiLaunchCommand: true })).toBe('legacy-native-chat')
   })
 
   it.each([
@@ -97,19 +96,14 @@ describe('resolveAgentLaunchRoute', () => {
     expect(route({ executionHostId })).toBe('legacy-native-chat')
   })
 
-  it.each(['git-worktree', 'folder'] as const)(
-    'supports a local %s without widening floating-terminal scope',
+  it.each(['git-worktree', 'folder', 'floating'] as const)(
+    'supports a local %s workspace',
     (workspaceKind) => {
       expect(route({ workspaceKind })).toBe('structured-native-chat')
     }
   )
 
-  // Why floating is here and not with the structured kinds: it has no workspace a session can
-  // be filed under, but the chat view is a pane-level rendering the panel already hosts, so the
-  // chat default still applies — terminal-backed, not structured.
-  it('keeps floating, WSL, and repair-required launches terminal-backed', () => {
-    expect(route({ workspaceKind: 'floating' })).toBe('legacy-native-chat')
-    expect(route({ agent: 'claude', workspaceKind: 'floating' })).toBe('legacy-native-chat')
+  it('keeps WSL and repair-required launches terminal-backed', () => {
     expect(
       route({
         projectRuntime: {

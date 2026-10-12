@@ -28,6 +28,7 @@ import {
   ensureStructuredAgentSessionHost,
   stopStructuredAgentSessionRuntime
 } from './structured-agent-session-runtime'
+import { createStructuredAgentSessionLogger } from '../native-chat/agent-session-wire/structured-agent-session-logger'
 
 export const SESSION = 'session-integration-1'
 export const THREAD = 'thread-integration'
@@ -183,9 +184,16 @@ export type StructuredCodexRpcHarness = {
 }
 
 export async function openStructuredCodexRpcHarness(
-  clientCapabilities: readonly RuntimeCapability[] = DEFAULT_CLIENT_CAPABILITIES
+  clientCapabilities: readonly RuntimeCapability[] = DEFAULT_CLIENT_CAPABILITIES,
+  /** What the transport stamps, as a paired device's authenticated socket does. */
+  transport: { clientId?: string; pairedDeviceId?: string } = {}
 ): Promise<StructuredCodexRpcHarness> {
-  const client = { clientId: 'device-a', clientKind: 'runtime' as const, clientCapabilities }
+  const client = {
+    clientId: 'device-a',
+    clientKind: 'runtime' as const,
+    clientCapabilities,
+    ...transport
+  }
   let operations = 0
   const root = await mkdtemp(join(tmpdir(), 'orca-structured-integration-'))
   const codex = fakeCodex()
@@ -206,12 +214,14 @@ export async function openStructuredCodexRpcHarness(
     })
   })
   const hostConfig = (): Parameters<typeof ensureStructuredAgentSessionHost>[0] => ({
+    logger: createStructuredAgentSessionLogger(),
     stateDirectory: root,
     hostId: 'local',
     claimKeyId: 'key-1',
     resolveWorkspacePath: async (workspaceId) => `/repos/${workspaceId}`,
     resolveCodexCommand: () => '/usr/local/bin/codex',
-    resolveClaudeAuthPolicy: () => ({ stripAuthEnv: true }),
+    resolveLaunchArgs: () => [],
+    resolveClaudeAuthPolicy: () => ({ account: 'managed' }),
     resolveEnvironment: async () => ({
       PATH: '/shell/bin:/usr/bin',
       EXAMPLE_GATEWAY_TOKEN: 'shell-exported',

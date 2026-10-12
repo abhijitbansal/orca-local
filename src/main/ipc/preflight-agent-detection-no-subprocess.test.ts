@@ -12,7 +12,6 @@ const {
   execFileAsyncMock,
   hydrateShellPathMock,
   mergePathSegmentsMock,
-  getActiveMultiplexerMock,
   detectCommandsInInstallDirsMock,
   mergePersistedWindowsPathAsyncMock,
   mergePersistedWindowsPathMock
@@ -22,7 +21,6 @@ const {
   execFileAsyncMock: vi.fn(),
   hydrateShellPathMock: vi.fn(),
   mergePathSegmentsMock: vi.fn(),
-  getActiveMultiplexerMock: vi.fn(),
   detectCommandsInInstallDirsMock: vi.fn(),
   mergePersistedWindowsPathAsyncMock: vi.fn(),
   mergePersistedWindowsPathMock: vi.fn()
@@ -42,7 +40,6 @@ vi.mock('../startup/hydrate-shell-path', () => ({
   mergePathSegments: mergePathSegmentsMock
 }))
 
-vi.mock('./ssh', () => ({ getActiveMultiplexer: getActiveMultiplexerMock }))
 
 // Isolate the subprocess-spawn assertion from the fs-based install-dir fallback.
 vi.mock('./local-agent-install-dir-detection', () => ({

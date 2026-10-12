@@ -27,6 +27,7 @@ type HostRuntimeEffectsInput = Pick<
   | 'tuiAgent'
 >
 
+import { LOCAL_EXECUTION_HOST_ID } from '../../../../shared/execution-host'
 import { useEffect } from 'react'
 import { filterEnabledTuiAgents, isTuiAgentEnabled } from '../../../../shared/tui-agent-selection'
 import { getAgentCatalog } from '@/lib/agent-catalog'
@@ -131,11 +132,7 @@ export function useHostRuntimeEffects(input: HostRuntimeEffectsInput) {
       }
     }
 
-    void readRuntimeIssueCommand(
-      selectedRepoSettingsRef.current,
-      repoId,
-      selectedRepoExecutionHostId ?? undefined
-    )
+    void readRuntimeIssueCommand(selectedRepoExecutionHostId ?? LOCAL_EXECUTION_HOST_ID, repoId)
       .then((result) => {
         if (!cancelled) {
           setLoadedIssueCommand({ contextKey: selectedRepoHookContextKey, result })

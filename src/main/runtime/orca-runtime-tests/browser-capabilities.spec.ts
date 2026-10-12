@@ -30,8 +30,21 @@ import {
   initializeBrowserIdentityModeStore,
   resetBrowserIdentityModeStoreForTests
 } from '../../browser/browser-identity-mode-store'
+import { runtimeAdvertisesBrowserClientHosting } from '../../../shared/browser-client-hosting-eligibility'
 
 describe('OrcaRuntimeService', () => {
+
+  it('does not offer client placement through a server-only external browser provider', () => {
+    setRuntimeBrowserCommandsFactory((host) => new RuntimeBrowserCommands(host), {
+      headless: true
+    })
+    const capabilities = createRuntime().getStatus().capabilities
+    expect(capabilities).toContain('browser.headless.v1')
+    expect(capabilities).toContain('browser.tab-create-known-id.v1')
+    expect(capabilities).not.toContain('browser.clientHost.v1')
+    expect(runtimeAdvertisesBrowserClientHosting(capabilities)).toBe(false)
+    expect(capabilities).toContain('network.browserTunnel.v1')
+  })
   // The mixed-version guarantee: a host that never initialized the identity store must not
   // advertise a method that can only throw there.
   it('advertises the browser identity capability only where an identity store exists', () => {
@@ -68,6 +81,9 @@ describe('OrcaRuntimeService', () => {
 
     expect(status.capabilities).toContain('browser.headless.v1')
     expect(status.capabilities).not.toContain('browser.screencast.v1')
+    expect(status.capabilities).not.toContain('browser.clientHost.v1')
+    expect(status.capabilities).toContain('browser.tab-create-known-id.v1')
+    expect(runtimeAdvertisesBrowserClientHosting(status.capabilities)).toBe(false)
     expect(status.capabilities).not.toContain('browser.certificate-trust.v1')
     expect(status.degradations).toBeUndefined()
 
@@ -368,42 +384,6 @@ describe('OrcaRuntimeService', () => {
     expect(runtime.getStatus().capabilities).not.toContain('browser.headless.v1')
     // Desktop webviews still host certificate trust, so the proceed capability stays advertised for remote clients controlling those pages.
     expect(runtime.getStatus().capabilities).toContain('browser.certificate-trust.v1')
-  })
-
-  it('declares browser unavailability when no browser provider resolves', async () => {
-    setRuntimeBrowserCommandsFactory(null)
-    const runtime = createRuntime()
-    const status = runtime.getStatus()
-
-    expect(status.capabilities).not.toContain('browser.headless.v1')
-    expect(status.capabilities).not.toContain('browser.certificate-trust.v1')
-    expect(status.capabilities).not.toContain('browser.screencast.v1')
-    expect(status.degradations).toEqual([
-      {
-        code: 'browser_unavailable',
-        capability: 'browser.headless.v1',
-        reason: 'unknown',
-        message:
-          'Browser automation is unavailable on this host, and the cause could not be determined.'
-      }
-    ])
-    const browserCalls = Object.entries(runtime).filter(
-      ([name, value]) => /^browser[A-Z]/.test(name) && typeof value === 'function'
-    )
-    expect(browserCalls.length).toBeGreaterThan(50)
-    for (const [name, call] of browserCalls) {
-      const invoke =
-        name === 'browserScreencast'
-          ? () =>
-              (call as CallableFunction)(
-                { format: 'jpeg' },
-                { sendBinary: () => true, emit: () => undefined }
-              )
-          : () => (call as CallableFunction)({})
-      await expect(Promise.resolve().then(invoke)).rejects.toMatchObject({
-        code: 'browser_unavailable'
-      })
-    }
   })
 
   it('reports the driver as missing instead of telling a configured operator to configure it', () => {

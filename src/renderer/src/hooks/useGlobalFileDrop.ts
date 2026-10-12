@@ -21,6 +21,8 @@ import {
 } from '../../../shared/native-file-drop'
 import { captureWorktreeSshMutationExpectation } from '@/lib/ssh-mutation-expectation'
 import { describeDropTempCopyFailure } from '@/lib/drop-temp-copy-failure-copy'
+import { userNamedFileAccess } from '@/lib/local-file-access'
+import { runtimeTargetForOwnerEnvironment } from '@/runtime/runtime-client-target'
 
 export function getEditorFileDropSettingsForWorktree(
   store: WorktreeRuntimeOwnerState,
@@ -49,7 +51,7 @@ export function getEditorFileDropOperationContext(
   connectionId: string | undefined
 ): RuntimeFileOperationArgs {
   return {
-    settings: getEditorFileDropSettingsForWorktree(store, worktreeId),
+    target: runtimeTargetForOwnerEnvironment(getRuntimeEnvironmentIdForWorktree(store, worktreeId)),
     worktreeId,
     worktreePath,
     connectionId
@@ -92,7 +94,10 @@ export function useGlobalFileDrop(): void {
         )
         return
       }
-      const dropSettings = fileContext.settings
+      const dropSettings = {
+        activeRuntimeEnvironmentId:
+          fileContext.target.kind === 'local' ? null : fileContext.target.environmentId
+      }
       const runtimeEnvironmentId = dropSettings?.activeRuntimeEnvironmentId ?? null
       if (shouldUploadRemoteEditorFileDrop(dropSettings, connectionId)) {
         if (!worktreePath) {
@@ -161,11 +166,12 @@ export function useGlobalFileDrop(): void {
         void (async () => {
           try {
             const isRemoteRuntimePath = isRemoteRuntimeFileOperation(fileContext, filePath)
-            // Why: remote paths don't need local auth — the relay/runtime is the security boundary.
-            if (!connectionId && !isRemoteRuntimePath) {
-              await window.api.fs.authorizeExternalPath({ targetPath: filePath })
-            }
-            const stat = await statRuntimePath(fileContext, filePath)
+            // Why: a local OS drop is a path the user named; remote paths stay root-relative.
+            const stat = await statRuntimePath(
+              fileContext,
+              filePath,
+              !connectionId && !isRemoteRuntimePath ? userNamedFileAccess() : undefined
+            )
             if (stat.isDirectory) {
               return
             }

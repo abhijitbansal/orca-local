@@ -377,14 +377,14 @@ describe('resolveCodexPaneSelectionLane', () => {
 describe('getCodexAccountSwitchLaneMatcher', () => {
   it('scopes a local switch to the runtime slot it wrote', () => {
     const hostSwitch = getCodexAccountSwitchLaneMatcher({
-      settings: null,
+      owner: { kind: 'local' },
       target: { runtime: 'host' }
     })
     expect(hostSwitch('host')).toBe(true)
     expect(hostSwitch('wsl:Ubuntu')).toBe(false)
 
     const ubuntuSwitch = getCodexAccountSwitchLaneMatcher({
-      settings: null,
+      owner: { kind: 'local' },
       target: { runtime: 'wsl', wslDistro: 'Ubuntu' }
     })
     expect(ubuntuSwitch('wsl:Ubuntu')).toBe(true)
@@ -396,7 +396,7 @@ describe('getCodexAccountSwitchLaneMatcher', () => {
   // matching only `wsl:__default__` would leave those panes stranded, unnoticed.
   it('claims every WSL distro when the change cleared them all', () => {
     const wslDefaultSwitch = getCodexAccountSwitchLaneMatcher({
-      settings: null,
+      owner: { kind: 'local' },
       target: { runtime: 'wsl', wslDistro: null },
       clearsEveryWslDistro: true
     })
@@ -415,7 +415,7 @@ describe('getCodexAccountSwitchLaneMatcher', () => {
   // would card — and mute — every sibling distro's healthy Codex pane.
   it('keeps a distro-less WSL selection off sibling distro panes', () => {
     const wslDefaultSelect = getCodexAccountSwitchLaneMatcher({
-      settings: null,
+      owner: { kind: 'local' },
       target: { runtime: 'wsl', wslDistro: null }
     })
     expect(wslDefaultSelect('wsl:__default__')).toBe(true)
@@ -428,7 +428,7 @@ describe('getCodexAccountSwitchLaneMatcher', () => {
   // that slot alone. Without the null-distro condition it would mute them all.
   it('keeps a cleared concrete-distro row off the other distros', () => {
     const ubuntuClear = getCodexAccountSwitchLaneMatcher({
-      settings: null,
+      owner: { kind: 'local' },
       target: { runtime: 'wsl', wslDistro: 'Ubuntu' },
       clearsEveryWslDistro: true
     })
@@ -439,7 +439,7 @@ describe('getCodexAccountSwitchLaneMatcher', () => {
 
   it('never lets a local host switch claim a remote or SSH pane', () => {
     const hostSwitch = getCodexAccountSwitchLaneMatcher({
-      settings: null,
+      owner: { kind: 'local' },
       target: { runtime: 'host' }
     })
     const state = laneState()

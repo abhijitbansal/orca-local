@@ -17,7 +17,7 @@ describe('runtime file client', () => {
     await expect(
       subscribeRuntimeFileChanges(
         {
-          settings: { activeRuntimeEnvironmentId: null },
+          target: { kind: 'local' as const },
           worktreeId: 'wt-1',
           worktreePath: '/repo'
         },

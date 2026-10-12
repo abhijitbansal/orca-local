@@ -1,10 +1,4 @@
-import { REMOTE_PTY_ID_PREFIX } from './pty-connect-limits'
-
-export function isRemoteRuntimePtyId(ptyId: string | null | undefined): boolean {
-  return typeof ptyId === 'string' && ptyId.startsWith(REMOTE_PTY_ID_PREFIX)
-}
-
-// Why: restoring a parked paired terminal needs a paired host, which this build can never reach.
+// Why: paired runtime parking is removed in this build, so no parked remote session is restorable.
 export function canRestorePairedParkedTerminal(_ptyId: string): boolean {
   return false
 }

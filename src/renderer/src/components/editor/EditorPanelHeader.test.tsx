@@ -86,7 +86,6 @@ const baseProps = {
   onOpenDiffTargetFile: vi.fn(),
   onOpenPreviewToSide: vi.fn(),
   onOpenMarkdownPreview: vi.fn(),
-  onOpenContainingFolder: vi.fn(),
   onToggleSideBySide: vi.fn(),
   onEditorToggleChange: vi.fn(),
   onToggleMarkdownTableOfContents: vi.fn(),

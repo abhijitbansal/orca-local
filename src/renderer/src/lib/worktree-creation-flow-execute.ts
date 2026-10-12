@@ -1,3 +1,4 @@
+import { prepareWorktreeCreationHooks } from '@/lib/worktree-creation-hook-preparation'
 import { toast } from 'sonner'
 import { useAppStore } from '@/store'
 import { activateAndRevealWorktree, type ActivateAndRevealResult } from '@/lib/worktree-activation'
@@ -41,8 +42,14 @@ function isCreatedWorkspaceInView(creationId: string, worktreeId: string): boole
 
 export async function executeWorktreeCreation(
   creationId: string,
-  request: WorktreeCreationRequest
+  incomingRequest: WorktreeCreationRequest
 ): Promise<void> {
+  const request = incomingRequest.hookPreparation
+    ? await prepareWorktreeCreationHooks(creationId, incomingRequest)
+    : incomingRequest
+  if (!request) {
+    return
+  }
   let result: CreateWorktreeResult
   try {
     const structuredLaunch = request.agentLaunchRoute === 'structured-native-chat'

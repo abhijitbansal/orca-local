@@ -128,16 +128,4 @@ describe('SSH target cleanup tab map', () => {
     expect(store.getState().tabsByWorktree).toBe(tabsByWorktree)
   })
 
-  it('clears pending split edits owned by the removed target', () => {
-    const store = createTestStore()
-    const removed = { targetId: 'removed', root: null }
-    const retained = { targetId: 'other', root: null }
-    store.setState({
-      pendingDirectSshLayoutEditsByTabId: { removedTab: removed, otherTab: retained }
-    })
-
-    const patch = buildRemovedSshTargetCleanupPatch(store.getState(), 'removed')
-
-    expect(patch?.pendingDirectSshLayoutEditsByTabId).toEqual({ otherTab: retained })
-  })
 })

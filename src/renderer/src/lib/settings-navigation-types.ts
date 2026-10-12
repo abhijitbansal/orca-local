@@ -18,6 +18,7 @@ const SETTINGS_NAV_TARGETS = [
   'browser',
   'git',
   'appearance',
+  'chat',
   'input',
   'floating-workspace',
   'terminal',

@@ -1,3 +1,4 @@
+import { SshHostNotServedError } from '../../../providers/ssh-host-not-served-error'
 import { ipcMain } from 'electron'
 import { getLocalWorktreeCatalogVersion } from '../../../local-worktree-scan-generation'
 import type {
@@ -17,7 +18,6 @@ import {
 } from '../../../automations/workspace-provenance'
 import { isFolderRepo } from '../../../../shared/repo-kind'
 import {
-  createRemoteWorktree,
   createLocalWorktree,
   notifyWorktreesChanged
 } from '../../worktree-remote'
@@ -71,7 +71,9 @@ export function registerWorktreeCreateHandlers(context: WorktreeIpcContext): voi
             const createRoute = requireWorktreeCreateRoute(repo)
             result =
               createRoute.kind === 'ssh'
-                ? await createRemoteWorktree(createArgs, createRoute.repo, store, mainWindow)
+                ? (() => {
+                    throw new SshHostNotServedError(createRoute.connectionId)
+                  })()
                 : await createLocalWorktree(createArgs, repo, store, mainWindow, runtime)
           }
         } catch (error) {

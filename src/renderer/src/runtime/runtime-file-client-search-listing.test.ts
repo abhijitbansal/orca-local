@@ -23,7 +23,7 @@ describe('runtime file client', () => {
     await expect(
       searchRuntimeFiles(
         {
-          settings: { activeRuntimeEnvironmentId: 'env-1' },
+          target: { kind: 'environment' as const, environmentId: 'env-1' },
           worktreeId: 'wt-1',
           worktreePath: '/remote/repo'
         },
@@ -38,7 +38,7 @@ describe('runtime file client', () => {
     await expect(
       searchRuntimeFiles(
         {
-          settings: { activeRuntimeEnvironmentId: null },
+          target: { kind: 'local' as const },
           worktreeId: 'wt-1',
           worktreePath: '/repo',
           connectionId: 'ssh-1'
@@ -62,7 +62,7 @@ describe('runtime file client', () => {
     await expect(
       searchRuntimeFilePaths(
         {
-          settings: { activeRuntimeEnvironmentId: null },
+          target: { kind: 'local' as const },
           worktreeId: 'wt-1',
           worktreePath: '/remote/repo',
           connectionId: 'ssh-1'
@@ -96,7 +96,7 @@ describe('runtime file client', () => {
     await expect(
       listRuntimeFiles(
         {
-          settings: {},
+          target: { kind: 'local' as const },
           worktreeId: 'wt-1',
           worktreePath: '/remote/repo',
           connectionId: 'ssh-1'
@@ -118,7 +118,7 @@ describe('runtime file client', () => {
 
   it('sends the Explorer name filter to local listings only', async () => {
     fsListFiles.mockResolvedValue([])
-    const local = { settings: {}, worktreeId: 'wt-1', worktreePath: '/repo' }
+    const local = { target: { kind: 'local' as const }, worktreeId: 'wt-1', worktreePath: '/repo' }
 
     await listRuntimeFiles(local, { rootPath: '/repo', nameFilter: 'AppDelegate' })
     await listRuntimeFiles(
@@ -136,7 +136,7 @@ describe('runtime file client', () => {
     await expect(
       runtimePathExists(
         {
-          settings: { activeRuntimeEnvironmentId: null },
+          target: { kind: 'local' as const },
           worktreeId: 'wt-1',
           worktreePath: '/repo',
           connectionId: 'ssh-1'
@@ -152,3 +152,30 @@ describe('runtime file client', () => {
     expect(fsStat).not.toHaveBeenCalled()
   })
 })
+
+it.each([{ includeIgnored: false }, { followSymlinks: true }])(
+  'rejects unsupported listing options on a version-one host: %o',
+  async (options) => {
+    runtimeEnvironmentCall.mockResolvedValue({
+      id: 'rpc-options',
+      ok: true,
+      result: { files: [], quickOpenSearchVersion: 1 },
+      _meta: { runtimeId: 'remote-runtime' }
+    })
+    const context = {
+      target: { kind: 'environment' as const, environmentId: 'env-1' },
+      worktreeId: 'options-workspace',
+      worktreePath: '/remote/repo'
+    }
+    await expect(
+      searchRuntimeFilePaths(context, { query: '.env api', ...options })
+    ).rejects.toThrow('Remote Orca runtimes are unsupported')
+    await expect(
+      listRuntimeFiles(context, { rootPath: '/remote/repo', ...options })
+    ).rejects.toThrow('Remote Orca runtimes are unsupported')
+    expect(
+      runtimeEnvironmentCall.mock.calls.every(([request]) => request.method === 'files.searchPaths')
+    ).toBe(true)
+    expect(fsListFiles).not.toHaveBeenCalled()
+  }
+)

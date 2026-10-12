@@ -8,7 +8,7 @@ const {
   state
 } = vi.hoisted(() => {
   const store = {
-    writeLatestProfileStateJsonCompatibilityExportAsync: vi.fn(async () => {}),
+    flushPendingOrThrowAsync: vi.fn(async () => {}),
     writeLatestProfileStateJsonExportAsync: vi.fn(async () => {}),
     getSettings: vi.fn(() => ({}))
   }
@@ -80,11 +80,11 @@ describe('main window profile-state update preparation', () => {
   it('wires no update-quit cleanup now that the auto-updater is gone', () => {
     const window = { webContents: { id: 17 } }
 
-    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: mocked BrowserWindow only needs webContents for this composition-root wiring test.
-    attachMainWindowCoreServices(window as never, {
-      markExpectedRendererReload: vi.fn(),
-      recordRendererReload: vi.fn()
-    })
+      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: mocked BrowserWindow only needs webContents for this composition-root wiring test.
+      attachMainWindowCoreServices(window as never, {
+        markExpectedRendererReload: vi.fn(),
+        recordRendererReload: vi.fn()
+      })
 
     const options = attachMainWindowServicesMock.mock.calls[0]?.[5]
     expect(options).not.toHaveProperty('onBeforeUpdateQuit')

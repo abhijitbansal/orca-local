@@ -73,9 +73,6 @@ vi.mock('../persistence', () => ({
       return {}
     }
     onSettingsChanged() {}
-    getClaudeLivePtySessionIds() {
-      return []
-    }
     getSshTargets() {
       return []
     }
@@ -87,7 +84,6 @@ vi.mock('../persistence/profile-state/profile-state-startup-authority', () => ({
     store: {
       getSettings: () => ({}),
       onSettingsChanged: () => {},
-      getClaudeLivePtySessionIds: () => [],
       getSshTargets: () => []
     }
   })
@@ -136,18 +132,16 @@ vi.mock('../host/deferred-secret-protection-report', () => ({
 }))
 vi.mock('../pty/legacy-terminal-shim-dir', () => ({ neutralizeLegacyTerminalShimDir: vi.fn() }))
 vi.mock('./windows-shell-path-hydration', () => ({
-  createWindowsShellPathHydration: () => ({ whenReady: Promise.resolve() })
+  createWindowsShellPathHydration: () => ({
+    configure: vi.fn(),
+    whenReady: Promise.resolve()
+  })
 }))
 vi.mock('../git/runner', () => ({
   configureWindowsHostGitEnvironmentReadiness: vi.fn()
 }))
 vi.mock('../agent-hooks/wsl-hook-relay-manager', () => ({
   wslHookRelayManager: { setManagedHookSettingsResolver: vi.fn() }
-}))
-vi.mock('../claude-accounts/live-pty-gate', () => ({
-  attachClaudeLivePtyPersistence: vi.fn(),
-  onLiveClaudePtysDrained: vi.fn(),
-  seedLiveClaudePtysFromPersistence: vi.fn()
 }))
 vi.mock('../app-icon', () => ({ applyAppIcon: vi.fn() }))
 vi.mock('./dev-education-suppression', () => ({
@@ -160,6 +154,7 @@ vi.mock('../browser/browser-session-proxy', () => ({
   invalidateBrowserSessionProxyApplication: vi.fn()
 }))
 vi.mock('../browser/doc-preview-protocol', () => ({ installDocPreviewProtocolHandler: vi.fn() }))
+vi.mock('../media/media-preview-protocol', () => ({ installMediaPreviewProtocolHandler: vi.fn() }))
 vi.mock('../ipc/doc-preview-grant-ipc', () => ({ registerDocPreviewGrantHandlers: vi.fn() }))
 
 // browser-session-startup and browser-session-registry are deliberately NOT mocked: they are the

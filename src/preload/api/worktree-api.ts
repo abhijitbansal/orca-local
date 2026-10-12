@@ -8,16 +8,13 @@ import type {
   ListKnownWorktreesForExecutionHostArgs,
   ProviderRequestId
 } from '../../shared/detected-worktree-provider-contract'
+import type { NestedWorktreeRemovalApproval } from '../../shared/worktree/nested-removal'
 import type { ExecutionHostId } from '../../shared/execution-host'
 import type { RetiredNameRegistry } from '../../shared/worktree/retired-name-registry'
 import type {
   FolderWorkspacePathStatus,
   FolderWorkspacePathStatusRequest
 } from '../../shared/folder-workspace-path-status'
-import type {
-  HostLineageSnapshot,
-  ListDesktopLineageForHostArgs
-} from '../../shared/host-lineage-contract'
 import type { FolderWorkspace } from '../../shared/folder-workspace-types'
 import type {
   WorktreeBaseStatusEvent,
@@ -34,6 +31,7 @@ import type { WorkspaceLineage, WorktreeLineage } from '../../shared/worktree/li
 import type { WorktreeMeta } from '../../shared/worktree/meta-types'
 import type {
   DetectedWorktreeListResult,
+  GitWorktreeInfo,
   Worktree,
   WorktreeHeadIdentity
 } from '../../shared/worktree/types'
@@ -66,10 +64,15 @@ export type WorktreeApi = {
     callback: (data: { creationId?: string; phase: 'fetching' | 'creating' }) => void
   ) => () => void
   prefetchCreateBase: (args: { repoId: string; baseBranch?: string }) => Promise<void>
+  previewNestedRemoval?: (args: {
+    worktreeId: string
+    hostId?: ExecutionHostId
+  }) => Promise<GitWorktreeInfo[]>
   remove: (args: {
     worktreeId: string
     hostId?: ExecutionHostId
     force?: boolean
+    approvedNestedWorktrees?: NestedWorktreeRemovalApproval[]
     // Why (#11960): distinct from `force`, which the plain Delete confirmation
     // already sets to skip the dirty-file prompt. Only an explicit Force Delete
     // may waive the proof that every PTY stopped.
@@ -95,12 +98,11 @@ export type WorktreeApi = {
     worktreeId: string
     executionHostId?: ExecutionHostId
     updates: Partial<WorktreeMeta>
-  }) => Promise<Worktree>
+  }) => Promise<Worktree | null>
   listLineage: () => Promise<{
     lineage: Record<string, WorktreeLineage>
     workspaceLineage?: Record<string, WorkspaceLineage>
   }>
-  listLineageForHost?: (args: ListDesktopLineageForHostArgs) => Promise<HostLineageSnapshot>
   updateLineage: (args: {
     worktreeId: string
     parentWorktreeId?: string

@@ -1,4 +1,5 @@
 import type { WorktreeSlice } from '../../worktree-helpers'
+import { getActiveRuntimeTarget } from '@/runtime/runtime-client-target'
 import type { WorktreeSliceGet, WorktreeSliceSet } from '../listing/worktree-slice-types'
 import { translate } from '@/i18n/i18n'
 import { displayNameUpdatePinsLabel } from '../../../../../../shared/worktree/display-name-provenance'
@@ -13,7 +14,6 @@ import {
   bumpHostedReviewLinkMutationGeneration,
   hasHostedReviewLinkUpdates
 } from './hosted-review-link-mutation'
-import { normalizeHostedReviewLinkReplacementUpdates } from './hosted-review-link-update-normalization'
 import { getHostedReviewPushTargetLookup } from './hosted-review-push-target'
 import { persistWorktreeMeta } from './worktree-meta-persist'
 import { isRuntimeSelectorNotFoundError } from '../listing/runtime-worktree-rpc-errors'
@@ -61,7 +61,7 @@ export function createUpdateWorktreeMeta(
         return { ok: false, error: err instanceof Error ? err.message : String(err) }
       }
     }
-    const normalizedUpdates = normalizeHostedReviewLinkReplacementUpdates(updates, existingWorktree)
+    const normalizedUpdates = updates
     const existingHostedReviewPushTargetLookup = existingWorktree
       ? getHostedReviewPushTargetLookup(existingWorktree)
       : null
@@ -143,7 +143,7 @@ export function createUpdateWorktreeMeta(
 
     try {
       await persistWorktreeMeta(
-        settingsForWorktreeOwner(get(), worktreeId, executionHostId),
+        getActiveRuntimeTarget(settingsForWorktreeOwner(get(), worktreeId, executionHostId)),
         worktreeId,
         enriched,
         executionHostId ?? existingWorktree?.hostId,

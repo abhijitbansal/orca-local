@@ -20,6 +20,7 @@ import {
 import { TUI_AGENT_CONFIG } from '../../../shared/tui-agent-config'
 import { seedCommandCodeSubmittedPromptStatus } from '@/lib/command-code-prompt-status-seed'
 import type { TuiAgent } from '../../../shared/tui-agent'
+import type { AgentLaunchRequestId } from '@/lib/agent-launch-request-id'
 import type { LaunchSource } from '../../../shared/telemetry-events'
 import { resolveAgentLaunchExecutionContext } from '@/lib/launch-agent-execution-context'
 import { resolveInitialNativeChatSessionOptions } from '@/components/native-chat/native-chat-launch-session-options'
@@ -33,6 +34,8 @@ import {
 } from '@/lib/agent-session-launch-plan'
 
 export type LaunchAgentInNewTabArgs = {
+  /** The user action this launch serves; minted by upstream callers, unused for routing here. */
+  requestId?: AgentLaunchRequestId
   agent: TuiAgent
   worktreeId: string
   /** Tab group the user launched from; keeps split-group launches in that pane instead of the active group. */

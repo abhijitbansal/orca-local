@@ -1,23 +1,16 @@
 import type { ILink } from '@xterm/xterm'
 import { describe, expect, it, vi } from 'vitest'
-import { mapTerminalFilePath, openDetectedFilePath } from './terminal-link-handlers'
+import { mapTerminalFilePath } from './terminal-link-handlers'
 import { createTerminalLinkTestDoubles } from './terminal-link-handlers-test-fixtures'
 import { createProviderSetup, makeBufferLine } from './terminal-link-provider-buffer-fixtures'
 import {
   flushAsyncWork,
   flushDoubleRaf,
-  installTerminalLinkTestEnvironment,
-  setPlatform
+  installTerminalLinkTestEnvironment
 } from './terminal-link-handlers-test-harness'
 
 const doubles = createTerminalLinkTestDoubles()
-const {
-  storeState,
-  authorizeExternalPathMock,
-  statMock,
-  openFileMock,
-  setPendingEditorRevealMock
-} = doubles
+const { storeState, statMock, openFileMock, setPendingEditorRevealMock } = doubles
 
 vi.mock('@/store', () => ({
   useAppStore: {
@@ -70,7 +63,11 @@ describe('createFilePathLinkProvider range bounds', () => {
     await flushAsyncWork()
     await flushDoubleRaf()
 
-    expect(statMock).toHaveBeenCalledWith({ filePath: mappedPath })
+    expect(statMock).toHaveBeenCalledWith({
+      filePath: mappedPath,
+      connectionId: undefined,
+      access: { kind: 'user-file' }
+    })
     expect(openFileMock).toHaveBeenCalledWith(expect.objectContaining({ filePath: mappedPath }), {
       forceContentReload: true
     })
@@ -175,22 +172,5 @@ describe('createFilePathLinkProvider range bounds', () => {
 
     expect(links).toHaveLength(1)
     expect(window.api.shell.pathExists).toHaveBeenCalledWith(mappedPath)
-  })
-
-  it('ignores the pane WSL distro for remote runtime panes', async () => {
-    setPlatform('Windows')
-    storeState.settings = { activeRuntimeEnvironmentId: 'env-2' }
-
-    openDetectedFilePath('/home/alice/notes.md', null, null, {
-      worktreeId: 'wt-1',
-      worktreePath: 'C:\\repo',
-      wslDistro: 'Ubuntu',
-      runtimeEnvironmentId: 'env-1'
-    })
-    await flushAsyncWork()
-
-    expect(authorizeExternalPathMock).toHaveBeenCalledWith({
-      targetPath: '/home/alice/notes.md'
-    })
   })
 })

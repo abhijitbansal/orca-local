@@ -5,6 +5,8 @@ import {
   resolveSkillProviderRoots
 } from './runtime-skill-install-authority'
 
+export const SKILL_SSH_UNAVAILABLE = 'skill-install-ssh-relay-unavailable'
+
 export class RuntimeSkillInstallCommands {
   constructor(protected readonly host: RuntimeSkillCommandHost) {}
 

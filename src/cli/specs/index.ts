@@ -16,9 +16,11 @@ import { INTROSPECTION_COMMAND_SPECS } from './introspection'
 import { SKILL_COMMAND_SPECS } from './skills'
 import { SEARCH_COMMAND_SPECS } from './search'
 import { PROFILE_STATE_COMMAND_SPECS } from './profile-state'
+import { REFERENCE_COMMAND_SPECS } from './reference'
 
 export const COMMAND_SPECS: CommandSpec[] = [
   ...CORE_COMMAND_SPECS,
+  ...REFERENCE_COMMAND_SPECS,
   ...ACCOUNT_COMMAND_SPECS,
   ...PROJECT_COMMAND_SPECS,
   ...FILE_COMMAND_SPECS,

@@ -1,4 +1,5 @@
 import { ipcMain } from 'electron'
+import { markAgentLaunchesClosedByUser } from '../agent-launch/agent-launch-pane-attachment'
 import type { Store } from '../persistence'
 import type { OrcaRuntimeService } from '../runtime/orca-runtime'
 import { parseTerminalSurfaceCloseTarget } from '../../shared/terminal-surface-close-target'
@@ -39,10 +40,15 @@ export function registerSessionHandlers(store: Store, runtime: OrcaRuntimeServic
         throw new Error('invalid_terminal_surface')
       }
       // Why only these two: main alone closes a tab for its process exit.
+      const reason = args.reason === 'cleanup' ? 'cleanup' : 'user'
+      if (reason === 'user') {
+        // A launch still starting or delivering in what the user closed stops, and says so.
+        markAgentLaunchesClosedByUser(args.worktreeId, target)
+      }
       return runtime.closeTerminalSurfaceFromRenderer({
         worktreeId: args.worktreeId,
         target,
-        reason: args.reason === 'cleanup' ? 'cleanup' : 'user'
+        reason
       })
     }
   )
@@ -58,7 +64,9 @@ export function registerSessionHandlers(store: Store, runtime: OrcaRuntimeServic
     void (async () => {
       try {
         store.setWorkspaceSession(args, hostId)
-        await store.flushPendingOrThrowAsync({ drainToStableGeneration: false })
+        await store.flushPendingOrThrowAsync({
+          drainToStableGeneration: false
+        })
       } catch (error) {
         console.error('[persistence] Failed to flush legacy session checkpoint:', error)
       } finally {

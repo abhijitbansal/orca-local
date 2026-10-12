@@ -3,6 +3,7 @@ import type { CommandHandler } from '../dispatch'
 import { formatCliStatus, formatStatus, printResult } from '../format'
 import { RuntimeClientError, serveOrcaApp } from '../runtime-client'
 import { stripElectronRunAsNode } from '../runtime/launch'
+import { resolveCliStatusCaller } from '../runtime/status-caller'
 
 function envRecord(): Record<string, string> {
   // Why: the `orca` launcher runs Orca's Electron binary as Node, so this CLI
@@ -88,6 +89,13 @@ export const CORE_HANDLERS: Record<string, CommandHandler> = {
     if (!json && !result.result.runtime.reachable) {
       process.exitCode = 1
     }
-    printResult(result, json, formatStatus)
+    const caller = result.result.runtime.reachable
+      ? await resolveCliStatusCaller(client)
+      : undefined
+    printResult(
+      caller === undefined ? result : { ...result, result: { ...result.result, caller } },
+      json,
+      formatStatus
+    )
   }
 }

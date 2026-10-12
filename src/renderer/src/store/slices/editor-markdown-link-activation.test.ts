@@ -32,7 +32,6 @@ describe('createEditorSlice activateMarkdownLink', () => {
   const openUrlMock = vi.fn()
   const openFileUriMock = vi.fn()
   const pathExistsMock = vi.fn()
-  const authorizeExternalPathMock = vi.fn()
   const fsStatMock = vi.fn()
   const runtimeEnvironmentCallMock = vi.fn()
   const runtimeEnvironmentTransportCallMock = vi.fn()
@@ -43,7 +42,6 @@ describe('createEditorSlice activateMarkdownLink', () => {
     openFileUriMock.mockReset()
     pathExistsMock.mockReset()
     pathExistsMock.mockResolvedValue(true)
-    authorizeExternalPathMock.mockReset()
     fsStatMock.mockReset()
     fsStatMock.mockImplementation(async ({ filePath }: { filePath: string }) => {
       const exists = await pathExistsMock(filePath)
@@ -76,7 +74,6 @@ describe('createEditorSlice activateMarkdownLink', () => {
         pathExists: pathExistsMock
       },
       fs: {
-        authorizeExternalPath: authorizeExternalPathMock,
         stat: fsStatMock
       },
       runtimeEnvironments: {
@@ -515,14 +512,13 @@ describe('createEditorSlice activateMarkdownLink', () => {
     expect(openFileUriMock).not.toHaveBeenCalled()
   })
 
-  it('opens explicit file URLs outside the worktree in Orca after authorizing them', async () => {
+  it('opens explicit file URLs outside the worktree in Orca as user-named tabs', async () => {
     const store = createEditorStore()
     await store.getState().activateMarkdownLink('file:///tmp/image.png', {
       sourceFilePath: '/repo/docs/note.md',
       worktreeId: 'wt-1',
       worktreeRoot: '/repo'
     })
-    expect(authorizeExternalPathMock).toHaveBeenCalledWith({ targetPath: '/tmp/image.png' })
     expect(store.getState().openFiles).toEqual([
       expect.objectContaining({
         filePath: '/tmp/image.png',
@@ -578,7 +574,6 @@ describe('createEditorSlice activateMarkdownLink', () => {
       worktreeRoot: '/repo'
     })
 
-    expect(authorizeExternalPathMock).not.toHaveBeenCalled()
     expect(store.getState().openFiles).toEqual([])
     expect(toastErrorMock).toHaveBeenCalledWith(
       'Opening remote paths in the local OS is not available.'

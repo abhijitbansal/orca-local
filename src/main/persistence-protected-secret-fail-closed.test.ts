@@ -112,14 +112,7 @@ async function writeProtectedState(
     opencodeSessionCookie: values.cookie
   })
   store.updateUI({ browserKagiSessionLink: values.kagi })
-  await store.upsertSshPtyConsumerRecovery({
-    targetId: 'ssh-1',
-    clientInstanceId: 'client-1',
-    serverBuildId: 'relay-build-1',
-    clientGeneration: 1,
-    ownerGeneration: 1,
-    ownerLease: values.ownerLease
-  })
+  await settleSave(store)
 }
 
 function expectPlaintextsAbsent(raw: string, values: typeof ORIGINAL | typeof PENDING): void {
@@ -161,7 +154,7 @@ describe('protected persistence when safeStorage fails', () => {
       expect(persisted.settings.httpProxyUrl).toBe('')
       expect(persisted.settings.opencodeSessionCookie).toBe('')
       expect(persisted.ui.browserKagiSessionLink).toBe('')
-      expect(persisted.sshPtyConsumerRecoveries[0]?.ownerLease).toBe('')
+      expect(persisted.sshPtyConsumerRecoveries ?? []).toEqual([])
       expect(persisted.settings.httpProxyBypassRules).toBe('non-secret-saved')
     }
   )
@@ -182,7 +175,6 @@ describe('protected persistence when safeStorage fails', () => {
       expect(restarted.getSettings().httpProxyUrl).toBe(PENDING.proxy)
       expect(restarted.getSettings().opencodeSessionCookie).toBe(PENDING.cookie)
       expect(restarted.getUI().browserKagiSessionLink).toBe(PENDING.kagi)
-      expect(restarted.getSshPtyConsumerRecovery('ssh-1')).toBeNull()
     }
   )
 
@@ -193,7 +185,6 @@ describe('protected persistence when safeStorage fails', () => {
 
     store.updateSettings({ httpProxyUrl: '', opencodeSessionCookie: '' })
     store.updateUI({ browserKagiSessionLink: null })
-    await store.removeSshPtyConsumerRecovery('ssh-1')
     await settleSave(store)
 
     await writeProtectedState(store, PENDING, 'after-clear')
@@ -201,14 +192,13 @@ describe('protected persistence when safeStorage fails', () => {
     expect(persisted.settings.httpProxyUrl).toBe('')
     expect(persisted.settings.opencodeSessionCookie).toBe('')
     expect(persisted.ui.browserKagiSessionLink).toBe('')
-    expect(persisted.sshPtyConsumerRecoveries[0]?.ownerLease).toBe('')
+    expect(persisted.sshPtyConsumerRecoveries ?? []).toEqual([])
 
     cipherState.availability = 'available'
     const restarted = await createStore()
     expect(restarted.getSettings().httpProxyUrl).toBe('')
     expect(restarted.getSettings().opencodeSessionCookie).toBe('')
     expect(restarted.getUI().browserKagiSessionLink).toBe('')
-    expect(restarted.getSshPtyConsumerRecovery('ssh-1')).toBeNull()
   })
 
   it('persists clears after a healthy save preserves sealed ciphertext', async () => {
@@ -247,40 +237,6 @@ describe('protected persistence when safeStorage fails', () => {
     expect(readState().settings.opencodeSessionCookie).toBe(legacyCookie)
   })
 
-  it('evicts ciphertext when decrypted SSH recovery validation rejects the record', async () => {
-    const oversizedLease = 'z'.repeat(513)
-    const encryptedLease = Buffer.from(`enc:${randomUUID()}:${oversizedLease}`).toString('base64')
-    writeFileSync(
-      dataFile(),
-      JSON.stringify({
-        sshPtyConsumerRecoveries: [
-          {
-            targetId: 'ssh-1',
-            clientInstanceId: 'client-1',
-            serverBuildId: 'relay-build-1',
-            clientGeneration: 1,
-            ownerGeneration: 1,
-            ownerLease: encryptedLease
-          }
-        ]
-      })
-    )
-    const store = await createStore()
-    expect(store.getSshPtyConsumerRecovery('ssh-1')).toBeNull()
-
-    cipherState.availability = 'unavailable'
-    await store.upsertSshPtyConsumerRecovery({
-      targetId: 'ssh-1',
-      clientInstanceId: 'client-1',
-      serverBuildId: 'relay-build-1',
-      clientGeneration: 2,
-      ownerGeneration: 2,
-      ownerLease: 'replacement-owner-lease'
-    })
-
-    expect(readState().sshPtyConsumerRecoveries[0]?.ownerLease).toBe('')
-  })
-
   it('keeps loaded ciphertext sealed through same-instance recovery', async () => {
     const initial = await createStore()
     await writeProtectedState(initial, ORIGINAL, 'before')
@@ -291,7 +247,6 @@ describe('protected persistence when safeStorage fails', () => {
     expect(sealed.getSettings().httpProxyUrl).toBe('')
     expect(sealed.getSettings().opencodeSessionCookie).toBe('')
     expect(sealed.getUI().browserKagiSessionLink).toBe('')
-    expect(sealed.getSshPtyConsumerRecovery('ssh-1')).toBeNull()
 
     sealed.updateSettings({ httpProxyBypassRules: 'during-outage' })
     await settleSave(sealed)
@@ -316,7 +271,6 @@ describe('protected persistence when safeStorage fails', () => {
     expect(restarted.getSettings().httpProxyUrl).toBe(ORIGINAL.proxy)
     expect(restarted.getSettings().opencodeSessionCookie).toBe(ORIGINAL.cookie)
     expect(restarted.getUI().browserKagiSessionLink).toBe(ORIGINAL.kagi)
-    expect(restarted.getSshPtyConsumerRecovery('ssh-1')).toBeNull()
     expect(restarted.getSettings().httpProxyBypassRules).toBe('after-recovery')
   })
 
@@ -330,7 +284,6 @@ describe('protected persistence when safeStorage fails', () => {
     expect(sealed.getSettings().httpProxyUrl).toBe('')
     expect(sealed.getSettings().opencodeSessionCookie).toBe('')
     expect(sealed.getUI().browserKagiSessionLink).toBe('')
-    expect(sealed.getSshPtyConsumerRecovery('ssh-1')).toBeNull()
 
     sealed.updateSettings({ httpProxyBypassRules: 'decryption-failed' })
     await settleSave(sealed)
@@ -349,7 +302,6 @@ describe('protected persistence when safeStorage fails', () => {
     expect(restarted.getSettings().httpProxyUrl).toBe(ORIGINAL.proxy)
     expect(restarted.getSettings().opencodeSessionCookie).toBe(ORIGINAL.cookie)
     expect(restarted.getUI().browserKagiSessionLink).toBe(ORIGINAL.kagi)
-    expect(restarted.getSshPtyConsumerRecovery('ssh-1')).toBeNull()
   })
 
   it('accepts validated legacy plaintext for OpenCode and strips SSH recoveries at load', async () => {
@@ -374,7 +326,6 @@ describe('protected persistence when safeStorage fails', () => {
 
     const store = await createStore()
     expect(store.getSettings().opencodeSessionCookie).toBe(legacyCookie)
-    expect(store.getSshPtyConsumerRecovery('ssh-1')).toBeNull()
     expect(legacyOwnerLease).toBeTruthy()
   })
 
@@ -418,7 +369,6 @@ describe('protected persistence when safeStorage fails', () => {
       expect(recovered.getSettings().httpProxyUrl).toBe(ORIGINAL.proxy)
       expect(recovered.getSettings().opencodeSessionCookie).toBe(ORIGINAL.cookie)
       expect(recovered.getUI().browserKagiSessionLink).toBe(ORIGINAL.kagi)
-      expect(recovered.getSshPtyConsumerRecovery('ssh-1')).toBeNull()
       expect(recovered.getSettings().httpProxyBypassRules).toBe('during-failure')
 
       await writeProtectedState(recovered, PENDING, 'recovered')
@@ -426,7 +376,6 @@ describe('protected persistence when safeStorage fails', () => {
       expect(restarted.getSettings().httpProxyUrl).toBe(PENDING.proxy)
       expect(restarted.getSettings().opencodeSessionCookie).toBe(PENDING.cookie)
       expect(restarted.getUI().browserKagiSessionLink).toBe(PENDING.kagi)
-      expect(restarted.getSshPtyConsumerRecovery('ssh-1')).toBeNull()
       expect(restarted.getSettings().httpProxyBypassRules).toBe('recovered')
     }
   )

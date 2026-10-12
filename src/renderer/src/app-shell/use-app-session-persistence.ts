@@ -37,6 +37,8 @@ import {
 const SLEEPING_AGENT_RESUME_CAPTURE_INTERVAL_MS = 60_000
 
 /**
+ * Writes durable renderer session state to disk: the debounced per-host writer and the synchronous
+ * shutdown checkpoint.
  * Writes durable renderer session state to disk: the debounced per-host writer and the
  * synchronous shutdown checkpoint.
  */

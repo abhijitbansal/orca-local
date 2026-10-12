@@ -30,7 +30,6 @@ import {
 import {
   contextualTourOutcomeSchema,
   contextualTourShownSchema,
-  directSshReconnectOperationSchema,
   editorExternalChangeConflictActionSchema,
   editorExternalChangeConflictShownSchema,
   setupGuideClosedSchema,
@@ -196,7 +195,6 @@ export const eventSchemas = {
   editor_external_change_conflict_shown: editorExternalChangeConflictShownSchema,
   editor_external_change_conflict_action: editorExternalChangeConflictActionSchema,
 
-  direct_ssh_reconnect_operation: directSshReconnectOperationSchema,
 
   smart_sort_class_distribution: smartSortClassDistributionSchema,
   smart_sort_class_1_promotion: smartSortClass1PromotionSchema,

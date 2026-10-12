@@ -6,9 +6,9 @@ import type {
 } from '../../../shared/runtime-worktree-contracts'
 import {
   _resetPendingWorktreeRemovalsForTests,
-  snapshotPendingWorktreeRemovals,
   startBackgroundWorktreeRemoval
 } from '../../worktree-background-removal'
+import { snapshotPendingWorktreeRemovals } from '../../worktree-removal-listing'
 import {
   projectWorktreeListRemovals,
   projectWorktreePsRemovals

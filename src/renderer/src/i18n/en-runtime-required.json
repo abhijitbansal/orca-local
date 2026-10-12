@@ -1,4 +1,17 @@
 {
+  "accounts": {
+    "claude": {
+      "copySignInLink": "Copy sign-in link instead",
+      "moreSignInOptions": "More sign-in options",
+      "profileSwitching": "Switching applies to the next Claude you start in any tab. Running sessions keep their account.",
+      "signInAgain": "Sign in again",
+      "signInLinkCopied": "Sign-in link copied. Open it in a private window to sign in with a different account.",
+      "signInLinkCopyFailed": "Could not copy the link.",
+      "systemDefaultIsSaved": "System default is signed in as {{value0}}, which is also a saved account. An earlier Orca version may have copied that login there. If it is not your own login, select System default and run claude /login.",
+      "systemDefaultIsSavedDismiss": "Dismiss",
+      "systemDefaultNamed": "System default: {{value0}}"
+    }
+  },
   "agentsSidebarIntro": {
     "migrated": {
       "action": "Open Agents"
@@ -128,10 +141,6 @@
         "59b6cd3706": "Loading states",
         "780ea6ed89": "No states found",
         "fbb90300e2": "Custom estimate"
-      },
-      "NativeChatResumeOnRestartModal": {
-        "continueUnconfirmed_one": "Continuation delivery is unconfirmed for {{value0}} chat. Open it to check before sending another message.",
-        "continueUnconfirmed_other": "Continuation delivery is unconfirmed for {{value0}} chats. Open them to check before sending another message."
       },
       "NewWorkspaceComposerCard": {
         "0e587e31fb": "yaml",
@@ -482,7 +491,7 @@
         "94f0339621": "Assigned to me",
         "969e26577c": "You can request up to 15 reviewers",
         "995dd6af9b": "Open PR checks",
-        "99c2755218": "Jira JQL, e.g. project = ABC AND statusCategory != Done",
+        "99c2755218": "Search issues or enter JQL, e.g. project = ABC",
         "9ae151b26b": "linear",
         "9bc8aea407": "Add description...",
         "9c57663908": "View",
@@ -613,7 +622,7 @@
         "f373ab1a4f": "Urgent",
         "f397d513e3": "Back",
         "f4374519ae": "Your preferred issue source (upstream) is no longer configured for {{value0}}. Using origin.",
-        "f51e254d35": "Try a different JQL query.",
+        "f51e254d35": "Try different search terms or JQL.",
         "f6fa3c97d0": "Reviewers",
         "f9191d1714": "Reviewer removed",
         "fc0d8a1fa4": "to submit.",
@@ -623,6 +632,7 @@
         "ff53631e6f": "Refresh GitHub work",
         "ff69a30681": "Cancel",
         "ff90d0abc7": "Start workspace from {{value0}}",
+        "jiraTextMatchesNotice": "Showing text matches. Jira couldn't run this search as JQL.",
         "loadPageFailed": "Page {{value0}} could not be loaded from GitHub.",
         "loadPageNoMoreResults": "No more results on page {{value0}}.",
         "loadPageUnreachable": "Page {{value0}} is beyond what GitHub search can return.",
@@ -660,6 +670,14 @@
         },
         "ActivityScopeFilterControls": {
           "hiddenCount": "{{value0}} hidden"
+        },
+        "ActivityThreadContextMenu": {
+          "clearMany_one": "Clear {{count}} Agent from List",
+          "clearMany_other": "Clear {{count}} Agents from List",
+          "markManyRead_one": "Mark {{count}} Agent Read",
+          "markManyRead_other": "Mark {{count}} Agents Read",
+          "markManyUnread_one": "Mark {{count}} Agent Unread",
+          "markManyUnread_other": "Mark {{count}} Agents Unread"
         }
       },
       "automations": {
@@ -1208,8 +1226,170 @@
         }
       },
       "mobile": {
+        "CustomNetworkAddressDialog": {
+          "cancel": "Cancel",
+          "confirmationError": "This address could not produce a scannable pairing code. Check the address and try again.",
+          "description": "Advertise an address your phone can reach — for example a Tailscale hostname, IP address, or reverse-proxy URL.",
+          "hint": "Enter an IPv4/IPv6 address, hostname, or full HTTP(S)/WebSocket URL. Ports are optional.",
+          "label": "Address",
+          "placeholder": "home.example.com:8443 or https://example.com/orca",
+          "title": "Custom network address",
+          "use": "Use address"
+        },
         "MobilePage": {
-          "1b4509a8a1": "paired"
+          "1b4509a8a1": "paired",
+          "255372e6e8": "Device revoked",
+          "3c1f7168bb": "Pairing code copied",
+          "4c8bd11c1a": "Failed to generate pairing code",
+          "4e1eb5d55c": "Failed to revoke device",
+          "6a66e38943": "Failed to copy pairing code",
+          "b353e18de1": "WebSocket transport is not running",
+          "baea63c445": "Failed to copy link",
+          "c5909374cf": "intro",
+          "diagnosticsCopied": "Diagnostics copied",
+          "diagnosticsCopyFailed": "Failed to copy diagnostics",
+          "e17393c6a3": "Phone preview",
+          "fad833de8d": "Install link copied"
+        },
+        "MobilePageToolbar": {
+          "9883b58693": "Close Orca Mobile",
+          "a4f8c2d91e": "Hide from sidebar",
+          "ad2284a9e2": "Close · Esc",
+          "b7e3d1c84a": "Show in sidebar",
+          "c669abcf8f": "Hide from sidebar",
+          "e1c7b4a92d": "Configure in Settings > Mobile.",
+          "f3d8e5b71a": "Adds the shortcut back to the sidebar.",
+          "fb5f28330e": "Show in sidebar"
+        },
+        "MobileRelayMintFailureNotice": {
+          "body": "Retry, or use LAN to pair over Tailscale or the same Wi‑Fi.",
+          "copyDiagnostics": "Copy diagnostics",
+          "notEntitledTitle": "Orca Relay isn’t included with this Orca account.",
+          "rateLimitedBody": "Orca Relay is busy. Wait a minute and retry, or use LAN to pair over Tailscale or the same Wi‑Fi.",
+          "reconnectBody": "Sign in again to use Orca Relay, or use LAN to pair over Tailscale or the same Wi‑Fi.",
+          "reconnectTitle": "Your Orca account session expired.",
+          "retry": "Retry Relay",
+          "retrying": "Retrying…",
+          "retryingBody": "Creating a new pairing code. This can take a moment over a remote connection.",
+          "retryingTitle": "Retrying Orca Relay…",
+          "title": "Couldn’t create a Relay pairing code.",
+          "unavailableBody": "Use LAN to pair over Tailscale or the same Wi‑Fi.",
+          "unavailableTitle": "Orca Relay isn’t available on this desktop.",
+          "useLan": "Use LAN"
+        },
+        "NetworkInterfacePicker": {
+          "add-custom": "Add custom address…",
+          "custom-option": "{{address}} (custom)",
+          "custom-section": "Custom",
+          "no-address-selected": "No address selected",
+          "remove-custom": "Remove {{address}}",
+          "trigger-label": "Network address to advertise"
+        },
+        "PhoneCarousel": {
+          "89c7713645": "Orca Mobile home screen",
+          "93217b41c1": "Worktree list",
+          "96d651cb87": "Terminal session"
+        },
+        "WindowsFirewallNotice": {
+          "allow": "Allow phone connections",
+          "blocked-description": "An existing inbound Block rule can override the pairing exception. Repair removes conflicting TCP rules for this Orca app, then allows port {{port}} on Private networks.",
+          "blocked-title": "Windows may be blocking Orca Mobile",
+          "missing-description": "Windows may block the pairing server. Add a rule for this Orca app and TCP port {{port}} on Private networks.",
+          "missing-title": "Allow phone connections through Windows Firewall",
+          "open-settings": "Open network settings",
+          "public-description": "Change this trusted Wi-Fi network to Private before allowing Orca Mobile connections.",
+          "public-title": "Windows marks this network as public",
+          "relay-note": "Pairing still works over Orca Relay — allowing this only adds the faster local connection.",
+          "repair": "Repair firewall access",
+          "repair-failed": "Could not update the Windows Firewall rules",
+          "repair-success": "Windows Firewall now allows Orca Mobile on private networks",
+          "repair-unverified": "Windows Firewall access could not be verified",
+          "waiting": "Waiting for Windows…"
+        },
+        "mobile": {
+          "platform": {
+            "copy": {
+              "2a532d6fd7": "Scan with your Android camera to download the latest APK from GitHub Releases.",
+              "432db52b73": "Scan with your iPhone camera to open the App Store.",
+              "preview": {
+                "tagline": "Newest features, updated daily."
+              },
+              "stable": {
+                "tagline": "The public release, updated weekly."
+              }
+            }
+          }
+        },
+        "slides": {
+          "HomeSlide": {
+            "00a6903322": "Agents spawned",
+            "091355da3d": "M1 Mini · home",
+            "0b00c98506": "Quick Actions",
+            "0bad5b07c8": "GitHub and Linear",
+            "0bc1881bc4": "Connected · 40 worktrees · 5 active",
+            "156db8a68a": "PRs created",
+            "19c212e25e": "MacBook Pro",
+            "25d6e8a491": "feat/mobile-page",
+            "2f1a1d10c4": "Desktops",
+            "4405f3c440": "Pair Desktop",
+            "4a40af029b": "Agent time",
+            "5d94e8ddcc": "Orca",
+            "8a350a4784": "Account usage",
+            "a3d5476811": "5h",
+            "a4c3f7b7aa": "Tasks",
+            "a7d9e2c44d": "7d",
+            "af761a0c0d": "Settings",
+            "c0e2e9dcd9": "Welcome back",
+            "c791677f2f": "Resume",
+            "cf3f98fa3f": "Disconnected",
+            "d047197480": "GitHub · Linear",
+            "d33d7a9c29": "orca  ·  feat/mobile-page",
+            "e27fdaee51": "New Workspace"
+          },
+          "TerminalSlide": {
+            "0bb39f8fe6": "Send",
+            "1d448b69f7": "PASS",
+            "21b67dfc92": "Bash",
+            "29f2d13839": "Type a command…",
+            "2c10d43745": "claude",
+            "2defc05141": "dev@mac",
+            "336c0e070e": "mobile/orca-mobile-sidebar-mock-v3.html",
+            "3ce3e8c892": "14 passed, 1 skipped (1.8s)",
+            "4930eaaae7": "Esc",
+            "4b3666f9a9": "src/cache/worktree-cache.test.ts",
+            "53ff909568": "Tab",
+            "58a9ee6003": "tool-call formatting. Want me to add the diff next?",
+            "606aa93192": "Files",
+            "69334b4b10": "Voice dictation",
+            "6d4ebd5833": "Edit",
+            "80cc356591": "Read",
+            "817090af40": "Ctrl+C",
+            "8432787c4e": "feat/mobile-page",
+            "8d6516312d": "2 terminals · claude active",
+            "8fd998acd3": "Back",
+            "94febb0976": "Source control",
+            "985373052e": "Switch to phone mode",
+            "a6e7cdc688": "pnpm test --filter mobile",
+            "aa64b519c6": "terminal screen. Tokyonight palette, Menlo, real claude",
+            "d39445686a": "src/transport/host-store.test.ts",
+            "d6d1041a1c": "⎿ Replaced pair-scan slide with terminal session",
+            "da121ba48d": "PLAN.md",
+            "e0f98be657": "orca/feat-mobile-page",
+            "e4befee569": "shell",
+            "e75112c834": "I've replaced the pair-scan slide with a high-fidelity",
+            "fa22927f13": "Paste",
+            "fc83e0d5ef": "⎿ Read 2103 lines"
+          },
+          "WorktreeListSlide": {
+            "0e3e809a4b": "Filter",
+            "17f9e0d226": "Recent",
+            "22971156df": "Repo",
+            "357a519567": "Active",
+            "79a24ff530": "Pinned",
+            "b4271864bd": "MacBook Pro",
+            "c5ad56786d": "spinner",
+            "cefd048225": "Back"
+          }
         }
       },
       "new": {
@@ -1482,6 +1662,7 @@
           },
           "PortsPanel": {
             "1119f90ad7": "container",
+            "153d3a8026": "Workspace host unknown",
             "4bc9b00912": "workspace",
             "7550998473": "Copy",
             "c57eda6822": "edit"
@@ -1702,6 +1883,7 @@
                   "f8543140cc": "Publish this branch before creating a {{value0}}."
                 }
               },
+              "loadFailedOnMachine": "Could not load from {{machine}}: {{detail}}",
               "review": {
                 "active": {
                   "body": "Orca is checking {{provider}} for a {{reviewLabel}} on this branch.",
@@ -1911,6 +2093,10 @@
                 }
               },
               "discard": {
+                "confirmation": {
+                  "1426c2efff": "This will revert all changes to this file. This cannot be undone.",
+                  "40e9357b2a": "This will restore the file from HEAD and discard the deletion. This cannot be undone."
+                },
                 "dialog": {
                   "48c5ef95d9": "area",
                   "6de99d162b": "entry"
@@ -2006,6 +2192,7 @@
       "settings": {
         "AccountsPane": {
           "0023cc336e": "Paste either the raw token value (e.g.",
+          "0c64dc2a64": "Gemini CLI (legacy)",
           "15e831350e": "Configure MiniMax usage tracking from platform.minimax.io.",
           "1fd1b1b6b4": "Cookie not set",
           "338820326a": ") or the full cookie header (e.g.",
@@ -2019,13 +2206,15 @@
           "8951c5309f": "auth=Fe26.2**…",
           "9107406589": "Could not load Claude accounts.",
           "922b51e02d": "Fe26.2**…",
+          "973741a871": "Keep existing Gemini CLI sessions available. Gemini credentials do not sign you into Antigravity.",
           "a7e38affcd": "Fe26.2**… token or auth=Fe26.2**… header",
           "b10cb4f696": "adding",
           "b11078a9c2": "wsl",
           "b2b1aa936d": "Paste your opencode.ai session cookie for rate limit fetching.",
           "b43e761fe5": "MiniMax cookie update failed.",
           "b8c2905c2b": "Could not load Codex accounts.",
-          "f5d8d2a6a1": "Open platform.minimax.io/console/usage in your browser and sign in."
+          "f5d8d2a6a1": "Open platform.minimax.io/console/usage in your browser and sign in.",
+          "remoteScopeLocalAccountsKept": "Accounts managed on this desktop are unchanged. Switch the default runtime back to Local desktop to view them."
         },
         "AdvancedNetworkSettingsSection": {
           "d93c7cd531": "Configure app-level network routing.",
@@ -2145,6 +2334,23 @@
         "DevToolsPane": {
           "orcaCloud": "Orca Cloud"
         },
+        "DeveloperPermissionsPane": {
+          "connectionTestAction": "Test Connection",
+          "connectionTestDescription": "Enter a service on another device on your local network. Orca tests the same network path used by terminal tools.",
+          "connectionTestFailed": "The connection test could not be completed.",
+          "connectionTestHost": "Host",
+          "connectionTestInvalidTarget": "Enter a hostname or private LAN IP and a port from 1 to 65535.",
+          "connectionTestLastVerified": "Last verified",
+          "connectionTestNotYetVerified": "No successful test saved.",
+          "connectionTestPort": "Port",
+          "connectionTestRefused": "The host responded, but the port refused the connection.",
+          "connectionTestRunning": "Testing...",
+          "connectionTestTimeout": "Connection timed out. Check the target, service, and macOS Local Network settings.",
+          "connectionTestTitle": "Test connection",
+          "connectionTestUnreachable": "The target could not be reached.",
+          "connectionTestUnresolved": "The hostname could not be resolved.",
+          "connectionTestUnsupported": "Connection testing is available in the macOS desktop app."
+        },
         "ExperimentalPane": {
           "0277901cf7": "Adds an Agents entry to the left sidebar with a threaded worktree feed for completed agents, blocking questions, unread state, and worktree creation events. Experimental — the event model and UI may change.",
           "24416f42cd": "Shared paths on worktrees",
@@ -2155,6 +2361,20 @@
           "newWorktreeCardStyle": {
             "copy": "Preview updated worktree-card layout, metadata placement, card-display menu options, and status presentation."
           }
+        },
+        "GeneralRemoteServerUpdates": {
+          "availableCount": "{{value0}} ready to update",
+          "currentCount": "{{value0}} up to date",
+          "description": "Check and update paired Orca servers from this client.",
+          "manualCount": "{{value0}} manual",
+          "offlineCount": "{{value0}} offline",
+          "reviewServers": "Check for Server Updates",
+          "reviewUpdateOne": "1 update available",
+          "reviewUpdates": "{{value0}} updates available",
+          "serverCount": "{{value0}} paired servers",
+          "serverCountOne": "1 paired server",
+          "title": "Remote Orca Servers",
+          "updating": "Updating servers…"
         },
         "GeneralWorkspaceSettingsSection": {
           "externalWorktreesDescription": "Choose whether worktrees created outside Orca appear by default.",
@@ -2256,6 +2476,12 @@
           "f92fbf11aa": "Not configured",
           "fe4d378dc4": "Verified"
         },
+        "MachineNameField": {
+          "description": "Other devices and hosts see “{{name}}”. Leave this blank to use the computer’s own name.",
+          "label": "Machine name",
+          "pending": "Other devices and hosts see this name. Leave it blank to use the detected computer name.",
+          "placeholder": "Detected automatically"
+        },
         "ManageSessionsSection": {
           "9c940434af": "Switch back to the local runtime to restart or kill local daemon sessions.",
           "a06ababda0": "killAll",
@@ -2274,10 +2500,108 @@
           "dde0ec1cd8": "Toolchains Orca uses to run emulators. Android works on any OS via the Android SDK; iOS Simulators need Xcode on macOS."
         },
         "MobileNetworkInterfaceSection": {
-          "1dc87a7fbc": "Tailscale"
+          "1dc87a7fbc": "Tailscale",
+          "1e64659126": "Regenerate",
+          "1f7c26d36a": "Sign in to the same tailnet on both devices.",
+          "39fad211d9": "Connect outside your Wi-Fi with a tailnet",
+          "406a35121c": "Network Interface",
+          "51d29927eb": "Install",
+          "63d5e4ae1e": "Regenerate the QR code and scan it from the Orca mobile app.",
+          "668016be7a": "on your computer and phone.",
+          "87985ba6f5": "In this Network Interface menu, choose the Tailscale address, usually a 100.x.y.z IP.",
+          "9fc5d203ff": "Orca Mobile connects directly to this computer. To use it away from the same LAN, put your computer and phone on the same private overlay network, then generate the QR code with that network address selected.",
+          "a9db5d771d": "Refresh network interfaces",
+          "b2c384cfd6": "No interfaces found",
+          "c541f67790": "Generate QR Code",
+          "d536b5e20d": "Choose which network address to advertise in the QR code. Use your LAN address for same-network pairing, or an overlay network address (Tailscale, ZeroTier) for cross-network access."
+        },
+        "MobilePairingConnectionOptions": {
+          "anywhereDescription": "Phone can be on cellular or any Wi‑Fi. Sign-in required for Relay only.",
+          "anywhereTitle": "Orca Relay",
+          "available": "Available",
+          "connecting": "Connecting",
+          "localDescription": "Phone must be on this Wi‑Fi or connected through Tailscale. No account needed.",
+          "localTitle": "LAN",
+          "pathGroup": "How the phone reaches this computer",
+          "ready": "Ready",
+          "reconnecting": "Reconnecting",
+          "relayCell": "Relay cell",
+          "relaySignInDetail": "Signs this desktop in to Orca and routes the phone through Orca’s servers. LAN does not need an account.",
+          "relayUnavailable": "Orca Relay isn’t available in this build. Use LAN.",
+          "retrying": "Retrying",
+          "signIn": "Sign in for Relay",
+          "signInAgain": "Sign in again for Relay",
+          "unavailable": "Unavailable"
+        },
+        "MobilePairingSetupSection": {
+          "generate": "Generate QR code",
+          "overview": "Generate a QR code, then scan it in Orca Mobile under Pair Desktop.",
+          "refresh": "Refresh network interfaces",
+          "regenerate": "Regenerate QR code",
+          "step1Title": "Connection",
+          "step2LocalDescription": "The phone must be able to reach this address on Tailscale or Wi‑Fi.",
+          "step2RelayDescription": "Optional. Pick the Wi‑Fi or Tailscale address your phone should use when nearby — usually faster than Relay. Relay still works when you’re away.",
+          "step2RelayDisclosure": "Also use a faster local path",
+          "step2Title": "This computer’s address",
+          "title": "Pair a phone"
+        },
+        "MobilePane": {
+          "1592afcc7a": "No devices paired yet. Scan the QR code with the Orca mobile app.",
+          "1b1b70279a": "No devices paired yet.",
+          "254a6d09e4": "Paired",
+          "2e3dd0bc29": "Device revoked",
+          "310924ad2c": "Scan this code with the Orca mobile app. Each code creates a unique device token.",
+          "3939fd062c": "Revoking a device disconnects it immediately.",
+          "5e2c7a1f84": "While you're using a terminal on your phone, Orca shrinks it to fit your phone screen. When you close the app or switch away, this controls whether it stays at phone size (so interactive CLI tools don't reflow) or resizes back to your desktop. You can always use Restore or Restore all on the banner to resize manually.",
+          "6436e56546": "QR Code for mobile pairing",
+          "711231348f": "Failed to copy pairing code",
+          "870e1b5ca5": "Failed to revoke device",
+          "aa1263e881": "Keep at phone size (default)",
+          "c474aa09d8": "After 1 minute",
+          "cb9067c1c1": "WebSocket transport is not running",
+          "copyPairingCode": "Copy pairing code",
+          "d4ba07d914": "After 5 minutes",
+          "d714614dbf": "Failed to refresh network interfaces",
+          "d7ce676270": "Paired Devices",
+          "dd3cd78d04": "Scan with Orca Mobile",
+          "diagnosticsCopied": "Diagnostics copied",
+          "diagnosticsCopyFailed": "Failed to copy diagnostics",
+          "e3c427e020": "Failed to generate QR code",
+          "e778ecb209": "Or paste this code in the mobile app:",
+          "ee56f1c7e4": "When you leave the mobile app",
+          "ff865419dc": "After 30 minutes",
+          "pairingCodeReady": "Pairing code ready",
+          "pairingQrError": "This pairing code couldn’t be rendered as a QR code. Copy it into Orca Mobile instead.",
+          "relayDegradedNotice": "Relay couldn’t be reached — this code only works on your LAN or Tailscale. Regenerate to try again."
+        },
+        "MobileRelayBetaAvailability": {
+          "about": "About the Orca Relay beta",
+          "androidApk": "Android APK",
+          "availability": "Available on",
+          "beta": "Beta",
+          "testFlight": "TestFlight"
+        },
+        "MobileRelayStatusSection": {
+          "automatic": "Connect from anywhere when a phone is paired",
+          "connecting": "Connecting",
+          "directNeedsNoAccount": "LAN and Tailscale pairing still work without an account.",
+          "directStillAvailable": "LAN and Tailscale connections remain available.",
+          "offline": "Offline",
+          "reconnecting": "Reconnecting",
+          "registered": "Registered",
+          "signIn": "Sign in",
+          "signInPrompt": "Sign in on this desktop to connect from anywhere",
+          "standby": "Standby — no relay devices",
+          "title": "Orca Relay",
+          "unavailable": "Unavailable"
         },
         "MobileSettingsPane": {
           "b0088412a1": "or the Android APK from"
+        },
+        "NotificationHostToggles": {
+          "machines": "Machines",
+          "machinesDescription": "Choose which machines can show notifications on this computer. A paired server’s switch also covers work reached through it.",
+          "offCount": "{{count}} off"
         },
         "NotificationsPane": {
           "274af61bc0": "system",
@@ -2300,6 +2624,43 @@
           "44923dd982": "destructive",
           "7784912ed6": "repo",
           "f91b649324": "Saved Commands"
+        },
+        "RemoteServerUpdateDialog": {
+          "checkAgain": "Check for Server Updates",
+          "checking": "Checking paired servers…",
+          "description": "Review paired servers and update supported installs from this Orca client.",
+          "downloadProgress": "{{value0}} download progress",
+          "empty": "No paired Remote Orca Servers.",
+          "livePaneOne": "1 live pane",
+          "livePanes": "{{value0}} live panes",
+          "liveTabOne": "1 live tab",
+          "liveTabs": "{{value0}} live tabs",
+          "noUpdates": "All servers are up to date.",
+          "restartWarning": "Updating restarts these servers. {{value0}} live tabs and {{value1}} terminal panes may briefly disconnect.",
+          "restartingHelp": "Waiting for the replacement server to reconnect on the new version.",
+          "retry": "Retry",
+          "title": "Update Remote Orca Servers",
+          "update": "Update this server",
+          "updateAll": "Update all {{value0}} servers",
+          "updateOne": "Update server",
+          "updating": "Updating servers…",
+          "versionUnavailable": "Version unavailable"
+        },
+        "RemoteServerUpdateStatus": {
+          "available": "Update available",
+          "checking": "Checking…",
+          "checkingUpdate": "Checking update…",
+          "current": "Up to date",
+          "downloading": "Downloading…",
+          "failed": "Update failed",
+          "legacyHelp": "Remote updates are unavailable for this server. Update Orca on the server host.",
+          "manual": "Manual update",
+          "offline": "Offline",
+          "queued": "Queued",
+          "restarting": "Restarting…",
+          "serviceManagerHelp": "Update Orca on the server host — through its system package manager if it was installed from a .deb or .rpm, otherwise through the service manager that starts it.",
+          "unpackedHelp": "Development builds must be updated from their source checkout.",
+          "updated": "Updated"
         },
         "RepositoryHooksSection": {
           "0e0dd5b9a5": "loaded",
@@ -2347,6 +2708,170 @@
           "ccb07dd027": "Saved",
           "e57dde9d93": "Unsaved changes"
         },
+        "RuntimeAccessGrantList": {
+          "27cf8507ad": "Refresh shared access",
+          "434e4a6af6": "Current link",
+          "68ec21309f": "Revoke access",
+          "6f6d5188ed": "Revoke {{value0}}",
+          "87b16cd11d": "Created",
+          "8b82879581": "Anyone with an active grant can connect until you revoke it. Revoking shared access disconnects active clients immediately.",
+          "b18d1764ef": "Last used {{value0}}",
+          "df142657a5": "Not used yet",
+          "f031182867": "Shared Server Access",
+          "fd83b94095": "No shared server access yet."
+        },
+        "RuntimeEnvironmentsPane": {
+          "05e0fc3ebf": "Switch to",
+          "0c55a47480": "Name and pairing code are required.",
+          "0ef838094a": "Protocol {{value0}}",
+          "163671f7b5": "Run",
+          "1826bd0608": "Saved Servers",
+          "2c85efb3e8": "Selecting a saved server makes this browser use that paired Orca runtime as its default Host.",
+          "3595fd1948": "New Link",
+          "3f67e8078a": "New projects are created on this computer unless you choose a saved server here. Existing projects, files and terminals stay on their own host.",
+          "4b5c6d7e8f": "No capabilities reported",
+          "5120beaac6": "Checking…",
+          "54dee18f5c": "Hide Form",
+          "54ebacc600": "Server name",
+          "55fcc964cd": "on the server and paste the printed pairing URL.",
+          "5ef712f407": "A server named \"{{value0}}\" already exists.",
+          "62ac182a27": "Update client",
+          "64b6bea541": "Default host for new projects",
+          "6cb6eae14f": "Failed to save runtime environment.",
+          "6ce4664003": "Refresh servers",
+          "6e1280ca55": "Share this Orca server",
+          "6ef71985da": "No endpoint",
+          "78692becbd": "Local desktop",
+          "7b5986c8df": "Connected to {{value0}}. To create new projects there by default, choose it under Advanced > Default host for new projects.",
+          "84b9b2be05": "Create a revocable access grant so a browser or another Orca client can connect.",
+          "86ed75bec8": "Update server",
+          "8cf8790697": "Saved servers route this browser through a paired Orca runtime.",
+          "960e901ae4": "orca serve --pairing-address <host>",
+          "99ac81fb43": "Switched to {{value0}}.",
+          "9a3758d983": "No saved servers.",
+          "9a91c4a0eb": "Compatible",
+          "9bc9b83474": "Pairing code",
+          "9bee6bbeeb": "Add Server",
+          "9f7665a01b": "Removing the active server first switches Orca back to Local desktop. Existing host sessions are left alone.",
+          "activeServerRowHelp": "Default host for new projects. Existing projects stay on their own host.",
+          "advanced": "Advanced",
+          "advertiseThisApp": "Advertise this app as a server",
+          "advertiseThisAppHelp": "Create access links for browsers, mobile clients, or another Orca client to connect back to this running app.",
+          "aeb26635d2": "Remove {{value0}}",
+          "af53761f31": "Cancel",
+          "b07070ed3c": "No server connected",
+          "b2290ed203": "Orca will focus this host and load its projects. Existing terminals and browser tabs on other hosts stay alive.",
+          "b2fda48c39": "Removing the active server disconnects this browser from that host. Existing host sessions are left alone.",
+          "b5b5114cb0": "Removed {{value0}}.",
+          "bb90dd6487": "Remove Server",
+          "c3d772c514": "orca://pair?code=...",
+          "c8791efc45": "Status unavailable",
+          "cloudVmWorkflow": "Cloud VM",
+          "cloudVmWorkflowHelp": "Manage recipe-created cloud machines",
+          "connect": "Connect",
+          "connectToRemoteServers": "Connect to remote servers",
+          "connectToRemoteServersHelp": "Pair another Orca runtime, then connect or disconnect it here.",
+          "connectWorkflow": "Connect to a host",
+          "connectWorkflowHelp": "This app joins another machine",
+          "d25f0688b1": "Remove",
+          "d2e00809e4": "Switch",
+          "d570c35a99": "Switch Server",
+          "disconnect": "Disconnect",
+          "disconnectedServer": "Disconnected from {{value0}}.",
+          "e038625857": "Dev box",
+          "e6410d72c3": "Failed to load runtime environments.",
+          "ed3e3f069d": "This removes the saved server from Orca. It does not change the default host for new projects.",
+          "f3a3d6d834": "{{value0}} capabilities",
+          "f75ce1c7a5": "Local keeps today's desktop behavior. Saved servers route supported client calls through the remote runtime.",
+          "hostModelCapabilityMissing": "Host model support: update server for {{value0}}",
+          "hostModelCapabilityProjectSetup": "project setup",
+          "hostModelCapabilitySupported": "Host model support: ready",
+          "hostModelCapabilityTaskSourceContext": "task source context",
+          "hostModelCapabilityUnknown": "Host model support: checking server capabilities",
+          "hostModelCapabilityWorkspaceRunContext": "workspace run context",
+          "orcaVersion": "Orca v{{value0}}",
+          "removeActiveServerBlocked": "This server is the default host for new projects. Choose another one in Advanced before removing it.",
+          "removeActiveServerDescription": "This server is the default host for new projects. Choose another one in Advanced before removing it. Existing host sessions are left alone.",
+          "reviewServerUpdates": "Check for Server Updates",
+          "runtimeReachable": "{{value0}} is reachable.",
+          "serverChecking": "Checking…",
+          "serverConnected": "Connected",
+          "serverDetails": "Server details",
+          "serverDisconnected": "Disconnected",
+          "serverReconnecting": "Reconnecting",
+          "serverRuntimeUnavailable": "Orca unavailable",
+          "serverRuntimeUnavailableDescription": "SSH transport is connected, but the Orca runtime did not answer. The host may still be running.",
+          "serverWorkspaceWindowClosed": "Workspace window closed",
+          "shareWorkflow": "Share this host",
+          "shareWorkflowHelp": "Other devices join this machine",
+          "sshTunnelRequired": "SSH tunnel required",
+          "troubleshootDescription": "A link that uses 127.0.0.1 points back to the device opening it, not the computer that created it.",
+          "troubleshootStepAddress": "Choose Another device and select its Tailscale or LAN address.",
+          "troubleshootStepRegenerate": "Generate a new access link and use only the newest link here.",
+          "troubleshootStepShare": "On the other computer, open Share this host.",
+          "troubleshootTitle": "Create a new link on the other host",
+          "troubleshootTunnel": "Using an SSH local forward? Return to Connect to a host, paste the loopback link, then enable “I am using an SSH tunnel” under Advanced.",
+          "troubleshootWorkflow": "Connection troubleshooting",
+          "updateAvailableOne": "1 update available",
+          "updateServer": "Update",
+          "updatesAvailable": "{{value0}} updates available",
+          "updatingServers": "Updating servers…",
+          "versionUnavailable": "Orca version unavailable",
+          "workflow": "Remote server workflow"
+        },
+        "RuntimePairingGeneratedUrlRows": {
+          "0495f68959": "Copy {{value0}}"
+        },
+        "RuntimePairingUrlGenerator": {
+          "11d5248e62": "Generated pairing URL.",
+          "13704d635e": "Copied web client URL.",
+          "1b4e0bbcc5": "Failed to load shared access grants.",
+          "1ca2e5194d": "Use this URL from a browser that can reach the selected address.",
+          "2752126f3e": "Runtime pairing is unavailable.",
+          "279e0dcb57": "127.0.0.1 only works on this computer. Use a LAN, Tailscale, or custom address for another device.",
+          "2e5c4e3c93": "Pair another Orca client",
+          "2ed55c841a": "Failed to generate pairing URL.",
+          "360c548cf3": "Refresh connection addresses",
+          "4531ea3158": "Custom address",
+          "45cf476df3": "host, host:port, or wss://host/path",
+          "6b9ca3e69b": "Open in browser",
+          "6dd594a507": "Generated web client URL.",
+          "849825e829": "Paste this pairing URL into another Orca client.",
+          "8de0f84fff": "Generate Access Link",
+          "95b8be4cea": "Failed to refresh network interfaces.",
+          "9f8e037c4a": "Shared access revoked.",
+          "add-custom": "Add custom address…",
+          "anotherDevice": "Another device",
+          "anotherDeviceHelp": "Tailscale, LAN, or another reachable address",
+          "b91e36a986": "web",
+          "custom-cancel": "Cancel",
+          "custom-description": "Advertise an address another device can reach — a LAN or Tailscale host, or a full ws(s):// URL.",
+          "custom-hint": "Enter a host, host:port, or a ws(s):// URL.",
+          "custom-option": "{{address}} (custom)",
+          "custom-title": "Custom connection address",
+          "custom-use": "Use address",
+          "customAddress": "Custom address",
+          "customAddressHelp": "SSH tunnel, reverse proxy, or custom hostname",
+          "customInvalid": "Enter a valid host, host:port, IPv6 address, or ws(s):// URL.",
+          "d6c081adf4": "Failed to copy URL.",
+          "d797f516b1": "Shared access was already revoked.",
+          "de6d5cff95": "This computer (",
+          "de77eb1b65": "Connection address",
+          "df0aa45a86": "Copied pairing URL.",
+          "e8d83f2b0f": "Failed to revoke shared access.",
+          "f7cafdc9f3": "Browser link unavailable in this build. The pairing URL still works for Orca clients.",
+          "f8500e134a": "Share this Orca server",
+          "ff80904fc4": "Create a revocable access grant for browser or desktop clients.",
+          "intentQuestion": "Where will this link be opened?",
+          "localLink": "Local-only link",
+          "localLinkHelp": "This link only works in a browser or Orca client running on this computer.",
+          "localOnly": "This computer only",
+          "localOnlyHelp": "A browser or Orca client on this computer",
+          "noExternalAddress": "No address for another device was found. Connect this computer to a LAN or Tailscale, refresh, or choose Custom address.",
+          "pairedRunsAsYou": "A paired client can run commands as you on this computer.",
+          "recommended": "Recommended",
+          "staleAddress": "The connection address changed. Generate a new link for {{address}}."
+        },
         "Settings": {
           "084d8fac5b": "Privacy & Security",
           "11faa2f7dd": "Task Sources",
@@ -2382,6 +2907,102 @@
           "c240a16f25": "Use repo-relative paths like packages/web or apps/api.",
           "caf33029cc": "Directories",
           "fde7ff2cc3": "packages/web shared/ui"
+        },
+        "SshDestructiveActionDialog": {
+          "895b216267": "Cancel"
+        },
+        "SshPane": {
+          "0cda732f43": "Connection test failed",
+          "0e5aa04161": "Host or SSH config alias is required",
+          "2227ce47b6": "Failed to save target",
+          "4db9afce1c": "Port must be between 1 and 65535",
+          "51d7dba44d": "Import",
+          "639ceb3698": "Add Target",
+          "68c13b4589": "Test failed",
+          "81d08bcddf": "Connection successful",
+          "94c5284560": "Targets",
+          "a0237eb1ca": "Target removed",
+          "a43de1d3ee": "Disconnect failed",
+          "a7d28dff81": "Add a remote host to connect to it in Orca.",
+          "b4ba0ce33d": "Target updated",
+          "c0f1c80166": "No SSH targets configured.",
+          "c2a69510e3": "Failed to remove target",
+          "e95d5ae10e": "Connection failed",
+          "f1fc50dad2": "Failed to load SSH targets",
+          "f495689b82": "Import failed",
+          "f602009125": "Target added",
+          "f8050f6307": "Synced {{value0}} server{{value1}}"
+        },
+        "SshPassphraseDialog": {
+          "106bd57f4a": "SSH Password",
+          "1f3dde805d": "SSH Key Passphrase",
+          "405066423c": "Unlock",
+          "456516603b": "Enter response",
+          "8a349e3fac": "Passphrase for {{value0}}",
+          "981352fb42": "Complete the verification challenge for",
+          "a21f9e74c0": "SSH Verification",
+          "abaa0dc653": "Enter password",
+          "b8e88fd0de": "Failed to submit SSH credential",
+          "bec2c1318f": "Connect",
+          "c3ce71aad6": "Enter passphrase",
+          "c55f105262": "Failed to cancel SSH credential request",
+          "c624f64b86": "Continue",
+          "cab3d5f5a5": "Password for {{value0}}",
+          "ce4fdf7914": "Enter the passphrase for",
+          "d5a234456f": "Cancel",
+          "dbf9b6f2d0": "Enter the password for"
+        },
+        "SshTargetCard": {
+          "0e53e9f8e8": "Test",
+          "1810b51482": "Connecting",
+          "18968ede9e": "Error",
+          "3d21a22d0e": "Removing target",
+          "3d8af2949f": "Edit target",
+          "47e94bd6ba": "connected",
+          "4c86f30877": "Disconnect",
+          "7f7b3d7ab4": "Remove target",
+          "ec6543cee9": "Connect",
+          "f0871e6bfb": "connect"
+        },
+        "SshTargetDestructiveActions": {
+          "3bb0cf0ee4": "This will remove the target and end any active remote terminals.",
+          "4808966c41": "Remove SSH Target"
+        },
+        "SshTargetForm": {
+          "11bcb4507a": "bastion.example.com",
+          "137e88ce8d": "Remote terminals keep running after Orca disconnects from this host.",
+          "298de87a88": "Label",
+          "29af933cd5": "New SSH Target",
+          "2ee9bcd2e8": "server, deploy@server:2222, ssh://server",
+          "3b01ca44a0": "Optional. Used for tunneling (e.g. Cloudflare Access, ProxyCommand).",
+          "47e082bc17": "deploy",
+          "4a342f44c1": "Advanced Connection",
+          "53e9aabfc0": "Uses OpenSSH multiplexing when available. Turn off for hosts with custom SSH restrictions.",
+          "63c0c145c1": "Identity File",
+          "8c922dffba": "Reuse SSH connection for faster setup",
+          "92f80edbfd": "Remote Terminal Persistence",
+          "9518545cb6": "Add Target",
+          "a62b4cb39a": "Save Changes",
+          "addDescription": "Add a persistent machine you can log into over SSH.",
+          "addTitle": "Add SSH host",
+          "allowRemoteCliControl": "Allow this host's orca CLI to control Orca",
+          "allowRemoteCliControlHelp": "When off, orca commands run on this host reach only its own terminals. Turn on to let them reach other hosts, orchestration, files, and integrations on this computer.",
+          "b2ab248ded": "Jump Host",
+          "b8dab0aa7b": "My Server",
+          "c7d0e18ecb": "Proxy Command",
+          "c94cfa634c": "Port",
+          "cb91f6375c": "Optional. SSH agent is used by default.",
+          "ce370ce674": "Host or alias *",
+          "d6a5f2ee5c": "~/.ssh/id_ed25519 (leave empty for SSH agent)",
+          "dc1dc52aaa": "Username",
+          "e9609ddca6": "Proxy, jump host, and connection reuse",
+          "editDescription": "Update connection details for this machine. Changes apply on next connect.",
+          "editTitle": "Edit SSH host",
+          "editingPrefix": "Editing",
+          "f2331ce599": "Edit SSH Target",
+          "f42d844544": "e.g. cloudflared access ssh --hostname %h",
+          "fea9cb402e": "Cancel",
+          "feae1d1e69": "Optional. Equivalent to ProxyJump / ssh -J."
         },
         "TaskSourceShowInTasksStep": {
           "description": "Include this provider in the Tasks source picker and sidebar shortcuts.",
@@ -2466,6 +3087,62 @@
           "7c3bb36706": "remove",
           "e2b0ee267f": "stale"
         },
+        "ZcodeCliSetupSection": {
+          "apiKey": "ZCode API-key setup",
+          "apiKeyInstructions": "Press Enter to start ZCode, then enter /login and choose the API-key option for your plan site. Enter the key in ZCode’s masked prompt.",
+          "bigmodel": "BigModel browser sign-in",
+          "close": "Close setup terminal",
+          "description": "Sign in to use GLM as a coding agent. The quota API key above only monitors usage; ZCode owns its own sign-in and model selection.",
+          "help": "Choose browser sign-in for your plan site, or use ZCode’s masked API-key setup. After signing in, start ZCode and use /model to choose a GLM model.",
+          "loading": "Loading sign-in terminal…",
+          "oauthInstructions": "Press Enter to run the sign-in command, then open the authorization URL printed by ZCode. Sign-in is saved on this terminal’s execution host.",
+          "terminalLabel": "ZCode sign-in terminal",
+          "terminalTitle": "ZCode sign-in",
+          "title": "Use GLM with ZCode",
+          "zai": "Z.AI browser sign-in"
+        },
+        "ZcodePlanAccountsSection": {
+          "consoleLink": "Get API key",
+          "detailsUnavailable": "Plan credential details are only readable on the computer running Orca.",
+          "forgetKey": "Forget key",
+          "hostOnly": "Change the plan site and API key in the desktop app on the computer running Orca.",
+          "keyDescription": "Paste the API key from the selected console’s API Keys page. Stored locally, encrypted when the OS supports it, and sent only to that site for usage refreshes.",
+          "keyHelp": "The same key your coding tools use for the plan (for example Claude Code with ANTHROPIC_BASE_URL pointed at the site). Switching the site above changes which host receives it.",
+          "keyPlaceholder": "Paste your GLM Coding Plan API key",
+          "keyRequired": "GLM Coding Plan API key is required.",
+          "keySaveFailed": "GLM Coding Plan credential update failed.",
+          "keySaved": "GLM Coding Plan API key saved.",
+          "keyStored": "API key saved · {{value0}}",
+          "keyStoredHelp": "Stored locally and sent only to the selected site for usage refreshes. It takes priority over the ZCode CLI sign-in.",
+          "keyTitle": "API key",
+          "notConfigured": "No GLM Coding Plan linked",
+          "notConfiguredHelp": "Save the plan API key below, or sign in with the ZCode CLI on this computer.",
+          "notSaved": "Not saved",
+          "planLevel": "Plan: {{value0}}",
+          "refreshUsage": "Refresh usage",
+          "replace": "Replace",
+          "resetIn": " — resets in {{value0}}",
+          "save": "Save",
+          "saved": "Saved",
+          "site": {
+            "bigmodel": "Zhipu · BigModel (open.bigmodel.cn)",
+            "zai": "Z.AI (z.ai)"
+          },
+          "siteDescription": "Pick the console your Coding Plan belongs to: Z.AI for the international site, Zhipu BigModel for the mainland site.",
+          "siteTitle": "Plan site",
+          "siteUnavailable": "Host plan site unavailable",
+          "subtitle": "Track Z.AI or Zhipu (BigModel) GLM Coding Plan usage in the status bar. Save the plan API key here — no ZCode CLI setup needed.",
+          "title": "GLM Coding Plan",
+          "usageDescription": "Live quota windows for the linked Coding Plan, refreshed with the status bar usage cycle.",
+          "usageTitle": "Plan usage",
+          "usingCli": "Using the ZCode CLI sign-in",
+          "usingCliHelp": "Orca reads the selected Coding Plan from the ZCode CLI credential store on this computer. Save an API key below to link the plan here instead.",
+          "window": {
+            "mcp": "MCP monthly",
+            "session": "5 hours",
+            "weekly": "Weekly"
+          }
+        },
         "accounts": {
           "search": {
             "d1d2ae383c": "Paste your opencode.ai session cookie for rate limit fetching."
@@ -2476,6 +3153,7 @@
           "a42f6fbdd8": "Keeps this computer and display awake while agents are working. Orca also asks this device to stay awake when the lid is closed, subject to its power policy.",
           "e5995ce268": "Keep computer awake while agents are working",
           "modeDescriptionDefault": "Choose On, Agent, or Off. Agent mode stays awake while agents are working. Orca also asks this device to stay awake when the lid is closed, subject to its power policy.",
+          "modeDescriptionMac": "Choose On, Agent, or Off. Agent mode prevents idle sleep while agents work, so long runs finish with the lid open. Closing the lid still puts this Mac to sleep.",
           "modeDescriptionWindows": "Choose On, Agent, or Off. Agent mode stays awake while agents are working; lid-close behavior follows this device's power settings.",
           "modeTitle": "Keep computer awake"
         },
@@ -2555,6 +3233,21 @@
           "permissionsRequired_one": "1 permission required before agents can operate app windows.",
           "permissionsRequired_other": "{{value0}} permissions required before agents can operate app windows."
         },
+        "deltaMove": {
+          "action": "Move the new projects…",
+          "added": "Added to the server",
+          "cancel": "Cancel",
+          "confirm": "Move the new projects",
+          "description": "An older version of Orca changed this host after it moved to its managed server. This adds what it created to the server; it never merges over what the server already has.",
+          "kind": {
+            "folder": "Folder {{name}}",
+            "group": "Project group {{name}}",
+            "repository": "Repository {{name}}"
+          },
+          "notReflected": "Changed or removed on the older version; the server keeps its own copy",
+          "nothingNew": "Nothing new to add.",
+          "title": "Move the new projects"
+        },
         "experimental": {
           "search": {
             "10b52f79c1": "worktrees",
@@ -2575,7 +3268,10 @@
             "d23ae13990": "worktree",
             "f082788cfe": "links",
             "fa72e71f05": "agents",
-            "fe5688b761": "sidebar"
+            "fe5688b761": "sidebar",
+            "nativeChat": {
+              "description": "Open supported new agents in Chat UI."
+            }
           }
         },
         "general": {
@@ -2673,6 +3369,109 @@
             }
           }
         },
+        "keepServer": {
+          "action": "Keep the server’s version…",
+          "cancel": "Cancel",
+          "confirm": "Keep the server’s version",
+          "description": "This host goes back to its managed server as it is. What the older version of Orca added or changed here is not moved; it stays only in this computer’s saved settings until they are cleaned up.",
+          "title": "Keep the server’s version"
+        },
+        "managedServers": {
+          "access": {
+            "link": "Use SSH",
+            "linked": "{{name}} via SSH",
+            "linking": "Connecting…",
+            "port": "Server port",
+            "target": "Reach through SSH host",
+            "title": "SSH access for paired servers",
+            "unlink": "Stop using SSH"
+          },
+          "blocker": {
+            "catalog": "Projects on this host cannot move yet.",
+            "dependents": "State that cannot move yet: {{kinds}}.",
+            "notFound": "The SSH host is gone.",
+            "owned": "This SSH host already belongs to a managed server.",
+            "portForwards": "Saved port forwards stay with the SSH host.",
+            "terminals": "Terminals on this host are still running ({{count}}). Close them first.",
+            "unverifiable": "Orca could not read its saved {{sources}}, so it cannot tell what would move."
+          },
+          "deploy": {
+            "host": "SSH host",
+            "hostPlaceholder": "Choose an empty SSH host",
+            "name": "Server name",
+            "running": "Deploying…",
+            "submit": "Deploy server"
+          },
+          "description": "Orca installs and runs a server on an empty SSH host and keeps it up to date.",
+          "kind": {
+            "automation": "automations",
+            "automationRun": "automation runs",
+            "mobileTabSelection": "mobile tab selections",
+            "portForward": "port forwards",
+            "retiredWorktreeName": "retired worktree names",
+            "sparsePreset": "sparse checkout presets",
+            "terminalLease": "terminals",
+            "terminalRecovery": "terminal recovery records",
+            "uiRouting": "sidebar and filter settings",
+            "workspaceLineage": "workspace history",
+            "workspaceSession": "open tabs and layout",
+            "worktreeLineage": "worktree history",
+            "worktreeMetadata": "worktree details"
+          },
+          "loadFailed": "Orca couldn’t load SSH hosts and unfinished moves. Reopen Settings to try again.",
+          "outcome": {
+            "activeServer": "Not done: this server is the default host for new projects. Choose another one in Advanced before stopping it.",
+            "deferred": "Not done yet: the server isn’t ready for this. Try again later.",
+            "failed": "Orca couldn’t finish this on the server. Try again.",
+            "live": "Not done: terminals on this server are still running. Close them and try again.",
+            "migration": "Not done: a move onto this server is unfinished. Resume it first.",
+            "unverifiable": "Not done: Orca couldn’t confirm what is running on this server. Try again when the host is reachable."
+          },
+          "pending": {
+            "resume": "Resume"
+          },
+          "phase": {
+            "committed": "Copy committed",
+            "fenced": "Host locked",
+            "retired": "Finished",
+            "staged": "Copy staged"
+          },
+          "recovery": {
+            "activate": "An update was interrupted",
+            "decommission": "A stop was interrupted",
+            "rollback": "A rollback was interrupted"
+          },
+          "row": {
+            "cancelStop": "Cancel stop",
+            "checking": "Checking…",
+            "confirmForget": "Forget on this desktop",
+            "confirmRestore": "Restore snapshot and restart",
+            "confirmStop": "Stop and remove server",
+            "deferredVersion": "Update to {{version}} deferred.",
+            "forget": "Forget…",
+            "forgetDescription": "Unlinks this server here without contacting its host. If the host comes back, the server may still be running there.",
+            "keep": "Keep running",
+            "keepLinked": "Keep linked",
+            "keepState": "Keep state",
+            "migration": "Migration: {{phase}}",
+            "notRunning": "Not running",
+            "recover": "Recover",
+            "refresh": "Refresh status",
+            "rollback": "Roll back",
+            "statusUnknown": "Status unknown",
+            "stop": "Stop…",
+            "update": "Update"
+          },
+          "search": {
+            "keywordSsh": "ssh",
+            "title": "Managed servers"
+          },
+          "terminals": {
+            "count": "Running terminals: {{count}}",
+            "unknown": "Running terminals: unknown"
+          },
+          "title": "Managed servers"
+        },
         "providerAccountScope": {
           "localMac": "Local Mac"
         },
@@ -2685,12 +3484,67 @@
             "vm": "vm"
           }
         },
+        "runtime": {
+          "environments": {
+            "search": {
+              "09568ccc65": "server",
+              "104f4d7dbd": "pairing",
+              "2bd988d041": "pairing code",
+              "3517fb2ec0": "Remote Orca Servers",
+              "45501ff2c3": "cloud",
+              "4575341c77": "Add a saved remote Orca server, generate a pairing URL, or choose the default host for new projects.",
+              "5cd7dca3b8": "remote",
+              "772e3b4753": "vm",
+              "81444c4102": "pairing url",
+              "activeServerKeyword": "active server",
+              "baec27aa8f": "Connect this browser to a saved Orca server.",
+              "c6e5a03aa0": "dev box",
+              "d198440ce3": "runtime",
+              "d760866285": "client",
+              "defaultHostKeyword": "default host",
+              "ebd5369acf": "environment",
+              "f1575f1e09": "web client",
+              "newProjectsKeyword": "new projects"
+            }
+          }
+        },
         "settingOwnership": {
           "clientDefaultProjectScopes": "Client default + project scopes",
           "terminalQuickCommands": "Commands are saved on this client, then scoped globally or to a project setup so they run from the selected terminal context."
         },
         "shareSkills": {
           "showButton": "Show Skills button"
+        },
+        "sshHostServer": {
+          "cause": {
+            "artifactsUnavailable": "this Orca build doesn’t include the server",
+            "libcUnidentified": "Orca couldn’t identify the host’s system libraries",
+            "nativePreflight": "the host is missing system libraries the server needs",
+            "runtimeSelfTest": "the server’s runtime failed its self-test",
+            "securitySoftware": "security software changed the server’s runtime",
+            "unsupportedHost": "Orca has no server build for this system"
+          },
+          "connecting": "Connecting to the managed Orca server…",
+          "converting": "Moving this host’s projects to its managed Orca server…",
+          "deploying": "Setting up a managed Orca server…",
+          "failureDetails": "Details",
+          "hostNewer": "Runs a managed Orca server from a newer Orca; it keeps that version.",
+          "notServing": "Orca couldn’t confirm that the managed server is answering.",
+          "olderTerminals": "{{count}} terminals started by an older version of Orca are still running on this host, and they don’t stop on their own. Close them in that version of Orca or end them on the host, then reconnect.",
+          "olderTerminalsUncounted": "Terminals started by an older version of Orca are still running on this host, and they don’t stop on their own. Close them in that version of Orca or end them on the host, then reconnect.",
+          "olderTerminalsUnverifiable": "Orca couldn’t confirm that terminals started by an older version of Orca have exited. Reconnect to try again.",
+          "olderTerminals_one": "{{count}} terminal started by an older version of Orca is still running on this host, and it doesn’t stop on its own. Close it in that version of Orca or end it on the host, then reconnect.",
+          "olderTerminals_other": "{{count}} terminals started by an older version of Orca are still running on this host, and they don’t stop on their own. Close them in that version of Orca or end them on the host, then reconnect.",
+          "refusedBlocked": "Not moved to a managed server: something on this host stops the move.",
+          "setupRetry": "Orca couldn’t start its server on this host. Try connecting again.",
+          "sourceChanged": "An older version of Orca changed this host’s projects. Move those changes to its managed server, or keep the server’s version, to connect again.",
+          "starting": "Starting managed server…",
+          "tunnelUnsupported": "This host isn’t supported by this version of Orca: its SSH server doesn’t allow port forwarding, and Orca couldn’t reach its server through the SSH session either. To keep using it, install an older version of Orca.",
+          "unsupported": "This host isn’t supported by this version of Orca ({{reason}}). To keep using it, install an older version of Orca.",
+          "unsupportedUnknown": "This host isn’t supported by this version of Orca. To keep using it, install an older version of Orca.",
+          "updateDeferredLater": "Runs a managed Orca server; it updates on a later connect.",
+          "updateFailedPrevious": "Runs a managed Orca server on its previous version; updating it failed.",
+          "updating": "Updating managed server…"
         },
         "task": {
           "tracker": {
@@ -2817,7 +3671,75 @@
       },
       "sidebar": {
         "AddRemoteHostDialog": {
-          "sshImportSynced": "Added {{value0}} host{{value1}} to Orca."
+          "advanced": "Advanced",
+          "cancel": "Cancel",
+          "fillFromSshConfig": "Fill from ~/.ssh/config…",
+          "identityFile": "Identity file",
+          "identityFileFromConfigHint": "Left empty on purpose: Orca uses every key ~/.ssh/config resolves for {{value0}}. Type a path to use just that key.",
+          "identityFilePlaceholder": "~/.ssh/id_ed25519 (optional)",
+          "label": "Label",
+          "linkDestination": "Link destination",
+          "loopbackBlocked": "Enable the SSH tunnel override or create a new link using the other host’s Tailscale or LAN address.",
+          "pairingCode": "Pairing code",
+          "pairingCodePlaceholder": "orca://pair?code=...",
+          "pairingCommand": "orca serve --pairing-address <host>",
+          "pairingHelpPrefix": "Run",
+          "pairingHelpSuffix": "on the server and paste the printed pairing URL.",
+          "port": "Port",
+          "save": "Save",
+          "saving": "Saving...",
+          "serverDescription": "Pair with Orca running on another computer.",
+          "serverFieldsRequired": "Server name and pairing code are required.",
+          "serverName": "Server name",
+          "serverNamePlaceholder": "Dev box",
+          "serverRunsAsYou": "This device will be able to run commands as you on this server.",
+          "serverSaveFailed": "Failed to add remote server.",
+          "serverSaved": "Remote server added.",
+          "serverSshDescription": "{{server}} saves this host and connects to it. Passwords and passphrases are asked for when it connects.",
+          "serverSshTitle": "Add SSH host to {{server}}",
+          "serverTitle": "Add remote server",
+          "sshAlreadyExists": "That SSH host is already in Orca.",
+          "sshConfigPickerAddAll": "Add all {{value0}} to Orca",
+          "sshConfigPickerAddAllEmpty": "Add all to Orca",
+          "sshConfigPickerAddingAll": "Adding hosts…",
+          "sshConfigPickerBack": "Back",
+          "sshConfigPickerBulkHint": "Bulk sync stays in Settings → SSH",
+          "sshConfigPickerDescription": "Pick a host to fill the form. Nothing is saved until you click Save.",
+          "sshConfigPickerEmpty": "No hosts in ~/.ssh/config",
+          "sshConfigPickerEmptyHint": "Add a Host entry there, or go back and type the details manually.",
+          "sshConfigPickerFilled": "Filled from {{value0}}. Review and Save.",
+          "sshConfigPickerFilter": "Filter hosts…",
+          "sshConfigPickerHostsLabel": "SSH config hosts",
+          "sshConfigPickerInOrca": "In Orca",
+          "sshConfigPickerLoadFailed": "Failed to read ~/.ssh/config.",
+          "sshConfigPickerLoading": "Reading ~/.ssh/config…",
+          "sshConfigPickerMoreResults": "Showing the first {{value0}} matches. Narrow your filter to find more.",
+          "sshConfigPickerNoMatch": "No matching hosts",
+          "sshConfigPickerNoMatchHint": "Try another filter, or go back and type manually.",
+          "sshConfigPickerNoNewHosts": "No new hosts to add",
+          "sshConfigPickerPreviouslyRemoved": "Removed from Orca",
+          "sshConfigPickerResolveFailed": "Failed to resolve that SSH config host.",
+          "sshConfigPickerResolving": "Reading…",
+          "sshConfigPickerRestartRequired": "Restart Orca to finish applying the SSH config picker update.",
+          "sshConfigPickerRetry": "Try again",
+          "sshConfigPickerTitle": "Choose from ~/.ssh/config",
+          "sshDescription": "Add a persistent machine you can log into over SSH.",
+          "sshHost": "Host or alias",
+          "sshHostPlaceholder": "deploy@server:22",
+          "sshHostRequired": "Host or SSH config alias is required.",
+          "sshImportAlreadySynced": "~/.ssh/config already in sync.",
+          "sshImportFailed": "Failed to import SSH config.",
+          "sshImportSynced": "Added {{value0}} host{{value1}} to Orca.",
+          "sshLabelPlaceholder": "Dev box",
+          "sshPersistenceDefault": "Remote terminals on this host stay alive until you end them or reset the relay.",
+          "sshPortInvalid": "Port must be between 1 and 65535.",
+          "sshSaveFailed": "Failed to add SSH host.",
+          "sshSaved": "SSH host added.",
+          "sshTitle": "Add SSH host",
+          "sshTunnel": "I am using an SSH tunnel",
+          "sshTunnelHelp": "Otherwise, this link points back to this device and cannot identify the other computer.",
+          "username": "Username",
+          "usernamePlaceholder": "deploy"
         },
         "AddRepoNestedImportStep": {
           "220dd32d83": "Scanning...",
@@ -2826,11 +3748,27 @@
           "5f857ba8e6": "in",
           "cf9d382ca1": "Import"
         },
+        "AddRepoRemoteStep": {
+          "007651bdf9": "Navigate to a directory and click Select to choose it.",
+          "35831a7312": "Adding...",
+          "36d427bb66": "Add project on SSH host",
+          "44637f43bd": "SSH target",
+          "6680289908": "/home/user/project",
+          "91b93a90a4": "Open project on SSH host",
+          "dd3ff65486": "Browse remote filesystem",
+          "ef410aa881": "Host path",
+          "serverAddHost": "Add SSH host",
+          "serverDescription": "Choose an SSH host that {{server}} connects to, and enter the path to a Git repository on it.",
+          "serverEmpty": "{{server}} has no SSH hosts yet."
+        },
         "AddRepoSteps": {
           "04a4c4e84a": "Clone location"
         },
         "CacheTimer": {
           "07729cc155": "expired"
+        },
+        "DeleteWorktreeDirtyChangeHint": {
+          "8e2994ce28": "Deleting this workspace permanently removes these changes from disk."
         },
         "FolderWorkspaceComposerDialog": {
           "chooseSourceProject": "Choose task source",
@@ -2857,8 +3795,18 @@
           "b7e3a91c4f": "Drag project headers to reorder, or switch to",
           "e8c1f4a2b9": "in workspace options."
         },
+        "RemoveFolderDialog": {
+          "openTerminalWarningMany": "{{count}} open terminals in this project will be closed.",
+          "openTerminalWarningOne": "1 open terminal in this project will be closed."
+        },
         "SetupScriptPromptCard": {
           "dcaa645da5": "ok"
+        },
+        "SidebarFeedbackImageAttachments": {
+          "attachImages": "Attach",
+          "preparing": "Preparing attachments…",
+          "removeImage": "Remove {{fileName}}",
+          "screenshotsHint": "Attach up to {{count}} screenshots, {{maxSize}} total"
         },
         "SidebarHeader": {
           "49f62c5665": "Workspace board",
@@ -2891,6 +3839,7 @@
           "0f9b959b31": "PR",
           "2d4f0eb933": "Default",
           "680043342f": "compact",
+          "activeRuntimeHost": "Default for new projects",
           "bc96dbd041": "Workspace options ({{value0}})",
           "c7591b6014": "repo"
         },
@@ -2921,7 +3870,8 @@
           "automationCreated": "Created by automation",
           "branchFolderPathIdentity": "Branch or folder path",
           "branchIdentity": "Branch",
-          "ca74db7550": "Project on SSH host"
+          "ca74db7550": "Project on SSH host",
+          "deleteFailed": "Delete failed"
         },
         "WorktreeCardMeta": {
           "2c67730e07": "Open in Orca",
@@ -2955,6 +3905,7 @@
           "029ea5ec57": "Open GitHub issue",
           "077a4f7b5c": "PR # or GitHub URL",
           "1b91db7e14": "GH PR",
+          "459ad7f650": "Only changes the name shown in the sidebar — the folder on disk stays the same. Leave blank to use the branch or folder name.",
           "5ae06f40fd": "Paste a pull request URL, or enter a number. Leave blank to remove the link.",
           "645fa4a0fd": "GH Issue",
           "65770ad0f0": "Edit GitHub links and notes for this workspace.",
@@ -2972,6 +3923,20 @@
           "759371df43": "Hide",
           "8372e4bbd9": "{{value0}} currently shown",
           "f1f71b9f02": "Always show"
+        },
+        "add": {
+          "repo": {
+            "local": {
+              "start": {
+                "actions": {
+                  "a6c20dca96": "Open a project from an SSH target",
+                  "serverSshDescription": "Open a project folder from an SSH host this server connects to",
+                  "serverSshTitle": "Project on this server's SSH host",
+                  "serverSshUpdate": "Update this server to add projects on its SSH hosts"
+                }
+              }
+            }
+          }
         },
         "index": {
           "b826a98b6f": "busy"
@@ -3438,6 +4403,36 @@
             "successMany": "Updated {{value0}} skills",
             "successOne": "Updated {{value0}}"
           },
+          "SshStatusSegment": {
+            "2c29e2de68": "Connection failed",
+            "3ad70e0365": "Manage Remote Hosts…",
+            "3d0128b105": "connected",
+            "59b553e2aa": "Disconnect",
+            "63a2b965f6": "pulling",
+            "63f36455cc": "Connect",
+            "6e8a9a4242": "Remote Hosts",
+            "95e4ff5b4b": "pushing",
+            "bc5a3fd41a": "partial",
+            "bf07aee59e": "Disconnect failed",
+            "connectedHostCount_one": "{{count}} host",
+            "connectedHostCount_other": "{{count}} hosts",
+            "connecting": "Connecting…",
+            "d09ec41831": "Remote Hosts",
+            "fbb3f9f05e": "conflict",
+            "fd9a3c600e": "error",
+            "fdc57e9970": "Remote host connection status",
+            "remote_server": "Remote Server",
+            "runtime_checking": "Checking",
+            "runtime_connect_unavailable": "Remote host is not reachable",
+            "runtime_disconnect_failed": "Disconnect failed",
+            "runtime_last_close_reason": "Closed: {{value0}}",
+            "runtime_online": "Connected",
+            "runtime_reconnect_attempt": "Attempt {{value0}}",
+            "runtime_reconnecting": "Reconnecting",
+            "runtime_unavailable": "Disconnected",
+            "runtime_unavailable_transport_up": "Orca unavailable",
+            "runtime_workspace_window_closed": "Workspace window closed"
+          },
           "StatusBar": {
             "06741a2f3d": "Open MiniMax usage details",
             "2483c60695": "···",
@@ -3593,12 +4588,13 @@
             "78b79d854d": "Close Terminal?",
             "ebd2fa844d": "Close"
           },
+          "MobileDriverOverlay": {
+            "3eed73394f": "Your keyboard is paused"
+          },
           "TerminalErrorToast": {
+            "hostTerminalCap": "The host is already running as many terminals as Orca allows. Close a terminal you no longer need, then try again.",
             "ptyAllocationLimit": "Your system cannot allocate any more pty devices. Close some terminals you are not using, in Orca or another program, then try again.",
             "terminalProcessLimit": "Your system cannot start another terminal process. Close unused terminals or quit unused processes, then try again."
-          },
-          "TerminalRemoteRuntimeReconnectBanner": {
-            "retryingBody": "Orca will retry for up to one minute. This terminal will resume if the connection returns."
           },
           "TerminalSessionStateSaveFailureDialog": {
             "678c780a2c": "Disk space is unavailable",
@@ -3632,6 +4628,17 @@
             "combobox": {
               "286ce70256": "SSH"
             }
+          }
+        }
+      },
+      "web": {
+        "preloadApi": {
+          "accounts": {
+            "claudeWslDefaultUnavailable": "Switching a WSL lane back to the system default is only available in the desktop app.",
+            "signInHostOnly": "Adding or re-signing an account is only available in the desktop app on the computer running Orca."
+          },
+          "cursorAccounts": {
+            "hostOnly": "Cursor sign-in details are only readable on the computer running Orca."
           }
         }
       },
@@ -3695,6 +4702,26 @@
       }
     },
     "hooks": {
+      "ipc": {
+        "events": {
+          "os": {
+            "markdown": {
+              "file": {
+                "open": {
+                  "bridge": {
+                    "1e9a1a63c4": "Failed to open the Markdown file."
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "ipcEvents": {
+        "sshManagedServer": {
+          "refusedBlocked": "This SSH host could not move to a managed Orca server. SSH Hosts in Settings shows why."
+        }
+      },
       "useComposerState": {
         "b2ead86962": "Failed to resolve PR base.",
         "dropPartiallyAttached_one": "{{failureCount}} of {{count}} item could not be attached.",
@@ -3705,7 +4732,10 @@
         "nativeDropTempCopyFailed_other": "Orca couldn't copy {{count}} dropped files."
       },
       "useIpcEvents": {
+        "11992d0337": "If this was your phone or another Orca client, re-pair it from Settings → Mobile.",
         "60428567b4": "Local terminal reveal is unavailable while a remote runtime is active",
+        "6573cfe955": "Open Mobile Settings",
+        "ef223fbb6b": "A device tried to connect but is not paired",
         "f6300deb8b": "New Browser Tab"
       },
       "useSettingsNavigationMetadata": {
@@ -3745,6 +4775,22 @@
         "permissionDenied": "Permission denied.",
         "symlink": "Symbolic links cannot be attached.",
         "unsupported": "Unsupported file type."
+      },
+      "feedback": {
+        "image": {
+          "attachments": {
+            "additionalErrors": "{{count}} additional images could not be attached.",
+            "compressed": "{{fileName}} was compressed from {{originalSize}} to {{size}} to fit the attachment limit.",
+            "dimensionsTooLarge": "{{fileName}} has dimensions that are too large to preview safely.",
+            "empty": "{{fileName}} is empty.",
+            "fallbackName": "Image attachment",
+            "invalidImage": "{{fileName}} is not a valid supported image.",
+            "tooLarge": "{{fileName}} is larger than {{maxSize}}.",
+            "tooMany": "You can attach up to {{maxCount}} images.",
+            "totalTooLarge": "{{fileName}} would bring the attachments over {{maxSize}} in total.",
+            "unsupportedType": "{{fileName}} is not a supported image type."
+          }
+        }
       },
       "fix": {
         "checks": {
@@ -3827,6 +4873,30 @@
         }
       }
     },
+    "runtime": {
+      "forgeCredentialTarget": {
+        "thisComputer": "this computer"
+      },
+      "githubCheckDetailsTimeout": {
+        "timedOut": "Timed out loading check details."
+      },
+      "gitlabIpcTimeout": {
+        "timedOut": "Timed out talking to GitLab."
+      },
+      "gitlabJobTraceClient": {
+        "emptyTrace": "No log is available for this GitLab job.",
+        "loadFailed": "Failed to load the GitLab job log.",
+        "timedOut": "Timed out loading the GitLab job log."
+      }
+    },
+    "ssh": {
+      "sshConnectVerb": {
+        "connect": "Connect",
+        "connecting": "Connecting…",
+        "reconnect": "Reconnect",
+        "retry": "Retry"
+      }
+    },
     "store": {
       "slices": {
         "editor": {
@@ -3858,16 +4928,78 @@
           "faa8fb83dd": "Save or close unsaved editor tabs before switching servers."
         },
         "worktrees": {
+          "19db0085fb": "Local branch deleted",
           "2b0afc7f14": "Could not keep local {{value0}} up to date",
           "34a03a6565": "Keep {{value0}} up to date",
           "4a18052018": "Local {{value0}} is behind {{value1}}",
           "4e6496f3d2": "{{value0}} deleted, branch kept",
+          "5a58e03a26": "Deleted \"{{value0}}\".",
           "670864ab52": "Keeping local {{value0}} up to date",
           "889487d8bb": "Dismiss",
           "d1d78a7baa": "Git could not safely delete branch \"{{value0}}\"{{value1}}, so Orca kept it to avoid losing local commits.",
           "f4503ca505": "Open Settings > Git and try again.",
           "fa9299a66f": "Your new worktree is current, but local {{value0}} is {{value1}} {{value2}} behind. AI diffs may miss recent commits."
         }
+      }
+    },
+    "web": {
+      "WebConnect": {
+        "27393856e4": "orca://pair?code=...",
+        "2cf9e5a294": "Clear saved server",
+        "3affe7de3a": "Paste a pairing URL from an Orca server that this browser can reach.",
+        "4a4c017be1": "Endpoint:",
+        "7a566540de": "Pairing URL or code",
+        "b411ec0069": "Connect",
+        "cb4d287238": "Server name",
+        "e3bcd082ac": "Connect to Orca",
+        "mobileScopeRejected": "This QR code grants limited (mobile) access. To use the full web app, open the browser access link from Settings → Runtime Environments → Share this Orca server → New Link."
+      },
+      "pairingSecurity": {
+        "hide": "Hide",
+        "sessionInsecureOrigin": "This pairing lasts only while this tab is open, because this page is plain http on another machine. For a pairing this browser remembers, open Orca over https, at localhost on this computer, or through an SSH tunnel.",
+        "sessionNoEd25519": "This pairing lasts only while this tab is open, because this browser cannot create secure sign-in keys (Ed25519). Use a current browser for a pairing it remembers.",
+        "storedCodeInsecureOrigin": "This browser keeps a reusable pairing code, because this page is plain http on another machine. Anyone who can read this browser’s storage could use it. For a safer pairing, open Orca over https, at localhost on this computer, or through an SSH tunnel, and pair again.",
+        "storedCodeNoEd25519": "This browser keeps a reusable pairing code, because it cannot create secure sign-in keys (Ed25519). Use a current browser and pair again for a safer pairing."
+      },
+      "runtimeAuth": {
+        "deviceDowngraded": "This Orca server no longer supports this browser’s sign-in key (it may have been downgraded). Update the server, or pair this browser again.",
+        "insecureOrigin": "Orca refused to pair from this page: it is plain http on another machine, so anyone on the network path could replace it and take the pairing code. Open the web client over https, at localhost on this computer, or through an SSH tunnel. To allow it anyway, the server operator can restart Orca with ORCA_ALLOW_INSECURE_WEB_PAIRING=1.",
+        "unauthorized": "Unauthorized. Pair this web client again."
+      },
+      "web": {
+        "preload": {
+          "api": {
+            "0a69fcd8bc": "platforms must be an object with darwin, linux, or win32 sections.",
+            "10898045f3": "Shortcut for \"{{value0}}\" was ignored: Use a string array.",
+            "275a776357": "Hover extraction is unavailable in the web client.",
+            "31bea294d5": "Grab mode is unavailable in the web client.",
+            "31bfe8ae1a": "Unavailable in the web client.",
+            "32f15bdb0f": "Unknown platform \"{{value0}}\" was ignored.",
+            "36761d9604": "Unknown keybinding action \"{{value0}}\" was ignored.",
+            "52bee9d8a0": "Conflicting custom shortcuts were ignored: {{value0}}.",
+            "67ec964791": "Cookie import is unavailable in the web client.",
+            "76122208ca": "Shortcut for \"{{value0}}\" was ignored: {{value1}}",
+            "8dfcb7a351": "Selection screenshots are unavailable in the web client.",
+            "9fc90740b6": "Commit message generation is unavailable in the web client.",
+            "b8a1618172": "Pull request detail generation is unavailable in the web client.",
+            "d2e43e426a": "{{value0}} must be an object.",
+            "e57c82d276": "Commit message model discovery is unavailable in the web client.",
+            "fb290366b2": "Unavailable on web."
+          }
+        },
+        "runtime": {
+          "environment": {
+            "07f788de83": "WebSocket"
+          }
+        }
+      },
+      "webPreloadApi": {
+        "aiVaultUnavailableForHost": "Agent Session History is not available for this execution host.",
+        "loopbackPairingBlocked": "This access link points back to this device.",
+        "remotePairingInvalidDetails": "This access link contains invalid connection details.",
+        "remotePairingSaveFailed": "Orca verified the host but could not save it. Check browser storage and try again.",
+        "remotePairingUnreachable": "Cannot reach Orca at {{endpoint}}.",
+        "runtimeEnvironmentManuallyDisconnected": "Runtime environment is manually disconnected."
       }
     }
   },
@@ -3884,6 +5016,16 @@
     }
   },
   "components": {
+    "jiraIssueAssigneeField": {
+      "assignToMe": "Assign to me ({{name}})",
+      "automatic": "Automatic",
+      "label": "Assignee"
+    },
+    "jiraUserPicker": {
+      "empty": "No users found",
+      "search": "Search users",
+      "select": "Select {{value0}}"
+    },
     "native-chat": {
       "ask": {
         "asked": "Asked:",
@@ -3891,13 +5033,65 @@
         "awaitingUnnamed": "Awaiting user input",
         "questionCount": "{{value0}} questions"
       },
+      "backgroundTasks": {
+        "agent": "Background agent",
+        "command": "Background command",
+        "countAgentsMany": "{{value0}} agents",
+        "countAgentsOne": "1 agent",
+        "countMonitorsMany": "{{value0}} monitors",
+        "countMonitorsOne": "1 monitor",
+        "countShellCommandOne": "1 shell command",
+        "countShellMany": "{{value0}} shells",
+        "countShellOne": "1 shell",
+        "countTasksMany": "{{value0}} tasks",
+        "countTasksOne": "1 task",
+        "countWorkflowsMany": "{{value0}} workflows",
+        "countWorkflowsOne": "1 workflow",
+        "detailsUnavailable": "Task details are unavailable for this session.",
+        "groupAgents": "Agents",
+        "groupMonitors": "Monitors",
+        "groupShell": "Shell",
+        "groupTasks": "Tasks",
+        "groupWorkflows": "Workflows",
+        "headerTotal": "{{value0}} background tasks",
+        "monitor": "Background monitor",
+        "monitoring": "Monitoring background tasks",
+        "reasonBlocked": "failed",
+        "reasonWaiting": "needs approval",
+        "stateBlocked": "blocked",
+        "stateBlockedCount": "{{value0}} blocked",
+        "stateDone": "done",
+        "stateDoneCount": "{{value0}} done",
+        "stateIdle": "stopped",
+        "stateIdleCount": "{{value0}} stopped",
+        "stateMonitoring": "monitoring",
+        "stateMonitoringCount": "{{value0}} monitoring",
+        "stateUnverifiable": "status unavailable",
+        "stateUnverifiableCount": "{{value0}} with status unavailable",
+        "stateWaiting": "waiting",
+        "stateWaitingCount": "{{value0}} waiting",
+        "stateWorking": "working",
+        "stateWorkingCount": "{{value0}} working",
+        "stop": "Stop",
+        "stopAll": "Stop background tasks",
+        "stopTask": "Stop {{value0}}",
+        "task": "Background task",
+        "workflow": "Background workflow"
+      },
       "composer": {
         "effort": "Effort",
         "imageUnsupported": "Image paste is not supported for this agent."
       },
       "failureWords": {
         "accountSwitchInProgress": "A Claude account switch is in progress. Try again after it finishes.",
+        "agentCommandNotRunnable": "{{agent}}'s Command in Settings → Agents must be a program path or name Orca can find, with no arguments or variables. Change it or reset it.",
+        "agentCommandNotSignedIn": "Sign in to {{agent}} with `{{loginCommand}}` on the computer running this chat.",
+        "agentNotSignedIn": "Sign in to {{agent}}.",
         "answerUnconfirmed": "Your answer was recorded but the agent did not confirm it.",
+        "argumentsMissingValue": "Saved Arguments need a value for {{option}}.",
+        "argumentsMultipleValues": "Saved Arguments give {{option}} more than one value.",
+        "argumentsPositionalPrompt": "Saved Arguments include a prompt.",
+        "argumentsUnsupportedOption": "Saved Arguments contain an unsupported option ({{option}}).",
         "attachmentAtMost": "{{agent}} accepts at most {{limit}} images in one message, so this message was not sent.",
         "attachmentEmpty": "An image on this message is empty, so the message was not sent.",
         "attachmentInvalid": "An attachment on this message can't be sent to the agent.",
@@ -3916,6 +5110,14 @@
         "chooseClaudeAccount": "Choose or add one in Claude Accounts settings.",
         "chooseClaudeAccountThenRunCommand": "Choose or add one in Claude Accounts settings, then run /{{command}} again.",
         "chooseClaudeAccountThenSend": "Choose or add one in Claude Accounts settings, then send your message again.",
+        "claudeAccountFolderMissing": "The selected Claude account's folder is missing. Sign in to it again or choose another account.",
+        "claudeAccountSetupFailed": "The selected Claude account could not be set up. Try again or choose another account.",
+        "claudeManagedNotSignedIn": "This Claude account isn't signed in. Sign in again in Claude Accounts settings.",
+        "claudeSystemNotSignedIn": "Claude isn't signed in. Run `{{loginCommand}}`, or choose an account in Claude Accounts settings.",
+        "cliMissing": "{{agent}} wasn't found on the computer running this chat. Install it, or check its Command in Settings → Agents.",
+        "codexManagedNotSignedIn": "This Codex account isn't signed in. Sign in again in Codex Accounts settings.",
+        "codexSystemNotSignedIn": "Codex isn't signed in. Run `{{loginCommand}}`.",
+        "commandAfterAnswer": "Answer the agent's question or approval, then run /{{command}}.",
         "commandRefused": "This command didn't run.",
         "commandRefusedTryAgain": "This command didn't run. Try it again.",
         "compactionFailed": "Compaction failed.",
@@ -3923,39 +5125,62 @@
         "compactionUnconfirmed": "Compaction completion is unconfirmed.",
         "couldNotRestart": "{{agent}} couldn't restart.",
         "couldNotStart": "{{agent}} couldn't start.",
+        "editSavedArguments": "Edit them in Settings > Agents > Arguments.",
         "emptyMessage": "This message is empty, so it was not sent.",
+        "historyInOtherAccount": "This chat's history is in another Claude account. Switch back to that account to continue it.",
         "historyTooLarge": "This conversation's history is too large to restore here.",
         "hostFault": "Orca ran into a problem, so this didn't go through.",
         "hostFaultTryAgain": "Orca ran into a problem, so this didn't go through. Try again.",
         "hostRestarted": "Orca restarted before this message was sent.",
         "hostStopped": "{{agent}} never finished starting, so Orca stopped it.",
+        "interactiveAgentNotSignedIn": "Sign in to {{agent}} by running `{{loginCommand}}` and using `{{slashCommand}}` on the computer running this chat.",
+        "launchFolderMissing": "The folder this chat ran in no longer exists. Restore it to continue this chat.",
         "managedAccountEnvOverride": "This Claude launch sets its own Anthropic sign-in variables. Remove them to use a managed Claude account.",
         "managedAccountUnsupported": "While a Claude account is added in WSL, Claude chats need a Windows Claude account.",
         "noTurnToStop": "{{agent}} had no turn running to stop.",
         "notDelivered": "This message was not delivered.",
         "notDeliveredSendAgain": "This message was not delivered. Send it again to continue.",
-        "notSignedIn": "{{agent}} is not signed in for the selected account.",
+        "notSignedIn": "{{agent}} is not signed in.",
+        "previousExitUnverifiable": "Couldn't stop {{agent}} from before.",
         "providerExitedRejection": "{{agent}} stopped before this message was sent.",
         "providerExitedRow": "{{agent}} stopped while this response was in progress. You can continue in this conversation.",
         "providerRateLimited": "{{agent}} is rate-limited and retrying.",
         "providerRejected": "The provider did not accept this message.",
         "providerRejectedQuoted": "The provider did not accept this message: {{detail}}.",
+        "providerRetryLastError": "Last error: {{detail}}.",
+        "providerRetryNumber": "Retry {{attempt}}.",
+        "providerRetryNumberOf": "Retry {{attempt}} of {{maxRetries}}.",
         "providerRetrying": "{{agent}} hit a temporary problem and is retrying.",
         "providerRetryingQuoted": "{{agent}} is retrying: {{detail}}.",
         "providerStartFailed": "{{agent}} stopped before it finished starting.",
         "queueFull": "Too many messages were waiting for the agent, so this one was not sent.",
         "runCommandAgain": "Run /{{command}} again.",
+        "runCommandWhenDone": "Run /{{command}} when it's done.",
+        "sendAgainToTryOnceMore": "Send your message again to try once more.",
         "sendToTryAgain": "Send your message to try again.",
+        "sessionNotRestored": "{{agent}} couldn't reopen its earlier session, so this chat continues in a new one. {{agent}} doesn't remember the earlier messages.",
         "signInFirst": "Sign in first.",
         "signInThenRunCommand": "Sign in, then run /{{command}} again.",
         "signInThenSend": "Sign in, then send your message again.",
         "stopRefused": "{{agent}} didn't stop.",
         "stopRefusedQuoted": "{{agent}} didn't stop: {{detail}}.",
         "theAgent": "The agent",
+        "thenSendAgain": "Then send your message again.",
         "writeFailed": "Orca couldn't hand this message to the agent, so it was not sent."
+      },
+      "hostOutage": {
+        "reconnect": "Reconnect"
+      },
+      "notices": {
+        "historyItemTooLarge": "This part of the chat was too large to show.",
+        "historyRepaired": "Part of this chat's history couldn't be loaded."
       },
       "question": {
         "other": "Other…"
+      },
+      "queuedMessages": {
+        "sendConfirmBody_one": "You are about to send a message. Do you want to clear the {{count}} message previously queued?",
+        "sendConfirmBody_other": "You are about to send a message. Do you want to clear the {{count}} messages previously queued?"
       },
       "state": {
         "empty": {
@@ -3963,8 +5188,6 @@
           "title": "Start a chat with {{value0}}"
         },
         "error": {
-          "keepsTrying": "Orca keeps trying to load it.",
-          "retryingSubtitle": "The transcript could not be read. Orca keeps trying to load it.",
           "subtitle": "The transcript could not be read. Toggle back to the terminal to keep working.",
           "title": "Could not load conversation"
         },
@@ -3975,21 +5198,50 @@
         "notAgent": {
           "subtitle": "This terminal is not running a recognized coding agent.",
           "title": "No conversation here"
-        }
+        },
+        "pairHost": "Pair a host to view agent chat history."
       },
       "status": {
         "failedAfter": "Failed after {{value0}}",
         "interruptedAfter": "Interrupted after {{value0}}",
+        "queueAfterStop": "Queue a message to run after the stop",
         "responding": "Agent is responding",
+        "sendAfterStop": "Send a message to run after the stop",
         "toggleDetails": "Toggle turn details",
         "workedFor": "Worked for {{value0}}",
         "workingFor": "Working for {{value0}}"
+      },
+      "structuredSessionHostDeclined": "Opened {{value0}} in a terminal",
+      "structuredSessionHostDeclinedDescription": "This server can't run a {{value0}} chat in this workspace.",
+      "structuredSessionHostUnreachable": "Could not reach {{value0}}",
+      "structuredSessionHostUnreachableDescription": "Orca did not open a {{value0}} chat. Check the connection to the server and try again.",
+      "subagents": {
+        "ranN": "Ran {{value0}} subagents",
+        "ranOne": "Ran 1 subagent",
+        "startedN": "Kicked off {{value0}} subagents",
+        "startedOne": "Kicked off 1 subagent",
+        "state": {
+          "completed": "completed",
+          "failed": "failed",
+          "failedCount": "{{value0}} failed",
+          "idle": "idle",
+          "idleCount": "{{value0}} idle",
+          "stopped": "stopped",
+          "stoppedCount": "{{value0}} stopped",
+          "unverifiable": "status unavailable",
+          "unverifiableCount": "{{value0}} with status unavailable",
+          "working": "working",
+          "workingCount": "{{value0}} working"
+        },
+        "tokens": "{{value0}} tokens"
       },
       "tool": {
         "countN": "{{value0}} tool calls",
         "countOne": "1 tool call",
         "failedCallsLabel": "Failed tool calls: {{value0}}",
         "failedCount": "{{value0}} failed",
+        "interruptedCallsLabel": "Interrupted tool calls: {{value0}}",
+        "interruptedCount": "{{value0}} interrupted",
         "moreCalls": "+{{value0}} more",
         "ranCommandManyToolsSummary": "Ran {{commandCount}} command and used {{toolCount}} tools",
         "ranCommandOneToolSummary": "Ran {{commandCount}} command and used {{toolCount}} tool",
@@ -4006,19 +5258,31 @@
       "writeNotice": {
         "agentRefused": "The agent turned this down.",
         "agentStarting": "The agent is still starting.",
+        "agentStillWorking": "The agent is still working.",
         "answerFirst": "Answer the question or approval first.",
+        "attachmentExpired": "This attachment expired.",
         "backgroundTasksRunning": "Background tasks are still running.",
-        "capacity": "Orca has received too many requests in the last day.",
-        "chatNotFound": "The Orca running this chat has no record of it.",
+        "cannotRunHere": "Orca can't run this agent in a chat here.",
+        "capacity": "Orca on the computer running this chat has hit a request limit. Update Orca there, then try again.",
+        "chatNotFound": "Orca can't find this chat.",
+        "chatSavedByNewerOrca": "This chat was saved by a newer Orca.",
+        "clearAfterAnswer": "Answer the agent's question or approval, then run /clear.",
+        "clearAfterRetry": "Retry your earlier message, then run /clear.",
+        "clearAfterSending": "Your earlier message is still being sent. Run /clear once it has gone.",
         "clearUnfinished": "The last /clear didn't finish.",
         "commandRunning": "A /compact or /clear is still running.",
+        "compactAfterAnswer": "Answer the agent's question or approval, then run /compact.",
+        "compactAfterRetry": "Retry your earlier message, then run /compact.",
+        "compactAfterSending": "Your earlier message is still being sent. Run /compact once it has gone.",
         "conversationCleared": "This conversation has been cleared.",
         "goalsUnsupported": "This agent doesn't support goals.",
         "historyUnavailable": "Orca couldn't open this chat's history right now.",
         "historyUnreadable": "Orca couldn't read this chat's saved history.",
         "historyUnusable": "Unable to load this chat.",
         "hostReconciling": "Orca is still checking on this chat after restarting.",
-        "messagesUnsettled": "A message you sent earlier hasn't been confirmed yet.",
+        "messageNotSaved": "Couldn't save your message.",
+        "messagesUnsettled": "A message you sent earlier isn't confirmed yet.",
+        "notAvailable": "This isn't available in this chat.",
         "notDoneAnswer": "Your answer was not sent.",
         "notDoneCommand": "The command didn't run.",
         "notDoneGoal": "The goal wasn't changed.",
@@ -4031,24 +5295,31 @@
         "openCurrentConversation": "Open the current conversation to continue.",
         "optionRejected": "The agent didn't accept this setting.",
         "outcomeUnknown": "Orca couldn't confirm what happened. Check the chat.",
-        "ownerUnproven": "Orca hasn't confirmed that this chat's previous agent stopped.",
+        "ownerUnproven": "The previous agent in this chat may still be running.",
         "promptPending": "The agent is waiting for an answer to a question or approval.",
         "questionChanged": "This question was already answered or has changed.",
+        "queueTooLarge": "Too much text is waiting in the queue.",
         "quitTerminalAgent": "Quit that agent to continue the chat here.",
-        "recordFailed": "Orca couldn't record it in this chat's history.",
+        "reattachFile": "Remove it and attach it again.",
+        "recordFailed": "Orca couldn't save this to the chat's history.",
         "recordUnreadable": "Orca couldn't read this chat's saved state.",
         "reopenChat": "Reopen the chat to check again.",
         "restartFailed": "The agent couldn't restart.",
+        "runClearWhenDone": "Run /clear when it's done.",
+        "runCompactWhenDone": "Run /compact when it's done.",
         "savedByNewerOrca": "Chats were saved by a newer Orca.",
+        "sendOutcomeLost": "Orca couldn't confirm your message reached the agent. Check the chat, then send it again if needed.",
         "settleEarlierMessage": "Wait for your earlier message to go through, or retry it.",
+        "shrinkQueue": "Delete a queued message, or wait for one to go through, then try again.",
         "startNewChat": "Start a new chat to continue.",
         "terminalAgentHoldsChat": "This chat is still open in a terminal agent.",
         "tryAgain": "Try again.",
         "tryAgainComposerSend": "Send it again.",
         "turnActive": "The agent is still responding.",
         "unreachable": "Orca couldn't reach the agent.",
-        "unsupported": "The Orca running this chat doesn't support this. Update Orca, then try again.",
+        "unsupported": "This needs a newer Orca on the computer running this chat. Update Orca there, then try again.",
         "updateOrcaToKeepUsing": "Update Orca to keep using them.",
+        "updateOrcaToOpenChat": "Update Orca to open it.",
         "waitForBackgroundTasks": "Wait for the background tasks to finish.",
         "waitForCommand": "Wait for the /compact or /clear to finish.",
         "waitForStart": "Wait for the agent to finish starting.",
@@ -4123,6 +5394,29 @@
       "viewing": "Viewing: {{path}}"
     }
   },
+  "menu": {
+    "quitApp": "Quit {{appName}}"
+  },
+  "projectBoard": {
+    "noColumnField": "This board view has no single-select or iteration field to group by, so Orca is listing items instead.",
+    "noField": "No {{field}}"
+  },
+  "projectBoardCard": {
+    "itemLabel": "{{number}} — {{title}}",
+    "restrictedItem": "Restricted item"
+  },
+  "projectField": {
+    "updateFailed": "Failed to update project field"
+  },
+  "projectViews": {
+    "layout": {
+      "board": "Board"
+    },
+    "unsupported": {
+      "description": "Orca renders table, board, and roadmap project views. This view uses a layout it cannot render yet.",
+      "switchLayout": "Switch to a Table, Board, or Roadmap view to work with this project in Orca."
+    }
+  },
   "runtimeRpc": {
     "startupFailure": {
       "guidance": {
@@ -4135,6 +5429,9 @@
     }
   },
   "settings": {
+    "accounts": {
+      "claudeRemoveFolder": "Orca deletes this account's Claude folder and its sign-in from this computer. Chat history shared with System default stays. If it is selected, the next Claude you start uses System default."
+    },
     "browser": {
       "clientHostedRemote": {
         "description": "Render remote workspace pages on this desktop; network traffic still goes through the remote host. Applies to new pages only.",
@@ -4152,6 +5449,59 @@
     "findPath": "Find a folder…",
     "finishEditing": "Save or cancel the preset to continue creating your workspace.",
     "pathHelp": "One repository-relative directory per line. Spaces within a path are preserved."
+  },
+  "workspace": {
+    "links": {
+      "addItem": "Add {{label}}",
+      "addNotes": "Add notes",
+      "addReference": "Add reference",
+      "allReviewChecks": "Reviews: {{count}} · Checks: {{status}}",
+      "checksFailed": "Failed",
+      "checksNeutral": "Neutral",
+      "checksPassing": "Passing",
+      "checksPending": "Pending",
+      "checksUnknown": "Unknown",
+      "clearSearch": "Clear search",
+      "commentHelp": "Markdown supported. Enter or {{shortcut}} to save · Shift+Enter for a new line.",
+      "count": "{{count}} linked",
+      "description": "Attach reviews and tasks, and keep notes for this workspace.",
+      "details": "Workspace details",
+      "duplicate": "This link is already attached.",
+      "empty": "Keep every review and task for this workspace together.",
+      "foreignIssue": "This issue belongs to another repository. Add issues from this workspace’s repository.",
+      "foreignReview": "This review belongs to another repository. Add reviews from this workspace’s repository.",
+      "inlineSearchHint": "Select a result to attach it.",
+      "jiraModeRequired": "Select Smart or Jira to load this issue.",
+      "lastKnownStatus": "Last known status",
+      "linearConnectRequired": "Connect Linear in Settings to link this issue.",
+      "linearModeRequired": "Select Smart or Linear to load this issue.",
+      "linearReadFailed": "Couldn’t load this Linear issue. Check the URL and connected workspace.",
+      "linkedResult": "Linked",
+      "loadingLinear": "Loading Linear issue…",
+      "manage": "Manage links…",
+      "noReferences": "No matching references. Try a title, number, or URL.",
+      "notes": "Notes",
+      "notesOptional": "Optional · Markdown",
+      "open": "Open link",
+      "openItem": "Open {{label}}",
+      "referenceType": "Reference type",
+      "repositoryLoading": "Repository identity is still loading. Try again once it is available.",
+      "retrySource": "Retry",
+      "reviewTarget": "Target: {{branch}}",
+      "reviewUrlRequired": "Paste the review URL to verify its repository and provider.",
+      "reviews": "Reviews",
+      "saveHint": "Changes apply when you save",
+      "searchLabel": "Search references",
+      "searchReferences": "Search reviews and tasks, or paste a link",
+      "sessions": "Sessions & terminals",
+      "sessionsForItem": "Sessions & terminals for {{label}} · {{count}}",
+      "show": "Show {{count}} linked reviews and tasks",
+      "stackSummary": "{{count}} linked: {{references}}",
+      "tasks": "Issues & tasks",
+      "title": "Linked work",
+      "unlink": "Unlink from workspace",
+      "unlinkItem": "Unlink {{label}}"
+    }
   },
   "worktreeJumpPalette": {
     "filter": {

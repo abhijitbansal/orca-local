@@ -2,7 +2,7 @@ import React, { useCallback } from 'react'
 import { ExternalLink, Pencil, StickyNote } from 'lucide-react'
 import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
+import { HoverCard, HoverCardContent } from '@/components/ui/hover-card'
 import { LinearIcon } from '@/components/icons/LinearIcon'
 import { JiraIcon } from '@/components/icons/JiraIcon'
 import { SelectedTextCopyMenu } from '@/components/SelectedTextCopyMenu'
@@ -25,15 +25,19 @@ import { useWorktreeCardIdentity } from '../sidebar/use-worktree-card-identity'
 import { useWorktreeCardLinkedDetails } from '../sidebar/use-worktree-card-linked-details'
 import { useWorktreeCardSecondaryDetails } from '../sidebar/use-worktree-card-secondary-details'
 import { ActivityThreadHoverCardSummary } from './activity-thread-hover-card-summary'
+import { ActivityThreadHoverCardTrigger } from './activity-thread-hover-card-trigger'
 import type { AgentPaneThread } from './activity-thread-types'
 
 export type ActivityThreadHoverCardProps = {
   thread: AgentPaneThread
   children: React.ReactElement
+  // Keyboard focus only; pointer hover opens on rest (see activity-thread-hover-card-intent).
   openDelay?: number
   closeDelay?: number
   onJumpToWorkspace?: (thread: AgentPaneThread) => void
   canJumpToWorkspace?: boolean
+  /** Keeps the preview closed, e.g. while the row's right-click menu covers it. */
+  suppressed?: boolean
 }
 
 export function ActivityThreadHoverCard({
@@ -42,19 +46,26 @@ export function ActivityThreadHoverCard({
   openDelay = 200,
   closeDelay = 120,
   onJumpToWorkspace,
-  canJumpToWorkspace
+  canJumpToWorkspace,
+  suppressed = false
 }: ActivityThreadHoverCardProps): React.JSX.Element {
   const detailsHoverControl = useWorktreeCardDetailsHoverControl()
+  const open = detailsHoverControl.hoverOpen && !suppressed
 
   return (
     <HoverCard
-      open={detailsHoverControl.hoverOpen}
+      open={open}
       onOpenChange={detailsHoverControl.handleHoverOpenChange}
       openDelay={openDelay}
       closeDelay={closeDelay}
     >
-      <HoverCardTrigger asChild>{children}</HoverCardTrigger>
-      {detailsHoverControl.hoverOpen ? (
+      <ActivityThreadHoverCardTrigger
+        open={open}
+        onOpenChange={detailsHoverControl.handleHoverOpenChange}
+      >
+        {children}
+      </ActivityThreadHoverCardTrigger>
+      {open ? (
         <ActivityThreadHoverCardContent
           thread={thread}
           detailsHoverControl={detailsHoverControl}

@@ -1,9 +1,14 @@
-import { closeTestStores, createSqliteTestStore } from './persistence-test-harness'
+import {
+  closeTestStores,
+  createSqliteTestStore,
+  createStore as createFreshStore,
+  testState
+} from './persistence-test-harness'
 /**
  * The same repo id may be registered on two execution hosts (see `removeProjectForHost`).
- * Every deletion that resolves a *row* must therefore delete only that row: `removeProject`
- * is id-only and would take the sibling host's registration with it. Since #11994 those
- * deletions fan out to every paired device, so a cross-host over-delete is no longer local.
+ * Every deletion that resolves a *row* must therefore delete only that row, never the sibling
+ * host's registration. Since #11994 those deletions fan out to every paired device, so a
+ * cross-host over-delete is no longer local.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
@@ -14,8 +19,9 @@ import type { Repo } from '../shared/repo-types'
 import { getDefaultPersistedState } from '../shared/constants'
 import { toRuntimeExecutionHostId } from '../shared/execution-host'
 import { installFakeAppEnvironment } from '../../config/scripts/vitest-host-ports-setup'
+import { resetRetirementCollisionKeyCacheForTests } from './worktree-name-retirement'
 
-const testState = { dir: '' }
+let hasCreatedStoreInCase = false
 
 vi.mock('electron', () => ({
   app: { getPath: () => testState.dir },
@@ -52,6 +58,10 @@ async function createStoreFromState(state: Record<string, unknown>) {
     JSON.stringify({ ...getDefaultPersistedState(testState.dir), ...state }),
     'utf-8'
   )
+  if (!hasCreatedStoreInCase) {
+    hasCreatedStoreInCase = true
+    return createFreshStore()
+  }
   vi.resetModules()
   const { Store, initDataPath } = await import('./persistence')
   // Why here: userData resolves through AppEnvironment, and this must point at this
@@ -96,6 +106,8 @@ function staleLocalSetupState() {
 }
 
 beforeEach(() => {
+  hasCreatedStoreInCase = false
+  resetRetirementCollisionKeyCacheForTests()
   testState.dir = mkdtempSync(join(tmpdir(), 'orca-dup-repo-id-'))
 })
 

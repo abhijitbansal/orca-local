@@ -1,5 +1,11 @@
 import type { HttpLinkSourceOwner } from '@/lib/http-link-routing'
 import type {
+  CombinedDiffAlternate,
+  ConflictReviewEntry,
+  ConflictReviewState,
+  OpenChatVisualTabState
+} from '../../../../../../shared/editor-tab-view-types'
+import type {
   GitBranchChangeEntry,
   GitBranchCompareSummary,
   GitCommitCompareSummary
@@ -9,10 +15,7 @@ import type { WorkspaceVisibleTabType } from '../../../../../../shared/tab-types
 import type {
   BranchCompareLike,
   ClosedEditorTabSnapshot,
-  CombinedDiffAlternate,
   CommitCompareLike,
-  ConflictReviewEntry,
-  ConflictReviewState,
   EditorOpenTargetOptions,
   EditorTabSelection,
   OpenFile
@@ -75,7 +78,9 @@ export type EditorFilesSlice = {
   /** Most recently closed editor tabs per worktree (for Cmd/Ctrl+Shift+T). */
   recentlyClosedEditorTabsByWorktree: Record<string, ClosedEditorTabSnapshot[]>
   reopenClosedEditorTab: (worktreeId: string) => boolean
-  setActiveFile: (fileId: string) => void
+  /** Activation uses the file's workspace unless a target is supplied; global selection
+   *  moves only when that workspace is active. */
+  setActiveFile: (fileId: string, targetWorktreeId?: string) => void
   reorderFiles: (fileIds: string[]) => void
   markFileDirty: (fileId: string, dirty: boolean) => void
   setExternalMutation: (fileId: string, mutation: 'deleted' | 'renamed' | 'changed' | null) => void
@@ -144,6 +149,7 @@ export type EditorFilesSlice = {
     entries: ConflictReviewEntry[],
     source: ConflictReviewState['source']
   ) => void
+  openChatVisualTab: (worktreeId: string, visual: OpenChatVisualTabState) => void
   openBranchAllDiffs: (
     worktreeId: string,
     worktreePath: string,

@@ -9,5 +9,6 @@ export {
 } from '@/lib/workspace-port-actions'
 
 export default function PortsPanel({ isVisible }: { isVisible: boolean }): React.JSX.Element {
-  return <LocalWorkspacePortsPanel isVisible={isVisible} />
+  // Why: workspaces run on this machine only; remote runtime owners are removed in this build.
+  return <LocalWorkspacePortsPanel isVisible={isVisible} runtimeTarget={null} />
 }

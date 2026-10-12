@@ -17,6 +17,10 @@ import type { RepoSlice } from './repo-state'
 import { ERROR_TOAST_DURATION } from './repo-state'
 import { mergeProjectCompatibilityForHostRepoChange } from './repo-catalog-identity'
 import { settingsForRepoOwner } from './owner-routing'
+import {
+  captureWorkspaceChatDraftKeys,
+  deleteWorkspaceChatDrafts
+} from '../slices/worktrees/teardown/removed-worktree-chat-drafts'
 
 export function worktreeBelongsToHost(worktree: { hostId?: string }, hostId: string): boolean {
   return (worktree.hostId ?? LOCAL_EXECUTION_HOST_ID) === hostId
@@ -61,15 +65,21 @@ export function createRepoRemovalActions(
         const target = getActiveRuntimeTarget(
           settingsForRepoOwner(get(), projectId, options?.hostId)
         )
-        // Why: repos:remove is id-only and would delete every host's row; scope local removal to the owning host so cross-host duplicates keep other rows.
-        const idExistsOnOtherHost = get().repos.some(
-          (repo) => repo.id === projectId && getRepoExecutionHostId(repo) !== ownerHostId
+        // Why before the host call: its announcement can start a listing refresh that drops these tabs.
+        const chatDraftKeys = captureWorkspaceChatDraftKeys(
+          get(),
+          getKnownRepoWorktreeIds(get(), projectId, ownerHostId).map((workspaceId) => ({
+            workspaceId,
+            executionHostId: ownerHostId
+          }))
         )
+        // Why: repos:remove is id-only and would delete every host's row; scope local removal to the owning host so cross-host duplicates keep other rows.
         try {
           await (target.kind === 'local'
-            ? idExistsOnOtherHost
-              ? window.api.repos.removeForHost({ repoId: projectId, hostId: ownerHostId })
-              : window.api.repos.remove({ repoId: projectId })
+            ? window.api.repos.removeForHost({
+                repoId: projectId,
+                hostId: ownerHostId
+              })
             : callRuntimeRpc(target, 'repo.rm', { repo: projectId }, { timeoutMs: 15_000 }))
         } catch (err) {
           // Why: the owner already dropped this project, so purge the local ghost row instead of aborting (#11994).
@@ -132,6 +142,7 @@ export function createRepoRemovalActions(
 
         // Why: use the canonical per-worktree purge to evict all worktree-scoped maps (hand-deletion leaked most); runs before the set() below so it still sees tabsByWorktree.
         get().purgeWorktreeTerminalState(purgeTargets)
+        deleteWorkspaceChatDrafts(chatDraftKeys)
         get().clearLocalDetectedAgentContextsForProjects(localAgentContextProjectIds)
 
         set((s) => {
@@ -151,7 +162,10 @@ export function createRepoRemovalActions(
               (worktree) => !worktreeBelongsToHost(worktree, ownerHostId)
             )
             if (remainingDetected.length > 0) {
-              nextDetectedWorktrees[projectId] = { ...detected, worktrees: remainingDetected }
+              nextDetectedWorktrees[projectId] = {
+                ...detected,
+                worktrees: remainingDetected
+              }
             } else {
               delete nextDetectedWorktrees[projectId]
             }
@@ -160,7 +174,9 @@ export function createRepoRemovalActions(
           const nextLayouts = { ...s.terminalLayoutsByTabId }
           const nextLocalOnlyScrollback = { ...s.localOnlyScrollbackByTabId }
           const nextPtyIdsByTabId = { ...s.ptyIdsByTabId }
-          const nextRuntimePaneTitlesByTabId = { ...s.runtimePaneTitlesByTabId }
+          const nextRuntimePaneTitlesByTabId = {
+            ...s.runtimePaneTitlesByTabId
+          }
           for (const wId of worktreeIds) {
             delete nextTabs[wId]
           }
@@ -199,7 +215,9 @@ export function createRepoRemovalActions(
               (repoIdFullyRemoved && getRepoIdFromWorktreeId(rawId) === projectId)
             ) {
               if (nextLastVisitedAtByWorktreeId === s.lastVisitedAtByWorktreeId) {
-                nextLastVisitedAtByWorktreeId = { ...s.lastVisitedAtByWorktreeId }
+                nextLastVisitedAtByWorktreeId = {
+                  ...s.lastVisitedAtByWorktreeId
+                }
               }
               delete nextLastVisitedAtByWorktreeId[id]
             }
@@ -211,7 +229,10 @@ export function createRepoRemovalActions(
             // Why: drop removed repos' sparse-preset maps so they don't outlive the repo for the whole session.
             ...omitSparsePresetsForRepos(s, removedRepoIds),
             ...mergeProjectCompatibilityForHostRepoChange({
-              previous: { projects: s.projects, projectHostSetups: s.projectHostSetups },
+              previous: {
+                projects: s.projects,
+                projectHostSetups: s.projectHostSetups
+              },
               nextRepos,
               hostId: ownerHostId
             }),

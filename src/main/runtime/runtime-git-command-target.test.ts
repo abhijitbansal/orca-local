@@ -1,5 +1,11 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+
+const { getStatus } = vi.hoisted(() => ({ getStatus: vi.fn() }))
+vi.mock('../git/status', () => ({ getStatus }))
+
 import { ExecutionHostNotDispatchableError } from '../providers/execution-host-provider-dispatch'
+import { createLocalGitProvider } from '../providers/local-git-provider'
+import { SshHostNotServedError } from '../providers/ssh-host-not-served-error'
 import {
   localGitOptionsForTarget,
   requireRuntimeGitProvider,
@@ -19,22 +25,37 @@ function target(overrides: Partial<RuntimeGitTarget>): RuntimeGitTarget {
 }
 
 describe('runtime Git target routing', () => {
-  it('answers `local` with no provider, which is the only meaning `null` carries', () => {
-    expect(runtimeGitRouteForTarget(target({}))).toEqual({ kind: 'local' })
-    expect(requireRuntimeGitProvider(target({}))).toBeNull()
+  afterEach(() => {
+    getStatus.mockReset()
+  })
+
+  it('answers `local` with a provider bound to this worktree, built per call', async () => {
+    expect(runtimeGitRouteForTarget(target({}))).toEqual({
+      kind: 'local',
+      createProvider: createLocalGitProvider
+    })
+    const localTarget = target({ localGitOptions: { wslDistro: 'Ubuntu' } })
+    expect(requireRuntimeGitProvider(localTarget)).not.toBe(requireRuntimeGitProvider(localTarget))
+
+    await requireRuntimeGitProvider(localTarget).getStatus('/srv/app')
+    expect(getStatus).toHaveBeenCalledWith('/srv/app', {
+      wslDistro: 'Ubuntu',
+      admissionTier: 'status'
+    })
   })
 
   // Loss of contact is never evidence of locality (AGENTS.md).
-  it('keeps an unreachable ssh host remote instead of degrading it to local', () => {
+  it('keeps an ssh host remote instead of degrading it to local', () => {
     const route = runtimeGitRouteForTarget(target({ executionHostId: 'ssh:gone' }))
 
-    expect(route).toEqual({ kind: 'ssh', connectionId: 'gone', provider: null })
+    expect(route).toEqual({ kind: 'ssh', connectionId: 'gone' })
     expect(() => requireRuntimeGitProvider(target({ executionHostId: 'ssh:gone' }))).toThrow(
-      /Remote connection dropped/
+      SshHostNotServedError
     )
+    expect(getStatus).not.toHaveBeenCalled()
   })
 
-  it('refuses a runtime host even when a same-named target is registered here', () => {
+  it('refuses a runtime host instead of routing it', () => {
     expect(() => runtimeGitRouteForTarget(target({ executionHostId: 'runtime:env-a' }))).toThrow(
       ExecutionHostNotDispatchableError
     )

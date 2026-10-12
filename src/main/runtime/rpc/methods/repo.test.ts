@@ -30,7 +30,8 @@ describe('repo RPC methods', () => {
     expect(runtime.searchRepoRefs).toHaveBeenCalledWith(
       'id:repo-1',
       'main',
-      REPO_SEARCH_REFS_MAX_LIMIT + 1
+      REPO_SEARCH_REFS_MAX_LIMIT + 1,
+      true
     )
   })
 

@@ -146,6 +146,7 @@ export function useCodexSwitcherController() {
           // Why: the mutation wrote this row's slot only, so panes on any other
           // lane still launch under the account they already had.
           target,
+          owner: runtimeTarget,
           // Why: clearing a distro-less WSL row nulls every distro slot at once.
           clearsEveryWslDistro: accountId === null
         })

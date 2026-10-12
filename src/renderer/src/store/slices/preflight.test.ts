@@ -18,13 +18,8 @@ vi.mock('sonner', () => ({
 
 vi.mock('@/runtime/runtime-rpc-client', () => ({
   callRuntimeRpc: (...args: unknown[]) => callRuntimeRpc(...args),
-  unwrapRuntimeRpcResult: <T>(response: { result?: T }) => response.result as T,
-  getActiveRuntimeTarget: (
-    settings?: { activeRuntimeEnvironmentId?: string | null } | null
-  ): { kind: 'local' } | { kind: 'environment'; environmentId: string } => {
-    const environmentId = settings?.activeRuntimeEnvironmentId?.trim()
-    return environmentId ? { kind: 'environment', environmentId } : { kind: 'local' }
-  }
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: test responses always carry the typed result.
+  unwrapRuntimeRpcResult: <T>(response: { result?: T }) => response.result as T
 }))
 
 globalThis.window = {

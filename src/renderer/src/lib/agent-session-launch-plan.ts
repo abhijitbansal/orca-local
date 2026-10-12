@@ -1,6 +1,8 @@
 import { isAgentSessionHandleProvider } from '../../../shared/agent-session-provider-handle'
+import { newAgentLaunchRequestId } from '@/lib/agent-launch-request-id'
 import type { StructuredAgentSessionResumeSource } from '../../../shared/structured-agent-session-create'
 import type { TuiAgent } from '../../../shared/tui-agent'
+import type { AgentLaunchRequestId } from '@/lib/agent-launch-request-id'
 import {
   buildAgentLaunchRouteInput,
   type AgentLaunchRouteArgs,
@@ -22,6 +24,8 @@ import {
 import type { StructuredAgentLaunchOptions } from '@/lib/structured-agent-session-launch'
 
 export type AgentSessionLaunchRequest = AgentLaunchRouteArgs & {
+  /** The user action this launch serves; minted by upstream callers, unused for routing here. */
+  requestId?: AgentLaunchRequestId
   resumeFrom?: StructuredAgentSessionResumeSource
   onPromptDelivered?: () => void
 }
@@ -67,6 +71,7 @@ export type AgentSessionLaunchPlan = Readonly<AgentSessionLaunchVerdict> & {
 
 function structuredLaunchOptions(verdict: AgentSessionLaunchVerdict): StructuredAgentLaunchOptions {
   return {
+    requestId: newAgentLaunchRequestId(),
     ...(verdict.prompt !== undefined ? { prompt: verdict.prompt } : {}),
     ...(verdict.promptDelivery ? { promptDelivery: verdict.promptDelivery } : {}),
     ...(verdict.resumeFrom ? { resumeFrom: verdict.resumeFrom } : {}),

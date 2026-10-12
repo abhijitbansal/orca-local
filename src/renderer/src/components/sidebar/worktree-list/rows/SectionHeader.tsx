@@ -152,9 +152,12 @@ export function renderWorktreeSectionHeaderRow(args: {
     ? getRepoHeaderCreateState({
         repo: row.repo,
         label: row.label,
-        sshStatus: row.repo.connectionId
-          ? (ctx.sshConnectionStates.get(row.repo.connectionId)?.status ?? null)
-          : null
+        sshGate: {
+          connectionId: row.repo.connectionId ?? null,
+          status: row.repo.connectionId
+            ? (ctx.sshConnectionStates.get(row.repo.connectionId)?.status ?? null)
+            : null
+        }
       })
     : null
   const folderBackedProjectGroup =

@@ -34,6 +34,7 @@ vi.mock('@/runtime/runtime-file-client', async (importOriginal) => {
 
 const runtimeDownloadContext = {
   settings: { activeRuntimeEnvironmentId: 'runtime-1' },
+  target: { kind: 'environment' as const, environmentId: 'runtime-1' },
   worktreeId: 'wt-1',
   worktreePath: '/repo'
 }
@@ -97,6 +98,7 @@ describe('FileExplorerRow collapse folder action', () => {
   it('shows remote download only for desktop SSH rows and file-like Remote Host rows', () => {
     const runtimeContext = {
       settings: { activeRuntimeEnvironmentId: 'runtime-1' },
+      target: { kind: 'environment' as const, environmentId: 'runtime-1' },
       worktreeId: 'wt-1',
       worktreePath: '/repo'
     }
@@ -229,7 +231,7 @@ describe('FileExplorerRow collapse folder action', () => {
       | { onClick: () => void }
       | undefined
     action?.onClick()
-    expect(openPath).toHaveBeenCalledWith('/downloads/renamed\\entry.ts')
+    expect(openPath).toHaveBeenCalledWith('/downloads/renamed\\entry.ts', 'local')
     expect(toastErrorMock).not.toHaveBeenCalled()
   })
 

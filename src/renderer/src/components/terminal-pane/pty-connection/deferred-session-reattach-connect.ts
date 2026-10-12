@@ -1,9 +1,13 @@
+import { isRemoteRuntimePtyId } from '../../../../../shared/remote-runtime-pty-id'
 import { warnTerminalLifecycleAnomaly } from '../terminal-lifecycle-diagnostics'
 import { isSshSessionGoneError, recordPtyConnectDiagnostic } from './pty-connect-limits'
-import { isRemoteRuntimePtyId } from './paired-parked-terminal-restore'
 import { toProcessExitStartup } from './process-exit-startup'
-import { recoverUnverifiableDirectSshReattach } from './direct-ssh-reattach-recovery'
 import type { ConnectPanePtySession } from './connect-pane-pty-session'
+
+import {
+  awaitAgentStatusStartupSnapshot,
+  isAgentStatusStartupSnapshotReady
+} from '@/hooks/ipc-events/agent-status-startup-snapshot'
 
 const PANE_OWNER_UNVERIFIED_ERROR = 'terminal_pane_owner_unverified'
 
@@ -11,9 +15,46 @@ export function startDeferredSessionReattach(
   session: ConnectPanePtySession,
   deferredReattachSessionId: string
 ): void {
+  void prepareDeferredSessionReattach(session, deferredReattachSessionId).catch(
+    (error: unknown) => {
+      if (!session.disposed) {
+        session.reportError(error instanceof Error ? error.message : String(error))
+      }
+    }
+  )
+}
+
+async function prepareDeferredSessionReattach(
+  session: ConnectPanePtySession,
+  deferredReattachSessionId: string
+): Promise<void> {
+  const generation = session.transportStreamGeneration
+  let waitedForSnapshot = false
+  if (
+    !session.runtimeEnvironmentId &&
+    !session.buildColdRestoreAgentResumeStartup() &&
+    !isAgentStatusStartupSnapshotReady()
+  ) {
+    waitedForSnapshot = true
+    await awaitAgentStatusStartupSnapshot()
+  }
+  if (
+    session.disposed ||
+    generation !== session.transportStreamGeneration ||
+    (waitedForSnapshot &&
+      session.deps.paneTransportsRef.current.get(session.pane.id) !== session.transport)
+  ) {
+    return
+  }
+  connectDeferredSessionReattach(session, deferredReattachSessionId)
+}
+
+function connectDeferredSessionReattach(
+  session: ConnectPanePtySession,
+  deferredReattachSessionId: string
+): void {
   session.allowInitialIdleCacheSeed = true
   recordPtyConnectDiagnostic(`pane=${session.pane.id} -> REATTACH ${deferredReattachSessionId}`)
-  session.prepaintParkedSshSnapshot(deferredReattachSessionId)
 
   // Why: pre-signal (declare) before the reattach connect so the cooperation gate suppresses the daemon seed for this paneKey; Electron preserves IPC order.
   // See docs/mobile-prefer-renderer-scrollback.md (Renderer-side prerequisite requirement #4).
@@ -33,9 +74,6 @@ export function startDeferredSessionReattach(
       }
       if (message.includes(PANE_OWNER_UNVERIFIED_ERROR)) {
         paneOwnerUnverified = true
-      }
-      if (!session.isCapturedDirectSshReattachCurrent(deferredReattachSessionId)) {
-        return
       }
       session.reportError(message)
     },
@@ -59,9 +97,6 @@ export function startDeferredSessionReattach(
     ...(coldRestoreStartup?.launchToken ? { launchToken: coldRestoreStartup.launchToken } : {}),
     ...(coldRestoreStartup?.agent ? { launchAgent: coldRestoreStartup.agent } : {}),
     ...(session.shouldDeclareHiddenAtSpawn() ? { initiallyHidden: true } : {}),
-    ...(session.directSshRetryAttempt
-      ? { admitPtyId: session.claimCapturedDirectSshRetryPty }
-      : {}),
     callbacks: outputCallbacks.callbacks
   })
   const isCurrentReattach = (): boolean =>
@@ -74,7 +109,7 @@ export function startDeferredSessionReattach(
     .finally(() => {
       session.transportConnectInFlightSince = null
     })
-  const trackedReattachPromise = Promise.resolve(reattachPromise)
+  void Promise.resolve(reattachPromise)
     .then(async (result) => {
       if (!isCurrentReattach()) {
         session.finishReattachLiveDataDeferral(false, outputCallbacks.generation)
@@ -90,7 +125,7 @@ export function startDeferredSessionReattach(
         if (typeof gen === 'number') {
           void window.api.pty.clearPendingPaneSerializer(session.cacheKey, gen).catch(() => {})
         }
-        session.settlePaneAttachAttempt(session.directSshRetryAttempt, 'failed')
+        session.settlePaneAttachAttempt('failed')
         return
       }
       if (!result && expiredReattachError) {
@@ -100,9 +135,6 @@ export function startDeferredSessionReattach(
           void window.api.pty.clearPendingPaneSerializer(session.cacheKey, gen).catch(() => {})
         }
         if (!isCurrentReattach()) {
-          return
-        }
-        if (session.rejectObsoleteDirectSshReattach(deferredReattachSessionId)) {
           return
         }
         session.clearExitedPanePtyLayoutBinding(deferredReattachSessionId)
@@ -148,12 +180,9 @@ export function startDeferredSessionReattach(
       if (!isCurrentReattach()) {
         return
       }
-      if (session.rejectObsoleteDirectSshReattach(deferredReattachSessionId)) {
-        return
-      }
       if (message.includes(PANE_OWNER_UNVERIFIED_ERROR)) {
         session.reportError(message)
-        session.settlePaneAttachAttempt(session.directSshRetryAttempt, 'failed')
+        session.settlePaneAttachAttempt('failed')
         return
       }
       warnTerminalLifecycleAnomaly('restored PTY reattach threw', {
@@ -164,24 +193,11 @@ export function startDeferredSessionReattach(
         ptyId: deferredReattachSessionId,
         reason: message
       })
-      if (session.connectionId && isSshSessionGoneError(err)) {
-        session.clearExitedPanePtyLayoutBinding(deferredReattachSessionId)
-        session.deps.clearTabPtyId(session.deps.tabId, deferredReattachSessionId)
-        session.startFreshColdRestoreAgentResume(coldRestoreStartup, {
-          forceBlankRestoredViewport: true
-        })
-        return
-      }
       session.reportError(message)
-      if (session.connectionId) {
-        recoverUnverifiableDirectSshReattach(session, deferredReattachSessionId)
-        return
-      }
       session.clearExitedPanePtyLayoutBinding(deferredReattachSessionId)
       session.deps.clearTabPtyId(session.deps.tabId, deferredReattachSessionId)
       session.startFreshColdRestoreAgentResume(coldRestoreStartup, {
         forceBlankRestoredViewport: true
       })
     })
-  session.armDirectSshPaneRetryTimeout(trackedReattachPromise, session.directSshRetryAttempt)
 }

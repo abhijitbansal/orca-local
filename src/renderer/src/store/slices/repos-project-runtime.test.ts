@@ -90,9 +90,13 @@ describe('repo slice project runtime updates', () => {
       isRefreshingAgents: true
     })
 
-    await store.getState().updateProject(project.id, {
-      localWindowsRuntimePreference: { kind: 'windows-host' }
-    })
+    await store.getState().updateProject(
+      project.id,
+      {
+        localWindowsRuntimePreference: { kind: 'windows-host' }
+      },
+      'local'
+    )
 
     expect(store.getState().detectedAgentIds).toBeNull()
     expect(store.getState().isDetectingAgents).toBe(false)
@@ -126,7 +130,7 @@ describe('repo slice project runtime updates', () => {
     reposList.mockResolvedValue([localRepo])
     const store = createTestStore()
 
-    await store.getState().fetchRepos()
+    await store.getState().fetchRepos(catalogOwner(store))
 
     expect(store.getState().projects).toEqual([project])
     expect(store.getState().projectHostSetups).toEqual([setup])
@@ -170,7 +174,7 @@ describe('repo slice project runtime updates', () => {
     const store = createTestStore()
     store.setState({ projects: [staleProject], projectHostSetups: [setup] })
 
-    await store.getState().fetchRepos()
+    await store.getState().fetchRepos(catalogOwner(store))
 
     expect(store.getState().projects[0]?.localWindowsRuntimePreference).toBeUndefined()
   })
@@ -191,9 +195,13 @@ describe('repo slice project runtime updates', () => {
     const store = createTestStore()
     store.setState({ projects: [project] })
 
-    await store.getState().updateProject(project.id, {
-      localWindowsRuntimePreference: { kind: 'windows-host' }
-    })
+    await store.getState().updateProject(
+      project.id,
+      {
+        localWindowsRuntimePreference: { kind: 'windows-host' }
+      },
+      'local'
+    )
 
     expect(store.getState().projects[0]?.localWindowsRuntimePreference).toEqual({
       kind: 'windows-host'
@@ -226,9 +234,13 @@ describe('repo slice project runtime updates', () => {
     const store = createTestStore()
     store.setState({ projects: [project] })
 
-    await store.getState().updateProject(project.id, {
-      localWindowsRuntimePreference: { kind: 'windows-host' }
-    })
+    await store.getState().updateProject(
+      project.id,
+      {
+        localWindowsRuntimePreference: { kind: 'windows-host' }
+      },
+      'local'
+    )
 
     expect(store.getState().projects[0]?.createdAt).toBe(100)
     expect(store.getState().projects[0]?.updatedAt).toBe(100)
@@ -252,9 +264,13 @@ describe('repo slice project runtime updates', () => {
     const store = createTestStore()
     store.setState({ projects: [project] })
 
-    await store.getState().updateProject(project.id, {
-      localWindowsRuntimePreference: { kind: 'windows-host' }
-    })
+    await store.getState().updateProject(
+      project.id,
+      {
+        localWindowsRuntimePreference: { kind: 'windows-host' }
+      },
+      'local'
+    )
 
     expect(store.getState().projects[0]?.sourceRepoIds).toEqual(['local-repo', 'remote-repo'])
     expect(store.getState().projects[0]?.localWindowsRuntimePreference).toEqual({
@@ -283,11 +299,22 @@ describe('repo slice project runtime updates', () => {
     const store = createTestStore()
     store.setState({ projects: [project] })
 
-    await store.getState().updateProject(project.id, {
-      localWindowsRuntimePreference: undefined
-    })
+    await store.getState().updateProject(
+      project.id,
+      {
+        localWindowsRuntimePreference: undefined
+      },
+      'local'
+    )
 
     expect(store.getState().projects[0]?.sourceRepoIds).toEqual(['local-repo', 'remote-repo'])
     expect(store.getState().projects[0]?.localWindowsRuntimePreference).toBeUndefined()
   })
 })
+
+// The catalog these tests read is the one the focused host would have shown.
+function catalogOwner(store: {
+  getState: () => { settings: { activeRuntimeEnvironmentId?: string | null } | null }
+}): { runtimeEnvironmentId: string | null } {
+  return { runtimeEnvironmentId: store.getState().settings?.activeRuntimeEnvironmentId ?? null }
+}

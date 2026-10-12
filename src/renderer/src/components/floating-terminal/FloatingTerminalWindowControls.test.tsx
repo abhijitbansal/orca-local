@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type * as ReactModule from 'react'
 import { toast } from 'sonner'
 import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../../shared/constants'
-import { resolveStructuredNativeChatSupport } from '../../../../shared/structured-native-chat-launch-route'
 import { FloatingTerminalWindowControls } from './FloatingTerminalWindowControls'
 
 type ReactElementLike = {
@@ -198,20 +197,5 @@ describe('FloatingTerminalWindowControls default-agent launch', () => {
 
     expect(toast.error).toHaveBeenCalledWith('Could not build launch command for Claude.')
     expect(mocks.focusTerminalTabSurface).not.toHaveBeenCalled()
-  })
-
-  // Why: a floating window has nowhere to keep a structured session, so the launch must resolve a
-  // terminal. Pinned against the shared resolver the launcher routes on, not a restatement here.
-  it('keeps the floating workspace off the structured route', () => {
-    // `claude` is a structured-session provider on a local host, so `floating-workspace` is the
-    // only blocker that can produce this result — any other answer means the kind stopped deciding.
-    expect(
-      resolveStructuredNativeChatSupport({
-        agent: 'claude',
-        executionHostId: 'local',
-        hostCapabilities: null,
-        workspaceKind: 'floating'
-      })
-    ).toEqual({ supported: false, blocker: 'floating-workspace' })
   })
 })
