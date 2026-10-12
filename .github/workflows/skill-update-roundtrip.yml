@@ -48,6 +48,10 @@ jobs:
           fetch-depth: 0
           filter: blob:none
           persist-credentials: false
+      # Why: this fork publishes only -local tags; historical snapshots are read from upstream release tags.
+      - name: Fetch upstream release tags
+        shell: bash
+        run: git fetch --quiet --no-tags --filter=blob:none https://github.com/stablyai/orca.git 'refs/tags/v*:refs/tags/v*'
       - uses: actions/setup-node@v6
         with:
           node-version-file: package.json
