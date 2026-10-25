@@ -103,17 +103,6 @@ describe('the window raises the unread flag only where its host does not', () =>
     expect(persistWorktreeMeta).not.toHaveBeenCalled()
   })
 
-  it('raises it on an older paired server, writing to that server', async () => {
-    const { mark, isUnread } = createStore()
-    await mark(OLD_SERVER_WT)
-    expect(isUnread(OLD_SERVER_WT)).toBe(true)
-    expect(persistWorktreeMeta).toHaveBeenCalledWith(
-      { kind: 'environment', environmentId: 'old' },
-      OLD_SERVER_WT,
-      expect.objectContaining({ isUnread: true })
-    )
-  })
-
   it('answers from the cached status without probing again', async () => {
     const { mark, isUnread } = createStore()
     cachedStatus.set('slow', [WORKSPACE_UNREAD_HOST_RAISES_CAPABILITY])

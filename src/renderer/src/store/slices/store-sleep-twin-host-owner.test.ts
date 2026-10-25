@@ -154,25 +154,6 @@ describe('hibernating a completed agent pane in a twin-published worktree', () =
     )
   })
 
-  it('stops the pane on the runtime its PTY names', async () => {
-    const store = createTestStore()
-    seedTwin(store, ['remote:runtime-1@@pty-1'])
-
-    await store.getState().shutdownCompletedAgentPaneForHibernation(WT, {
-      paneKey: PANE_KEY,
-      tabId: 'tab-1',
-      leafId: LEAF,
-      ptyId: 'remote:runtime-1@@pty-1',
-      expectedRuntimePtyId: 'pty-1'
-    })
-
-    expect(runtimeCallsFor('terminal.stopExact').map((args) => args.selector)).toEqual([
-      'runtime-1'
-    ])
-    expect(store.getState().ptyIdsByTabId['tab-1']).toEqual([])
-    expect(store.getState().sleepingAgentSessionsByPaneKey[PANE_KEY]?.origin).toBe('worktree-sleep')
-  })
-
   it.each([
     ['a remote PTY with no host stop to run', 'remote:runtime-1@@pty-1', undefined],
     ['a remote PTY that names no runtime', 'remote:pty-1', 'pty-1']

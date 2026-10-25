@@ -35,7 +35,19 @@ describe('createWorktree composer parent pick', () => {
 
   function createParentPickStore(parent?: Worktree) {
     const store = createTestStore()
-    store.setState({ worktreesByRepo: { repo1: parent ? [parent] : [] } } as Partial<AppState>)
+    store.setState({
+      repos: [
+        {
+          id: 'repo1',
+          path: '/path',
+          displayName: 'repo1',
+          badgeColor: '#000',
+          addedAt: 0,
+          kind: 'git'
+        }
+      ],
+      worktreesByRepo: { repo1: parent ? [parent] : [] }
+    } as Partial<AppState>)
     return store
   }
 

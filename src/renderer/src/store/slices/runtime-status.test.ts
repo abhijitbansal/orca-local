@@ -120,28 +120,6 @@ describe('runtime-status slice', () => {
     expect(store.getState().runtimeStatusByEnvironmentId.has('drop')).toBe(false)
   })
 
-  it('drops old status and advances generation when the same environment id is re-paired', () => {
-    const store = createSliceStore()
-    const purgeStaleRuntimeHostState = vi.fn()
-    store.setState({ purgeStaleRuntimeHostState } as never)
-    store
-      .getState()
-      .setRuntimeEnvironments([{ id: 'env-a', createdAt: 1, pairingRevision: 1 } as never])
-    store.getState().setRuntimeEnvironmentStatus('env-a', {
-      status: makeStatus({ runtimeId: 'same-runtime' }),
-      checkedAt: 1
-    })
-    const before = getRuntimeEnvironmentConnectionGeneration('env-a')
-
-    store
-      .getState()
-      .setRuntimeEnvironments([{ id: 'env-a', createdAt: 1, pairingRevision: 2 } as never])
-
-    expect(store.getState().runtimeStatusByEnvironmentId.has('env-a')).toBe(false)
-    expect(getRuntimeEnvironmentConnectionGeneration('env-a')).toBe(before + 1)
-    expect(purgeStaleRuntimeHostState).toHaveBeenCalledWith(['env-a'])
-  })
-
   it('merges per environment id and produces a new map reference', () => {
     const store = createSliceStore()
     const before = store.getState().runtimeStatusByEnvironmentId

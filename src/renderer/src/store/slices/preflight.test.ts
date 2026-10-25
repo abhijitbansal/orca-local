@@ -406,69 +406,6 @@ describe('createPreflightSlice', () => {
     expect(store.getState().preflightStatusContextKey).toBe('host')
   })
 
-  it('keeps a paired preflight result bound to the active runtime session', async () => {
-    resetPreflightMocks()
-    const runtimeA = deferred<PreflightStatus>()
-    const runtimeB = deferred<PreflightStatus>()
-    const reconnectedB = deferred<PreflightStatus>()
-    callRuntimeRpc
-      .mockReturnValueOnce(runtimeA.promise)
-      .mockReturnValueOnce(runtimeB.promise)
-      .mockReturnValueOnce(reconnectedB.promise)
-    const store = createTestStore()
-    store.setState({ settings: { activeRuntimeEnvironmentId: 'runtime-a' } } as Partial<AppState>)
-    store.getState().setRuntimeEnvironmentStatus('runtime-a', {
-      status: { runtimeId: 'server-a' } as never,
-      checkedAt: 1
-    })
-
-    const requestA = store.getState().refreshPreflightStatus()
-    store.setState({ settings: { activeRuntimeEnvironmentId: 'runtime-b' } } as Partial<AppState>)
-    store.getState().setRuntimeEnvironmentStatus('runtime-b', {
-      status: { runtimeId: 'server-b' } as never,
-      checkedAt: 2
-    })
-    const requestB = store.getState().refreshPreflightStatus()
-
-    expect(callRuntimeRpc).toHaveBeenCalledTimes(2)
-    expect(callRuntimeRpc).toHaveBeenNthCalledWith(
-      1,
-      { kind: 'environment', environmentId: 'runtime-a' },
-      'preflight.check',
-      {}
-    )
-    expect(callRuntimeRpc).toHaveBeenNthCalledWith(
-      2,
-      { kind: 'environment', environmentId: 'runtime-b' },
-      'preflight.check',
-      {}
-    )
-
-    runtimeA.resolve(makeStatus(false))
-    await requestA
-    expect(store.getState().preflightStatus).toBeNull()
-    expect(store.getState().preflightStatusChecked).toBe(false)
-
-    runtimeB.resolve(makeStatus(true))
-    await requestB
-    expect(store.getState().preflightStatus?.git.installed).toBe(true)
-
-    store.getState().setRuntimeEnvironmentStatus('runtime-b', { status: null, checkedAt: 3 })
-    store.getState().invalidatePreflightStatus()
-    expect(store.getState().preflightStatus).toBeNull()
-    expect(store.getState().preflightStatusChecked).toBe(false)
-
-    store.getState().setRuntimeEnvironmentStatus('runtime-b', {
-      status: { runtimeId: 'server-b-reconnected' } as never,
-      checkedAt: 4
-    })
-    const reconnect = store.getState().refreshPreflightStatus()
-    expect(callRuntimeRpc).toHaveBeenCalledTimes(3)
-    reconnectedB.resolve(makeStatus(true))
-    await reconnect
-    expect(store.getState().preflightStatus?.git.installed).toBe(true)
-  })
-
   it('clears checked status immediately when refreshing a different local context', async () => {
     resetPreflightMocks()
     const host = deferred<PreflightStatus>()

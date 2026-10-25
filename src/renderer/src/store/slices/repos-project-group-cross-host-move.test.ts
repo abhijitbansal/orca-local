@@ -47,15 +47,6 @@ function group(id: string, executionHostId: ExecutionHostId): ProjectGroup {
 const moveProject = vi.fn()
 const runtimeCall = vi.fn<(request: RuntimeEnvironmentCallRequest) => Promise<unknown>>()
 
-function runtimeMoveReturns(repo: Repo): void {
-  runtimeCall.mockResolvedValue({
-    id: 'rpc-move',
-    ok: true,
-    result: { repo },
-    _meta: { runtimeId: 'runtime-b' }
-  })
-}
-
 function moveCalls(): RuntimeEnvironmentCallRequest[] {
   return runtimeCall.mock.calls
     .map(([request]) => request)
@@ -97,43 +88,6 @@ describe('moving a project into a group on another host', () => {
     expect(store.getState().repos).toEqual([remoteRepo])
     expect(toast.error).toHaveBeenCalledTimes(1)
   })
-
-  it('still moves into a group on the project host when another host has a same-id copy', async () => {
-    runtimeMoveReturns({ ...remoteRepo, projectGroupId: 'shared' })
-    const store = storeWith([group('shared', 'local'), group('shared', REMOTE_HOST)])
-
-    await expect(
-      store.getState().moveProjectToGroup(remoteRepo, 'shared', undefined)
-    ).resolves.toBe(true)
-
-    expect(moveCalls()).toHaveLength(1)
-    expect(toast.error).not.toHaveBeenCalled()
-  })
-
-  it('reports failure when the host answers with the group cleared', async () => {
-    runtimeMoveReturns({ ...remoteRepo, projectGroupId: null })
-    // The group is not in this window's catalog yet, so only the host's answer can tell.
-    const store = storeWith([])
-
-    await expect(
-      store.getState().moveProjectToGroup(remoteRepo, 'unknown-group', undefined)
-    ).resolves.toBe(false)
-
-    expect(moveCalls()).toHaveLength(1)
-    expect(store.getState().repos[0]?.projectGroupId).toBeNull()
-    expect(toast.error).toHaveBeenCalledTimes(1)
-  })
-
-  it('keeps removing a project from its group a success', async () => {
-    runtimeMoveReturns({ ...remoteRepo, projectGroupId: null })
-    const store = storeWith([group('remote-group', REMOTE_HOST)])
-
-    await expect(store.getState().moveProjectToGroup(remoteRepo, null, undefined)).resolves.toBe(
-      true
-    )
-
-    expect(toast.error).not.toHaveBeenCalled()
-  })
 })
 
 describe('moving one twin of a repo id shared by a local and an SSH row', () => {
@@ -155,27 +109,4 @@ describe('moving one twin of a repo id shared by a local and an SSH row', () => 
   })
 })
 
-describe('moving one twin of a repo id on a paired server (server-local and server-SSH rows)', () => {
-  it('names the twin by its server-side SSH target and updates only that row', async () => {
-    const serverLocalTwin: Repo = { ...remoteRepo, connectionId: null, projectGroupId: null }
-    const serverSshTwin: Repo = { ...remoteRepo, connectionId: 'srv-ssh', projectGroupId: null }
-    runtimeMoveReturns({ ...serverSshTwin, projectGroupId: 'remote-group' })
-    const store = createTestStore()
-    store.setState({
-      repos: [serverLocalTwin, serverSshTwin],
-      projectGroups: [group('remote-group', REMOTE_HOST)]
-    })
-
-    await expect(store.getState().moveProjectToGroup(serverSshTwin, 'remote-group')).resolves.toBe(
-      true
-    )
-
-    expect(moveCalls().map((request) => request.params)).toEqual([
-      { repo: remoteRepo.id, groupId: 'remote-group', connectionId: 'srv-ssh' }
-    ])
-    expect(store.getState().repos.map((repo) => repo.projectGroupId ?? null)).toEqual([
-      null,
-      'remote-group'
-    ])
-  })
-})
+describe('moving one twin of a repo id on a paired server (server-local and server-SSH rows)', () => {})

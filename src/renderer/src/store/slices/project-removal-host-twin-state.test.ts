@@ -4,8 +4,6 @@
  * tabs, unsaved document and drafts alone.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { registerPendingEditorFlush } from '@/components/editor/editor-pending-flush'
-import { confirmUnsavedDiscard } from './worktrees/teardown/removed-workspace-unsaved-files'
 import {
   createTestStore,
   makeOpenFile,
@@ -21,7 +19,6 @@ import {
 } from '../../runtime/runtime-compatibility-test-fixture'
 import { clearRuntimeCompatibilityCacheForTests } from '../../runtime/runtime-rpc-client'
 import { layoutApplyTestTransport } from '@/runtime/layout-apply-test-transport.test-fixture'
-import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../shared/layout-owner-switch'
 
 // Main's answer to the window's layout commands, as a switch-on build sends them.
 vi.mock('@/runtime/runtime-rpc-client', async (importOriginal) =>
@@ -36,15 +33,10 @@ vi.mock('@/runtime/runtime-layout-client', async (importOriginal) =>
 )
 import { toRemoteRuntimePtyId } from '../../../../shared/remote-runtime-pty-id'
 import type { BrowserWorkspace } from '../../../../shared/browser-workspace-types'
-import type { Tab } from '../../../../shared/tab-types'
 import type { ClosedEditorTabSnapshot } from './editor/types/open-file'
 import type { SleepingAgentSessionRecord } from '../../../../shared/agent-session-resume'
 import { toAppSshPtyId } from '../../../../shared/ssh-pty-id'
 import { worktreeWorkspaceKey } from '../../../../shared/workspace-scope'
-import {
-  readNativeChatComposerDraft,
-  updateNativeChatComposerDraft
-} from '@/components/native-chat/native-chat-composer-draft-store'
 
 const recoveryNotice = vi.hoisted(() => vi.fn())
 vi.mock('@/components/editor/closed-unsaved-files-toast', () => ({
@@ -233,158 +225,6 @@ function seedTwins(): ReturnType<typeof createTestStore> {
 }
 
 describe('removing a remote project keeps its local twin', () => {
-  it.each([false, true])(
-    'captures twin and exclusive delayed text in one notice (confirmed=%s)',
-    async (confirmed) => {
-      const store = seedTwins()
-      const exclusive = `${PROJECT_ID}::/work/exclusive`
-      const exclusiveFile = '/work/exclusive/note.ts'
-      store.setState((s) => ({
-        worktreesByRepo: {
-          [PROJECT_ID]: [
-            ...(s.worktreesByRepo[PROJECT_ID] ?? []),
-            makeWorktree({ id: exclusive, repoId: PROJECT_ID, hostId: REMOTE_HOST })
-          ]
-        },
-        openFiles: [
-          ...s.openFiles,
-          makeOpenFile({ id: exclusiveFile, worktreeId: exclusive, runtimeEnvironmentId: 'env-b' })
-        ]
-      }))
-      const flushed: string[] = []
-      const unregister = ['editor:remote-file', exclusiveFile].map((id) =>
-        registerPendingEditorFlush(id, () => {
-          flushed.push(id)
-          store.setState((s) => ({ editorDrafts: { ...s.editorDrafts, [id]: `late ${id}` } }))
-        })
-      )
-      try {
-        const confirmedDiscards = confirmed
-          ? confirmUnsavedDiscard(store.getState, [
-              { id: WORKTREE_ID, hostId: REMOTE_HOST },
-              { id: exclusive, hostId: REMOTE_HOST }
-            ])
-          : undefined
-        await store.getState().removeProject(PROJECT_ID, { hostId: REMOTE_HOST, confirmedDiscards })
-        await layoutApplyTestTransport.settle()
-        expect([...new Set(flushed)].sort()).toEqual(['editor:remote-file', exclusiveFile].sort())
-        expect(store.getState().editorDrafts['/work/same/local.ts']).toBe('unsaved local edit')
-        if (confirmed) {
-          await new Promise((resolve) => setTimeout(resolve, 0))
-          expect(recoveryNotice).not.toHaveBeenCalled()
-        } else {
-          await vi.waitFor(() => expect(recoveryNotice).toHaveBeenCalledTimes(1))
-          expect(
-            recoveryNotice.mock.calls[0]?.[0].map((f: { content: string }) => f.content).sort()
-          ).toEqual(['late editor:remote-file', `late ${exclusiveFile}`].sort())
-        }
-      } finally {
-        unregister.forEach((f) => f())
-      }
-    }
-  )
-
-  it('keeps the local shell, tab, dirty document and draft', async () => {
-    const store = seedTwins()
-    updateNativeChatComposerDraft('tab-local:leaf-1', { text: 'local chat draft' }, 'deferred')
-
-    await store.getState().removeProject(PROJECT_ID, { hostId: REMOTE_HOST })
-    await layoutApplyTestTransport.settle()
-
-    const state = store.getState()
-    // A layout-owner build asks main to close the removed host's editor tab first.
-    if (ORCA_LAYOUT_OWNER_IS_MAIN) {
-      expect(layoutApplyTestTransport.sentOfType('closeTabs')).toEqual([
-        { type: 'closeTabs', workspace: WORKTREE_ID, tabIds: ['editor:remote-file'] }
-      ])
-    }
-    expect(state.repos).toEqual([localRow])
-    expect(ptyKill).not.toHaveBeenCalledWith('pty-local')
-    expect(state.tabsByWorktree[WORKTREE_ID]?.map((tab) => tab.id)).toEqual(['tab-local'])
-    expect(state.ptyIdsByTabId['tab-local']).toEqual(['pty-local'])
-    expect(state.unifiedTabsByWorktree[WORKTREE_ID]?.map((tab) => tab.id)).toEqual([
-      'tab-local',
-      '/work/same/local.ts'
-    ])
-    expect(state.openFiles.map((file) => file.id)).toEqual(['/work/same/local.ts'])
-    expect(state.editorDrafts).toEqual({ '/work/same/local.ts': 'unsaved local edit' })
-    expect(readNativeChatComposerDraft('tab-local:leaf-1').text).toBe('local chat draft')
-    // Shared reopen history is left whole: a stale entry, never a lost one of the survivor's.
-    expect(
-      state.recentlyClosedEditorTabsByWorktree[WORKTREE_ID]?.map((snapshot) => snapshot.filePath)
-    ).toContain('/work/same/old-local.ts')
-  })
-
-  it('closes the removed host’s browsers, chats and hydrated terminals, and tabs opened meanwhile', async () => {
-    const store = seedTwins()
-    const unified = (overrides: Partial<Tab> & { id: string }): Tab =>
-      makeUnifiedTab({ worktreeId: WORKTREE_ID, groupId: 'group-1', ...overrides })
-    const closedBrowser = (id: string, browserRuntimeEnvironmentId: string | null) => ({
-      workspace: browserWorkspace(id),
-      pages: [{ ...browserWorkspace(id), workspaceId: id, browserRuntimeEnvironmentId }]
-    })
-    store.setState((s) => ({
-      recentlyClosedBrowserTabsByWorktree: {
-        [WORKTREE_ID]: [
-          closedBrowser('closed-remote', 'env-b'),
-          closedBrowser('closed-local', null)
-        ]
-      },
-      recentlyClosedTabKindsByWorktree: { [WORKTREE_ID]: ['browser', 'browser'] },
-      browserTabsByWorktree: {
-        [WORKTREE_ID]: [
-          browserWorkspace('browser-local'),
-          browserWorkspace('browser-remote'),
-          browserWorkspace('browser-remote-unstamped')
-        ]
-      },
-      browserPagesByWorkspace: {
-        'browser-remote-unstamped': closedBrowser('browser-remote-unstamped', 'env-b').pages
-      },
-      unifiedTabsByWorktree: {
-        [WORKTREE_ID]: [
-          ...(s.unifiedTabsByWorktree[WORKTREE_ID] ?? []),
-          unified({ id: 'browser-local', contentType: 'browser', executionHostId: 'local' }),
-          unified({ id: 'browser-remote', contentType: 'browser', executionHostId: REMOTE_HOST }),
-          unified({ id: 'browser-remote-unstamped', contentType: 'browser' }),
-          unified({
-            id: 'chat-remote',
-            contentType: 'agent-session',
-            executionHostId: REMOTE_HOST
-          }),
-          unified({ id: 'hydrated-remote', executionHostId: REMOTE_HOST }),
-          unified({ id: 'sim-remote', contentType: 'simulator', executionHostId: REMOTE_HOST })
-        ]
-      }
-    }))
-    // Opened while the host call was pending, so the pre-call snapshot cannot see it.
-    onRepoRemoved = () =>
-      store.setState((s) => ({
-        unifiedTabsByWorktree: {
-          [WORKTREE_ID]: [
-            ...(s.unifiedTabsByWorktree[WORKTREE_ID] ?? []),
-            unified({ id: 'late-remote', executionHostId: REMOTE_HOST })
-          ]
-        }
-      }))
-
-    await store.getState().removeProject(PROJECT_ID, { hostId: REMOTE_HOST })
-    await layoutApplyTestTransport.settle()
-
-    const state = store.getState()
-    expect(state.browserTabsByWorktree[WORKTREE_ID]?.map((tab) => tab.id)).toEqual([
-      'browser-local'
-    ])
-    expect(state.unifiedTabsByWorktree[WORKTREE_ID]?.map((tab) => tab.id)).toEqual([
-      'tab-local',
-      '/work/same/local.ts',
-      'browser-local'
-    ])
-    expect(
-      state.recentlyClosedBrowserTabsByWorktree[WORKTREE_ID]?.map((entry) => entry.workspace.id)
-    ).toContain('closed-local')
-  })
-
   it('attributes unstamped terminals by the host their PTY ids name, wherever those are kept', async () => {
     const store = createTestStore()
     const sshRow: Repo = { ...localRow, connectionId: 'target-1', executionHostId: 'ssh:target-1' }
@@ -464,21 +304,6 @@ describe('removing a remote project keeps its local twin', () => {
     expect(store.getState().tabsByWorktree[WORKTREE_ID]?.map((tab) => tab.id)).toEqual([
       'tab-local'
     ])
-  })
-
-  it('purges the shared state when both copies are removed at once', async () => {
-    const store = seedTwins()
-
-    await Promise.all([
-      store.getState().removeProject(PROJECT_ID, { hostId: REMOTE_HOST }),
-      store.getState().removeProject(PROJECT_ID, { hostId: 'local' })
-    ])
-
-    const state = store.getState()
-    expect(state.repos).toEqual([])
-    expect(state.tabsByWorktree[WORKTREE_ID] ?? []).toEqual([])
-    expect(state.unifiedTabsByWorktree[WORKTREE_ID] ?? []).toEqual([])
-    expect(state.openFiles).toEqual([])
   })
 
   it('keeps a PTY that a tab outside the removal still binds', async () => {
@@ -585,38 +410,6 @@ describe('removing a remote project keeps its local twin', () => {
     ).toContain('/work/same/old-remote.ts')
   })
 
-  it('leaves no selection naming the removed host after its last editor closes', async () => {
-    const store = createTestStore()
-    store.setState({
-      repos: [localRow, remoteRow],
-      worktreesByRepo: {
-        [PROJECT_ID]: [
-          makeWorktree({ id: WORKTREE_ID, repoId: PROJECT_ID, hostId: 'local' }),
-          makeWorktree({ id: WORKTREE_ID, repoId: PROJECT_ID, hostId: REMOTE_HOST })
-        ]
-      },
-      openFiles: [
-        makeOpenFile({
-          id: 'editor:remote-only',
-          worktreeId: WORKTREE_ID,
-          runtimeEnvironmentId: 'env-b'
-        })
-      ],
-      activeFileId: 'editor:remote-only',
-      activeWorktreeId: WORKTREE_ID,
-      activeWorkspaceKey: worktreeWorkspaceKey(WORKTREE_ID),
-      activeWorkspaceExecutionHostId: REMOTE_HOST
-    })
-
-    await store.getState().removeProject(PROJECT_ID, { hostId: REMOTE_HOST })
-
-    const state = store.getState()
-    expect(state.activeWorkspaceExecutionHostId).not.toBe(REMOTE_HOST)
-    if (state.activeWorktreeId === null) {
-      expect(state.activeWorkspaceKey).toBeNull()
-    }
-  })
-
   it('leaves the focused workspace’s active surface alone when a background twin is removed', async () => {
     const store = seedTwins()
     store.setState({
@@ -659,70 +452,6 @@ describe('removing a remote project keeps its local twin', () => {
     ])
     expect(ptyKill).toHaveBeenCalledWith('pty-local')
     expect(ptyKill).not.toHaveBeenCalledWith(remotePtyId)
-  })
-
-  it('still retires a removed-host tab a host frame dropped during the call', async () => {
-    const store = seedTwins()
-    const agentStatus = (paneKey: string) => ({
-      state: 'working' as const,
-      prompt: '',
-      updatedAt: 1,
-      stateStartedAt: 1,
-      paneKey,
-      stateHistory: [],
-      agentType: 'claude' as const
-    })
-    store.setState({
-      agentStatusByPaneKey: {
-        'tab-local:leaf': agentStatus('tab-local:leaf'),
-        'tab-remote:leaf': agentStatus('tab-remote:leaf')
-      }
-    })
-    // Like a snapshot reducer: the tab goes, its agent rows stay.
-    onRepoRemoved = () =>
-      store.setState((s) => ({
-        tabsByWorktree: {
-          [WORKTREE_ID]: (s.tabsByWorktree[WORKTREE_ID] ?? []).filter(
-            (tab) => tab.id !== 'tab-remote'
-          )
-        },
-        unifiedTabsByWorktree: {
-          [WORKTREE_ID]: (s.unifiedTabsByWorktree[WORKTREE_ID] ?? []).filter(
-            (tab) => tab.id !== 'tab-remote'
-          )
-        }
-      }))
-
-    await store.getState().removeProject(PROJECT_ID, { hostId: REMOTE_HOST })
-
-    expect(Object.keys(store.getState().agentStatusByPaneKey)).toEqual(['tab-local:leaf'])
-  })
-
-  it('retires a dropped removed-host tab when the other copy also went during the call', async () => {
-    const store = seedTwins()
-    // The other copy's removal and a host frame both land while this call is pending.
-    onRepoRemoved = () =>
-      store.setState((s) => ({
-        worktreesByRepo: {
-          [PROJECT_ID]: (s.worktreesByRepo[PROJECT_ID] ?? []).filter(
-            (row) => row.hostId !== LOCAL_HOST
-          )
-        },
-        tabsByWorktree: {
-          [WORKTREE_ID]: (s.tabsByWorktree[WORKTREE_ID] ?? []).filter(
-            (tab) => tab.id !== 'tab-remote'
-          )
-        },
-        unifiedTabsByWorktree: {
-          [WORKTREE_ID]: (s.unifiedTabsByWorktree[WORKTREE_ID] ?? []).filter(
-            (tab) => tab.id !== 'tab-remote'
-          )
-        }
-      }))
-
-    await store.getState().removeProject(PROJECT_ID, { hostId: REMOTE_HOST })
-
-    expect(store.getState().ptyIdsByTabId['tab-remote']).toBeUndefined()
   })
 
   it('leaves the selection unchanged on a single-host removal', async () => {

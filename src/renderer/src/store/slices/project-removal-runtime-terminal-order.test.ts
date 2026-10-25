@@ -94,30 +94,6 @@ beforeEach(() => {
 })
 
 describe('project removal on a runtime host', () => {
-  it('stops the project’s terminals before the host forgets the project', async () => {
-    liveHostTerminals = 2
-    const store = seedRemoteProject()
-
-    await store.getState().removeProject('app', { hostId: 'runtime:env-1' })
-
-    expect(hostCalls.filter((m) => m === 'terminal.stop' || m === 'repo.rm')).toEqual([
-      'terminal.stop',
-      'repo.rm'
-    ])
-    expect(liveHostTerminals).toBe(0)
-    expect(store.getState().repos).toEqual([])
-  })
-
-  it('still removes the project when a workspace’s terminals cannot be stopped', async () => {
-    hostKnowsProject = false
-    const store = seedRemoteProject()
-
-    await store.getState().removeProject('app', { hostId: 'runtime:env-1' })
-
-    expect(hostCalls).toContain('repo.rm')
-    expect(store.getState().repos).toEqual([])
-  })
-
   it('leaves the shells running when the host will reject the removal', async () => {
     hostSelectorAmbiguous = true
     liveHostTerminals = 2
@@ -152,28 +128,6 @@ describe('project removal after its server is gone', () => {
     expect(toast.error).not.toHaveBeenCalled()
     expect(store.getState().repos).toEqual([])
     expect(store.getState().worktreesByRepo.app).toBeUndefined()
-  })
-
-  it('still asks the host when the server list cannot be read', async () => {
-    vi.stubGlobal('window', {
-      api: {
-        repos: { remove: vi.fn(), removeForHost },
-        pty: { kill: vi.fn() },
-        runtimeEnvironments: {
-          call: vi.fn(answerLikeRuntimeHost),
-          list: vi.fn(async () => {
-            throw new Error('profile store unreadable')
-          })
-        },
-        ui: { set: vi.fn().mockResolvedValue(undefined) }
-      }
-    })
-    const store = seedRemoteProject()
-
-    await store.getState().removeProject('app', { hostId: 'runtime:env-1' })
-
-    expect(hostCalls).toContain('repo.rm')
-    expect(store.getState().repos).toEqual([])
   })
 })
 

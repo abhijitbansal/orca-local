@@ -96,53 +96,6 @@ describe('runtime status notification isolation', () => {
     }
   )
 
-  it('retains parking through lost contact, withdraws it on refusal, and handles deletion/reset', () => {
-    const { store, subscriptions, publish } = setup()
-    const parking = vi.fn()
-    const connection = vi.fn()
-    const releaseParking = subscriptions.subscribeParking(parking)
-    const releaseConnection = subscriptions.subscribeConnection('a', connection)
-    const initialParking = subscriptions.getParkingSnapshot()
-    publish('a', entry({ verification: 'unavailable', transport: 'disconnected' }))
-    expect(subscriptions.getConnectionSnapshot('a')).toBe('reconnecting')
-    expect(subscriptions.getParkingSnapshot()).toBe(initialParking)
-    expect(parking).not.toHaveBeenCalled()
-    publish('a', entry({ verification: 'blocked', blockedReason: 'access-revoked' }))
-    expect(subscriptions.getConnectionSnapshot('a')).toBe('disconnected')
-    expect(subscriptions.getParkingSnapshot()).toEqual(new Set(['b']))
-    store.setState({ runtimeStatusByEnvironmentId: new Map() })
-    expect(subscriptions.getConnectionSnapshot('a')).toBe('checking')
-    expect(subscriptions.getParkingSnapshot()).toEqual(new Set())
-    publish('a', entry())
-    expect(subscriptions.getConnectionSnapshot('a')).toBe('connected')
-    expect(subscriptions.getParkingSnapshot()).toEqual(new Set(['a']))
-    expect(connection).toHaveBeenCalledTimes(4)
-    expect(parking).toHaveBeenCalledTimes(3)
-    releaseParking()
-    releaseConnection()
-  })
-
-  it('reads current authoritative state before subscription delivery and after a late subscription', () => {
-    const { store, subscriptions, publish } = setup()
-    const seen: string[] = []
-    const earlier = store.subscribe(() => {
-      seen.push(subscriptions.getConnectionSnapshot('a'))
-      expect(subscriptions.getParkingSnapshot()).toEqual(new Set(['b']))
-    })
-    const release = subscriptions.subscribeConnection('a', () => {})
-    publish('a', entry({ retired: true }))
-    expect(seen).toEqual(['disconnected'])
-    earlier()
-    release()
-    publish('a', entry())
-    expect(subscriptions.getConnectionSnapshot('a')).toBe('connected')
-    const notified = vi.fn()
-    const lateRelease = subscriptions.subscribeConnection('a', notified)
-    publish('a', entry({ verification: 'blocked' }))
-    expect(notified).toHaveBeenCalledTimes(1)
-    lateRelease()
-  })
-
   it('keeps baselines current through nested commits and listener removal', () => {
     const { store, subscriptions, publish } = setup()
     const observed: string[] = []

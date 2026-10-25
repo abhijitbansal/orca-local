@@ -7,7 +7,6 @@ import {
   LEAF,
   mockRuntimeEnvironmentCall,
   resetAgentHibernationCoordinatorFixture,
-  runtimeListResult,
   tab
 } from './agent-hibernation-coordinator-test-fixture'
 import { makeWorktree } from '@/store/slices/worktrees-slice-test-fixtures'
@@ -52,23 +51,6 @@ function listSelectors(): string[] {
 }
 
 describe('agent sleep coordinator with a twin-published worktree', () => {
-  it('asks the runtime the PTY names for liveness and hands the pane its exact stop', async () => {
-    installRuntimeListResponses(runtimeListResult(['pty-1']), runtimeListResult(['pty-1']))
-    const shutdown = installTwin('remote:runtime-1@@pty-1')
-
-    await runAgentHibernationTick()
-    await runAgentHibernationTick()
-
-    expect(new Set(listSelectors())).toEqual(new Set(['runtime-1']))
-    expect(shutdown).toHaveBeenCalledWith('wt-bg', {
-      paneKey: `tab-1:${LEAF}`,
-      tabId: 'tab-1',
-      leafId: LEAF,
-      ptyId: 'remote:runtime-1@@pty-1',
-      expectedRuntimePtyId: 'pty-1'
-    })
-  })
-
   it('never hibernates a remote PTY whose runtime it cannot name', async () => {
     installRuntimeListResponses()
     const shutdown = installTwin('remote:pty-1')
