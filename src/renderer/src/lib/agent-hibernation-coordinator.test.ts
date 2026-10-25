@@ -336,7 +336,6 @@ describe('agent sleep coordinator', () => {
   it('uses fresh store state after awaiting runtime liveness before shutdown', async () => {
     vi.useFakeTimers()
     const delayed = deferred<ReturnType<typeof runtimeListResult>>()
-    const recheckStarted = deferred<void>()
     const responses: (
       | ReturnType<typeof runtimeListResult>
       | Promise<ReturnType<typeof runtimeListResult>>
@@ -347,9 +346,6 @@ describe('agent sleep coordinator', () => {
         return Promise.resolve(compatible)
       }
       if (args.method === 'terminal.list') {
-        if (responses.length === 1) {
-          recheckStarted.resolve(undefined)
-        }
         return Promise.resolve(responses.shift() ?? runtimeListResult(['pty-1'])).then(
           (result) => ({
             id: 'terminal-list',
@@ -376,12 +372,11 @@ describe('agent sleep coordinator', () => {
     })
     startAgentHibernationCoordinator({ intervalMs: 1000, now: () => NOW })
 
-    await runAgentHibernationTick()
-    const tick = runAgentHibernationTick()
-    await recheckStarted.promise
+    await vi.advanceTimersByTimeAsync(1000)
+    await vi.advanceTimersByTimeAsync(1000)
     setForegroundTerminalTabIds(['tab-1'])
     delayed.resolve(runtimeListResult(['pty-1']))
-    await tick
+    await Promise.resolve()
 
     expect(shutdown).not.toHaveBeenCalled()
   })

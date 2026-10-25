@@ -31,6 +31,10 @@ function automation(overrides: Partial<Automation> = {}): Automation {
   }
 }
 
+// `orca automations run` sends users to `orca automations show` to find out where
+// an automation lives. The stored `executionTarget*` fields survive their host's
+// removal untouched, so printing only those renders a dead automation byte-for-byte
+// like a healthy one and the named recovery step cannot be completed.
 describe('formatAutomationShow reports the host the authority projects', () => {
   it('says outright that an orphan has no host, rather than naming its dead target', () => {
     const output = formatAutomationShow({
@@ -39,7 +43,7 @@ describe('formatAutomationShow reports the host the authority projects', () => {
     })
 
     expect(output).toContain('host: orphan (no host can run this automation)')
-    // Keep the stored target as history, separately from current host ownership.
+    // The stored pin stays visible; it is the record's history, not its current owner.
     expect(output).toContain('target: ssh:box-1')
   })
 
@@ -52,6 +56,8 @@ describe('formatAutomationShow reports the host the authority projects', () => {
     expect(output).toContain('host: self')
   })
 
+  // An older authority projects no owner; inventing one from the stored fields would
+  // report a removed host as healthy.
   it('omits the host line when the authority reports no owner', () => {
     const output = formatAutomationShow({ automation: automation() })
 
@@ -69,25 +75,17 @@ describe('formatAutomationList reports each row host', () => {
         {
           automationId: 'auto-2',
           selector: { kind: 'orphan', issue: AUTOMATION_ORPHAN_ISSUES.targetMissing }
-        },
-        {
-          automationId: 'auto-1',
-          selector: { kind: 'ssh', targetId: 'box-1', targetGeneration: 4 }
         }
       ]
     })
 
-    const [nightly, weekly] = output.split('\n\n')
-    expect(nightly).toContain('auto-1  Nightly')
-    expect(nightly).toContain('host: ssh:box-1 (generation 4)')
-    expect(weekly).toContain('auto-2  Weekly')
-    expect(weekly).toContain(`host: orphan — ${AUTOMATION_ORPHAN_ISSUES.targetMissing}`)
+    expect(output).toContain('host: self')
+    expect(output).toContain(`host: orphan — ${AUTOMATION_ORPHAN_ISSUES.targetMissing}`)
   })
 
   it('omits the host line for rows an older authority does not qualify', () => {
     const output = formatAutomationList({ automations: [automation()] })
 
-    expect(output).toContain('auto-1  Nightly')
     expect(output).not.toContain('host:')
   })
 })

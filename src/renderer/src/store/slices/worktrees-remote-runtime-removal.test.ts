@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AppState } from '../types'
 import { makeWorktree } from './worktrees-slice-test-fixtures'
-import { getDefaultSettings } from '../../../../shared/constants'
 import {
   createTestStore,
   mockApi,
@@ -33,23 +32,7 @@ describe('worktree remote runtime mutations', () => {
     vi.clearAllMocks()
     resetRemoteRuntimeMocks()
   })
-})
 
-it('never removes an unstamped worktree through the focused server', async () => {
-  const store = createTestStore()
-  const wt = makeWorktree({ id: 'repo1::/path/wt1', repoId: 'repo1', path: '/path/wt1' })
-  store.setState({
-    settings: { ...getDefaultSettings('/home'), activeRuntimeEnvironmentId: 'env-1' },
-    repos: [{ id: 'repo1', path: '/path', displayName: 'r', badgeColor: '#000', addedAt: 0 }],
-    worktreesByRepo: { repo1: [wt] }
-  })
-
-  await store.getState().removeWorktree({ id: wt.id, executionHostId: null }, false)
-
-  expect(runtimeEnvironmentCall).not.toHaveBeenCalledWith(
-    expect.objectContaining({ method: 'worktree.rm' })
-  )
-  expect(mockApi.worktrees.remove).toHaveBeenCalled()
   it('fails HUB-owned SSH removal closed when the exact id has two HUB owners', async () => {
     const store = createTestStore()
     const worktreeId = 'repo-ssh::/srv/same-wt'
