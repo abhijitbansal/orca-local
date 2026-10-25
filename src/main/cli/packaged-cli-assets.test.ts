@@ -45,7 +45,7 @@ const unixLauncherFixtures = [
     asset: darwinLauncherAsset,
     appDir: ['Orca.app'],
     launcher: ['Contents', 'Resources', 'bin', 'orca'],
-    executable: ['Contents', 'MacOS', 'Orca'],
+    executable: ['Contents', 'MacOS', 'Orca Local'],
     cli: ['Contents', 'Resources', 'app.asar.unpacked', 'out', 'cli', 'index.js']
   }
 ] as const
@@ -86,7 +86,7 @@ describe('packaged CLI assets', () => {
       )
       await mkdir(dirname(archive), { recursive: true })
       await writeFile(join(source, 'out', 'package.json'), JSON.stringify({ type: 'commonjs' }))
-      for (const name of ['zod', 'tweetnacl']) {
+      for (const name of ['zod']) {
         await cp(
           join(projectDir, 'node_modules', name),
           join(root, 'resources', 'node_modules', name),
@@ -112,8 +112,8 @@ describe('packaged CLI assets', () => {
           '--name',
           'packaged-link',
           '--no-parent',
-          '--pr',
-          '0',
+          '--setup',
+          'bogus',
           '--json'
         ],
         cwd: root,
@@ -130,7 +130,7 @@ describe('packaged CLI assets', () => {
       expect(result.code, result.stderr).toBe(1)
       expect(JSON.parse(result.stdout)).toMatchObject({
         ok: false,
-        error: { code: 'invalid_argument', message: 'Pass a positive safe integer for --pr.' }
+        error: { code: 'invalid_argument', message: '--setup must be one of: run, skip, inherit' }
       })
     } finally {
       await rm(root, { recursive: true, force: true })
