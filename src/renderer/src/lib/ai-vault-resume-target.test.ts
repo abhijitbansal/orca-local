@@ -57,6 +57,18 @@ describe('ai vault session storage compatibility', () => {
     ).toBe(false)
   })
 
+  it('allows WSL-stored sessions on local targets', () => {
+    expect(
+      canResumeAiVaultSessionOnTarget({ sessionFilePath: wslSessionFile, targetStatus: 'local' })
+    ).toBe(true)
+  })
+
+  it('never resumes a WSL-stored session on an SSH target', () => {
+    expect(
+      canResumeAiVaultSessionOnTarget({ sessionFilePath: wslSessionFile, targetStatus: 'ssh' })
+    ).toBe(false)
+  })
+
   // #24408: on Windows a WSL workspace and a Windows workspace are both `local`, but the
   // agent only exists, and only finds the session, inside one of them.
   it('resumes a local session only in the namespace that stores it', () => {
