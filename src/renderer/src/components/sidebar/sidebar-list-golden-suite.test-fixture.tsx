@@ -157,7 +157,7 @@ function collapsedKeysFrom(expanded: string): Set<string> {
   return collapsed
 }
 
-export const GROUP_BYS: AppState['groupBy'][] = ['none', 'repo', 'workspace-status', 'pr-status']
+export const GROUP_BYS: AppState['groupBy'][] = ['none', 'repo', 'workspace-status']
 const SORT_BYS: AppState['sortBy'][] = ['manual', 'name', 'recent', 'smart', 'repo']
 const PROJECT_ORDER_BYS: AppState['projectOrderBy'][] = ['manual', 'recent']
 
