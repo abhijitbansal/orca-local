@@ -59,7 +59,7 @@ import { toRuntimeExecutionHostId } from '../../shared/execution-host'
 const WSL_OWNER = toRuntimeExecutionHostId('wsl:Ubuntu')
 
 function getHandler(channel: string): (...args: unknown[]) => Promise<unknown> {
-  registerShellHandlers({ getSshTarget: () => undefined })
+  registerShellHandlers()
   const handler = handleMock.mock.calls.find(([name]) => name === channel)?.[1]
   if (!handler) {
     throw new Error(`${channel} handler not registered`)

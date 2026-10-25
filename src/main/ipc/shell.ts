@@ -1,3 +1,4 @@
+import type { Store } from '../persistence'
 import { validatePathExistenceBatch } from '../../shared/path-existence-batch'
 import { ipcMain, shell, dialog } from 'electron'
 import { constants, copyFile, readFile, stat } from 'node:fs/promises'
@@ -81,7 +82,7 @@ async function openWithSystemDefault(pathValue: string, ownerHostId: unknown): P
 }
 
 // The store argument is kept for callers; ownership comes from each request's host id.
-export function registerShellHandlers(_store?: object): void {
+export function registerShellHandlers(_store?: Store): void {
   ipcMain.handle(
     'shell:openPath',
     async (_event, path: string, ownerHostId: unknown): Promise<void> => {
