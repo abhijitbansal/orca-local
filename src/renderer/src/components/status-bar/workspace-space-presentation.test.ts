@@ -121,6 +121,8 @@ function decisionInputs(
 ): Parameters<typeof getWorkspaceDecisionDetails>[1] {
   const defaultWorktree = worktreeRecord()
   return {
+    repoMap: new Map(),
+    settings: null,
     worktreeMap: new Map([[defaultWorktree.id, defaultWorktree]]),
     tabsByWorktree: {},
     ptyIdsByTabId: {},

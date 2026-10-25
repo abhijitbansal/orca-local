@@ -16,6 +16,7 @@ type LaneState = Pick<
   | 'folderWorkspaces'
   | 'projects'
   | 'repos'
+  | 'runtimeEnvironments'
   | 'settings'
   | 'worktreesByRepo'
 >
@@ -40,6 +41,7 @@ function laneState(args?: {
       terminalWindowsWslDistro: args?.terminalWindowsWslDistro ?? null
     },
     repos: [{ id: 'repo1', path: 'C:\\code\\app' }],
+    runtimeEnvironments: [],
     projects: args?.projectWslDistro
       ? [
           {
