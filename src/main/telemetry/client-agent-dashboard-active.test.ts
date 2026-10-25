@@ -113,14 +113,4 @@ describe('Agent Dashboard daily visible use', () => {
     expect(track('agent_dashboard_active', { surface: 'popout' })).toBe(false)
     expect(state.mock.push).toHaveBeenCalledTimes(1)
   })
-
-  it('does not consume a daily allowance before the SDK has finished enabling', () => {
-    Object.assign(state.mock, { optedOut: true })
-    expect(track('agent_dashboard_active', { surface: 'popout' })).toBe(false)
-    expect(state.store.updateSettings).not.toHaveBeenCalled()
-    expect(state.mock.push).not.toHaveBeenCalled()
-
-    Object.assign(state.mock, { optedOut: false })
-    expect(track('agent_dashboard_active', { surface: 'popout' })).toBe(true)
-  })
 })

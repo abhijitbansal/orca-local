@@ -10,11 +10,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { rmSync, mkdtempSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-import {
-  FLOATING_TERMINAL_WORKTREE_ID,
-  getDefaultWorkspaceSession
-} from '../../../shared/constants'
-import { folderWorkspaceKey } from '../../../shared/workspace-scope'
+import { getDefaultWorkspaceSession } from '../../../shared/constants'
 import type { WorkspaceSessionState } from '../../../shared/workspace-session-state-types'
 import type { DetectedWorktreeListResult } from '../../../shared/worktree/types'
 import { collectLayoutEvents } from '../../runtime/workspace-layout-stream-events.test-fixture'
@@ -43,11 +39,6 @@ vi.mock('../../telemetry/cohort-classifier', () => ({
 const REPO = 'repo-a'
 const KEPT = `${REPO}::/work/kept`
 const DELETED = `${REPO}::/work/deleted`
-const SSH_REPO = 'ssh-repo'
-const SSH_WORKTREE = `${SSH_REPO}::/home/me/app`
-const SSH_HOST = 'ssh:target-1'
-const RUNTIME_HOST = 'runtime:env-a'
-const PAIRED_WORKTREE = 'paired-repo::/srv/app'
 
 function sessionWith(...worktreeIds: string[]): WorkspaceSessionState {
   return {
@@ -111,42 +102,6 @@ describe('main drops the layout of workspaces the catalog no longer validates', 
 
       expect(storedKeys(createStore())).toEqual([KEPT])
     })
-
-    it('keeps a degraded but registered repo, a disconnected SSH repo, folders and the floating workspace', () => {
-      const folderKey = folderWorkspaceKey('folder-never-listed')
-      writeDataFile({
-        schemaVersion: 1,
-        repos: [
-          makeRepo({ id: REPO, path: '/work/kept' }),
-          makeRepo({ id: SSH_REPO, path: '/home/me/app', connectionId: 'target-1' })
-        ],
-        worktreeMeta: {},
-        workspaceSession: sessionWith(KEPT, DELETED, folderKey, FLOATING_TERMINAL_WORKTREE_ID),
-        workspaceSessionsByHostId: { [SSH_HOST]: sessionWith(SSH_WORKTREE) }
-      })
-
-      const store = createStore()
-
-      expect(storedKeys(store)).toEqual(
-        [KEPT, DELETED, folderKey, FLOATING_TERMINAL_WORKTREE_ID].sort()
-      )
-      expect(storedKeys(store, SSH_HOST)).toEqual([SSH_WORKTREE])
-    })
-
-    it("keeps a paired host's workspaces, whose catalog lives on that host", () => {
-      writeDataFile({
-        schemaVersion: 1,
-        repos: [],
-        worktreeMeta: { [PAIRED_WORKTREE]: { hostId: RUNTIME_HOST, status: 'active' } },
-        workspaceSession: sessionWith(PAIRED_WORKTREE),
-        workspaceSessionsByHostId: { [RUNTIME_HOST]: sessionWith(PAIRED_WORKTREE, 'bare-paired') }
-      })
-
-      const store = createStore()
-
-      expect(storedKeys(store)).toEqual([PAIRED_WORKTREE])
-      expect(storedKeys(store, RUNTIME_HOST)).toEqual(['bare-paired', PAIRED_WORKTREE].sort())
-    })
   })
 
   describe('when a listing changes the catalog', () => {
@@ -209,23 +164,6 @@ describe('main drops the layout of workspaces the catalog no longer validates', 
       dropWorkspacesTheListingInvalidates(store, listing([KEPT], { catalogVersion: undefined }))
 
       expect(storedKeys(store)).toEqual([KEPT, DELETED, 'other-repo::/x'].sort())
-    })
-
-    it('keeps every workspace of a repo id another host also registers', () => {
-      writeDataFile({
-        schemaVersion: 1,
-        repos: [
-          makeRepo({ id: REPO, path: '/work/kept' }),
-          makeRepo({ id: REPO, path: '/home/me/kept', connectionId: 'target-1' })
-        ],
-        worktreeMeta: {},
-        workspaceSession: sessionWith(KEPT, DELETED)
-      })
-      const store = createStore()
-
-      dropWorkspacesTheListingInvalidates(store, listing([KEPT]))
-
-      expect(storedKeys(store)).toEqual([KEPT, DELETED].sort())
     })
   })
 

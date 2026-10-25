@@ -3,7 +3,6 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import type * as DurableFileWrite from '../durable-file-write'
-import { JIRA_IMAGE_SCHEME } from '../../shared/jira/jira-attachment-image'
 
 const ORIGINAL_PLATFORM = process.platform
 const ORCA_PROFILE_ID = 'local-default'
@@ -292,10 +291,7 @@ async function runReady(): Promise<void> {
     openMainWindow: mocks.openMainWindow,
     handleMacAppActivation: vi.fn()
   })
-  expect(mocks.handleProtocol).toHaveBeenCalledExactlyOnceWith(
-    JIRA_IMAGE_SCHEME,
-    expect.any(Function)
-  )
+  expect(mocks.handleProtocol).not.toHaveBeenCalled()
 }
 
 function identityRecordWrites(): unknown[] {

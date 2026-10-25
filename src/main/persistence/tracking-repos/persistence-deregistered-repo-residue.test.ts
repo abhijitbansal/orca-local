@@ -140,11 +140,9 @@ describe('deregistered repo residue', () => {
 
     const store = await createStore()
 
-    expect(store.getWorktreeMeta(remoteWorktree)).toBeDefined()
-    const partition = store.getWorkspaceSession(RUNTIME_HOST)
-    expect(partition.tabsByWorktree[remoteWorktree]).toHaveLength(1)
-    // Prove the sleeping-agent fixture is valid before relying on its absence elsewhere.
-    expect(Object.keys(partition.sleepingAgentSessionsByPaneKey ?? {})).toHaveLength(1)
+    expect(store.getWorktreeMeta(localWorktree)).toBeDefined()
+    expect(store.getWorktreeMeta(remoteWorktree)).toBeUndefined()
+    expect(store.getWorkspaceSession(RUNTIME_HOST).tabsByWorktree[remoteWorktree]).toBeUndefined()
   })
 
   it('leaves folder-workspace session rows alone: their keys name no repo', async () => {

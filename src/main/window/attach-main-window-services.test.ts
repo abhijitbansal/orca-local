@@ -107,10 +107,8 @@ vi.mock('../ipc/worktree-change-invalidators', () => ({
   runWorktreeChangeInvalidators: runWorktreeChangeInvalidatorsMock
 }))
 
-vi.mock('../ipc/pty', () => ({
-  getLocalPtyProvider: vi.fn(),
-  registerPtyHandlers: registerPtyHandlersMock
-}))
+vi.mock('../ipc/pty/provider/registry', () => ({ getLocalPtyProvider: vi.fn() }))
+vi.mock('../ipc/pty/register-handlers', () => ({ registerPtyHandlers: registerPtyHandlersMock }))
 
 vi.mock('../ipc/pty-management', () => ({
   registerDaemonManagementHandlers: registerDaemonManagementHandlersMock

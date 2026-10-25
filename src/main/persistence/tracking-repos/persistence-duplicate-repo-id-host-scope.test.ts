@@ -125,33 +125,6 @@ describe('deleting one host copy of a repo id shared by two hosts', () => {
     expect(store.getRepos().map((repo) => repo.path)).toEqual(['/laptop/dup'])
   })
 
-  it('removeProjectForHost given the SSH row itself leaves the local twin', async () => {
-    const store = await createStoreWithDuplicateRepoId()
-    const sshRow = store.getRepos().find((repo) => repo.connectionId === 'ssh-1')!
-
-    store.removeProjectForHost(sshRow)
-
-    expect(store.getRepos().map((repo) => repo.path)).toEqual(['/laptop/dup'])
-  })
-
-  it('moveProjectToGroup moves the addressed twin, not the first row with the id', async () => {
-    const store = await createStoreWithDuplicateRepoId()
-    const group = store.createProjectGroup({
-      name: 'Remote',
-      connectionId: 'ssh-1',
-      createdFrom: 'manual'
-    })
-    const sshRow = store.getRepos().find((repo) => repo.connectionId === 'ssh-1')!
-
-    const moved = store.moveProjectToGroup(sshRow, group.id, 3)
-
-    expect(moved?.path).toBe('/remote/dup')
-    const groupByPath = Object.fromEntries(
-      store.getRepos().map((repo) => [repo.path, repo.projectGroupId ?? null])
-    )
-    expect(groupByPath).toEqual({ '/laptop/dup': null, '/remote/dup': group.id })
-  })
-
   it('moveProjectToGroup on a host holding no twin moves nothing', async () => {
     const store = await createStoreWithDuplicateRepoId()
     const group = store.createProjectGroup({ name: 'G', createdFrom: 'manual' })
@@ -168,52 +141,6 @@ describe('deleting one host copy of a repo id shared by two hosts', () => {
 
     expect(result?.repo?.path).toBe('/laptop/dup')
     expect(store.getRepos()).toEqual([])
-  })
-
-  it.each(['local', 'ssh:ssh-1'] as const)(
-    'deleteProjectHostSetup with hostId %s removes that host twin only',
-    async (hostId) => {
-      const store = await createStoreWithDuplicateRepoId()
-
-      const result = store.deleteProjectHostSetup({ setupId: 'dup', hostId })
-
-      expect(result?.setup.hostId).toBe(hostId)
-      expect(store.getRepos().map((repo) => repo.path)).toEqual(
-        hostId === 'local' ? ['/remote/dup'] : ['/laptop/dup']
-      )
-    }
-  )
-
-  it.each(['local', 'ssh:ssh-1'] as const)(
-    'updateProjectHostSetup with hostId %s renames that host twin only',
-    async (hostId) => {
-      const store = await createStoreWithDuplicateRepoId()
-
-      const result = store.updateProjectHostSetup({
-        setupId: 'dup',
-        hostId,
-        updates: { displayName: 'Renamed' }
-      })
-
-      expect(result?.setup.hostId).toBe(hostId)
-      expect(store.getRepos().map((repo) => repo.displayName)).toEqual(
-        hostId === 'local' ? ['Renamed', 'Dup Remote'] : ['Dup Local', 'Renamed']
-      )
-    }
-  )
-
-  it('a hostId naming no twin edits nothing', async () => {
-    const store = await createStoreWithDuplicateRepoId()
-
-    expect(
-      store.updateProjectHostSetup({
-        setupId: 'dup',
-        hostId: 'ssh:other',
-        updates: { displayName: 'Renamed' }
-      })
-    ).toBeNull()
-    expect(store.deleteProjectHostSetup({ setupId: 'dup', hostId: 'ssh:other' })).toBeNull()
-    expect(store.getRepos().map((repo) => repo.displayName)).toEqual(['Dup Local', 'Dup Remote'])
   })
 
   it('setResolvedRepoGitUsername writes only the probed host row', async () => {

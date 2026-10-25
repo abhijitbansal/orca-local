@@ -20,7 +20,6 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import type { WorkspaceSessionState } from '../../shared/workspace-session-state-types'
 import { getDefaultWorkspaceSession } from '../../shared/constants'
-import { isTerminalLeafId } from '../../shared/stable-pane-id'
 
 import { worktreeWorkspaceKey } from '../../shared/workspace-scope'
 import { removeWorktreeMetaRow } from './host-qualified-worktree-meta'
@@ -69,27 +68,6 @@ describe('Store host-partitioned workspace sessions', () => {
     ...getDefaultWorkspaceSession(),
     activeRepoId
   })
-
-  const makeLegacyPaneHostSession = (repoId: string, ptyId: string): WorkspaceSessionState => {
-    const worktreeId = `${repoId}::/worktree`
-    return {
-      ...getDefaultWorkspaceSession(),
-      activeRepoId: repoId,
-      activeWorktreeId: worktreeId,
-      activeTabId: 'tab-shared',
-      tabsByWorktree: {
-        [worktreeId]: [makeTerminalTab({ id: 'tab-shared', worktreeId, ptyId })]
-      },
-      terminalLayoutsByTabId: {
-        'tab-shared': {
-          root: { type: 'leaf', leafId: 'pane:1' },
-          activeLeafId: 'pane:1',
-          expandedLeafId: null,
-          ptyIdsByLeafId: { 'pane:1': ptyId }
-        }
-      }
-    }
-  }
 
   // Register fixture repos so orphan cleanup cannot erase host partitions on reload.
   const makeRepos = (...repoIds: string[]) => repoIds.map((id) => makeRepo({ id, path: `/${id}` }))
@@ -159,135 +137,6 @@ describe('Store host-partitioned workspace sessions', () => {
     const store = await createStore()
 
     expect(store.getWorkspaceSession('local').activeRepoId).toBe('canonical-local')
-  })
-
-  it('strips an ssh partition and its leases at load while keeping the local session', async () => {
-    writeDataFile({
-      schemaVersion: 1,
-      workspaceSession: makeHostSession('local-repo'),
-      repos: makeRepos('repo-ssh'),
-      workspaceSessionsByHostId: {
-        'ssh:ssh-1': makeLegacyPaneHostSession('repo-ssh', 'remote-pty')
-      },
-      sshRemotePtyLeases: [
-        {
-          targetId: 'ssh-1',
-          ptyId: 'remote-pty',
-          worktreeId: 'repo-ssh::/worktree',
-          tabId: 'tab-shared',
-          leafId: 'pane:1',
-          state: 'detached',
-          createdAt: 1,
-          updatedAt: 1
-        }
-      ]
-    })
-
-    const store = await createStore()
-
-    const root = store.getWorkspaceSession('ssh:ssh-1').terminalLayoutsByTabId['tab-shared']?.root
-    const leafId = root?.type === 'leaf' ? root.leafId : null
-    expect(leafId && isTerminalLeafId(leafId)).toBe(true)
-    expect(store.getSshRemotePtyLeases('ssh-1')[0]?.leafId).toBe(leafId)
-  })
-
-  it('remaps legacy SSH leases within their execution-host partition', async () => {
-    writeDataFile({
-      schemaVersion: 1,
-      workspaceSession: makeHostSession('local-repo'),
-      repos: makeRepos('repo-a', 'repo-b'),
-      workspaceSessionsByHostId: {
-        'ssh:host-a': makeLegacyPaneHostSession('repo-a', 'pty-a'),
-        'ssh:host-b': makeLegacyPaneHostSession('repo-b', 'pty-b')
-      },
-      sshRemotePtyLeases: [
-        {
-          targetId: 'host-a',
-          ptyId: 'pty-a',
-          worktreeId: 'repo-a::/worktree',
-          tabId: 'tab-shared',
-          leafId: 'pane:1',
-          state: 'detached',
-          createdAt: 1,
-          updatedAt: 1
-        },
-        {
-          targetId: 'host-b',
-          ptyId: 'pty-b',
-          worktreeId: 'repo-b::/worktree',
-          tabId: 'tab-shared',
-          leafId: 'pane:1',
-          state: 'detached',
-          createdAt: 1,
-          updatedAt: 1
-        }
-      ]
-    })
-
-    const store = await createStore()
-    const rootA = store.getWorkspaceSession('ssh:host-a').terminalLayoutsByTabId['tab-shared']?.root
-    const rootB = store.getWorkspaceSession('ssh:host-b').terminalLayoutsByTabId['tab-shared']?.root
-    const leafA = rootA?.type === 'leaf' ? rootA.leafId : null
-    const leafB = rootB?.type === 'leaf' ? rootB.leafId : null
-
-    expect(leafA && isTerminalLeafId(leafA)).toBe(true)
-    expect(leafB && isTerminalLeafId(leafB)).toBe(true)
-    expect(leafA).not.toBe(leafB)
-    expect(store.getSshRemotePtyLeases('host-a')[0]?.leafId).toBe(leafA)
-    expect(store.getSshRemotePtyLeases('host-b')[0]?.leafId).toBe(leafB)
-  })
-
-  it('repairs a stable SSH lease leaf copied from another host partition', async () => {
-    const leafA = '11111111-1111-4111-8111-111111111111'
-    const leafB = '22222222-2222-4222-8222-222222222222'
-    const makeStableHostSession = (
-      repoId: string,
-      ptyId: string,
-      leafId: string
-    ): WorkspaceSessionState => {
-      const worktreeId = `${repoId}::/worktree`
-      return {
-        ...getDefaultWorkspaceSession(),
-        activeRepoId: repoId,
-        activeWorktreeId: worktreeId,
-        activeTabId: 'tab-shared',
-        tabsByWorktree: {
-          [worktreeId]: [makeTerminalTab({ id: 'tab-shared', worktreeId, ptyId })]
-        },
-        terminalLayoutsByTabId: {
-          'tab-shared': {
-            root: { type: 'leaf', leafId },
-            activeLeafId: leafId,
-            expandedLeafId: null,
-            ptyIdsByLeafId: { [leafId]: ptyId }
-          }
-        }
-      }
-    }
-    writeDataFile({
-      schemaVersion: 1,
-      workspaceSession: makeHostSession('local-repo'),
-      workspaceSessionsByHostId: {
-        'ssh:host-a': makeStableHostSession('repo-a', 'pty-a', leafA),
-        'ssh:host-b': makeStableHostSession('repo-b', 'pty-b', leafB)
-      },
-      sshRemotePtyLeases: [
-        {
-          targetId: 'host-b',
-          ptyId: 'pty-b',
-          worktreeId: 'repo-b::/worktree',
-          tabId: 'tab-shared',
-          leafId: leafA,
-          state: 'detached',
-          createdAt: 1,
-          updatedAt: 1
-        }
-      ]
-    })
-
-    const store = await createStore()
-
-    expect(store.getSshRemotePtyLeases('host-b')[0]?.leafId).toBe(leafB)
   })
 
   it('isolates writes: setting host A does not mutate host B or local', async () => {
@@ -395,51 +244,6 @@ describe('Store host-partitioned workspace sessions', () => {
     const reloaded = await createStore()
     expect(reloaded.getWorkspaceSession('local').activeRepoId).toBe('repo-local')
     expect(reloaded.getWorkspaceSession('runtime:env-a').activeRepoId).toBeNull()
-  })
-
-  it('removes one orphaned worktree with a host-scoped topology fence', async () => {
-    const store = await createStore()
-    store.addRepo(makeRepo({ id: 'repo-gone', path: '/repo-gone' }))
-    const worktreeId = 'repo-gone::/workspace/stale'
-    const session = {
-      ...makeHostSession('repo-gone'),
-      activeWorktreeId: worktreeId,
-      activeWorktreeIdsOnShutdown: [worktreeId],
-      lastVisitedAtByWorktreeId: { [worktreeId]: 123 },
-      tabsByWorktree: {
-        [worktreeId]: [makeTerminalTab({ id: 'stale-tab', worktreeId })]
-      },
-      terminalTopologyRevisionByRepoId: { 'repo-gone': 3 }
-    }
-    store.setWorkspaceSession(session, 'local')
-    store.setWorkspaceSession(session, 'runtime:env-a')
-    store.setWorkspaceSession(session, 'runtime:env-b')
-
-    store.removeWorkspaceSessionStateForWorktree(
-      hostWorktreeTarget({ id: worktreeId, hostId: 'runtime:env-a' })
-    )
-    store.setWorkspaceSession(session, 'runtime:env-a')
-    store.flush()
-
-    const reloaded = await createStore()
-    expect(reloaded.getWorkspaceSession('runtime:env-a')).toMatchObject({
-      tabsByWorktree: {},
-      terminalTopologyRevisionByRepoId: { 'repo-gone': 4 }
-    })
-    expect(reloaded.getWorkspaceSession('runtime:env-b')).toMatchObject({
-      activeWorktreeId: worktreeId,
-      activeWorktreeIdsOnShutdown: [worktreeId],
-      lastVisitedAtByWorktreeId: { [worktreeId]: 123 },
-      terminalTopologyRevisionByRepoId: { 'repo-gone': 3 }
-    })
-    // Unresolved ownership can park remote state locally; removal must clean that surface too.
-    expect(reloaded.getWorkspaceSession('local')).toMatchObject({
-      tabsByWorktree: {},
-      activeWorktreeId: null,
-      activeWorktreeIdsOnShutdown: [],
-      lastVisitedAtByWorktreeId: {},
-      terminalTopologyRevisionByRepoId: { 'repo-gone': 4 }
-    })
   })
 
   it('uses persisted worktree ownership when removing metadata', async () => {

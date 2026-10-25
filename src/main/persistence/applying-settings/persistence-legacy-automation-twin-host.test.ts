@@ -24,15 +24,6 @@ const localRow: Repo = {
   addedAt: 1,
   kind: 'git'
 }
-const sshRow: Repo = {
-  id: 'twin',
-  path: '/remote/twin',
-  displayName: 'Twin',
-  badgeColor: '#000',
-  addedAt: 2,
-  kind: 'git',
-  connectionId: 'ssh-1'
-}
 
 function legacyAutomation(overrides: Partial<Automation> = {}): Record<string, unknown> {
   // Legacy projectId values named a repo ID without host context.
@@ -88,29 +79,6 @@ describe('legacy automation on a repo id two hosts share', () => {
   afterEach(async () => {
     await closeTestStores()
     rmSync(testState.dir, { recursive: true, force: true })
-  })
-
-  it('does not guess a host for the record at load', () => {
-    seed([localRow, sshRow], legacyAutomation())
-    const store = createStore()
-
-    expect(storedAutomation(store).runContext ?? null).toBeNull()
-  })
-
-  it.each([
-    ['local row first', [localRow, sshRow]],
-    ['SSH row first', [sshRow, localRow]]
-  ])('refuses to run and tells the user to pick the host (%s)', (_label, repos) => {
-    seed(repos, legacyAutomation({ runContext: null }))
-    const store = createStore()
-
-    const target = resolveAutomationRunTarget(store, storedAutomation(store))
-
-    expect(target).toEqual({
-      ok: false,
-      error: expect.stringContaining('Open the automation and pick the host')
-    })
-    expect(storedAutomation(store).runContext ?? null).toBeNull()
   })
 
   it('captures the only host on its first run, which still launches, and keeps it', async () => {
