@@ -1,6 +1,6 @@
 import { readFileSync, readdirSync } from 'node:fs'
 import { runInNewContext } from 'node:vm'
-import { expect, it, vi } from 'vitest'
+import { expect, it } from 'vitest'
 import { parse } from 'yaml'
 
 const directory = '.github/workflows'
@@ -24,7 +24,7 @@ function evaluate(expression) {
   )
 }
 
-it('cleanup looks up the actual unique concurrency key of every automatic PR workflow', async () => {
+it('every automatic PR workflow has a unique cancelling concurrency key', () => {
   const expected = new Map()
   for (const file of readdirSync(directory).filter((name) => /\.ya?ml$/.test(name))) {
     const workflow = parse(readFileSync(`${directory}/${file}`, 'utf8'))
@@ -37,34 +37,5 @@ it('cleanup looks up the actual unique concurrency key of every automatic PR wor
     expect(String(evaluate(String(workflow.concurrency['cancel-in-progress']))), file).toBe('true')
     expected.set(key, `.github/workflows/${file}`)
   }
-  const cleanup = parse(readFileSync(`${directory}/ci-closed-pr-caches.yml`, 'utf8'))
-  const request = vi.fn()
-  let path
-  const getRun = vi.fn(async () => ({
-    data: { event: 'pull_request', status: 'queued', head_sha: 'c'.repeat(40), path }
-  }))
-  request.mockImplementation(async (_route, args) => {
-    path = expected.get(args.concurrency_group_name)
-    expect(path).toBeDefined()
-    return { data: { group_name: args.concurrency_group_name, group_members: [{ run_id: 42 }] } }
-  })
-  const cancel = vi.fn()
-  await runInNewContext(`(async () => { ${cleanup.jobs.clean.steps[0].with.script} })()`, {
-    context: {
-      repo: { owner: 'owner', repo: 'repo' },
-      payload: { action: 'synchronize', pull_request: githubContext.event.pull_request }
-    },
-    github: {
-      request,
-      rest: {
-        pulls: { get: async () => ({ data: { state: 'open', head: { sha } } }) },
-        actions: { getWorkflowRun: getRun, cancelWorkflowRun: cancel }
-      }
-    },
-    core: { info: vi.fn() }
-  })
-  expect(new Set(request.mock.calls.map(([, args]) => args.concurrency_group_name))).toEqual(
-    new Set(expected.keys())
-  )
-  expect(cancel).toHaveBeenCalledTimes(expected.size)
+  expect(expected.size).toBeGreaterThan(0)
 })

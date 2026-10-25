@@ -6,7 +6,6 @@ const PUBLISHED_RUNTIME_CAPABILITIES = [
   'accounts.antigravity-chat-sign-in.v1',
   'accounts.antigravity-native.v1',
   'accounts.claude-sign-in.v1',
-  'accounts.codex-reset-credit.v1',
   'accounts.import-host-credentials.v1',
   'accounts.managed-data-profiles.v1',
   'agent-session.accepted-send.v1',

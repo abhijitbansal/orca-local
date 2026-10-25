@@ -1,13 +1,21 @@
 import { lstat, readdir, realpath, rm } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { localRepositoryWorktrees } from './local-repository-worktrees.mjs'
-import { isProcessAlive } from './remote-agent-session-process-cleanup.mjs'
 import { parseReclaimArguments } from './reclaim-worktree-command.mjs'
 import {
   VITE_CACHE_HOST_ID,
   VITE_CACHE_USAGE_DIRECTORY,
   withViteCacheLock
 } from './vite-cache-activity.mjs'
+
+function isProcessAlive(pid) {
+  try {
+    process.kill(pid, 0)
+    return true
+  } catch (error) {
+    return error?.code !== 'ESRCH'
+  }
+}
 
 const OWNER = /^([\da-f]{64})-([1-9]\d*)-[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/
 
