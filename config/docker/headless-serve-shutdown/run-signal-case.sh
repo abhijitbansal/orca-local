@@ -122,10 +122,11 @@ if [[ "$entrypoint_kind" == appimage ]]; then
 fi
 
 # The ready line carries no TCP endpoint (boundEndpoint is null); the serving
-# Electron owns the runtime Unix socket named o-<pid>-<id>.sock under userData.
+# Electron owns the runtime Unix socket named o-<pid>-<id>.sock under userData,
+# which serve pins to ORCA_USER_DATA_PATH.
 runtime_socket=''
 for _ in {0..50}; do
-  runtime_socket=$(find "$XDG_CONFIG_HOME" -maxdepth 3 -type s -name 'o-*.sock' 2>/dev/null | head -n1 || true)
+  runtime_socket=$(find "$ORCA_USER_DATA_PATH" -maxdepth 1 -type s -name 'o-*.sock' 2>/dev/null | head -n1 || true)
   [[ -n "$runtime_socket" ]] && break
   sleep 0.1
 done
