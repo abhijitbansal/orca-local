@@ -48,6 +48,32 @@ describe('WorktreeCardDetailsHover', () => {
     expect(markup).not.toContain('truncate text-[13px]')
   })
 
+  it('keeps the hover title unruled and inline editable while section bodies stay inset', () => {
+    const markup = renderToStaticMarkup(
+      <WorktreeCardDetailsHover
+        branchName="feature/local-branch"
+        workspaceTitle="Fix stale workspace"
+        issue={null}
+        linearIssue={null}
+        review={null}
+        comment="Remember to rebase"
+        onRenameWorkspaceTitle={vi.fn()}
+        onEditComment={vi.fn()}
+      >
+        <span>Fix stale workspace</span>
+      </WorktreeCardDetailsHover>
+    )
+    const identityHeaderTag =
+      markup.match(/<div[^>]*data-worktree-hover-identity-header=""[^>]*>/)?.[0] ?? ''
+
+    expect(identityHeaderTag).not.toContain('border-l')
+    expect(identityHeaderTag).not.toContain('pl-2')
+    expect(markup).toContain('data-worktree-title-inline-rename=""')
+    expect(markup).toContain('cursor-text text-[13px] font-semibold')
+    expect(markup).toContain('Fix stale workspace')
+    expect(markup).toContain('border-l border-border/70 pl-3')
+  })
+
   it('puts workspace title before branch identity and metadata details', () => {
     const markup = renderToStaticMarkup(
       <WorktreeCardDetailsHover
