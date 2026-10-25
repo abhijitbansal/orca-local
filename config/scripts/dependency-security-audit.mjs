@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { parse, parseAllDocuments } from 'yaml'
 import { z } from 'zod'
 
-export const AUDIT_WORKSPACES = ['.', 'mobile', 'cloud', 'docs/site', 'config/audit-tools']
+export const AUDIT_WORKSPACES = ['.', 'docs/site', 'config/audit-tools']
 const text = z.string().trim().min(1)
 const severities = ['info', 'low', 'moderate', 'high', 'critical']
 export const securityExceptions = z.array(

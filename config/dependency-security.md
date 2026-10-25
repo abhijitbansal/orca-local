@@ -1,6 +1,6 @@
 # Dependency security checks
 
-`pnpm check:dependencies` audits the desktop, mobile, cloud, docs, and isolated
+`pnpm check:dependencies` audits the desktop, docs, and isolated
 audit-tool lockfiles, including development and optional dependencies. It does not
 install those workspaces or execute their pnpm hooks. High/critical advisories and
 scanner failures fail the check; lower severities remain visible in JSON reports
@@ -14,7 +14,7 @@ Findings that fail the audit command, or scans that cannot complete, send a revi
 notice with the Actions reports link to `orca-releases` through the existing
 `SLACK_WEBHOOK_URL`. Fork PRs without access to that secret retain their reports
 in Actions. Notification delivery is also advisory. Stable releases audit the
-desktop and embedded mobile-web lockfiles plus native Rust. Cloud, docs, and isolated audit tooling
+desktop lockfile plus native Rust. Docs and isolated audit tooling
 remain covered by dependency PR checks and do not block desktop releases.
 Scanner tooling and exception policy come from the workflow commit, while
 lockfiles, patch registrations, and patch bytes come from the release tag. Only candidate Rust manifests, lockfiles, and patches are extracted; candidate
