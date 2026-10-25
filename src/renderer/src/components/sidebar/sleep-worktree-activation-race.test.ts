@@ -12,6 +12,8 @@ const mocks = vi.hoisted(() => {
         state.ptyIdsByTabId[tab.id] = []
       }
     }),
+    worktreesByRepo: {},
+    detectedWorktreesByRepo: {},
     tabsByWorktree: {} as Record<string, { id: string }[]>,
     ptyIdsByTabId: {} as Record<string, string[]>
   }
@@ -40,12 +42,14 @@ vi.mock('sonner', () => ({ toast: { error: mocks.toastError } }))
 
 import { activateWorktreeFromSidebar } from '@/lib/sidebar-worktree-activation'
 import { runSleepWorktrees } from './sleep-worktree-flow'
+import { fakeMainSleep } from './sleep-worktree-test-main'
 
 describe('sleep flow vs slept-workspace activation', () => {
   beforeEach(() => {
     mocks.activateAndRevealWorktree.mockClear()
     mocks.activateAndRevealFolderWorkspace.mockClear()
     mocks.toastError.mockClear()
+    vi.stubGlobal('window', { api: { worktrees: { sleep: fakeMainSleep().sleep } } })
     mocks.state.activeWorktreeId = 'wt-parent'
     mocks.state.setActiveWorktree.mockClear()
     mocks.state.shutdownWorktreeBrowsers.mockClear().mockResolvedValue(undefined)
