@@ -48,22 +48,28 @@ export type MobilePushRegisterResult =
         | 'throttled'
     }
 
-function parseFilter(value: unknown): MobilePushFilter | null {
+function readRecord(value: unknown): Record<string, unknown> | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return null
   }
-  const filter = value as Partial<MobilePushFilter>
+  return Object.fromEntries(Object.entries(value))
+}
+
+function parseFilter(value: unknown): MobilePushFilter | null {
+  const filter = readRecord(value)
+  if (!filter) {
+    return null
+  }
+  const { onlyWhenDesktopAway, sound } = filter
   if (
-    (filter.onlyWhenDesktopAway !== undefined && typeof filter.onlyWhenDesktopAway !== 'boolean') ||
-    (filter.sound !== undefined && typeof filter.sound !== 'boolean')
+    (onlyWhenDesktopAway !== undefined && typeof onlyWhenDesktopAway !== 'boolean') ||
+    (sound !== undefined && typeof sound !== 'boolean')
   ) {
     return null
   }
   return {
-    ...(typeof filter.onlyWhenDesktopAway === 'boolean'
-      ? { onlyWhenDesktopAway: filter.onlyWhenDesktopAway }
-      : {}),
-    ...(typeof filter.sound === 'boolean' ? { sound: filter.sound } : {})
+    ...(typeof onlyWhenDesktopAway === 'boolean' ? { onlyWhenDesktopAway } : {}),
+    ...(typeof sound === 'boolean' ? { sound } : {})
   }
 }
 
@@ -73,10 +79,10 @@ function parseFilter(value: unknown): MobilePushFilter | null {
  * instead of failing the whole registry load.
  */
 export function parseMobilePushRegistration(value: unknown): MobilePushRegistration | undefined {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+  const registration = readRecord(value)
+  if (!registration) {
     return undefined
   }
-  const registration = value as Partial<MobilePushRegistration>
   const filter = parseFilter(registration.filter)
   if (
     typeof registration.registrationId !== 'string' ||

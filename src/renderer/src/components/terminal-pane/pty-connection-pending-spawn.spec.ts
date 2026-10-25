@@ -8,6 +8,7 @@ import {
   type MockTransport
 } from './pty-connection-test-pane-fixtures'
 import { buildPaneConnectionDeps } from './pty-connection-test-deps'
+import { mockPanePtyArgs } from './pty-connection-test-connect-mock-pane'
 import { createInitialStoreState } from './pty-connection-test-store-fixtures'
 import type { StoreState } from './pty-connection-test-store-state'
 import {
@@ -67,7 +68,7 @@ export function registerPtyConnectionPendingSpawnTests(): void {
       connectPanePty(createPane(1) as never, createManager(1) as never, createDeps() as never)
       await flushAsyncTicks()
 
-      expect((globalThis as Record<string, unknown>).__ptyConnectDiag).toBeUndefined()
+      expect(Reflect.get(globalThis, '__ptyConnectDiag')).toBeUndefined()
       expect(logSpy).not.toHaveBeenCalledWith(expect.stringContaining('[pty-connect]'))
       logSpy.mockRestore()
     }, 30_000)
@@ -133,7 +134,7 @@ export function registerPtyConnectionPendingSpawnTests(): void {
       )
       await flushAsyncTicks()
       firstBinding.dispose()
-      connectPanePty(createPane(1) as never, createManager(1) as never, remountDeps as never)
+      connectPanePty(...mockPanePtyArgs(createPane(1), createManager(1), remountDeps))
       await flushAsyncTicks()
 
       expect(firstTransport.connect).toHaveBeenCalledOnce()

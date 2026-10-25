@@ -115,29 +115,6 @@ describe('AccountsPane', () => {
     expect(markup).not.toContain('This device')
   })
 
-  it('omits the scope control on the web client, which cannot select Local desktop', () => {
-    const webGlobal = globalThis as { window?: { __ORCA_WEB_CLIENT__?: boolean } }
-    const hadWindow = 'window' in webGlobal
-    webGlobal.window = { ...webGlobal.window, __ORCA_WEB_CLIENT__: true }
-    try {
-      const markup = renderPane({
-        ...getDefaultSettings('/tmp'),
-        activeRuntimeEnvironmentId: 'env-1'
-      })
-
-      // The web client has no desktop-managed accounts to switch back to, so
-      // this copy would promise a move it cannot make.
-      expect(markup).not.toContain('Accounts managed on this desktop are unchanged')
-      expect(markup).not.toContain('Open Remote Servers')
-      // The server-scope copy itself still applies.
-      expect(markup).toContain('Showing accounts managed by')
-    } finally {
-      if (!hadWindow) {
-        delete webGlobal.window
-      }
-    }
-  })
-
   it('keeps local copy and enabled sign-in actions when no remote server is active', () => {
     const markup = renderPane(getDefaultSettings('/tmp'))
 

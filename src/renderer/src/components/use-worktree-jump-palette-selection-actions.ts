@@ -44,7 +44,6 @@ type WorktreeJumpPaletteSelectionActionsInput = WorktreeJumpPaletteStoreState &
 export function useWorktreeJumpPaletteSelectionActions({
   visible,
   taskItems,
-  workspaces,
   closeModal,
   recordFeatureInteraction,
   skipRestoreFocusRef,
@@ -253,8 +252,6 @@ export function useWorktreeJumpPaletteSelectionActions({
   const handleSelectTask = useWorktreeJumpPaletteTaskSelection({
     visible,
     taskItems,
-    workspaces,
-    handleSelectWorktree,
     recordFeatureInteraction,
     skipRestoreFocusRef,
     setSelectedItemId

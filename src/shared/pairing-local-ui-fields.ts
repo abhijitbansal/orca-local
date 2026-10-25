@@ -41,6 +41,7 @@ const PAIRING_LOCAL_UI_FIELD_SET: ReadonlySet<string> = new Set(PAIRING_LOCAL_UI
 // Accepts any object, not just Partial<PersistedUIState>: the ui.set seam passes the zod-inferred
 // update type, whose optionality differs from the persisted shape.
 export function omitPairingLocalUiFields<T extends object>(state: T): Omit<T, PairingLocalUiField> {
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the filter removes exactly the keys PairingLocalUiField names, which Object.fromEntries cannot express.
   return Object.fromEntries(
     Object.entries(state).filter(([key]) => !PAIRING_LOCAL_UI_FIELD_SET.has(key))
   ) as Omit<T, PairingLocalUiField>

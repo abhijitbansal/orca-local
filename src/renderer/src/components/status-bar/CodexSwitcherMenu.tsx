@@ -142,24 +142,26 @@ export function CodexSwitcherMenu({
       </Dialog>
       {resetCreditCount !== null ? (
         <>
-          <DropdownMenuLabel className="space-y-0.5">
-            <div>
-              {resetCreditCount === 1
-                ? translate(
-                    'auto.components.status.bar.StatusBar.5e5f9f5160',
-                    '1 rate-limit reset available'
-                  )
-                : translate(
-                    'auto.components.status.bar.StatusBar.5ecae9197c',
-                    '{{value0}} rate-limit resets available',
-                    { value0: resetCreditCount }
-                  )}
-            </div>
-            {resetCreditExpiry ? (
-              <div className="text-[11px] font-normal text-muted-foreground">
-                {resetCreditExpiry}
+          <DropdownMenuLabel>
+            <div className="space-y-0.5">
+              <div>
+                {resetCreditCount === 1
+                  ? translate(
+                      'auto.components.status.bar.StatusBar.5e5f9f5160',
+                      '1 rate-limit reset available'
+                    )
+                  : translate(
+                      'auto.components.status.bar.StatusBar.5ecae9197c',
+                      '{{value0}} rate-limit resets available',
+                      { value0: resetCreditCount }
+                    )}
               </div>
-            ) : null}
+              {resetCreditExpiry ? (
+                <div className="text-[11px] font-normal text-muted-foreground">
+                  {resetCreditExpiry}
+                </div>
+              ) : null}
+            </div>
           </DropdownMenuLabel>
           {canRedeemReset ? (
             <DropdownMenuItem

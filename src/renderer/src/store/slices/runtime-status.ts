@@ -64,10 +64,10 @@ export const createRuntimeStatusSlice: (
   setRuntimeEnvironments: (environments) => {
     // Local-only: no paired peers exist, so no environment is ever replaced by another peer.
     const replacedEnvironmentIds: string[] = []
-    const peerReplacement = {
-      retired: [] as string[],
-      sameHost: [] as { id: string; fromRevision: number; toRevision: number }[]
-    }
+    const peerReplacement: {
+      retired: string[]
+      sameHost: { id: string; fromRevision: number; toRevision: number }[]
+    } = { retired: [], sameHost: [] }
     // Why classified first: transports may follow only a same-host rotation; a replaced peer's
     // transports are fenced before its new revision is published.
     replaceRuntimeEnvironmentRevisions(environments, peerReplacement)

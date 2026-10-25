@@ -232,6 +232,7 @@ describe('orchestration worker workspace resolution', () => {
       connectionId: 'ssh-folder'
     }
     const runtime = new OrcaRuntimeService(
+      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the runtime reads only the store members this fixture stubs.
       makeStore({
         folderWorkspaces: [localFolder, remoteFolder],
         projectGroups: [group]

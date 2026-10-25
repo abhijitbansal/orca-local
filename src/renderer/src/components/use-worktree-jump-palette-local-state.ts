@@ -31,7 +31,7 @@ export function useWorktreeJumpPaletteLocalState({
   // Keyboard handlers must see the current query before effects flush.
   // react-doctor-disable-next-line react-doctor/no-ref-current-in-render
   liveQueryRef.current = query
-  const taskSourceUrl = null as null
+  const taskSourceUrl: string | null = null
   const paletteSearchQuery = taskSourceUrl ? query.trim() : deferredQuery.trim()
   const deferredCreateAction = useMemo(
     () => getWorktreePaletteCreateActionState({ query: deferredQuery }),

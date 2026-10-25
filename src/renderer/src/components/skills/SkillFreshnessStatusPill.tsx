@@ -6,7 +6,6 @@ import { useActiveProjectSkillRuntime } from '@/hooks/useActiveProjectSkillRunti
 import { translate } from '@/i18n/i18n'
 import { Button } from '@/components/ui/button'
 import { IntegrationStatusPill } from '@/components/integration-status-pill'
-import { cn } from '@/lib/utils'
 import { AlertTriangle, ChevronRight } from 'lucide-react'
 import {
   getSkillFreshnessDisplayStatus,
@@ -139,13 +138,11 @@ export function SkillPlanStatusPill({
           // means an in-place expander on that dialog's own details section.
           variant="ghost"
           size="xs"
-          className={cn(
-            'gap-1 px-1.5 text-[11px]',
-            needsAttention && 'text-amber-500 hover:text-amber-500'
-          )}
           onClick={() => requestSkillFreshnessUpdateDialog(target)}
         >
-          {needsAttention ? <AlertTriangle className="size-3" /> : null}
+          {needsAttention ? (
+            <AlertTriangle className="size-3 text-workspace-status-progress" />
+          ) : null}
           {translate('auto.components.skills.SkillFreshnessStatusPill.details', 'Details')}
           {/* Why: a chevron is what makes this read as a control at rest rather than a
               label. It points right, not down — this opens the review dialog, and a

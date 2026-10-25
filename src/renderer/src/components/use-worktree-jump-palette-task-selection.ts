@@ -1,24 +1,16 @@
 import { useCallback } from 'react'
 import type { CmdJTaskSearchResult } from './cmd-j/task-search-results'
-import type { Worktree } from '../../../shared/worktree/types'
 import type { WorktreeJumpPaletteLocalState } from './use-worktree-jump-palette-local-state'
 import type { WorktreeJumpPaletteStoreState } from './use-worktree-jump-palette-store-state'
 import type { WorktreeJumpPaletteTaskSearch } from './use-worktree-jump-palette-task-search'
 
-type Input = Pick<
-  WorktreeJumpPaletteStoreState,
-  'visible' | 'workspaces' | 'recordFeatureInteraction'
-> &
+type Input = Pick<WorktreeJumpPaletteStoreState, 'visible' | 'recordFeatureInteraction'> &
   Pick<WorktreeJumpPaletteLocalState, 'skipRestoreFocusRef' | 'setSelectedItemId'> &
-  Pick<WorktreeJumpPaletteTaskSearch, 'taskItems'> & {
-    handleSelectWorktree: (worktree: Worktree) => void
-  }
+  Pick<WorktreeJumpPaletteTaskSearch, 'taskItems'>
 
 export function useWorktreeJumpPaletteTaskSelection({
   visible,
   taskItems,
-  workspaces,
-  handleSelectWorktree,
   recordFeatureInteraction,
   skipRestoreFocusRef,
   setSelectedItemId
@@ -33,14 +25,6 @@ export function useWorktreeJumpPaletteTaskSelection({
       // Local-only: provider tasks are removed, so a task result has nothing to open.
       recordFeatureInteraction('cmd-j')
     },
-    [
-      visible,
-      taskItems,
-      workspaces,
-      handleSelectWorktree,
-      recordFeatureInteraction,
-      skipRestoreFocusRef,
-      setSelectedItemId
-    ]
+    [visible, taskItems, recordFeatureInteraction, skipRestoreFocusRef, setSelectedItemId]
   )
 }

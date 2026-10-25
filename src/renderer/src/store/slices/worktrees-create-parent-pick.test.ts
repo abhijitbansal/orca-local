@@ -35,6 +35,7 @@ describe('createWorktree composer parent pick', () => {
 
   function createParentPickStore(parent?: Worktree) {
     const store = createTestStore()
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the slice reads only the repo fields seeded here.
     store.setState({
       repos: [
         {

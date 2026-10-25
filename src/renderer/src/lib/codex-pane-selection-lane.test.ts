@@ -30,6 +30,7 @@ function laneState(args?: {
   projectWslDistro?: string
   localWindowsRuntimeDefault?: { kind: 'wsl'; distro: string | null }
 }): LaneState {
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the lane reads only the state members built here.
   return {
     folderWorkspaces: args?.folderPath ? [{ id: 'fw1', folderPath: args.folderPath }] : [],
     settings: {

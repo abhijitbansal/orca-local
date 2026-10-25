@@ -57,7 +57,7 @@ function RunHeadline({ run }: { run: SkillUpdateRun }): React.JSX.Element | null
   if (run.state === 'done') {
     return (
       <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-        <AlertTriangle className="size-4 text-amber-600 dark:text-amber-400" />
+        <AlertTriangle className="size-4 text-workspace-status-progress" />
         {run.summary.ok
           ? translate('auto.components.skills.skillPlanOpCopy.needsAttention', 'Needs attention')
           : translate(
@@ -309,39 +309,44 @@ export function SkillFreshnessUpdateDialog(): React.JSX.Element {
       <DialogContent
         aria-describedby={undefined}
         closeButtonVariant="minimize"
-        className="scrollbar-sleek max-h-[85vh] overflow-y-auto sm:max-w-xl"
+        className="sm:max-w-xl"
       >
-        <DialogHeader>
-          <DialogTitle>
-            {translate('auto.components.skills.SkillFreshnessUpdateDialog.title', 'Update skills')}
-          </DialogTitle>
-        </DialogHeader>
+        <div className="scrollbar-sleek grid max-h-[85vh] gap-4 overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {translate(
+                'auto.components.skills.SkillFreshnessUpdateDialog.title',
+                'Update skills'
+              )}
+            </DialogTitle>
+          </DialogHeader>
 
-        <DialogHeadline run={run} unsupported={state.unsupported} error={error} plan={livePlan} />
+          <DialogHeadline run={run} unsupported={state.unsupported} error={error} plan={livePlan} />
 
-        {shownSummary && shownSummary.skills.length > 0 ? (
-          <SkillUpdateRows
-            skills={shownSummary.skills}
-            unforcedPlan={state.plan}
-            hasWork={shownSummary.hasWork}
-            phase={phase}
-            outcomes={runOutcomes(run)}
-            replace={replace}
-            showLocations={showLocations}
-            onToggleLocations={() => setShowLocations((previous) => !previous)}
+          {shownSummary && shownSummary.skills.length > 0 ? (
+            <SkillUpdateRows
+              skills={shownSummary.skills}
+              unforcedPlan={state.plan}
+              hasWork={shownSummary.hasWork}
+              phase={phase}
+              outcomes={runOutcomes(run)}
+              replace={replace}
+              showLocations={showLocations}
+              onToggleLocations={() => setShowLocations((previous) => !previous)}
+            />
+          ) : null}
+
+          <SkillUpdateFooter
+            showResult={showResult && !needsAttention}
+            isRunning={isRunning}
+            checking={state.loading}
+            updatePlan={shownSummary?.hasWork ? shownPlan : null}
+            canUpdate={canUpdate}
+            onRecheck={handleRecheck}
+            onClose={() => handleOpenChange(false)}
+            onUpdate={handleUpdate}
           />
-        ) : null}
-
-        <SkillUpdateFooter
-          showResult={showResult && !needsAttention}
-          isRunning={isRunning}
-          checking={state.loading}
-          updatePlan={shownSummary?.hasWork ? shownPlan : null}
-          canUpdate={canUpdate}
-          onRecheck={handleRecheck}
-          onClose={() => handleOpenChange(false)}
-          onUpdate={handleUpdate}
-        />
+        </div>
       </DialogContent>
     </Dialog>
   )

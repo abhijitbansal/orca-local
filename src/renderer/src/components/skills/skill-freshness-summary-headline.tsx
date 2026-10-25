@@ -31,7 +31,7 @@ export function SummaryHeadline({ plan }: { plan: BundledSkillPlan | null }): Re
   if (summary.badge === 'repair') {
     return (
       <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-        <AlertTriangle className="size-4 text-amber-600 dark:text-amber-400" />
+        <AlertTriangle className="size-4 text-workspace-status-progress" />
         {translate(
           'auto.components.skills.SkillFreshnessUpdateDialog.repair',
           'An earlier update was interrupted. Update to repair it.'
@@ -82,7 +82,7 @@ export function SummaryHeadline({ plan }: { plan: BundledSkillPlan | null }): Re
   }
   return (
     <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-      <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400" />
+      <CheckCircle2 className="size-4 text-workspace-status-review" />
       {translate(
         'auto.components.skills.SkillFreshnessUpdateDialog.success',
         'All installed Orca skills are up to date.'
