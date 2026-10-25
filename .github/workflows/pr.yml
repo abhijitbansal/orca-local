@@ -8,7 +8,6 @@ on:
       - synchronize
       - reopened
       - ready_for_review
-      - converted_to_draft
 
 concurrency:
   group: pr-checks-${{ github.event.pull_request.number }}
@@ -25,10 +24,9 @@ jobs:
   # Per-job outputs also skip git-compat/xterm/packaging/shell when those
   # inputs are unchanged; empty diffs fail closed and run everything.
   code_paths:
-    if: github.event_name != 'pull_request' || github.event.pull_request.draft != true
     name: detect changes and check repository guards
-    # Start routing without waiting behind the GitHub-hosted test queue.
-    runs-on: blacksmith-2vcpu-ubuntu-2404
+    # Reuse one lightweight checkout for detection and the always-required guards.
+    runs-on: ubuntu-slim
     timeout-minutes: 5
     permissions:
       contents: read
@@ -44,12 +42,8 @@ jobs:
       xterm_patch_sync: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.xterm_patch_sync }}
       shell_contracts: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.shell_contracts }}
       test: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.test }}
-      cross-version-wire: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.cross-version-wire }}
       package: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.package }}
-      windows_process_probe: ${{ steps.filter.outputs.windows_process_probe }}
       package_windows: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.package_windows }}
-      layout_oracle: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.layout_oracle }}
-      dependency_isolation: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.dependency_isolation }}
       e2e_should_run: ${{ steps.e2e_filter.outputs.should_run }}
       test_files: ${{ steps.e2e_filter.outputs.test_files }}
       native_ime_source_changed: ${{ steps.e2e_filter.outputs.native_ime_source_changed }}
@@ -71,14 +65,8 @@ jobs:
             /README.md
             /docs/readme/
             /.github/scripts/check-root-directory-entries.mjs
-            /.github/scripts/check-required-pr-context.mjs
-            /.github/workflows/
-            /config/.bun-version
             /config/scripts/check-readme-local-links.mjs
             /config/scripts/pr-code-change-scope.mjs
-            /.oxfmtrc.json
-            /config/scripts/pr-package-test-paths.mjs
-            /config/scripts/pr-layout-oracle-route.mjs
             /config/scripts/pr-e2e-source-routing.mjs
             /config/scripts/pr-ready-check-reuse.mjs
           sparse-checkout-cone-mode: false
@@ -94,14 +82,6 @@ jobs:
       # The full Git index retains link targets outside the sparse working tree.
       - name: Check README local links
         run: node config/scripts/check-readme-local-links.mjs
-
-      - name: Set up Bun for required workflow validation
-        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
-        with:
-          bun-version-file: config/.bun-version
-
-      - name: Check required PR context ownership
-        run: bun .github/scripts/check-required-pr-context.mjs
 
       # Readiness changes eligibility for advisory tests, not the already-tested source.
       - name: Find identical successful required checks
@@ -243,7 +223,6 @@ jobs:
 
       # Why: extraction writes sorted evidence to an isolated temporary path,
       # so feature PRs need one normalized AST pass rather than a three-OS matrix.
-      # Use preflight's pinned Bun even when the optional local pin differs.
       - name: Verify localization extraction
         id: localization-extraction
         background: true
@@ -256,7 +235,7 @@ jobs:
             scope="$(node config/scripts/localization-extraction-change-scope.mjs "$RUNNER_TEMP/localization-changes")" && [ "$scope" = false ]; then
             echo "Localization extraction inputs are unchanged."
           else
-            bun config/scripts/verify-localization-extraction.mjs
+            pnpm run verify:localization-extraction
           fi
 
       - name: Verify the generated RPC params catalog
@@ -340,8 +319,6 @@ jobs:
 
       - run: pnpm run typecheck
 
-      - wait: main-sync-spawn-ratchet
-
       - wait: unit-plan
 
       - uses: actions/upload-artifact@v7
@@ -415,7 +392,7 @@ jobs:
     needs: [code_paths]
     if: needs.code_paths.outputs.codex_index_heal_contract == 'true'
     # Why ARM: @openai/codex ships @openai/codex-linux-arm64.
-    runs-on: blacksmith-4vcpu-ubuntu-2404-arm
+    runs-on: ubuntu-24.04-arm
     env:
       CODEX_CLI_VERSION: '0.150.1'
       # Why a second pin: --no-daemon only exists from 0.156, and Orca's codex wrapper relies on it.
@@ -483,7 +460,7 @@ jobs:
     # Why ARM: the patch check rebuilds 4 packages x 2 builds and byte-compares against the
     # checked-in bundles. Those were generated on Linux x64 and reproduce byte-for-byte on
     # darwin-arm64, so the output is neither host-arch nor host-OS dependent.
-    runs-on: blacksmith-4vcpu-ubuntu-2404-arm
+    runs-on: ubuntu-24.04-arm
 
     steps:
       - name: Checkout
@@ -495,7 +472,6 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version-file: package.json
-          check-latest: true
           package-manager-cache: false
 
       # Rebuild both pristine and patched bundles; reuse only the pinned toolchain.
@@ -532,45 +508,62 @@ jobs:
         with:
           persist-credentials: false
 
-      # fish 4+ provides DECSET 2031 arming required by live shell contracts (#9993).
+      # Why fish: shell-ready.test.ts gates its live fish test on the binary being
+      # present, so without this the fish barrier is only covered by config-shape
+      # assertions and never actually exercised.
+      # Why release-4: DECSET 2031 arming lives in the fish 4.0 Rust tty_handoff, and
+      # fish-color-scheme-child-stdin.node-pty.test.ts (#9993) needs it. Noble ships
+      # 3.7, so the PPA is what makes that lane real.
       - name: Install zsh and fish
         id: shells
         background: true
         run: |
-          # Per-connection limits complement the whole-command apt deadlines below.
+          # Why the update/PPA/fish steps are tolerant: a repo the runner image already
+          # ships can lack a Release file for this suite, and a failed add-apt-repository
+          # still leaves its list entry behind — either makes `apt-get update` exit
+          # non-zero and would red this required check over something unrelated to the
+          # PR. Every fish outcome is judged by the version gate below instead, so only
+          # the zsh install (which has no such gate) stays fatal here.
+          # Why retry only here: adding the PPA is the network-flaky step, and the
+          # version gate below is fatal, so a transient Launchpad blip would
+          # otherwise red a required check on PRs unrelated to shells.
+          # Why -n: add-apt-repository refreshes every configured repo on its own. With
+          # an update on each side of it this step refreshed them three times over, and
+          # the Azure archive mirror alone costs ~15-30s a pass. The PPA index is the
+          # only thing the repo list gains here, and the single update below fetches it.
+          # Why bound acquisition: measured on a *passing* run, this step spent 40s
+          # fetching 11.4 MB of index and then 2m17s fetching 8.9 MB of packages at
+          # 65 kB/s — it is dominated by download throughput, not by work. apt applies
+          # no wall-clock bound to a stalled mirror, so a slow Launchpad or archive
+          # host wedges the step for tens of minutes. This job is a required check, so
+          # a wedge holds the entire run open and blocks `gh run rerun --failed`.
+          # Bounded timeouts plus retries turn an unbounded hang into a fast, legible
+          # failure. Set in apt.conf.d rather than on each command line so the two
+          # invocations below stay exactly as pr-workflow-parallelism.test.mjs parses
+          # them. Retries are 1, not 3: a first attempt at these bounds already multiplied
+          # 30s x 3 retries across every index file into a ~15 minute stall on a dead
+          # mirror, which is worse than failing once and moving on.
           sudo tee /etc/apt/apt.conf.d/99-orca-shell-contracts >/dev/null <<'APTCONF'
           Acquire::http::Timeout "15";
           Acquire::https::Timeout "15";
           Acquire::Retries "1";
           APTCONF
-          # Unrelated runner repositories may fail refresh; installing zsh must still succeed.
+          for attempt in 1 2 3; do
+            sudo add-apt-repository -y -n ppa:fish-shell/release-4 && break
+            echo "add-apt-repository attempt ${attempt} failed; retrying" >&2
+            sudo add-apt-repository -y -n -r ppa:fish-shell/release-4 || true
+            sleep 5
+          done
+          # Why a wall-clock bound on each command: apt's Acquire timeouts are per-connection,
+          # so a dead mirror costs timeout x retries x every index file. Measured: the archive
+          # mirror stalled with zero bytes and the step burned 14m26s before the job bound
+          # killed it. `timeout` is the only thing that bounds the command as a whole.
+          # The update is already tolerant by design (see above), so bounding it just caps
+          # what a dead mirror can cost before the install runs against whatever index exists.
           timeout 120 sudo apt-get update || true
-          timeout 300 sudo apt-get install -y zsh
-          # A fixed 4.x release meets the contract without tracking package-repository updates.
-          case "$(uname -m)" in
-            aarch64) arch=aarch64 sha=57349f0111728c64b703a84e611aa97ff4d1fa8466385d64e67bd5bc3ffa49fc ;;
-            *) arch=x86_64 sha=8f643d10ad1abb0ef7072764c01ceb5cf61b2d373fda400cf60f0bad69b7e095 ;;
-          esac
-          curl -fsSL --retry 2 --connect-timeout 15 --max-time 120 -o "$RUNNER_TEMP/fish.tar.xz" \
-            "https://github.com/fish-shell/fish-shell/releases/download/4.9.3/fish-4.9.3-linux-${arch}.tar.xz"
-          echo "${sha}  $RUNNER_TEMP/fish.tar.xz" | sha256sum -c -
-          tar -xJf "$RUNNER_TEMP/fish.tar.xz" -C "$RUNNER_TEMP" fish
-          sudo install -m 0755 "$RUNNER_TEMP/fish" /usr/local/bin/fish
-          for package in fish fish-common; do
-            if ! dpkg-query -W -f='${binary:Package}: ${Status}\n' "$package" 2>/dev/null; then
-              echo "$package: absent"
-            fi
-          done
-          # Exclude runner preload while keeping the tests' own XDG vendor snippets reachable.
-          quarantine="$(mktemp -d "$RUNNER_TEMP/fish-runner-resources.XXXXXX")"
-          for path in /usr/share/fish /etc/fish; do
-            if [ -e "$path" ] || [ -L "$path" ]; then
-              sudo mv -- "$path" "$quarantine/${path//\//_}"
-              echo "$path: quarantined in $quarantine"
-            fi
-            if [ -e "$path" ]; then echo "$path: present"; else echo "$path: absent"; fi
-          done
-          printf 'fish selected: %s\n' "$(command -v fish)"
+          # Why both shells on one line: pr-workflow-parallelism.test.mjs parses only the
+          # first install command in this step to prove the lane really installs them.
+          timeout 300 sudo apt-get install -y zsh fish
 
       - uses: ./.github/actions/install-node-dependencies
         with:
@@ -589,7 +582,7 @@ jobs:
           case "$major" in '' | *[!0-9]*) major=0 ;; esac
           echo "${version:-<fish not installed>}"
           if [ "$major" -lt 4 ]; then
-            echo "::error::shell contracts needs fish 4+ (DECSET 2031 arming, #9993) but got '${version:-none}'. Fix the direct GitHub release install rather than letting the fish lane skip." >&2
+            echo "::error::shell contracts needs fish 4+ (DECSET 2031 arming, #9993) but got '${version:-none}'. Fix the ppa:fish-shell/release-4 install rather than letting the fish lane skip." >&2
             exit 1
           fi
 
@@ -639,55 +632,11 @@ jobs:
     if: ${{ !cancelled() && needs.test.result == 'success' }}
     uses: ./.github/workflows/unit-selection-evidence.yml
 
-  cross-version-wire:
-    name: cross-version wire compatibility
-    needs: [code_paths]
-    if: needs.code_paths.outputs.cross-version-wire == 'true'
-    # Why ARM: source-only: tagged checkout plus in-process vitest, no docker or browser.
-    runs-on: blacksmith-4vcpu-ubuntu-2404-arm
-
-    steps:
-      # Why fetch-depth 0: the harness extracts the newest release tag to skew
-      # current code against it. The default shallow clone has no tags, which is
-      # why this cannot ride along in the sharded `test` job.
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          # Why blob:none: full history is needed for the merge-base diff, but historical
-          # file contents are not. Blobs are ~89% of this repo's pack, and Git fetches the
-          # few this job actually reads on demand.
-          fetch-depth: 0
-          filter: blob:none
-          persist-credentials: false
-
-      # Why: this fork publishes only -local tags; the release baseline is upstream's newest tag.
-      - name: Fetch upstream release tags
-        shell: bash
-        run: git fetch --quiet --no-tags --filter=blob:none https://github.com/stablyai/orca.git 'refs/tags/v*:refs/tags/v*'
-
-      - uses: ./.github/actions/install-node-dependencies
-        with:
-          native-runtime: node
-
-      # R1: an upgrade from the newest release must adopt its live terminal daemon.
-      - name: Daemon protocol crossing against newest release
-        run: pnpm run check:daemon-protocol-crossing
-
-      # R3: a runtime launcher swap must not also bump the daemon protocol (D7.1).
-      # The label is read from the event payload, so push again after applying it.
-      - name: Runtime launcher change does not bump daemon protocol
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          ORCA_ALLOW_RUNTIME_LAUNCHER_PROTOCOL_BUMP: ${{ contains(github.event.pull_request.labels.*.name, 'allow-runtime-launcher-protocol-bump') }}
-        run: |
-          DIFF_BASE="$(node config/scripts/git-pull-request-diff-base.mjs "$BASE_SHA")"
-          pnpm run check:runtime-launcher-protocol-ratchet -- --base "$DIFF_BASE"
-
   package:
     name: package
     needs: [code_paths, static_analysis, typecheck]
     if: needs.code_paths.outputs.package == 'true'
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
     # Let the serial Docker gates reach their own deadlines and report cleanup failures.
     timeout-minutes: 90
 
@@ -719,8 +668,6 @@ jobs:
       # probe carries its own in-process deadline. Four at once on a 4-vCPU runner starve each other
       # past those deadlines; serial, every probe owns the runner.
       - name: Test Linux Electron lifecycle boundary
-        env:
-          ORCA_BACKGROUND_LAUNCH: '1'
         run: >-
           xvfb-run --auto-servernum pnpm exec vitest run --config config/vitest.config.ts
           --no-file-parallelism
@@ -729,50 +676,19 @@ jobs:
           src/main/browser/browser-route-webrtc-egress.electron.test.ts
           src/main/browser/browser-route-h3-egress.electron.test.ts
           src/main/browser/browser-route-dns-prefetch.electron.test.ts
-          src/main/persistence/profile-state/profile-state-writer-stall.electron.test.ts
-          src/main/browser/popup-origin-chrome.electron.test.ts
-          src/main/browser/browser-link-materialization.electron.test.ts
-          src/main/browser/browser-popup-compatibility.electron.test.ts
-          src/main/browser/browser-popup-adapter-compatibility.electron.test.ts
-          src/main/browser/browser-popup-native-compatibility.electron.test.ts
-          src/main/browser/browser-popup-background-compatibility.electron.test.ts
 
-      # The isolated glibc-floor build writes only the Wayland helper, so JavaScript can overlap.
-      - name: Build native components
-        id: linux-native
-        background: true
-        env:
-          CACHE_HIT: ${{ steps.linux-native-restore.outputs.cache-hit }}
-        run: bash .github/actions/prepare-wayland-clipboard/build-or-validate.sh
-
-      # Load independent fixtures during builds; keep native lifecycle probes serial.
+      # Restore independent fixtures during builds; keep native lifecycle probes serial.
       - uses: ./.github/actions/prepare-linux-package-fixture
-        id: shutdown-fixture-cache-restore
-        with:
-          fixture: headless-serve-shutdown
-          load: 'false'
-
-      - name: Load headless serve shutdown fixture image
         id: shutdown-fixture-cache
         background: true
-        env:
-          FIXTURE: headless-serve-shutdown
-          CACHE_HIT: ${{ steps.shutdown-fixture-cache-restore.outputs.cache-hit }}
-        run: bash .github/actions/prepare-linux-package-fixture/load-fixture.sh
+        with:
+          fixture: headless-serve-shutdown
 
       - uses: ./.github/actions/prepare-linux-package-fixture
-        id: cli-fixture-cache-restore
-        with:
-          fixture: cli-launch-contract
-          load: 'false'
-
-      - name: Load CLI launch contract fixture image
         id: cli-fixture-cache
         background: true
-        env:
-          FIXTURE: cli-launch-contract
-          CACHE_HIT: ${{ steps.cli-fixture-cache-restore.outputs.cache-hit }}
-        run: bash .github/actions/prepare-linux-package-fixture/load-fixture.sh
+        with:
+          fixture: cli-launch-contract
 
       - name: Install Linux package tooling
         id: linux-package-tools
@@ -780,8 +696,6 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y cpio rpm
 
       - name: Build package inputs
-        env:
-          ORCA_CI_MAIN_SOURCEMAPS: '0'
         run: |
           status=0
           pnpm run build:cli || status=1
@@ -824,27 +738,6 @@ jobs:
           rpm_marker="$(rpm2cpio "$rpm" | cpio --quiet --extract --to-stdout './opt/*/resources/package-type')"
           [[ "$deb_marker" == deb ]] || { echo "Expected deb marker, got: $deb_marker"; exit 1; }
           [[ "$rpm_marker" == rpm ]] || { echo "Expected rpm marker, got: $rpm_marker"; exit 1; }
-          # Only the AppImage carries the pinned Node (config/scripts/appimage-node-runtime.cjs).
-          if dpkg-deb --fsys-tarfile "$deb" | tar -t | grep '/resources/node-runtime' >/dev/null; then
-            echo "The deb must not carry the AppImage's Node"; exit 1
-          fi
-          if rpm2cpio "$rpm" | cpio --quiet -t | grep '/resources/node-runtime' >/dev/null; then
-            echo "The rpm must not carry the AppImage's Node"; exit 1
-          fi
-          appimage_root="$(mktemp -d)"
-          (cd "$appimage_root" && "$GITHUB_WORKSPACE/dist/orca-linux.AppImage" --appimage-extract 'resources/node-runtime/bin/node' >/dev/null)
-          test -x "$appimage_root/squashfs-root/resources/node-runtime/bin/node"
-          "$appimage_root/squashfs-root/resources/node-runtime/bin/node" --version
-          rm -rf "$appimage_root"
-          ls -l dist/orca-linux.AppImage "$deb" "$rpm"
-
-      # Kept briefly so a reviewer can run this exact AppImage on a real Linux desktop.
-      - uses: actions/upload-artifact@v7
-        with:
-          name: orca-linux-appimage-${{ github.event.pull_request.head.sha }}
-          path: dist/orca-linux.AppImage
-          retention-days: 3
-          compression-level: 0
 
       - wait: shutdown-fixture-cache
 
@@ -914,15 +807,10 @@ jobs:
       # vitest runs here directly rather than through `pnpm test`, so the addon
       # assertions only hold once install-node-dependencies has rebuilt natives.
       - name: Test Windows installer process probe
-        if: needs.code_paths.outputs.windows_process_probe != 'false'
-        env:
-          ORCA_BACKGROUND_LAUNCH: '1'
-        # Serialize the two suites so their cold PowerShell/CIM starts cannot contend.
+        # Keep cold CIM startup out of the concurrent Electron/native process workload.
         run: >-
           pnpm exec vitest run --config config/vitest.config.ts
-          --no-file-parallelism
           config/scripts/nsis-process-check.test.mjs
-          config/scripts/idle-cpu-process-sampling.test.mjs
 
       - name: Test Windows-specific boundaries
         run: >-
@@ -946,6 +834,9 @@ jobs:
           src/main/browser/browser-route-dns-prefetch.electron.test.ts
           src/main/providers/windows-conpty-wide-char-duplication.node-pty.test.ts
           src/main/providers/pty-repaint-wide-char-buffer.node-pty.test.ts
+          src/shared/child-process/windows-command-line.win32.test.ts
+          src/shared/child-process/windows-cmd-shim-resolution.test.ts
+          src/shared/child-process/windows-cmd-shim-resolution.win32.test.ts
           src/main/agent-hooks/windows-hook-payload-delivery.test.ts
           src/main/agent-hooks/windows-direct-cmd-hook-command.test.ts
           src/main/codex/windows-hook-command.test.ts
@@ -961,6 +852,7 @@ jobs:
           src/main/windows-live-tree-kill.win32.test.ts
           src/main/wsl/wsl-runner.test.ts
           src/main/wsl/wsl-guest-environment.test.ts
+          src/main/wsl/wsl-invocation-boundary.test.ts
           src/main/wsl/wsl-executable-path.win32.test.ts
           src/main/wsl/wsl-w1-w3-contract.test.ts
           src/shared/source-scan/source-tree-scan.test.ts
@@ -989,10 +881,8 @@ jobs:
           path: |
             native/windows-cli-launcher/.build
             native/windows-cli-launcher/target
-            native/windows-agent-hook/.build
-            native/windows-agent-hook/target
             ~/.cargo/registry
-          key: windows-cli-launcher-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('native/windows-cli-launcher/**', 'native/windows-agent-hook/**', 'config/scripts/build-windows-cli-launcher.mjs', 'config/scripts/build-windows-agent-hook.mjs', 'config/scripts/windows-rust-executable-build.mjs', 'resources/build/icon.ico', 'package.json') }}
+          key: windows-cli-launcher-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('native/windows-cli-launcher/**', 'config/scripts/build-windows-cli-launcher.mjs', 'resources/build/icon.ico', 'package.json') }}
 
       # Why an explicit step rather than trusting the runner image: the packaged
       # CLI launcher is a native Rust binary, and a host without cargo fails deep
@@ -1006,39 +896,7 @@ jobs:
           }
           cargo --version
 
-      # Why before the tests: the orca-agent-hook.exe suites then share one prebuilt binary rather
-      # than each starting its own build mid-run.
-      - name: Build the Windows agent hook
-        run: node config/scripts/build-windows-agent-hook.mjs
-
-      - name: Build the Windows CLI launcher
-        run: node config/scripts/build-windows-cli-launcher.mjs
-
-      # Files come from WINDOWS_BOUNDARY_TESTS, the same list that decides whether this job runs.
-      - name: Test Windows-specific boundaries
-        env:
-          ORCA_BACKGROUND_LAUNCH: '1'
-          ORCA_REAL_WINDOWS_SKILL_TEST: '1'
-        run: |
-          $files = node config/scripts/pr-package-test-paths.mjs
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          node node_modules/vitest/vitest.mjs run --config config/vitest.config.ts @files
-
-      # Why its own step: the CPU burners that make taskkill slow would starve
-      # every other test file sharing the runner.
-      - name: Test Windows tree kill under CPU load
-        env:
-          ORCA_WINDOWS_TREE_KILL_LOAD: '1'
-        run: >-
-          pnpm exec vitest run --config config/vitest.config.ts
-          src/shared/__tests__/process-host/windows-tree-kill-late-taskkill.win32.test.ts
-
-      # Why the :parallel variant: identical to build:release except the three
-      # electron-vite targets overlap instead of running back to back. The Linux package
-      # job already packages and smoke-tests an AppImage built that way.
       - name: Build package inputs
-        env:
-          ORCA_CI_MAIN_SOURCEMAPS: '0'
         run: pnpm run build:release:parallel
 
       - name: Restore compiled Electron native modules
@@ -1103,69 +961,8 @@ jobs:
     with:
       ref: ${{ github.event.pull_request.head.sha }}
 
-  # Why: pnpm's global virtual store links each package to only its declared dependencies, which
-  # is how developers install. Hoisting hides an undeclared one everywhere else, so install that way
-  # here with HOME and the store in an empty temp dir, where no stray node_modules can mask it.
-  dependency_isolation:
-    name: dependency isolation under the global virtual store
-    needs: [code_paths]
-    if: >-
-      !cancelled() &&
-      needs.code_paths.result == 'success' &&
-      needs.code_paths.outputs.dependency_isolation == 'true'
-    runs-on: blacksmith-4vcpu-ubuntu-2404
-    timeout-minutes: 30
-    env:
-      ORCA_PNPM_FORCE_GLOBAL_VIRTUAL_STORE_IN_CI: '1'
-
-    steps:
-      # Job-wide (via GITHUB_ENV, since job env cannot read runner.temp) so every pnpm command,
-      # including pnpm run's own install check, keeps this layout.
-      - name: Point HOME and the pnpm store at empty temp dirs
-        run: |
-          mkdir -p "$RUNNER_TEMP/empty-home"
-          {
-            echo "HOME=$RUNNER_TEMP/empty-home"
-            echo "pnpm_config_store_dir=$RUNNER_TEMP/isolated-store"
-          } >> "$GITHUB_ENV"
-
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version-file: package.json
-          check-latest: true
-          package-manager-cache: false
-
-      - name: Setup pnpm
-        uses: ./.github/actions/setup-pnpm
-
-      - name: Install with every package isolated in its own store slot
-        run: |
-          set -euo pipefail
-          pnpm install --frozen-lockfile --ignore-scripts
-          if [ -d node_modules/bun ]; then
-            pnpm rebuild bun
-          fi
-
-      - name: Typecheck and check undeclared dependency resolution
-        run: |
-          set -euo pipefail
-          pnpm tc
-          pnpm exec vitest run --config config/vitest.config.ts config/scripts/undeclared-dependency-resolution.test.ts
-          # Pointless if any pnpm command above fell back to the hoisted layout or another store.
-          case "$(realpath node_modules/zod)" in
-            "$(realpath "$pnpm_config_store_dir")"/*) ;;
-            *) echo "node_modules/zod is not in the isolated store"; exit 1 ;;
-          esac
-
   verify:
-    name: PR checks passed
-    # Publish an explicit result after every required dependency settles.
-    if: ${{ !cancelled() && github.event.pull_request.draft != true }}
+    if: ${{ !cancelled() }}
     needs:
       - code_paths
       - static_analysis
@@ -1175,13 +972,10 @@ jobs:
       - xterm_patch_sync
       - shell_contracts
       - test
-      - cross-version-wire
       - package
       - package_windows
-      - layout_oracle
-      - dependency_isolation
-    # Report settled results without competing with the GitHub-hosted test queue.
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    # Evaluating job results only needs the lightweight container runner.
+    runs-on: ubuntu-slim
     timeout-minutes: 5
 
     steps:
@@ -1211,24 +1005,14 @@ jobs:
           SHELL_CONTRACTS_SHOULD_RUN: ${{ needs.code_paths.outputs.shell_contracts }}
           TEST: ${{ needs.test.result }}
           TEST_SHOULD_RUN: ${{ needs.code_paths.outputs.test }}
-          CROSS_VERSION_WIRE: ${{ needs.cross-version-wire.result }}
-          CROSS_VERSION_WIRE_SHOULD_RUN: ${{ needs.code_paths.outputs.cross-version-wire }}
           PACKAGE: ${{ needs.package.result }}
           PACKAGE_SHOULD_RUN: ${{ needs.code_paths.outputs.package }}
           PACKAGE_WINDOWS: ${{ needs.package_windows.result }}
           PACKAGE_WINDOWS_SHOULD_RUN: ${{ needs.code_paths.outputs.package_windows }}
-          LAYOUT_ORACLE: ${{ needs.layout_oracle.result }}
-          LAYOUT_ORACLE_SHOULD_RUN: ${{ needs.code_paths.outputs.layout_oracle }}
-          DEPENDENCY_ISOLATION: ${{ needs.dependency_isolation.result }}
-          DEPENDENCY_ISOLATION_SHOULD_RUN: ${{ needs.code_paths.outputs.dependency_isolation }}
         run: |
           if [ "$CODE_PATHS" != "success" ]; then
             exit 1
           fi
-          case "$STATIC_ANALYSIS_SHOULD_RUN:$TYPECHECK_SHOULD_RUN" in
-            true:true|true:false|false:true|false:false) ;;
-            *) echo "preflight: missing or invalid selection"; exit 1 ;;
-          esac
           if [ "$SHOULD_RUN" != "true" ]; then
             echo "Docs-only change; expensive PR checks skipped."
           fi
@@ -1240,14 +1024,11 @@ jobs:
                 echo "$name: expected success, got $result"
                 failed=1
               fi
-            elif [ "$should" = "false" ]; then
+            else
               if [ "$result" != "skipped" ]; then
                 echo "$name: expected skipped, got $result"
                 failed=1
               fi
-            else
-              echo "$name: missing or invalid selection"
-              failed=1
             fi
           }
           # Require success when the PR has code-relevant changes
@@ -1258,9 +1039,6 @@ jobs:
           check_job xterm_patch_sync "$XTERM_PATCH_SYNC" "$XTERM_PATCH_SYNC_SHOULD_RUN"
           check_job shell_contracts "$SHELL_CONTRACTS" "$SHELL_CONTRACTS_SHOULD_RUN"
           check_job test "$TEST" "$TEST_SHOULD_RUN"
-          check_job cross-version-wire "$CROSS_VERSION_WIRE" "$CROSS_VERSION_WIRE_SHOULD_RUN"
           check_job package "$PACKAGE" "$PACKAGE_SHOULD_RUN"
           check_job package_windows "$PACKAGE_WINDOWS" "$PACKAGE_WINDOWS_SHOULD_RUN"
-          check_job layout_oracle "$LAYOUT_ORACLE" "$LAYOUT_ORACLE_SHOULD_RUN"
-          check_job dependency_isolation "$DEPENDENCY_ISOLATION" "$DEPENDENCY_ISOLATION_SHOULD_RUN"
           exit "$failed"

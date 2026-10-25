@@ -7,7 +7,7 @@ const TOOLCHAIN_FILES = new Set([
   'pnpm-workspace.yaml',
   'tsconfig.json',
   '.npmrc',
-  'config/pnpmfile.cjs',
+  '.pnpmfile.cjs',
   '.github/workflows/pr.yml'
 ])
 

@@ -19,23 +19,12 @@ permissions:
   contents: write
 
 concurrency:
-  # Why: a qualification run that reuses a live tag must never queue behind or replace its release build.
-  group: release-mac-build-${{ inputs.tag }}${{ inputs.qualification_only && '-qualification' || '' }}
+  group: release-mac-build-${{ inputs.tag }}
   cancel-in-progress: false
 
 jobs:
-  qualification-template:
-    if: inputs.qualification_only
-    permissions:
-      contents: read
-      actions: read
-    uses: ./.github/workflows/qualified-orcad-template.yml
-    with:
-      ref: ${{ github.sha }}
-
   build-mac:
-    needs: qualification-template
-    if: ${{ !cancelled() && (!inputs.qualification_only || needs.qualification-template.result == 'success') && github.repository == 'stablyai/orca' }}
+    if: github.repository == 'stablyai/orca'
     # Why: this workflow is outside the SignPath signing run, so Blacksmith
     # cannot enter Windows artifact provenance while mac notarization gets the
     # faster runner.
@@ -46,13 +35,12 @@ jobs:
       actions: read
       contents: write
     env:
-      ORCA_BACKGROUND_LAUNCH: '1'
       NODE_OPTIONS: --max-old-space-size=4096
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.qualification_only && github.sha || format('refs/tags/{0}', inputs.tag) }}
+          ref: refs/tags/${{ inputs.tag }}
 
       - name: Restore draft-publish scripts from the workflow ref
         env:
@@ -71,7 +59,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version-file: package.json
-          check-latest: true
           cache: pnpm
           cache-dependency-path: |
             pnpm-lock.yaml
@@ -155,7 +142,6 @@ jobs:
           ELECTRON_RUN_AS_NODE=1 pnpm exec electron config/scripts/runtime-file-watcher-fault-harness.mjs
 
       - name: Abort if the parent release-cut run was cancelled
-        if: ${{ !inputs.qualification_only }}
         # Why: this workflow is dispatched separately, so cancelling release-cut
         # does not stop mac `--publish always`. A cancelled parent left v1.4.206
         # public with only a partial mac upload.
@@ -186,7 +172,6 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
       - name: Verify release remains draft after artifact upload
-        if: ${{ !inputs.qualification_only }}
         # Why: re-draft immediately if electron-builder flipped the GitHub
         # release public, then fail. Checking without restoring leaves
         # /releases/latest serving a missing Windows exe.

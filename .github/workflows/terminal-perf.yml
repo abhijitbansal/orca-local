@@ -48,16 +48,10 @@ on:
     # terminal throughput regressions are caught before users report typing lag.
     - cron: '30 8 * * *'
 
-permissions:
-  contents: read
-
-# Candidate source must not write caches in the dispatch branch's scope.
-cache-mode: read
-
 jobs:
   terminal-perf:
     name: terminal scale perf
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
       NODE_OPTIONS: --max-old-space-size=4096
@@ -83,7 +77,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version-file: package.json
-          check-latest: true
           cache: pnpm
 
       # Why: this scheduled/manual workflow uses the same native install path as

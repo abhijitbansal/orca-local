@@ -155,7 +155,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version-file: package.json
-          check-latest: true
           cache: pnpm
           cache-dependency-path: |
             pnpm-lock.yaml
@@ -503,7 +502,7 @@ jobs:
   post-daily-e2e:
     needs: build-daily-mac
     if: ${{ needs.build-daily-mac.outputs.published == 'true' && needs.build-daily-mac.outputs.head_sha != '' }}
-    runs-on: blacksmith-2vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
     permissions:
       actions: write
     steps:
@@ -540,9 +539,6 @@ jobs:
     # Only once the mac release is actually live: there is no release to upload
     # into otherwise, and the Windows workflow refuses to create one.
     if: needs.build-daily-mac.outputs.published == 'true'
-    permissions:
-      contents: read
-      actions: read
     uses: ./.github/workflows/dev-channel-win-build.yml
     secrets: inherit
     with:

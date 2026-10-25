@@ -56,7 +56,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version-file: package.json
-          check-latest: true
           cache: pnpm
           cache-dependency-path: |
             pnpm-lock.yaml
@@ -495,7 +494,7 @@ jobs:
           }
 
           $targets = @(Get-Content 'inner-signing-list.txt')
-          foreach ($requiredTarget in @('Orca.exe', 'resources\bin\orca.exe', 'resources\bin\orca-agent-hook.exe')) {
+          foreach ($requiredTarget in @('Orca.exe', 'resources\bin\orca.exe')) {
             if ($targets -notcontains $requiredTarget) { $targets += $requiredTarget }
           }
           foreach ($relative in $targets) {

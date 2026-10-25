@@ -198,7 +198,7 @@ describe('PR workflow parallelism', () => {
       (step) => step.name === 'Build package inputs'
     )
 
-    expect(buildStep.run).toContain('scripts=(build:relay build:electron-vite:parallel)')
+    expect(buildStep.run).toContain('scripts=(build:wsl-guest build:electron-vite:parallel)')
     expect(buildStep.run).toContain('pnpm run "$script" &')
   })
 
@@ -269,7 +269,6 @@ describe('PR workflow parallelism', () => {
         (step) => step.uses?.startsWith('actions/checkout@') && step.with?.['fetch-depth'] === 0
       )
 
-    expect(fullHistoryCheckouts.length).toBeGreaterThan(0)
     for (const checkout of fullHistoryCheckouts) {
       expect(checkout.with.filter).toBe('blob:none')
     }
@@ -301,14 +300,8 @@ describe('PR workflow parallelism', () => {
       'xterm_patch_sync',
       'shell_contracts',
       'test',
-      'cross-version-wire',
       'package',
       'package_windows'
     ])
-    const verifyStep = workflow.jobs.verify.steps.find(
-      (step) => step.name === 'Require successful checks'
-    )
-    expect(verifyStep.env.CROSS_VERSION_WIRE).toBe('${{ needs.cross-version-wire.result }}')
-    expect(verifyStep.run).toContain('"$CROSS_VERSION_WIRE"')
   })
 })

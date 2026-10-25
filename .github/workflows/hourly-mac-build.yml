@@ -63,7 +63,7 @@ jobs:
   # Avoid occupying the limited Mac pool when main has not moved.
   preflight:
     if: github.repository == 'stablyai/orca'
-    runs-on: blacksmith-2vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
       should_build: ${{ steps.freshness.outputs.should_build }}
@@ -156,13 +156,14 @@ jobs:
           repositories: orca-hourly
 
       - name: Setup pnpm
-        uses: ./.github/actions/setup-pnpm
+        uses: pnpm/setup@v2
+        with:
+          install: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version-file: package.json
-          check-latest: true
           cache: pnpm
           cache-dependency-path: |
             pnpm-lock.yaml
@@ -479,9 +480,6 @@ jobs:
     # Only once the mac release is actually live: there is no release to upload
     # into otherwise, and the Windows workflow refuses to create one.
     if: needs.build-hourly-mac.outputs.published == 'true'
-    permissions:
-      contents: read
-      actions: read
     uses: ./.github/workflows/dev-channel-win-build.yml
     secrets: inherit
     with:

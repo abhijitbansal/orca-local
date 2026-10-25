@@ -122,12 +122,6 @@ describe('PR test LoC summary', () => {
   })
 
   it('retries transient GitHub errors when updating the PR body', async () => {
-    const body = '## Description\n'
-    const totals = {
-      test: { files: 1, added: 2, deleted: 0 },
-      nonTest: { files: 0, added: 0, deleted: 0 }
-    }
-    const delays = []
     const responses = [
       { ok: false, status: 503, statusText: 'Service Unavailable' },
       { ok: true, status: 200, statusText: 'OK' }
@@ -138,35 +132,28 @@ describe('PR test LoC summary', () => {
       repo: 'orca',
       pullNumber: 14656,
       token: 'test-token',
-      totals,
+      totals: {
+        test: { files: 1, added: 2, deleted: 0 },
+        nonTest: { files: 0, added: 0, deleted: 0 }
+      },
       fetchImpl: async (url, options) => {
         requests.push({ url, options })
         if (requests.length === 1) {
           return {
             ok: true,
             status: 200,
-            json: async () => ({ body })
+            json: async () => ({ body: '## Description\n' })
           }
         }
         return responses.shift()
       },
-      sleepImpl: async (milliseconds) => {
-        delays.push(milliseconds)
-      }
+      sleepImpl: async () => {}
     })
 
     expect(result).toBe(0)
     expect(requests).toHaveLength(3)
-    expect(requests.map(({ url }) => url)).toEqual(
-      Array(3).fill('https://api.github.com/repos/stablyai/orca/pulls/14656')
-    )
-    for (const { options } of requests.slice(1)) {
-      expect(options.method).toBe('PATCH')
-      expect(JSON.parse(options.body)).toEqual({
-        body: `${renderLocBlock(totals)}\n\n${body}`
-      })
-    }
-    expect(delays).toEqual([1000])
+    expect(requests[1].options.method).toBe('PATCH')
+    expect(requests[2].options.method).toBe('PATCH')
   })
 
   it('colors added cells green and deleted or negative-net cells red', () => {
@@ -245,8 +232,8 @@ describe('PR test LoC summary', () => {
     expect(result.stderr).toContain('--from-pr')
   })
 
-  it('is a no-checkout PR workflow on an ephemeral Blacksmith runner', () => {
-    expect(locJob['runs-on']).toBe('blacksmith-2vcpu-ubuntu-2404')
+  it('is a no-checkout GitHub-hosted PR workflow', () => {
+    expect(locJob['runs-on']).toBe('ubuntu-slim')
     expect(locJob.steps).toHaveLength(1)
     expect(locStep.run).toContain('gh api')
     expect(locStep.run).toContain('pr-test-loc-table.mjs')

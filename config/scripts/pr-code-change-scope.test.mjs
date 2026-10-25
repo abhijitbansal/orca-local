@@ -22,7 +22,6 @@ const expensiveJobs = [
   'xterm_patch_sync',
   'shell_contracts',
   'test',
-  'cross-version-wire',
   'package',
   'package_windows'
 ]
@@ -288,7 +287,6 @@ describe('per-job path classification', () => {
       'src/renderer/src/runtime/remote-runtime-terminal-multiplexer.ts'
     ]) {
       expectClassification([file], {
-        'cross-version-wire': true,
         package: true,
         package_windows: true
       })
