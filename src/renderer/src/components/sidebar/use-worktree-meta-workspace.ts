@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useAppStore } from '@/store'
+import { selectFolderWorkspaces, selectWorktreesByRepo } from '@/store/workspace-record-selectors'
 import { findIndexedWorktreeOwner } from '@/lib/worktree-runtime-owner-index'
 import type { Worktree } from '../../../../shared/worktree/types'
 import { parseWorkspaceKey } from '../../../../shared/workspace-scope'
@@ -34,16 +35,16 @@ export function useWorktreeMetaWorkspace(args: {
     // reports as ambiguous rather than guessing. The row that opened the dialog
     // knows which one it is; the index stays the fallback for callers that cannot.
     const scoped = ownerRepoId
-      ? s.worktreesByRepo[ownerRepoId]?.find(
+      ? selectWorktreesByRepo(s)[ownerRepoId]?.find(
           (item) => item.id === worktreeId && (!executionHostId || item.hostId === executionHostId)
         )
       : undefined
     if (scoped) {
       return scoped
     }
-    const owner = findIndexedWorktreeOwner(s.worktreesByRepo, worktreeId)
+    const owner = findIndexedWorktreeOwner(selectWorktreesByRepo(s), worktreeId)
     return owner
-      ? s.worktreesByRepo[owner.repoId]?.find((item) => item.id === worktreeId)
+      ? selectWorktreesByRepo(s)[owner.repoId]?.find((item) => item.id === worktreeId)
       : undefined
   })
   // Why: folder workspaces are absent from worktreesByRepo, so the lookup above
@@ -53,7 +54,8 @@ export function useWorktreeMetaWorkspace(args: {
   // on every store write and re-render the dialog continuously.
   const folderWorkspace = useAppStore((s) =>
     workspaceScope?.type === 'folder'
-      ? (s.folderWorkspaces.find((item) => item.id === workspaceScope.folderWorkspaceId) ?? null)
+      ? (selectFolderWorkspaces(s).find((item) => item.id === workspaceScope.folderWorkspaceId) ??
+        null)
       : null
   )
   const worktree = useMemo(

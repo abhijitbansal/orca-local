@@ -2,6 +2,7 @@ import { spawn as spawnProcess, type SpawnOptions } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { runProcessSync } from '@orca/process-host'
+import { headlessServeOzonePlatformSwitches } from '../../shared/headless-serve-ozone-platform'
 import { getMacAppBundlePath } from './mac-app-update-bundle'
 import { superviseForegroundServe } from './serve-foreground-supervisor'
 import { preflightElectronServe, recordElectronServeStartupAbort } from './serve-electron-preflight'
@@ -89,6 +90,7 @@ function spawnElectronServe(
   if (args.json) {
     childArgs.push('--serve-json')
   }
+  childArgs.push(...headlessServeOzonePlatformSwitches(process.platform))
 
   const spawnOptions: SpawnOptions = {
     detached: false,

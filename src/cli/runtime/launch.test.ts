@@ -159,7 +159,7 @@ describe('serveOrcaApp', () => {
         )
         expect(spawnMock).toHaveBeenCalledWith(
           executable,
-          [...expectedPrefix, '--serve', '--serve-json'],
+          [...expectedPrefix, '--serve', '--serve-json', '--ozone-platform=x11'],
           // Foreground serve must share POSIX job-control signals with its CLI supervisor.
           expect.objectContaining({ detached: false })
         )

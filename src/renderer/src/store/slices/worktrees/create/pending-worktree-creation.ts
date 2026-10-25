@@ -1,5 +1,6 @@
 import type { WorktreeSlice } from '../../worktree-helpers'
 import type { WorktreeSliceGet, WorktreeSliceSet } from '../listing/worktree-slice-types'
+import { endWindowCreation } from '@/lib/sidebar-ended-creations'
 
 export function createBeginPendingWorktreeCreation(
   set: WorktreeSliceSet,
@@ -45,10 +46,12 @@ export function createRemovePendingWorktreeCreation(
   _get: WorktreeSliceGet
 ): WorktreeSlice['removePendingWorktreeCreation'] {
   return (creationId) => {
+    let removed = false
     set((s) => {
       if (!s.pendingWorktreeCreations[creationId]) {
         return s
       }
+      removed = true
       const { [creationId]: _removed, ...rest } = s.pendingWorktreeCreations
       return {
         pendingWorktreeCreations: rest,
@@ -56,6 +59,9 @@ export function createRemovePendingWorktreeCreation(
         ...(s.activePendingCreationId === creationId ? { activePendingCreationId: null } : {})
       }
     })
+    if (removed) {
+      endWindowCreation(creationId)
+    }
   }
 }
 
