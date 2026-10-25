@@ -68,7 +68,7 @@ export function registerPtyConnectionPendingSpawnTests(): void {
       connectPanePty(createPane(1) as never, createManager(1) as never, createDeps() as never)
       await flushAsyncTicks()
 
-      expect(Reflect.get(globalThis, '__ptyConnectDiag')).toBeUndefined()
+      expect('__ptyConnectDiag' in globalThis).toBe(false)
       expect(logSpy).not.toHaveBeenCalledWith(expect.stringContaining('[pty-connect]'))
       logSpy.mockRestore()
     }, 30_000)
