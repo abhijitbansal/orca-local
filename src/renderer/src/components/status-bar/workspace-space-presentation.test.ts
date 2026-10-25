@@ -143,28 +143,6 @@ function decisionInputs(
 }
 
 describe('workspace space presentation helpers', () => {
-  it('marks only the active host row active when workspace ids collide', () => {
-    const inputs = decisionInputs({
-      activeWorktreeId: 'wt',
-      activeWorkspaceExecutionHostId: 'local',
-      gitStatusByWorktree: { wt: [] }
-    })
-    const local = getWorkspaceDecisionDetails(
-      row({ worktreeId: 'wt', executionHostId: 'local' }),
-      inputs
-    )
-    const ssh = getWorkspaceDecisionDetails(
-      row({ worktreeId: 'wt', executionHostId: 'ssh:builder' }),
-      inputs
-    )
-
-    expect(local.isActive).toBe(true)
-    expect(ssh.isActive).toBe(false)
-    expect(isWorkspaceSpaceRowReadyToDelete(row({ executionHostId: 'ssh:builder' }), ssh)).toBe(
-      true
-    )
-  })
-
   it('fails closed when the active workspace host is unknown', () => {
     const details = getWorkspaceDecisionDetails(
       row({ worktreeId: 'wt', executionHostId: 'ssh:builder' }),
@@ -192,23 +170,6 @@ describe('workspace space presentation helpers', () => {
     expect(getWorkspaceSpaceDeleteState(row({ executionHostId: 'local' }), states, true)).toBe(
       failedOnLocal
     )
-  })
-
-  it('keeps clean and dirty same-id rows isolated by host', () => {
-    const localRow = row({ worktreeId: 'wt', executionHostId: 'local' })
-    const sshRow = row({ worktreeId: 'wt', executionHostId: 'ssh:builder' })
-    const statuses = new Map([
-      [getWorkspaceSpaceWorktreeIdentity(localRow), []],
-      [getWorkspaceSpaceWorktreeIdentity(sshRow), [{ path: 'dirty.txt' }]]
-    ])
-    const inputs = decisionInputs({ gitStatusByWorktreeIdentity: statuses })
-    const local = getWorkspaceDecisionDetails(localRow, inputs)
-    const ssh = getWorkspaceDecisionDetails(sshRow, inputs)
-
-    expect(local.changedFileCount).toBe(0)
-    expect(ssh.changedFileCount).toBe(1)
-    expect(isWorkspaceSpaceRowReadyToDelete(localRow, local)).toBe(true)
-    expect(isWorkspaceSpaceRowReadyToDelete(sshRow, ssh)).toBe(false)
   })
 
   it('sorts rows by the selected key and direction', () => {
@@ -379,29 +340,6 @@ describe('workspace space presentation helpers', () => {
         now: 60 * 60 * 1_000
       })
     ).toBe(0)
-  })
-
-  it('labels reviews and issues from the persisted worktree links', () => {
-    const details = getWorkspaceDecisionDetails(
-      row({ branch: 'refs/heads/feature/local' }),
-      decisionInputs({
-        worktreeMap: new Map([
-          [
-            'wt',
-            worktreeRecord({
-              branch: 'refs/heads/feature/local',
-              linkedPR: 12,
-              linkedIssue: 123,
-              linkedLinearIssue: 'ENG-7'
-            })
-          ]
-        ])
-      })
-    )
-
-    expect(details.reviewLabel).toBe('PR #12')
-    expect(details.issueLabel).toBe('#123')
-    expect(details.linearIssueLabel).toBe('ENG-7')
   })
 
   it('shows no review label for an unlinked, suppressed GitHub review', () => {

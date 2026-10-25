@@ -99,6 +99,7 @@ const storeState = {
   updateBrowserPageState: (pageId: string, updates: { title?: string }) => {
     store.pageStateUpdates.push({ pageId, updates })
   },
+  browserPagesByWorkspace: {},
   browserUrlHistory: [],
   workspaceDocHistory: [],
   recordWorkspaceDocVisit: () => undefined,

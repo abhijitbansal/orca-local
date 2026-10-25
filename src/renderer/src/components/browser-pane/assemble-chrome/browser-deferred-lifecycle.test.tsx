@@ -17,11 +17,14 @@ type MockState = {
   focusGroup: () => void
   updateBrowserPageState: () => void
   setBrowserPageUrl: () => void
+  settings: { browserSshWorkspaceRoutingEnabled: boolean }
 }
 
 const mocks = vi.hoisted(() => ({
   state: null as MockState | null,
   store: null as StoreApi<MockState> | null,
+  executionHostId: 'local',
+  prepare: vi.fn(),
   destroy: vi.fn()
 }))
 
@@ -32,7 +35,8 @@ vi.mock('@/store', async () => {
   }
 })
 vi.mock('@/lib/worktree-runtime-owner', () => ({
-  getRuntimeEnvironmentIdForWorktree: () => null
+  runtimeEnvironmentIdOrLocalUnlessTwin: () => null,
+  getExecutionHostIdForWorktree: () => mocks.executionHostId
 }))
 vi.mock('@/components/contextual-tours/use-contextual-tour', () => ({
   useContextualTour: () => {}
@@ -116,7 +120,8 @@ function createState(): MockState {
     ]),
     focusGroup: () => {},
     updateBrowserPageState: () => {},
-    setBrowserPageUrl: () => {}
+    setBrowserPageUrl: () => {},
+    settings: { browserSshWorkspaceRoutingEnabled: true }
   }
 }
 
@@ -140,11 +145,17 @@ function redraw(view: ReturnType<typeof render>, active = true): void {
   view.rerender(surface(active))
 }
 
-describe('deferred browser lifecycle through the overlay', () => {
+describe('deferred browser lifecycle through the overlay and SSH gate', () => {
   beforeEach(() => {
     mocks.state = createState()
     mocks.store = createStore(() => mocks.state!)
+    mocks.executionHostId = 'local'
     mocks.destroy.mockReset()
+    mocks.prepare.mockReset().mockResolvedValue({ partition: 'persist:orca-browser-v1-routed' })
+    Object.defineProperty(window, 'api', {
+      configurable: true,
+      value: { browser: { prepareSshWorkspacePartition: mocks.prepare } }
+    })
   })
   afterEach(() => {
     cleanup()
