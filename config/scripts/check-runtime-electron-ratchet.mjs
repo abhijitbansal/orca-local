@@ -38,7 +38,7 @@ const ENTRY_POINTS = [
 ]
 
 // Native addons and electron cannot be bundled; externalising them is what the
-// relay build already does (config/scripts/build-relay.mjs).
+// relay build already does (config/scripts/build-wsl-guest.mjs).
 const EXTERNAL = ['electron', 'node-pty', '@parcel/watcher', 'better-sqlite3', 'keytar', 'fsevents']
 
 /**
