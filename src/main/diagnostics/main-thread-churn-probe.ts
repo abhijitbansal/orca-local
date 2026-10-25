@@ -14,7 +14,7 @@ export function isMainThreadDiagnosticsEnabled(env: NodeJS.ProcessEnv = process.
 const GIT_VALUE_FLAGS = new Set(['-C', '-c', '--git-dir', '--work-tree', '--exec-path'])
 
 // Operand-based CLIs would fragment aggregation if bucketed by their first positional.
-const SUBCOMMAND_BINARIES = new Set(['git', 'gh', 'glab'])
+const SUBCOMMAND_BINARIES = new Set(['git'])
 
 // Accept both path separators even when classifying foreign-platform commands.
 function binaryName(command: string): string {

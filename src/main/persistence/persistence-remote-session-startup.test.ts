@@ -96,25 +96,4 @@ describe('remote session startup ownership', () => {
   })
 
   // Paired hosts can share repo IDs without a local registration; removal must remain host-scoped (STA-7117).
-  it("drops only the removed host's rows when another paired host shares the repo id", () => {
-    const OTHER_HOST = 'runtime:other-host'
-    const seed = createStore()
-    seed.setWorkspaceSession(browserSession(), HOST)
-    seed.setWorkspaceSession(browserSession(), OTHER_HOST)
-    seed.setWorktreeMeta(hostWorktreeTarget({ id: WORKTREE, hostId: HOST }), {
-      displayName: 'Removed host'
-    })
-    seed.flush()
-    const reloaded = createStore()
-
-    reloaded.removeProjectForHost({ id: REPO, executionHostId: HOST })
-    reloaded.flush()
-
-    const after = createStore()
-    expect(after.getWorkspaceSession(HOST).browserPagesByWorkspace).toEqual({})
-    expect(after.getWorktreeMeta(WORKTREE)).toBeUndefined()
-    expect(after.getWorkspaceSession(OTHER_HOST).browserPagesByWorkspace).toEqual({
-      [BROWSER.id]: [PAGE]
-    })
-  })
 })

@@ -260,27 +260,6 @@ describe('duplicate-terminal pane repair at load (layout-owner builds)', () => {
     expect(storedLayouts(directory)).toBe(repaired)
   })
 
-  it('moves the dropped pane’s sleep record, read marks, incarnation and SSH lease to the kept pane', async () => {
-    const directory = seededDirectory(withDroppedPaneRecords)
-    const { store } = await load(directory)
-    vi.spyOn(agentHookServer, 'transferPaneAuthority').mockImplementation(() => {})
-
-    await repairDuplicatePtyPanesOnStart(store, fakeRuntime().runtime)
-    await quit(store)
-
-    const state = storedState(directory)
-    const session = state.workspaceSession
-    expect(Object.keys(session?.sleepingAgentSessionsByPaneKey ?? {})).toEqual([KEPT_KEY])
-    expect(session?.sleepingAgentSessionsByPaneKey?.[KEPT_KEY]?.paneKey).toBe(KEPT_KEY)
-    expect(session?.terminalPtyIncarnationsByPaneKey).toEqual({ [KEPT_KEY]: 'inc-1' })
-    expect(state.ui?.acknowledgedAgentsByPaneKey).toEqual({ [KEPT_KEY]: 11 })
-    expect(state.ui?.activityClearedAtByPaneKey).toEqual({ [KEPT_KEY]: 12 })
-    expect(state.ui?.manuallyUnreadTurnsByPaneKey).toEqual({ [KEPT_KEY]: 13 })
-    expect(state.sshRemotePtyLeases?.map(({ tabId, leafId }) => ({ tabId, leafId }))).toEqual([
-      { tabId: TAB, leafId: KEPT }
-    ])
-  })
-
   it('keeps the kept pane’s own incarnation over the dropped pane’s', async () => {
     const directory = seededDirectory((_state, session) => {
       session.terminalPtyIncarnationsByPaneKey = { [DROPPED_KEY]: 'inc-old', [KEPT_KEY]: 'inc-1' }

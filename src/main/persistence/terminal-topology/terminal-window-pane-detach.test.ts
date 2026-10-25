@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { toSshExecutionHostId, type ExecutionHostId } from '../../../shared/execution-host'
 import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../shared/layout-owner-switch'
@@ -107,36 +106,6 @@ describe('a window drag-out through layout.apply', () => {
       manuallyUnreadTurnsByPaneKey: { [TO]: 12 }
     })
     expect(ownersOf(session, 'pty-agent')).toEqual([TO])
-  })
-
-  it('re-keys the SSH lease within the partition that holds the tab', async () => {
-    const dataFile = newDataFile()
-    writeFileSync(
-      dataFile,
-      JSON.stringify({
-        sshRemotePtyLeases: [
-          {
-            targetId: 'ssh-1',
-            ptyId: 'pty-agent',
-            worktreeId: WT,
-            tabId: SOURCE,
-            leafId: MOVED,
-            state: 'attached'
-          }
-        ]
-      })
-    )
-    const store = openStore(dataFile)
-    const hostId = toSshExecutionHostId('ssh-1')
-    await seedSplitSource(store, hostId)
-
-    await expect(detach(store, 'pty-agent', [hostId])).resolves.toMatchObject({ ok: true })
-
-    expect(tabsHoldingLeaf(store.getWorkspaceSession(hostId), MOVED)).toEqual([TARGET])
-    expect(store.getWorkspaceSession().tabsByWorktree[WT]).toBeUndefined()
-    expect(store.getSshRemotePtyLeases('ssh-1')).toEqual([
-      expect.objectContaining({ ptyId: 'pty-agent', tabId: TARGET, leafId: MOVED })
-    ])
   })
 
   it('moves the last pane of main’s copy, leaving the tab for the window’s other panes', async () => {

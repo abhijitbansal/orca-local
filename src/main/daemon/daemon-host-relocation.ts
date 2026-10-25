@@ -66,7 +66,8 @@ function currentBuildFingerprint(
 }
 
 // Keep runtimes out of roaming storage; match the NSIS uninstall root in config/nsis/orca-installer-hooks.nsh.
-const LOCAL_HOST_ROOT_NAME = 'Orca'
+// Why not 'Orca': upstream Orca relocates its own host there, and sharing it would run upstream code as our daemon.
+const LOCAL_HOST_ROOT_NAME = 'Orca Local'
 
 // Match getDaemonEntryPath() so relocation copies the same entry the install runtime would fork.
 function resolveEntrySourcePath(resourcesPath: string, observedEntryPath?: string): string {

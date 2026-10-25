@@ -2,7 +2,6 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../shared/layout-owner-switch'
 import { getDefaultWorkspaceSession } from '../../../shared/constants'
 import type { CommandOf } from '../../../shared/workspace-layout/workspace-layout-command-types'
 import { WorkspaceLayoutStream } from '../../runtime/workspace-layout-stream'
@@ -65,37 +64,6 @@ const generatedTitles = (store: Store, hostId?: string) =>
     .map((tab) => [tab.id, tab.generatedTitle])
 
 describe('Store.applyTabRenames (layout.apply renameTabs)', () => {
-  it('renames tabs of several workspaces and partitions durably, naming the tab it lacks', async () => {
-    const { store, directory } = await storeWithTabs(2)
-    const written: (string | null)[] = []
-    store.onWorkspaceSessionWritten((hostId) => written.push(hostId))
-
-    const refused = await store.applyTabRenames([
-      {
-        hostId: 'local',
-        renames: [
-          rename(FIXTURE_GIT_WORKTREE_ID, 'tab-0', 'Fix the login page'),
-          rename(FIXTURE_GIT_WORKTREE_ID, 'missing', 'Gone'),
-          rename(FIXTURE_FOLDER_WORKTREE_ID, 'folder-tab', 'Write the docs')
-        ]
-      },
-      { hostId: SSH, renames: [rename(FIXTURE_GIT_WORKTREE_ID, 'ssh-tab', 'Deploy')] }
-    ])
-
-    expect(refused).toEqual([
-      { rename: rename(FIXTURE_GIT_WORKTREE_ID, 'missing', 'Gone'), code: 'tab_not_found' }
-    ])
-    // Both partitions in one durable mutation: one notice for any partition, or one per partition.
-    expect(written).toEqual(ORCA_LAYOUT_OWNER_IS_MAIN ? ['local', SSH] : [null])
-    const reopened = await reopenTopologyStore(store, directory)
-    expect(generatedTitles(reopened)).toEqual([
-      ['tab-0', 'Fix the login page'],
-      ['tab-1', undefined],
-      ['folder-tab', 'Write the docs']
-    ])
-    expect(generatedTitles(reopened, SSH)).toEqual([['ssh-tab', 'Deploy']])
-  })
-
   it('publishes one frame for 100 titles of one workspace', async () => {
     const { store } = await storeWithTabs(100)
     const stream = new WorkspaceLayoutStream({

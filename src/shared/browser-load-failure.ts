@@ -118,6 +118,61 @@ const RETRYABLE_CODES = new Set([
   -109 // ERR_ADDRESS_UNREACHABLE
 ])
 
+const LOOPBACK_HOSTS = new Set([
+  'localhost',
+  'localhost.localdomain',
+  'localhost6',
+  'localhost6.localdomain6',
+  'ip6-localhost',
+  'ip6-loopback',
+  '127.0.0.1',
+  '::1'
+])
+
+function isPrivateIPv4(hostname: string): boolean {
+  const octets = hostname.split('.').map(Number)
+  if (octets.length !== 4 || octets.some((octet) => !Number.isInteger(octet))) {
+    return false
+  }
+  const [a, b] = octets
+  return a === 10 || (a === 172 && b! >= 16 && b! <= 31) || (a === 192 && b === 168)
+}
+
+function isTailnetIPv4(hostname: string): boolean {
+  const octets = hostname.split('.').map(Number)
+  return (
+    octets.length === 4 &&
+    octets.every((octet) => Number.isInteger(octet)) &&
+    octets[0] === 100 &&
+    octets[1]! >= 64 &&
+    octets[1]! <= 127
+  )
+}
+
+function isPrivateIPv6(hostname: string): boolean {
+  const first = Number.parseInt(hostname.split(':')[0] ?? '', 16)
+  return Number.isInteger(first) && ((first & 0xfe00) === 0xfc00 || (first & 0xffc0) === 0xfe80)
+}
+
+/** Loopback, private, tailnet and dotless names: places only the developer's own network serves. */
+function isNonPublicHostname(hostname: string): boolean {
+  const normalized = hostname
+    .toLowerCase()
+    .replace(/^\[|\]$/g, '')
+    .replace(/\.$/, '')
+  if (
+    LOOPBACK_HOSTS.has(normalized) ||
+    normalized.endsWith('.localhost') ||
+    normalized.startsWith('127.') ||
+    isTailnetIPv4(normalized) ||
+    isPrivateIPv4(normalized) ||
+    isPrivateIPv6(normalized)
+  ) {
+    return true
+  }
+  return !normalized.includes('.') && !normalized.includes(':')
+}
+
 /** Hosts a developer runs themselves: this machine, the LAN, the tailnet, or a dev-only name. */
 function readHost(url: string): { host: string | null; isDevHost: boolean } {
   try {
@@ -126,7 +181,9 @@ function readHost(url: string): { host: string | null; isDevHost: boolean } {
       return { host: null, isDevHost: false }
     }
     const isDevHost =
-      isWildcardBindHost(hostname) || /\.(?:local|test|internal|lan)$/i.test(hostname)
+      isWildcardBindHost(hostname) ||
+      /\.(?:local|test|internal|lan)$/i.test(hostname) ||
+      isNonPublicHostname(hostname)
     return { host, isDevHost }
   } catch {
     return { host: null, isDevHost: false }
