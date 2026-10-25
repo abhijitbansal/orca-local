@@ -56,7 +56,7 @@ function materializedHostRoot(): string {
 }
 
 function publishedBuilds(): string[] {
-  const versionRoot = join(localAppDataDir, 'Orca', 'daemon-host-profiles')
+  const versionRoot = join(localAppDataDir, 'Orca Local', 'daemon-host-profiles')
   return readdirSync(versionRoot).flatMap((profile) => {
     const dir = join(versionRoot, profile, version)
     return existsSync(dir) ? readdirSync(dir).filter((name) => name.startsWith('build-')) : []
@@ -106,14 +106,15 @@ describe('relocated daemon host path budget', () => {
     const worstCaseRoot = `${LONG_PROFILE_LOCAL_APP_DATA}\\${hostRel}`
     const deepest = deepestDaemonHostNativePathLength(windowsSources(), worstCaseRoot)
     // Headroom so a layout change can't silently eat the margin; deeper roots take the fallback below.
-    expect(deepest).toBeLessThanOrEqual(DAEMON_HOST_NATIVE_PATH_BUDGET - 20)
+    // 14 not 20: the fork's 'Orca Local' root is six characters longer than upstream's 'Orca'.
+    expect(deepest).toBeLessThanOrEqual(DAEMON_HOST_NATIVE_PATH_BUDGET - 14)
   })
 
   it('falls back to the install-dir host instead of copying a host conpty cannot load from', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     useLocalAppData(join(tempDir, 'l'.repeat(DAEMON_HOST_NATIVE_PATH_BUDGET - tempDir.length)))
     expect(materializeRelocatedDaemonHost()).toBeNull()
-    expect(existsSync(join(localAppDataDir, 'Orca'))).toBe(false)
+    expect(existsSync(join(localAppDataDir, 'Orca Local'))).toBe(false)
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('too deep for conpty.dll'))
   })
 
