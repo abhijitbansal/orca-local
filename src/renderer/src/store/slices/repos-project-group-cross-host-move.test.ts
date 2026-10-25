@@ -89,7 +89,3 @@ describe('moving a project into a group on another host', () => {
     expect(toast.error).toHaveBeenCalledTimes(1)
   })
 })
-
-describe('moving one twin of a repo id shared by a local and an SSH row', () => {})
-
-describe('moving one twin of a repo id on a paired server (server-local and server-SSH rows)', () => {})
