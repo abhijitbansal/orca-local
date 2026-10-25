@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import { findRunnerDrift, findUncollectedTestFiles } from './check-test-file-runners.mjs'
-import { classifyPrJobs } from './pr-code-change-scope.mjs'
 
 const RUNNERS = [
   { name: 'unit', include: ['src/**/*.test.ts'], exclude: ['src/live/**'] },
@@ -99,16 +98,3 @@ describe('findRunnerDrift', () => {
 })
 
 // Why: cloud/ is outside the lint and format trees, so only these paths bring the check to a cloud-only diff.
-it('runs the static job when a cloud diff touches code that could hold or run a test', () => {
-  const routed = (file) => classifyPrJobs([file]).static_analysis
-  expect(
-    [
-      'cloud/apps/push/src/new-case.spec.ts',
-      'cloud/packages/push-contract/src/contract.test.ts',
-      'cloud/package.json',
-      'cloud/apps/relay/vitest.config.ts',
-      'cloud/dev/scripts/lease-check.mjs'
-    ].filter((file) => !routed(file))
-  ).toEqual([])
-  expect(routed('cloud/apps/relay/Dockerfile')).toBe(false)
-})

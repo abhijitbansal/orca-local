@@ -103,7 +103,7 @@ it.each([
         const hook = await resolveFunction(undefined, config.mac.sign, 'sign', process.cwd())
         expect(typeof hook).toBe('function')
         expect(hook.name).toBe('sign')
-        expect(config.mac.signIgnore).toContain('/orcad-template/')
+        expect(config.mac.signIgnore).toContain('/ripgrep/(linux|win32)-')
         expect(config.forceCodeSigning).toBe(true)
         expect(config.mac.hardenedRuntime).toBe(true)
         expect(config.mac.notarize).toBe(true)

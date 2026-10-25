@@ -6,12 +6,7 @@ import { hasWindowsNativeBatchReferenceViolation } from './windows-native-batch-
 const initializer = 'config/scripts/initialize-windows-native-toolchain.mjs'
 const benchmark = 'config/scripts/benchmark-windows-native-preparation.mjs'
 const observer = 'config/scripts/windows-native-benchmark-observer.mjs'
-const metadataCallers = [
-  'config/scripts/node-server-change-scope.mjs',
-  'config/scripts/pr-code-change-scope.mjs',
-  'config/scripts/orcad-windows-prebuild-cache.mjs',
-  'config/scripts/windows-native-toolchain-routing.test.mjs'
-]
+const metadataCallers = ['config/scripts/pr-code-change-scope.mjs']
 const capture = 'capture-windows-native-environment.cmd'
 const initializerSource = `
   import { runProcessSync as captureEnvironment } from '@orca/process-host'

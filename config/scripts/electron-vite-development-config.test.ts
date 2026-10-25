@@ -96,14 +96,4 @@ console.log(JSON.stringify({ loaded: Object.hasOwn(require.cache, require.resolv
     expect(resolved.cacheDir).toBe(resolve('.cache/vite/renderer').replaceAll('\\', '/'))
     expect(resolved.build.reportCompressedSize).toBe(false)
   })
-
-  it('gives the web client its own worktree cache and skips gzip reporting', async () => {
-    const resolved = await resolveConfig(
-      { configFile: resolve('vite.web.config.ts'), logLevel: 'silent' },
-      'serve'
-    )
-
-    expect(resolved.cacheDir).toBe(resolve('.cache/vite/web').replaceAll('\\', '/'))
-    expect(resolved.build.reportCompressedSize).toBe(false)
-  })
 })

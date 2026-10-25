@@ -7,11 +7,9 @@ import { runProcess } from '@orca/process-host'
 export async function reclaimWorktreeSpace({
   repoRoot = process.cwd(),
   apply = false,
-  automatic = false,
   execute = runProcess,
   acquireLock = lock,
   commonDirectory,
-  testsStopped = false,
   generatedMinAgeDays = 30,
   excludeWorktree,
   releaseCacheMinAgeDays = 30
@@ -53,23 +51,13 @@ export async function reclaimWorktreeSpace({
       'reclaim-vite-caches.mjs',
       'reclaim-worktree-generated-files.mjs'
     ]
-    if (!automatic && testsStopped) {
-      scripts.unshift('reclaim-release-test-caches.mjs')
-    }
     for (const script of scripts) {
       const args = [resolve(import.meta.dirname, script), '--repo', repoRoot]
       if (apply) {
         args.push('--apply')
       }
-      if (excludeWorktree && script !== 'reclaim-release-test-caches.mjs') {
+      if (excludeWorktree) {
         args.push('--exclude-worktree', excludeWorktree)
-      }
-      if (script === 'reclaim-release-test-caches.mjs') {
-        args.unshift('--import', import.meta.resolve('tsx'))
-        args.push('--min-age-days', String(releaseCacheMinAgeDays))
-        if (testsStopped) {
-          args.push('--tests-stopped')
-        }
       }
       if (script === 'reclaim-worktree-generated-files.mjs') {
         args.push('--generated-min-age-days', String(generatedMinAgeDays))
