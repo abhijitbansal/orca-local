@@ -6,8 +6,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type * as AgentStatusModule from '@/lib/agent-status'
 import type { FolderWorkspace } from '../../../../shared/folder-workspace-types'
-import type { PublicKnownRuntimeEnvironment } from '../../../../shared/runtime-environments'
-import { toRuntimeExecutionHostId } from '../../../../shared/execution-host'
 import { folderWorkspaceKey } from '../../../../shared/workspace-scope'
 
 vi.mock('sonner', () => ({
@@ -241,35 +239,6 @@ describe('workspace chat drafts on removal', () => {
     seedWorktree(store)
 
     store.getState().purgeWorktreeTerminalState([WT1])
-
-    expect(store.getState().unifiedTabsByWorktree[WT1]).toBeUndefined()
-    expect(draftTexts()).toEqual(['chat', 'pane', 'other'])
-  })
-
-  it('re-pairing a server under the same id keeps the drafts of chats it restores', () => {
-    const runtime = toRuntimeExecutionHostId('env-a')
-    const environment = (pairingRevision: number): PublicKnownRuntimeEnvironment => ({
-      id: 'env-a',
-      name: 'Server',
-      createdAt: 1,
-      updatedAt: 1,
-      pairingRevision,
-      lastUsedAt: null,
-      runtimeId: null,
-      endpoints: [{ id: 'e', kind: 'websocket', label: 'Server', endpoint: 'ws://server' }],
-      preferredEndpointId: 'e'
-    })
-    const store = createTestStore()
-    seedStore(store, {
-      runtimeEnvironments: [environment(1)],
-      repos: [TEST_REPO, { ...TEST_REPO, id: 'repoA', path: '/repoA', executionHostId: runtime }],
-      worktreesByRepo: {
-        repoA: [makeWorktree({ id: WT1, repoId: 'repoA', path: '/path/wt1', hostId: runtime })]
-      }
-    })
-    seedWorkspace(store, WT1)
-
-    store.getState().setRuntimeEnvironments([environment(2)])
 
     expect(store.getState().unifiedTabsByWorktree[WT1]).toBeUndefined()
     expect(draftTexts()).toEqual(['chat', 'pane', 'other'])

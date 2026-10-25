@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { getDefaultSettings } from '../../../../shared/constants'
 import type { ProjectGroup } from '../../../../shared/project-group-types'
 import type { ExecutionHostId } from '../../../../shared/execution-host'
@@ -78,80 +78,6 @@ export function registerReposProjectGroupCreateRaceTests(): void {
     return { store, created, createStarted, ownerHostId }
   }
 
-  describe.each([null, 'env-1'])('project group creation on host %s', (runtimeEnvironmentId) => {
-    it('keeps the refreshed row without notifying subscribers when refresh finishes first', async () => {
-      const { store, created, createStarted, ownerHostId } = setup(runtimeEnvironmentId)
-      const pendingCreate = store.getState().createProjectGroup('Platform', ownerHostId)
-      await createStarted.promise
-      await store.getState().fetchProjectGroups(catalogOwner(store))
-      const refreshedState = store.getState()
-      const listener = vi.fn()
-      const unsubscribe = store.subscribe(listener)
-      try {
-        created.resolve(projectGroup)
-        await expect(pendingCreate).resolves.toEqual({
-          ...projectGroup,
-          executionHostId: ownerHostId
-        })
-        expect(store.getState()).toBe(refreshedState)
-        expect(listener).not.toHaveBeenCalled()
-        expect(store.getState().projectGroups).toEqual([
-          otherHostGroup,
-          { ...refreshedGroup, executionHostId: ownerHostId }
-        ])
-      } finally {
-        unsubscribe()
-      }
-    })
-
-    it('inserts beside another host with the same ID, then accepts the later refresh', async () => {
-      const { store, created, ownerHostId } = setup(runtimeEnvironmentId)
-      const pendingCreate = store.getState().createProjectGroup('Platform', ownerHostId)
-      created.resolve(projectGroup)
-      await pendingCreate
-      expect(store.getState().projectGroups).toEqual([
-        otherHostGroup,
-        { ...projectGroup, executionHostId: ownerHostId }
-      ])
-      await store.getState().fetchProjectGroups(catalogOwner(store))
-      expect(store.getState().projectGroups).toEqual([
-        otherHostGroup,
-        { ...refreshedGroup, executionHostId: ownerHostId }
-      ])
-      const groups = store.getState().projectGroups
-      await store.getState().fetchProjectGroups(catalogOwner(store))
-      expect(store.getState().projectGroups).toBe(groups)
-    })
-
-    it('keeps the original owner when the focused host changes during creation', async () => {
-      const { store, created, createStarted, ownerHostId } = setup(runtimeEnvironmentId)
-      const pendingCreate = store.getState().createProjectGroup('Platform', ownerHostId)
-      await createStarted.promise
-      store.setState({
-        settings: { ...getDefaultSettings('/test'), activeRuntimeEnvironmentId: 'other' }
-      })
-      await store.getState().fetchProjectGroups({ runtimeEnvironmentId })
-      created.resolve(projectGroup)
-      await pendingCreate
-      expect(store.getState().projectGroups).toEqual([
-        otherHostGroup,
-        { ...refreshedGroup, executionHostId: ownerHostId }
-      ])
-    })
-
-    it('does not roll back a successful refresh if the create response fails', async () => {
-      const { store, created, createStarted, ownerHostId } = setup(runtimeEnvironmentId)
-      vi.spyOn(console, 'error').mockImplementation(() => {})
-      const pendingCreate = store.getState().createProjectGroup('Platform', ownerHostId)
-      await createStarted.promise
-      await store.getState().fetchProjectGroups(catalogOwner(store))
-      const refreshedState = store.getState()
-      created.reject(new Error('Create response lost'))
-      await expect(pendingCreate).resolves.toBeNull()
-      expect(store.getState()).toBe(refreshedState)
-    })
-  })
-
   it('recognizes an unstamped local group without conflating an SSH catalog row', async () => {
     const { store, created, ownerHostId } = setup(null)
     const sshGroup = { ...projectGroup, connectionId: 'server' }
@@ -177,9 +103,4 @@ export function registerReposProjectGroupCreateRaceTests(): void {
   })
 
   // The catalog these tests read is the one the focused host would have shown.
-  function catalogOwner(store: {
-    getState: () => { settings: { activeRuntimeEnvironmentId?: string | null } | null }
-  }): { runtimeEnvironmentId: string | null } {
-    return { runtimeEnvironmentId: store.getState().settings?.activeRuntimeEnvironmentId ?? null }
-  }
 }

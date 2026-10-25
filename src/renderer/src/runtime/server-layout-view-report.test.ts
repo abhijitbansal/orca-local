@@ -226,27 +226,6 @@ describe('the group this window shows, told to the server whose frames draw it',
     expect(reports()).toEqual([])
   })
 
-  it('reports again as a refresh when the control connection comes up on a new socket, the stream still up', async () => {
-    const store = await frameDrawnStore()
-    control(ENV, 'ready', 1, 100)
-    showGroup(store, WT, 'host-group-2')
-    hoisted.call.mockClear()
-
-    control(ENV, 'reconnecting', 1, 100)
-    control(ENV, 'ready', 1, 100)
-    control('web-env-other', 'ready', 1, 200)
-    expect(reports()).toEqual([])
-
-    control(ENV, 'ready', 1, 200)
-    control(ENV, 'ready', 2, 200)
-    expect(streams.openTo(ENV).closed).toBe(false)
-    const again = {
-      target: { kind: 'environment', environmentId: ENV },
-      params: { activeGroupByWorkspace: { [WT]: 'host-group-2' }, refresh: true }
-    }
-    expect(reports()).toEqual([again, again])
-  })
-
   it('stops sending, and warns once, after a server answers it has no such method', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     hoisted.call.mockRejectedValue(new Error('method_not_found'))

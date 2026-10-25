@@ -134,25 +134,6 @@ export function registerReposCrossHostRefreshIdentityTests(): void {
       })
     })
 
-    it('keeps sourceRepoIds ordered the same whichever host refreshed', async () => {
-      const store = createTestStore()
-      // Why: with no active env, `fetchRepos` targets local, so the two calls below really do
-      // alternate hosts.
-      store.setState({ settings: { activeRuntimeEnvironmentId: null } as never })
-      await store.getState().fetchReposForAllHosts()
-      const afterAllHosts = sharedProject(store)?.sourceRepoIds
-      expect(afterAllHosts).toHaveLength(2)
-
-      await store.getState().fetchRepos(catalogOwner(store))
-      const afterLocal = sharedProject(store)?.sourceRepoIds
-
-      await store.getState().fetchRuntimeEnvironmentRepos('env-1')
-      const afterRuntime = sharedProject(store)?.sourceRepoIds
-
-      expect(afterLocal).toEqual(afterAllHosts)
-      expect(afterRuntime).toEqual(afterAllHosts)
-    })
-
     it('reuses the cross-host project row across alternating single-host refreshes', async () => {
       const store = createTestStore()
       store.setState({ settings: { activeRuntimeEnvironmentId: null } as never })

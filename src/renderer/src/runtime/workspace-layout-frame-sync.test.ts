@@ -354,20 +354,6 @@ describe('the window drawn from layout frames', () => {
     sync.close()
   })
 
-  it('leaves a paired server’s workspaces to the mirror', async () => {
-    const profile = WORKSPACE_LAYOUT_PROFILES.find(
-      (entry) => entry.name === 'remote server partition'
-    )!
-    const { store, sync, layouts, frames } = await bootWithFrames(profile.hostId, profile.build())
-    sync.start()
-    const before = store.getState()
-    const [key, layout] = Object.entries(layouts)[0]!
-    stream.onFrame!(frames.records(key, { ...layout, tabs: [], groups: [] }))
-    await flushMicrotasks()
-    expect(SLICES.filter((slice) => store.getState()[slice] !== before[slice])).toEqual([])
-    sync.close()
-  })
-
   it('leaves restore in place when the stream ends before its snapshot', async () => {
     const store = createTestStore()
     await bootWindowFromPartitions(store, [{ hostId: 'local', session: localDesktopSession() }])

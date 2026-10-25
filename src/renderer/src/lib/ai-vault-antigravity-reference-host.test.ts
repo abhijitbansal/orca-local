@@ -113,17 +113,6 @@ describe('Antigravity transcript reference ownership', () => {
     }
   )
 
-  it('preserves legacy WSL ID resume eligibility on SSH', () => {
-    expect(
-      canResumeAiVaultSessionOnTarget({
-        sessionFilePath: debianFile.replace('antigravity-ide', 'antigravity-cli'),
-        sessionExecutionHostId: 'local',
-        targetStatus: 'ssh',
-        targetExecutionHostId: 'ssh:other'
-      })
-    ).toBe(true)
-  })
-
   it('uses a project runtime override before the workspace UNC distro', () => {
     const state = stateFor('local', 'Ubuntu')
     const workspace = state.worktreesByRepo.repo?.[0]

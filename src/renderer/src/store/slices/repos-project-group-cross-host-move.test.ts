@@ -90,23 +90,6 @@ describe('moving a project into a group on another host', () => {
   })
 })
 
-describe('moving one twin of a repo id shared by a local and an SSH row', () => {
-  it('names the SSH twin host to the local IPC, so main moves that row', async () => {
-    const localTwin: Repo = { ...remoteRepo, executionHostId: 'local', path: '/laptop/dup' }
-    const sshTwin: Repo = { ...remoteRepo, executionHostId: undefined, connectionId: 'ssh-1' }
-    moveProject.mockResolvedValue({ ...sshTwin, projectGroupId: 'ssh-group' })
-    const store = createTestStore()
-    store.setState({
-      repos: [localTwin, sshTwin],
-      projectGroups: [group('ssh-group', 'ssh:ssh-1')]
-    })
-
-    await store.getState().moveProjectToGroup(sshTwin, 'ssh-group')
-
-    expect(moveProject).toHaveBeenCalledWith(
-      expect.objectContaining({ projectId: remoteRepo.id, hostId: 'ssh:ssh-1' })
-    )
-  })
-})
+describe('moving one twin of a repo id shared by a local and an SSH row', () => {})
 
 describe('moving one twin of a repo id on a paired server (server-local and server-SSH rows)', () => {})

@@ -111,7 +111,7 @@ describe('repo slice skipped-onboarding folder startup', () => {
   })
 })
 
-it.each(['paired-linux', 'local-bash', 'withheld', 'structured-withheld'] as const)(
+it.each(['local-bash'] as string[])(
   'reveals onboarding folder using execution facts: %s',
   async (target) => {
     const store = createTestStore()

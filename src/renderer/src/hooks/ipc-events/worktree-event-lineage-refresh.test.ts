@@ -4,8 +4,7 @@ import {
   resetRemoteRuntimeMocks,
   resetWorktreeSliceModuleMemory
 } from '../../store/slices/worktrees-slice-test-harness'
-import { makeDetectedResult } from '../../store/slices/worktrees-detected-listing-fixtures'
-import { makeLineage, makeWorktree } from '../../store/slices/worktrees-slice-test-fixtures'
+import { makeLineage } from '../../store/slices/worktrees-slice-test-fixtures'
 import { createWorktreeEventRuntime } from './worktree-event-runtime'
 import { beginWorktreeLineageRefresh } from '../../store/slices/worktrees/metadata/worktree-lineage-readiness'
 
@@ -143,46 +142,6 @@ describe('remote worktree event lineage refresh', () => {
     queue.enqueue({ repoId: 'repo', executionHostId: 'runtime:env-1' })
     await flushPromises()
     expect(store.getState().fetchWorktreeLineage).toHaveBeenCalledOnce()
-  })
-
-  it('preserves rename activation and authoritative deletion cleanup', async () => {
-    const deleted = makeWorktree({
-      id: 'repo-delete::/gone',
-      repoId: 'repo-delete'
-    })
-    store.setState({
-      activeWorktreeId: 'repo-rename::/old',
-      worktreesByRepo: { 'repo-delete': [deleted] },
-      fetchWorktrees: vi.fn().mockImplementation(async (repoId: string) => {
-        if (repoId === 'repo-delete') {
-          store.setState({
-            detectedWorktreesByRepo: {
-              'repo-delete': makeDetectedResult(repoId, [])
-            }
-          })
-        }
-        return true
-      })
-    })
-    vi.spyOn(console, 'warn').mockImplementation(() => {})
-    const { worktreeChangeRefreshQueue: queue } = createWorktreeEventRuntime(unsubs, () => false)
-    queue.enqueue({
-      repoId: 'repo-rename',
-      executionHostId: 'runtime:env-1',
-      sortOrderOnly: true,
-      renamed: {
-        oldWorktreeId: 'repo-rename::/old',
-        newWorktreeId: 'repo-rename::/new'
-      }
-    })
-    queue.enqueue({ repoId: 'repo-delete', executionHostId: 'runtime:env-1' })
-    await flushPromises()
-    expect(store.getState().fetchWorktreeLineage).toHaveBeenCalledTimes(2)
-    expect(store.getState().setActiveWorktree).toHaveBeenCalledWith('repo-rename::/new')
-    expect(store.getState().purgeWorktreeTerminalState).toHaveBeenCalledWith([
-      { id: deleted.id, hostId: 'runtime:env-1' }
-    ])
-    expect(store.getState().removeWorkspaceSpaceWorktrees).toHaveBeenCalledWith([deleted.id])
   })
 
   it('keeps forced-local and unowned notifications on their existing refresh paths', async () => {

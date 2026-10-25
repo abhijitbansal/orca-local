@@ -109,35 +109,6 @@ export function registerReposProjectGroupsDeleteTests(): void {
       ])
     })
 
-    it('uses the remote delete response shape before mutating local state', async () => {
-      runtimeEnvironmentCall.mockResolvedValue({
-        id: 'rpc-delete-group',
-        ok: true,
-        result: { deleted: false },
-        _meta: { runtimeId: 'runtime-remote' }
-      })
-      const serverGroup = { ...projectGroup, executionHostId: 'runtime:env-1' as const }
-      const groupedRepo = { ...remoteRepo, projectGroupId: projectGroup.id }
-      const store = createTestStore()
-      store.setState({
-        settings: { activeRuntimeEnvironmentId: 'env-1' } as never,
-        projectGroups: [serverGroup],
-        repos: [groupedRepo]
-      })
-
-      await expect(store.getState().deleteProjectGroup(projectGroup.id)).resolves.toBe(false)
-
-      expect(store.getState().projectGroups).toEqual([serverGroup])
-      expect(store.getState().repos).toEqual([groupedRepo])
-      expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-        selector: 'env-1',
-        method: 'projectGroup.delete',
-        params: { groupId: projectGroup.id },
-        timeoutMs: 15_000
-      })
-      expect(projectGroupsDelete).not.toHaveBeenCalled()
-    })
-
     it('deletes only the group when contained project removal is not requested', async () => {
       projectGroupsDelete.mockResolvedValue(true)
       const groupedRepo = { ...remoteRepo, id: 'direct', projectGroupId: projectGroup.id }

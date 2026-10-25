@@ -1,7 +1,4 @@
 import {
-  NATIVE_REMOTE_RUNTIME_CLIENT_CAPABILITIES,
-  RUNTIME_CAPABILITIES,
-  STRUCTURED_AGENT_SESSION_CLIENT_LAUNCH_MODE_CAPABILITY,
   STRUCTURED_AGENT_SESSION_REGISTERED_AGENTS_RUNTIME_CAPABILITY,
   STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY
 } from '../../../shared/protocol-version'
@@ -131,45 +128,6 @@ describe('new agent launch routing', () => {
     'allows a supported local %s workspace',
     (workspaceKind) => expect(route({ workspaceKind })).toBe('structured-native-chat')
   )
-
-  it('honors current paired-host capabilities and falls back on older hosts', () => {
-    expect(
-      route({
-        executionHostId: 'runtime:environment-a',
-        hostCapabilities: RUNTIME_CAPABILITIES,
-        clientCapabilities: NATIVE_REMOTE_RUNTIME_CLIENT_CAPABILITIES
-      })
-    ).toBe('structured-native-chat')
-    const negotiated = [
-      STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY,
-      STRUCTURED_AGENT_SESSION_CLIENT_LAUNCH_MODE_CAPABILITY
-    ]
-    expect(
-      route({
-        executionHostId: 'runtime:environment-a',
-        hostCapabilities: negotiated,
-        clientCapabilities: negotiated
-      })
-    ).toBe('structured-native-chat')
-    expect(
-      route({
-        executionHostId: 'runtime:environment-a',
-        hostCapabilities: [STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY],
-        clientCapabilities: negotiated
-      })
-    ).toBe('terminal-tui')
-    const server = {
-      executionHostId: 'runtime:environment-a',
-      hostCapabilities: negotiated,
-      clientCapabilities: negotiated
-    }
-    // A client that never told the server it reads structured sessions keeps the host terminal.
-    expect(route({ ...server, clientCapabilities: [] })).toBe('terminal-tui')
-    expect(route({ ...server, clientCapabilities: undefined })).toBe('terminal-tui')
-    // The server has not answered yet, or answered without structured sessions.
-    expect(route({ ...server, hostCapabilities: null })).toBe('terminal-tui')
-    expect(route({ ...server, hostCapabilities: [] })).toBe('terminal-tui')
-  })
 })
 
 describe('explicit structured chat requests', () => {

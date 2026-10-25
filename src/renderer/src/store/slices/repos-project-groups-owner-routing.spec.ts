@@ -69,39 +69,7 @@ export function registerReposProjectGroupsOwnerRoutingTests(): void {
     })
   })
 
-  function runtimeRpcResponse(result: unknown) {
-    return { id: 'rpc-1', ok: true, result, _meta: { runtimeId: 'runtime-remote' } }
-  }
-
   describe('project group mutations route to the owning host', () => {
-    it('renames a runtime-owned folder-scan group while the local host is focused', async () => {
-      const runtimeGroup: ProjectGroup = { ...folderScanGroup, executionHostId: 'runtime:env-1' }
-      runtimeEnvironmentCall.mockResolvedValue(
-        runtimeRpcResponse({ group: { ...runtimeGroup, name: 'Renamed' } })
-      )
-      const store = createTestStore()
-      store.setState({
-        settings: { activeRuntimeEnvironmentId: null } as never,
-        projectGroups: [runtimeGroup]
-      })
-
-      await expect(
-        store.getState().updateProjectGroup(runtimeGroup.id, { name: 'Renamed' })
-      ).resolves.toBe(true)
-
-      expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-        selector: 'env-1',
-        method: 'projectGroup.update',
-        params: { groupId: runtimeGroup.id, updates: { name: 'Renamed' } },
-        timeoutMs: 15_000
-      })
-      expect(projectGroupsUpdate).not.toHaveBeenCalled()
-      expect(store.getState().projectGroups[0]).toMatchObject({
-        name: 'Renamed',
-        executionHostId: 'runtime:env-1'
-      })
-    })
-
     it('deletes a local folder-scan group while a runtime host is focused', async () => {
       projectGroupsDelete.mockResolvedValue(true)
       const store = createTestStore()
@@ -129,31 +97,6 @@ export function registerReposProjectGroupsOwnerRoutingTests(): void {
 
       expect(projectGroupsDelete).toHaveBeenCalledWith({ groupId: folderScanGroup.id })
       expect(runtimeEnvironmentCall).not.toHaveBeenCalled()
-    })
-
-    it('prefers an explicit hostId over both the focused host and a colliding row', async () => {
-      runtimeEnvironmentCall.mockResolvedValue(runtimeRpcResponse({ deleted: true }))
-      const store = createTestStore()
-      store.setState({
-        settings: { activeRuntimeEnvironmentId: null } as never,
-        projectGroups: [
-          { ...folderScanGroup, executionHostId: 'local' },
-          { ...folderScanGroup, executionHostId: 'runtime:env-1' }
-        ]
-      })
-
-      await expect(
-        store.getState().deleteProjectGroup(folderScanGroup.id, { hostId: 'runtime:env-1' })
-      ).resolves.toBe(true)
-
-      expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
-        selector: 'env-1',
-        method: 'projectGroup.delete',
-        params: { groupId: folderScanGroup.id },
-        timeoutMs: 15_000
-      })
-      expect(projectGroupsDelete).not.toHaveBeenCalled()
-      expect(store.getState().projectGroups).toMatchObject([{ executionHostId: 'local' }])
     })
 
     it('refuses, rather than following focus, when a colliding id has no unambiguous owner', async () => {

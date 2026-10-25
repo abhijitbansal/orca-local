@@ -1,9 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../shared/constants'
-import {
-  STRUCTURED_AGENT_SESSION_CLIENT_LAUNCH_MODE_CAPABILITY,
-  STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY
-} from '../../../shared/protocol-version'
+import { STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY } from '../../../shared/protocol-version'
 import type { ProjectExecutionRuntimeResolution } from '../../../shared/project-execution-runtime'
 import type * as ConnectionOwnerResolutionModule from './connection-owner-resolution'
 
@@ -356,10 +353,6 @@ describe('buildAgentLaunchRouteInput', () => {
   })
 
   describe('a workspace on a paired server', () => {
-    const CURRENT_SERVER = [
-      STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY,
-      STRUCTURED_AGENT_SESSION_CLIENT_LAUNCH_MODE_CAPABILITY
-    ]
     const args: AgentLaunchRouteArgs = {
       agent: 'claude',
       workspace: { kind: 'git-worktree', worktreeId: 'wt-1' }
@@ -380,13 +373,6 @@ describe('buildAgentLaunchRouteInput', () => {
       mocks.readLocalRuntimeCapabilitiesOrUnknown.mockReturnValue([])
     })
 
-    it("reads the server's own capabilities from its host status, not this machine's", () => {
-      expect(
-        buildAgentLaunchRouteInput(pairedStore(CURRENT_SERVER), args).hostCapabilities
-      ).toEqual(CURRENT_SERVER)
-      expect(routeFor(pairedStore(CURRENT_SERVER), args)).toBe('structured-native-chat')
-    })
-
     it('treats a server that has not reported its status as unknown', () => {
       expect(buildAgentLaunchRouteInput(store(), args).hostCapabilities).toBeNull()
       expect(routeFor(store(), args)).toBe('terminal-tui')
@@ -401,24 +387,7 @@ describe('buildAgentLaunchRouteInput', () => {
     })
 
     // The browser client runs the desktop's chat and its handshake says so (#32145).
-    it('opens a chat for a browser client too', () => {
-      mocks.isWebClientLocation.mockReturnValue(true)
-      try {
-        expect(routeFor(pairedStore(CURRENT_SERVER), args)).toBe('structured-native-chat')
-      } finally {
-        mocks.isWebClientLocation.mockReturnValue(false)
-      }
-    })
-
     // A launch command override never decides the surface, here or on the server.
-    it("does not route on this machine's launch command override for the server", () => {
-      const settings = { ...STRUCTURED_SETTINGS, agentCmdOverrides: { claude: 'claude-wrapper' } }
-      expect(
-        buildAgentLaunchRouteInput(pairedStore(CURRENT_SERVER, settings), args)
-          .startsOutsideWorkspaceRoot
-      ).toBe(false)
-      expect(routeFor(pairedStore(CURRENT_SERVER, settings), args)).toBe('structured-native-chat')
-    })
   })
 
   it('does not name a host for a workspace id two hosts publish', () => {

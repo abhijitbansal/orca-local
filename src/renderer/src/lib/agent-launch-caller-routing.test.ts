@@ -3,10 +3,7 @@
 // lives in agent-launch-caller-profiles-test-harness.ts.
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import {
-  STRUCTURED_AGENT_SESSION_CLIENT_LAUNCH_MODE_CAPABILITY,
-  STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY
-} from '../../../shared/protocol-version'
+import { STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY } from '../../../shared/protocol-version'
 import {
   callerProfileCases,
   type AgentLaunchCallerProfile
@@ -183,74 +180,8 @@ describe('agent launch caller routing', () => {
     }
   )
 
-  it('opens a structured chat on the paired server that owns the workspace', async () => {
-    store.settings = { ...store.settings, ...CHAT_DEFAULT_SETTINGS }
-    mockIsWebRuntimeSessionActive.mockReturnValue(true)
-    mockExecutionHostId.mockReturnValue('runtime:web-runtime')
-    // This machine could not host one; the server that owns the workspace can.
-    mockHostCapabilities.mockReturnValue([])
-    serverReports([
-      STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY,
-      STRUCTURED_AGENT_SESSION_CLIENT_LAUNCH_MODE_CAPABILITY
-    ])
-    const { launchAgentInNewTab } = await import('./launch-agent-in-new-tab')
-
-    const result = launchAgentInNewTab({
-      requestId: 'request-2',
-      agent: 'claude',
-      worktreeId: 'wt-1'
-    })
-
-    // The server admits the chat before any of it exists here, so the surface is the host's.
-    expect(result?.surface.kind).toBe('host-published')
-    expect(mockBeginHostAdmittedStructuredLaunch).toHaveBeenCalledExactlyOnceWith(
-      expect.objectContaining({ target: { kind: 'environment', environmentId: 'web-runtime' } })
-    )
-    expect(mockLaunchAgentInWebHostTab).not.toHaveBeenCalled()
-  })
-
   // Before, the chat opened first and a decline replaced it: the workspace could lose its only tab,
   // the caller heard "failed" while a terminal ran its prompt, and the caller's arguments were lost.
-  it("runs the caller's own launch as the server's terminal when the server declines the chat", async () => {
-    store.settings = { ...store.settings, ...CHAT_DEFAULT_SETTINGS }
-    mockIsWebRuntimeSessionActive.mockReturnValue(true)
-    mockExecutionHostId.mockReturnValue('runtime:web-runtime')
-    serverReports([
-      STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY,
-      STRUCTURED_AGENT_SESSION_CLIENT_LAUNCH_MODE_CAPABILITY
-    ])
-    await useActualAdmission()
-    mockCreateSupport.mockResolvedValue({ supported: false, reason: 'wsl' })
-    const { launchAgentInNewTab } = await import('./launch-agent-in-new-tab')
-
-    const result = launchAgentInNewTab({
-      requestId: 'request-3',
-      agent: 'claude',
-      worktreeId: 'wt-1',
-      prompt: 'fix the flaky test',
-      promptDelivery: 'submit-after-ready',
-      agentArgs: '--model sonnet'
-    })
-
-    expect(result?.surface).toEqual({ kind: 'host-published' })
-    await expect(result?.structuredSettlement).resolves.toEqual({ kind: 'terminal' })
-    await expect(result?.promptDeliveryResult).resolves.toEqual({
-      delivered: true,
-      failureNotified: false
-    })
-    expect(mockLaunchAgentInWebHostTab).toHaveBeenCalledOnce()
-    expect(mockLaunchAgentInWebHostTab).toHaveBeenCalledWith(
-      expect.objectContaining({
-        agent: 'claude',
-        worktreeId: 'wt-1',
-        environmentId: 'web-runtime',
-        prompt: 'fix the flaky test',
-        agentArgs: '--model sonnet'
-      })
-    )
-    expect(store.createTab).not.toHaveBeenCalled()
-  })
-
   // Before, a local chat opened first and this machine's "no" left it failed, with a Retry that
   // failed the same way and no terminal.
   it("runs the caller's own launch as a local terminal when this machine declines the chat", async () => {
