@@ -20,7 +20,10 @@ export const FORBIDDEN_HOSTS = [
   'chatgpt.com/backend-api',
   'api.openai.com',
   'nodejs.org/dist',
-  'storage.googleapis.com'
+  'storage.googleapis.com',
+  'google.com/s2/favicons',
+  'gstatic.com/faviconV2',
+  'icons.duckduckgo.com'
 ]
 // Entries ending in '/' or '-' are prefixes; every other entry matches the bare name or a subpath.
 export const FORBIDDEN_MODULES = [

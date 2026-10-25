@@ -62,6 +62,30 @@ describe('scanLocalOnly', () => {
     ])
   })
 
+  it('flags favicon lookup services, including the template-literal form', () => {
+    const v = scanLocalOnly({
+      rootDir: base({
+        'src/renderer/a.tsx':
+          'const a = `https://www.google.com/s2/favicons?domain=${d}&sz=64`\nconst b = "https://t0.gstatic.com/faviconV2?url=x"\nconst c = "https://icons.duckduckgo.com/ip3/x.ico"\n'
+      }),
+      allowlist: new Set()
+    })
+    expect(v.map((entry) => entry.match)).toEqual([
+      'google.com/s2/favicons',
+      'gstatic.com/faviconV2',
+      'icons.duckduckgo.com'
+    ])
+  })
+
+  it('does not flag plain google.com mentions', () => {
+    expect(
+      scanLocalOnly({
+        rootDir: base({ 'src/renderer/a.ts': 'const u = "https://www.google.com/search?q=x"\n' }),
+        allowlist: new Set()
+      })
+    ).toEqual([])
+  })
+
   it('ignores test files and fixtures', () => {
     const root = base({
       'src/main/a.test.ts': 'https://us.i.posthog.com',
