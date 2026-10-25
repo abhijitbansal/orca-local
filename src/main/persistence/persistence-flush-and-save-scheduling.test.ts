@@ -294,8 +294,8 @@ describe('Store', () => {
 
     expect(kept).toContain(liveKey)
     expect(kept).toContain(recentKey)
-    expect(kept).toContain(sshKey)
-    expect(kept).toContain(remoteHostKey)
+    expect(kept).not.toContain(sshKey)
+    expect(kept).not.toContain(remoteHostKey)
     expect(kept).toContain(wslKey)
     expect(kept).not.toContain(deadKey)
     expect(kept).not.toContain(orphanKey)

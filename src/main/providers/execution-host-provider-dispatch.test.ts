@@ -64,12 +64,10 @@ describe('execution host provider dispatch', () => {
       for (const require of [requireReachableGitRoute, requireReachableFilesystemRoute]) {
         expect(() => require(`ssh:${connectionId}`)).toThrow(SshHostNotServedError)
         expect(() => require(`ssh:${connectionId}`)).toThrow(
-          'Remote connection dropped. Click Reconnect on the SSH target before retrying.'
+          'SSH remotes are not supported in this build.'
         )
       }
-      expect(SSH_HOST_NOT_SERVED_MESSAGE).toBe(
-        'Remote connection dropped. Click Reconnect on the SSH target before retrying.'
-      )
+      expect(SSH_HOST_NOT_SERVED_MESSAGE).toBe('SSH remotes are not supported in this build.')
     })
 
     it('never hands an ssh host a local provider factory', () => {

@@ -8,7 +8,6 @@ const mocks = vi.hoisted(() => {
   const programs: Record<string, () => { command: string; env: Record<string, string> }> = {}
   return {
     refreshed: new Set<() => void>(),
-    releasesChanged: new Set<() => void>(),
     observe: vi.fn(),
     recapture: vi.fn(async () => {}),
     programs,
@@ -17,9 +16,6 @@ const mocks = vi.hoisted(() => {
 })
 vi.mock('../preflight/workspace-agent-detection', () => ({
   onAgentsRefreshedOnHost: (listener: () => void) => mocks.refreshed.add(listener)
-}))
-vi.mock('../node-runtime/managed-runtime-installation', () => ({
-  onManagedRuntimeReleasesChanged: (listener: () => void) => mocks.releasesChanged.add(listener)
 }))
 vi.mock('./structured-agent-launch-support', () => ({
   observeStructuredAgentLaunch: mocks.observe,
@@ -55,7 +51,6 @@ const found =
 
 beforeEach(() => {
   mocks.refreshed.clear()
-  mocks.releasesChanged.clear()
   mocks.installable = true
   mocks.programs = {
     claude: found('/usr/bin/claude'),
@@ -155,7 +150,7 @@ it('captures fresh shell facts for a first subscriber even when Refresh had no l
   expect(read.mock.lastCall?.[0]).toContainEqual(opencodeAvailable)
 })
 
-it('reads a missing program as missing, a workspace-relative PATH as unknown, and re-reads after an install', async () => {
+it('reads a missing program as missing, a workspace-relative PATH as unknown', async () => {
   mocks.installable = false
   mocks.programs.claude = found('claude', `bin${delimiter}/usr/bin`)
   const { availability } = install()
@@ -166,8 +161,4 @@ it('reads a missing program as missing, a workspace-relative PATH as unknown, an
     read.mock.lastCall?.[0].find((row: { agent: string }) => row.agent === agent)?.chatProgram
   expect(programOf('claude')).toBe('unknown')
   expect(programOf('opencode')).toBe('missing')
-  mocks.programs.opencode = found('/data/runtimes/opencode/bin/opencode')
-  mocks.releasesChanged.forEach((listener) => listener())
-  await vi.waitFor(() => expect(read).toHaveBeenCalledTimes(2))
-  expect(programOf('opencode')).toBe('available')
 })

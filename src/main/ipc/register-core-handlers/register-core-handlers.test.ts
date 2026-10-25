@@ -590,20 +590,10 @@ describe('registerCoreHandlers', () => {
     )
     expect(registerPetHandlersMock).toHaveBeenCalled()
     expect(registerClaudeAccountHandlersMock).toHaveBeenCalledWith(claudeAccounts)
-    expect(registerOpenCodeGoCredentialsHandlersMock).toHaveBeenCalledWith(rateLimits)
-    expect(registerMiniMaxCredentialsHandlersMock).toHaveBeenCalledWith(rateLimits)
-    expect(registerZcodePlanCredentialsHandlersMock).toHaveBeenCalledWith(rateLimits)
+    expect(registerMiniMaxCredentialsHandlersMock).toHaveBeenCalled()
     expect(registerGrokAccountHandlersMock).toHaveBeenCalled()
     expect(registerCursorAccountHandlersMock).toHaveBeenCalled()
-    expect(registerRateLimitHandlersMock).toHaveBeenCalledWith(rateLimits, codexAccounts)
-    expect(registerGitHubHandlersMock).toHaveBeenCalledWith(store, stats)
-    expect(registerLinearHandlersMock).toHaveBeenCalled()
-    expect(registerJiraHandlersMock).toHaveBeenCalled()
-    expect(registerJiraIssueSummaryGenerationHandlersMock).toHaveBeenCalledWith(store, undefined)
-    expect(registerBitbucketHandlersMock).toHaveBeenCalled()
-    expect(registerGitLabHandlersMock).toHaveBeenCalledWith(store)
-    expect(registerHostedReviewHandlersMock).toHaveBeenCalledWith(store, stats)
-    expect(registerFeedbackHandlersMock).toHaveBeenCalled()
+    expect(registerRateLimitHandlersMock).toHaveBeenCalledWith(rateLimits)
     expect(registerStatsHandlersMock).toHaveBeenCalledWith(stats)
     expect(registerMemoryHandlersMock).toHaveBeenCalledWith(store)
     expect(registerNotebookHandlersMock).toHaveBeenCalledWith(store)
@@ -629,17 +619,12 @@ describe('registerCoreHandlers', () => {
     expect(registerEmulatorVideoStreamHandlersMock).toHaveBeenCalled()
     expect(registerFilesystemHandlersMock).toHaveBeenCalledWith(store)
     expect(registerRuntimeHandlersMock).toHaveBeenCalledWith(runtime)
-    expect(registerRuntimeEnvironmentHandlersMock).toHaveBeenCalledWith(store)
-    expect(registerEphemeralVmHandlersMock).toHaveBeenCalledWith(store, undefined)
     expect(registerAiVaultHandlersMock).toHaveBeenCalledWith(
       expect.objectContaining({
         getAdditionalCodexHomePaths: getAdditionalAiVaultCodexHomePaths,
-        getActiveRuntimeAiVaultHostInfos: expect.any(Function),
-        scanRuntimeAiVaultSessions: expect.any(Function),
-        prepareRuntimeSessionResume: expect.any(Function)
+        ensureStructuredSessionOwnership: expect.any(Function)
       })
     )
-    expect(aiVaultOptions.getActiveRuntimeAiVaultHostInfos()).toEqual([])
     expect(registerNativeChatHandlersMock).toHaveBeenCalled()
     expect(registerCliHandlersMock).toHaveBeenCalled()
     expect(registerPreflightHandlersMock).toHaveBeenCalled()
@@ -647,67 +632,12 @@ describe('registerCoreHandlers', () => {
     expect(registerClipboardHandlersMock).toHaveBeenCalledWith(store, {
       localChatAttachmentStore: expect.any(Function)
     })
-    expect(registerUpdaterHandlersMock).toHaveBeenCalled()
     expect(setTrustedBrowserRendererWebContentsIdMock).toHaveBeenCalledWith(null)
     expect(setTrustedClipboardRendererWebContentsIdMock).toHaveBeenCalledWith(null)
     expect(setTrustedUIRendererWebContentsIdMock).toHaveBeenCalledWith(null)
     expect(registerBrowserHandlersMock).toHaveBeenCalled()
     expect(registerFilesystemWatcherHandlersMock).toHaveBeenCalled()
     expect(registerSpeechHandlersMock).toHaveBeenCalledWith(store)
-
-    await expect(
-      aiVaultOptions.scanRuntimeAiVaultSessions(
-        'env-123',
-        {
-          limit: 10,
-          scopePaths: ['/workspace']
-        },
-        { timeoutMs: 3000 }
-      )
-    ).resolves.toEqual({
-      sessions: [],
-      issues: [
-        expect.objectContaining({
-          executionHostId: 'runtime:env-123',
-          agent: 'codex',
-          path: 'env-123',
-          message: expect.stringContaining('Invalid aiVault.listSessions response')
-        })
-      ],
-      scannedAt: expect.any(String)
-    })
-    expect(callRuntimeEnvironmentMock).toHaveBeenCalledWith(
-      '/test/user-data',
-      'env-123',
-      'aiVault.listSessions',
-      {
-        limit: 10,
-        force: undefined,
-        scopePaths: ['/workspace'],
-        executionHostId: 'runtime:env-123'
-      },
-      3000
-    )
-
-    callRuntimeEnvironmentMock.mockResolvedValueOnce({
-      ok: true,
-      result: { useRealCodexHome: true }
-    })
-    const prepareArgs = {
-      agent: 'codex',
-      filePath: '/managed/sessions/2026/07/20/rollout-a.jsonl',
-      codexHome: '/managed',
-      executionHostId: 'runtime:env-123'
-    }
-    await expect(
-      aiVaultOptions.prepareRuntimeSessionResume('env-123', prepareArgs)
-    ).resolves.toEqual({ useRealCodexHome: true })
-    expect(callRuntimeEnvironmentMock).toHaveBeenLastCalledWith(
-      '/test/user-data',
-      'env-123',
-      'aiVault.prepareSessionResume',
-      prepareArgs
-    )
   })
 
   // Chat refusal must not disable session history/resume; other ownership failures still propagate.

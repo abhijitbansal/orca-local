@@ -126,7 +126,7 @@ async function persistedTab(hostId: ExecutionHostId, close = true) {
 }
 
 describe('shipped terminal.create after a durable host close', () => {
-  it.each(['local', 'runtime:legacy-host'] as const)(
+  it.each(['local'] as const)(
     'refuses a stale id closed in %s before spawning, including after restart',
     async (hostId) => {
       const { reloaded, worktreeId, pane, spawn, listProcesses, create } =

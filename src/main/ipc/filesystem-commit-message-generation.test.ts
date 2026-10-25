@@ -459,10 +459,12 @@ describe('registerFilesystemHandlers', () => {
       worktreePath: '/remote/repo',
       connectionId: 'conn-1'
     })
-    await handlers.get('git:cancelGeneratePullRequestFields')!(null, {
-      worktreePath: '/remote/repo',
-      connectionId: 'conn-1'
-    })
+    await expect(
+      handlers.get('git:cancelGeneratePullRequestFields')!(null, {
+        worktreePath: '/remote/repo',
+        connectionId: 'conn-1'
+      })
+    ).rejects.toThrow(SSH_HOST_NOT_SERVED_MESSAGE)
 
     expect(cancelGenerateCommitMessageLocalMock).not.toHaveBeenCalled()
     expect(cancelGeneratePullRequestFieldsLocalMock).not.toHaveBeenCalled()

@@ -56,17 +56,7 @@ function context(
   return overrides
 }
 
-function marked(next: RuntimeWorktreePsResult): string[] {
-  return next.worktrees.filter((entry) => entry.desktopOtherClient).map((entry) => entry.worktreeId)
-}
-
 describe('markWorktreePsOtherClientRows', () => {
-  it("marks, for this host's own phone, the rows its sidebar calls another client's", () => {
-    expect(
-      marked(markWorktreePsOtherClientRows(result, context({ clientKind: 'mobile' })))
-    ).toEqual(['laptop'])
-  })
-
   it('leaves rows untouched for any other caller', () => {
     expect(markWorktreePsOtherClientRows(result, context({ clientKind: 'runtime' }))).toBe(result)
     expect(markWorktreePsOtherClientRows(result, context({}))).toBe(result)

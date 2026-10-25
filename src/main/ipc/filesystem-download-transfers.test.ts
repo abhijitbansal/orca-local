@@ -272,9 +272,7 @@ describe('registerFilesystemHandlers', () => {
         dirPath: '/remote/src',
         connectionId: 'ssh-1'
       })
-    ).rejects.toThrow(
-      'Remote connection dropped. Click Reconnect on the SSH target before retrying.'
-    )
+    ).rejects.toThrow('SSH remotes are not supported in this build.')
 
     expect(showOpenDialogMock).not.toHaveBeenCalled()
   })
