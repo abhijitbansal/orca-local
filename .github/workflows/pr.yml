@@ -676,6 +676,13 @@ jobs:
           src/main/browser/browser-route-webrtc-egress.electron.test.ts
           src/main/browser/browser-route-h3-egress.electron.test.ts
           src/main/browser/browser-route-dns-prefetch.electron.test.ts
+          src/main/persistence/profile-state/profile-state-writer-stall.electron.test.ts
+          src/main/browser/popup-origin-chrome.electron.test.ts
+          src/main/browser/browser-link-materialization.electron.test.ts
+          src/main/browser/browser-popup-compatibility.electron.test.ts
+          src/main/browser/browser-popup-adapter-compatibility.electron.test.ts
+          src/main/browser/browser-popup-native-compatibility.electron.test.ts
+          src/main/browser/browser-popup-background-compatibility.electron.test.ts
 
       # Restore independent fixtures during builds; keep native lifecycle probes serial.
       - uses: ./.github/actions/prepare-linux-package-fixture
@@ -834,9 +841,6 @@ jobs:
           src/main/browser/browser-route-dns-prefetch.electron.test.ts
           src/main/providers/windows-conpty-wide-char-duplication.node-pty.test.ts
           src/main/providers/pty-repaint-wide-char-buffer.node-pty.test.ts
-          src/shared/child-process/windows-command-line.win32.test.ts
-          src/shared/child-process/windows-cmd-shim-resolution.test.ts
-          src/shared/child-process/windows-cmd-shim-resolution.win32.test.ts
           src/main/agent-hooks/windows-hook-payload-delivery.test.ts
           src/main/agent-hooks/windows-direct-cmd-hook-command.test.ts
           src/main/codex/windows-hook-command.test.ts
@@ -852,7 +856,6 @@ jobs:
           src/main/windows-live-tree-kill.win32.test.ts
           src/main/wsl/wsl-runner.test.ts
           src/main/wsl/wsl-guest-environment.test.ts
-          src/main/wsl/wsl-invocation-boundary.test.ts
           src/main/wsl/wsl-executable-path.win32.test.ts
           src/main/wsl/wsl-w1-w3-contract.test.ts
           src/shared/source-scan/source-tree-scan.test.ts
