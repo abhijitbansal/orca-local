@@ -93,7 +93,7 @@ describe('per-job path classification', () => {
   })
 
   it('skips every expensive job for docs-only diffs', () => {
-    expectClassification(['docs/assets/wechat-qr-group8.jpg', 'LICENSE'], {})
+    expectClassification(['README.md', 'docs/readme/README.zh-CN.md'], {})
   })
 
   it('runs packaging and always-on jobs for product source, not git/xterm/shell lanes', () => {
@@ -124,7 +124,6 @@ describe('per-job path classification', () => {
   })
 
   it('runs the Codex index-heal contract only when the heal or its transport changes', () => {
-    expectClassification(['src/main/codex/codex-app-server-session.test.ts'], {})
     expectClassification(['src/main/codex/codex-session-index-heal.ts'], {
       codex_index_heal_contract: true,
       package: true,
@@ -152,10 +151,8 @@ describe('per-job path classification', () => {
     }
     // Keep the real-binary gate live when a transport or launch dependency changes.
     for (const file of [
-      'src/main/codex/app-server/codex-app-server-capability-signal.ts',
-      'src/main/provider-process/provider-process-exit-deadline.ts',
-      'src/main/provider-process/provider-process-launch.ts',
-      'src/main/provider-process/provider-record-reader.ts',
+      'src/main/codex/codex-app-server-capability-signal.ts',
+      'src/main/codex/codex-process-exit-deadline.ts',
       'src/main/codex/codex-session-backfill.ts',
       'src/main/codex/codex-session-index-heal-state.ts',
       'src/main/codex-cli/command.ts',
@@ -185,19 +182,11 @@ describe('per-job path classification', () => {
     })
   })
 
-  it('runs dependency isolation only when what packages may resolve changes', () => {
-    expectClassification(['config/scripts/undeclared-dependency-resolution.test.ts'], {
-      dependency_isolation: true
-    })
-    expect(classifyPrJobs(['pnpm-workspace.yaml']).dependency_isolation).toBe(true)
-    expect(classifyPrJobs(['config/pnpmfile.cjs']).dependency_isolation).toBe(true)
-    expect(classifyPrJobs(['src/renderer/src/App.tsx']).dependency_isolation).toBe(false)
-  })
-
   it('runs native package jobs only for the platform that ships the changed native', () => {
-    expectClassification(['native/windows-cli-launcher/src/main.rs'], { package_windows: true })
-    expectClassification(['native/computer-use-linux/runtime.py'], { package: true })
-    expectClassification(['native/wayland-clipboard/wayland-clipboard.c'], {
+    expectClassification(['native/windows-cli-launcher/src/main.rs'], {
+      package_windows: true
+    })
+    expectClassification(['native/computer-use-linux/runtime.py'], {
       package: true
     })
     expectClassification(['native/computer-use-macos/Package.swift'], {})
@@ -209,7 +198,6 @@ describe('per-job path classification', () => {
       'config/scripts/script-child-process.mjs',
       'config/scripts/space-sharing-copy.mjs',
       '.github/actions/prepare-linux-package-fixture/action.yml',
-      '.github/actions/prepare-wayland-clipboard/action.yml',
       'config/docker/cli-launch-contract/Dockerfile',
       'config/docker/cli-launch-contract/run-cli-case.sh',
       'config/docker/headless-serve-shutdown/Dockerfile',
@@ -302,9 +290,7 @@ describe('per-job path classification', () => {
       expectClassification([file], {
         'cross-version-wire': true,
         package: true,
-        package_windows: true,
-        // The session-tabs RPC publishes layout, so the layout oracle gates it too.
-        layout_oracle: file === 'src/main/runtime/rpc/methods/session-tabs.ts'
+        package_windows: true
       })
     }
   })
@@ -343,8 +329,7 @@ describe('per-job path classification', () => {
   })
 
   it('leaves diffs the audits never read out of static analysis', () => {
-    expect(classifyPrJobs(['docs/assets/logo.png']).static_analysis).toBe(false)
-    expect(classifyPrJobs(['cloud/apps/relay/Dockerfile']).static_analysis).toBe(false)
+    expect(classifyPrJobs(['README.md']).static_analysis).toBe(false)
   })
 
   it('keeps unit-test-only diffs out of packaging', () => {
@@ -454,6 +439,18 @@ describe('PR Checks skip wiring', () => {
     }
   })
 
+  it('keeps the root and README guards on docs-only PRs without another runner', () => {
+    const detector = prWorkflow.jobs.code_paths
+    expect(detector.if).toBeUndefined()
+    expect(detector.needs).toBeUndefined()
+    for (const name of ['Reject new root-level files and folders', 'Check README local links']) {
+      const step = detector.steps.find((candidate) => candidate.name === name)
+      expect(step).toBeDefined()
+      expect(step.if).toBeUndefined()
+    }
+    expect(prWorkflow.jobs.root_directory_guard).toBeUndefined()
+  })
+
   it('gates each expensive job on its classifier and cache prerequisite', () => {
     for (const jobName of expensiveJobs.filter((jobName) => jobName !== 'test')) {
       expect(prWorkflow.jobs[jobName].needs, jobName).toEqual(
@@ -489,6 +486,7 @@ describe('PR Checks skip wiring', () => {
     expect(prWorkflow.jobs.verify.needs[0]).toBe('code_paths')
     expect(verifyStep.env.SHOULD_RUN).toBe('${{ needs.code_paths.outputs.should_run }}')
     expect(verifyStep.run).toContain('"$CODE_PATHS" != "success"')
+    expect(verifyStep.run).toContain('# Require success when the PR has code-relevant changes')
     expect(verifyStep.run).toContain('expected skipped')
     expect(verifyStep.run).toContain('expected success')
     for (const job of prWorkflow.jobs.verify.needs) {

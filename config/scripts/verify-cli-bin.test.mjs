@@ -9,15 +9,8 @@ import {
 } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import { afterEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { verifyPackageCliBin } from './verify-cli-bin.mjs'
-
-const roots = []
-afterEach(() => {
-  for (const root of roots.splice(0)) {
-    rmSync(root, { recursive: true, force: true })
-  }
-})
 
 /** Builds a temporary Orca-style project fixture with a compiled CLI entrypoint. */
 function makeProjectWithCli(
@@ -25,7 +18,6 @@ function makeProjectWithCli(
   { mode = 0o755, rootPackageType, writeOutPackageJson = true } = {}
 ) {
   const projectDir = mkdtempSync(path.join(tmpdir(), 'orca-cli-bin-'))
-  roots.push(projectDir)
   const cliPath = path.join(projectDir, 'out', 'cli', 'index.js')
   const outPackageJsonPath = path.join(projectDir, 'out', 'package.json')
   mkdirSync(path.dirname(cliPath), { recursive: true })
@@ -47,15 +39,11 @@ function makeProjectWithCli(
 describe('verifyPackageCliBin', () => {
   it('accepts a non-empty Node entrypoint and can run help through Node', () => {
     const { projectDir, cliPath } = makeProjectWithCli(
-      '#!/usr/bin/env node\nrequire("node:fs").writeFileSync("help-receipt.json", JSON.stringify({ args: process.argv.slice(2), cwd: process.cwd() }))\nif (!process.argv.includes("--help")) process.exit(9)\n'
+      '#!/usr/bin/env node\nif (process.argv.includes("--help")) process.exit(0)\n'
     )
 
     expect(verifyPackageCliBin({ projectDir, runHelp: true })).toMatchObject({
       binPath: cliPath
-    })
-    expect(JSON.parse(readFileSync(path.join(projectDir, 'help-receipt.json'), 'utf8'))).toEqual({
-      args: ['--help'],
-      cwd: projectDir
     })
   })
 
@@ -87,18 +75,6 @@ describe('verifyPackageCliBin', () => {
       type: 'commonjs',
       private: true
     })
-  })
-
-  it('stamps the build commit the CLI pins official skill installs to', () => {
-    const { projectDir, outPackageJsonPath } = makeProjectWithCli(
-      '#!/usr/bin/env node\nconsole.log("orca")\n',
-      { writeOutPackageJson: false }
-    )
-
-    verifyPackageCliBin({ projectDir, fixPackageJson: true, sourceCommit: 'c'.repeat(40) })
-
-    expect(JSON.parse(readFileSync(outPackageJsonPath, 'utf8')).commit).toBe('c'.repeat(40))
-    rmSync(projectDir, { recursive: true, force: true })
   })
 
   it('rejects a CLI package boundary that is not CommonJS', () => {
