@@ -811,6 +811,10 @@ jobs:
             node_modules/.pnpm/@vscode+windows-process-tre*/node_modules/@vscode/windows-process-tree/build
           key: native-modules-${{ runner.os }}-${{ steps.deps.outputs.native-cache-scope }}-${{ runner.arch }}-node-node${{ steps.deps.outputs.node-version }}-${{ hashFiles('pnpm-lock.yaml', '.github/actions/install-node-dependencies/action.yml', 'config/scripts/ensure-native-runtime.mjs', 'config/scripts/rebuild-native-deps.mjs', 'config/patches/node-pty@1.1.0.patch', 'config/patches/@vscode__windows-process-tree@0.8.0.patch', 'native/windows-registry/src/addon.cc', 'native/windows-registry/binding.gyp', 'native/windows-registry/package.json') }}
 
+      # Why before the tests: the orca-agent-hook.exe suites share one prebuilt binary instead of
+      # each shelling out to cargo, and electron-builder --win refuses to package without it.
+      - uses: ./.github/actions/prepare-windows-agent-hook
+
       # vitest runs here directly rather than through `pnpm test`, so the addon
       # assertions only hold once install-node-dependencies has rebuilt natives.
       - name: Test Windows installer process probe

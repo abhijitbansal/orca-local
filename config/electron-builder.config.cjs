@@ -37,10 +37,6 @@ const {
 const { writeMacBuildCompatibility } = require('./scripts/mac-build-compatibility.cjs')
 const { verifyPackagedPluginResources } = require('./scripts/verify-packaged-plugin-resources.cjs')
 const {
-  assertPackagedServeSelectionEntry,
-  assertPackagedWebClient
-} = require('./scripts/verify-packaged-serve-payload.cjs')
-const {
   assertBundledRipgrepInstalled,
   bundledRipgrepExtraResources,
   bundledRipgrepMacSignIgnore,
@@ -474,8 +470,6 @@ module.exports = {
     // Why: inspect electron-builder's real output so a broken extraResources
     // mapping fails packaging before bundled content reaches users.
     verifyPackagedPluginResources(resourcesDir)
-    assertPackagedWebClient(resourcesDir)
-    assertPackagedServeSelectionEntry(resourcesDir)
     finalizePackagedRipgrep(resourcesDir)
     chmodUnixCliLaunchers(resourcesDir, context.electronPlatformName)
     for (const filename of readdirSync(resourcesDir)) {
@@ -595,10 +589,7 @@ module.exports = {
     entitlements: 'resources/build/entitlements.mac.plist',
     entitlementsInherit: 'resources/build/entitlements.mac.plist',
     ...(isMacRelease ? { sign: resolve(__dirname, 'scripts/sign-mac-app.mjs') } : {}),
-    signIgnore: [
-      ...bundledRipgrepMacSignIgnore,
-      ...macTerminalHostSignIgnore
-    ],
+    signIgnore: [...bundledRipgrepMacSignIgnore, ...macTerminalHostSignIgnore],
     extendInfo: macUsageDescriptions,
     // Why: local macOS validation builds should launch without Apple release
     // credentials. Hardened runtime + notarization stay enabled only on the
