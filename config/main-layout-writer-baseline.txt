@@ -7,7 +7,7 @@
 3 src/main/ipc/pty/pane/stable-owner.ts
 2 src/main/ipc/pty/spawn-commit-binding.ts
 1 src/main/ipc/renderer-shutdown-checkpoint.ts
-3 src/main/ipc/session.ts
+2 src/main/ipc/session.ts
 6 src/main/orca-profiles/profile-project-session-state.ts
 4 src/main/orca-profiles/profile-project-source-removal.ts
 2 src/main/orca-profiles/profile-project-state-file.ts
