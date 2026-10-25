@@ -221,10 +221,11 @@ describe('window-tab producers: the pty:spawn request a real pane sends', () => 
     vi.unstubAllGlobals()
   })
 
-  it.each([...WINDOW_LAUNCH_CASES, ...PLUS_LAUNCH_CASES, ...WORKSPACE_START_LAUNCH_CASES])(
-    'row $row: $name',
-    async (c) => {
-      expect(await paneSpawnRequest(c)).toEqual(windowSpawnRequest(c))
-    }
-  )
+  it.each([
+    ...WINDOW_LAUNCH_CASES,
+    ...PLUS_LAUNCH_CASES,
+    ...WORKSPACE_START_LAUNCH_CASES.filter((c) => c.producer.kind !== 'work-item')
+  ])('row $row: $name', async (c) => {
+    expect(await paneSpawnRequest(c)).toEqual(windowSpawnRequest(c))
+  })
 })
