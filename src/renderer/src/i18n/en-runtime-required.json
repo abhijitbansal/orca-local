@@ -3694,7 +3694,9 @@
         "CursorAccountsSection": {
           "expired": "Sign-in expired — run cursor-agent login on the computer running Orca, then click Refresh usage.",
           "refreshUsage": "Refresh usage",
-          "signedOutHelp": "Sign in with Cursor IDE, or run cursor-agent login in a terminal, then click Refresh usage here."
+          "signedOutHelp": "Sign in with Cursor IDE, or run cursor-agent login in a terminal, then click Refresh usage here.",
+          "subtitle": "Shows your Cursor plan usage from the sign-in already on this computer. Orca only reads it — it never changes your Cursor login.",
+          "usageTitle": "Plan usage"
         },
         "DevToolsPane": {
           "orcaCloud": "Orca Cloud",
@@ -8834,6 +8836,10 @@
         "rowDescription": "Where pages render. Traffic always goes through the remote server. Applies to new pages only.",
         "rowTitle": "Remote server workspaces",
         "title": "Host remote browser pages on this device"
+      },
+      "remoteBrowsing": {
+        "heading": "Remote browsing",
+        "headingDescription": "Where remote workspace pages render, and where their network traffic leaves from."
       },
       "sshWorkspaceRouting": {
         "description": "Browser pages in SSH workspaces send their traffic through the workspace's SSH host, with DNS resolved there. Off means pages browse from this machine.",

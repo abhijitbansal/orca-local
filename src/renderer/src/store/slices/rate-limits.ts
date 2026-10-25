@@ -7,7 +7,6 @@ export type RateLimitSlice = {
   rateLimits: RateLimitState
   fetchRateLimits: () => Promise<void>
   refreshRateLimits: () => Promise<void>
-  refreshGrokRateLimits: () => Promise<void>
   consumeCodexRateLimitResetCredit: () => Promise<void>
   fetchInactiveClaudeAccountUsage: () => Promise<void>
   fetchInactiveCodexAccountUsage: () => Promise<void>
@@ -92,8 +91,6 @@ export const createRateLimitSlice: StateCreator<AppState, [], [], RateLimitSlice
   refreshRateLimits: async () => {
     await get().fetchRateLimits()
   },
-
-  refreshGrokRateLimits: async () => {},
 
   consumeCodexRateLimitResetCredit: async () => {},
 

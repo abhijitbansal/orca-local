@@ -1,21 +1,18 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ExternalLink, Loader2, RefreshCw, ShieldCheck } from 'lucide-react'
+import { ExternalLink, ShieldCheck } from 'lucide-react'
 import { AgentIcon } from '@/lib/agent-catalog'
 import { translate } from '@/i18n/i18n'
 import { cn } from '@/lib/utils'
 import { useAppStore } from '../../store'
 import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
 import type { GrokAccountStatus } from '../../../../shared/rate-limit-types'
 import { SearchableSetting } from './SearchableSetting'
 const GROK_CLI_DOCS_URL = 'https://docs.x.ai/build/overview'
 
 export function GrokAccountsSection(): React.JSX.Element {
-  const refreshGrokRateLimits = useAppStore((s) => s.refreshGrokRateLimits)
   const grokUsage = useAppStore((s) => s.rateLimits.grok)
   const [status, setStatus] = useState<GrokAccountStatus | null>(null)
   const [loading, setLoading] = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
 
   const loadStatus = useCallback(async (): Promise<void> => {
     try {
@@ -39,16 +36,6 @@ export function GrokAccountsSection(): React.JSX.Element {
   useEffect(() => {
     void loadStatus()
   }, [loadStatus, grokUsage?.updatedAt])
-
-  const handleRefreshUsage = async (): Promise<void> => {
-    setRefreshing(true)
-    try {
-      await refreshGrokRateLimits()
-      await loadStatus()
-    } finally {
-      setRefreshing(false)
-    }
-  }
 
   const signedIn = status?.signedIn === true
   const tokenFresh = status?.tokenFresh === true
@@ -119,8 +106,8 @@ export function GrokAccountsSection(): React.JSX.Element {
                       'Signed in. Orca reads the Grok CLI session stored on disk.'
                     )
                   : translate(
-                      'auto.components.settings.GrokAccountsSection.f08c41de73',
-                      'Session expired — run grok on the computer running Orca and wait for it to start. If prompted, complete sign-in, then click Refresh usage. No chat message is needed.'
+                      'auto.components.settings.GrokAccountsSection.511013aa6e',
+                      'Session expired — run grok on the computer running Orca and wait for it to start. If prompted, complete sign-in. No chat message is needed.'
                     )}
               </p>
             </>
@@ -134,28 +121,14 @@ export function GrokAccountsSection(): React.JSX.Element {
               </p>
               <p className="text-xs text-muted-foreground">
                 {translate(
-                  'auto.components.settings.GrokAccountsSection.f6a7b8c9d0',
-                  'In a terminal, run grok login, then click Refresh usage here.'
+                  'auto.components.settings.GrokAccountsSection.9f335f1662',
+                  'In a terminal, run grok login.'
                 )}
               </p>
             </>
           )}
           {status?.error ? <p className="text-xs text-destructive">{status.error}</p> : null}
         </div>
-        <Button
-          variant="outline"
-          size="xs"
-          disabled={refreshing}
-          onClick={() => void handleRefreshUsage()}
-          className="shrink-0 gap-1"
-        >
-          {refreshing ? (
-            <Loader2 className="size-3 animate-spin" />
-          ) : (
-            <RefreshCw className="size-3" />
-          )}
-          {translate('auto.components.settings.GrokAccountsSection.3325d996cb', 'Refresh usage')}
-        </Button>
       </div>
 
       {usageWindow ? (
