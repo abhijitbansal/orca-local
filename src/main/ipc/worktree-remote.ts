@@ -11,7 +11,9 @@ import type { Repo } from '../../shared/repo-types'
 import type {
   CreateWorktreeArgs,
   CreateWorktreeResult,
-  WorktreeCreateBaseFallback
+  WorktreeCreateBaseFallback,
+  CreateWorktreeProgressEvent,
+  WorktreeCheckoutProgress
 } from '../../shared/worktree/create-types'
 import type { WorktreeMeta } from '../../shared/worktree/meta-types'
 import type {
@@ -153,8 +155,6 @@ import {
   readWorktreeMetaForHost,
   worktreeRowTarget
 } from '../persistence/host-qualified-worktree-meta'
-import type { CreateWorktreeProgressEvent } from '../../shared/worktree/create-types'
-import type { WorktreeCheckoutProgress } from '../../shared/worktree/create-types'
 // Bound network fetches so Windows credential-manager GUI hangs cannot wedge creation (STA-1292).
 const CREATE_BASE_FALLBACK_FETCH_TIMEOUT_MS = 60_000
 // Deferred materialization also fetches outside the create path and needs the same hang bound.

@@ -10,9 +10,11 @@ import {
   getRepoHostIdentityForParts,
   type HostScopedRepoKey
 } from '../../../shared/repo-host-identity'
-import { CLEARED_HOSTED_REVIEW_LINK_UPDATES } from '../../../shared/worktree/hosted-review-links'
-import { HOSTED_REVIEW_LINK_KEYS } from '../../../shared/worktree/hosted-review-links'
-import { canonicalHostedReviewBranchIdentity } from '../../../shared/worktree/hosted-review-links'
+import {
+  CLEARED_HOSTED_REVIEW_LINK_UPDATES,
+  HOSTED_REVIEW_LINK_KEYS,
+  canonicalHostedReviewBranchIdentity
+} from '../../../shared/worktree/hosted-review-links'
 
 type IdentityRow = Pick<
   Worktree,

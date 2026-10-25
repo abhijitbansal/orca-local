@@ -23,8 +23,10 @@ import type {
   LocalLogTailWatchArgs
 } from '../../shared/local-log-tail-types'
 import type { PreloadApi } from '../api-types'
-import type { FileWriteDiskPrecondition } from '../../shared/file-write-disk-precondition'
-import type { FileWriteResult } from '../../shared/file-write-disk-precondition'
+import type {
+  FileWriteDiskPrecondition,
+  FileWriteResult
+} from '../../shared/file-write-disk-precondition'
 
 export const fsApi = {
   getPathForFile: (file: File): string => webUtils.getPathForFile(file),

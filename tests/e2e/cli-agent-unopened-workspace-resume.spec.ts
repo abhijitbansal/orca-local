@@ -85,8 +85,7 @@ test('a CLI agent in a never-opened workspace resumes after quit and relaunch', 
     const active = await attachRepoAndOpenTerminal(page, repoPath)
     await waitForSessionReady(page)
     const call: RuntimeRpcCall = async <T>(method: string, params: unknown) =>
-      (await new RuntimeClient(session.userDataDir, 30_000, null, null).call<T>(method, params))
-        .result
+      (await new RuntimeClient(session.userDataDir, 30_000).call<T>(method, params)).result
     await expect
       .poll(
         () =>

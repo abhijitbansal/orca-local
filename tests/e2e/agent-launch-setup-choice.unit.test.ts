@@ -41,7 +41,7 @@ afterEach(async () => {
 })
 
 function hostClient(runtime: ReturnType<typeof runtimeStub>) {
-  const client = new RuntimeClient(directory, 60_000, null, null)
+  const client = new RuntimeClient(directory, 60_000)
   vi.spyOn(client, 'call').mockImplementation(async (name, params) => {
     const meta = { runtimeId: 'runtime-1' }
     if (name === 'status.get') {

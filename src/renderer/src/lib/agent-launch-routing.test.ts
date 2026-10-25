@@ -1,11 +1,11 @@
-import { NATIVE_REMOTE_RUNTIME_CLIENT_CAPABILITIES } from '../../../shared/protocol-version'
-import { describe, expect, it } from 'vitest'
 import {
+  NATIVE_REMOTE_RUNTIME_CLIENT_CAPABILITIES,
   RUNTIME_CAPABILITIES,
   STRUCTURED_AGENT_SESSION_CLIENT_LAUNCH_MODE_CAPABILITY,
   STRUCTURED_AGENT_SESSION_REGISTERED_AGENTS_RUNTIME_CAPABILITY,
   STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY
 } from '../../../shared/protocol-version'
+import { describe, expect, it } from 'vitest'
 import { resolveAgentLaunchRoute, structuredAgentLaunchSupported } from './agent-launch-routing'
 
 const settings = { experimentalNativeChat: true }

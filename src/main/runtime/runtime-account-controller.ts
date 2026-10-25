@@ -12,11 +12,15 @@ import type { RateLimitState } from '../../shared/rate-limit-types'
 import type { CommitMessageAgentEnvironmentResolvers } from '../text-generation/commit-message-agent-environment'
 import type { ClaudeAccountSelectionTarget } from '../claude-accounts/runtime-selection'
 import type { HostAccountLaunchEnv } from '../../shared/host-account-launch-env'
-import type { HostAccountSignInChannel } from '../../shared/host-account-sign-in-types'
-import type { HostAccountSignInProvider } from '../../shared/host-account-sign-in-types'
-import type { HostAccountSignInStatus } from '../../shared/host-account-sign-in-types'
-import { hostAccountLaunchEnvFor } from '../../shared/host-account-launch-env'
-import { hostAccountsManagedByDesktopMessage } from '../../shared/host-account-launch-env'
+import type {
+  HostAccountSignInChannel,
+  HostAccountSignInProvider,
+  HostAccountSignInStatus
+} from '../../shared/host-account-sign-in-types'
+import {
+  hostAccountLaunchEnvFor,
+  hostAccountsManagedByDesktopMessage
+} from '../../shared/host-account-launch-env'
 import { retireAtRestCommandContext } from '../native-chat/agent-session-wire/at-rest-command-context'
 
 export type RuntimeAccountServices = {

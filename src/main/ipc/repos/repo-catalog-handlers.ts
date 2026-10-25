@@ -3,17 +3,21 @@ import { ipcMain } from 'electron'
 import type { Store } from '../../persistence'
 import type { OrcaRuntimeService } from '../../runtime/orca-runtime'
 import type { Project, ProjectUpdateArgs } from '../../../shared/project-types'
-import { normalizeExecutionHostId } from '../../../shared/execution-host'
+import {
+  normalizeExecutionHostId,
+  getRepoExecutionHostId,
+  parseExecutionHostId
+} from '../../../shared/execution-host'
 import { enrichRepoGitUsernames } from '../../repo-git-username-enrichment'
 import { enrichMissingRepoGitRemoteIdentities } from '../../repo-git-remote-identity-enrichment'
 import { invalidateAuthorizedRootsCache } from '../registered-worktree-roots-cache'
 import { notifyReposChanged } from './repos-changed-notification'
 import { ProjectUpdateIpcArgs, parseProjectGroupIpcArgs } from './repo-ipc-arg-schemas'
-import { assertWslMoveProjectWritable } from '../../persistence/moving-wsl-projects/wsl-move-scope-guard'
-import { assertWslMoveReposWritable } from '../../persistence/moving-wsl-projects/wsl-move-scope-guard'
-import { getRepoExecutionHostId } from '../../../shared/execution-host'
-import { isWslMoveSourceHost } from '../../persistence/moving-wsl-projects/wsl-move-scope-guard'
-import { parseExecutionHostId } from '../../../shared/execution-host'
+import {
+  assertWslMoveProjectWritable,
+  assertWslMoveReposWritable,
+  isWslMoveSourceHost
+} from '../../persistence/moving-wsl-projects/wsl-move-scope-guard'
 import { scheduleCurrentWorktreeBaseDirectoryWatcherSync } from '../worktree-base-directory-watcher'
 
 export function registerRepoCatalogHandlers(

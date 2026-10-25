@@ -10,12 +10,14 @@ import type {
   BundledSkillPlanRequest
 } from '../../shared/bundled-skill-plan'
 import type { RuntimeSkillCommands } from './runtime-skill-command-surface'
-import type { ManagedSkillInstall } from '../../shared/skill-install-contract'
-import type { SkillInstallPreview } from '../../shared/skill-install-contract'
-import type { SkillInstallPreviewRequest } from '../../shared/skill-install-contract'
-import type { SkillInstallResult } from '../../shared/skill-install-contract'
+import type {
+  ManagedSkillInstall,
+  SkillInstallPreview,
+  SkillInstallPreviewRequest,
+  SkillInstallResult,
+  SkillRemoveRequest
+} from '../../shared/skill-install-contract'
 import type { SkillProviderRootOverrides } from '../skills/skill-provider-destinations'
-import type { SkillRemoveRequest } from '../../shared/skill-install-contract'
 export type RuntimeSkillCommandSurface = {
   planLocalBundledSkills(request: BundledSkillPlanRequest): Promise<BundledSkillPlan>
   executeLocalBundledSkills(request: BundledSkillExecuteRequest): Promise<BundledSkillInstallResult>

@@ -120,7 +120,7 @@ async function showSeededWorktrees(page: Page): Promise<void> {
 
 function runtimeCall(userDataDir: string): RuntimeRpcCall {
   // The shipped CLI's own transport, against this app's profile: no pairing.
-  const client = new RuntimeClient(userDataDir, 30_000, null, null)
+  const client = new RuntimeClient(userDataDir, 30_000)
   return async <TResult>(method: string, params: unknown) =>
     (await client.call<TResult>(method, params)).result
 }

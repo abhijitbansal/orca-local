@@ -1,3 +1,4 @@
+import { createUnsupportedInLocalBuildError } from '@/runtime/runtime-environment-unsupported'
 import type { StateCreator } from 'zustand'
 import type { AppState } from '../types'
 import type { WorktreeSlice } from './worktree-helpers'
@@ -90,10 +91,7 @@ export const createWorktreeSlice: StateCreator<AppState, [], [], WorktreeSlice> 
   clearWorktreeDeleteState: createClearWorktreeDeleteState(set, get),
   updateWorktreeMeta: createUpdateWorktreeMeta(set, get),
   // Local-only: hosted reviews are removed, so there is no push target to ensure.
-  ensureHostedReviewPushTarget: async () => ({
-    ok: false as const,
-    error: 'unsupported_in_local_build'
-  }),
+  ensureHostedReviewPushTarget: () => Promise.reject(createUnsupportedInLocalBuildError()),
   updateWorktreesMeta: createUpdateWorktreesMeta(set, get),
   setWorktreesPinnedAndReveal: createSetWorktreesPinnedAndReveal(set, get),
   observeTerminalGitHubPullRequestLink: () => {},

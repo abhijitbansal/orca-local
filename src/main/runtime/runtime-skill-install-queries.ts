@@ -11,10 +11,12 @@ import {
 } from '../skills/skill-install-management-service'
 import { toLinuxPath } from '../wsl'
 import { RuntimeSkillInstallCommands } from './runtime-skill-install-commands'
-import type { ManagedSkillInstall } from '../../shared/skill-install-contract'
+import type {
+  ManagedSkillInstall,
+  SkillInstallPreviewRequest,
+  SkillRemoveRequest
+} from '../../shared/skill-install-contract'
 import type { SkillBundleInstallPreviewRequest } from '../../shared/skill-bundle-install-contract'
-import type { SkillInstallPreviewRequest } from '../../shared/skill-install-contract'
-import type { SkillRemoveRequest } from '../../shared/skill-install-contract'
 
 export class RuntimeSkillInstallQueries extends RuntimeSkillInstallCommands {
   async previewSharedSkillInstallRequest(request: SkillInstallPreviewRequest) {

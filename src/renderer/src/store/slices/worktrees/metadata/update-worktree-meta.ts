@@ -1,6 +1,7 @@
 import type { WorktreeSlice } from '../../worktree-helpers'
-import { getActiveRuntimeTarget } from '@/runtime/runtime-client-target'
+import { ipcOrRuntimeTargetForHostId } from '@/runtime/runtime-client-target'
 import type { WorktreeSliceGet, WorktreeSliceSet } from '../listing/worktree-slice-types'
+import { LOCAL_EXECUTION_HOST_ID } from '../../../../../../shared/execution-host'
 import { translate } from '@/i18n/i18n'
 import { displayNameUpdatePinsLabel } from '../../../../../../shared/worktree/display-name-provenance'
 import { parseWorkspaceKey } from '../../../../../../shared/workspace-scope'
@@ -19,7 +20,6 @@ import { getHostedReviewPushTargetLookup } from './hosted-review-push-target'
 import { persistWorktreeMeta } from './worktree-meta-persist'
 import { withPendingSidebarRowWrites } from '@/lib/sidebar-pending-layer'
 import { isRuntimeSelectorNotFoundError } from '../listing/runtime-worktree-rpc-errors'
-import { settingsForWorktreeOwner } from '../listing/worktree-owner-settings'
 
 export function createUpdateWorktreeMeta(
   set: WorktreeSliceSet,
@@ -147,8 +147,14 @@ export function createUpdateWorktreeMeta(
     }
 
     try {
+      const ownerTarget = ipcOrRuntimeTargetForHostId(
+        executionHostId ?? existingWorktree?.hostId ?? LOCAL_EXECUTION_HOST_ID
+      )
+      if (!ownerTarget) {
+        throw new Error('The workspace host is unresolved. Refresh and retry.')
+      }
       await persistWorktreeMeta(
-        getActiveRuntimeTarget(settingsForWorktreeOwner(get(), worktreeId, executionHostId)),
+        ownerTarget,
         worktreeId,
         enriched,
         executionHostId ?? existingWorktree?.hostId,

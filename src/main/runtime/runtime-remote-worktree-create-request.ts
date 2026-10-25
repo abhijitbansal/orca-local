@@ -1,5 +1,6 @@
 import type { CreateWorktreeResult } from '../../shared/worktree/create-types'
 import type { Repo } from '../../shared/repo-types'
+import { getRepoRoutingConnectionId } from '../../shared/execution-host'
 import { SshHostNotServedError } from '../providers/ssh-host-not-served-error'
 import type { RuntimeStore } from './runtime-store-contract'
 import type { RuntimeManagedWorktreeCreateArgs } from './runtime-managed-worktree-create-types'
@@ -18,5 +19,5 @@ export async function requestRuntimeRemoteWorktree(
   _store: RuntimeStore
 ): Promise<CreateWorktreeResult> {
   // Why: SSH remotes are removed; a connection-owned repo fails closed and never creates locally.
-  throw new SshHostNotServedError(repo.connectionId ?? '')
+  throw new SshHostNotServedError(getRepoRoutingConnectionId(repo) ?? '')
 }

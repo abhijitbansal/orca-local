@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useEffectEvent } from 'react'
 import { AlertTriangle, ExternalLink, FolderPlus, GitBranchPlus, X } from 'lucide-react'
 import { useAppStore } from '../store'
 import { isGitRepoKind } from '../../../shared/repo-kind'
@@ -14,7 +14,6 @@ import logo from '../../../../resources/logo.svg'
 import { translate } from '@/i18n/i18n'
 import type { PreflightIssue } from './landing-preflight-issues'
 import { useLandingPreflightRuntime } from './landing-preflight-runtime'
-import { useEffectEvent } from 'react'
 
 type ShortcutItem = {
   id: string

@@ -7,11 +7,11 @@ import {
   mockApi,
   resetRemoteRuntimeMocks,
   resetWorktreeSliceModuleMemory,
-  runtimeEnvironmentCall
+  runtimeEnvironmentCall,
+  runtimeEnvironmentTransportCall
 } from './worktrees-slice-test-harness'
 import type { RuntimeEnvironmentCallRequest } from '../../runtime/runtime-compatibility-test-fixture'
 import { createCompatibleRuntimeStatusResponse } from '../../runtime/runtime-compatibility-test-fixture'
-import { runtimeEnvironmentTransportCall } from './worktrees-slice-test-harness'
 
 const requestWorktreeBaseFallbackNotice = vi.hoisted(() => vi.fn())
 

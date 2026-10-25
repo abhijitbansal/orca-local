@@ -6,7 +6,7 @@ import {
   type ExecutionHostId
 } from '../../../../../../shared/execution-host'
 import { WORKTREE_REMOVAL_AMBIGUOUS_ERROR } from './worktree-slice-constants'
-import { getActiveRuntimeTarget } from '@/runtime/runtime-client-target'
+import { ipcOrRuntimeTargetForHostId } from '@/runtime/runtime-client-target'
 import { warnAmbiguousOwnerOnce } from '@/lib/ambiguous-owner-warning'
 import type { Worktree } from '../../../../../../shared/worktree/types'
 import { worktreeHostMatchOptions, worktreeMatchesHost } from './worktree-host-ownership'
@@ -50,7 +50,14 @@ export function persistPassiveWorktreeMetaForOwner(
     warnAmbiguousOwnerOnce(worktreeId, errorLabel)
     return
   }
-  const ownerTarget = getActiveRuntimeTarget(settingsForRepoOwner(get(), repoId, undefined, true))
+  const ownerRepo = get().repos.find((repo) => repo.id === repoId)
+  const ownerTarget = ipcOrRuntimeTargetForHostId(
+    ownerRepo ? getRepoExecutionHostId(ownerRepo) : undefined
+  )
+  if (!ownerTarget) {
+    warnAmbiguousOwnerOnce(worktreeId, errorLabel)
+    return
+  }
   void persistWorktreeMeta(ownerTarget, worktreeId, updates).catch((err) => {
     if (isRuntimeSelectorNotFoundError(err)) {
       void get().fetchWorktrees(getRepoIdFromWorktreeId(worktreeId))

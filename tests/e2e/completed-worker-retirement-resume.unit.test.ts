@@ -164,7 +164,6 @@ function seedWorkspace(options: { helper?: boolean } = {}): void {
     },
     markWorktreeVisited: vi.fn(),
     recordWorktreeVisit: vi.fn(),
-    refreshGitHubForWorktreeIfStale: vi.fn(),
     revealWorktreeInSidebar: vi.fn()
   })
 }

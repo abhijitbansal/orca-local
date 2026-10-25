@@ -113,7 +113,6 @@ beforeEach(async () => {
     acknowledgedAgentsByPaneKey: {},
     activityClearedAtByPaneKey: {},
     retainedAgentsByPaneKey: {},
-    refreshGitHubForWorktreeIfStale: vi.fn(),
     testRuntimeOwner: null,
     repos: [makeRepo()],
     worktreesByRepo: { [worktree.repoId]: [worktree] },

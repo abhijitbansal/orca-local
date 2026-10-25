@@ -45,7 +45,7 @@ afterEach(async () => {
 })
 
 function hostClient(runtime: ReturnType<typeof runtimeStub>, loseReply = false) {
-  const client = new RuntimeClient(directory, 60_000, null, null)
+  const client = new RuntimeClient(directory, 60_000)
   let lost = false
   vi.spyOn(client, 'call').mockImplementation(async (name, params) => {
     if (name === 'status.get') {
@@ -287,7 +287,7 @@ describe('CLI launch through host surface creation and replay admission', () => 
   })
 
   it('gives inspection-only recovery after an ambiguous legacy create and never falls back again', async () => {
-    const client = new RuntimeClient(directory, 60_000, null, null)
+    const client = new RuntimeClient(directory, 60_000)
     const call = vi
       .spyOn(client, 'call')
       .mockResolvedValueOnce({
@@ -352,17 +352,4 @@ describe('CLI launch through host surface creation and replay admission', () => 
       )
     }
   )
-
-  it('refuses remote cwd inference for current', async () => {
-    const client = hostClient(runtimeStub())
-    vi.spyOn(client, 'isRemote', 'get').mockReturnValue(true)
-    const flags = new Map<string, string | boolean>([
-      ['agent', 'codex'],
-      ['worktree', 'current']
-    ])
-    await expect(
-      AGENT_LAUNCH_HANDLERS['agent launch']({ flags, client, cwd: '/tmp/repo', json: true })
-    ).rejects.toMatchObject({ code: 'invalid_argument' })
-    expect(client.call).not.toHaveBeenCalled()
-  })
 })

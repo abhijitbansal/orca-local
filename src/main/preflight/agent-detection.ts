@@ -29,10 +29,12 @@ import {
 } from '../ipc/preflight-remote-windows-terminal-capabilities'
 import { invalidateWslGuestEnvironment } from '../wsl/wsl-guest-environment'
 import { prunePreflightWslCache } from '../preflight-wsl-cache'
-import { KNOWN_TUI_AGENT_DETECTION_COMMANDS } from '../../shared/tui-agent-detection-commands'
+import {
+  KNOWN_TUI_AGENT_DETECTION_COMMANDS,
+  getTuiAgentDetectionProbeCommands,
+  resolveDetectedTuiAgentIds
+} from '../../shared/tui-agent-detection-commands'
 import { detectCommandsInInstallDirs } from '../../shared/local-agent-install-dir-detection'
-import { getTuiAgentDetectionProbeCommands } from '../../shared/tui-agent-detection-commands'
-import { resolveDetectedTuiAgentIds } from '../../shared/tui-agent-detection-commands'
 
 export type PreflightStatus = { git: { installed: boolean } }
 
