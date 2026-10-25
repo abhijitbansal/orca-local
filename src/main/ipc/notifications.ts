@@ -6,7 +6,8 @@ import type {
   NotificationDismissResult,
   NotificationDispatchRequest,
   NotificationDispatchResult,
-  NotificationPermissionStatusResult
+  NotificationPermissionStatusResult,
+  StructuredNotificationRead
 } from '../../shared/notification-settings-types'
 import type { OrcaRuntimeService } from '../runtime/orca-runtime'
 import { readNotificationAuthorizationStatus } from './notification-authorization-status'
@@ -14,10 +15,12 @@ import { setTrayAttention } from '../tray/system-tray'
 import { isMainWindowVisible } from '../window/main-window-visibility'
 import { activeNotificationsById } from './native-notification-lifecycle'
 import { deliverNativeNotification } from './native-notification-delivery'
+import { removeReadMacosNotifications } from './macos-notification-center'
 import { createNotificationDeliveryService } from '../notifications/notification-delivery-service'
 import { createAnnouncedNotificationRegistry } from '../notifications/announced-notification-registry'
 import { registerNotificationSoundHandlers } from './notification-sound-ipc'
 import { openNotificationSystemSettings } from './notification-system-settings-link'
+import { isStructuredAttentionRead } from '../../shared/agent-session-attention'
 import {
   getLastObservedDeliveryOutcome,
   hasTriggeredPermissionDialogThisSession,
@@ -91,17 +94,36 @@ export function registerNotificationHandlers(store: Store, runtime?: OrcaRuntime
   ipcMain.removeHandler('notifications:dismiss')
   ipcMain.handle(
     'notifications:dismiss',
-    (_event, ids: string[], paneKeys?: string[]): NotificationDismissResult => {
+    (
+      _event,
+      ids: string[],
+      paneKeys?: string[],
+      reads?: StructuredNotificationRead[]
+    ): NotificationDismissResult => {
       const uniqueIds = new Set(
-        ids.filter((id): id is string => typeof id === 'string' && id.length > 0)
+        ids.filter(
+          (id): id is string =>
+            typeof id === 'string' &&
+            id.length > 0 &&
+            !id.startsWith('agent-attention:') &&
+            !announced.isBounded(id)
+        )
       )
-      // Why: an acknowledged subject retires everything announced for it, including ids minted
-      // from a row start that has since moved and so can no longer be rebuilt by the renderer.
+      const genericMobileIds = new Set(uniqueIds)
+      // Positioned structured alerts need the journal boundary; pane-wide reads retire the rest.
       for (const paneKey of Array.isArray(paneKeys) ? paneKeys : []) {
         if (typeof paneKey === 'string') {
-          for (const { id } of announced.take(paneKey)) {
-            uniqueIds.add(id)
+          const read = Array.isArray(reads)
+            ? reads.find((item) => isStructuredAttentionRead(item) && item.paneKey === paneKey)
+            : undefined
+          const retired = announced.take(paneKey, read)
+          for (const entry of retired) {
+            uniqueIds.add(entry.id)
+            if (!entry.origin) {
+              genericMobileIds.add(entry.id)
+            }
           }
+          removeReadMacosNotifications(paneKey, retired)
         }
       }
       let dismissed = 0
@@ -112,7 +134,9 @@ export function registerNotificationHandlers(store: Store, runtime?: OrcaRuntime
           entry.release()
           dismissed += 1
         }
-        runtime?.dismissMobileNotification(id)
+        if (genericMobileIds.has(id)) {
+          runtime?.dismissMobileNotification(id)
+        }
       }
       return { dismissed }
     }
@@ -135,10 +159,14 @@ export function registerNotificationHandlers(store: Store, runtime?: OrcaRuntime
     now: () => Date.now(),
     recordAnnounced: (request) => {
       if (request.paneKey && request.notificationId) {
-        announced.record(request.paneKey, request.notificationId)
+        announced.record(request.paneKey, request.notificationId, request.structuredOrigin)
       }
     }
   })
+
+  // Phones no longer exist; the renderer's prompt-settled signal is accepted and ignored.
+  ipcMain.removeHandler('notifications:settleStructuredPrompts')
+  ipcMain.handle('notifications:settleStructuredPrompts', (): void => {})
 
   ipcMain.removeHandler('notifications:dispatch')
   ipcMain.handle(

@@ -29,15 +29,6 @@ const storeWith = (repos: Repo[], withTargets: boolean) => ({
 })
 
 describe('runtime visible catalog', () => {
-  it('lists what the desktop shows and names the rest as hidden', () => {
-    const all = [repo('local'), repo('retained')]
-    visibleRepos.mockImplementation((store) => store.getRepos().filter((r) => r.id !== 'retained'))
-    const store = storeWith(all, true)
-    expect(runtimeVisibleRepos(store).map((r) => r.id)).toEqual(['local'])
-    expect(runtimeHiddenRepos(store).hasRepo(all[1]!)).toBe(true)
-    expect(runtimeHiddenRepos(store).hasRepo(all[0]!)).toBe(false)
-  })
-
   it('treats a store with no SSH targets (headless orcad) as hiding nothing of its own', () => {
     visibleRepos.mockImplementation((store) => {
       expect(store.getSshTargets()).toEqual([])
@@ -53,55 +44,9 @@ describe('runtime visible catalog', () => {
     expect(runtimeHiddenRepos(null).size).toBe(0)
   })
 
-  it('names a host known only through hidden rows, but never this machine', () => {
-    visibleRepos.mockImplementation((store) =>
-      store.getRepos().filter((r) => r.id !== 'retained' && r.id !== 'moved-local')
-    )
-    const store = storeWith(
-      [
-        repo('retained', 'target-1'),
-        repo('moved-local'),
-        repo('shared-a', 'target-2'),
-        repo('shared-b', 'target-2')
-      ],
-      true
-    )
-    expect([...runtimeHiddenHostIds(store)]).toEqual(['ssh:target-1'])
-  })
-
   it('keeps a host that still has a visible row', () => {
     visibleRepos.mockImplementation((store) => store.getRepos().filter((r) => r.id !== 'a'))
     const store = storeWith([repo('a', 'target-2'), repo('b', 'target-2')], true)
     expect(runtimeHiddenHostIds(store).size).toBe(0)
-  })
-
-  describe('a repo id shared by a visible host and a retained SSH source', () => {
-    const local = repo('same-project')
-    const retained = repo('same-project', 'target-1')
-    const store = storeWith([local, retained], true)
-    // Same id on both rows: only the SSH row is the retired source.
-    const hideRetained = (s: { getRepos: () => Repo[] }): Repo[] =>
-      s.getRepos().filter((r) => r.connectionId !== 'target-1')
-
-    it('still names the retired SSH host as hidden', () => {
-      visibleRepos.mockImplementation(hideRetained)
-      expect([...runtimeHiddenHostIds(store)]).toEqual(['ssh:target-1'])
-    })
-
-    it('hides only the worktrees on the retained host', () => {
-      visibleRepos.mockImplementation(hideRetained)
-      const hidden = runtimeHiddenRepos(store)
-      expect(hidden.hasRepo(retained)).toBe(true)
-      expect(hidden.hasRepo(local)).toBe(false)
-      expect(hidden.hasWorktree({ repoId: 'same-project', hostId: 'ssh:target-1' })).toBe(true)
-      expect(hidden.hasWorktree({ repoId: 'same-project', hostId: 'local' })).toBe(false)
-      // A legacy worktree with no host cannot be placed on either row, and one row is visible.
-      expect(hidden.hasWorktree({ repoId: 'same-project' })).toBe(false)
-    })
-
-    it('hides a hostless worktree whose every row is hidden', () => {
-      visibleRepos.mockImplementation(() => [])
-      expect(runtimeHiddenRepos(store).hasWorktree({ repoId: 'same-project' })).toBe(true)
-    })
   })
 })

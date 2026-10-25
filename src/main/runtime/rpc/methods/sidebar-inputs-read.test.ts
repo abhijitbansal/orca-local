@@ -1,6 +1,5 @@
 import '../unused-default-rpc-methods.test-fixture'
 import { describe, expect, it } from 'vitest'
-import { MOBILE_BRIDGE_MAX_FRAME_BYTES } from '../../../../shared/mobile-bridge-frame-bytes'
 import { SIDEBAR_INPUTS_PAGE_MAX_BYTES } from '../../../../shared/sidebar-list/sidebar-inputs-feed-contract'
 import type { OrcaRuntimeService } from '../../orca-runtime'
 import { SidebarInputsFeed } from '../../sidebar-inputs/sidebar-inputs-feed'
@@ -45,18 +44,6 @@ function makeHost() {
 }
 
 describe('sidebarInputs.read', () => {
-  it('serves the host’s own phone a page that fits its bridge frame with the RPC envelope', async () => {
-    const host = makeHost()
-    const response = await host.read({ clientKind: 'mobile', connectionId: 'conn-1' })
-    expect(response).toMatchObject({
-      ok: true,
-      result: { kind: 'snapshot', next: expect.any(String) }
-    })
-    const frame = Buffer.byteLength(JSON.stringify(response), 'utf8')
-    expect(frame).toBeGreaterThan(SIDEBAR_INPUTS_PAGE_MAX_BYTES * 0.9)
-    expect(frame).toBeLessThanOrEqual(MOBILE_BRIDGE_MAX_FRAME_BYTES)
-  })
-
   it('serves the host’s own desktop window over its IPC connection', async () => {
     const host = makeHost()
     const response = await host.read({
@@ -83,16 +70,6 @@ describe('sidebarInputs.read', () => {
       expect(await host.read(context)).toMatchObject({ ok: false, error: { code: 'forbidden' } })
     }
     expect(host.rows.reads()).toBe(0)
-  })
-
-  it('subscribes a connection on its first read and releases it when the connection closes', async () => {
-    const host = makeHost()
-    await host.read({ clientKind: 'mobile', connectionId: 'conn-1' })
-    await host.read({ clientKind: 'mobile', connectionId: 'conn-1' })
-    expect([...host.cleanups.keys()]).toEqual(['sidebar-inputs-feed-conn-1'])
-    expect(host.rows.watchers()).toBe(1)
-    host.cleanups.get('sidebar-inputs-feed-conn-1')?.()
-    expect(host.rows.watchers()).toBe(0)
   })
 
   it('does not subscribe a connection that closed before its read ran', async () => {
