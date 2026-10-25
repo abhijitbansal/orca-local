@@ -365,10 +365,29 @@
           "files": [
             "src/renderer/src/components/editor/combined-diff/browse-files/use-combined-diff-tree-navigation.ts",
             "src/renderer/src/components/editor/combined-diff/load-sections/combined-diff-section-load-registry.ts",
-            "src/renderer/src/components/editor/combined-diff/review-controls/use-combined-diff-section-actions.ts"
+            "src/renderer/src/components/editor/combined-diff/review-controls/use-combined-diff-section-actions.ts",
+            "src/renderer/src/components/native-chat/use-native-chat-composer-keydown.ts"
           ],
           "rules": [
             "react-doctor/no-ref-current-in-render"
+          ]
+        },
+        {
+          "files": [
+            "src/renderer/src/components/editor/useLocalImageSrc.test.ts",
+            "src/renderer/src/components/native-chat/native-chat-image-references.test.tsx",
+            "src/renderer/src/components/native-chat/use-native-chat-external-attachments.test.tsx"
+          ],
+          "rules": [
+            "react-doctor/no-prop-callback-in-render"
+          ]
+        },
+        {
+          "files": [
+            "docs/site/tests/search-excerpt.test.mjs"
+          ],
+          "rules": [
+            "eslint/prefer-template"
           ]
         }
       ]
