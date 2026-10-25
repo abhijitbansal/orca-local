@@ -87,6 +87,10 @@ are the exceptions as they exist in the tree.
   that cosmetic loss is deliberate.
 - **`shell.openExternal`.** Help, docs, issue and share links hand off to the OS
   browser. Orca opens no connection.
+- **Build-time pinned Node fetch.** Packaging scripts in `config/scripts/`
+  (`pinned-node-downloads.mjs`) download the pinned, SHA-256-verified Node for the
+  macOS terminal host and the Linux AppImage. The `nodejs.org` URLs live only
+  there, never in `src/`; the shipped app never downloads Node.
 - **Speech-model and scrcpy downloads.** User-initiated, HTTPS only
   (`src/main/speech/speech-model-http-download.ts`, `src/main/emulator/android/scrcpy-server-download.ts`).
 
