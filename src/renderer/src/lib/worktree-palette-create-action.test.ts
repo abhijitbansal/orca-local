@@ -7,7 +7,6 @@ import {
   getWorktreePaletteCreateActionState,
   isWorktreePaletteCreateActivationAllowed
 } from './worktree-palette-create-action'
-import { WORKTREE_PALETTE_QUERY_MAX_BYTES } from './worktree-palette-query-bounds'
 
 describe('worktree-palette-create-action', () => {
   it('shows create for typed queries with workspace matches but selects the first workspace row', () => {
@@ -77,7 +76,7 @@ describe('worktree-palette-create-action', () => {
       query: 'new-workspace'
     })
 
-    expect(state.showCreateAction).toBe(true)
+    expect(state).toEqual({ createWorktreeName: 'new-workspace', showCreateAction: true })
     expect(
       getNextWorktreePaletteSelection({
         currentSelectedItemId: '',
@@ -152,14 +151,6 @@ describe('worktree-palette-create-action', () => {
     ).toBe(CREATE_WORKTREE_ITEM_ID)
   })
 
-  it('offers create with no projects, since the composer adds the first one inline', () => {
-    expect(
-      getWorktreePaletteCreateActionState({
-        query: 'new-workspace'
-      })
-    ).toEqual({ createWorktreeName: 'new-workspace', showCreateAction: true })
-  })
-
   it('hides create for an empty query', () => {
     expect(
       getWorktreePaletteCreateActionState({
@@ -169,7 +160,11 @@ describe('worktree-palette-create-action', () => {
   })
 
   it('hides create for oversized pasted queries without echoing the payload', () => {
-    const oversizedQuery = 'secret-create-worktree-name'.repeat(WORKTREE_PALETTE_QUERY_MAX_BYTES)
+    const oversizedQuery = 'a'.repeat(2049)
+    expect(getWorktreePaletteCreateActionState({ query: 'a'.repeat(2048) })).toEqual({
+      createWorktreeName: 'a'.repeat(2048),
+      showCreateAction: true
+    })
 
     expect(
       getWorktreePaletteCreateActionState({
@@ -234,18 +229,28 @@ describe('worktree-palette-create-action', () => {
   it('allows Enter for a typed create name without requiring arrow navigation', () => {
     expect(
       isWorktreePaletteCreateActivationAllowed({
+        hasTaskUrlIntent: false,
         hasCreateName: true,
         selectionMovedByUser: false
       })
     ).toBe(true)
     expect(
       isWorktreePaletteCreateActivationAllowed({
+        hasTaskUrlIntent: false,
         hasCreateName: false,
         selectionMovedByUser: true
       })
     ).toBe(true)
     expect(
       isWorktreePaletteCreateActivationAllowed({
+        hasTaskUrlIntent: true,
+        hasCreateName: false,
+        selectionMovedByUser: false
+      })
+    ).toBe(true)
+    expect(
+      isWorktreePaletteCreateActivationAllowed({
+        hasTaskUrlIntent: false,
         hasCreateName: false,
         selectionMovedByUser: false
       })

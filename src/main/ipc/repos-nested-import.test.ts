@@ -24,10 +24,6 @@ vi.mock('./registered-worktree-roots-cache', () =>
 vi.mock('../worktree-root-preparation', () =>
   moduleMocks.worktreeRootPreparationModuleMock(reposMocks)
 )
-vi.mock('../providers/ssh-git-dispatch', () => moduleMocks.sshGitDispatchModuleMock(reposMocks))
-vi.mock('../providers/ssh-filesystem-dispatch', () =>
-  moduleMocks.sshFilesystemDispatchModuleMock(reposMocks)
-)
 
 import { registerRepoHandlers } from './repos'
 import { clearGitCapabilityStateForTests } from '../git/git-capability-state'
@@ -35,7 +31,7 @@ import { resetSshProviderAuthorities } from '../ssh/ssh-provider-authority'
 import { getGitRepoRoot, isGitRepo } from '../git/repo'
 import { createRepoHandlerHarness, resetProjectGroupMocks } from './repos-remote-test-harness'
 
-const { handleMock, mockStore, mockFilesystemProvider, listWorktreeGraphMock } = reposMocks
+const { handleMock, mockStore, listWorktreeGraphMock } = reposMocks
 
 beforeEach(() => {
   clearGitCapabilityStateForTests()
@@ -66,7 +62,6 @@ describe('projectGroups IPC validation', () => {
     updatedAt: 1
   }
 
-  // Why: a local tree whose root is a plain folder and whose listed dirs are git repos.
   async function withNestedTree(
     repoDirs: string[],
     run: (root: string) => Promise<void>
@@ -142,7 +137,6 @@ describe('projectGroups IPC validation', () => {
 
     expect(mockStore.addRepo).not.toHaveBeenCalled()
     expect(isGitRepo).not.toHaveBeenCalled()
-    expect(mockFilesystemProvider.readDir).not.toHaveBeenCalled()
   })
 
   it('imports a small selection from a large nested scan', async () => {

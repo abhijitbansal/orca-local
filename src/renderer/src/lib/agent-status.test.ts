@@ -12,7 +12,7 @@ import {
   formatAgentTypeLabel,
   agentTypeToIconAgent
 } from './agent-status'
-import { extractLastOscTitle } from '../components/terminal-pane/pty-transport'
+import { extractLastOscTitle } from '../../../shared/agent-detection'
 
 describe('detectAgentStatusFromTitle', () => {
   it('returns null for empty string', () => {
@@ -277,6 +277,17 @@ describe('detectAgentStatusFromTitle path-separator rejection', () => {
 })
 
 describe('clearWorkingIndicators', () => {
+  it.each([
+    ['Codex:working;thinking|running!', 'Codex:;|!'],
+    ['Codex (working),thinking:running…', 'Codex (),:…'],
+    ['Codex working thinking running', 'Codex'],
+    ['Codex working/thinking', 'Codex /thinking'],
+    ['Codex working\\thinking', 'Codex \\thinking'],
+    ['Codex reworking is-thinking-cap C:\\running', 'Codex reworking is-thinking-cap C:\\running']
+  ])('preserves delimiters while removing status words from %s', (title, expected) => {
+    expect(clearWorkingIndicators(title)).toBe(expected)
+  })
+
   it('strips Claude Code ". " working prefix', () => {
     const cleared = clearWorkingIndicators('. claude')
     expect(cleared).toBe('claude')

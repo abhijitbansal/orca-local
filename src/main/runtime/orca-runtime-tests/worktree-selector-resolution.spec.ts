@@ -3,13 +3,10 @@ import {
   FLOATING_TERMINAL_WORKTREE_ID,
   MOCK_GIT_WORKTREES,
   OrcaRuntimeService,
-  RpcDispatcher,
-  TERMINAL_METHODS,
   addSparseWorktree,
   addWorktree,
   computeWorktreePathMock,
   ensurePathWithinWorkspaceMock,
-  getSshGitProviderMock,
   join,
   listWorktrees,
   mkdir,
@@ -17,6 +14,7 @@ import {
   tmpdir,
   writeFile
 } from '../orca-runtime-test-mocks.spec'
+import { RpcDispatcher, TERMINAL_METHODS } from '../orca-runtime-test-mocks/terminal-rpc.spec'
 import type { WorktreeMeta } from '../orca-runtime-test-mocks.spec'
 import {
   TEST_FOLDER_WORKSPACE_KEY,
@@ -31,6 +29,7 @@ import {
   makeWorktreeMeta,
   store
 } from '../orca-runtime-test-fixtures.spec'
+import type { HostWorktreeTarget } from '../../../shared/worktree/host-qualified-identity'
 
 const LOCAL_CHILD_REPO = {
   id: 'child-repo',
@@ -106,7 +105,7 @@ describe('OrcaRuntimeService', () => {
     })
   })
 
-  it('lists persisted SSH worktrees while the git provider is unavailable', async () => {
+  it('lists persisted SSH worktrees from stored rows', async () => {
     vi.mocked(listWorktrees).mockClear()
     const remoteRepo = {
       id: 'remote-repo',
@@ -128,7 +127,7 @@ describe('OrcaRuntimeService', () => {
       getRepo: () => remoteRepo,
       getAllWorktreeMeta: () => metaById,
       getWorktreeMeta: (worktreeId: string) => metaById[worktreeId],
-      setWorktreeMeta: (worktreeId: string, meta: Partial<WorktreeMeta>) => {
+      setWorktreeMeta: ({ id: worktreeId }: HostWorktreeTarget, meta: Partial<WorktreeMeta>) => {
         metaById[worktreeId] = { ...metaById[worktreeId], ...meta }
         return metaById[worktreeId]
       }
@@ -138,7 +137,6 @@ describe('OrcaRuntimeService', () => {
     const listed = await runtime.listManagedWorktrees('id:remote-repo')
 
     expect(listWorktrees).not.toHaveBeenCalled()
-    expect(getSshGitProviderMock).toHaveBeenCalledWith('ssh-missing')
     expect(listed).toMatchObject({
       totalCount: 2,
       truncated: false,
@@ -192,7 +190,7 @@ describe('OrcaRuntimeService', () => {
     expect(listWorktrees).not.toHaveBeenCalled()
   })
 
-  it('guides registered SSH repo ids without probing the provider', async () => {
+  it('guides registered SSH repo ids to the full id shape', async () => {
     const remoteRepo = { ...store.getRepos()[0], connectionId: 'ssh-1' }
     const remoteStore = {
       ...store,
@@ -200,14 +198,12 @@ describe('OrcaRuntimeService', () => {
       getRepo: (id: string) => (id === remoteRepo.id ? remoteRepo : undefined)
     }
     vi.mocked(listWorktrees).mockClear()
-    getSshGitProviderMock.mockClear()
     const runtime = new OrcaRuntimeService(remoteStore)
 
     await expect(runtime.showManagedWorktree(`id:${TEST_REPO_ID}`)).rejects.toMatchObject({
       code: 'worktree_id_requires_full_path'
     })
     expect(listWorktrees).not.toHaveBeenCalled()
-    expect(getSshGitProviderMock).not.toHaveBeenCalled()
   })
 
   it('rejects bare repo ids through terminal list RPC with the structured code', async () => {

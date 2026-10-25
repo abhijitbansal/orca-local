@@ -13,6 +13,7 @@ import {
   _resetPendingWorktreeRemovalsForTests,
   startBackgroundWorktreeRemoval
 } from '../worktree-background-removal'
+import { hostWorktreeTarget } from '../../shared/worktree/host-qualified-identity'
 
 vi.mock('electron', async () =>
   (await import('./worktrees-test-module-mocks')).electronModuleMock()
@@ -31,18 +32,8 @@ vi.mock('../git/git-username', async (importOriginal) => ({
   resolveLocalGitUsername: (await import('./worktrees-test-module-mocks'))
     .resolveLocalGitUsernameMock
 }))
-vi.mock('../providers/ssh-git-dispatch', async () =>
-  (await import('./worktrees-test-module-mocks')).sshGitDispatchModuleMock()
-)
-vi.mock('../providers/ssh-filesystem-dispatch', async () =>
-  (await import('./worktrees-test-module-mocks')).sshFilesystemDispatchModuleMock()
-)
 vi.mock('./worktree-symlinks', async () =>
   (await import('./worktrees-test-module-mocks')).worktreeSymlinksModuleMock()
-)
-vi.mock('./ssh', async () => (await import('./worktrees-test-module-mocks')).sshModuleMock())
-vi.mock('../ssh/ssh-target-registry', async () =>
-  (await import('./worktrees-test-module-mocks')).sshTargetRegistryModuleMock()
 )
 vi.mock('../hooks', async () => (await import('./worktrees-test-module-mocks')).hooksModuleMock())
 vi.mock('../setup-runner-script-text', async (importOriginal) =>
@@ -88,7 +79,12 @@ vi.mock('../workspace-cleanup-removal-snapshot-prune', async () =>
 vi.mock('../runtime/worktree-teardown', async () =>
   (await import('./worktrees-test-module-mocks')).worktreeTeardownModuleMock()
 )
-vi.mock('./pty', async () => (await import('./worktrees-test-module-mocks')).ptyModuleMock())
+vi.mock('./pty/provider/registry', async () =>
+  (await import('./worktrees-test-module-mocks')).ptyRegistryModuleMock()
+)
+vi.mock('./pty/provider/state-cleanup', async () =>
+  (await import('./worktrees-test-module-mocks')).ptyStateCleanupModuleMock()
+)
 
 function remove(args: Record<string, unknown>): Promise<RemoveWorktreeResult> {
   // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: worktrees:remove resolves a RemoveWorktreeResult.
@@ -98,8 +94,11 @@ function remove(args: Record<string, unknown>): Promise<RemoveWorktreeResult> {
 type ListedRow = { id: string; removing?: true }
 
 async function listRepoRows(): Promise<ListedRow[]> {
-  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: worktrees:list resolves the repo's Worktree rows.
-  return (await handlers['worktrees:list'](null, { repoId: 'repo-1' })) as ListedRow[]
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: a repo-scoped worktrees:listDetected resolves { worktrees: Worktree rows }.
+  const result = (await handlers['worktrees:listDetected'](null, { repoId: 'repo-1' })) as {
+    worktrees: ListedRow[]
+  }
+  return result.worktrees
 }
 
 function blockGitRemove(): {
@@ -150,7 +149,9 @@ describe('worktrees:remove in the background', () => {
     const result = await reply
     expect(result).toMatchObject({ preservedBranch: { branchName: 'feature', head: 'feature' } })
     expect(result.removing).toBeUndefined()
-    expect(store.removeWorktreeMeta).toHaveBeenCalledWith(featureId, 'local')
+    expect(store.removeWorktreeMeta).toHaveBeenCalledWith(
+      hostWorktreeTarget({ id: featureId, hostId: 'local' })
+    )
     const after = await listRepoRows()
     expect(after.map((row) => row.id)).not.toContain(featureId)
   })
@@ -170,7 +171,6 @@ describe('worktrees:remove in the background', () => {
     expect(rows.find((row) => row.id === featureId)).toBeDefined()
     expect(rows.find((row) => row.id === featureId)?.removing).toBeUndefined()
 
-    // A retry is a fresh removal, not a join onto the failed one.
     removeWorktreeMock.mockResolvedValue({})
     await expect(remove({ worktreeId: featureId })).resolves.not.toHaveProperty('removing')
     expect(removeWorktreeMock).toHaveBeenCalledTimes(2)
@@ -213,7 +213,7 @@ describe('worktrees:remove in the background', () => {
     const first = remove({ worktreeId: featureId })
     const second = remove({ worktreeId: secondId })
     await vi.waitFor(() => expect(runHookMock).toHaveBeenCalledTimes(1))
-    // Let the second request reach the host's acceptance queue before checking it waits there.
+    // Allow the second request to reach acceptance before asserting that it waits.
     await new Promise((resolve) => setTimeout(resolve, 20))
     expect(runHookMock).toHaveBeenCalledTimes(1)
 
@@ -252,7 +252,7 @@ describe('worktrees:remove in the background', () => {
     await vi.waitFor(() => expect(runHookMock).toHaveBeenCalledTimes(1))
     const queued = remove({ worktreeId: featureId })
     await new Promise((resolve) => setTimeout(resolve, 20))
-    // Stands in for the runtime path (CLI, paired clients), which coalesces apart from this one.
+    // Runtime callers coalesce independently of desktop IPC.
     let finishOther: ((result: RemoveWorktreeResult) => void) | undefined
     void startBackgroundWorktreeRemoval({
       removal: {

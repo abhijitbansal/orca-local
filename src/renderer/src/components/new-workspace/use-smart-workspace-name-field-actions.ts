@@ -1,16 +1,24 @@
 import { useCallback } from 'react'
 import type React from 'react'
+import { toast } from 'sonner'
+import { translate } from '@/i18n/i18n'
 import {
   applyWorkspaceEmojiSuggestion,
   type WorkspaceEmojiReplacement,
+  type getActiveWorkspaceEmojiShortcode,
   type WorkspaceEmojiSuggestion
 } from '@/lib/workspace-emoji-shortcodes'
-import type { RowEntry } from './smart-workspace-name-field-model'
-import type { useSmartWorkspaceNameFieldFoundation } from './use-smart-workspace-name-field-foundation'
-import type { useSmartWorkspaceNameFieldPresentation } from './use-smart-workspace-name-field-presentation'
+import type { RowEntry, SmartWorkspaceNameFieldProps } from './smart-workspace-name-field-model'
+import type { useWorkItemSourceSearch } from './use-work-item-source-search'
+import type { useSmartWorkspaceFieldFocusControls } from './use-smart-workspace-field-focus-controls'
+import type { useWorkItemSourcePresentation } from './use-work-item-source-presentation'
 
-type Foundation = ReturnType<typeof useSmartWorkspaceNameFieldFoundation>
-type Presentation = ReturnType<typeof useSmartWorkspaceNameFieldPresentation>
+type Foundation = ReturnType<typeof useWorkItemSourceSearch> &
+  SmartWorkspaceNameFieldProps &
+  ReturnType<typeof useSmartWorkspaceFieldFocusControls>
+type Presentation = ReturnType<typeof useWorkItemSourcePresentation> & {
+  activeEmojiShortcode: ReturnType<typeof getActiveWorkspaceEmojiShortcode>
+}
 
 function scheduleEmojiInputFocus(
   frameRef: React.RefObject<number | null>,
@@ -29,9 +37,11 @@ export function useSmartWorkspaceNameFieldActions(
   presentation: Presentation
 ) {
   const {
+    resolveRow,
     onBranchSelect,
     onGitHubItemSelect,
     onGitLabItemSelect,
+    onJiraIssueSelect,
     onLinearIssueSelect,
     onValueChange,
     setOpen,
@@ -40,7 +50,10 @@ export function useSmartWorkspaceNameFieldActions(
     cancelLocalInputFocusFrame,
     localInputFocusFrameRef,
     localInputRef,
-    value
+    value,
+    handledCrossRepoUrlRef,
+    debouncedQuery,
+    setCrossRepoPrompt
   } = foundation
   const { selectJiraAccount, activeEmojiShortcode } = presentation
 
@@ -60,17 +73,28 @@ export function useSmartWorkspaceNameFieldActions(
       } else if (row.kind === 'branch') {
         onBranchSelect(row.refName, row.localBranchName)
       } else if (row.kind === 'jira') {
-        // Why: Jira issues can only be selected through an account-bound source context, which no longer exists.
-        return
+        const sourceContext = resolveRow(row)?.taskSourceContext
+        if (!sourceContext) {
+          toast.error(
+            translate(
+              'auto.components.new.workspace.SmartWorkspaceNameField.jiraSelectBindFailed',
+              'Couldn’t link this Jira issue. Pick the matching site or reconnect Jira, then try again.'
+            )
+          )
+          return
+        }
+        onJiraIssueSelect?.(row.issue, sourceContext)
       } else {
         onLinearIssueSelect(row.issue)
       }
       setOpen(false)
     },
     [
+      resolveRow,
       onBranchSelect,
       onGitHubItemSelect,
       onGitLabItemSelect,
+      onJiraIssueSelect,
       onLinearIssueSelect,
       onValueChange,
       setOpen,
@@ -106,10 +130,16 @@ export function useSmartWorkspaceNameFieldActions(
     },
     [activeEmojiShortcode, applyEmojiReplacement, value]
   )
+  const dismissCrossRepoPrompt = useCallback((): void => {
+    handledCrossRepoUrlRef.current = debouncedQuery.trim()
+    setCrossRepoPrompt(null)
+  }, [debouncedQuery, handledCrossRepoUrlRef, setCrossRepoPrompt])
+
   return {
     handleSelect,
     openSelectedSource,
     applyEmojiReplacement,
-    handleEmojiSelect
+    handleEmojiSelect,
+    dismissCrossRepoPrompt
   }
 }

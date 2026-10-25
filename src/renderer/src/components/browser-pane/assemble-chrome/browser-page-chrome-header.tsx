@@ -28,6 +28,7 @@ export function BrowserPageChromeHeader({
   markupStart,
   markupCancel,
   grabElementShortcut,
+  currentBrowserUrl,
   externalUrl,
   isBlankTab,
   resourceNotice,
@@ -51,6 +52,7 @@ export function BrowserPageChromeHeader({
   markupStart: () => Promise<void>
   markupCancel: () => void
   grabElementShortcut: string
+  currentBrowserUrl: string
   externalUrl: string | null
   isBlankTab: boolean
   resourceNotice: string | null
@@ -70,6 +72,7 @@ export function BrowserPageChromeHeader({
         convertedFrom={browserTab.convertedFrom ?? null}
         convertedTo={browserTab.convertedTo ?? null}
         loading={browserTab.loading}
+        loadFailed={browserTab.loadError !== null}
         webviewRef={webviewRef}
         reloadMenuOpen={reload.reloadMenuOpen}
         setReloadMenuOpen={reload.setReloadMenuOpen}
@@ -93,6 +96,7 @@ export function BrowserPageChromeHeader({
         markupCancel={markupCancel}
         grabElementShortcut={grabElementShortcut}
         browserAnnotationsLength={annotationSend.browserAnnotations.length}
+        currentBrowserUrl={currentBrowserUrl}
         externalUrl={externalUrl}
       />
       <BrowserPageDownloadList

@@ -1,8 +1,8 @@
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
 import { defineMethod } from '../../../core'
 import { ORCHESTRATION_WORKER_LIST_METHOD } from './worker-list-method'
+import { archiveSummary } from './worker-terminal-resource-presentation'
 import {
-  archiveSummary,
   completeWorkerTerminalRelease,
   type WorkerReleaseReceipt
 } from './worker-release-completion'

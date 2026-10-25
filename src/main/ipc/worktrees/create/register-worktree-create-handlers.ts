@@ -26,6 +26,7 @@ import type { CreateWorktreeArgsWithSystemProvenance } from '../ipc-context-sche
 import { createFolderWorkspace } from './folder-workspace-creation'
 import { requireWorktreeCreateRoute } from '../../../worktree-create-execution-host-route'
 import type { WorktreeIpcContext } from '../worktree-ipc-context'
+import { assertWslMoveRepoWritable } from '../../../persistence/moving-wsl-projects/wsl-move-scope-guard'
 
 export function registerWorktreeCreateHandlers(context: WorktreeIpcContext): void {
   const { mainWindow, store, runtime, options } = context
@@ -34,12 +35,13 @@ export function registerWorktreeCreateHandlers(context: WorktreeIpcContext): voi
     'worktrees:create',
     async (_event, rawArgs: CreateWorktreeArgs): Promise<CreateWorktreeResult> => {
       const args = normalizeLinkedWorkItemFields(rawArgs)
-      // Why span here: parent the child git spans for the trace tree; don't attach branch name/remote URL (user content) — repo ID is the safer correlator.
+      // Parent Git spans without recording user branch names or remote URLs.
       return withWorktreeSpan({ stage: 'create' }, async (span) => {
         const repo = store.getRepo(args.repoId)
         if (!repo) {
           throw new Error(`Repo not found: ${args.repoId}`)
         }
+        assertWslMoveRepoWritable(store, repo)
 
         const sourceParse = workspaceSourceSchema.safeParse(args.telemetrySource)
         const source: WorkspaceSource = sourceParse.success ? sourceParse.data : 'unknown'
@@ -108,8 +110,7 @@ export function registerWorktreeCreateHandlers(context: WorktreeIpcContext): voi
           branch: result.worktree.branch
         })
 
-        // Why stamped last: the create's own change notification bumped the generation, so this
-        // names the catalog that contains the new worktree.
+        // Stamp after the create notification bumps generation so the reply names its resulting catalog.
         return { ...result, catalogVersion: getLocalWorktreeCatalogVersion(repo.id) }
       })
     }

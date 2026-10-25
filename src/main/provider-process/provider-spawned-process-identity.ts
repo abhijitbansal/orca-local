@@ -1,12 +1,8 @@
 import type { AgentSessionJournalIdentity } from '../../shared/agent-session-journal-types'
 import type { AgentSessionProcessIdentity } from '../../shared/agent-session-record'
-import { readProcessStartTimeMs } from '../runtime/agent-session-process-identity-probe'
+import { readProcessStartTimeMs } from '../runtime/agent-session/ownership/agent-session-process-identity-probe'
 
 // What the lease records about a provider child: the process a later owner probe re-proves.
-
-/** The child echoes its spawn token here so the owner probe can tell a live child of THIS
- *  reservation from a same-pid stranger. */
-export const PROVIDER_SPAWN_TOKEN_ENV = 'ORCA_AGENT_SESSION_SPAWN_TOKEN'
 
 const START_TIME_READ_ATTEMPTS = 3
 

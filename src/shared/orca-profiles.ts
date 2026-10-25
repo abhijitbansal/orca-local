@@ -4,6 +4,7 @@ import type { ExecutionHostId } from './execution-host'
 export const ORCA_PROFILE_INDEX_SCHEMA_VERSION = 1
 export const DEFAULT_LOCAL_ORCA_PROFILE_ID = 'local-default'
 export const DEFAULT_LOCAL_ORCA_PROFILE_NAME = 'Personal'
+export const ORCA_PROFILE_SIGN_IN_PROGRESS_CHANGED_CHANNEL = 'orcaProfiles:signInProgressChanged'
 const LEGACY_ORCA_BROWSER_SESSION_PARTITION_PREFIX = 'persist:orca-browser-session-'
 
 export type OrcaProfileAvatar = {
@@ -114,6 +115,19 @@ export type TransferOrcaProfileProjectResult =
       sourceRepoId: string
       duplicateRepoId: string
     }
+
+/** A sign-in in flight; `link` is set only while the browser has not answered yet. */
+export type OrcaCloudSignInProgress = { link: string | null }
+
+export type OrcaOrgInviteConflictReason = 'already_member' | 'already_invited'
+export type OrcaOrgMutationInvalidReason = 'cannot_change_own_role' | 'cannot_remove_self'
+
+export type OrcaProfileOrgMemberMutationResult =
+  | { status: 'ok' }
+  | { status: 'unconfigured' | 'reconnect-required' | 'forbidden' | 'not-found' }
+  | { status: 'conflict'; reason: OrcaOrgInviteConflictReason }
+  | { status: 'invalid'; reason: OrcaOrgMutationInvalidReason }
+  | { status: 'failed'; error: string }
 
 export function createDefaultLocalOrcaProfile(now: number): OrcaProfileSummary {
   return {

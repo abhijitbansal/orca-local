@@ -17,7 +17,6 @@ import {
   repoHostId,
   worktreeHostMatchOptions
 } from './worktree-host-ownership'
-import { fetchKnownSshWorktreesForRepo } from './known-ssh-worktree-fetch'
 import { notifyRuntimeScopeForbiddenIfNeeded } from './runtime-scope-forbidden-toast'
 
 export function createFetchDetectedWorktrees(
@@ -42,7 +41,6 @@ export function createFetchDetectedWorktrees(
       if (parsedHost?.kind === 'ssh' && !directSshAuthority) {
         // Why: this function's contract is detected-only. The fallback runs for its store side effect, but
         // callers keep seeing null as they did before the metadata path existed.
-        await fetchKnownSshWorktreesForRepo(set, repoId, parsedHost.id)
         return null
       }
       const refresh = await listDetectedWorktreesForRepoCoalesced(repoId, {

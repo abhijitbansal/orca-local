@@ -1,15 +1,20 @@
 import { app, session } from 'electron'
-import { electronApp, is } from '@electron-toolkit/utils'
 import { applyBackgroundActivationPolicy } from '../window/foreground-activation-policy'
 import { applyElectronProxySettings } from '../network/proxy-settings'
 import { installElectronProxyRequestGuard } from '../network/electron-proxy-request-guard'
 import { handleElectronProxyLogin } from '../network/electron-proxy-credentials'
+import { handleBrowserGuestLogin } from '../browser/browser-http-auth-prompt'
 import { installMainThreadHangWatchdog } from '../hang-watchdog/main-thread-hang-watchdog'
 import { preservePreviousHangDetection } from '../hang-watchdog/previous-hang-detection'
-import { browserCertificateTrustController } from '../browser/browser-manager'
+import { browserCertificateTrustController, browserManager } from '../browser/browser-manager'
+import { browserSiteDisplayController } from '../browser/browser-site-display-controller'
 import { ensureActiveOrcaProfile } from '../orca-profiles/profile-index-store'
 import { getCanonicalUserDataPath } from '../persistence'
+import { getAppEnvironment } from '../../shared/app-environment'
+import { loadWslMoveFence } from '../persistence/moving-wsl-projects/wsl-move-scope-guard'
+import { runGatedWslMoveDesktopRewritePass } from '../persistence/moving-wsl-projects/wsl-move-desktop-rewrite'
 import { createProfileStateStoreForStartup } from '../persistence/profile-state/profile-state-startup-authority'
+import { getProfileUserDataPath } from '../orca-profiles/profile-storage-paths'
 import { initializeBrowserClientHostId } from '../browser/browser-client-host-id'
 import { scheduleSecretProtectionGapReport } from '../host/deferred-secret-protection-report'
 import { withholdUnreachableKeychainForServe } from '../host/serve-keychain-guard'
@@ -36,7 +41,10 @@ import { writeHttp1CompatibilityMarker } from './http1-compatibility-marker'
 import { mainProcessState as state } from './main-process-state'
 import { syncMacMenuBarIcon } from './main-window-actions'
 import { updateGpuAccelerationAboutPanel } from './gpu-lifecycle'
-import { reconcileManagedWslCliRegistrations } from '../cli/wsl-cli-registration-reconciliation'
+import {
+  logWslCliReconciliationResults,
+  reconcileManagedWslCliRegistrations
+} from '../cli/wsl-cli-registration-reconciliation'
 import { createWslCliReconciliationStartupBarrier } from './wsl-cli-reconciliation-startup-barrier'
 import { agentHookServer } from '../agent-hooks/server'
 import { isAgentStatusHooksEnabled } from '../agent-hooks/managed-agent-hook-controls'
@@ -57,6 +65,7 @@ export async function initializeReadyFoundation(): Promise<void> {
       callback,
       session.defaultSession
     )
+    handleBrowserGuestLogin(event, webContents, details, authInfo, callback)
   })
   const canonicalUserDataPath = getCanonicalUserDataPath()
   preservePreviousHangDetection(canonicalUserDataPath)
@@ -80,7 +89,9 @@ export async function initializeReadyFoundation(): Promise<void> {
   if (!identity) {
     throw new Error('Development identity is unavailable')
   }
-  electronApp.setAppUserModelId(identity.appUserModelId)
+  if (process.platform === 'win32') {
+    app.setAppUserModelId(app.isPackaged ? identity.appUserModelId : process.execPath)
+  }
   // Why: names the app menu/About panel. Dev already applied this pre-ready (see the
   // safeStorage note above); this call stays unconditional so packaged builds keep their
   // existing post-ready rename, which lands after the Keychain name is already resolved.
@@ -100,15 +111,7 @@ export async function initializeReadyFoundation(): Promise<void> {
     appVersion: app.getVersion()
   })
     .then((results) => {
-      for (const result of results) {
-        if (result.outcome === 'failed') {
-          console.warn(
-            `[wsl-cli] ${result.distro} managed registration reconciliation failed: ${result.error}`
-          )
-        } else if (result.outcome === 'repaired') {
-          console.log(`[wsl-cli] Repaired managed registration in ${result.distro}.`)
-        }
-      }
+      logWslCliReconciliationResults(results)
       state.managedWslCliReconciliationStatus = 'settled'
     })
     .catch((error) => {
@@ -127,6 +130,7 @@ export async function initializeReadyFoundation(): Promise<void> {
   // read has to have happened by then or the renderer and the browser-host lease disagree.
   initializeBrowserClientHostId(profile.profileDirectory)
   const profileState = await createProfileStateStoreForStartup({
+    userDataPath: getProfileUserDataPath(),
     dataFile: profile.dataFile,
     databaseFile: profile.stateDatabaseFile,
     profileId: profile.profile.id,
@@ -143,6 +147,10 @@ export async function initializeReadyFoundation(): Promise<void> {
   }
   const store = profileState.store
   state.store = store
+  // Why before any handler or runtime: a project a WSL move is taking must never get a new terminal.
+  loadWslMoveFence(getAppEnvironment().getPath('userData'))
+  // Finishes a move that committed before a crash; gated off it does nothing, and it never throws.
+  void runGatedWslMoveDesktopRewritePass({ userDataPath: getAppEnvironment().getPath('userData') })
   // Why: create pending readiness before the guard can observe the default session.
   // Why parked on state instead of awaited here: Dock/Launchpad launches don't inherit shell
   // proxy env vars, so the persisted proxy must land before any app-owned network fetcher runs —
@@ -169,7 +177,7 @@ export async function initializeReadyFoundation(): Promise<void> {
     dataFile: profile.dataFile,
     force: process.env.ORCA_ALWAYS_REPORT_SECRET_PROTECTION === '1',
     deferUntilFirstWindow: !state.isServeMode,
-    skipInDevelopment: is.dev
+    skipInDevelopment: !app.isPackaged
   })
   // Why: must precede PTY handler registration and run in headless serve too, which returns before openMainWindow.
   neutralizeLegacyTerminalShimDir(app.getPath('userData'))
@@ -241,7 +249,7 @@ export async function initializeReadyFoundation(): Promise<void> {
     }
   })
   applyAppIcon(store.getSettings().appIcon)
-  if (shouldSuppressDevEducation({ isDev: is.dev })) {
+  if (shouldSuppressDevEducation({ isDev: !app.isPackaged })) {
     suppressDevEducationForStore(store)
   }
   // Why: the partition installer reads the proxy through this resolver, so register it before sessions materialize.
@@ -265,6 +273,8 @@ export async function initializeReadyFoundation(): Promise<void> {
       return currentStore.getSshTargets().map((target) => target.id)
     }
   })
+  browserSiteDisplayController.followZoomSettings(store)
+  browserManager.setSiteDisplayController(browserSiteDisplayController)
   try {
     // Why: awaited here so the first guest navigation cannot race the installer's fire-and-forget write.
     await applyBrowserSessionProxies(browserSessionRegistry.listProfiles(), store.getSettings())

@@ -266,9 +266,6 @@ describe('runner execFile timeout handling', () => {
     }
   )
 
-  // Issue #5308: git read-path calls must be forced non-interactive so a
-  // credential / SSH host-key prompt fails fast instead of blocking forever on
-  // stdin and wedging the serve runtime for all clients.
   it('runs git non-interactively so a prompt fails fast instead of hanging', async () => {
     const child = createMockChildProcess(1234)
     let capturedEnv: NodeJS.ProcessEnv | undefined
@@ -305,10 +302,7 @@ describe('runner execFile timeout handling', () => {
       expect(execFileMock).toHaveBeenCalledWith(
         'wsl.exe',
         ['-d', 'Ubuntu', '--exec', 'sh', '-lc', expect.any(String)],
-        // Why a concrete directory (#16463): `undefined` makes CreateProcessW inherit
-        // Orca's own cwd, a deletable WSL UNC path when it was launched from a
-        // worktree. The Linux directory still rides inside the command (/mnt/c/repo,
-        // asserted below).
+        // Use a stable Win32 cwd instead of inheriting Orca's deletable UNC cwd.
         expect.objectContaining({ cwd: expect.any(String) }),
         expect.any(Function)
       )
@@ -342,10 +336,7 @@ describe('runner execFile timeout handling', () => {
       expect(execFileMock).toHaveBeenCalledWith(
         'wsl.exe',
         ['-d', 'Ubuntu', '--exec', 'bash', '-c', expect.any(String)],
-        // Why a concrete directory (#16463): `undefined` makes CreateProcessW inherit
-        // Orca's own cwd, a deletable WSL UNC path when it was launched from a
-        // worktree. The Linux directory still rides inside the command (/mnt/c/repo,
-        // asserted below).
+        // Use a stable Win32 cwd instead of inheriting Orca's deletable UNC cwd.
         expect.objectContaining({ cwd: expect.any(String) }),
         expect.any(Function)
       )
@@ -459,7 +450,6 @@ describe('gitStreamStdout', () => {
     let calls = 0
     const promise = gitStreamStdout(['status'], {
       cwd: '/repo',
-      // Stop after the first chunk — mirrors a parser hitting its entry limit.
       onStdout: () => {
         calls += 1
         return true

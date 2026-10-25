@@ -1,7 +1,4 @@
-// A listing's catalog version is the generation its scan began at, so a create or remove must bump
-// that generation before anything after its git mutation can yield. Otherwise a listing that began
-// before the mutation and one that began after it share a sequence, and the client cannot refuse
-// the older one: it purges a new workspace, or restores a removed one.
+// Bump catalog generation before post-mutation awaits so clients can reject listings from before a create or removal.
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { isWorktreeCatalogVersion } from '../../shared/worktree/catalog-version'
 import { getLocalWorktreeScanGeneration } from '../local-worktree-scan-generation'
@@ -31,18 +28,8 @@ vi.mock('../git/git-username', async (importOriginal) => ({
   resolveLocalGitUsername: (await import('./worktrees-test-module-mocks'))
     .resolveLocalGitUsernameMock
 }))
-vi.mock('../providers/ssh-git-dispatch', async () =>
-  (await import('./worktrees-test-module-mocks')).sshGitDispatchModuleMock()
-)
-vi.mock('../providers/ssh-filesystem-dispatch', async () =>
-  (await import('./worktrees-test-module-mocks')).sshFilesystemDispatchModuleMock()
-)
 vi.mock('./worktree-symlinks', async () =>
   (await import('./worktrees-test-module-mocks')).worktreeSymlinksModuleMock()
-)
-vi.mock('./ssh', async () => (await import('./worktrees-test-module-mocks')).sshModuleMock())
-vi.mock('../ssh/ssh-target-registry', async () =>
-  (await import('./worktrees-test-module-mocks')).sshTargetRegistryModuleMock()
 )
 vi.mock('../hooks', async () => (await import('./worktrees-test-module-mocks')).hooksModuleMock())
 vi.mock('../setup-runner-script-text', async (importOriginal) =>
@@ -88,10 +75,14 @@ vi.mock('../workspace-cleanup-removal-snapshot-prune', async () =>
 vi.mock('../runtime/worktree-teardown', async () =>
   (await import('./worktrees-test-module-mocks')).worktreeTeardownModuleMock()
 )
-vi.mock('./pty', async () => (await import('./worktrees-test-module-mocks')).ptyModuleMock())
+vi.mock('./pty/provider/registry', async () =>
+  (await import('./worktrees-test-module-mocks')).ptyRegistryModuleMock()
+)
+vi.mock('./pty/provider/state-cleanup', async () =>
+  (await import('./worktrees-test-module-mocks')).ptyStateCleanupModuleMock()
+)
 
-// Why the first step after the mutation, not the re-list: every await between them is a window in
-// which a listing can begin at the old generation yet see the mutation.
+// Every await after mutation can admit a listing stamped with the old generation.
 type GenerationWitness = { during?: number; after?: number }
 
 function witnessAfter(witness: GenerationWitness, repoId: string): void {
@@ -124,7 +115,7 @@ describe('worktree mutation scan-generation ordering', () => {
       witness.during = getLocalWorktreeScanGeneration('repo-1')
       return {}
     })
-    // Why a generated name: retiring it is the first awaited step after the add.
+    // Generated-name retirement is the first awaited step after Git add.
     store.addRetiredWorktreeName.mockImplementation(() => witnessAfter(witness, 'repo-1'))
     listWorktreesMock.mockResolvedValue([createdRow('/workspace/nautilus', 'nautilus')])
 
@@ -145,7 +136,7 @@ describe('worktree mutation scan-generation ordering', () => {
     removeWorktreeMock.mockImplementation(async () => {
       witness.during = getLocalWorktreeScanGeneration('repo-1')
     })
-    // Why the watcher gate: releasing it is the first awaited step after the git removal.
+    // Watcher release is the first awaited step after Git removal.
     runtimeStub.acquireFileWatcherRemoval.mockResolvedValue({
       finish: vi.fn(async () => witnessAfter(witness, 'repo-1'))
     })

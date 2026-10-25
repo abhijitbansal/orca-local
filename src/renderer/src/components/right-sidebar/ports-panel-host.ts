@@ -1,10 +1,7 @@
 import { resolveOwner } from '@/lib/resolve-owner'
 import type { WorktreeOperationRouteState } from '@/lib/worktree-operation-route'
-import {
-  hostRouteForAuthority,
-  type HostRoute,
-  type RuntimeClientTarget
-} from '@/runtime/runtime-client-target'
+import { hostRouteForAuthority, type HostRoute } from '@/runtime/runtime-client-target'
+import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
 import { isRuntimeOwnedSshTargetId, parseExecutionHostId } from '../../../../shared/execution-host'
 import {
   authorityKey,
@@ -79,4 +76,12 @@ export function portsPanelReachesSshHost(
     case 'unknown':
       return false
   }
+}
+
+/** Local-only: no managed server's SSH host exists to carry forwards. */
+export function portsPanelForwardTargetId(
+  _host: PortsPanelHost,
+  _environments: readonly { id: string }[]
+): string | null {
+  return null
 }

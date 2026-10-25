@@ -14,7 +14,8 @@ import { setupPtyIpcSuite } from './pty-ipc-test-harness'
 import { createDaemonActiveProviderFixtures } from './pty-ipc-daemon-provider-fixtures'
 import { join } from 'node:path'
 import { SETUP_AGENT_SEQUENCE_STARTUP_COMMAND_ENV } from '../../shared/setup-agent-sequencing'
-import { registerPtyHandlers, resolveCodexHomeAfterManagedAuthReadiness } from './pty'
+import { registerPtyHandlers } from './pty/register-handlers'
+import { resolveCodexHomeAfterManagedAuthReadiness } from './pty/host-env/codex-home'
 
 const consumerConfigHome = join(TEST_MANAGED_ROOT, 'opencode-consumer-config')
 
@@ -72,7 +73,7 @@ describe('registerPtyHandlers', () => {
         mainWindow
       })
 
-      // Why: under the daemon, LocalPtyProvider.buildSpawnEnv never runs, so host-local env injection must happen in the pty:spawn handler instead.
+      // Daemon spawns bypass LocalPtyProvider.buildSpawnEnv; main must inject host-local environment.
       it('waits for managed Codex auth before spawning a daemon PTY', async () => {
         vi.useFakeTimers()
         let authReady = false
@@ -499,7 +500,7 @@ describe('registerPtyHandlers', () => {
         expect(env.ORCA_PI_SOURCE_AGENT_DIR).toBeUndefined()
       })
       it('threads command: "omp" through to piBuildPtyEnv on the daemon path with OMP status metadata', async () => {
-        // Why: mirror of the local-spawn OMP threading assertion; the daemon path's `command` forwarding could silently regress otherwise.
+        // Cover OMP forwarding in daemon spawns as well as local spawns.
         const env = await daemonSpawnAndGetEnv(
           { PI_CODING_AGENT_DIR: '/user/.omp/agent' },
           undefined,

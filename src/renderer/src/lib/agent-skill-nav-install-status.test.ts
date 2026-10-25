@@ -1,51 +1,20 @@
-import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import type {
-  SkillFreshnessInstallation,
-  SkillFreshnessInventory,
-  SkillFreshnessStatus
-} from '../../../shared/skill-freshness'
+import type { BundledSkillOp, BundledSkillPlan } from '../../../shared/bundled-skill-plan'
+import { planOf, sharedEntry } from '../components/skills/bundled-skill-plan-fixtures.test-support'
 import { getAgentSkillNavInstallStatus } from './agent-skill-nav-install-status'
 
-function placement(name: string, status: SkillFreshnessStatus): SkillFreshnessInstallation {
-  const unresolvedPath = path.join('home', 'test', '.agents', 'skills', name)
-  return {
-    id: name,
-    name,
-    rootId: 'home-agents',
-    providers: ['agent-skills'],
-    sourceKind: 'home',
-    sourceLabel: 'Agent skills home',
-    unresolvedPath,
-    resolvedPath: unresolvedPath,
-    physicalIdentity: name,
-    topology: 'canonical-copy',
-    status,
-    installedReleaseRevision: 1,
-    installedAppVersion: '1.0.0',
-    currentReleaseRevision: 2,
-    currentPackageDigest: 'current',
-    currentAppVersion: '2.0.0',
-    observedPackageDigest: status === 'current' ? 'current' : 'other',
-    errorCategory: null
-  }
-}
-
-function inventory(
-  installations: SkillFreshnessInstallation[],
-  eligibleUpdateNames: string[] = []
-): SkillFreshnessInventory {
-  return { schemaVersion: 1, installations, eligibleUpdateNames, scanIssues: [], scannedAt: 1 }
+function plan(...skills: [string, BundledSkillOp['kind']][]): BundledSkillPlan {
+  return planOf(skills.map(([name, kind]) => sharedEntry(name, kind)))
 }
 
 describe('getAgentSkillNavInstallStatus', () => {
-  it('keeps loading and missing states ahead of freshness', () => {
+  it('keeps loading and missing states ahead of the plan', () => {
     expect(
       getAgentSkillNavInstallStatus({
         name: 'orca-linear',
         installed: true,
         loading: true,
-        inventory: inventory([placement('orca-linear', 'current')])
+        plan: plan(['orca-linear', 'keep'])
       })
     ).toBe('checking')
     expect(
@@ -53,7 +22,7 @@ describe('getAgentSkillNavInstallStatus', () => {
         name: 'orca-linear',
         installed: false,
         loading: false,
-        inventory: null
+        plan: null
       })
     ).toBe('install')
   })

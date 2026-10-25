@@ -1,6 +1,6 @@
 import { isRemoteRuntimePtyId } from '../../../../../shared/remote-runtime-pty-id'
 import { scheduleRuntimeGraphSync } from '@/runtime/sync-runtime-graph'
-import type { PtyBufferSnapshot, PtyConnectResult } from '../pty-transport'
+import type { PtyBufferSnapshot, PtyConnectResult } from '../pty-transport-types'
 import { warnTerminalLifecycleAnomaly } from '../terminal-lifecycle-diagnostics'
 // Why: a restored pane's stale-account prompt can only be raised once a PTY is
 // actually attached — nothing is inspectable while the session hydrates.
@@ -10,6 +10,8 @@ import { resolveHiddenRestoreScrollbackRows } from '../terminal-hidden-restore-s
 import { shouldIgnoreStalePanePtyLayoutBinding } from './pane-pty-layout-binding'
 
 import { hasEmptyReattachRetireEvidence } from './empty-reattach-retire-evidence'
+import { mainStartsPane } from './main-starts-pane'
+import { showMainPaneResumeOutcome } from './main-pane-resume-banner'
 import type { ColdRestoreAgentResumeStartup } from './fresh-spawn-types'
 
 import type { ConnectPanePtySession } from './connect-pane-pty-session'
@@ -31,6 +33,10 @@ type ReattachResultSession = ReattachPayloadSession &
   Pick<
     ConnectPanePtySession,
     | 'agentCompletionCoordinator'
+    | 'buildColdRestoreAgentResumeStartup'
+    | 'discardAgentPreReadyDraft'
+    | 'mainStartAttach'
+    | 'runtimeEnvironmentId'
     | 'activePanePtyBinding'
     | 'activePanePtyBindingBoundAt'
     | 'authoritativeReattachGeneration'
@@ -167,12 +173,24 @@ export function bindHandleReattachResult(sessionBag: ConnectPanePtySession): voi
       connectResult?.snapshot || connectResult?.replay || connectResult?.coldRestore
     )
     // Why: reattach drops startup commands; only real hibernation is authority to retire an empty adopted shell and resume its provider session.
+    const mainStarts = mainStartsPane(session)
     if (
       !hasStructuralReplay &&
       connectResult?.isReattach &&
-      hasEmptyReattachRetireEvidence(ptyId, coldRestoreStartup)
+      // Why: main already judged this terminal after its start; asking again would loop.
+      !(mainStarts && session.mainStartAttach) &&
+      hasEmptyReattachRetireEvidence(
+        ptyId,
+        // Main's attach carries no resume; the evidence reads the pane's record all the same.
+        mainStarts ? session.buildColdRestoreAgentResumeStartup() : coldRestoreStartup
+      )
     ) {
       session.transport.disconnect()
+      if (mainStarts) {
+        // Main retires the empty shell and resumes the agent in its place (startPane).
+        session.startFreshColdRestoreAgentResume(null)
+        return false
+      }
       if (staleSessionId) {
         session.clearExitedPanePtyLayoutBinding(staleSessionId)
         session.deps.clearTabPtyId(session.deps.tabId, staleSessionId)
@@ -189,6 +207,8 @@ export function bindHandleReattachResult(sessionBag: ConnectPanePtySession): voi
     // queued spawn callback can arrive during replay.
     session.activePanePtyBinding = ptyId
     session.activePanePtyBindingBoundAt = performance.now()
+    // Why discard: a cold restore can reach a bare shell that `--resume` is typed into next.
+    session.discardAgentPreReadyDraft?.()
     session.reportPanePtyVisibility(ptyId, session.deps.isVisibleRef.current)
     session.registerSideEffectFactConsumerForPty(ptyId)
     session.syncHiddenRendererPtyDelivery()
@@ -305,6 +325,7 @@ export function bindHandleReattachResult(sessionBag: ConnectPanePtySession): voi
       session.warnParkRevealNoHostImage(ptyId, noHostImageReason)
     }
     session.scheduleReattachIdleAgentCursorReset()
+    showMainPaneResumeOutcome(sessionBag, ptyId)
 
     scheduleRuntimeGraphSync()
     return true

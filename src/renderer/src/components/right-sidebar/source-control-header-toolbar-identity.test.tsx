@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { SourceControlHeaderToolbar } from './source-control/panel/header-toolbar'
 import type { GitBranchCompareSummary } from '../../../../shared/git-diff-compare-types'
 import type { GitBranchLineTotal } from '../../../../shared/git-status-types'
-import type { WorktreeGitIdentityDisplay } from '@/lib/worktree-git-identity-display'
+import type { WorktreeGitIdentityDisplay } from '../../../../shared/worktree/git-identity-display'
 
 vi.mock('@/components/ui/tooltip', () => ({
   Tooltip: ({ children }: { children: ReactNode }) => <>{children}</>,

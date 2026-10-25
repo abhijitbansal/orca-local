@@ -10,6 +10,7 @@ import { resetSshProviderAuthorities } from '../ssh/ssh-provider-authority'
 import { createWorktreeRuntimeStub, type WorktreeRuntimeStub } from './worktrees-test-runtime-stub'
 import { handlers, mainWindow, store } from './worktrees-test-ipc-surface'
 import { configureMetadataPruningStoreMocks } from './worktrees-test-metadata-pruning-store'
+import { getDefaultWorkspaceSession } from '../../shared/constants'
 import {
   ORIGINAL_PLATFORM,
   setPlatform,
@@ -31,7 +32,6 @@ import {
   getDefaultRemoteMock,
   getBranchConflictKindMock,
   getEffectiveHooksMock,
-  createIssueCommandRunnerScriptMock,
   createSetupRunnerScriptMock,
   getEffectiveHooksFromConfigMock,
   getDefaultTabsLaunchMock,
@@ -47,9 +47,6 @@ import {
   computeWorktreePathMock,
   ensurePathWithinWorkspaceMock,
   gitExecFileAsyncMock,
-  getSshGitProviderMock,
-  getSshFilesystemProviderMock,
-  getActiveMultiplexerMock,
   deleteWorktreeHistoryDirMock,
   advertisedUrlWatcherForgetWorktreeMock,
   pruneCleanupScanSnapshotMock,
@@ -70,7 +67,6 @@ export {
   type HandlerMap
 } from './worktrees-test-ipc-surface'
 
-/** The single repo every worktree harness test resolves; exported so a test can vary one field. */
 export const harnessRepo = {
   id: 'repo-1',
   path: '/workspace/repo',
@@ -79,7 +75,6 @@ export const harnessRepo = {
   addedAt: 0
 }
 
-/** Registers worktree IPC handlers against freshly reset shared mocks and returns the runtime stub. */
 export function setupWorktreeHandlers(): WorktreeRuntimeStub {
   delete (store as typeof store & { getAllWorktreeMetaForHost?: (...args: unknown[]) => unknown })
     .getAllWorktreeMetaForHost
@@ -108,7 +103,6 @@ export function setupWorktreeHandlers(): WorktreeRuntimeStub {
     getEffectiveHooksFromConfigMock,
     getDefaultTabsLaunchMock,
     parseOrcaYamlMock,
-    createIssueCommandRunnerScriptMock,
     createSetupRunnerScriptMock,
     buildPosixRunnerScriptMock,
     buildWindowsRunnerScriptMock,
@@ -121,9 +115,6 @@ export function setupWorktreeHandlers(): WorktreeRuntimeStub {
     computeWorktreePathMock,
     ensurePathWithinWorkspaceMock,
     gitExecFileAsyncMock,
-    getSshGitProviderMock,
-    getSshFilesystemProviderMock,
-    getActiveMultiplexerMock,
     mainWindow.webContents.send,
     store.getRepos,
     store.getRepo,
@@ -135,11 +126,12 @@ export function setupWorktreeHandlers(): WorktreeRuntimeStub {
     store.getAllWorktreeMeta,
     store.captureNativeLocalWorktreeMetadataScanExpectation,
     store.setWorktreeMeta,
-    store.setWorktreeMetaForHost,
     store.getProjectHostSetups,
     store.removeWorktreeMeta,
     store.pruneSessionlessMissingLocalWorktreeMetadataForRepo,
     store.removeWorkspaceSessionStateForWorktree,
+    store.getWorkspaceSessionHostIds,
+    store.getWorkspaceSession,
     store.getAllWorktreeLineage,
     store.removeWorktreeLineage,
     store.getAllWorkspaceLineage,
@@ -193,8 +185,7 @@ export function setupWorktreeHandlers(): WorktreeRuntimeStub {
   }
   store.getSettings.mockReturnValue(settings)
   store.getWorktreeMeta.mockReturnValue(undefined)
-  // Host-qualified accessors delegate by default so payload assertions stay on one spy;
-  // host routing itself is covered by worktree-identity-persistence.test.ts.
+  // Delegate host-qualified reads to one spy; identity-persistence tests cover routing.
   store.getWorktreeMetaForHost.mockImplementation((...args: unknown[]) =>
     store.getWorktreeMeta(args[0] as string)
   )
@@ -203,9 +194,6 @@ export function setupWorktreeHandlers(): WorktreeRuntimeStub {
   store.getRetiredWorktreeNameRegistry.mockReturnValue({ exhaustedTiers: 0, names: [] })
   resetRetirementCollisionKeyCacheForTests()
   store.setWorktreeMeta.mockReturnValue({})
-  store.setWorktreeMetaForHost.mockImplementation((...args: unknown[]) =>
-    store.setWorktreeMeta(args[0] as string, args[2] as object)
-  )
   store.getProjectHostSetups.mockReturnValue([
     {
       id: 'repo-1',
@@ -220,6 +208,8 @@ export function setupWorktreeHandlers(): WorktreeRuntimeStub {
       updatedAt: 0
     }
   ])
+  store.getWorkspaceSessionHostIds.mockReturnValue(['local'])
+  store.getWorkspaceSession.mockReturnValue(getDefaultWorkspaceSession())
   store.getAllWorktreeLineage.mockReturnValue({})
   store.getAllWorkspaceLineage.mockReturnValue({})
   store.getFolderWorkspaces.mockReturnValue([])
@@ -230,7 +220,7 @@ export function setupWorktreeHandlers(): WorktreeRuntimeStub {
   resolveDefaultBaseRefViaExecMock.mockResolvedValue('origin/main')
   getDefaultRemoteMock.mockResolvedValue('origin')
   getBranchConflictKindMock.mockResolvedValue(null)
-  // Why: createLocalWorktree can still hit the legacy git fetch fallback here; resolve so catch/then chains don't trip on undefined.
+  // Legacy fetch fallback attaches catch/then, so the default mock must resolve a promise.
   gitExecFileAsyncMock.mockResolvedValue({ stdout: '', stderr: '' })
   getEffectiveHooksMock.mockReturnValue(null)
   getEffectiveHooksFromConfigMock.mockImplementation(() => getEffectiveHooksMock())
@@ -258,13 +248,6 @@ export function setupWorktreeHandlers(): WorktreeRuntimeStub {
       ORCA_WORKTREE_PATH: '/workspace/improve-dashboard'
     }
   })
-  createIssueCommandRunnerScriptMock.mockReturnValue({
-    runnerScriptPath: '/workspace/repo/.git/orca/issue-command-runner.sh',
-    envVars: {
-      ORCA_ROOT_PATH: '/workspace/repo',
-      ORCA_WORKTREE_PATH: '/workspace/improve-dashboard'
-    }
-  })
   computeWorktreePathMock.mockImplementation(
     (
       sanitizedName: string,
@@ -284,7 +267,7 @@ export function setupWorktreeHandlers(): WorktreeRuntimeStub {
   )
   ensurePathWithinWorkspaceMock.mockImplementation((targetPath: string) => targetPath)
   listWorktreesMock.mockResolvedValue([])
-  // Default: no direct-read recovery, so a listing that omits the row still fails the create.
+  // Default recovery cannot rescue a listing that omits the created row.
   describeCreatedWorktreeMock.mockResolvedValue(undefined)
   forceDeleteLocalBranchMock.mockResolvedValue(undefined)
   const runtimeStub = createWorktreeRuntimeStub(mainWindow)

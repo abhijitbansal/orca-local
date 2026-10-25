@@ -11,6 +11,7 @@ type NewWorkspaceComposerNameSectionProps = Pick<
   NewWorkspaceComposerCardProps,
   | 'nameInputRef'
   | 'eligibleRepos'
+  | 'selectedRepo'
   | 'repoId'
   | 'onRepoChange'
   | 'name'
@@ -20,6 +21,7 @@ type NewWorkspaceComposerNameSectionProps = Pick<
   | 'onSmartBranchSelect'
   | 'onSmartLinearIssueSelect'
   | 'onSmartJiraIssueSelect'
+  | 'onOpenJiraSettings'
   | 'smartNameSelection'
   | 'onClearSmartNameSelection'
   | 'smartNameGitHubSourceContext'
@@ -47,6 +49,7 @@ type NewWorkspaceComposerNameSectionProps = Pick<
 export function NewWorkspaceComposerNameSection({
   nameInputRef,
   eligibleRepos,
+  selectedRepo,
   repoId,
   onRepoChange,
   name,
@@ -56,6 +59,7 @@ export function NewWorkspaceComposerNameSection({
   onSmartBranchSelect,
   onSmartLinearIssueSelect,
   onSmartJiraIssueSelect,
+  onOpenJiraSettings,
   smartNameSelection,
   onClearSmartNameSelection,
   smartNameGitHubSourceContext,
@@ -113,6 +117,7 @@ export function NewWorkspaceComposerNameSection({
       <SmartWorkspaceNameField
         inputRef={nameInputRef}
         repos={eligibleRepos}
+        selectedRepo={selectedRepo}
         repoId={repoId}
         onRepoChange={onRepoChange}
         value={name}
@@ -122,6 +127,7 @@ export function NewWorkspaceComposerNameSection({
         onBranchSelect={onSmartBranchSelect}
         onLinearIssueSelect={onSmartLinearIssueSelect}
         onJiraIssueSelect={onSmartJiraIssueSelect}
+        onOpenJiraSettings={onOpenJiraSettings}
         selectedSource={smartNameSelection}
         onClearSelectedSource={onClearSmartNameSelection}
         githubSourceContext={smartNameGitHubSourceContext}

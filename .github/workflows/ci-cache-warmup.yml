@@ -8,9 +8,14 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/ci-cache-warmup.yml'
+      - '.github/workflows/ci-cache-warmup-platform-jobs.yml'
+      - '.github/workflows/ci-cache-warmup-platforms.yml'
       - '.github/actions/install-node-dependencies/**'
       - '.github/actions/prepare-git-compatibility/**'
       - '.github/actions/prepare-linux-package-fixture/**'
+      - '.github/actions/prepare-wayland-clipboard/**'
+      - 'native/wayland-clipboard/**'
+      - 'config/scripts/build-wayland-clipboard.mjs'
       - 'config/docker/headless-serve-shutdown/**'
       - 'config/docker/cli-launch-contract/**'
       - 'package.json'
@@ -18,11 +23,15 @@ on:
       - 'pnpm-workspace.yaml'
       - 'config/tsconfig*.json'
       - 'config/scripts/ensure-native-runtime.mjs'
+      - 'config/scripts/initialize-windows-native-toolchain.mjs'
+      - 'config/scripts/capture-windows-native-environment.cmd'
       - 'config/scripts/rebuild-native-deps.mjs'
       - 'config/patches/node-pty@1.1.0.patch'
       - 'config/patches/@vscode__windows-process-tree@0.8.0.patch'
       - 'native/windows-registry/**'
+      - 'native/windows-security/**'
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
     paths:
       - '.github/workflows/ci-cache-warmup.yml'
       - '.github/actions/prepare-git-compatibility/**'
@@ -40,7 +49,11 @@ concurrency:
 
 jobs:
   warm:
-    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft != true
+    concurrency:
+      group: ci-cache-warmup-linux-x64-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: ${{ github.event_name != 'schedule' }}
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 10
     env:
       ORCA_BACKGROUND_LAUNCH: '1'

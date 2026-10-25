@@ -25,6 +25,7 @@ import {
   getWorkspaceSpaceGitStatusForScan
 } from './workspace-space-state-resolution'
 import type { AgentStatusEntry } from '../../../../shared/agent-status-types'
+import type { Repo } from '../../../../shared/repo-types'
 import type { Worktree } from '../../../../shared/worktree/types'
 import { composeWorktreeHostIdentity } from '../../../../shared/worktree/host-qualified-identity'
 
@@ -93,6 +94,17 @@ function activeAgent(overrides: Partial<AgentStatusEntry> = {}): AgentStatusEntr
   }
 }
 
+function repo(overrides: Partial<Repo> = {}): Repo {
+  return {
+    id: 'repo',
+    path: '/repo',
+    displayName: 'Repo',
+    badgeColor: '#999999',
+    addedAt: 1,
+    ...overrides
+  }
+}
+
 function worktreeRecord(overrides: Partial<Worktree> = {}): Worktree {
   return {
     id: 'wt',
@@ -103,6 +115,7 @@ function worktreeRecord(overrides: Partial<Worktree> = {}): Worktree {
     head: 'abc123',
     isBare: false,
     isMainWorktree: false,
+    hostId: 'local',
     comment: '',
     linkedIssue: null,
     linkedPR: null,
@@ -119,8 +132,10 @@ function worktreeRecord(overrides: Partial<Worktree> = {}): Worktree {
 function decisionInputs(
   overrides: Partial<Parameters<typeof getWorkspaceDecisionDetails>[1]> = {}
 ): Parameters<typeof getWorkspaceDecisionDetails>[1] {
+  const defaultRepo = repo()
   const defaultWorktree = worktreeRecord()
   return {
+    repoMap: new Map([[defaultRepo.id, defaultRepo]]),
     worktreeMap: new Map([[defaultWorktree.id, defaultWorktree]]),
     tabsByWorktree: {},
     ptyIdsByTabId: {},
@@ -133,6 +148,7 @@ function decisionInputs(
     browserTabsByWorktree: {},
     gitStatusByWorktree: {},
     remoteStatusesByWorktree: {},
+    settings: null,
     activeWorktreeId: null,
     activeWorkspaceExecutionHostId: null,
     now: 1_000,
@@ -153,7 +169,7 @@ describe('workspace space presentation helpers', () => {
     )
     const ssh = getWorkspaceDecisionDetails(
       row({ worktreeId: 'wt', executionHostId: 'ssh:builder' }),
-      inputs
+      { ...inputs, worktreeRecord: worktreeRecord({ hostId: 'ssh:builder' }) }
     )
 
     expect(local.isActive).toBe(true)
@@ -318,6 +334,9 @@ describe('workspace space presentation helpers', () => {
     const workspace = row({ worktreeId: 'with-browser', canDelete: true, status: 'ok' })
 
     expect(isWorkspaceSpaceRowReadyToDelete(workspace, ready())).toBe(true)
+    expect(isWorkspaceSpaceRowReadyToDelete(workspace, ready({ canOpenWorkspace: false }))).toBe(
+      false
+    )
     expect(isWorkspaceSpaceRowReadyToDelete(workspace, ready({ browserTabCount: 1 }))).toBe(false)
   })
 
@@ -379,8 +398,21 @@ describe('workspace space presentation helpers', () => {
     ).toBe(0)
   })
 
-  it('labels reviews and issues from the persisted worktree links', () => {
+  it('hides a GitHub review explicitly suppressed after unlinking', () => {
     const details = getWorkspaceDecisionDetails(
+      row({ branch: 'refs/heads/feature/local' }),
+      decisionInputs({
+        worktreeMap: new Map([
+          ['wt', worktreeRecord({ branch: 'refs/heads/feature/local', suppressedGitHubPR: 12 })]
+        ])
+      })
+    )
+
+    expect(details.reviewLabel).toBeNull()
+  })
+
+  it('hides only a matching suppressed GitHub review from workspace decisions', () => {
+    const matching = getWorkspaceDecisionDetails(
       row({ branch: 'refs/heads/feature/local' }),
       decisionInputs({
         worktreeMap: new Map([
@@ -388,22 +420,14 @@ describe('workspace space presentation helpers', () => {
             'wt',
             worktreeRecord({
               branch: 'refs/heads/feature/local',
-              linkedPR: 12,
-              linkedIssue: 123,
-              linkedLinearIssue: 'ENG-7'
+              linkedPR: null,
+              suppressedGitHubPR: 12
             })
           ]
         ])
       })
     )
-
-    expect(details.reviewLabel).toBe('PR #12')
-    expect(details.issueLabel).toBe('#123')
-    expect(details.linearIssueLabel).toBe('ENG-7')
-  })
-
-  it('shows no review label for an unlinked, suppressed GitHub review', () => {
-    const details = getWorkspaceDecisionDetails(
+    const different = getWorkspaceDecisionDetails(
       row({ branch: 'refs/heads/feature/local' }),
       decisionInputs({
         worktreeMap: new Map([
@@ -419,7 +443,8 @@ describe('workspace space presentation helpers', () => {
       })
     )
 
-    expect(details.reviewLabel).toBeNull()
+    expect(matching.reviewLabel).toBeNull()
+    expect(different.reviewLabel).toBe('PR #13 Open, success')
   })
 
   it('counts migration-unsupported agent entries by worktree id', () => {

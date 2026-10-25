@@ -30,7 +30,8 @@ export function AddRepoServerPathStartStep({
   onOpenCloneStep,
   onOpenCreateStep
 }: AddRepoServerPathStartStepProps): React.JSX.Element {
-  const [pathEntryOpen, setPathEntryOpen] = useState(initialBrowsing)
+  // Why the path too: a folder picked in Windows' picker or dropped from Explorer arrives filled in.
+  const [pathEntryOpen, setPathEntryOpen] = useState(initialBrowsing || serverPath.trim() !== '')
 
   if (!pathEntryOpen) {
     const disabled = isAddingServerPath || !runtimeEnvironmentId

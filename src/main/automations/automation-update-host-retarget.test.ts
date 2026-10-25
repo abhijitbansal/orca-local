@@ -1,4 +1,4 @@
-import { closeTestStores, createSqliteTestStore } from '../persistence-test-harness'
+import { closeTestStores, createSqliteTestStore } from '../persistence/persistence-test-harness'
 /**
  * An update may not move a record to another host unless it was asked to.
  *

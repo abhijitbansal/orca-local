@@ -27,12 +27,11 @@ import {
   filterSetupsForPrunedRepoRows,
   filterTrustedOrcaHooksToValidRepos,
   mergeFetchedRepoCatalog,
-  projectCompatibilityForReconciledRepos,
-  reconcileReadoptedSshWorktreeState,
+  reconcileFetchedCatalogWorktreeState,
   reconcileSupersededSshRepos
 } from './repo-catalog-merge'
-import { getRuntimeTargetHostId } from '../runtime-target-host'
-import { mergeFetchedProjectCompatibilityForHost } from '../projects/project-compatibility-host-merge'
+import { getRuntimeTargetHostId } from '../../runtime/runtime-client-target'
+import { mergeFetchedHostProjectCatalog } from '../../../../shared/project-compatibility-host-merge'
 import { scheduleSafeAutoForkSync } from './safe-auto-fork-sync'
 
 export function createAllHostRepoCatalogActions(
@@ -67,11 +66,7 @@ export function createAllHostRepoCatalogActions(
           const result = mergeFetchedRepoCatalog(catalog, s.repos)
           const reconciliation = reconcileSupersededSshRepos(result.repos, s)
           const finalizedRepos = applyManualRepoOrder(reconciliation.repos, s.manualRepoOrder)
-          const projectCompatibility = projectCompatibilityForReconciledRepos(
-            finalizedRepos,
-            catalog.projectHostSetupCompatibility
-          )
-          const mergedProjectCompatibility = mergeFetchedProjectCompatibilityForHost({
+          const mergedProjectCompatibility = mergeFetchedHostProjectCatalog({
             previous: {
               projects: s.projects,
               projectHostSetups: filterSetupsForPrunedRepoRows(
@@ -80,7 +75,7 @@ export function createAllHostRepoCatalogActions(
                 finalizedRepos
               )
             },
-            fetched: projectCompatibility,
+            fetched: catalog.projectHostSetupCompatibility,
             repos: finalizedRepos,
             hostId: result.hostId
           })
@@ -90,7 +85,7 @@ export function createAllHostRepoCatalogActions(
           return {
             repos: finalizedRepos,
             pendingSshRepoReadoptions: reconciliation.pendingReadoptions,
-            ...reconcileReadoptedSshWorktreeState(s, s.pendingSshRepoReadoptions),
+            ...reconcileFetchedCatalogWorktreeState(s, catalog, finalizedRepos),
             ...mergedProjectCompatibility,
             ...(arrayElementsUnchanged(finalizedRepos, s.repos)
               ? {}
@@ -126,7 +121,9 @@ export function createAllHostRepoCatalogActions(
       let localCatalogOutcome: LocalRepoCatalogFetchOutcome = { status: 'fulfilled' }
       const localFence = claimHostCatalogFence(get, 'repos', { kind: 'local' })
       try {
-        if (!applyCatalog(await fetchRepoCatalogForTarget({ kind: 'local' }), localFence)) {
+        if (
+          !applyCatalog(await fetchRepoCatalogForTarget({ kind: 'local' }, get().repos), localFence)
+        ) {
           failed = true
         }
       } catch (err) {
@@ -151,7 +148,7 @@ export function createAllHostRepoCatalogActions(
         'repos',
         async (target, fence) => {
           const [catalogResult, visibilitySnapshot] = await Promise.all([
-            fetchRepoCatalogForTarget(target).then(
+            fetchRepoCatalogForTarget(target, get().repos).then(
               (catalog) => ({ ok: true as const, catalog }),
               (error: unknown) => ({ ok: false as const, error })
             ),

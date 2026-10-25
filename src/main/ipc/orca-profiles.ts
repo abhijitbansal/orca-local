@@ -98,9 +98,7 @@ function scheduleProfileRelaunch(reason: ProfileRelaunchReason, sender: WebConte
   }
   setTimeout(() => {
     relaunchApp(reason)
-    // Why: app.quit() (not app.exit) so before-quit/will-quit still run —
-    // renderer scrollback capture, PTY kill, stats flush, and daemon final
-    // checkpoints must not be skipped on a profile switch.
+    // Normal quit preserves renderer scrollback, PTY teardown, stats flush and final daemon checkpoints.
     quitProcess()
   }, 150)
 }
@@ -157,8 +155,7 @@ export function registerOrcaProfileHandlers(
         throw new Error('active_target_orca_profile_transfer_requires_relaunch')
       }
       if (args.mode === 'move' && args.sourceProfileId === current.activeProfileId) {
-        // Why: transfer before any relaunch side effect so a duplicate-target
-        // or validation failure cannot strand the app in a quitting state.
+        // Finish transfer before relaunch side effects so validation failure cannot strand the app quitting.
         const result = await transferActiveProfileProject(
           args,
           getProfileUserDataPath(),

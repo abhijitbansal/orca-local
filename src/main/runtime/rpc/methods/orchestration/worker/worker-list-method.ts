@@ -17,7 +17,7 @@ import {
   readWorkerListSnapshot
 } from './worker-list-snapshot-store'
 import { projectWorkerFleet, type WorkerListPageParams } from './worker-list-projection'
-import { exposeWorkerTerminalResource } from './worker-release-completion'
+import { exposeWorkerTerminalResource } from './worker-terminal-resource-presentation'
 import { chatAssigneeObserver } from './session-worker-observation'
 import {
   WORKER_TERMINAL_LIST_STATES,

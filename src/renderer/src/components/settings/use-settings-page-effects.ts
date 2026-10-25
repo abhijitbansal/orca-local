@@ -36,6 +36,7 @@ export function useSettingsPageEffects(
     setHighlightedSettingsTargetId,
     setMountedSectionIds,
     setQuickCommandAddIntentSignal,
+    setSettingsHostChoice,
     setSettingsProjectHostSelection,
     setPendingNavRequestTick,
     setVoiceModelStatesLoading,
@@ -187,6 +188,9 @@ export function useSettingsPageEffects(
         )
       }
     }
+    if (settingsNavigationTarget.hostScope) {
+      setSettingsHostChoice(settingsNavigationTarget.hostScope)
+    }
     pendingNavSectionRef.current = paneSectionId
     pendingScrollTargetRef.current = settingsNavigationTarget.sectionId ?? paneSectionId
     setHighlightedSettingsTargetId(
@@ -223,6 +227,7 @@ export function useSettingsPageEffects(
     setMountedSectionIds,
     setPendingNavRequestTick,
     setQuickCommandAddIntentSignal,
+    setSettingsHostChoice,
     setSettingsProjectHostSelection,
     settings,
     settingsProjectList,

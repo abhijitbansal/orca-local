@@ -4,7 +4,6 @@ import { getConnectionId } from '@/lib/connection-context'
 import { detectLanguage } from '@/lib/language-detect'
 import { canShowWorkspaceFileBrowserAction, openFilePreviewToSide } from '@/lib/file-preview'
 import { getEditorHeaderCopyState } from './editor-header'
-import { settingsForRuntimeOwner } from '@/runtime/runtime-rpc-client'
 import { exportActiveMarkdownToPdf } from './export-active-markdown'
 import type { EditorToggleValue } from './EditorViewToggle'
 import { EditorPanelShell } from './EditorPanelShell'
@@ -277,11 +276,7 @@ function EditorPanelInner({
     )
   }
   const disableRenameBrowse = Boolean(
-    settingsForRuntimeOwner(
-      settings,
-      renameDialogFile?.runtimeEnvironmentId
-    )?.activeRuntimeEnvironmentId?.trim() ||
-    (renameDialogFile ? getConnectionId(renameDialogFile.worktreeId) : null)
+    renameDialogFile ? getConnectionId(renameDialogFile.worktreeId) : null
   )
   const markdownDocumentStateFileId =
     activeFile.mode === 'markdown-preview'

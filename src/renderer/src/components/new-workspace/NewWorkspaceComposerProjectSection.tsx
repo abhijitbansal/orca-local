@@ -3,12 +3,8 @@ import { FolderPlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import ProjectCombobox from '@/components/new-workspace/ProjectCombobox'
-import RunTargetCombobox from '@/components/new-workspace/RunTargetCombobox'
 import { translate } from '@/i18n/i18n'
-import type {
-  NeedsProjectHostOption,
-  NewWorkspaceComposerCardProps
-} from './new-workspace-composer-card-props'
+import type { NewWorkspaceComposerCardProps } from './new-workspace-composer-card-props'
 import { EMPTY_PROJECT_OPTIONS } from './new-workspace-composer-card-props'
 
 type NewWorkspaceComposerProjectSectionProps = Pick<
@@ -21,17 +17,11 @@ type NewWorkspaceComposerProjectSectionProps = Pick<
   | 'projectLabel'
   | 'projectPlaceholder'
   | 'emptyProjectMessage'
-  | 'selectedProjectHostSetupId'
 > & {
   disabled?: boolean
   projectDescriptionId: string
   onAddProject: () => void
   focusNameInput: () => void
-  shouldShowRunTargetPicker: boolean
-  projectHostSetupOptions: NewWorkspaceComposerCardProps['projectHostSetupOptions']
-  handleProjectHostSetupChange: (setupId: string) => void
-  handleConnectRunTargetHost: (option: NeedsProjectHostOption) => Promise<void>
-  handleSetLocation: (option: NeedsProjectHostOption) => void
 }
 
 export function NewWorkspaceComposerProjectSection({
@@ -46,13 +36,7 @@ export function NewWorkspaceComposerProjectSection({
   emptyProjectMessage,
   projectDescriptionId,
   onAddProject,
-  focusNameInput,
-  shouldShowRunTargetPicker,
-  projectHostSetupOptions,
-  selectedProjectHostSetupId,
-  handleProjectHostSetupChange,
-  handleConnectRunTargetHost,
-  handleSetLocation
+  focusNameInput
 }: NewWorkspaceComposerProjectSectionProps): React.JSX.Element {
   return (
     <fieldset disabled={disabled} className="space-y-1">
@@ -115,20 +99,6 @@ export function NewWorkspaceComposerProjectSection({
           ) : null}
         </div>
       </div>
-      {shouldShowRunTargetPicker ? (
-        <div className="space-y-1 pt-3">
-          <label className="block min-w-0 truncate text-xs font-medium text-muted-foreground">
-            {translate('auto.components.NewWorkspaceComposerCard.runOn', 'Run on')}
-          </label>
-          <RunTargetCombobox
-            hostOptions={projectHostSetupOptions ?? []}
-            hostValue={selectedProjectHostSetupId ?? null}
-            onHostChange={handleProjectHostSetupChange}
-            onConnectHost={handleConnectRunTargetHost}
-            onSetLocation={handleSetLocation}
-          />
-        </div>
-      ) : null}
     </fieldset>
   )
 }

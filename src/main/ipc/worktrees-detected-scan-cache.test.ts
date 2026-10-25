@@ -25,18 +25,8 @@ vi.mock('../git/git-username', async (importOriginal) => ({
   resolveLocalGitUsername: (await import('./worktrees-test-module-mocks'))
     .resolveLocalGitUsernameMock
 }))
-vi.mock('../providers/ssh-git-dispatch', async () =>
-  (await import('./worktrees-test-module-mocks')).sshGitDispatchModuleMock()
-)
-vi.mock('../providers/ssh-filesystem-dispatch', async () =>
-  (await import('./worktrees-test-module-mocks')).sshFilesystemDispatchModuleMock()
-)
 vi.mock('./worktree-symlinks', async () =>
   (await import('./worktrees-test-module-mocks')).worktreeSymlinksModuleMock()
-)
-vi.mock('./ssh', async () => (await import('./worktrees-test-module-mocks')).sshModuleMock())
-vi.mock('../ssh/ssh-target-registry', async () =>
-  (await import('./worktrees-test-module-mocks')).sshTargetRegistryModuleMock()
 )
 vi.mock('../hooks', async () => (await import('./worktrees-test-module-mocks')).hooksModuleMock())
 vi.mock('../setup-runner-script-text', async (importOriginal) =>
@@ -82,7 +72,12 @@ vi.mock('../workspace-cleanup-removal-snapshot-prune', async () =>
 vi.mock('../runtime/worktree-teardown', async () =>
   (await import('./worktrees-test-module-mocks')).worktreeTeardownModuleMock()
 )
-vi.mock('./pty', async () => (await import('./worktrees-test-module-mocks')).ptyModuleMock())
+vi.mock('./pty/provider/registry', async () =>
+  (await import('./worktrees-test-module-mocks')).ptyRegistryModuleMock()
+)
+vi.mock('./pty/provider/state-cleanup', async () =>
+  (await import('./worktrees-test-module-mocks')).ptyStateCleanupModuleMock()
+)
 
 describe('registerWorktreeHandlers', () => {
   beforeEach(() => {
@@ -442,16 +437,14 @@ describe('registerWorktreeHandlers', () => {
     }
     const pendingList = handlers['worktrees:listDetected'](null, { repoId: 'repo-1' })
     await Promise.resolve()
-    // The create finished while the scan ran: the scan never saw the new worktree.
+    // Simulate a create completing during this scan.
     notifyWorktreesChanged(mainWindow as never, 'repo-1')
     resolveScan([mainWorktree])
-    // Why: an overtaken scan is a cache miss, so the listing scans again before it answers.
     await vi.waitFor(() => expect(listWorktreesMock).toHaveBeenCalledTimes(2))
     resolveScan([mainWorktree, createdWorktree])
 
     const result = await pendingList
 
-    // The overtaken scan's prune would have retired the new worktree's lineage; only the re-scan ran.
     expect(store.removeWorktreeLineage).not.toHaveBeenCalled()
     expect(result).toMatchObject({
       authoritative: true,
@@ -492,10 +485,7 @@ describe('registerWorktreeHandlers', () => {
     const result = await pendingList
 
     expect(listWorktreesMock).toHaveBeenCalledTimes(3)
-    // Why stale: no scan in the chain describes the current catalog, and a non-authoritative answer
-    // would still replace the client's rows -- dropping a worktree the last mutation created. A
-    // stale reply leaves client state alone; that mutation's own change event brings the next
-    // listing. Nothing failed, so no failure reason ships and no scan-failure indicator lights up.
+    // Churn must yield stale: non-authoritative rows still replace client state and could hide a newly created worktree.
     expect(result).toEqual({
       providerRequestId: 'provider-1',
       executionHostId: 'local',
@@ -535,7 +525,6 @@ describe('registerWorktreeHandlers', () => {
       isMainWorktree: true
     }
     resolveScan([mainWorktree])
-    // Why: the invalidated scan is never cached; the re-scan it triggers is the one that may be.
     await vi.waitFor(() => expect(listWorktreesMock).toHaveBeenCalledTimes(2))
     expect(__getDetectedWorktreeScanCacheStatsForTests()).toMatchObject({
       cacheSize: 0,
@@ -609,8 +598,7 @@ describe('registerWorktreeHandlers', () => {
     await Promise.resolve()
 
     resolvers[0](result)
-    // Why not awaited yet: the overtaken caller does not answer from its own scan; it joins the
-    // replacement scan already in flight instead of starting a third.
+    // The overtaken caller joins the replacement scan instead of starting a third.
     expect(__getDetectedWorktreeScanCacheStatsForTests()).toEqual({
       cacheSize: 0,
       inFlightSize: 1

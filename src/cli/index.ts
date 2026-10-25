@@ -23,14 +23,12 @@ export { buildCurrentWorktreeSelector, normalizeWorktreeSelector } from './selec
 
 const COMMAND_PATHS = COMMAND_SPECS.flatMap((spec) => specPaths(spec))
 
-// Why: the RuntimeClient graph is most of the CLI's eager modules. Loading it here
-// rather than at module scope means --help, `help <cmd>`, and command/flag
-// errors — which all return before this call — never pay for it. Awaited
-// before dispatch so `ctx.client` stays a synchronous getter.
+// Defer the runtime graph until after help and validation; await it to keep ctx.client synchronous.
 async function loadRuntimeClientClass(): Promise<typeof RuntimeClient> {
   return (await import('./runtime-client.js')).RuntimeClient
 }
 
+// The SSH bridge runs here, but ORCA_CLI_CWD carries the remote caller's directory.
 function resolveInvocationCwd(): string {
   const override = process.env.ORCA_CLI_CWD
   return typeof override === 'string' && override.length > 0 ? override : process.cwd()
@@ -82,9 +80,7 @@ export async function main(
   const json = parsed.flags.has('json')
 
   try {
-    // Why: CLI syntax and flag errors should be reported before any runtime
-    // lookup so users do not get misleading "Orca is not running" failures for
-    // simple command typos or unsupported flags.
+    // Report invalid commands before runtime lookup can mask them with connection errors.
     validateCommandAndFlags(COMMAND_SPECS, parsed)
     const commandSpec = findCommandSpec(COMMAND_SPECS, parsed.commandPath)
     refuseConflictingSessionCallerFlags(commandSpec, parsed.flags)
@@ -104,13 +100,22 @@ export async function main(
         return client
       },
       cwd,
-      json
+      json,
+      rawArgs: argv
     })
   } catch (error) {
     const worktreeSelector = parsed.flags.get('worktree')
+    const repoSelector = parsed.flags.get('repo')
+    const hostFlag = parsed.flags.get('host')
     reportCliError(error, json, {
       commandPath: parsed.commandPath,
-      ...(typeof worktreeSelector === 'string' ? { worktreeSelector } : {})
+      ...(typeof worktreeSelector === 'string' ? { worktreeSelector } : {}),
+      ...(typeof repoSelector === 'string' ? { repoSelector } : {}),
+      remoteServerSelected:
+        parsed.flags.has('environment') ||
+        parsed.flags.has('pairing-code') ||
+        (typeof hostFlag === 'string' && hostFlag.startsWith('runtime:')) ||
+        Boolean(process.env.ORCA_ENVIRONMENT?.trim() || process.env.ORCA_PAIRING_CODE?.trim())
     })
     process.exitCode = 1
   }
@@ -118,8 +123,7 @@ export async function main(
 
 async function runClaudeTeams(argv: string[], cwd: string): Promise<void> {
   try {
-    // Why: everything after `orca claude-teams` belongs to Claude Code, not
-    // Orca's own flag parser, so new Claude flags work without Orca changes.
+    // Forward Claude Code arguments verbatim so new flags work without Orca changes.
     const client = new (await loadRuntimeClientClass())()
     await dispatch(['claude-teams'], {
       flags: new Map(),

@@ -1,21 +1,14 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'sonner'
 import { useAppStore } from '@/store'
 import { cn } from '@/lib/utils'
 import { getAgentCatalog } from '@/lib/agent-catalog'
 import { getScreenSubmitModifierLabel } from '@/lib/screen-submit-shortcut'
-import { resolveProjectCloneUrlPrefill } from '@/lib/project-clone-url-prefill'
 import { useContextualTour } from '@/components/contextual-tours/use-contextual-tour'
-import { lazyWithRetry } from '@/lib/lazy-with-retry'
-import type * as SetProjectLocationDialogModule from '@/components/new-workspace/SetProjectLocationDialog'
-import { unwrapRuntimeRpcResult } from '@/runtime/runtime-rpc-client'
-import { translate } from '@/i18n/i18n'
 import {
   DEFAULT_DISABLED_TUI_AGENTS,
   filterEnabledTuiAgents
 } from '../../../shared/tui-agent-selection'
-import type { RuntimeStatus } from '../../../shared/runtime-types'
 import type { TuiAgent } from '../../../shared/tui-agent'
 import { NewWorkspaceComposerAdvancedSection } from './new-workspace/NewWorkspaceComposerAdvancedSection'
 import { NewWorkspaceComposerAgentSection } from './new-workspace/NewWorkspaceComposerAgentSection'
@@ -23,26 +16,12 @@ import { NewWorkspaceComposerFooter } from './new-workspace/NewWorkspaceComposer
 import { NewWorkspaceComposerNameSection } from './new-workspace/NewWorkspaceComposerNameSection'
 import { NewWorkspaceComposerProjectSection } from './new-workspace/NewWorkspaceComposerProjectSection'
 import {
-  EMPTY_PROJECT_HOST_SETUP_OPTIONS,
   EMPTY_PROJECT_OPTIONS,
-  type NeedsProjectHostOption,
   type NewWorkspaceComposerCardProps
 } from './new-workspace/new-workspace-composer-card-props'
+import { useNewWorkspaceComposerFileDrop } from './new-workspace/use-new-workspace-composer-file-drop'
 import { useComposerFileDragOver } from './new-workspace/use-composer-file-drag-over'
-
-// Why lazy: this pulls the ~41 KB project-location browser onto the boot graph, and nothing
-// reaches it without an explicit "Set location" click. Shared with the warm below so both hit
-// the same module-map entry.
-const loadSetProjectLocationDialog = (): Promise<typeof SetProjectLocationDialogModule> =>
-  import('@/components/new-workspace/SetProjectLocationDialog')
-
-const SetProjectLocationDialog = lazyWithRetry(
-  () =>
-    loadSetProjectLocationDialog().then((module) => ({
-      default: module.SetProjectLocationDialog
-    })),
-  { reloadKey: 'set-project-location-dialog' }
-)
+import { buildDefaultAgentSettingsUpdate } from '../../../shared/default-agent-settings'
 
 export default function NewWorkspaceComposerCard(
   props: NewWorkspaceComposerCardProps
@@ -55,10 +34,6 @@ export default function NewWorkspaceComposerCard(
     composerRef,
     onComposerNodeChange,
     nameInputRef,
-    eligibleRepos,
-    repoId,
-    selectedRepoIsGit,
-    onProjectHostSetupChange,
     setupConfig,
     setupControlsEnabled = true,
     selectedProjectId = null,
@@ -67,12 +42,16 @@ export default function NewWorkspaceComposerCard(
     selectedRepoExecutionHostId,
     selectedRepoProjectId,
     activeFolderWorkspaceId,
-    onAddProjectOverride,
-    onNestedDialogOpenChange
+    onAddProjectOverride
   } = props
   const projectOptions = props.projectOptions ?? EMPTY_PROJECT_OPTIONS
-  const projectHostSetupOptions = props.projectHostSetupOptions ?? EMPTY_PROJECT_HOST_SETUP_OPTIONS
   const { isFileDragOver, dragHandlers } = useComposerFileDragOver()
+  const attachDropOwner = useNewWorkspaceComposerFileDrop({
+    projectPath: props.selectedRepoPath,
+    hostId: selectedRepoExecutionHostId,
+    connectionId: props.selectedRepoConnectionId,
+    applyDrop: props.onNativeFileDrop
+  })
   const openModal = useAppStore((state) => state.openModal)
   const activeModal = useAppStore((state) => state.activeModal)
   const defaultTuiAgent = useAppStore((state) => state.settings?.defaultTuiAgent ?? null)
@@ -80,43 +59,11 @@ export default function NewWorkspaceComposerCard(
     (state) => state.settings?.disabledTuiAgents ?? DEFAULT_DISABLED_TUI_AGENTS
   )
   const updateSettings = useAppStore((state) => state.updateSettings)
-  const projects = useAppStore((state) => state.projects)
-  const repos = useAppStore((state) => state.repos)
   const nameInputFocusFrameRef = React.useRef<number | null>(null)
   const branchNameInputId = React.useId()
   const projectDescriptionId = React.useId()
   const [sparseEditing, setSparseEditing] = React.useState(false)
-  const [setLocationOption, setSetLocationOption] = React.useState<NeedsProjectHostOption | null>(
-    null
-  )
-  // Why sticky: the dialog animates itself closed off its own `option` prop, so unmounting it
-  // when the option clears would cut that animation short.
-  const [setLocationDialogMounted, setSetLocationDialogMounted] = React.useState(false)
 
-  const selectedRepo = eligibleRepos.find((candidate) => candidate.id === repoId)
-  const selectedRepoName = selectedRepo?.displayName ?? selectedRepo?.path ?? 'This project'
-  const selectedProjectName =
-    projectOptions.find((candidate) => candidate.id === selectedProjectId)?.displayName ??
-    selectedRepoName
-  const defaultCloneUrl = resolveProjectCloneUrlPrefill(projects, repos, selectedProjectId)
-  const readyProjectHostSetupOptions = projectHostSetupOptions.filter(
-    (option) => option.kind === 'ready'
-  )
-  const needsSetupProjectHostSetupOptions = projectHostSetupOptions.filter(
-    (option) => option.kind === 'needs-setup'
-  )
-  // Warm on the precursor: the "Set location" row only renders for a needs-setup host that can
-  // still take one, so the chunk resolves while the picker is being read rather than on the click.
-  const hasSetLocationOption = needsSetupProjectHostSetupOptions.some(
-    (option) => option.canSetLocation
-  )
-  React.useEffect(() => {
-    if (hasSetLocationOption) {
-      void loadSetProjectLocationDialog().catch(() => {})
-    }
-  }, [hasSetLocationOption])
-  const shouldShowRunTargetPicker =
-    readyProjectHostSetupOptions.length > 0 || needsSetupProjectHostSetupOptions.length > 0
   const setupConfigLabel =
     setupConfig?.kind === 'default-tabs'
       ? 'Default tab commands'
@@ -164,12 +111,13 @@ export default function NewWorkspaceComposerCard(
       if (!node) {
         cancelNameInputFocusFrame()
       }
+      attachDropOwner(node)
       if (composerRef) {
         composerRef.current = node
       }
       onComposerNodeChange?.(node)
     },
-    [cancelNameInputFocusFrame, composerRef, onComposerNodeChange]
+    [attachDropOwner, cancelNameInputFocusFrame, composerRef, onComposerNodeChange]
   )
   const focusNameInput = React.useCallback((): void => {
     cancelNameInputFocusFrame()
@@ -185,56 +133,9 @@ export default function NewWorkspaceComposerCard(
     }
     openModal('add-repo')
   }, [onAddProjectOverride, openModal])
-  const handleSetLocation = React.useCallback(
-    (option: NeedsProjectHostOption): void => {
-      setSetLocationDialogMounted(true)
-      setSetLocationOption(option)
-      onNestedDialogOpenChange?.(true)
-    },
-    [onNestedDialogOpenChange]
-  )
-  const handleSetLocationClose = React.useCallback((): void => {
-    setSetLocationOption(null)
-    onNestedDialogOpenChange?.(false)
-  }, [onNestedDialogOpenChange])
-  const handleSetLocationReady = React.useCallback(
-    (setupId: string): void => {
-      handleSetLocationClose()
-      onProjectHostSetupChange?.(setupId)
-    },
-    [handleSetLocationClose, onProjectHostSetupChange]
-  )
-  const handleConnectRunTargetHost = React.useCallback(
-    async (option: NeedsProjectHostOption): Promise<void> => {
-      const action = option.connectAction
-      // Why: SSH connect actions are unsupported in this build; only runtime hosts can be probed.
-      if (action?.kind !== 'runtime') {
-        return
-      }
-      try {
-        const response = await window.api.runtimeEnvironments.getStatus({
-          selector: action.environmentId,
-          timeoutMs: 15_000
-        })
-        unwrapRuntimeRpcResult<RuntimeStatus>(response)
-        await useAppStore.getState().readRuntimeHostStatusSnapshots()
-      } catch (error) {
-        await useAppStore.getState().readRuntimeHostStatusSnapshots()
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : translate(
-                'auto.components.NewWorkspaceComposerCard.hostConnectionFailed',
-                'Connection failed'
-              )
-        )
-      }
-    },
-    []
-  )
   const handleSetDefaultAgent = React.useCallback(
     (next: TuiAgent | 'blank' | null): void => {
-      void updateSettings({ defaultTuiAgent: next })
+      void updateSettings(buildDefaultAgentSettingsUpdate(next))
     },
     [updateSettings]
   )
@@ -259,12 +160,15 @@ export default function NewWorkspaceComposerCard(
       ref={setComposerNode}
       data-workspace-composer-root="true"
       data-sparse-preset-editing={sparseEditing ? 'true' : undefined}
-      data-native-file-drop-target="composer"
       onDragEnter={dragHandlers.onDragEnter}
       onDragLeave={dragHandlers.onDragLeave}
       className={cn(
         'flex min-h-0 min-w-0 flex-1 flex-col gap-1 rounded-md transition',
-        isFileDragOver && 'ring-2 ring-ring/30',
+        isFileDragOver &&
+          props.selectedRepoPath &&
+          selectedRepoExecutionHostId &&
+          props.onNativeFileDrop &&
+          'ring-2 ring-ring/30',
         containerClassName
       )}
     >
@@ -273,14 +177,9 @@ export default function NewWorkspaceComposerCard(
           {...props}
           disabled={sparseEditing}
           projectOptions={projectOptions}
-          projectHostSetupOptions={projectHostSetupOptions}
           projectDescriptionId={projectDescriptionId}
           onAddProject={handleAddProject}
           focusNameInput={focusNameInput}
-          shouldShowRunTargetPicker={shouldShowRunTargetPicker}
-          handleProjectHostSetupChange={(setupId) => onProjectHostSetupChange?.(setupId)}
-          handleConnectRunTargetHost={handleConnectRunTargetHost}
-          handleSetLocation={handleSetLocation}
         />
         <NewWorkspaceComposerNameSection {...props} onNamePlainEnter={handleNamePlainEnter} />
         <NewWorkspaceComposerAgentSection
@@ -316,18 +215,6 @@ export default function NewWorkspaceComposerCard(
             submitShortcutModifierLabel={getScreenSubmitModifierLabel()}
           />
         </div>
-      ) : null}
-      {setLocationDialogMounted ? (
-        <React.Suspense fallback={null}>
-          <SetProjectLocationDialog
-            option={setLocationOption}
-            projectName={selectedProjectName}
-            projectKind={selectedRepoIsGit ? 'git' : 'folder'}
-            defaultCloneUrl={defaultCloneUrl}
-            onClose={handleSetLocationClose}
-            onReady={handleSetLocationReady}
-          />
-        </React.Suspense>
       ) : null}
     </div>
   )

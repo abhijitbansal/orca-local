@@ -9,12 +9,12 @@ type ComposerNavigationActionsInput = Pick<
   | 'openSettingsPage'
   | 'openSettingsTarget'
   | 'selectedProjectGroup'
+  | 'setActiveRuntimeEnvironmentPreference'
+  | 'smartNameJiraSourceContext'
   | 'sourceIntentBlocksCreate'
-  | 'updateWorktreeMeta'
 >
 
 import { useCallback } from 'react'
-import type { WorktreeMeta } from '../../../../shared/worktree/meta-types'
 
 export function useComposerNavigationActions(input: ComposerNavigationActionsInput) {
   const {
@@ -25,8 +25,7 @@ export function useComposerNavigationActions(input: ComposerNavigationActionsInp
     openSettingsPage,
     openSettingsTarget,
     selectedProjectGroup,
-    sourceIntentBlocksCreate,
-    updateWorktreeMeta
+    sourceIntentBlocksCreate
   } = input
 
   const handleOpenAgentSettings = useCallback((): void => {
@@ -35,19 +34,8 @@ export function useComposerNavigationActions(input: ComposerNavigationActionsInp
     closeModal()
   }, [closeModal, openSettingsPage, openSettingsTarget])
 
-  const applyWorktreeMeta = useCallback(
-    async (worktreeId: string, meta: Partial<WorktreeMeta>): Promise<void> => {
-      if (Object.keys(meta).length === 0) {
-        return
-      }
-      try {
-        await updateWorktreeMeta(worktreeId, meta)
-      } catch {
-        console.error('Failed to update worktree meta after creation')
-      }
-    },
-    [updateWorktreeMeta]
-  )
+  // Local-only: Jira is removed, so there are no integration settings to open.
+  const handleOpenJiraSettings = useCallback((): void => {}, [])
 
   const folderCreateDisabled =
     creating ||
@@ -58,7 +46,7 @@ export function useComposerNavigationActions(input: ComposerNavigationActionsInp
 
   return {
     handleOpenAgentSettings,
-    applyWorktreeMeta,
+    handleOpenJiraSettings,
     folderCreateDisabled
   }
 }

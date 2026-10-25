@@ -12,5 +12,12 @@ export const ENVIRONMENT_COMMAND_SPECS: CommandSpec[] = [
       'Without --name, prints the name and platform the answering runtime reports.'
     ],
     examples: ['orca host name', 'orca host name --name build-server']
+  },
+  {
+    path: ['environment', 'rm'],
+    destructive: true,
+    summary: 'Remove one saved Orca runtime environment',
+    usage: 'orca environment rm --environment <selector> [--json]',
+    allowedFlags: [...GLOBAL_FLAGS]
   }
 ]

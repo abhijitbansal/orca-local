@@ -7,12 +7,13 @@ import {
   formatWorkspaceCreateError,
   getWorkspaceCreateErrorToastMessage
 } from '@/lib/workspace-create-error-format'
-import { isAgentSessionHandleProvider } from '../../../shared/agent-session-provider-handle'
-import type { CreateWorktreeResult } from '../../../shared/worktree/create-types'
+import type { CreatedWorktreeResult } from '@/store/slices/worktrees/create/worktree-create-payload'
 import type { WorktreeCreationRequest } from '@/lib/pending-worktree-creation'
-import { createBrowserUuid } from '@/lib/browser-uuid'
 import { resolveBackendDraftStartup } from '@/lib/worktree-draft-startup-view-mode'
-import { buildWorktreeCreationStartupOpt } from '@/lib/worktree-creation-flow-startup'
+import {
+  hostPlannableAgentLaunch,
+  windowStartupAfterCreate
+} from '@/lib/worktree-creation-host-agent-launch'
 import {
   launchStructuredWorktreeSession,
   type WorktreeCreationStructuredSessionResult
@@ -42,60 +43,82 @@ function isCreatedWorkspaceInView(creationId: string, worktreeId: string): boole
 
 export async function executeWorktreeCreation(
   creationId: string,
-  incomingRequest: WorktreeCreationRequest
+  request: WorktreeCreationRequest
 ): Promise<void> {
-  const request = incomingRequest.hookPreparation
-    ? await prepareWorktreeCreationHooks(creationId, incomingRequest)
-    : incomingRequest
-  if (!request) {
+  const trustedRequest = request.hookPreparation
+    ? await prepareWorktreeCreationHooks(creationId, request)
+    : request
+  if (!trustedRequest) {
     return
   }
-  let result: CreateWorktreeResult
+  const preparedRequest = trustedRequest
+  if (!preparedRequest) {
+    return
+  }
+
+  const structuredLaunch = preparedRequest.agentLaunchRoute === 'structured-native-chat'
+  const creationHostId =
+    preparedRequest.workspaceRunContext?.hostId ?? preparedRequest.executionHostId
+  // Named to later steps, so a same-path twin on another host can't blur the owner (L277).
+  const onCreationHost = creationHostId ? { executionHostId: creationHostId } : {}
+  const hostAgentLaunch = hostPlannableAgentLaunch(preparedRequest)
+  let result: CreatedWorktreeResult
   try {
-    const structuredLaunch = request.agentLaunchRoute === 'structured-native-chat'
-    const backendStartup = structuredLaunch ? undefined : resolveBackendDraftStartup(request)
+    const backendStartup = structuredLaunch
+      ? undefined
+      : resolveBackendDraftStartup(preparedRequest)
     result = await useAppStore
       .getState()
       .createWorktree(
-        request.repoId,
-        request.name,
-        request.baseBranch,
-        request.setupDecision,
-        request.sparseCheckout,
-        request.telemetrySource,
-        request.displayName,
-        request.linkedIssue,
-        request.linkedPR,
-        request.pushTarget,
-        request.agent ?? undefined,
-        request.linkedLinearIssue,
-        request.branchNameOverride,
-        request.workspaceStatus,
-        request.linkedGitLabMR,
-        request.linkedGitLabIssue,
+        preparedRequest.repoId,
+        preparedRequest.name,
+        preparedRequest.baseBranch,
+        preparedRequest.setupDecision,
+        preparedRequest.sparseCheckout,
+        preparedRequest.telemetrySource,
+        preparedRequest.displayName,
+        preparedRequest.linkedIssue,
+        preparedRequest.linkedPR,
+        preparedRequest.pushTarget,
+        preparedRequest.agent ?? undefined,
+        preparedRequest.linkedLinearIssue,
+        preparedRequest.branchNameOverride,
+        preparedRequest.workspaceStatus,
+        preparedRequest.linkedGitLabMR,
+        preparedRequest.linkedGitLabIssue,
         backendStartup,
-        request.pendingFirstAgentMessageRename,
+        preparedRequest.pendingFirstAgentMessageRename,
         creationId,
-        request.linkedLinearIssueWorkspaceId,
-        request.linkedLinearIssueOrganizationUrlKey,
-        request.linkedBitbucketPR,
-        request.linkedAzureDevOpsPR,
-        request.linkedGiteaPR,
-        request.compareBaseRef,
+        preparedRequest.linkedLinearIssueWorkspaceId,
+        preparedRequest.linkedLinearIssueOrganizationUrlKey,
+        preparedRequest.linkedBitbucketPR,
+        preparedRequest.linkedAzureDevOpsPR,
+        preparedRequest.linkedGiteaPR,
+        preparedRequest.compareBaseRef,
         {
-          ...(request.nameWasGenerated ? { nameWasGenerated: true } : {}),
-          ...(request.displayNameKind ? { displayNameKind: request.displayNameKind } : {}),
-          ...(request.linkedWorkItem !== undefined
-            ? { linkedWorkItem: request.linkedWorkItem }
+          setupOnly: preparedRequest.setupOnly,
+          ...(hostAgentLaunch ? { hostAgentLaunch } : {}),
+          executionHostId: creationHostId,
+          ...(preparedRequest.nameWasGenerated ? { nameWasGenerated: true } : {}),
+          ...(preparedRequest.displayNameKind
+            ? { displayNameKind: preparedRequest.displayNameKind }
             : {}),
-          ...(request.linkedTaskSourceContext !== undefined
-            ? { linkedTaskSourceContext: request.linkedTaskSourceContext }
+          ...(preparedRequest.linkedWorkItem !== undefined
+            ? { linkedWorkItem: preparedRequest.linkedWorkItem }
+            : {}),
+          ...(preparedRequest.linkedTaskSourceContext !== undefined
+            ? { linkedTaskSourceContext: preparedRequest.linkedTaskSourceContext }
             : {}),
           // Why: the remote host must own task-draft startup so its initial terminal is the agent, not an idle fallback shell.
-          ...(!structuredLaunch && !backendStartup && request.agent && request.launchDraftPrompt
-            ? { startupDraft: request.launchDraftPrompt }
+          ...(!structuredLaunch &&
+          !backendStartup &&
+          preparedRequest.agent &&
+          preparedRequest.launchDraftPrompt
+            ? { startupDraft: preparedRequest.launchDraftPrompt }
             : {}),
-          ...(request.parentWorktreeId ? { parentWorktreeId: request.parentWorktreeId } : {})
+          ...(preparedRequest.parentWorktreeId
+            ? { parentWorktreeId: preparedRequest.parentWorktreeId }
+            : {})
         }
       )
   } catch (error) {
@@ -120,25 +143,20 @@ export async function executeWorktreeCreation(
   }
 
   const worktree = result.worktree
-  const structuredLaunch = request.agentLaunchRoute === 'structured-native-chat'
+  // Why: cancellation can race a successful backend adoption; clean up again after it settles so an adopted workspace cannot outlive its destroyed VM.
   if (!useAppStore.getState().pendingWorktreeCreations[creationId]) {
     return
   }
-
   const backendSpawned = result.startupTerminal?.spawned === true
-  if (request.startupPlan && !backendSpawned && !request.startupPlan.launchToken) {
-    // Why: delayed delivery must target the exact pane spawned from this queued
-    // startup, so both halves of the handoff share one renderer-session token.
-    request.startupPlan.launchToken = createBrowserUuid()
-  }
-  const startupOpt = structuredLaunch
-    ? undefined
-    : buildWorktreeCreationStartupOpt(request, backendSpawned)
+  const windowStartup = windowStartupAfterCreate(preparedRequest, result, backendSpawned)
+  const startupOpt = windowStartup.startup
 
   // Why: only a user still watching the creation surface (or already on the new
   // workspace) is handed it; anyone who moved on (another workspace or an app
   // view) keeps their place and gets a toast instead (#9944).
   const shouldActivateOnCompletion = isCreatedWorkspaceInView(creationId, worktree.id)
+  const setupIsOnlySurface = preparedRequest.setupOnly === true && result.setup !== undefined
+  const defaultTabs = setupIsOnlySurface ? undefined : result.defaultTabs
 
   // Why: the worktree exists past this point and nothing awaits this caller, so
   // each follow-up step is best-effort — an escaped throw would strand the
@@ -149,12 +167,14 @@ export async function executeWorktreeCreation(
     try {
       activation = activateAndRevealWorktree(worktree.id, {
         sidebarRevealBehavior: 'auto',
-        ...(request.agent !== null ? { agent: request.agent } : {}),
+        ...onCreationHost,
+        ...(windowStartup.agent !== null ? { agent: windowStartup.agent } : {}),
         ...(result.setup ? { setup: result.setup } : {}),
-        ...(result.defaultTabs ? { defaultTabs: result.defaultTabs } : {}),
+        ...(defaultTabs ? { defaultTabs } : {}),
         ...(startupOpt ? { startup: startupOpt } : {}),
-        ...(request.issueCommand ? { issueCommand: request.issueCommand } : {}),
-        ...(backendSpawned ? { backendStartupTerminalSpawned: true } : {})
+        ...(preparedRequest.issueCommand ? { issueCommand: preparedRequest.issueCommand } : {}),
+        ...(backendSpawned ? { backendStartupTerminalSpawned: true } : {}),
+        ...(setupIsOnlySurface ? { providesInitialSurface: true } : {})
       })
       primaryTabId = activation === false ? null : activation.primaryTabId
     } catch (error) {
@@ -164,7 +184,7 @@ export async function executeWorktreeCreation(
       // return one here.
       const stateAfterActivationFailure = useAppStore.getState()
       const existingTabs = stateAfterActivationFailure.tabsByWorktree[worktree.id] ?? []
-      const launchAgent = startupOpt?.launchAgent ?? request.agent
+      const launchAgent = startupOpt?.launchAgent ?? preparedRequest.agent
       const verifiedLaunchTabId =
         result.startupTerminal?.tabId ??
         (launchAgent ? existingTabs.find((tab) => tab.launchAgent === launchAgent)?.id : undefined)
@@ -179,24 +199,21 @@ export async function executeWorktreeCreation(
             worktree.id,
             startupOpt,
             result.setup,
-            request.issueCommand,
-            result.defaultTabs,
+            preparedRequest.issueCommand,
+            defaultTabs,
             // Activation failed before providing its promised surface, so recovery must seed one.
-            backendSpawned ? { backendStartupTerminalSpawned: true } : undefined
+            { ...onCreationHost, ...(backendSpawned && { backendStartupTerminalSpawned: true }) }
           )
         } catch (recoveryError) {
-          console.error(
-            'worktree create: activation recovery seeding failed',
-            worktree.id,
-            recoveryError
-          )
+          console.error('worktree create: recovery seed failed', worktree.id, recoveryError)
         }
       }
       if (!backendSpawned) {
         try {
           ensureWebRuntimeWorktreeTerminalAfterWake(worktree.id, {
             startup: startupOpt,
-            agent: request.agent
+            agent: windowStartup.agent,
+            unknownHostCountIsEmpty: true
           })
         } catch (recoveryError) {
           console.error(
@@ -210,20 +227,22 @@ export async function executeWorktreeCreation(
   } else {
     // Why: backgrounded creates still need explicit setup/issue terminals, but must not activate them.
     const hasExplicitTerminalWork = Boolean(
-      startupOpt || result.setup || request.issueCommand || result.defaultTabs
+      startupOpt || result.setup || preparedRequest.issueCommand || defaultTabs
     )
-    if (request.agent === null || hasExplicitTerminalWork) {
+    const callerProvidesSurface = preparedRequest.agent !== null || setupIsOnlySurface
+    if (preparedRequest.agent === null || hasExplicitTerminalWork) {
       try {
         primaryTabId = ensureWorktreeHasInitialTerminal(
           useAppStore.getState(),
           worktree.id,
           startupOpt,
           result.setup,
-          request.issueCommand,
-          result.defaultTabs,
+          preparedRequest.issueCommand,
+          defaultTabs,
           {
             activateCreatedTabs: false,
-            ...(request.agent !== null ? { callerProvidesSurface: true } : {}),
+            ...onCreationHost,
+            ...(callerProvidesSurface ? { callerProvidesSurface: true } : {}),
             ...(backendSpawned ? { backendStartupTerminalSpawned: true } : {})
           }
         )
@@ -240,8 +259,10 @@ export async function executeWorktreeCreation(
       try {
         ensureWebRuntimeWorktreeTerminalAfterWake(worktree.id, {
           startup: startupOpt,
-          agent: request.agent,
-          activate: false
+          agent: windowStartup.agent,
+          activate: false,
+          // Why: this client just created the workspace, so it starts empty.
+          unknownHostCountIsEmpty: true
         })
       } catch (error) {
         console.error('worktree create: after-wake terminal seeding failed', worktree.id, error)
@@ -250,17 +271,13 @@ export async function executeWorktreeCreation(
   }
 
   let structuredLaunchAccepted = structuredLaunch
-  const { agentLaunchRoute } = request
-  const structuredAgent = request.agent
-  if (
-    agentLaunchRoute === 'structured-native-chat' &&
-    isAgentSessionHandleProvider(structuredAgent)
-  ) {
+  const { agentLaunchRoute } = preparedRequest
+  if (agentLaunchRoute === 'structured-native-chat' && preparedRequest.agent) {
     let structuredSession: WorktreeCreationStructuredSessionResult | null = null
     try {
       structuredSession = await launchStructuredWorktreeSession({
         creationId,
-        request: request,
+        request: preparedRequest,
         agentLaunchRoute,
         worktreeId: worktree.id,
         shouldActivateOnCompletion,
@@ -284,7 +301,7 @@ export async function executeWorktreeCreation(
 
   if (!shouldActivateOnCompletion && useAppStore.getState().pendingWorktreeCreations[creationId]) {
     try {
-      showWorktreeCreationReadyToast(worktree)
+      showWorktreeCreationReadyToast(worktree, creationHostId)
     } catch (error) {
       console.error('worktree create: ready toast failed', worktree.id, error)
     }
@@ -292,13 +309,14 @@ export async function executeWorktreeCreation(
 
   await completeWorktreeCreation({
     creationId,
-    request: request,
+    request: preparedRequest,
     worktreeId: worktree.id,
     structuredLaunchAccepted,
     activation,
     primaryTabId,
     startupTerminalTabId: result.startupTerminal?.tabId,
     backendSpawned,
+    hostPlannedStartup: result.hostPlannedStartup === true,
     focusOnCompletion: shouldActivateOnCompletion
   })
 }

@@ -23,6 +23,8 @@ import type {
   LocalLogTailWatchArgs
 } from '../../shared/local-log-tail-types'
 import type { PreloadApi } from '../api-types'
+import type { FileWriteDiskPrecondition } from '../../shared/file-write-disk-precondition'
+import type { FileWriteResult } from '../../shared/file-write-disk-precondition'
 
 export const fsApi = {
   getPathForFile: (file: File): string => webUtils.getPathForFile(file),
@@ -101,8 +103,9 @@ export const fsApi = {
       content: string
       connectionId?: string
       access?: LocalFileAccess
+      diskPrecondition?: FileWriteDiskPrecondition
     } & SshMutationExpectation
-  ): Promise<void> => ipcRenderer.invoke('fs:writeFile', args),
+  ): Promise<FileWriteResult> => ipcRenderer.invoke('fs:writeFile', args),
   createFile: (
     args: { filePath: string; connectionId?: string } & SshMutationExpectation
   ): Promise<void> => ipcRenderer.invoke('fs:createFile', args),

@@ -9,6 +9,7 @@ import { getWorkspaceSpaceDeleteState } from './workspace-space-state-resolution
 import { getWorkspaceSpaceWorktreeIdentity } from './workspace-space-delete-selection'
 import type { WorkspaceSpaceWorktree } from '../../../../shared/workspace-space-types'
 import type { useWorkspaceSpaceManagerBindings } from './use-workspace-space-manager-bindings'
+import { getWorktreeOnHostFromState } from '@/store/selectors'
 
 type WorkspaceSpaceManagerBindings = ReturnType<typeof useWorkspaceSpaceManagerBindings>
 
@@ -28,10 +29,14 @@ export function useWorkspaceSpaceDecisionProjection(bindings: WorkspaceSpaceMana
     openFiles,
     ptyIdsByTabId,
     remoteStatusesByWorktree,
+    repoMap,
+    repos,
     retainedAgentsByPaneKey,
     runtimePaneTitlesByTabId,
+    settings,
     tabsByWorktree,
-    worktreeMap
+    worktreeMap,
+    worktreesByRepo
   } = bindings
 
   const sourceRows = useMemo(() => analysis?.worktrees ?? [], [analysis?.worktrees])
@@ -68,7 +73,14 @@ export function useWorkspaceSpaceDecisionProjection(bindings: WorkspaceSpaceMana
       details.set(
         getWorkspaceSpaceWorktreeIdentity(worktree),
         getWorkspaceDecisionDetails(worktree, {
+          repoMap,
           worktreeMap,
+          worktreeRecord: getWorktreeOnHostFromState(
+            { worktreesByRepo },
+            worktree.worktreeId,
+            worktree.executionHostId
+          ),
+          repos,
           tabsByWorktree,
           ptyIdsByTabId,
           agentStatusByPaneKey,
@@ -81,6 +93,7 @@ export function useWorkspaceSpaceDecisionProjection(bindings: WorkspaceSpaceMana
           gitStatusByWorktree,
           gitStatusByWorktreeIdentity,
           remoteStatusesByWorktree,
+          settings,
           activeWorktreeId,
           activeWorkspaceExecutionHostId,
           ...groupedInputs.get(worktree.worktreeId),
@@ -101,13 +114,17 @@ export function useWorkspaceSpaceDecisionProjection(bindings: WorkspaceSpaceMana
     gitStatusByWorktreeIdentity,
     openFiles,
     ptyIdsByTabId,
+    repoMap,
+    repos,
     remoteStatusesByWorktree,
     retainedAgentsByPaneKey,
     migrationUnsupportedByPtyId,
     runtimePaneTitlesByTabId,
+    settings,
     sourceRows,
     tabsByWorktree,
-    worktreeMap
+    worktreeMap,
+    worktreesByRepo
   ])
   const getDeleteStateForWorktree = useCallback(
     (worktree: WorkspaceSpaceWorktree) =>

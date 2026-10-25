@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { CircleDot, Copy, Ellipsis, ExternalLink, Globe, Pencil } from 'lucide-react'
+import { CircleDot, Copy, Ellipsis, ExternalLink, Globe, MonitorUp, Pencil } from 'lucide-react'
 import { translate } from '@/i18n/i18n'
 import {
   WorktreeCardDetailSection,
@@ -24,6 +24,8 @@ type WorktreeCardIssueDetailSectionProps = {
   onCopyIssueLink?: () => void
   onOpenIssueInBrowser?: (url: string) => void
   onEditIssue?: (event: React.MouseEvent) => void
+  onOpenGitHubIssueInOrca?: (event: React.MouseEvent) => void
+  onManageLinks?: (event: React.MouseEvent) => void
 }
 
 export function WorktreeCardIssueDetailSection({
@@ -32,7 +34,9 @@ export function WorktreeCardIssueDetailSection({
   onIssueMenuOpenChange,
   onCopyIssueLink,
   onOpenIssueInBrowser,
-  onEditIssue
+  onEditIssue,
+  onOpenGitHubIssueInOrca,
+  onManageLinks
 }: WorktreeCardIssueDetailSectionProps): React.JSX.Element | null {
   if (!issue) {
     return null
@@ -61,6 +65,7 @@ export function WorktreeCardIssueDetailSection({
   return (
     <WorktreeCardDetailSection>
       <DetailHeader
+        onAddReference={onManageLinks}
         icon={<CircleDot className="size-3 text-muted-foreground" />}
         label={translate(
           'auto.components.sidebar.WorktreeCardMeta.e97d8f2876',
@@ -115,6 +120,17 @@ export function WorktreeCardIssueDetailSection({
                 onClick={onEditIssue}
               >
                 <Pencil className="size-3" />
+              </MetadataActionIcon>
+            )}
+            {issue.url && onOpenGitHubIssueInOrca && (
+              <MetadataActionIcon
+                label={translate(
+                  'auto.components.sidebar.WorktreeCardMeta.2c67730e07',
+                  'Open in Orca'
+                )}
+                onClick={onOpenGitHubIssueInOrca}
+              >
+                <MonitorUp className="size-3" />
               </MetadataActionIcon>
             )}
             {issue.url && (

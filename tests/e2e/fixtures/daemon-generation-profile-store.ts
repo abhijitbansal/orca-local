@@ -1,5 +1,4 @@
 import path from 'node:path'
-import process from 'node:process'
 import type { Store } from '../../../src/main/persistence'
 import { createProfileStateStore } from '../../../src/main/persistence/profile-state/profile-state-store-factory'
 import { setAppEnvironment } from '../../../src/shared/app-environment'

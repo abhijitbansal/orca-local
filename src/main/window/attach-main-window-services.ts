@@ -12,14 +12,13 @@ import { setRepoRemoteClientNotifier } from '../ipc/repos/repos-changed-notifica
 import { setWorktreeCatalogRemoteClientNotifier } from '../ipc/watched-worktree-catalog-notification'
 import { registerWorktreeHandlers } from '../ipc/worktrees'
 import { registerWorkspaceCleanupHandlers } from '../ipc/workspace-cleanup'
-import {
-  registerPtyHandlers,
-  type CodexHomePtySpawnedLifecycleArgs,
-  type GetSelectedCodexHomePath,
-  type PrepareCodexSessionResume
-} from '../ipc/pty'
+import { registerPtyHandlers } from '../ipc/pty/register-handlers'
+import type {
+  CodexHomePtySpawnedLifecycleArgs,
+  GetSelectedCodexHomePath,
+  PrepareCodexSessionResume
+} from '../ipc/pty/host-env/types'
 import { registerDaemonManagementHandlers } from '../ipc/pty-management'
-import { registerSshHandlers } from '../ipc/ssh'
 import { browserManager } from '../browser/browser-manager'
 import { hasSystemMediaAccess, requestSystemMediaAccess } from '../browser/browser-media-access'
 import type { OrcaRuntimeService, RuntimeWorktreeLifecycleEvent } from '../runtime/orca-runtime'
@@ -36,8 +35,9 @@ import {
 } from '../ipc/worktree-base-directory-watcher'
 import { startFolderRepoGitUpgradeWatch } from '../ipc/folder-repo-git-upgrade'
 import { registerRuntimeWindowLifecycle } from './runtime-window-lifecycle'
+import { ensureStructuredAgentSessionHostUnlessRefused } from '../runtime/structured-agent-session-host-refusal'
+import { getAgentSessionAttachmentStore } from '../native-chat/agent-session-attachments/agent-session-attachment-store-registry'
 import { registerDroppedPathPreparation } from './dropped-path-preparation-ipc'
-import { registerFileDropRelay } from './native-file-drop-relay'
 
 let appReloadHandlerTokenCounter = 0
 let activeAppReloadHandlerToken: number | null = null
@@ -117,9 +117,12 @@ export function attachMainWindowServices(
   } else {
     void hydrateLocalPtyRegistryAtBoot(store)
   }
-  registerSshHandlers(store, () => mainWindow, runtime)
-  registerDroppedPathPreparation(mainWindow)
-  registerFileDropRelay(mainWindow)
+  registerDroppedPathPreparation(mainWindow, async () => {
+    await ensureStructuredAgentSessionHostUnlessRefused(() =>
+      runtime.ensureStructuredAgentSessionHost()
+    )
+    return getAgentSessionAttachmentStore()
+  })
   registerTccPromptNoticeHandlers(mainWindow)
   registerRuntimeWindowLifecycle(mainWindow, runtime)
 

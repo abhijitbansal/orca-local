@@ -5,8 +5,7 @@ import { SKILL_GUIDE_GET_HANDLER } from './skill-guide-get'
 
 export const SKILL_HANDLERS: Record<string, CommandHandler> = {
   'skills list': async ({ json }) => {
-    // Why: generated registry order is not a user-facing contract, while stable
-    // canonical sorting keeps agent-visible output reproducible across builds.
+    // Canonical sorting keeps output stable across generated-registry changes.
     const topics = (await loadCanonicalGuides()).map((guide) => ({
       name: guide.name,
       description: guide.description.replace(/\s+/g, ' ').trim()

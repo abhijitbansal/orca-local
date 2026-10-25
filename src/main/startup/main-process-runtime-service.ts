@@ -8,15 +8,17 @@ import { sessionSearchScopeCatalogFromStore } from '../ai-vault-search/session-s
 import { getCanonicalUserDataPath } from '../persistence/loading-store/user-data-path'
 import { app } from 'electron'
 import { OrcaRuntimeService } from '../runtime/orca-runtime'
-import { getLocalPtyProvider, clearProviderPtyState } from '../ipc/pty'
+import { getLocalPtyProvider } from '../ipc/pty/provider/registry'
+import { clearProviderPtyState } from '../ipc/pty/provider/state-cleanup'
 import { agentHookServer } from '../agent-hooks/server'
+import { toAgentStatusIpcPayload } from '../agent-hooks/server/server-status-identity'
 import { browserManager } from '../browser/browser-manager'
-import { loadAgentSessionClaimSigner } from '../runtime/agent-session-claim-identity'
+import { browserSessionRegistry } from '../browser/browser-session-registry'
+import { loadAgentSessionClaimSigner } from '../runtime/agent-session/ownership/agent-session-claim-identity'
 import { getProfileUserDataPath } from '../orca-profiles/profile-storage-paths'
-import { prepareCodexAiVaultSessionResume } from '../codex/codex-ai-vault-session-resume'
 import { prepareCodexPinnedLaunchHome } from './codex-session-resume-launch'
 import { resolveHostCodexSessionSourceHome } from '../codex/codex-session-source-home'
-import { isAgentStatusHooksEnabled } from '../agent-hooks/managed-agent-hook-controls'
+import { agentHookRuntimeDeps } from '../agent-hooks/agent-hook-runtime-deps'
 import { getDaemonProvider } from '../daemon/daemon-provider-state'
 import type { TerminalSideEffectBatch } from '../../shared/terminal-side-effect-facts'
 import { mainProcessState as state } from './main-process-state'
@@ -30,6 +32,9 @@ import {
   AgentStatusObservedPaneIdentities,
   recordObservedAgentStatusPaneIdentity
 } from '../runtime/agent-status-observed-pane-identity'
+import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../shared/layout-owner-switch'
+import { isAgentStatusHooksEnabled } from '../../shared/agent-status-hooks-setting'
+import { prepareCodexAiVaultSessionResume } from '../codex/codex-ai-vault-session-resume'
 
 export function getDesktopWindowStatus(): RuntimeDesktopWindowStatus {
   const activation = state.desktopActivationGate
@@ -50,6 +55,9 @@ export function initializeMainProcessRuntime(): OrcaRuntimeService {
   // `orca serve`, which never opens one, and the fleet path runs there too.
   const observedPaneIdentities = new AgentStatusObservedPaneIdentities()
   const runtime = new OrcaRuntimeService(store, stats, {
+    ...agentHookRuntimeDeps(agentHookServer, observedPaneIdentities, () =>
+      state.store?.getSettings()
+    ),
     prepareClaudeAuth: (target) => state.claudeRuntimeAuth!.prepareForClaudeLaunch(target),
     agentSessionClaimSigner: loadAgentSessionClaimSigner(
       getProfileUserDataPath(),
@@ -58,9 +66,6 @@ export function initializeMainProcessRuntime(): OrcaRuntimeService {
     // Why: resolve the PTY provider lazily — a daemon swap happens later, so an eager reference would freeze the pre-daemon provider (design §4.3).
     getLocalProvider: () => getLocalPtyProvider(),
     onPtyStopped: clearProviderPtyState,
-    onTerminalAgentStatus: (event) => agentHookServer.ingestTerminalStatus(event),
-    onClaudeTerminalEvidence: (paneKey, evidence) =>
-      agentHookServer.observeClaudeTerminalEvidence(paneKey, evidence),
     // Why: serve can be promoted in place, so wire the listener from startup; runtime enables desktop-only scanners only for a ready renderer.
     onTerminalSideEffects: (batch: TerminalSideEffectBatch) => {
       if (state.mainWindow && !state.mainWindow.isDestroyed()) {
@@ -68,37 +73,10 @@ export function initializeMainProcessRuntime(): OrcaRuntimeService {
       }
     },
     getDesktopWindowStatus,
-    // Why: worktree.ps pulls hook-reported agent status (same source as the desktop sidebar) at query time so mobile shows the same agents.
-    getAgentStatusSnapshot: () =>
-      agentHookServer.getStatusSnapshot().filter((entry) => entry.providerSessionOnly !== true),
-    getAgentStatusSnapshotForPane: (paneKey) => agentHookServer.getStatusSnapshotForPane(paneKey),
-    // Why: structured chats have no hooks, so the host writes their projections here itself; the
-    // snapshot above then lists them for the CLI and mobile without a second store.
-    structuredAgentStatusSink: {
-      publish: (summary, subject) => agentHookServer.ingestStructuredStatus(summary, subject),
-      forget: (subject) => agentHookServer.dropStructuredStatus(subject),
-      publishChildWork: (subject, evidence, provider) =>
-        agentHookServer.ingestStructuredChildWork(subject, evidence, provider),
-      readChildWork: (subject) => agentHookServer.getStructuredChildWorkViews(subject)
-    },
-    // Why captured rather than resolved at read: the fleet snapshot remints cached rows on every
-    // read, so a row observed under one process otherwise acquires whatever the pane owns now.
-    readObservedAgentStatusPaneIdentity: (paneKey) => observedPaneIdentities.read(paneKey),
-    // Why: the filter above hides resume-identity rows from the live-agent views, but
-    // those rows carry the provider session mobile native chat addresses transcripts
-    // by — Pi publishes identity that way and would otherwise be unreachable.
-    getAgentProviderSessionSnapshot: () => agentHookServer.getStatusSnapshot(),
-    getAgentProviderSessionRowsForPane: (paneKey) =>
-      agentHookServer.getStatusSnapshotForPane(paneKey),
     attestAgentHookCompatibilityAuthority: (candidate) =>
       agentHookServer.attestCompatibilityAuthority(candidate),
     retireAgentHookCompatibilityAuthority: (paneKey) =>
       agentHookServer.retirePaneAuthority(paneKey),
-    checkHookAgentPresence: (paneKey) => agentHookServer.checkAgentPresence(paneKey),
-    reconcileAgentStatusForEndedProcess: (paneKeys) =>
-      agentHookServer.reconcileEndedProcessForPaneKeys(paneKeys),
-    dropAgentStatusForRemovedWorktree: (worktreeId, host) =>
-      agentHookServer.dropStatusEntriesForRemovedWorktree(worktreeId, host),
     canRecoverPersistentLocalPtys: () => getDaemonProvider() !== null,
     // Why: source codex-home here (runs in window AND serve) so aiVault.listSessions includes managed-Codex sessions; registerCoreHandlers is window-only.
     getAdditionalAiVaultCodexHomePaths: () =>
@@ -113,7 +91,7 @@ export function initializeMainProcessRuntime(): OrcaRuntimeService {
     prepareCodexCatalogProbeHome: (homePath) =>
       state.codexRuntimeHome?.prepareHostCodexHomeForReadOnlyAppServer(
         homePath,
-        resolveTuiAgentLaunchEnv('codex', store.getSettings().agentDefaultEnv)
+        resolveTuiAgentLaunchEnv('codex', store.getSettings())
       ),
     buildAgentHookPtyEnv: () =>
       isAgentStatusHooksEnabled(state.store?.getSettings()) ? agentHookServer.buildPtyEnv() : {},
@@ -133,15 +111,26 @@ export function initializeMainProcessRuntime(): OrcaRuntimeService {
   })
   app.once('will-quit', () => sessionSearch?.dispose())
   state.runtime = runtime
+  runtime.attachAgentStatusStore(agentHookServer)
   agentHookServer.subscribeEnrichedStatus((enriched) =>
-    recordObservedAgentStatusPaneIdentity(observedPaneIdentities, enriched.paneKey, runtime)
+    recordObservedAgentStatusPaneIdentity(observedPaneIdentities, enriched, runtime)
   )
+  agentHookServer.setCliWriterExecutionMatcher(observedPaneIdentities, runtime)
+  // Switch point: main keeps the resume record of each pane it holds from the status it accepts.
+  if (ORCA_LAYOUT_OWNER_IS_MAIN) {
+    agentHookServer.subscribeEnrichedStatus((enriched) =>
+      runtime.recordHookStatusResume(toAgentStatusIpcPayload(enriched))
+    )
+    agentHookServer.subscribePaneStatusClear((clear) => runtime.forgetHookStatusResume(clear))
+    agentHookServer.subscribeStatusDrop((paneKey) => runtime.forgetHookStatusResume({ paneKey }))
+  }
   // Why before anything can attach: a client host that reattaches to a restarted runtime is only
   // handed its pages back if the runtime found them first.
   runtime.rehydrateClientHostedBrowserPages()
   browserManager.setBrowserGuestStateChangedListener((worktreeId) => {
     runtime.notifyMobileSessionTabsChanged(worktreeId)
   })
+  browserSessionRegistry.onProfilesChanged = () => runtime.notifyBrowserProfilesChanged()
   return runtime
 }
 

@@ -1,7 +1,7 @@
 import { join } from 'node:path'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AgentJournalSubmission } from '../../../../shared/agent-session-journal-types'
-import type { AgentMessageSource } from '../../../../shared/agent-session-message-source'
+import type { AgentMessageSource } from '../../../../shared/agent-session/agent-session-message-source'
 import { getAppEnvironment } from '../../../../shared/app-environment'
 import { DISPATCH_REJECTED_WRITE_FAILED } from '../../../../shared/structured-agent-session-dispatch-rejection'
 
@@ -22,8 +22,7 @@ const {
 } = await import('./orchestration-structured-worker-session')
 const { isUnknownWorkerStartOutcome } = await import('./orchestration/worker/worker-topology')
 const { structuredWorkerIdentities } = await import('../../structured-worker-identity')
-const { structuredSessionChildIdentityEnv } =
-  await import('../../structured-session-child-identity-env')
+const { sealedChildEnv } = await import('../../structured-session-child-env.test-support')
 
 // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: a host stub carrying only the members the worker start reaches.
 function installHost(location = { executionHostId: 'local', wslDistro: null as string | null }) {
@@ -85,7 +84,7 @@ describe('structured worker session', () => {
     createSpy.mockImplementation(async (args: { envelope: { sessionId: string } }) => {
       // `attach` is what spawns the provider child, and the child's env is read from the registry
       // at spawn time. Registering afterwards ships a worker with no ORCA_TERMINAL_HANDLE.
-      envAtSpawn = structuredSessionChildIdentityEnv(args.envelope.sessionId, {})
+      envAtSpawn = sealedChildEnv(args.envelope.sessionId)
       return { ok: true, value: { sessionId: args.envelope.sessionId } }
     })
     const created = await createStructuredWorkerSession({

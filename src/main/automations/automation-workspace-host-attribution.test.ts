@@ -1,4 +1,4 @@
-import { closeTestStores, createSqliteTestStore } from '../persistence-test-harness'
+import { closeTestStores, createSqliteTestStore } from '../persistence/persistence-test-harness'
 /**
  * A folder workspace can pin its execution host while its repo stays local.
  * The desktop authority used to project only the repo, so those records listed

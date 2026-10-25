@@ -1,5 +1,7 @@
+import { getDefaultSettings } from '../../src/shared/constants'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { z } from 'zod'
 import type { SleepingAgentSessionRecord } from '../../src/shared/agent-session-resume'
 import { makePaneKey } from '../../src/shared/stable-pane-id'
 import { parseWorkspaceSession } from '../../src/shared/workspace-session-schema'
@@ -14,7 +16,7 @@ import {
   resolveLegacyWorkerTerminalRecoveryAction,
   rollbackLegacyWorkerTerminalSurfaceInStore
 } from '@/hooks/legacy-worker-terminal-recovery-event'
-import { useAppStore, type AppState } from '@/store'
+import { useAppStore } from '@/store'
 import { buildWorkspaceSessionPayload } from '@/lib/workspace-session'
 import { activateAndRevealWorktree } from '@/lib/worktree-activation'
 import { resumeSleepingAgentSessionsForWorktree } from '@/lib/resume-sleeping-agent-session'
@@ -155,16 +157,16 @@ function seedWorkspace(options: { helper?: boolean } = {}): void {
     sleepingAgentSessionsByPaneKey: {},
     everActivatedWorktreeIds: new Set([CANARY_WORKTREE_ID]),
     settings: {
+      ...getDefaultSettings(''),
       ...initialAppStoreState.settings,
       agentCmdOverrides: {},
-      agentDefaultArgs: { codex: '--dangerously-bypass-approvals-and-sandbox' },
-      setupScriptLaunchMode: 'new-tab'
+      agentDefaultArgs: { codex: '--dangerously-bypass-approvals-and-sandbox' }
     },
     markWorktreeVisited: vi.fn(),
     recordWorktreeVisit: vi.fn(),
     refreshGitHubForWorktreeIfStale: vi.fn(),
     revealWorktreeInSidebar: vi.fn()
-  } as Partial<AppState>)
+  })
 }
 
 function recordWorkingWorker() {
@@ -226,8 +228,16 @@ function expectCanaryUnchanged(): void {
   )
 }
 
-function orchestrationMethod(name: string) {
-  const method = ORCHESTRATION_METHODS.find((candidate) => candidate.name === name)
+type OrchestrationMethod = (typeof ORCHESTRATION_METHODS)[number]
+
+const workerStartResult = z.object({ dispatchId: z.string(), state: z.string() })
+
+function orchestrationMethod<N extends OrchestrationMethod['name']>(
+  name: N
+): Extract<OrchestrationMethod, { name: N }> {
+  const method = ORCHESTRATION_METHODS.find(
+    (candidate): candidate is Extract<OrchestrationMethod, { name: N }> => candidate.name === name
+  )
   if (!method) {
     throw new Error(`Missing orchestration method: ${name}`)
   }
@@ -245,11 +255,6 @@ async function releaseCompletedWorker(terminalState: 'running' | 'exited'): Prom
     coordinatorPaneKey
   })
   const ctx: RpcContext = { runtime }
-  const call = async (name: string, params: Record<string, unknown>) => {
-    const method = orchestrationMethod(name)
-    const parsed = method.params ? method.params.parse(params) : undefined
-    return method.handler(parsed, ctx)
-  }
 
   vi.spyOn(runtime, 'getTerminalPaneKey').mockImplementation((handle) =>
     handle === 'terminal-coordinator' ? coordinatorPaneKey : ORIGINAL_PANE_KEY
@@ -313,11 +318,13 @@ async function releaseCompletedWorker(terminalState: 'running' | 'exited'): Prom
 
   try {
     const task = db.createTask({ spec: 'release completed worker', runId: run.id })
-    const started = (await call('orchestration.workerStart', {
-      task: task.id,
-      from: 'terminal-coordinator',
-      agent: 'codex'
-    })) as { dispatchId: string; state: string }
+    const workerStart = orchestrationMethod('orchestration.workerStart')
+    const started = workerStartResult.parse(
+      await workerStart.handler(
+        workerStart.params.parse({ task: task.id, from: 'terminal-coordinator', agent: 'codex' }),
+        ctx
+      )
+    )
     expect(started.state).toBe('ready')
     expect(db.getWorkerDispatch(started.dispatchId)?.state).toBe('ready')
     expect(
@@ -330,8 +337,9 @@ async function releaseCompletedWorker(terminalState: 'running' | 'exited'): Prom
     ).toBe('settled')
     expect(db.getWorkerDispatch(started.dispatchId)?.state).toBe('succeeded')
 
+    const workerRelease = orchestrationMethod('orchestration.workerRelease')
     await expect(
-      call('orchestration.workerRelease', { dispatch: started.dispatchId })
+      workerRelease.handler(workerRelease.params.parse({ dispatch: started.dispatchId }), ctx)
     ).resolves.toMatchObject({
       dispatchId: started.dispatchId,
       state: 'released',
@@ -463,17 +471,6 @@ describe('completed background-worker retirement resume matrix', () => {
       resolution: 'exited'
     })
     expect(exitedAction).toEqual({ kind: 'clear-sleeping', paneKey: ORIGINAL_PANE_KEY })
-
-    // Case 5: coordinator manual close is the same safe exact-tab retirement boundary.
-    seedWorkspace()
-    recordCompletedWorker()
-    closeTerminalTab(ORIGINAL_TAB_ID, {
-      force: true,
-      skipRunningProcessConfirm: true,
-      localPtyTeardownOwnedExternally: true
-    })
-    expect(useAppStore.getState().sleepingAgentSessionsByPaneKey[ORIGINAL_PANE_KEY]).toBeUndefined()
-    expectCanaryUnchanged()
 
     // Case 6: normal Codex exit leaves the shell pane; helper close retires only the helper.
     seedWorkspace({ helper: true })

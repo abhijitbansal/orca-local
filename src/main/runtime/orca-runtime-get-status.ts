@@ -1,4 +1,4 @@
-import { OrcaRuntimeWithGetRuntimeId } from './orca-runtime-get-runtime-id'
+import { OrcaRuntimeWithGetRuntimeId } from './workspaces/session-hosts/get-runtime-id'
 import type { RuntimeDegradation, RuntimeStatus } from '../../shared/runtime-types'
 import {
   runtimeBrowserCommandsFactoryIsHeadless,
@@ -6,6 +6,7 @@ import {
 } from './runtime-browser-commands-factory'
 import { isBrowserIdentityModeStoreInitialized } from '../browser/browser-identity-mode-store'
 import type { RuntimeCapability } from '../../shared/protocol-version'
+import { USAGE_CREDENTIALS_RUNTIME_CAPABILITY } from '../../shared/account-runtime-capabilities'
 import {
   BROWSER_CERTIFICATE_TRUST_RUNTIME_CAPABILITY,
   BROWSER_HEADLESS_RUNTIME_CAPABILITY,
@@ -34,9 +35,16 @@ import { parsePaneKey } from '../../shared/stable-pane-id'
 import { wakeFolderRepoGitUpgradeWatch } from '../ipc/folder-repo-git-upgrade-wake'
 import { runWorktreeChangeInvalidators } from '../ipc/worktree-change-invalidators'
 import { MACHINE_NAME_PUBLISH_WAIT_MS } from './runtime-machine-name'
+import type { WorktreeSortOrderUpdate } from '../../shared/worktree/sort-order-update'
+import type {
+  AutomaticWorkResumeOutcome,
+  AutomaticWorkStatus
+} from '../../shared/host-spawn-admission'
+import { darkSwitchRuntimeCapabilities } from './dark-switch-runtime-capabilities'
 
 type RuntimeStatusHost = {
   getAvailableAuthoritativeWindow(): unknown
+  getUsageRateLimits(): unknown
   getRecordedTerminalSleepHandles(
     ptyIds: Iterable<string>,
     terminalHandlesByPtyId: Readonly<Record<string, readonly string[]>>
@@ -54,7 +62,7 @@ function supportsDurableTerminalPromptDelivery(): boolean {
   }
 }
 
-export class OrcaRuntimeWithGetStatus extends OrcaRuntimeWithGetRuntimeId {
+export abstract class OrcaRuntimeWithGetStatus extends OrcaRuntimeWithGetRuntimeId {
   private asRuntimeStatusHost(): RuntimeStatusHost {
     return this as unknown as RuntimeStatusHost
   }
@@ -81,7 +89,10 @@ export class OrcaRuntimeWithGetStatus extends OrcaRuntimeWithGetRuntimeId {
         (process.env.ORCA_E2E_DISABLE_AUTHORITATIVE_SESSION_TABS_INVENTORY !== '1' ||
           capability !== SESSION_TABS_AUTHORITATIVE_INVENTORY_RUNTIME_CAPABILITY) &&
         (capability !== TERMINAL_PROMPT_DELIVERY_RUNTIME_CAPABILITY ||
-          supportsDurableTerminalPromptDelivery())
+          supportsDurableTerminalPromptDelivery()) &&
+        // Why: only a host with its own usage poller reads keys saved through these methods.
+        (capability !== USAGE_CREDENTIALS_RUNTIME_CAPABILITY ||
+          statusHost.getUsageRateLimits() !== null)
     )
     if (hasOffscreen || hasHeadlessCommands) {
       capabilities.push(BROWSER_HEADLESS_RUNTIME_CAPABILITY)
@@ -98,6 +109,7 @@ export class OrcaRuntimeWithGetStatus extends OrcaRuntimeWithGetRuntimeId {
     if (canBrowse) {
       capabilities.push(BROWSER_CERTIFICATE_TRUST_RUNTIME_CAPABILITY)
     }
+    capabilities.push(...darkSwitchRuntimeCapabilities())
     // Why the cause and not one fixed sentence: the operator can only act on the reason
     // that actually applies, and a host that says "set ORCA_BROWSER_EXECUTABLE" to someone
     // who already set it sends them to fix a thing that is not broken.
@@ -162,6 +174,15 @@ export class OrcaRuntimeWithGetStatus extends OrcaRuntimeWithGetRuntimeId {
     this.ptyController = controller
   }
 
+  /** Null when the local terminal owner has no fork gate (in-process fallback, older daemon). */
+  async getAutomaticWorkStatus(): Promise<AutomaticWorkStatus | null> {
+    return (await this.ptyController?.getAutomaticWorkStatus?.()) ?? null
+  }
+
+  async resumeAutomaticWork(): Promise<AutomaticWorkResumeOutcome> {
+    return (await this.ptyController?.resumeAutomaticWork?.()) ?? null
+  }
+
   setNotifier(notifier: RuntimeNotifier | null): void {
     this.notifier = notifier
   }
@@ -173,7 +194,7 @@ export class OrcaRuntimeWithGetStatus extends OrcaRuntimeWithGetRuntimeId {
   getTerminalSleepClientEventSnapshot(): RuntimeClientEvent[] {
     const statusHost = this.asRuntimeStatusHost()
     const events: RuntimeClientEvent[] = []
-    const sleepStates = [...this.terminalSleepStateByWorktreeId.values()].sort((a, b) =>
+    const sleepStates = [...this.terminalSleepStateByHostWorktree.values()].sort((a, b) =>
       a.worktreeId.localeCompare(b.worktreeId)
     )
     for (const state of sleepStates) {
@@ -224,33 +245,42 @@ export class OrcaRuntimeWithGetStatus extends OrcaRuntimeWithGetRuntimeId {
       return { tabId: record.tabId, worktreeId: record.worktreeId }
     }
     const pty = record.ptyId ? this.ptysById.get(record.ptyId) : null
+    const pane = this.paneOfPty(pty)
     const tabId =
-      pty?.tabId && !pty.tabId.startsWith('pty:')
-        ? pty.tabId
-        : parsePaneKey(pty?.paneKey ?? '')?.tabId
+      pane.tabId && !pane.tabId.startsWith('pty:')
+        ? pane.tabId
+        : parsePaneKey(pane.paneKey ?? '')?.tabId
     if (!pty || !tabId || tabId.startsWith('pty:')) {
       return null
     }
     return { tabId, worktreeId: pty.worktreeId }
   }
 
-  protected notifyWorktreesChanged(
+  notifyWorktreesChanged(
     repoId: string,
-    options?: { invalidateGitScans?: boolean; sortOrderOnly?: boolean }
+    options?: {
+      invalidateGitScans?: boolean
+      sortOrderOnly?: boolean
+      sortOrders?: WorktreeSortOrderUpdate[]
+    }
   ): void {
     // Why here: a headless host has no window notifier to bump the overtaken scan, unless only metadata changed.
     if (options?.invalidateGitScans !== false) {
       runWorktreeChangeInvalidators(repoId)
     }
     if (options) {
-      this.notifier?.worktreesChanged(repoId, undefined, options)
+      const { sortOrders: _sortOrders, ...notifierOptions } = options
+      this.notifier?.worktreesChanged(repoId, undefined, notifierOptions)
     } else {
       this.notifier?.worktreesChanged(repoId)
     }
     this.emitClientEvent({
       type: 'worktreesChanged',
       repoId,
-      ...(options?.sortOrderOnly === true ? { sortOrderOnly: true } : {})
+      ...(options?.sortOrderOnly === true ? { sortOrderOnly: true } : {}),
+      ...(options?.sortOrderOnly === true && options.sortOrders
+        ? { sortOrders: options.sortOrders }
+        : {})
     })
   }
 

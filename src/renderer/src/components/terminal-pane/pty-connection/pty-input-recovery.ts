@@ -1,7 +1,7 @@
 import { isRemoteRuntimePtyId } from '../../../../../shared/remote-runtime-pty-id'
 import { useAppStore } from '@/store'
+import { ambiguousWorkspaceOwnerMessage } from '@/lib/duplicate-paired-servers'
 import { createIpcPtyTransport } from '../pty-transport'
-import { createRemoteRuntimePtyTransport } from '../remote-runtime-pty-transport'
 import { toAgentLaunchPreferences } from '../../../../../shared/agent-launch-preferences'
 import { createUnresolvedOwnerPtyTransport } from '../unresolved-owner-pty-transport'
 import { recordTerminalTabParkedOnUnresolvedHost } from '@/lib/parked-terminal-host-hydration'
@@ -24,6 +24,7 @@ import { TRANSPORT_CONNECT_SETTLE_GRACE_MS } from './pty-connect-limits'
 import { buildPaneTransportOptions } from './pane-transport-options'
 
 import type { ConnectPanePtySession } from './connect-pane-pty-session'
+import { isPassiveTerminalInputReport } from '../terminal-passive-input-report'
 import { resolveTerminalInlineImagesEnabled } from '../../../../../shared/terminal-inline-images-settings'
 
 /** Transport creation, terminal capability replies, viewport claims, and undeliverable-input recovery. */
@@ -47,12 +48,10 @@ export function installPtyInputRecovery(session: ConnectPanePtySession): void {
     session.terminalOwnerUnresolved || session.connectionOwnerHydrating
       ? createUnresolvedOwnerPtyTransport(
           session.terminalOwnerUnresolved
-            ? 'Workspace identity is ambiguous across hosts. Refresh projects and try again.'
+            ? ambiguousWorkspaceOwnerMessage(useAppStore.getState(), session.deps.worktreeId)
             : 'Workspace host is still loading. Retry when the project finishes hydrating.'
         )
-      : session.runtimeEnvironmentId
-        ? createRemoteRuntimePtyTransport(session.runtimeEnvironmentId, session.transportOptions)
-        : createIpcPtyTransport(session.transportOptions)
+      : createIpcPtyTransport(session.transportOptions)
   session.canSendDesktopQueryReply = (): boolean => {
     const ptyId = session.transport.getPtyId()
     return !ptyId || !isPtyLocked(ptyId)
@@ -112,6 +111,7 @@ export function installPtyInputRecovery(session: ConnectPanePtySession): void {
       resolveTerminalInlineImagesEnabled(useAppStore.getState().settings?.terminalInlineImages) &&
       terminalRendersInlineImages(session.pane.terminal),
     skipOscColorQueryReplies: () => !session.shouldAnswerPaneOscColorQueries(),
+    answerProgramStatusQueries: () => true,
     ...(session.isNativeWindowsConpty ? { da1Response: CONPTY_DA1_RESPONSE } : {})
   })
   session.respondToTerminalPixelSizeQueries = createTerminalPixelSizeQueryResponder(
@@ -119,9 +119,14 @@ export function installPtyInputRecovery(session: ConnectPanePtySession): void {
     session.sendDesktopQueryReplyImmediate
   )
 
-  session.claimViewportForUserActivity = (): void => {
+  session.claimViewportForUserActivity = (input?: string): void => {
     const currentPtyId = session.transport.getPtyId()
     if (!currentPtyId || getFitOverrideForPty(currentPtyId)?.mode !== 'remote-desktop-fit') {
+      return
+    }
+    // Why: TUIs re-arm DECSET 1004 on every SIGWINCH and xterm answers with a focus report; claiming
+    // on it made two mirrors of different grids take the PTY from each other forever (#26469).
+    if (input !== undefined && isPassiveTerminalInputReport(input)) {
       return
     }
     let proposed: { cols: number; rows: number } | undefined
@@ -240,7 +245,13 @@ export function installPtyInputRecovery(session: ConnectPanePtySession): void {
       // Why only the rejected path: it is the only one whose remount can land on
       // a fresh shell. A stalled-pipeline remount always reattaches to the same
       // shell, so its half-typed line is still on screen and intact.
-      endpointReplaced: providerRejected
+      endpointReplaced: providerRejected,
+      // Why every pane, read at admission: one remount rebuilds them all, a sibling's late
+      // request goes stale, and typing can land while the liveness probe is still pending.
+      hasUndeliveredInput: () =>
+        [...session.deps.paneTransportsRef.current.values()].some(
+          (transport) => transport.hasUndeliveredInput?.() === true
+        )
     })
   }
   // Why: the write-pipeline health watch (scheduler stall probe, replay-guard

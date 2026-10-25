@@ -66,8 +66,22 @@ vi.mock('@/components/ui/dropdown-menu', () => ({
     <>{children}</>
   ),
   DropdownMenuContent: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-  DropdownMenuItem: ({ children, onSelect }: { children: ReactNode; onSelect?: () => void }) => (
-    <button type="button" onClick={() => onSelect?.()}>
+  DropdownMenuItem: ({
+    children,
+    onSelect,
+    onClick
+  }: {
+    children: ReactNode
+    onSelect?: () => void
+    onClick?: React.MouseEventHandler<HTMLButtonElement>
+  }) => (
+    <button
+      type="button"
+      onClick={(event) => {
+        onSelect?.()
+        onClick?.(event)
+      }}
+    >
       {children}
     </button>
   )

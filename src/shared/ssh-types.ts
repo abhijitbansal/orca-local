@@ -5,9 +5,6 @@ import type { SshPendingPtyKill } from './ssh-pending-pty-kill'
 export const MIN_SSH_RELAY_GRACE_PERIOD_SECONDS = 60
 export const MAX_SSH_RELAY_GRACE_PERIOD_SECONDS = 7 * 24 * 60 * 60
 export const LEGACY_DEFAULT_SSH_RELAY_GRACE_PERIOD_SECONDS = 3 * 60 * 60
-export const DEFAULT_BOUNDED_SSH_RELAY_GRACE_PERIOD_SECONDS = 24 * 60 * 60
-export const DEFAULT_SSH_RELAY_GRACE_PERIOD_SECONDS = 0
-export const SSH_RELAY_CONFIGURE_GRACE_TIME_METHOD = 'relay.configureGraceTime'
 
 /**
  * Which runtime executes the SSH relay. `legacy` runs it on the host's Node with native deps
@@ -34,12 +31,15 @@ export type SshRemoteRuntimeResolution = {
   orcaMajor: number
 }
 
+/** Who created a hidden target as an implementation detail, and so owns its lifecycle. */
+export type SshTargetOwner = { type: 'on-demand-runtime'; runtimeId: string }
+
 export type SshTarget = {
   id: string
   label: string
   /** Internal owner for targets that Orca creates as implementation details.
    *  Owned targets are hidden from normal SSH-host management surfaces. */
-  owner?: { type: 'on-demand-runtime'; runtimeId: string }
+  owner?: SshTargetOwner
   /** Host alias to resolve through OpenSSH config (ssh -G). */
   configHost?: string
   host: string
@@ -80,7 +80,10 @@ export type SshTarget = {
   /** Reuse a system OpenSSH connection across setup commands. Undefined means
    *  enabled; false is an explicit per-target compatibility opt-out. */
   systemSshConnectionReuse?: boolean
-  /** Relay runtime for this host; undefined means DEFAULT_SSH_REMOTE_RUNTIME. */
+  /** Windows only: hold one loopback tunnel through a ProxyCommand/ProxyJump and run later
+   *  commands over it. Opt-in; undefined means off. */
+  systemSshProxyConnectionReuse?: boolean
+  /** Relay runtime for this host; undefined means pinned-node. */
   remoteRuntime?: SshRemoteRuntime
   /** Main-owned ladder cache; renderer updates never set it. */
   remoteRuntimeResolution?: SshRemoteRuntimeResolution

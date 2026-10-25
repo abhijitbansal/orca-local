@@ -46,7 +46,7 @@ describe('spurious shell readings on Codex-launched panes', () => {
         ]
       },
       ptyIdsByTabId: { 'tab-1': [ptyId] },
-      pendingCodexPaneRestartIds: {},
+      pendingPaneAccountRestarts: {},
       codexRestartNoticeByPtyId: {}
     })
   }

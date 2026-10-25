@@ -23,7 +23,6 @@ export async function getRequestedCrashReport(
   if (args?.reportId) {
     return store.getById(args.reportId)
   }
-  // Why: Help > Report Crash can intentionally open without a report ID.
-  // Do not replace that uncaptured report with a pending crash that appears later.
+  // An explicit uncaptured report must not be replaced by a later pending crash.
   return args ? null : getLatestPendingReport(store)
 }

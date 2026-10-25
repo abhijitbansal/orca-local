@@ -1,7 +1,6 @@
 import { antigravityHookService } from '../antigravity/hook-service'
 import { getRelocatedDaemonHost } from '../daemon/daemon-host-relocation'
 import { app, ipcMain, powerMonitor, session } from 'electron'
-import { is } from '@electron-toolkit/utils'
 import os from 'node:os'
 import { join } from 'node:path'
 import { maybeRedirectCliLaunch } from './cli-launch-redirect'
@@ -64,7 +63,7 @@ import { desktopWorktreeWatcherRemoval } from '../ipc/filesystem-watcher'
 import { setDefaultProxySessionResolver } from '../network/proxy-settings'
 import { initDataPath, getCanonicalUserDataPath } from '../persistence'
 import { applyMacPressAndHoldDefaultAtStartup } from '../macos-press-and-hold-default'
-import { initSessionParseCachePersistence } from '../ai-vault/session-parse-cache-persistence'
+import { configureSessionParseCachePersistence } from '../ai-vault/session-parse-cache-persistence'
 import { initOrcaProfilePaths } from '../orca-profiles/profile-index-store'
 import { getProfileUserDataPath } from '../orca-profiles/profile-storage-paths'
 import { recoverPendingProfileProjectMoves } from '../orca-profiles/profile-project-move-intent'
@@ -82,7 +81,7 @@ import { getMainProcessLifecycleIdentity } from '../crash-reporting/main-process
 import {
   ensureVirtualDisplayForHeadlessServe,
   hasUsableLinuxDisplay,
-  MISSING_LINUX_DISPLAY_MESSAGE
+  missingLinuxDisplayMessage
 } from './ensure-virtual-display'
 import {
   createGpuCrashDiagnosticsRecorder,
@@ -115,6 +114,7 @@ export function runMainProcessPreflight(options: MainProcessPreflightOptions): b
 }
 
 function initializeMainProcessPreflight(options: MainProcessPreflightOptions): boolean {
+  const isDev = !app.isPackaged
   // Why first: every step below, recovery and the instance lock included, may resolve userData.
   ensureWindowsAppDataPath(app)
   if (runProfileStateRecoveryPreflight()) {
@@ -122,7 +122,7 @@ function initializeMainProcessPreflight(options: MainProcessPreflightOptions): b
   }
   // Why: on Windows a CLI launch that lost ELECTRON_RUN_AS_NODE would boot the GUI and exit silently; redirect to node mode before the lock gate below.
   // The redirect runs before the serve-argv rewrite so it still matches on the launch argv verbatim.
-  // Direct serve stays in-process so its signal handlers own all children.
+  // A direct Linux `serve` is exec'd into the CLI here (same pid); it only continues in-process if exec fails.
   const cliLaunchRedirect = maybeRedirectCliLaunch({
     isPackaged: app.isPackaged,
     resourcesPath: process.resourcesPath,
@@ -140,13 +140,13 @@ function initializeMainProcessPreflight(options: MainProcessPreflightOptions): b
   state.isServeMode = process.argv.includes('--serve')
   // Fail before Chromium's missing-display teardown can segfault (#13719).
   if (app.isPackaged && !state.isServeMode && !hasUsableLinuxDisplay()) {
-    process.stderr.write(`${MISSING_LINUX_DISPLAY_MESSAGE}\n`)
+    process.stderr.write(`${missingLinuxDisplayMessage(false)}\n`)
     app.exit(1)
   }
   if (state.isServeMode) {
     reserveServeStdoutForReadiness()
   }
-  state.devInstanceIdentity = getDevInstanceIdentity(is.dev)
+  state.devInstanceIdentity = getDevInstanceIdentity(isDev)
   state.devAgentHookEndpointNamespace = state.devInstanceIdentity.isDev
     ? state.devInstanceIdentity.appUserModelId
     : undefined
@@ -182,7 +182,6 @@ function initializeMainProcessPreflight(options: MainProcessPreflightOptions): b
   // Why before any spawn: `signalProcessTree` is shared with the CLI and relay, so
   // it can only reach the main-process guard and breadcrumb store once this is registered.
   installMainProcessTreeKillGate()
-  const isDev = is.dev
   configureDevUserDataPath(isDev)
   configureOrcaUserDataPathEnv()
   // Why these four lines are one step (#16761): the two above decide where userData lives, and
@@ -300,7 +299,7 @@ function initializeMainProcessPreflight(options: MainProcessPreflightOptions): b
   // itself lands for the next launch (see macos-press-and-hold-default.ts).
   applyMacPressAndHoldDefaultAtStartup(getCanonicalUserDataPath())
   // Why: use the canonical userData path — late app.getPath('userData') can resolve differently across restarts, defeating persistence.
-  initSessionParseCachePersistence({
+  configureSessionParseCachePersistence({
     filePath: join(getCanonicalUserDataPath(), 'ai-vault', 'session-parse-cache.json'),
     appVersion: app.getVersion()
   })
@@ -347,7 +346,7 @@ function initializeMainProcessPreflight(options: MainProcessPreflightOptions): b
   })
   // Why: continuing without Xvfb lets Ozone initialize without a display and SIGSEGV (#17615).
   if (state.isServeMode && !state.headlessBrowserDisplayAvailable) {
-    process.stderr.write(`${MISSING_LINUX_DISPLAY_MESSAGE}\n`)
+    process.stderr.write(`${missingLinuxDisplayMessage(true)}\n`)
     app.exit(1)
   }
   initializeSyntheticTitleRuntime()

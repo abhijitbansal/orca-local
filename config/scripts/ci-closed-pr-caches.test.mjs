@@ -22,10 +22,15 @@ function run(caches, remove = vi.fn().mockResolvedValue(undefined)) {
 }
 
 it('uses default-branch code without checking out a closed PR', () => {
-  expect(workflow.on).toEqual({ pull_request_target: { types: ['closed'] } })
-  expect(workflow.permissions).toEqual({ actions: 'write' })
-  expect(workflow.jobs.clean.steps).toHaveLength(1)
-  expect(workflow.jobs.clean.steps[0].uses).toBe('actions/github-script@v8')
+  expect(workflow.on).toEqual({ pull_request_target: { types: ['closed', 'synchronize'] } })
+  expect(workflow.jobs.clean.steps[1].if).toBe(
+    "${{ !cancelled() && github.event.action == 'closed' }}"
+  )
+  expect(workflow.permissions).toEqual({ actions: 'write', 'pull-requests': 'read' })
+  expect(workflow.jobs.clean.steps).toHaveLength(2)
+  expect(workflow.jobs.clean.steps.every((step) => step.uses === 'actions/github-script@v8')).toBe(
+    true
+  )
 })
 
 it('lists and deletes only caches scoped to the closed merge ref', async () => {

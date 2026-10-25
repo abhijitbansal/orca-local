@@ -8,7 +8,7 @@ import {
   type PasteTerminalTextDetail
 } from '@/constants/terminal'
 import type { PaneManager } from '@/lib/pane-manager/pane-manager'
-import type { PtyTransport } from './pty-transport'
+import type { PtyTransport } from './pty-transport-types'
 import type { IDisposable } from '@xterm/xterm'
 import { handleFocusTerminalPaneDetail } from './focus-terminal-pane-event'
 import { surfaceStaleAgentRow } from './stale-agent-row'
@@ -182,8 +182,18 @@ export function useTerminalPaneGlobalEffects({
 
     wasVisibleRef.current = false
     wasWorktreeActiveRef.current = isWorktreeActive
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isActive, isChatViewMode, isWorktreeActive, rendererVisible])
+  }, [
+    isActive,
+    isChatViewMode,
+    isWorktreeActive,
+    rendererVisible,
+    applyPendingFollowOutputRequests,
+    captureViewportPositions,
+    isActiveRef,
+    isVisibleRef,
+    managerRef,
+    withSuppressedScrollTracking
+  ])
 
   useEffect(() => {
     const ptyId = isActive && isVisible && isWorktreeActive ? activeLeafPtyId : null

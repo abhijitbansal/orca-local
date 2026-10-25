@@ -20,7 +20,7 @@ const listRuntimeFilesMock = vi.hoisted(() => vi.fn())
 const cancelRuntimeFileListMock = vi.hoisted(() => vi.fn())
 const searchRuntimeFilePathsMock = vi.hoisted(() => vi.fn())
 
-vi.mock('@/runtime/runtime-file-client', () => ({
+vi.mock('@/runtime/runtime-file-search-client', () => ({
   listRuntimeFiles: listRuntimeFilesMock,
   cancelRuntimeFileList: cancelRuntimeFileListMock,
   searchRuntimeFilePaths: searchRuntimeFilePathsMock
@@ -157,5 +157,13 @@ describe('tab entry options over the real runtime listing', () => {
     await drainMicrotasks()
 
     expect(blockedIds(latestState(states))).not.toContain('loading')
+    expect(getTabEntryOptions('packages/app/package.json', latestState(states), 4)).toContainEqual({
+      id: 'existing-file:packages/app/package.json',
+      classification: {
+        kind: 'existing-file',
+        matchKind: 'exact-path',
+        relativePath: 'packages/app/package.json'
+      }
+    })
   })
 })

@@ -6,6 +6,11 @@ import type { AppState } from '../types'
 export type RateLimitSlice = {
   rateLimits: RateLimitState
   fetchRateLimits: () => Promise<void>
+  refreshRateLimits: () => Promise<void>
+  refreshGrokRateLimits: () => Promise<void>
+  consumeCodexRateLimitResetCredit: () => Promise<void>
+  fetchInactiveClaudeAccountUsage: () => Promise<void>
+  fetchInactiveCodexAccountUsage: () => Promise<void>
   refreshClaudeRateLimitsForTarget: (target: RateLimitRuntimeTarget) => Promise<void>
   refreshCodexRateLimitsForTarget: (target: RateLimitRuntimeTarget) => Promise<void>
   setRateLimitsFromPush: (state: RateLimitState) => void
@@ -82,6 +87,19 @@ export const createRateLimitSlice: StateCreator<AppState, [], [], RateLimitSlice
       console.error('Failed to refresh Codex usage for runtime:', error)
     }
   },
+
+  // Local-only: provider usage endpoints are removed, so these refreshes only re-read local state.
+  refreshRateLimits: async () => {
+    await get().fetchRateLimits()
+  },
+
+  refreshGrokRateLimits: async () => {},
+
+  consumeCodexRateLimitResetCredit: async () => {},
+
+  fetchInactiveClaudeAccountUsage: async () => {},
+
+  fetchInactiveCodexAccountUsage: async () => {},
 
   setRateLimitsFromPush: (state) => {
     set({ rateLimits: state })

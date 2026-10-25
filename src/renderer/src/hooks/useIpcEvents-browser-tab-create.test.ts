@@ -36,6 +36,7 @@ describe('useIpcEvents browser tab create routing', () => {
       closeModal: vi.fn(),
       openModal: vi.fn(),
       activeWorktreeId: 'wt-1',
+      sleepingAgentSessionsByPaneKey: {},
       activeView: 'terminal',
       setActiveRepo: vi.fn(),
       setActiveWorktree: vi.fn(),
@@ -163,6 +164,7 @@ describe('useIpcEvents browser tab create routing', () => {
           onCreateTerminal: () => () => {},
           onRequestTerminalCreate: () => () => {},
           onPublishAgentLaunchTab: () => () => {},
+          onRevealTerminalPane: () => () => {},
           onAgentLaunchPaneVerdict: () => () => {},
           onRequestTerminalTabMount: () => () => {},
           replyTerminalCreate: () => {},
@@ -177,7 +179,7 @@ describe('useIpcEvents browser tab create routing', () => {
           onOpenFileFromMobile: () => () => {},
           onOpenDiffFromMobile: () => () => {},
           onCloseTerminal: () => () => {},
-          onSleepWorktree: () => () => {},
+          onWorkspaceSleep: () => () => {},
           onResumeSleepingAgents: () => () => {},
           onNewBrowserTab: () => () => {},
           onNewMarkdownTab: () => () => {},
@@ -188,6 +190,7 @@ describe('useIpcEvents browser tab create routing', () => {
             return () => {}
           },
           replyTabCreate,
+          onRequestRemoteCliBrowserScope: () => () => {},
           onRequestTabClose: () => () => {},
           replyTabClose: () => {},
           onRequestTabSetProfile: () => () => {},
@@ -210,6 +213,7 @@ describe('useIpcEvents browser tab create routing', () => {
         browser: {
           onGuestLoadFailed: () => () => {},
           onOpenLinkInOrcaTab: () => () => {},
+          onSessionProfilesChanged: () => () => {},
           onNavigationUpdate: () => () => {},
           onActivateView: (listener: NonNullable<typeof activateViewListenerRef.current>) => {
             activateViewListenerRef.current = listener

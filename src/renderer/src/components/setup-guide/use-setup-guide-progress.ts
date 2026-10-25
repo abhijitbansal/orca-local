@@ -1,4 +1,3 @@
-/* oxlint-disable react-doctor/no-adjust-state-on-prop-change -- Why: setup-guide readiness is driven by bounded IPC probes and browser focus events; the state cannot be derived synchronously from render inputs. */
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { useAppStore } from '@/store'
 import { isGitRepoKind } from '../../../../shared/repo-kind'
@@ -10,7 +9,7 @@ import {
   COMPUTER_USE_SKILL_NAME,
   ORCA_CLI_SKILL_NAME,
   ORCHESTRATION_SKILL_NAME
-} from '@/lib/agent-feature-install-commands'
+} from '@/lib/agent-feature-skill-names'
 import {
   GLOBAL_AGENT_SKILL_SOURCE_KINDS,
   useInstalledAgentSkill
@@ -27,6 +26,7 @@ import {
   getSetupGuideProgressReady,
   getSetupScriptProbeSignature
 } from './setup-guide-progress-readiness'
+import { selectWorktreesByRepo } from '@/store/workspace-record-selectors'
 import {
   readSetupScriptProbeCache,
   setSetupScriptProbeCache,
@@ -42,7 +42,7 @@ export function useSetupGuideProgress(
 ): FeatureWallSetupProgress {
   const settings = useAppStore((s) => s.settings)
   const featureInteractions = useAppStore((s) => s.featureInteractions)
-  const worktreesByRepo = useAppStore((s) => s.worktreesByRepo)
+  const worktreesByRepo = useAppStore((s) => selectWorktreesByRepo(s))
   const activeSkillRuntime = useActiveProjectSkillRuntime()
   const repos = useAppStore((s) => s.repos)
   const activeRepoId = useAppStore((s) => s.activeRepoId)
@@ -143,7 +143,6 @@ export function useSetupGuideProgress(
       return
     }
     const permissionState = getComputerUsePermissionSetupState(status)
-    // oxlint-disable-next-line react-doctor/no-adjust-state-on-prop-change -- Why: async permission checks update setup progress after external OS state changes.
     setComputerUsePermissionStatusChecked(true)
     setComputerUsePermissionsReady(permissionState.ready)
     setComputerUseUnavailable(permissionState.unavailable)
@@ -162,7 +161,6 @@ export function useSetupGuideProgress(
     const refreshComputerUsePermissions = (): void => {
       void readComputerUsePermissions(() => stale)
     }
-    // oxlint-disable-next-line react-doctor/no-adjust-state-on-prop-change -- Why: refresh the setup checklist when the permission step becomes active.
     refreshComputerUsePermissions()
     const handleFocus = (): void => {
       void refreshComputerUsePermissions()

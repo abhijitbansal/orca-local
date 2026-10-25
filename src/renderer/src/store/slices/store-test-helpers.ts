@@ -24,6 +24,7 @@ import { createBrowserSlice } from './browser'
 import { createRateLimitSlice } from './rate-limits'
 import { createSshSlice } from './ssh'
 import { createRuntimeEnvironmentSshSlice } from './runtime-environment-ssh'
+import { createWslHostsSlice } from './wsl-hosts'
 import { createAgentStatusSlice } from './agent-status'
 import { createPaneForegroundAgentSlice } from './pane-foreground-agent'
 import { createDiffCommentsSlice } from './diffComments'
@@ -43,7 +44,10 @@ import { createNewIssueDraftSlice } from './new-issue-draft'
 import { createTaskCreationDraftsSlice } from './task-creation-drafts'
 import { createTerminalQuickCommandHostsSlice } from './terminal-quick-command-hosts'
 import { createStructuredSessionLaunchDirectorySlice } from './structured-session-launch-directories'
+import { createStructuredChatSleptAtSlice } from './structured-chat-slept-at'
+import { createWorkspaceAttentionSlice } from './workspace-attention/workspace-attention-slice'
 import '@/i18n/i18n'
+import { withEditorBufferRecords } from '../editor-buffer-record-lifecycle'
 import { makeWorktree, TEST_REPO } from './worktrees-slice-test-fixtures'
 export { makeWorktree, TEST_REPO } from './worktrees-slice-test-fixtures'
 export {
@@ -55,48 +59,57 @@ export {
 } from './store-session-test-harness'
 
 export function createTestStore() {
-  return create<AppState>()((...a) => ({
-    ...createRepoSlice(...a),
-    ...createSparsePresetsSlice(...a),
-    ...createWorktreeSlice(...a),
-    ...createTerminalSlice(...a),
-    ...createTabsSlice(...a),
-    ...createUISlice(...a),
-    ...createSettingsSlice(...a),
-    ...createKeybindingsSlice(...a),
-    ...createPreflightSlice(...a),
-    ...createEditorSlice(...a),
-    ...createStatsSlice(...a),
-    ...createMemorySlice(...a),
-    ...createWorkspaceSpaceSlice(...a),
-    ...createClaudeUsageSlice(...a),
-    ...createCodexUsageSlice(...a),
-    ...createOpenCodeUsageSlice(...a),
-    ...createMuseUsageSlice(...a),
-    ...createBrowserSlice(...a),
-    ...createRateLimitSlice(...a),
-    ...createSshSlice(...a),
-    ...createRuntimeEnvironmentSshSlice(...a),
-    ...createAgentStatusSlice(...a),
-    ...createPaneForegroundAgentSlice(...a),
-    ...createDiffCommentsSlice(...a),
-    ...createDetectedAgentsSlice(...a),
-    ...createRuntimeDetectedAgentsSlice(...a),
-    ...createWorktreeNavHistorySlice(...a),
-    ...createDictationSlice(...a),
-    ...createWorkspaceCleanupSlice(...a),
-    ...createWorkspaceCleanupBrowseSlice(...a),
-    ...createRuntimeStatusSlice(...a),
-    ...createPullRequestGenerationSlice(...a),
-    ...createCommitMessageGenerationSlice(...a),
-    ...createPinnedTabCloseConfirmSlice(...a),
-    ...createRecentlyClosedTabsSlice(...a),
-    ...createOrcaProfilesSlice(...a),
-    ...createNewIssueDraftSlice(...a),
-    ...createTaskCreationDraftsSlice(...a),
-    ...createTerminalQuickCommandHostsSlice(...a),
-    ...createStructuredSessionLaunchDirectorySlice(...a)
-  }))
+  // Why the record middleware: views of one file share a record only through it, as in the app.
+  return create<AppState>()(
+    withEditorBufferRecords<AppState>(
+      (...a) => ({
+        ...createRepoSlice(...a),
+        ...createSparsePresetsSlice(...a),
+        ...createWorktreeSlice(...a),
+        ...createTerminalSlice(...a),
+        ...createTabsSlice(...a),
+        ...createUISlice(...a),
+        ...createSettingsSlice(...a),
+        ...createKeybindingsSlice(...a),
+        ...createPreflightSlice(...a),
+        ...createEditorSlice(...a),
+        ...createStatsSlice(...a),
+        ...createMemorySlice(...a),
+        ...createWorkspaceSpaceSlice(...a),
+        ...createClaudeUsageSlice(...a),
+        ...createCodexUsageSlice(...a),
+        ...createOpenCodeUsageSlice(...a),
+        ...createMuseUsageSlice(...a),
+        ...createBrowserSlice(...a),
+        ...createRateLimitSlice(...a),
+        ...createSshSlice(...a),
+        ...createRuntimeEnvironmentSshSlice(...a),
+        ...createWslHostsSlice(...a),
+        ...createAgentStatusSlice(...a),
+        ...createPaneForegroundAgentSlice(...a),
+        ...createDiffCommentsSlice(...a),
+        ...createDetectedAgentsSlice(...a),
+        ...createRuntimeDetectedAgentsSlice(...a),
+        ...createWorktreeNavHistorySlice(...a),
+        ...createDictationSlice(...a),
+        ...createWorkspaceCleanupSlice(...a),
+        ...createWorkspaceCleanupBrowseSlice(...a),
+        ...createRuntimeStatusSlice(...a),
+        ...createPullRequestGenerationSlice(...a),
+        ...createCommitMessageGenerationSlice(...a),
+        ...createPinnedTabCloseConfirmSlice(...a),
+        ...createRecentlyClosedTabsSlice(...a),
+        ...createOrcaProfilesSlice(...a),
+        ...createNewIssueDraftSlice(...a),
+        ...createTaskCreationDraftsSlice(...a),
+        ...createTerminalQuickCommandHostsSlice(...a),
+        ...createStructuredSessionLaunchDirectorySlice(...a),
+        ...createStructuredChatSleptAtSlice(...a),
+        ...createWorkspaceAttentionSlice(...a)
+      }),
+      true
+    )
+  )
 }
 
 export function seedStore(

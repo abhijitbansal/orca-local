@@ -31,6 +31,7 @@ import {
   resetBrowserIdentityModeStoreForTests
 } from '../../browser/browser-identity-mode-store'
 import { runtimeAdvertisesBrowserClientHosting } from '../../../shared/browser-client-hosting-eligibility'
+import { hostWorktreeTarget } from '../../../shared/worktree/host-qualified-identity'
 
 describe('OrcaRuntimeService', () => {
   it('does not offer client placement through a server-only external browser provider', () => {
@@ -637,7 +638,9 @@ describe('OrcaRuntimeService', () => {
       'runtime:env-b'
     )
 
-    expect(removeWorktreeMeta).toHaveBeenCalledWith(TEST_WORKTREE_ID, 'runtime:env-b')
+    expect(removeWorktreeMeta).toHaveBeenCalledWith(
+      hostWorktreeTarget({ id: TEST_WORKTREE_ID, hostId: 'runtime:env-b' })
+    )
     expect(internals.mobileSessionTabsByWorktree.get(TEST_WORKTREE_ID)).toBe(localSession)
   })
 
@@ -670,7 +673,9 @@ describe('OrcaRuntimeService', () => {
       'ssh:ssh-1'
     )
 
-    expect(removeWorktreeMeta).toHaveBeenCalledWith(TEST_WORKTREE_ID, 'ssh:ssh-1')
+    expect(removeWorktreeMeta).toHaveBeenCalledWith(
+      hostWorktreeTarget({ id: TEST_WORKTREE_ID, hostId: 'ssh:ssh-1' })
+    )
     expect(internals.mobileSessionTabsByWorktree.get(TEST_WORKTREE_ID)).toBe(survivingSession)
     expect(deleteWorktreeHistoryDirMock).not.toHaveBeenCalled()
   })

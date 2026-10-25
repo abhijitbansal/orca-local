@@ -9,9 +9,9 @@ import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type {
   CodexAppServerConnection,
-  CodexAppServerConnectionHandlers,
-  openCodexAppServerConnection
-} from '../codex/codex-app-server-connection'
+  CodexAppServerConnectionHandlers
+} from '../codex/app-server/codex-app-server-connection-types'
+import type { openCodexAppServerConnection } from '../codex/codex-app-server-connection'
 import { codexTurnLifecycleFake } from '../codex/codex-turn-lifecycle-fake'
 import { computeAgentSessionPayloadFingerprint } from '../../shared/agent-session-mutation-envelope'
 import type {
@@ -39,6 +39,7 @@ import {
   ensureStructuredAgentSessionHost,
   stopStructuredAgentSessionRuntime
 } from './structured-agent-session-runtime'
+import { scriptedCodexTransport } from './scripted-codex-transport.test-fixture'
 
 const CALLER = { callerKey: 'codex-settlement-order-test' }
 const MODEL = {
@@ -164,8 +165,7 @@ beforeEach(async () => {
     resolveClaudeAuthPolicy: () => ({ account: 'managed' }),
     resolveCodexCommand: () => 'codex',
     resolveEnvironment: async () => ({ PATH: process.env.PATH }),
-    openCodexConnection: openConnection,
-    readProcessStartTime: async () => 1_700_000_000_000
+    ...scriptedCodexTransport(openConnection)
   })
   const attachParams = hostTestAttachParams(null, { providerHandle: undefined })
   attachParams.envelope.clientOperationId = operationId()

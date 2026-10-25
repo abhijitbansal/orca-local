@@ -4,42 +4,37 @@ type HostRuntimeEffectsInput = Pick<
   ComposerModel,
   | 'commitHookCheckIfCurrent'
   | 'connectionId'
-  | 'createGateMode'
   | 'disabledTuiAgents'
-  | 'enableIssueAutomation'
   | 'ensureDetectedAgents'
   | 'ensureRemoteDetectedAgents'
   | 'ensureRuntimeDetectedAgents'
   | 'fallbackDefaultAgent'
+  | 'folderTargetConnectionId'
   | 'isRemote'
   | 'loadHookCheckForRepo'
   | 'newWorkspaceDraft'
   | 'repoId'
+  | 'repoIdRef'
   | 'runtimeEnvironmentId'
+  | 'selectedRepoConnectionIdRef'
   | 'selectedRepoExecutionHostId'
   | 'selectedRepoHookContextKey'
   | 'selectedRepoIsGit'
-  | 'selectedRepoSettingsRef'
   | 'selectedRepoSshStatus'
-  | 'setLoadedIssueCommand'
   | 'setTuiAgent'
   | 'settings'
   | 'tuiAgent'
 >
 
-import { LOCAL_EXECUTION_HOST_ID } from '../../../../shared/execution-host'
-import { useEffect } from 'react'
+import { useEffect, useCallback } from 'react'
 import { filterEnabledTuiAgents, isTuiAgentEnabled } from '../../../../shared/tui-agent-selection'
 import { getAgentCatalog } from '@/lib/agent-catalog'
-import { readRuntimeIssueCommand } from '@/runtime/runtime-hooks-client'
 
 export function useHostRuntimeEffects(input: HostRuntimeEffectsInput) {
   const {
     commitHookCheckIfCurrent,
     connectionId,
-    createGateMode,
     disabledTuiAgents,
-    enableIssueAutomation,
     ensureDetectedAgents,
     ensureRemoteDetectedAgents,
     ensureRuntimeDetectedAgents,
@@ -49,12 +44,9 @@ export function useHostRuntimeEffects(input: HostRuntimeEffectsInput) {
     newWorkspaceDraft,
     repoId,
     runtimeEnvironmentId,
-    selectedRepoExecutionHostId,
     selectedRepoHookContextKey,
     selectedRepoIsGit,
-    selectedRepoSettingsRef,
     selectedRepoSshStatus,
-    setLoadedIssueCommand,
     setTuiAgent,
     settings,
     tuiAgent
@@ -100,7 +92,7 @@ export function useHostRuntimeEffects(input: HostRuntimeEffectsInput) {
     setTuiAgent
   ])
 
-  // Per-repo: load yaml hooks + issue command template.
+  // Per-repo: load yaml hooks.
   useEffect(() => {
     if (!repoId || !selectedRepoIsGit || !selectedRepoHookContextKey) {
       return
@@ -120,54 +112,24 @@ export function useHostRuntimeEffects(input: HostRuntimeEffectsInput) {
         }
       })
 
-    if (!enableIssueAutomation) {
-      return () => {
-        cancelled = true
-      }
-    }
-
-    if (createGateMode === 'quick') {
-      return () => {
-        cancelled = true
-      }
-    }
-
-    void readRuntimeIssueCommand(selectedRepoExecutionHostId ?? LOCAL_EXECUTION_HOST_ID, repoId)
-      .then((result) => {
-        if (!cancelled) {
-          setLoadedIssueCommand({ contextKey: selectedRepoHookContextKey, result })
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setLoadedIssueCommand({
-            contextKey: selectedRepoHookContextKey,
-            result: {
-              status: 'error',
-              localContent: null,
-              sharedContent: null,
-              effectiveContent: null,
-              localFilePath: '',
-              source: 'none'
-            }
-          })
-        }
-      })
-
     return () => {
       cancelled = true
     }
   }, [
     commitHookCheckIfCurrent,
-    createGateMode,
-    enableIssueAutomation,
     loadHookCheckForRepo,
     repoId,
-    selectedRepoExecutionHostId,
     selectedRepoHookContextKey,
     selectedRepoIsGit,
-    runtimeEnvironmentId,
-    selectedRepoSettingsRef,
-    setLoadedIssueCommand
+    runtimeEnvironmentId
   ])
+
+  // Local-only: there are no remote projects to connect.
+  const onConnectSelectedRepo = useCallback(async (): Promise<void> => {}, [])
+  const onConnectSelectedProjectGroup = useCallback(async (): Promise<void> => {}, [])
+
+  return {
+    onConnectSelectedRepo,
+    onConnectSelectedProjectGroup
+  }
 }

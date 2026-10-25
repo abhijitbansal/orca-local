@@ -9,7 +9,7 @@ import {
   hostTestOperationId
 } from '../../../native-chat/agent-session-wire/structured-agent-session-host-test-data'
 import { seedTestAgentSessionStoreFromNewerBuild } from '../../agent-session-record-store-test-harness'
-import { closeStructuredAgentSessionChild } from '../../structured-agent-session-close'
+import { closeStructuredAgentSessionChild } from '../../agent-session/structured-agent-session-close'
 import {
   WORKTREE,
   SOURCE_TAB,

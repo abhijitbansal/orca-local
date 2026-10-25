@@ -1,13 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import {
-  OrcaRuntimeService,
-  getBaseRefDefault,
-  gitRunner,
-  listWorktrees,
-  registerSshGitProvider,
-  setPlatform,
-  unregisterSshGitProvider
-} from '../orca-runtime-test-mocks.spec'
+import { OrcaRuntimeService, gitRunner, setPlatform } from '../orca-runtime-test-mocks.spec'
 import {
   TEST_REPO_ID,
   TEST_REPO_PATH,
@@ -49,48 +41,6 @@ describe('OrcaRuntimeService', () => {
 
       await expect(runtime.checkRepoHooks('id:repo-1')).resolves.toMatchObject({ status: 'ok' })
     })
-  })
-
-  it('treats SSH worktree drift as unknown without local git probes', async () => {
-    vi.mocked(listWorktrees).mockClear()
-    vi.mocked(getBaseRefDefault).mockClear()
-    const remoteStore = {
-      ...store,
-      getRepos: () => [
-        {
-          id: TEST_REPO_ID,
-          path: '/remote/repo',
-          displayName: 'repo',
-          badgeColor: 'blue',
-          addedAt: 1,
-          connectionId: 'ssh-1'
-        }
-      ],
-      getWorktreeMeta: () => null
-    }
-    const gitProvider = {
-      listWorktrees: vi.fn().mockResolvedValue([
-        {
-          path: '/remote/repo',
-          head: 'abc',
-          branch: 'feature/foo',
-          isBare: false,
-          isMainWorktree: true
-        }
-      ])
-    }
-    registerSshGitProvider('ssh-1', gitProvider as never)
-    const runtime = new OrcaRuntimeService(remoteStore as never)
-
-    try {
-      await expect(runtime.probeWorktreeDrift('path:/remote/repo')).resolves.toBeNull()
-    } finally {
-      unregisterSshGitProvider('ssh-1')
-    }
-
-    expect(gitProvider.listWorktrees).toHaveBeenCalledWith('/remote/repo')
-    expect(getBaseRefDefault).not.toHaveBeenCalled()
-    expect(listWorktrees).not.toHaveBeenCalled()
   })
 
   it('routes local WSL project worktree drift probes through runtime git options', async () => {

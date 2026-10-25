@@ -1,4 +1,4 @@
-import type { SkillFreshnessInventory } from '../../../shared/skill-freshness'
+import type { BundledSkillPlan } from '../../../shared/bundled-skill-plan'
 import type { SettingsNavInstallStatus } from './settings-navigation-types'
 import { getSkillFreshnessDisplayStatus } from './skill-freshness-display-status'
 
@@ -6,14 +6,14 @@ type AgentSkillNavInstallStatusInput = {
   name: string
   installed: boolean
   loading: boolean
-  inventory: SkillFreshnessInventory | null
+  plan: BundledSkillPlan | null
 }
 
 export function getAgentSkillNavInstallStatus({
   name,
   installed,
   loading,
-  inventory
+  plan
 }: AgentSkillNavInstallStatusInput): SettingsNavInstallStatus {
   if (loading) {
     return 'checking'
@@ -21,5 +21,5 @@ export function getAgentSkillNavInstallStatus({
   if (!installed) {
     return 'install'
   }
-  return getSkillFreshnessDisplayStatus(inventory, name)
+  return getSkillFreshnessDisplayStatus(plan, name)
 }

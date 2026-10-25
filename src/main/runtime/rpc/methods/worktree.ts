@@ -8,9 +8,10 @@ import { getExplicitWorktreeIdSelector } from '../../runtime-worktree-selection'
 import { splitWorktreeId } from '../../../../shared/worktree/id'
 import { buildCliWorkspaceProvenance } from '../../../../shared/cli-workspace-provenance'
 import { displayNameUpdatePinsLabel } from '../../../../shared/worktree/display-name-provenance'
+import { getWorkspaceStatusWarning } from '../../../../shared/workspace-status-warning'
 import { createWorktreeWithStartupAgent } from '../../../agent-launch/startup-agent-worktree-create'
 import { defineMethod } from '../core'
-import { buildManagedWorktreeCreateArgs } from './worktree-create-args'
+import { buildManagedWorktreeCreateArgs, worktreeCreateRepoSelector } from './worktree-create-args'
 import { resolvePairedCallerHostId } from './paired-caller-host-id'
 import { resolveRuntimeNavigationTarget } from '../../../../shared/runtime-navigation'
 import { resolveRpcWorkspaceCreatorProvenance } from '../workspace-creator-context'
@@ -29,6 +30,8 @@ import {
 } from '../../../../shared/rpc-contract/worktree-params'
 import { WORKTREE_CATALOG_METHODS } from './worktree-catalog-methods'
 import { readsWorktreeRemovalMarker } from '../worktree-removal-marker-projection'
+import { queueWorkspaceDelete } from '../../workspaces/workspace-lifecycle-commands'
+import { WORKTREE_SLEEP_METHOD } from './worktree-sleep-method'
 
 export const WORKTREE_METHODS = [
   ...WORKTREE_CATALOG_METHODS,
@@ -60,12 +63,7 @@ export const WORKTREE_METHODS = [
       worktree: await runtime.showManagedWorktree(params.worktree)
     })
   }),
-  defineMethod({
-    name: 'worktree.sleep',
-    permission: 'workspace',
-    params: WorktreeSelector,
-    handler: async (params, { runtime }) => runtime.sleepManagedWorktree(params.worktree)
-  }),
+  WORKTREE_SLEEP_METHOD,
   defineMethod({
     name: 'worktree.activate',
     permission: 'workspace',
@@ -92,9 +90,9 @@ export const WORKTREE_METHODS = [
       // Why: a mobile create interrupted by a connection migration is retried with
       // the same clientMutationId; dedupe so the host returns the in-flight/created
       // worktree instead of spawning a duplicate. No key (desktop/CLI) runs plainly.
-      context.runtime.dedupeWorktreeCreate(params.repo, params.clientMutationId, async () => {
+      context.runtime.dedupeWorktreeCreate(params, params.clientMutationId, async () => {
         const { runtime } = context
-        const repo = await runtime.showRepo(params.repo)
+        const repo = await runtime.showRepo(worktreeCreateRepoSelector(params))
         const automationProvenance = resolveAutomationWorkspaceProvenance({
           authority: runtime,
           repoSelector: params.repo,
@@ -116,7 +114,7 @@ export const WORKTREE_METHODS = [
                 }),
                 creatorProvenance: resolveRpcWorkspaceCreatorProvenance(context)
               },
-              context.clientKind ? { clientKind: context.clientKind } : {}
+              context
             )
           )
           finishAutomationWorkspaceProvenanceRequest(params.automationProvenanceRequest)
@@ -150,8 +148,8 @@ export const WORKTREE_METHODS = [
     name: 'worktree.set',
     permission: 'workspace',
     params: WorktreeSet,
-    handler: async (params, { runtime }) => ({
-      worktree: await runtime.updateManagedWorktreeMeta(params.worktree, {
+    handler: async (params, { runtime }) => {
+      const worktree = await runtime.updateManagedWorktreeMeta(params.worktree, {
         displayName: params.displayName,
         ...(params.displayName !== undefined
           ? { displayNameIsPinned: displayNameUpdatePinsLabel(params.displayName) }
@@ -200,14 +198,19 @@ export const WORKTREE_METHODS = [
               }
             : undefined
       })
-    })
+      const warning = getWorkspaceStatusWarning(
+        params.workspaceStatus,
+        () => runtime.getUIState().workspaceStatuses
+      )
+      return { worktree, ...(warning ? { warnings: [warning] } : {}) }
+    }
   }),
   defineMethod({
     name: 'worktree.persistSortOrder',
     permission: 'workspace',
     params: WorktreeSortOrder,
     handler: async (params, { runtime }) =>
-      runtime.persistManagedWorktreeSortOrder(params.orderedIds)
+      runtime.persistManagedWorktreeSortOrder(params.orderedIds, params.hostIds)
   }),
   defineMethod({
     name: 'worktree.rm',
@@ -244,16 +247,19 @@ export const WORKTREE_METHODS = [
       // resolution costs a scan and throws for an id two hosts share. Other selectors stay unstamped.
       const explicitWorktreeId = getExplicitWorktreeIdSelector(params.worktree)
       const repoId = explicitWorktreeId ? splitWorktreeId(explicitWorktreeId)?.repoId : undefined
-      const result = await runtime.removeManagedWorktree(params.worktree, {
-        force: params.force === true,
-        runHooks: params.runHooks === true,
-        allowUnverifiedPtyStop: params.allowUnverifiedPtyStop === true,
-        allowFailedArchiveHook: params.allowFailedArchiveHook === true,
-        ...(resolvedHostId ? { hostId: resolvedHostId } : {}),
-        // Why: only a client that shows the `removing` marker can wait out Git's delete; older
-        // clients get the acceptance and never see the row again.
-        ...(readsWorktreeRemovalMarker(context) ? { waitForBackgroundRemoval: true } : {})
-      })
+      const result = await queueWorkspaceDelete(
+        runtime,
+        params.worktree,
+        resolvedHostId,
+        params,
+        (removal) =>
+          runtime.removeManagedWorktree(params.worktree, {
+            ...removal,
+            // Why: only a client that shows the `removing` marker can wait out Git's delete; older
+            // clients get the acceptance and never see the row again.
+            ...(readsWorktreeRemovalMarker(context) ? { waitForBackgroundRemoval: true } : {})
+          })
+      )
       return {
         removed: true,
         ...result,

@@ -10,13 +10,16 @@ import { ORCHESTRATION_COMMAND_SPECS } from './orchestration'
 import { COMPUTER_COMMAND_SPECS } from './computer'
 import { ENVIRONMENT_COMMAND_SPECS } from './environment'
 import { AGENT_HOOK_COMMAND_SPECS } from './agent-hooks'
+import { AGENT_LAUNCH_COMMAND_SPECS } from './agent-launch'
 import { DIAGNOSTICS_COMMAND_SPECS } from './diagnostics'
+import { TERMINAL_DAEMON_COMMAND_SPECS } from './terminal-daemon'
 import { EMULATOR_COMMAND_SPECS } from './emulator'
 import { INTROSPECTION_COMMAND_SPECS } from './introspection'
 import { SKILL_COMMAND_SPECS } from './skills'
 import { SEARCH_COMMAND_SPECS } from './search'
 import { PROFILE_STATE_COMMAND_SPECS } from './profile-state'
 import { REFERENCE_COMMAND_SPECS } from './reference'
+import { PORTS_COMMAND_SPECS } from './ports'
 
 export const COMMAND_SPECS: CommandSpec[] = [
   ...CORE_COMMAND_SPECS,
@@ -30,11 +33,14 @@ export const COMMAND_SPECS: CommandSpec[] = [
   ...ORCHESTRATION_COMMAND_SPECS,
   ...COMPUTER_COMMAND_SPECS,
   ...AGENT_HOOK_COMMAND_SPECS,
+  ...AGENT_LAUNCH_COMMAND_SPECS,
   ...DIAGNOSTICS_COMMAND_SPECS,
+  ...TERMINAL_DAEMON_COMMAND_SPECS,
   ...INTROSPECTION_COMMAND_SPECS,
   ...ENVIRONMENT_COMMAND_SPECS,
   ...EMULATOR_COMMAND_SPECS,
   ...SKILL_COMMAND_SPECS,
   ...SEARCH_COMMAND_SPECS,
-  ...PROFILE_STATE_COMMAND_SPECS
+  ...PROFILE_STATE_COMMAND_SPECS,
+  ...PORTS_COMMAND_SPECS
 ]

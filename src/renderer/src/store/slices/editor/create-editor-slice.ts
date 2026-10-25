@@ -17,7 +17,6 @@ import { createOpenHistoryDiff } from './actions/open-history-diff'
 import { createOpenCombinedDiff } from './actions/open-combined-diff'
 import { createOpenConflictFile } from './actions/open-conflict-file'
 import { createOpenConflictReview } from './actions/open-conflict-review'
-import { createChatVisualTabActions } from './actions/chat-visual-tab-actions'
 import { createEditorCursorLine } from './actions/editor-cursor-line'
 import { createGitStatusActions } from './actions/git-status-actions'
 import { createGitRemoteStatus } from './actions/git-remote-status'
@@ -28,6 +27,7 @@ import { createFileSearchActions } from './actions/file-search-actions'
 import { createEditorRevealFocusState } from './actions/editor-reveal-focus-state'
 import { createMarkdownLinkAction } from './actions/markdown-link-action'
 import { createHydrateEditorSession } from './actions/hydrate-editor-session'
+import { createEditorBufferIdentityActions } from './actions/editor-buffer-identity-actions'
 
 export const createEditorSlice: StateCreator<AppState, [], [], EditorSlice> = (set, get) => ({
   ...createEditorDraftState(set, get),
@@ -46,7 +46,6 @@ export const createEditorSlice: StateCreator<AppState, [], [], EditorSlice> = (s
   ...createOpenCombinedDiff(set, get),
   ...createOpenConflictFile(set, get),
   ...createOpenConflictReview(set, get),
-  ...createChatVisualTabActions(set, get),
   ...createEditorCursorLine(set, get),
   ...createGitStatusActions(set, get),
   ...createGitRemoteStatus(set, get),
@@ -56,5 +55,6 @@ export const createEditorSlice: StateCreator<AppState, [], [], EditorSlice> = (s
   ...createFileSearchActions(set, get),
   ...createEditorRevealFocusState(set, get),
   ...createMarkdownLinkAction(set, get),
-  ...createHydrateEditorSession(set, get)
+  ...createHydrateEditorSession(set, get),
+  ...createEditorBufferIdentityActions(set, get)
 })

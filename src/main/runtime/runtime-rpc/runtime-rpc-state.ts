@@ -21,6 +21,7 @@ export class RuntimeRpcState {
   protected readonly userDataPath: string
   protected readonly pid: number
   protected readonly platform: NodeJS.Platform
+  protected readonly requirePinnedWsPort: boolean
   protected readonly authToken = randomBytes(24).toString('hex')
   protected readonly keepaliveIntervalMs: number
   protected readonly longPollCap: number
@@ -32,6 +33,7 @@ export class RuntimeRpcState {
   protected activeTransports: RpcTransport[] = []
   protected transports: RuntimeTransportMetadata[] = []
   protected metadataOwnershipWatch: RuntimeMetadataOwnershipWatch | null = null
+  protected detachPairedServerRows: (() => void) | null = null
   // Why: separate from server.maxConnections — count only long-running dispatches, not short RPCs. See §3.1 + §7 risk #2.
   protected activeLongPolls = 0
   // Why: subset of activeLongPolls held by orchestration.ask, fenced by askLongPollCap.
@@ -44,6 +46,7 @@ export class RuntimeRpcState {
     userDataPath,
     pid = process.pid,
     platform = process.platform,
+    requirePinnedWsPort = false,
     keepaliveIntervalMs = KEEPALIVE_INTERVAL_MS,
     longPollCap = LONG_POLL_CAP,
     metadataOwnershipPollMs = RUNTIME_METADATA_OWNERSHIP_POLL_MS,
@@ -54,6 +57,7 @@ export class RuntimeRpcState {
     this.userDataPath = userDataPath
     this.pid = pid
     this.platform = platform
+    this.requirePinnedWsPort = requirePinnedWsPort
     this.keepaliveIntervalMs = keepaliveIntervalMs
     this.longPollCap = longPollCap
     this.metadataOwnershipPollMs = metadataOwnershipPollMs

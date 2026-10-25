@@ -1,13 +1,17 @@
 import type { WorkspaceAttachment } from '../shared/worktree/types'
 import type { RuntimeStatus } from '../shared/runtime-types'
+import { JIRA_ISSUE_KEY_PATTERN } from '../shared/jira/jira-issue-url'
 import { WORKTREE_LINKED_ITEMS_DELTA_RUNTIME_CAPABILITY } from '../shared/workspace-attachment-capabilities'
 import {
   getWorkspaceReferenceIdentity,
   parseWorkspaceReferenceUrl
 } from '../shared/workspace-reference-identity'
 import type { RuntimeClient } from './runtime-client'
+import type { HandlerContext } from './dispatch'
 import { RuntimeClientError } from './runtime-client'
-import { getRepeatedStringFlag } from './flags'
+import { getOptionalStringFlag, getRepeatedStringFlag } from './flags'
+
+type ReferenceInput = { key: string } | { item: WorkspaceAttachment }
 
 export function parseReferenceUrls(urls: string[]): WorkspaceAttachment[] {
   try {
@@ -23,6 +27,35 @@ export function parseReferenceUrls(urls: string[]): WorkspaceAttachment[] {
   }
 }
 
+export function parseReferenceInputs(values: string[]): ReferenceInput[] {
+  return values.map((value) =>
+    JIRA_ISSUE_KEY_PATTERN.test(value.trim())
+      ? { key: value.trim().toUpperCase() }
+      : { item: parseReferenceUrls([value])[0] }
+  )
+}
+
+export async function resolveReferenceInputs(
+  _context: HandlerContext,
+  inputs: ReferenceInput[]
+): Promise<WorkspaceAttachment[]> {
+  const references = new Map<string, WorkspaceAttachment>()
+  for (const input of inputs) {
+    let item: WorkspaceAttachment
+    if ('item' in input) {
+      item = input.item
+    } else {
+      throw new RuntimeClientError(
+        'invalid_argument',
+        `Issue key ${input.key} cannot be resolved: Jira is not available in this build. Pass a full issue URL.`
+      )
+    }
+    const identity = getWorkspaceReferenceIdentity(item)
+    references.set(identity, { ...references.get(identity), ...item })
+  }
+  return [...references.values()]
+}
+
 export async function assertReferenceWritesSupported(client: RuntimeClient): Promise<void> {
   const status = await client.call<RuntimeStatus>('status.get')
   if (!status.result.capabilities?.includes(WORKTREE_LINKED_ITEMS_DELTA_RUNTIME_CAPABILITY)) {
@@ -33,10 +66,13 @@ export async function assertReferenceWritesSupported(client: RuntimeClient): Pro
   }
 }
 
-export function getCreateReferences(
+export function getCreateReferenceInputs(
   flags: Map<string, string | boolean>
-): WorkspaceAttachment[] | undefined {
+): ReferenceInput[] | undefined {
   if (!flags.has('reference')) {
+    if (flags.has('reference-site')) {
+      throw new RuntimeClientError('invalid_argument', '--reference-site requires --reference.')
+    }
     return undefined
   }
   const legacy = ['issue', 'pr', 'linear-issue', 'gitlab-issue', 'gitlab-mr'].find((name) =>
@@ -49,8 +85,9 @@ export function getCreateReferences(
   if (urls.length === 0) {
     throw new RuntimeClientError(
       'invalid_argument',
-      '--reference requires a full issue or review URL.'
+      '--reference requires a full issue or review URL, or a Jira issue key.'
     )
   }
-  return parseReferenceUrls(urls)
+  getOptionalStringFlag(flags, 'reference-site')
+  return parseReferenceInputs(urls)
 }

@@ -8,7 +8,12 @@ import type {
   SkillRemoveInput,
   SkillRemoveOperation
 } from '../../shared/skill-sharing-contract'
-import type { SkillFreshnessInventory } from '../../shared/skill-freshness'
+import type {
+  BundledSkillExecuteRequest,
+  BundledSkillInstallResult,
+  BundledSkillPlan,
+  BundledSkillPlanRequest
+} from '../../shared/bundled-skill-plan'
 
 import type {
   SkillDeletePlan,
@@ -18,15 +23,15 @@ import type {
 
 export type SkillsApi = {
   discover: (target?: SkillDiscoveryTarget) => Promise<SkillDiscoveryResult>
-  freshnessInventory: () => Promise<SkillFreshnessInventory>
+  /** This machine's plan for Orca's installed skills; paired hosts plan over RPC. */
+  bundledPlan: (request?: BundledSkillPlanRequest) => Promise<BundledSkillPlan>
+  bundledExecute: (request: BundledSkillExecuteRequest) => Promise<BundledSkillInstallResult>
   previewInstall: (input: SkillInstallPreviewInput) => Promise<SkillInstallPreviewOperation>
   previewBundleInstall: (
     input: SkillBundleInstallPreviewInput
   ) => Promise<SkillBundleInstallPreviewOperation>
   removeInstall: (input: SkillRemoveInput) => Promise<SkillRemoveOperation>
-  /** Whether the host answering `previewDelete`/`delete` supports them. Always
-   *  true on desktop; on web the "local" host is a remote server that updates
-   *  independently and may predate the capability. */
+  /** Always true on desktop; web clients may use a server predating skill deletion. */
   deleteSupported: () => Promise<boolean>
   previewDelete: (request: SkillDeleteRequest) => Promise<SkillDeletePlan>
   delete: (request: SkillDeleteRequest) => Promise<SkillDeleteResult>

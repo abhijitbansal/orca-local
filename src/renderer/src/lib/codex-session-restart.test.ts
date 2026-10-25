@@ -82,7 +82,7 @@ describe('markLiveCodexSessionsForRestart', () => {
       ptyIdsByTabId: {
         'tab-1': ['pty-1']
       },
-      pendingCodexPaneRestartIds: {},
+      pendingPaneAccountRestarts: {},
       codexRestartNoticeByPtyId: {},
       markCodexRestartNotices: useAppStore.getState().markCodexRestartNotices
     })
@@ -327,7 +327,7 @@ describe('markLiveCodexSessionsForRestart', () => {
       previousAccountLabel: ACCOUNT_A,
       nextAccountLabel: ACCOUNT_B
     })
-    useAppStore.getState().queueCodexPaneRestarts(['pty-1'])
+    useAppStore.getState().queuePaneAccountRestarts(['pty-1'], 'codex')
 
     await markForFocusedHost({
       previousAccountLabel: ACCOUNT_B,
@@ -335,7 +335,7 @@ describe('markLiveCodexSessionsForRestart', () => {
     })
 
     expect(useAppStore.getState().codexRestartNoticeByPtyId).toEqual({})
-    expect(useAppStore.getState().pendingCodexPaneRestartIds).toEqual({})
+    expect(useAppStore.getState().pendingPaneAccountRestarts).toEqual({})
   })
 
   it('keeps a requested restart answered when the account switches again first', async () => {
@@ -348,7 +348,7 @@ describe('markLiveCodexSessionsForRestart', () => {
       previousAccountLabel: ACCOUNT_A,
       nextAccountLabel: ACCOUNT_B
     })
-    useAppStore.getState().queueCodexPaneRestarts(['pty-1'])
+    useAppStore.getState().queuePaneAccountRestarts(['pty-1'], 'codex')
     await markForFocusedHost({
       previousAccountLabel: ACCOUNT_B,
       nextAccountLabel: 'account-c@example.com'
@@ -361,7 +361,7 @@ describe('markLiveCodexSessionsForRestart', () => {
       nextAccountLabel: 'account-c@example.com',
       restartRequested: true
     })
-    expect(useAppStore.getState().pendingCodexPaneRestartIds).toEqual({ 'pty-1': true })
+    expect(useAppStore.getState().pendingPaneAccountRestarts).toEqual({ 'pty-1': 'codex' })
   })
 
   it('preserves the pane original account across repeated switches until restart', async () => {
@@ -426,7 +426,7 @@ describe('markLiveCodexSessionsForRestart lane scoping', () => {
         }))
       },
       ptyIdsByTabId: Object.fromEntries(panes.map((pane, index) => [`tab-${index}`, [pane.ptyId]])),
-      pendingCodexPaneRestartIds: {},
+      pendingPaneAccountRestarts: {},
       codexRestartNoticeByPtyId: {}
     })
   }
@@ -790,7 +790,7 @@ describe('markRestoredStaleCodexSessionsForRestart', () => {
         ]
       },
       ptyIdsByTabId: { 'tab-1': ['pty-1'] },
-      pendingCodexPaneRestartIds: {},
+      pendingPaneAccountRestarts: {},
       codexRestartNoticeByPtyId: {}
     })
     ;(globalThis as { window: typeof window }).window = {

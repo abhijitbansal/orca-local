@@ -10,6 +10,7 @@ import {
 import { MACHINE_NAME_MAX_LENGTH } from '../machine-name'
 import { normalizePRBotAuthorOverrides } from '../pr-bot-author-overrides'
 import { WorktreeVisibilityDefaultsUpdate } from './worktree-visibility-defaults-params'
+import { AGENT_CHAT_PERMISSION_MODES } from '../agent-chat-permission-mode'
 
 export const TaskProviderParam = z.custom<TaskProvider>(isTaskProvider, {
   message: 'Unknown task provider'
@@ -111,6 +112,8 @@ export const SettingsUpdate = z
       .enum(['issues', 'my-issues', 'prs', 'my-prs', 'review', 'all'])
       .optional(),
     experimentalNewWorktreeCardStyle: z.boolean().optional(),
+    /** No UI: the host-side switch for connectors, so a headless server can be turned on. */
+    experimentalConnectors: z.boolean().optional(),
     agentStatusHooksEnabled: z.boolean().optional(),
     defaultRepoSelection: z.array(z.string()).nullable().optional(),
     defaultLinearTeamSelection: z.array(z.string()).nullable().optional(),
@@ -118,12 +121,12 @@ export const SettingsUpdate = z
     minimaxGroupId: z.string().optional(),
     minimaxUsageModels: z.string().optional(),
     minimaxEndpoint: z.enum(['overseas', 'cn']).optional(),
-    zcodePlanSite: z.enum(['zai', 'bigmodel']).optional(),
     githubProjects: GitHubProjectSettings.optional(),
     prBotAuthorOverrides: z
       .unknown()
       .transform((value) => normalizePRBotAuthorOverrides(value))
-      .optional()
+      .optional(),
+    nativeChatPermissionMode: z.enum(AGENT_CHAT_PERMISSION_MODES).optional()
   })
   .strict()
   .default({})

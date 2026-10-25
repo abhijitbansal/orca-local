@@ -19,13 +19,12 @@ export async function detectRepoIcon({
       return fileIcon
     }
   } catch {
-    // Repo creation must not fail because a best-effort icon probe failed.
+    // Icon failures must not prevent repo creation.
   }
   return undefined
 }
 
-// Why: `upstream: null` is a resolved "not a fork" marker and prevents
-// repeated best-effort probes.
+// A null upstream marks a resolved non-fork and prevents repeated probes.
 export async function detectRepoIconAndUpstream({
   repoPath,
   kind,

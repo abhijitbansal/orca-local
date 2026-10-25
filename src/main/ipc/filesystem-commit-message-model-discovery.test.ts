@@ -21,10 +21,6 @@ vi.mock(
   async () => (await import('./filesystem-test-harness')).crashBreadcrumbMock
 )
 vi.mock(
-  '../local-downloaded-folder-promotion',
-  async () => (await import('./filesystem-test-harness')).folderPromotionMock
-)
-vi.mock(
   '../git/status',
   async () => (await import('./filesystem-test-harness')).gitStatusModuleMock
 )
@@ -33,14 +29,6 @@ vi.mock(
   async () => (await import('./filesystem-test-harness')).gitIgnoredPathsMock
 )
 vi.mock('../git/worktree', async () => (await import('./filesystem-test-harness')).gitWorktreeMock)
-vi.mock(
-  '../providers/ssh-filesystem-dispatch',
-  async () => (await import('./filesystem-test-harness')).sshFilesystemDispatchMock
-)
-vi.mock(
-  '../providers/ssh-git-dispatch',
-  async () => (await import('./filesystem-test-harness')).sshGitDispatchMock
-)
 vi.mock(
   '../text-generation/commit-message-text-generation',
   async () => (await import('./filesystem-test-harness')).textGenerationModuleMock
@@ -60,8 +48,7 @@ import { invalidateAuthorizedRootsCache } from './registered-worktree-roots-cach
 describe('registerFilesystemHandlers', () => {
   beforeEach(() => {
     resetFilesystemIpcMocks()
-    // Reset module-level auth cache so each test starts with a fresh dirty
-    // flag — prevents stale worktree data from a prior test's cache rebuild.
+    // Drop cached roots between fixtures.
     invalidateAuthorizedRootsCache()
   })
 

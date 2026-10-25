@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { tmpdir } from 'node:os'
 import { _resetTracerForTests, setActiveSink } from '../../observability/tracer'
-import { makeRepo, makeTerminalTab } from '../../persistence-test-harness'
+import { makeRepo } from '../persistence-test-harness'
+import { makeTerminalTab } from '../persistence-session-fixtures'
 import { planTerminalLeafMove } from './terminal-leaf-move'
 import {
   closeMoveTestStores,

@@ -4,16 +4,17 @@ import type { ResolvedWorktreeCardProps } from './worktree-card-model'
 import { useWorktreeCardActivationActions } from './use-worktree-card-activation-actions'
 import { useWorktreeCardFoundation } from './use-worktree-card-foundation'
 import { useWorktreeCardLinkedDetails } from './use-worktree-card-linked-details'
-import { useWorktreeCardIdentity } from './use-worktree-card-identity'
+import { useWorktreeCardReviewDetails } from './use-worktree-card-review-details'
 import { useWorktreeCardSecondaryDetails } from './use-worktree-card-secondary-details'
 import { useWorktreeCardWorkspaceActions } from './use-worktree-card-workspace-actions'
 
 export function useWorktreeCardController(props: ResolvedWorktreeCardProps) {
   const { worktree, repo } = props
   const foundation = useWorktreeCardFoundation({ worktree, repo })
-  const identity = useWorktreeCardIdentity({
+  const review = useWorktreeCardReviewDetails({
     worktree,
     repo,
+    settings: foundation.settings,
     projectGroups: foundation.projectGroups,
     cardProps: foundation.cardProps,
     newCardStyle: foundation.newCardStyle
@@ -22,19 +23,28 @@ export function useWorktreeCardController(props: ResolvedWorktreeCardProps) {
     worktree,
     newCardStyle: foundation.newCardStyle,
     deleteState: foundation.deleteState,
-    branch: identity.branch
+    branch: review.branch,
+    issueEntry: review.issueEntry,
+    linearIssueEntry: review.linearIssueEntry,
+    linearIssueFallbackEntry: review.linearIssueFallbackEntry,
+    prDisplay: review.prDisplay
   })
 
   const showStatus = foundation.cardProps.includes('status')
-  const showIssue = foundation.cardProps.includes('issue')
-  const showLinearIssue = foundation.cardProps.includes('linear-issue')
-  const showJiraIssue = foundation.cardProps.includes('jira-issue')
-  const showPR = foundation.cardProps.includes('pr')
-  const showAutomation = foundation.cardProps.includes('automation')
-  const showCli = foundation.cardProps.includes('cli')
-  const showComment = foundation.cardProps.includes('comment')
-  const showPorts = foundation.cardProps.includes('ports')
+  const {
+    issue: showIssue,
+    linearIssue: showLinearIssue,
+    jiraIssue: showJiraIssue,
+    pr: showPR,
+    automation: showAutomation,
+    cli: showCli,
+    comment: showComment,
+    ports: showPorts
+  } = foundation.cardDetails
+  const shouldRefreshHostedReview = foundation.newCardStyle ? showStatus : showPR
   const detailsHoverControl = useWorktreeCardDetailsHoverControl()
+  const referenceDetails = null
+  const reviewChecks = null
 
   const activation = useWorktreeCardActivationActions({
     worktree,
@@ -49,6 +59,7 @@ export function useWorktreeCardController(props: ResolvedWorktreeCardProps) {
     isDeleting: linked.isDeleting,
     isSshDisconnected: foundation.isSshDisconnected,
     updateWorktreeMeta: foundation.updateWorktreeMeta,
+    setWorkspaceUnreadByUser: foundation.setWorkspaceUnreadByUser,
     openModal: foundation.openModal
   })
 
@@ -70,9 +81,7 @@ export function useWorktreeCardController(props: ResolvedWorktreeCardProps) {
     onCardDragStart: props.onCardDragStart,
     onCardDragEnd: props.onCardDragEnd,
     onContextMenuSelect: props.onContextMenuSelect,
-    folderWorkspaceId: identity.folderWorkspaceId,
-    deleteFolderWorkspace: foundation.deleteFolderWorkspace,
-    setActiveWorktree: foundation.setActiveWorktree,
+    folderWorkspaceId: review.folderWorkspaceId,
     setShowRenameErrorDialog: foundation.setShowRenameErrorDialog,
     isDeleting: linked.isDeleting,
     showDeleteQuickAction
@@ -92,9 +101,9 @@ export function useWorktreeCardController(props: ResolvedWorktreeCardProps) {
     issueDisplay: linked.issueDisplay,
     linearIssueDisplay: linked.linearIssueDisplay,
     jiraIssueDisplay: linked.jiraIssueDisplay,
-    cardProps: foundation.cardProps,
     newCardStyle: foundation.newCardStyle,
     compactCards: foundation.compactCards,
+    cardDetails: foundation.cardDetails,
     agentActivityDisplayMode: foundation.agentActivityDisplayMode,
     workspacePorts: foundation.workspacePorts,
     settings: foundation.settings
@@ -103,9 +112,11 @@ export function useWorktreeCardController(props: ResolvedWorktreeCardProps) {
   return {
     ...props,
     ...foundation,
-    ...identity,
+    ...review,
     ...linked,
     detailsHoverControl,
+    referenceDetails,
+    reviewChecks,
     showStatus,
     showIssue,
     showLinearIssue,
@@ -115,6 +126,7 @@ export function useWorktreeCardController(props: ResolvedWorktreeCardProps) {
     showCli,
     showComment,
     showPorts,
+    shouldRefreshHostedReview,
     ...activation,
     showDeleteQuickAction,
     ...workspaceActions,

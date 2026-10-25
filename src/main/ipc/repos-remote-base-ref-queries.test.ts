@@ -21,10 +21,6 @@ vi.mock('./registered-worktree-roots-cache', () =>
 vi.mock('../worktree-root-preparation', () =>
   moduleMocks.worktreeRootPreparationModuleMock(reposMocks)
 )
-vi.mock('../providers/ssh-git-dispatch', () => moduleMocks.sshGitDispatchModuleMock(reposMocks))
-vi.mock('../providers/ssh-filesystem-dispatch', () =>
-  moduleMocks.sshFilesystemDispatchModuleMock(reposMocks)
-)
 
 import { registerRepoHandlers } from './repos'
 import { clearGitCapabilityStateForTests } from '../git/git-capability-state'
@@ -32,13 +28,8 @@ import { resetSshProviderAuthorities } from '../ssh/ssh-provider-authority'
 import { createRepoHandlerHarness } from './repos-remote-test-harness'
 import { getBaseRefDefault } from '../git/repo'
 
-const {
-  handleMock,
-  mockStore,
-  mockGitProvider,
-  gitExecFileAsyncMock,
-  prepareLocalWorktreeRootForRepoMock
-} = reposMocks
+const { handleMock, mockStore, gitExecFileAsyncMock, prepareLocalWorktreeRootForRepoMock } =
+  reposMocks
 
 beforeEach(() => {
   clearGitCapabilityStateForTests()
@@ -53,8 +44,6 @@ describe('repos:getBaseRefDefault envelope', () => {
     mockStore.getRepos.mockReset().mockReturnValue([])
     mockStore.getRepo.mockReset()
     prepareLocalWorktreeRootForRepoMock.mockReset().mockResolvedValue(undefined)
-    // Reset exec so a newly added test doesn't inherit the previous test's exec mock.
-    mockGitProvider.exec = vi.fn().mockResolvedValue({ stdout: '', stderr: '' })
     gitExecFileAsyncMock.mockReset()
     vi.mocked(getBaseRefDefault).mockClear()
     registerRepoHandlers(mockWindow as never, mockStore as never, {} as never)
@@ -92,7 +81,6 @@ describe('repos:getBaseRefDefault envelope', () => {
       remoteCount: number
     }
 
-    // getBaseRefDefault is mocked to 'origin/main', getRemoteCount to 1
     expect(result.defaultBaseRef).toBe('origin/main')
     expect(result.remoteCount).toBe(1)
   })
@@ -108,7 +96,6 @@ describe('repos:getBaseRefDefault envelope', () => {
     const result = await handlers.get('repos:getBaseRefDefault')!(null, { repoId: 'r1' })
 
     expect(result).toEqual({ defaultBaseRef: null, remoteCount: 0 })
-    expect(mockGitProvider.exec).not.toHaveBeenCalled()
     expect(getBaseRefDefault).not.toHaveBeenCalled()
   })
 })
@@ -121,7 +108,6 @@ describe('repos:searchBaseRefs on SSH repos', () => {
     mockStore.getRepos.mockReset().mockReturnValue([])
     mockStore.getRepo.mockReset()
     prepareLocalWorktreeRootForRepoMock.mockReset().mockResolvedValue(undefined)
-    mockGitProvider.exec = vi.fn().mockResolvedValue({ stdout: '', stderr: '' })
     gitExecFileAsyncMock.mockReset()
     vi.mocked(getBaseRefDefault).mockClear()
     registerRepoHandlers(mockWindow as never, mockStore as never, {} as never)
@@ -141,7 +127,6 @@ describe('repos:searchBaseRefs on SSH repos', () => {
     })
 
     expect(result).toEqual([])
-    expect(mockGitProvider.exec).not.toHaveBeenCalled()
   })
 
   it('returns [] for an SSH repo without running git', async () => {
@@ -158,7 +143,6 @@ describe('repos:searchBaseRefs on SSH repos', () => {
     })
 
     expect(result).toEqual([])
-    expect(mockGitProvider.exec).not.toHaveBeenCalled()
     expect(gitExecFileAsyncMock).not.toHaveBeenCalled()
   })
 

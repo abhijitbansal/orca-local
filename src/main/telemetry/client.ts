@@ -8,6 +8,7 @@ import { randomUUID } from 'node:crypto'
 import { arch as osArch, platform as osPlatform, release as osRelease } from 'node:os'
 import { join } from 'node:path'
 import { getAppEnvironment, hasAppEnvironment } from '../../shared/app-environment'
+import type { AgentDashboardSurface } from '../../shared/telemetry-agent-dashboard-event-schemas'
 import type { CommonProps, EventName, EventProps, OptInVia } from '../../shared/telemetry-events'
 import { createLocalFileSink, type LocalFileSink } from '../observability/local-file-sink'
 import type { Store } from '../persistence'
@@ -53,6 +54,7 @@ export function initTelemetry(store: Store): void {
   shuttingDown = false
   // Reset per session: the "no app_opened until banner resolution" invariant is per-launch, not per-install.
   appOpenedTrackedThisSession = false
+  trackedDashboardActiveDays.clear()
 
   // Why: vitest and plain-node entries have no AppEnvironment; there is no userData dir to write under.
   if (!hasAppEnvironment()) {
@@ -112,6 +114,19 @@ function writeRecord<N extends EventName>(
   })
 }
 
+const trackedDashboardActiveDays = new Map<AgentDashboardSurface, number>()
+
+export function hasTrackedAgentDashboardActiveToday(props: unknown): boolean {
+  if (!props || typeof props !== 'object' || !('surface' in props)) {
+    return false
+  }
+  const surface = props.surface
+  return (
+    (surface === 'in_window' || surface === 'popout') &&
+    (trackedDashboardActiveDays.get(surface) ?? -1) >= Math.floor(Date.now() / 86_400_000)
+  )
+}
+
 export function track<N extends EventName>(name: N, props: EventProps<N>): boolean {
   // (1) Shutdown gate: late IPC arrivals must not enqueue against a closing sink.
   if (shuttingDown) {
@@ -120,12 +135,29 @@ export function track<N extends EventName>(name: N, props: EventProps<N>): boole
   if (!sink || !commonProps || !storeRef) {
     return false
   }
+  const dashboardActiveSurface =
+    name === 'agent_dashboard_active' &&
+    props !== null &&
+    typeof props === 'object' &&
+    'surface' in props &&
+    (props.surface === 'in_window' || props.surface === 'popout')
+      ? props.surface
+      : null
+  const dashboardActiveDay = dashboardActiveSurface ? Math.floor(Date.now() / 86_400_000) : 0
+  // Drop repeat observations before they can exhaust the session-wide event budget.
+  if (
+    dashboardActiveSurface &&
+    (trackedDashboardActiveDays.get(dashboardActiveSurface) ?? -1) >= dashboardActiveDay
+  ) {
+    return false
+  }
   // (2) Burst cap before consent: the O(1) cap drops floods before the costly settings read, so a compromised opted-out renderer can't burn CPU.
   if (!consumeBurstToken(name)) {
     return false
   }
   // (3) Consent resolve — reads live settings every call so it can't drift from persisted state / env-var precedence.
-  const consent = resolveConsent(storeRef.getSettings())
+  const settings = storeRef.getSettings()
+  const consent = resolveConsent(settings)
   if (consent.effective !== 'enabled') {
     return false
   }
@@ -134,8 +166,38 @@ export function track<N extends EventName>(name: N, props: EventProps<N>): boole
   if (!result.ok) {
     return false
   }
+  if (dashboardActiveSurface) {
+    if (settings.experimentalAgentDashboardPopout !== true) {
+      return false
+    }
+    const savedDay = settings.telemetry?.agentDashboardActiveDays?.[dashboardActiveSurface] ?? -1
+    if (savedDay >= dashboardActiveDay) {
+      trackedDashboardActiveDays.set(dashboardActiveSurface, savedDay)
+      return false
+    }
+  }
+  const mainOwnedProps =
+    name === 'app_opened'
+      ? { agent_dashboard_enabled: settings.experimentalAgentDashboardPopout === true }
+      : {}
   // (5) Write.
-  writeRecord(sink, commonProps, name, result.props)
+  writeRecord(sink, commonProps, name, { ...result.props, ...mainOwnedProps })
+  if (dashboardActiveSurface && settings.telemetry) {
+    trackedDashboardActiveDays.set(dashboardActiveSurface, dashboardActiveDay)
+    try {
+      storeRef.updateSettings({
+        telemetry: {
+          ...settings.telemetry,
+          agentDashboardActiveDays: {
+            ...settings.telemetry.agentDashboardActiveDays,
+            [dashboardActiveSurface]: dashboardActiveDay
+          }
+        }
+      })
+    } catch (err) {
+      console.warn('[telemetry] failed to persist dashboard daily usage limit', err)
+    }
+  }
   return true
 }
 
@@ -149,12 +211,15 @@ export async function setOptIn(via: OptInVia, optedIn: boolean): Promise<void> {
     telemetryBeforeUpdate?.existedBeforeTelemetryRelease === true &&
     telemetryBeforeUpdate.optedIn === null
   // Deep-merge (persistence.ts:552) so flipping `optedIn` won't clobber `installId` / `existedBeforeTelemetryRelease`.
-  storeRef.updateSettings({
-    telemetry: {
-      ...(settings.telemetry ?? { installId: '', existedBeforeTelemetryRelease: true }),
-      optedIn
-    }
-  })
+  storeRef.updateSettings(
+    {
+      telemetry: {
+        ...(settings.telemetry ?? { installId: '', existedBeforeTelemetryRelease: true }),
+        optedIn
+      }
+    },
+    { notifyListeners: true }
+  )
 
   if (optedIn) {
     if (wasPendingBanner) {
@@ -194,9 +259,8 @@ export function trackAppOpenedOnce(): void {
   if (appOpenedTrackedThisSession) {
     return
   }
-  appOpenedTrackedThisSession = true
   // Why: `nth_repo_added: 0` marks the session-zero / pre-repo cohort. See docs/onboarding-funnel-cohort-addendum.md.
-  track('app_opened', { ...getCohortAtEmit() })
+  appOpenedTrackedThisSession = track('app_opened', { ...getCohortAtEmit() })
 }
 
 export async function shutdownTelemetry(): Promise<void> {

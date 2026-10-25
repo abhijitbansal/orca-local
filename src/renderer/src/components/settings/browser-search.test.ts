@@ -104,7 +104,10 @@ describe('browser link routing modifier copy', () => {
       'Terminal URL clicks',
       'Localhost Worktree Labels',
       'Session & Cookies',
-      'Browser identity'
+      'Browser identity',
+      'Site permissions',
+      'Profile for new tabs',
+      'Open links in the background'
     ])
   })
 

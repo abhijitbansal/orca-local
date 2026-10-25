@@ -36,6 +36,7 @@ import {
 import { createWorktreeRemovalRuntime } from '../orca-runtime-test-scenario-builders.spec'
 import { getLocalWorktreeScanGeneration } from '../../local-worktree-scan-generation'
 import { makeAgentStatusStoreWiring } from '../agent-status-store-wiring.test-fixture'
+import { hostWorktreeTarget } from '../../../shared/worktree/host-qualified-identity'
 
 describe('OrcaRuntimeService', () => {
   it('creates the first terminal by id when duplicate repo entries expose the same path', async () => {
@@ -57,7 +58,6 @@ describe('OrcaRuntimeService', () => {
       renameTerminal: vi.fn(),
       focusTerminal: vi.fn(),
       closeTerminal: vi.fn(),
-      sleepWorktree: vi.fn(),
       terminalFitOverrideChanged: vi.fn(),
       terminalDriverChanged: vi.fn()
     })
@@ -169,7 +169,6 @@ describe('OrcaRuntimeService', () => {
       renameTerminal: vi.fn(),
       focusTerminal: vi.fn(),
       closeTerminal: vi.fn(),
-      sleepWorktree: vi.fn(),
       terminalFitOverrideChanged: vi.fn(),
       terminalDriverChanged: vi.fn()
     })
@@ -222,7 +221,6 @@ describe('OrcaRuntimeService', () => {
       renameTerminal: vi.fn(),
       focusTerminal: vi.fn(),
       closeTerminal: vi.fn(),
-      sleepWorktree: vi.fn(),
       terminalFitOverrideChanged: vi.fn(),
       terminalDriverChanged: vi.fn()
     })
@@ -268,7 +266,6 @@ describe('OrcaRuntimeService', () => {
       renameTerminal: vi.fn(),
       focusTerminal: vi.fn(),
       closeTerminal: vi.fn(),
-      sleepWorktree: vi.fn(),
       terminalFitOverrideChanged: vi.fn(),
       terminalDriverChanged: vi.fn()
     })
@@ -564,7 +561,9 @@ describe('OrcaRuntimeService', () => {
       warning: expect.stringContaining(TEST_WORKTREE_PATH)
     })
 
-    expect(removeWorktreeMeta).toHaveBeenCalledWith(TEST_WORKTREE_ID, 'runtime:env-1')
+    expect(removeWorktreeMeta).toHaveBeenCalledWith(
+      hostWorktreeTarget({ id: TEST_WORKTREE_ID, hostId: 'runtime:env-1' })
+    )
     expect(deleteWorktreeHistoryDirMock).toHaveBeenCalledWith(TEST_WORKTREE_ID)
     expect(invalidateAuthorizedRootsCacheMock).toHaveBeenCalled()
     expect(removeWorktree).not.toHaveBeenCalled()

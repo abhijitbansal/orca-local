@@ -1,8 +1,6 @@
 import type { HttpLinkSourceOwner } from '@/lib/http-link-routing'
-import {
-  getRemoteRuntimePtyEnvironmentId,
-  parseRemoteRuntimePtyId
-} from '@/runtime/runtime-terminal-stream'
+import { getRemoteRuntimePtyEnvironmentId } from '@/runtime/runtime-terminal-stream'
+import { parseRemoteRuntimePtyId } from '../../../../shared/remote-runtime-pty-id'
 import { parseAppSshPtyId } from '../../../../shared/ssh-pty-id'
 import type { PtyTransport } from './pty-transport-types'
 
@@ -51,4 +49,17 @@ export function resolveTerminalRuntimeHandle(
 ): string | null {
   const ptyId = transport?.getPtyId() ?? null
   return (ptyId ? parseRemoteRuntimePtyId(ptyId)?.handle : null) || null
+}
+
+/** The paired server holding the files a pane prints, or `null` for this app's own lookup. */
+export function resolveTerminalLinkRuntimeEnvironmentId(
+  transport: OwnerTransport | null | undefined,
+  _state?: unknown,
+  _worktreeId?: string
+): string | null {
+  const owner = resolveTerminalHttpLinkSourceOwner(transport)
+  if (owner.kind === 'runtime') {
+    return owner.runtimeEnvironmentId
+  }
+  return null
 }

@@ -10,7 +10,12 @@ import { resolveLocalWindowsAgentStartupShell } from './windows-terminal-shell'
 export type AgentStartupSettings = Partial<
   Pick<
     GlobalSettings,
-    'agentCmdOverrides' | 'agentDefaultArgs' | 'agentDefaultEnv' | 'terminalWindowsShell'
+    | 'agentCmdOverrides'
+    | 'agentDefaultArgs'
+    | 'agentDefaultEnv'
+    | 'agentPermissionDefault'
+    | 'agentPermissionOverrides'
+    | 'terminalWindowsShell'
   >
 >
 
@@ -25,6 +30,7 @@ export type AgentStartupPlanInputs = {
   isRemote: boolean
   sessionOptions?: Record<string, SessionOptionValue>
   sessionOptionsOverrideAgentArgs: boolean
+  suppressStartupUpdatePrompt?: boolean
 }
 
 /**
@@ -46,22 +52,25 @@ export function resolveAgentStartupPlanInputs(args: {
   agentArgs?: string | null
   /** An automation's saved extras, merged over the resolved args; invalid extras throw. */
   extraAgentArgs?: string
-  /** A requested shell is the one this PTY will be, so it owns the quoting family. */
-  windowsShellOverride?: string | null
+  /** The shell family this PTY will be; `undefined` reads it from the Settings shell, which is
+   *  right only where the Settings shell is the one the PTY gets. */
+  shell: AgentStartupShell | undefined
   sessionOptions?: Record<string, SessionOptionValue> | undefined
+  /** Orca types into this launch after start (worker, automation, handoff), not a user. */
+  suppressStartupUpdatePrompt?: boolean
 }): AgentStartupPlanInputs {
   const { agent, settings, platform, isRemote, sessionOptions } = args
   // A per-launch override wins over the Settings default; `null` is "no arguments", so this
   // tests for absence rather than falsiness.
   let agentArgs =
-    args.agentArgs !== undefined
-      ? args.agentArgs
-      : resolveTuiAgentLaunchArgs(agent, settings.agentDefaultArgs)
-  const shell = resolveLocalWindowsAgentStartupShell({
-    platform,
-    isRemote,
-    terminalWindowsShell: args.windowsShellOverride ?? settings.terminalWindowsShell
-  })
+    args.agentArgs !== undefined ? args.agentArgs : resolveTuiAgentLaunchArgs(agent, settings)
+  const shell =
+    args.shell ??
+    resolveLocalWindowsAgentStartupShell({
+      platform,
+      isRemote,
+      terminalWindowsShell: settings.terminalWindowsShell
+    })
   if (hasExtraAgentArgs(args.extraAgentArgs)) {
     const merged = mergeExtraAgentArgs({
       agent,
@@ -78,13 +87,14 @@ export function resolveAgentStartupPlanInputs(args: {
     agent,
     cmdOverrides: settings.agentCmdOverrides ?? {},
     agentArgs,
-    agentEnv: resolveTuiAgentLaunchEnv(agent, settings.agentDefaultEnv),
+    agentEnv: resolveTuiAgentLaunchEnv(agent, settings, platform),
     platform,
     shell,
     isRemote,
     ...(sessionOptions ? { sessionOptions } : {}),
     // Why: session options are an explicit per-launch pick, so they outrank configured args —
     // without this the two spellings of the same flag both reach argv and the last one wins.
-    sessionOptionsOverrideAgentArgs: Boolean(sessionOptions)
+    sessionOptionsOverrideAgentArgs: Boolean(sessionOptions),
+    ...(args.suppressStartupUpdatePrompt ? { suppressStartupUpdatePrompt: true } : {})
   }
 }

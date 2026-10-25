@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import { cleanup, renderHook } from '@testing-library/react'
+import { act, cleanup, renderHook } from '@testing-library/react'
 import { createRef, StrictMode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useAttachmentDropState } from './attachment-drop-state'
@@ -8,13 +8,9 @@ import { useAttachmentDropState } from './attachment-drop-state'
 const mocks = vi.hoisted(() => ({ toastError: vi.fn() }))
 vi.mock('sonner', () => ({ toast: { error: mocks.toastError } }))
 vi.mock('@/store', () => ({ useAppStore: { getState: () => ({}) } }))
-vi.mock('@/runtime/runtime-file-client', () => ({
-  importExternalPathsToRuntime: vi.fn()
-}))
+vi.mock('@/runtime/runtime-file-import-client', () => ({ importExternalPathsToRuntime: vi.fn() }))
 
-const stat = vi.fn(async (_input: { filePath: string }) => ({
-  isDirectory: false
-}))
+const stat = vi.fn(async (_input: { filePath: string }) => ({ isDirectory: false }))
 let originalApi: PropertyDescriptor | undefined
 
 function renderDrop(strict = false) {
@@ -29,7 +25,8 @@ function renderDrop(strict = false) {
         promptCaretFrameRef: { current: null },
         promptTextareaRef: createRef<HTMLTextAreaElement>(),
         selectedRepoPath: '/folder-workspace',
-        selectedRepoSettings: null,
+        selectedRepoRuntimeEnvironmentId: null,
+        selectedWorktreeId: null,
         setAgentPrompt: prompt,
         setAttachmentPaths: attach
       }),
@@ -45,8 +42,7 @@ beforeEach(() => {
   Object.defineProperty(window, 'api', {
     configurable: true,
     value: {
-      fs: { stat },
-      ui: { onFileDrop: () => () => {} }
+      fs: { stat }
     }
   })
 })
@@ -124,10 +120,7 @@ describe('local composer drop lifetime', () => {
     await hook.result.current.applyLocalComposerDrop(paths)
 
     expect(order).toEqual(paths)
-    expect(stat).toHaveBeenCalledWith({
-      filePath: '/drop/one',
-      access: { kind: 'user-file' }
-    })
+    expect(stat).toHaveBeenCalledWith({ filePath: '/drop/one', access: { kind: 'user-file' } })
     expect(hook.attach).toHaveBeenCalledOnce()
     expect(hook.attach.mock.calls[0]?.[0](['/existing'])).toEqual([
       '/existing',
@@ -137,10 +130,46 @@ describe('local composer drop lifetime', () => {
     expect(hook.prompt).toHaveBeenCalledWith('/drop/folder')
     expect(mocks.toastError).toHaveBeenCalledExactlyOnceWith(
       '1 of 5 items could not be attached.',
-      {
-        id: 'composer-drop-failure',
-        description: 'No longer at its original path.'
-      }
+      { id: 'composer-drop-failure', description: 'No longer at its original path.' }
     )
+  })
+})
+
+describe('native composer destination lifetime', () => {
+  it.each([false, true])('stops after unmount (Strict Mode: %s)', async (strict) => {
+    const gate = Promise.withResolvers<void>()
+    holdStat(gate.promise)
+    const hook = renderDrop(strict)
+    const pending = hook.result.current.applyNativeDrop(['/drop/one', '/drop/two'], () => true)
+    await vi.waitFor(() => expect(stat).toHaveBeenCalledOnce())
+    hook.unmount()
+    await act(async () => gate.resolve())
+    await pending
+    expect(stat).toHaveBeenCalledOnce()
+    expect(hook.attach).not.toHaveBeenCalled()
+  })
+  it('keeps the original destination when a newer composer mounts', async () => {
+    const gate = Promise.withResolvers<void>()
+    holdStat(gate.promise)
+    const older = renderDrop()
+    const pending = older.result.current.applyNativeDrop(['/drop/one'], () => true)
+    await vi.waitFor(() => expect(stat).toHaveBeenCalledOnce())
+    const newer = renderDrop()
+    await act(async () => gate.resolve())
+    await pending
+    expect(older.attach).toHaveBeenCalledOnce()
+    expect(newer.attach).not.toHaveBeenCalled()
+  })
+  it('withholds a completed drop when its destination changes', async () => {
+    const gate = Promise.withResolvers<void>()
+    holdStat(gate.promise)
+    const hook = renderDrop()
+    let current = true
+    const pending = hook.result.current.applyNativeDrop(['/drop/one'], () => current)
+    await vi.waitFor(() => expect(stat).toHaveBeenCalledOnce())
+    current = false
+    await act(async () => gate.resolve())
+    await pending
+    expect(hook.attach).not.toHaveBeenCalled()
   })
 })

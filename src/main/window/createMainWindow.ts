@@ -1,5 +1,4 @@
-import { BrowserWindow, nativeTheme, powerMonitor, screen } from 'electron'
-import { is } from '@electron-toolkit/utils'
+import { app, BrowserWindow, nativeTheme, powerMonitor, screen } from 'electron'
 import { join } from 'node:path'
 import { getAppIconPath } from '../app-icon'
 import { browserManager } from '../browser/browser-manager'
@@ -10,6 +9,7 @@ import { recordDurableCrashBreadcrumb } from '../crash-reporting/durable-crash-b
 import { clearTrustedUIRendererWebContentsId, setTrustedUIRendererWebContentsId } from '../ipc/ui'
 import type { Store } from '../persistence'
 import { closeDashboardPopout } from './dashboard-popout-window'
+import { closeWorkspaceSpaceWindow } from './workspace-space-window'
 import {
   installMainWindowCloseLifecycle,
   WINDOW_QUIT_RENDERER_ACK_TIMEOUT_MS
@@ -37,7 +37,7 @@ export { WINDOW_QUIT_RENDERER_ACK_TIMEOUT_MS }
 
 export function loadMainWindow(mainWindow: BrowserWindow, observer?: MainWindowLoadObserver): void {
   const load =
-    is.dev && process.env.ELECTRON_RENDERER_URL
+    !app.isPackaged && process.env.ELECTRON_RENDERER_URL
       ? mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL)
       : mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   // Observe each load promise so failures cannot leave recovery waiting silently.
@@ -207,6 +207,7 @@ export function createMainWindow(
 
   mainWindow.on('closed', () => {
     closeDashboardPopout()
+    closeWorkspaceSpaceWindow()
     state.clearInitialRevealFallbackTimer()
     closeLifecycle.dispose()
     focus.dispose()

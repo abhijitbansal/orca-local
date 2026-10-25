@@ -11,6 +11,7 @@ import type { EditorToggleValue } from './EditorViewToggle'
 import { shouldShowEditorPanelHeader } from './editor-header'
 import { getUntitledFileRoot } from './untitled-file-rename-path'
 import { translate } from '@/i18n/i18n'
+import { selectWorktreesByRepo } from '@/store/workspace-record-selectors'
 
 type EditorPanelRenderModel = ReturnType<typeof getEditorPanelRenderModel>
 
@@ -166,7 +167,7 @@ export function EditorPanelShell({
             ? getUntitledFileRoot(
                 renameDialogFile,
                 findWorktreeById(
-                  useAppStore.getState().worktreesByRepo,
+                  selectWorktreesByRepo(useAppStore.getState()),
                   renameDialogFile.worktreeId
                 )?.path
               )

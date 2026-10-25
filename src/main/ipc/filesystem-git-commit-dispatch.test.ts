@@ -4,7 +4,6 @@ import {
   store,
   WORKTREE_FEATURE_PATH,
   commitChangesMock,
-  getSshGitProviderMock,
   resetFilesystemIpcMocks
 } from './filesystem-test-harness'
 
@@ -19,10 +18,6 @@ vi.mock(
   async () => (await import('./filesystem-test-harness')).crashBreadcrumbMock
 )
 vi.mock(
-  '../local-downloaded-folder-promotion',
-  async () => (await import('./filesystem-test-harness')).folderPromotionMock
-)
-vi.mock(
   '../git/status',
   async () => (await import('./filesystem-test-harness')).gitStatusModuleMock
 )
@@ -31,14 +26,6 @@ vi.mock(
   async () => (await import('./filesystem-test-harness')).gitIgnoredPathsMock
 )
 vi.mock('../git/worktree', async () => (await import('./filesystem-test-harness')).gitWorktreeMock)
-vi.mock(
-  '../providers/ssh-filesystem-dispatch',
-  async () => (await import('./filesystem-test-harness')).sshFilesystemDispatchMock
-)
-vi.mock(
-  '../providers/ssh-git-dispatch',
-  async () => (await import('./filesystem-test-harness')).sshGitDispatchMock
-)
 vi.mock(
   '../text-generation/commit-message-text-generation',
   async () => (await import('./filesystem-test-harness')).textGenerationModuleMock
@@ -58,8 +45,7 @@ import { invalidateAuthorizedRootsCache } from './registered-worktree-roots-cach
 describe('registerFilesystemHandlers', () => {
   beforeEach(() => {
     resetFilesystemIpcMocks()
-    // Reset module-level auth cache so each test starts with a fresh dirty
-    // flag — prevents stale worktree data from a prior test's cache rebuild.
+    // Drop cached roots between fixtures.
     invalidateAuthorizedRootsCache()
   })
 
@@ -82,7 +68,6 @@ describe('registerFilesystemHandlers', () => {
 
   it('rejects git:remoteCommitUrl with a short hash before SSH dispatch', async () => {
     const sshRemoteCommitUrlMock = vi.fn()
-    getSshGitProviderMock.mockReturnValue({ getRemoteCommitUrl: sshRemoteCommitUrlMock })
 
     registerFilesystemHandlers(store as never)
 
@@ -112,7 +97,6 @@ describe('registerFilesystemHandlers', () => {
 
   it('rejects git:commit with whitespace-only message before SSH dispatch', async () => {
     const sshCommitMock = vi.fn().mockResolvedValue({ success: true })
-    getSshGitProviderMock.mockReturnValue({ commit: sshCommitMock })
 
     registerFilesystemHandlers(store as never)
 

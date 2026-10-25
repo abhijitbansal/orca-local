@@ -1,5 +1,5 @@
 import { useCallback, useSyncExternalStore } from 'react'
-import type { AgentSessionRegisteredAgent } from '../../../shared/agent-session-registered-agents'
+import type { AgentSessionRegisteredAgent } from '../../../shared/agent-session/agent-session-registered-agents'
 import { isAgentSessionHandleProvider } from '../../../shared/agent-session-provider-handle'
 import { LOCAL_EXECUTION_HOST_ID, toRuntimeExecutionHostId } from '../../../shared/execution-host'
 import { lastVerifiedRuntimeStatus } from '../../../shared/runtime-host-status'
@@ -8,7 +8,7 @@ import {
   readHostStructuredAgentsForRuntime,
   subscribeHostStructuredAgents
 } from './host-structured-agents'
-import type { RuntimeClientTarget } from './runtime-client-target'
+import type { RuntimeClientTarget } from '../../../shared/runtime-client-target'
 
 /** Whether a chat may carry images: what its session's options report said, else what its host
  *  registered for the agent, else what every build has always sent the agents it ships. An unlisted

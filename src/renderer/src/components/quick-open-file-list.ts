@@ -12,7 +12,6 @@ import {
   clearQuickOpenRecentCache,
   useQuickOpenRecentCache
 } from './quick-open-recent-validation'
-/* oxlint-disable react-doctor/no-adjust-state-on-prop-change -- Why: quick-open file lists are fetched over local or SSH runtime IPC, so loading/error/results track the request lifecycle. */
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 export { isNestedWorktreePath, getNestedWorktreeExcludePaths } from './quick-open-nested-worktrees'
@@ -23,7 +22,7 @@ import {
   cancelRuntimeFileList,
   listRuntimeFiles,
   searchRuntimeFilePaths
-} from '@/runtime/runtime-file-client'
+} from '@/runtime/runtime-file-search-client'
 import { debounceRuntimeFileRequest } from '@/runtime/runtime-file-request-debounce'
 import { splitFileNameFilterTokens } from '../../../shared/file-name-filter-tokens'
 import {

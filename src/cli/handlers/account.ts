@@ -1,9 +1,6 @@
 import { spawn } from 'node:child_process'
-import {
-  buildWslExecArgs,
-  buildWslLoginShellCommand,
-  quotePosixShell
-} from '../../shared/wsl-login-shell-command'
+import { buildWslExecArgs, buildWslLoginShellCommand } from '../../shared/wsl-login-shell-command'
+import { quotePosixShell } from '../../shared/shell-argument-quoting'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { delimiter, join } from 'node:path'
@@ -22,7 +19,7 @@ import {
   WINDOWS_BATCH_UNSAFE_CHARACTERS_LABEL
 } from '../../shared/windows-batch-spawn'
 import { stdioForWindowsInteractiveChild } from '../../shared/windows-console-input'
-import { ACCOUNT_IMPORT_RUNTIME_CAPABILITY } from '../../shared/protocol-version'
+import { ACCOUNT_IMPORT_RUNTIME_CAPABILITY } from '../../shared/account-runtime-capabilities'
 import type { RuntimeStatus } from '../../shared/runtime-types'
 import type {
   ClaudeAccountSignIn,
@@ -35,7 +32,6 @@ import {
 } from './interactive-login-interruption'
 import { getWslAccountTarget } from './account-wsl-location'
 
-// Why: add returns just that provider's state; list returns the full snapshot.
 type AccountsListSnapshot = {
   claude: ClaudeRateLimitAccountsState
   codex: CodexRateLimitAccountsState
@@ -85,11 +81,7 @@ function addAgentNodePaths(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
   return env
 }
 
-/**
- * Runs the real agent login attached to the user's terminal so the OAuth
- * URL/device-code prompt is visible and the code can be pasted back — the desktop
- * GUI flow drives this via a browser Orca can't reach on a headless host.
- */
+/** Attach login to the terminal so device-code authentication works on headless hosts. */
 async function runAgentLoginInTerminal(
   command: string,
   args: string[],
@@ -104,8 +96,6 @@ async function runAgentLoginInTerminal(
     try {
       ;({ spawnCmd, spawnArgs } = getSpawnArgsForWindows(resolvedCommand, args))
     } catch (error) {
-      // Why: the bare sentinel message reaches the user verbatim otherwise, with
-      // nothing naming the path or the characters that made it unspawnable.
       rejectPromise(
         error instanceof UnsafeWindowsBatchArgumentsError
           ? new RuntimeClientError(
@@ -118,9 +108,7 @@ async function runAgentLoginInTerminal(
       )
       return
     }
-    // Why paired after the seed: addAgentNodePaths prepends the *newest* version
-    // manager bin, which is not necessarily where this CLI lives. Pairing last puts
-    // the CLI's own node in front of that seed (stablyai/orca#10932).
+    // Put the CLI's own Node ahead of newer version-manager bins to keep the command/runtime pair intact.
     const env = withCliRuntimeOnPath(
       resolvedCommand,
       addAgentNodePaths({ ...stripElectronRunAsNode(process.env), ...extraEnv })
@@ -129,8 +117,7 @@ async function runAgentLoginInTerminal(
     let child: ReturnType<typeof spawn>
     try {
       child = spawn(spawnCmd, spawnArgs, {
-        // Why: JSON mode reserves stdout for the response envelope while keeping
-        // the interactive login attached to the user's terminal via stderr.
+        // Reserve stdout for JSON; keep interactive login on the terminal via stderr.
         stdio: consoleStdio.stdio,
         env
       })
@@ -164,7 +151,6 @@ async function runAgentLoginInTerminal(
   })
 }
 
-/** Signs in to a new account folder the host created, then registers it (superset AddAccountDialog). */
 async function addClaudeAccount({ client, cwd, json }: HandlerContext): Promise<void> {
   const { result: signIn } = await client.call<ClaudeAccountSignIn>(
     'accounts.beginClaudeSignIn',
@@ -178,8 +164,7 @@ async function addClaudeAccount({ client, cwd, json }: HandlerContext): Promise<
   }
   const result = await withInteractiveLoginCleanup(
     session,
-    // Why always: the host keeps a folder that became an account, and deletes an abandoned one.
-    // Never thrown: an older running Orca lacks the method, and the add itself already finished.
+    // Cancel cleans abandoned folders and preserves registered accounts; older hosts may lack the method.
     async () => {
       const { accountId, runtime, wslDistro } = signIn
       await client
@@ -216,7 +201,6 @@ async function addClaudeAccount({ client, cwd, json }: HandlerContext): Promise<
   printResult(result, json, (state) => formatAccountsBlock('Claude', state))
 }
 
-/** Logs into a Codex account in a temp CODEX_HOME, then registers it with the local runtime. */
 async function addCodexAccount({ client, cwd, json }: HandlerContext): Promise<void> {
   const codexHome = mkdtempSync(join(tmpdir(), 'orca-account-add-codex-'))
   const session: InteractiveLoginSession = {
@@ -278,15 +262,14 @@ export const ACCOUNT_HANDLERS: Record<string, CommandHandler> = {
         `Unsupported --agent "${agent}". Use "claude" or "codex".`
       )
     }
-    // Why: fail on runtime version skew before burning a full OAuth round trip.
+    // Check runtime support before spending an OAuth round trip.
     await assertAccountImportSupported(ctx)
     await ctx.client.call('accounts.list', { refreshUsage: false })
     await (agent === 'claude' ? addClaudeAccount(ctx) : addCodexAccount(ctx))
   },
   'account list': async (ctx) => {
     const { client, json } = ctx
-    // Why: this command renders no usage numbers, so skip the forced provider
-    // refresh — it is one serial network round-trip per managed account.
+    // Listing shows no usage, so avoid a serial provider refresh for every account.
     const result = await client.call<AccountsListSnapshot>('accounts.list', {
       refreshUsage: false
     })

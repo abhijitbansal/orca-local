@@ -42,19 +42,18 @@ export function installClientHostedPaneApi(overrides?: {
     configurable: true,
     value: {
       browser: {
-        onDownloadRequested: inert,
-        onDownloadProgress: inert,
-        onDownloadFinished: inert,
         onPopup: inert,
         onPermissionDenied: inert,
         onContextMenuRequested: inert,
         onContextMenuDismissed: inert,
+        onTargetUrlChanged: inert,
         openDevTools: vi.fn(async () => true),
         proceedCertificate: vi.fn(async () => ({ ok: true })),
         ...overrides?.browser
       },
       ui: {
         onFocusBrowserAddressBar: inert,
+        onShowBrowserHistory: inert,
         onFindInBrowserPage: inert,
         onBrowserHistoryNavigate: inert,
         onReloadBrowserPage: inert,

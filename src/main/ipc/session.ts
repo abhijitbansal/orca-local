@@ -39,10 +39,9 @@ export function registerSessionHandlers(store: Store, runtime: OrcaRuntimeServic
       if (typeof args?.worktreeId !== 'string' || !target) {
         throw new Error('invalid_terminal_surface')
       }
-      // Why only these two: main alone closes a tab for its process exit.
+      // Only main may close tabs for process exit.
       const reason = args.reason === 'cleanup' ? 'cleanup' : 'user'
       if (reason === 'user') {
-        // A launch still starting or delivering in what the user closed stops, and says so.
         markAgentLaunchesClosedByUser(args.worktreeId, target)
       }
       return runtime.closeTerminalSurfaceFromRenderer({

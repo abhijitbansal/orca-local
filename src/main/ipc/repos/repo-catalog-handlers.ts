@@ -1,6 +1,7 @@
 import type { BrowserWindow } from 'electron'
 import { ipcMain } from 'electron'
 import type { Store } from '../../persistence'
+import type { OrcaRuntimeService } from '../../runtime/orca-runtime'
 import type { Project, ProjectUpdateArgs } from '../../../shared/project-types'
 import { normalizeExecutionHostId } from '../../../shared/execution-host'
 import { enrichRepoGitUsernames } from '../../repo-git-username-enrichment'
@@ -8,8 +9,18 @@ import { enrichMissingRepoGitRemoteIdentities } from '../../repo-git-remote-iden
 import { invalidateAuthorizedRootsCache } from '../registered-worktree-roots-cache'
 import { notifyReposChanged } from './repos-changed-notification'
 import { ProjectUpdateIpcArgs, parseProjectGroupIpcArgs } from './repo-ipc-arg-schemas'
+import { assertWslMoveProjectWritable } from '../../persistence/moving-wsl-projects/wsl-move-scope-guard'
+import { assertWslMoveReposWritable } from '../../persistence/moving-wsl-projects/wsl-move-scope-guard'
+import { getRepoExecutionHostId } from '../../../shared/execution-host'
+import { isWslMoveSourceHost } from '../../persistence/moving-wsl-projects/wsl-move-scope-guard'
+import { parseExecutionHostId } from '../../../shared/execution-host'
+import { scheduleCurrentWorktreeBaseDirectoryWatcherSync } from '../worktree-base-directory-watcher'
 
-export function registerRepoCatalogHandlers(mainWindow: BrowserWindow, store: Store): void {
+export function registerRepoCatalogHandlers(
+  mainWindow: BrowserWindow,
+  store: Store,
+  runtime: Pick<OrcaRuntimeService, 'removeProject'>
+): void {
   // Why one shared reference: enrichment dedupes coalesced callers by callback identity, so a fresh
   // closure per list call would stack up (and re-broadcast) for the length of a slow sweep.
   const broadcastReposChanged = (): void => notifyReposChanged(mainWindow)
@@ -32,6 +43,8 @@ export function registerRepoCatalogHandlers(mainWindow: BrowserWindow, store: St
       rawArgs,
       'project_update_invalid_args'
     )
+    const project = store.getProjects().find((entry) => entry.id === args.projectId)
+    assertWslMoveReposWritable(store, project?.sourceRepoIds ?? [])
     return store.updateProject(args.projectId, args.updates)
   })
 
@@ -43,7 +56,7 @@ export function registerRepoCatalogHandlers(mainWindow: BrowserWindow, store: St
   ipcMain.handle(
     'repos:reorder',
     (_event, args: { orderedIds: string[] }): { status: 'applied' | 'rejected' } => {
-      // Why: a permutation mismatch means the renderer's drag was stale vs a concurrent add/remove; reject so it can resync.
+      // Reject stale drag permutations so the renderer can resync after concurrent changes.
       const ids = Array.isArray(args?.orderedIds) ? args.orderedIds : []
       const applied = store.reorderRepos(ids)
       if (applied) {
@@ -74,7 +87,7 @@ export function registerRepoCatalogHandlers(mainWindow: BrowserWindow, store: St
     }
   )
 
-  // Why: forget a project on one execution host without disturbing the same repo id on other hosts (SSH-workspace forget flow).
+  // Removal is host-scoped because repo IDs can collide.
   ipcMain.handle(
     'repos:removeForHost',
     async (_event, args: { repoId: string; hostId: string }) => {
@@ -82,7 +95,19 @@ export function registerRepoCatalogHandlers(mainWindow: BrowserWindow, store: St
       if (!hostId) {
         throw new Error(`Invalid host ID: ${args.hostId}`)
       }
-      store.removeProjectForHost(args.repoId, hostId)
+      if (isWslMoveSourceHost(hostId)) {
+        assertWslMoveProjectWritable(store, { repoId: args.repoId })
+      }
+      const row = store
+        .getRepos()
+        .find((repo) => repo.id === args.repoId && getRepoExecutionHostId(repo) === hostId)
+      // Runtime sweeps stop local/SSH sessions absent from renderer listings; paired-server rows are residue.
+      if (row && parseExecutionHostId(hostId)?.kind !== 'runtime') {
+        await runtime.removeProject(row)
+        scheduleCurrentWorktreeBaseDirectoryWatcherSync()
+        return
+      }
+      store.removeProjectForHost({ id: args.repoId, executionHostId: hostId })
       invalidateAuthorizedRootsCache()
       notifyReposChanged(mainWindow)
     }

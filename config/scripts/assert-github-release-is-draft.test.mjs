@@ -126,7 +126,9 @@ describe('release draft workflow contract', () => {
       (step) => step.name === 'Verify release remains draft after artifact upload'
     )
 
-    expect(electronBuilderConfig.publish).toBeNull()
+    expect(electronBuilderConfig.publish.releaseType).toBe('draft')
+    expect(cutCheckout.with['fetch-depth']).toBe(0)
+    expect(cutCheckout.with.filter).toBe('blob:none')
     expect(cutCheckout.with['fetch-tags']).toBe(true)
     expect(linuxDraftStep.shell).toBe('bash')
     expect(linuxDraftStep.run).toContain('assert-github-release-is-draft.mjs')

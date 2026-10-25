@@ -1,6 +1,3 @@
-/* oxlint-disable anti-slop/no-module-mocking -- Vitest support module for useIpcEvents-terminal-create-surfacing.test.ts, not shipped code, and it
-   falls outside the *.test / *.spec / tests glob set. That spec already sits at 799 of its 800 max-lines budget, so these 13
-   stubs cannot move back into it without a max-lines disable. */
 import type * as ReactModule from 'react'
 import { vi } from 'vitest'
 import { buildTerminalCreateWindow } from './ipc-events-terminal-create-window-test-fixtures'
@@ -64,6 +61,7 @@ export async function setupTerminalCreateSurfacing(
     setTabLayout,
     tabsByWorktree: {} as Record<string, { id: string; ptyId?: string | null; title?: string }[]>,
     folderWorkspaces: [],
+    sleepingAgentSessionsByPaneKey: {},
     projectGroups: [],
     repos: [{ id: 'repo-1', connectionId: null, executionHostId: 'local' }],
     worktreesByRepo: {
@@ -177,11 +175,15 @@ export async function setupTerminalCreateSurfacing(
     createFloatingWorkspaceTerminalTab,
     isFloatingWorkspacePanelFocused: () => isFloatingPanelFocused()
   }))
-  vi.doMock('@/runtime/web-runtime-session', () => ({
+  vi.doMock('@/runtime/web-runtime-session-tab-lifecycle', () => ({
     activateWebRuntimeSessionTab: vi.fn(),
-    closeWebRuntimeSessionTab: vi.fn(),
-    createWebRuntimeSessionBrowserTab: vi.fn().mockResolvedValue(false),
-    createWebRuntimeSessionTerminal,
+    closeWebRuntimeSessionTab: vi.fn()
+  }))
+  vi.doMock('@/runtime/web-runtime-browser-creation', () => ({
+    createWebRuntimeSessionBrowserTab: vi.fn().mockResolvedValue(false)
+  }))
+  vi.doMock('@/runtime/web-runtime-terminal-creation', () => ({ createWebRuntimeSessionTerminal }))
+  vi.doMock('@/runtime/web-runtime-session-environment', () => ({
     isWebRuntimeSessionActive: vi.fn(() => false)
   }))
   vi.doMock('@/lib/focus-terminal-tab-surface', () => ({

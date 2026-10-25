@@ -151,14 +151,24 @@ describe('ready-for-review required check reuse', () => {
     expect(detector.steps.find((step) => step.id === 'e2e_filter').if).toBe(
       "github.event.pull_request.draft != true && steps.filter.outputs.should_run == 'true'"
     )
-    expect(workflow.jobs.verify.if).toBe('${{ !cancelled() }}')
-    expect(workflow.jobs.verify.needs).toEqual(['code_paths', ...PR_CHECK_JOBS])
+    expect(workflow.jobs.verify.needs).toEqual([
+      'code_paths',
+      'preflight',
+      ...new Set(
+        PR_CHECK_JOBS.filter((job) => job !== 'static_analysis' && job !== 'typecheck').map(
+          (job) => (job === 'orcad_browser' ? 'test' : job)
+        )
+      )
+    ])
   })
 
-  it('does not rerun draft-independent pr-test-loc.yml on readiness changes', () => {
-    const source = readFileSync('.github/workflows/pr-test-loc.yml', 'utf8')
-    const independent = parse(source)
-    expect(independent.on.pull_request.types).toEqual(['opened', 'synchronize', 'reopened'])
-    expect(source).not.toContain('pull_request.draft')
-  })
+  it.each(['pr-test-loc.yml'])(
+    'does not rerun draft-independent %s on readiness changes',
+    (file) => {
+      const source = readFileSync(`.github/workflows/${file}`, 'utf8')
+      const independent = parse(source)
+      expect(independent.on.pull_request.types).toEqual(['opened', 'synchronize', 'reopened'])
+      expect(source).not.toContain('pull_request.draft')
+    }
+  )
 })

@@ -176,7 +176,9 @@ describe('folder composer cache expiry requests', () => {
   )
 
   it('forces the initial check even when a matching fresh result is already cached', async () => {
-    const snapshot = getFolderWorkspaceStatusRequestSnapshot(useAppStore.getState(), request)
+    const snapshot = getFolderWorkspaceStatusRequestSnapshot(useAppStore.getState(), request, {
+      runtimeEnvironmentId: null
+    })
     expect(snapshot).not.toBeNull()
     useAppStore.setState({
       folderWorkspacePathStatuses: {
@@ -226,7 +228,9 @@ describe('folder composer cache expiry requests', () => {
   })
 
   it('keeps a real pending check pending when fresh cache is removed after unrelated expiry', async () => {
-    const snapshot = getFolderWorkspaceStatusRequestSnapshot(useAppStore.getState(), request)
+    const snapshot = getFolderWorkspaceStatusRequestSnapshot(useAppStore.getState(), request, {
+      runtimeEnvironmentId: null
+    })
     expect(snapshot).not.toBeNull()
     useAppStore.setState((state) => ({
       folderWorkspacePathStatuses: {

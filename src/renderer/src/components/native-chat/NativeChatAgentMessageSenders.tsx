@@ -2,13 +2,13 @@ import { Fragment } from 'react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import { openAgentMessageSender } from '@/lib/open-agent-message-sender'
-import type { RuntimeClientTarget } from '@/runtime/runtime-client-target'
+import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
 import { useNativeChatVisualOwner } from './native-chat-visual-owner'
 import {
   agentMessageSendersShown,
   type AgentMessageSender,
   type AgentMessageSource
-} from '../../../../shared/agent-session-message-source'
+} from '../../../../shared/agent-session/agent-session-message-source'
 import {
   unnamedSenderLabel,
   useAgentMessageSenderLabel
@@ -30,7 +30,7 @@ export function NativeChatAgentMessageSenders({
   const owner = useNativeChatVisualOwner()
   const worktreeId = owner?.worktreeId ?? chatWorktreeId
   return (
-    <div className="flex min-w-0 max-w-full flex-wrap items-center text-xs text-muted-foreground">
+    <div className="flex min-w-0 max-w-full flex-wrap items-center text-xs text-chat-foreground-faint">
       <span>
         {queued
           ? translate('components.native-chat.queuedMessages.fromSender', 'From')

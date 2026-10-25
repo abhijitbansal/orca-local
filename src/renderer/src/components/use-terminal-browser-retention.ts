@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 import { useAppStore } from '../store'
 import { onBrowserGuestPaintRetentionChange } from './browser-pane/host-guest/browser-guest-paint-retention'
+import { browserTabsVetoGuestEviction } from './browser-pane/host-guest/browser-guest-eviction-veto'
 import {
-  browserTabsVetoGuestEviction,
   selectBrowserGuestEvictionWorktreeIds,
   touchBrowserGuestWorktreeRecency,
   worktreeHoldsLiveBrowserGuests
@@ -34,8 +34,7 @@ export function useTerminalBrowserRetention(controller: TerminalParkingFoundatio
       removeDownloadTracking()
       removePaintRetentionTracking()
     }
-    // oxlint-disable-next-line react-hooks/exhaustive-deps -- the controller setter preserves its original stable identity.
-  }, [])
+  }, [setBrowserGuestRetentionRevision])
 
   useEffect(() => {
     if (!renderedActiveWorktreeId) {
@@ -79,10 +78,12 @@ export function useTerminalBrowserRetention(controller: TerminalParkingFoundatio
         worktreeId
       )
     }
-    // oxlint-disable-next-line react-hooks/exhaustive-deps -- controller refs preserve their original stable identities.
   }, [
+    browserGuestWorktreeRecencyRef,
+    mountedWorktreeIdsRef,
     renderedActiveWorktreeId,
     workspaceSurfaceIds,
+    workspaceSurfaceIdSet,
     browserGuestRetentionBudgetEnabled,
     browserGuestRetentionRevision
   ])

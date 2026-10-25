@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import {
   ExecutionHostNotDispatchableError,
   requireReachableFilesystemRoute,
@@ -9,18 +9,11 @@ import {
 } from './execution-host-provider-dispatch'
 import { createLocalFilesystemProvider } from './local-filesystem-provider'
 import { createLocalGitProvider } from './local-git-provider'
-import { unregisterSshGitProvider } from './ssh-git-dispatch'
-import { unregisterSshFilesystemProvider } from './ssh-filesystem-dispatch'
 import { SSH_HOST_NOT_SERVED_MESSAGE, SshHostNotServedError } from './ssh-host-not-served-error'
 
 const connectionId = 'host-dispatch-target'
 
 describe('execution host provider dispatch', () => {
-  afterEach(() => {
-    unregisterSshGitProvider(connectionId)
-    unregisterSshFilesystemProvider(connectionId)
-  })
-
   it('routes `local` to a per-call local provider factory, never a cached provider', () => {
     expect(resolveGitRouteForHost('local')).toEqual({
       kind: 'local',
@@ -66,12 +59,17 @@ describe('execution host provider dispatch', () => {
       })
     })
 
-    it('fails closed with the typed not-served error for an ssh host', () => {
+    // Characterization: the message is the one an unreachable ssh host already showed.
+    it('throws the typed not-served error for an ssh host', () => {
       for (const require of [requireReachableGitRoute, requireReachableFilesystemRoute]) {
         expect(() => require(`ssh:${connectionId}`)).toThrow(SshHostNotServedError)
-        expect(() => require(`ssh:${connectionId}`)).toThrow(SSH_HOST_NOT_SERVED_MESSAGE)
+        expect(() => require(`ssh:${connectionId}`)).toThrow(
+          'Remote connection dropped. Click Reconnect on the SSH target before retrying.'
+        )
       }
-      expect(SSH_HOST_NOT_SERVED_MESSAGE).toBe('SSH remotes are not supported in this build.')
+      expect(SSH_HOST_NOT_SERVED_MESSAGE).toBe(
+        'Remote connection dropped. Click Reconnect on the SSH target before retrying.'
+      )
     })
 
     it('never hands an ssh host a local provider factory', () => {

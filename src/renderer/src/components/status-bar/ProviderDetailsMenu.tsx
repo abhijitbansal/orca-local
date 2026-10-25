@@ -21,6 +21,7 @@ export function ProviderDetailsMenu({
   iconOnly,
   ariaLabel,
   topContent,
+  hidePanelResetCredits = false,
   open,
   onOpenChange,
   children,
@@ -32,6 +33,7 @@ export function ProviderDetailsMenu({
   iconOnly: boolean
   ariaLabel: string
   topContent?: React.ReactNode
+  hidePanelResetCredits?: boolean
   open?: boolean
   onOpenChange?: (open: boolean) => void
   children?: React.ReactNode
@@ -58,7 +60,12 @@ export function ProviderDetailsMenu({
     <>
       {topContent}
       <div className="p-2">
-        <ProviderPanel p={provider} usagePercentageDisplay={usagePercentageDisplay} />
+        {/* Why: provider-specific action sections may render richer reset-credit UI. */}
+        <ProviderPanel
+          p={provider}
+          showResetCredits={!hidePanelResetCredits}
+          usagePercentageDisplay={usagePercentageDisplay}
+        />
       </div>
       {children ? (
         <>

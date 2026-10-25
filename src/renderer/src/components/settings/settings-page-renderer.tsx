@@ -14,8 +14,7 @@ import {
   renderSessionHistorySettingsSection,
   renderAutomationsSettingsSection,
   renderGeneralSettingsSection,
-  renderSetupGuideSettingsSection,
-  renderShareSkillsSettingsSection
+  renderSetupGuideSettingsSection
 } from './settings-setup-workflow-section-renderers'
 import { renderGitSettingsSection } from './settings-git-task-section-renderers'
 import {
@@ -84,7 +83,7 @@ export function renderSettingsPage(context: SettingsRenderContext): React.JSX.El
         onSelectSection={actions.scrollToSection}
       />
 
-      <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         {!model.isWebClient &&
         shouldShowSettingsHostScopePicker(model.settingsHostScope, model.runtimeEnvironments) ? (
           <SettingsHostScopePicker
@@ -125,7 +124,6 @@ export function renderSettingsPage(context: SettingsRenderContext): React.JSX.El
                 {renderSetupGuideSettingsSection(context)}
                 {renderGeneralSettingsSection(context)}
                 {renderAutomationsSettingsSection(context)}
-                {renderShareSkillsSettingsSection(context)}
                 {renderSessionHistorySettingsSection(context)}
                 {renderGitSettingsSection(context)}
                 {renderTerminalSettingsSection(context)}

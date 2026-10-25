@@ -1,11 +1,11 @@
-import type { RuntimeEnvironmentStatus } from './runtime-host-status'
+import type { RuntimeEnvironmentStatus, RuntimeHostBlockedReason } from './runtime-host-status'
 import {
   LOCAL_EXECUTION_HOST_ID,
   getLocalExecutionHostLabel,
-  getRepoExecutionHostId,
   getSettingsFocusedExecutionHostId,
-  getSshTargetIdForExecutionHost,
-  isRuntimeOwnedSshTargetId,
+  getRepoDialableSshTargetId,
+  isOwnedSshTargetId,
+  normalizeHostPart,
   parseExecutionHostId,
   toRuntimeExecutionHostId,
   toSshExecutionHostId,
@@ -31,6 +31,8 @@ export type ExecutionHostRegistryEntry = {
   health: ExecutionHostHealth
   connectionStatus?: SshConnectionStatus
   compatibility?: RuntimeCompatVerdict
+  /** Present only while health is blocked; local evidence, never published to peers. */
+  blockedReason?: RuntimeHostBlockedReason
   capabilities?: readonly string[]
   appVersion?: string | null
   protocolVersion?: number | null
@@ -47,17 +49,12 @@ type RuntimeEnvironmentSummary = {
   id: string
   name?: string | null
   source?: RuntimeEnvironmentSource
-  orcadDeployment?: { sshTargetId: string } | null
+  orcadDeployment?: { kind?: 'ssh'; sshTargetId: string } | { kind: 'wsl' } | null
 }
 
 type RuntimeStatusByEnvironmentId = ReadonlyMap<string, RuntimeEnvironmentStatus>
 
 export type ExecutionHostSource = 'configured-only' | 'include-references'
-
-function normalizeHostPart(value: string | null | undefined): string | null {
-  const trimmed = value?.trim()
-  return trimmed ? trimmed : null
-}
 
 function runtimeCompatibility(
   status: RuntimeStatus | null | undefined
@@ -160,12 +157,18 @@ function addRuntimeHost(
             snapshot?.transport === 'connecting'
           ? 'connecting'
           : runtimeControlHealth(remoteControl)
+  const health = controlHealth ?? runtimeHealth(status, compatibility, remoteControl)
+  const blockedReason =
+    health === 'blocked'
+      ? (snapshot?.verification === 'blocked' && snapshot.blockedReason) || 'incompatible'
+      : undefined
   setHost(hosts, {
     id: hostId,
     kind: 'runtime',
     label,
     detail: 'Orca server',
-    health: controlHealth ?? runtimeHealth(status, compatibility, remoteControl),
+    health,
+    ...(blockedReason ? { blockedReason } : {}),
     compatibility: compatibility ?? undefined,
     capabilities: metadata?.capabilities,
     appVersion: runtimeStatus?.appVersion ?? metadata?.appVersion ?? null,
@@ -189,12 +192,14 @@ export function buildExecutionHostRegistry(args: {
   // Why: user-chosen per-host display labels override the derived label so a
   // rename in the host menu/settings shows everywhere the registry feeds.
   hostLabelOverrides?: ReadonlyMap<ExecutionHostId, string>
+  /** Defaults to this process's platform, which only the host itself may use. */
+  localHostLabel?: string
 }): ExecutionHostRegistryEntry[] {
   const hosts = new Map<ExecutionHostId, ExecutionHostRegistryEntry>()
   hosts.set(LOCAL_EXECUTION_HOST_ID, {
     id: LOCAL_EXECUTION_HOST_ID,
     kind: 'local',
-    label: getLocalExecutionHostLabel(),
+    label: args.localHostLabel ?? getLocalExecutionHostLabel(),
     detail: 'This computer',
     health: 'local'
   })
@@ -249,14 +254,14 @@ export function buildExecutionHostRegistry(args: {
       }
       // Why: a VM-backed repo's executionHostId is `ssh:runtime-ssh-<id>`. Runtime-owned
       // targets are hidden, so they must not become visible SSH run-target hosts here.
-      if (parsedHost?.kind === 'ssh' && !isRuntimeOwnedSshTargetId(parsedHost.targetId)) {
+      if (parsedHost?.kind === 'ssh' && !isOwnedSshTargetId(parsedHost.targetId)) {
         sshTargetIds.add(parsedHost.targetId)
       }
     }
   }
   for (const targetId of args.sshTargetLabels?.keys() ?? []) {
     const normalized = normalizeHostPart(targetId)
-    if (normalized && !isRuntimeOwnedSshTargetId(normalized)) {
+    if (normalized && !isOwnedSshTargetId(normalized)) {
       sshTargetIds.add(normalized)
     }
   }
@@ -264,8 +269,8 @@ export function buildExecutionHostRegistry(args: {
     for (const repo of args.repos) {
       // Why the host, not `connectionId`: a paired-server repo's `connectionId` is the server's
       // own SSH target, which this client cannot dial.
-      const targetId = getSshTargetIdForExecutionHost(getRepoExecutionHostId(repo))
-      if (targetId && !isRuntimeOwnedSshTargetId(targetId)) {
+      const targetId = getRepoDialableSshTargetId(repo)
+      if (targetId && !isOwnedSshTargetId(targetId)) {
         sshTargetIds.add(targetId)
       }
     }

@@ -2,14 +2,14 @@ name: Clean closed PR caches
 
 on:
   pull_request_target:
-    types: [closed]
+    types: [closed, synchronize]
 
 permissions:
   actions: write
 
 jobs:
   clean:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 5
     steps:
       # No checkout: this runs trusted default-branch code, including for fork PRs.

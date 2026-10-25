@@ -1,15 +1,15 @@
 import { useAppStore } from '@/store'
 import { createBrowserUuid } from '@/lib/browser-uuid'
 import { buildAgentResumeStartupPlan } from '@/lib/tui-agent-startup'
-import { resolveAgentResumeLaunchTarget } from '@/lib/agent-resume-launch-target'
+import {
+  resolveSshHostReportedPlatform,
+  resolveAgentResumeLaunchTarget
+} from '@/lib/agent-resume-launch-target'
 import {
   agentResumeOriginNamesAnotherExecutionHost,
   sleepingRecordNamesAnotherExecutionHost
 } from '@/lib/sleeping-record-execution-host-scope'
-import {
-  resolveTuiAgentLaunchArgs,
-  resolveTuiAgentLaunchEnv
-} from '../../../../../shared/tui-agent-launch-defaults'
+import { resolveResumeLaunchRecipe } from '../../../../../shared/tui-agent-launch-defaults'
 import {
   agentProviderSessionsEqual,
   isResumableTuiAgent,
@@ -20,27 +20,38 @@ import type { ColdRestoreAgentResumeStartup } from './fresh-spawn-types'
 
 import type { ConnectPanePtySession } from './connect-pane-pty-session'
 
+type AppState = ReturnType<typeof useAppStore.getState>
+
+/** The agent session a cold restore of this pane would resume; read-only, so pre-spawn checks can share it. */
+export function findColdRestoreResumeSource(session: ConnectPanePtySession, state: AppState) {
+  const entry = state.agentStatusByPaneKey[session.cacheKey]
+  const sleepingRecordEntry = session.getSleepingRecordForPane(state)
+  const sleepingRecord = sleepingRecordEntry?.record
+  const liveEntry = entry && entry.state !== 'done' ? entry : null
+  const agent = liveEntry ? liveEntry.agentType : sleepingRecord?.agent
+  if (!agent || !isResumableTuiAgent(agent)) {
+    return null
+  }
+  const providerSession = normalizeAgentProviderSession(
+    liveEntry ? liveEntry.providerSession : sleepingRecord?.providerSession
+  )
+  return providerSession ? { agent, providerSession, liveEntry, sleepingRecordEntry } : null
+}
+
 export function bindBuildColdRestoreAgentResumeStartup(session: ConnectPanePtySession): void {
   session.buildColdRestoreAgentResumeStartup = (): ColdRestoreAgentResumeStartup | null => {
     if (session.pendingStartupCommand) {
       return null
     }
     const state = useAppStore.getState()
-    const entry = state.agentStatusByPaneKey[session.cacheKey]
-    const sleepingRecordEntry = session.getSleepingRecordForPane(state)
+    const source = findColdRestoreResumeSource(session, state)
+    if (!source) {
+      return null
+    }
+    const { agent, providerSession, sleepingRecordEntry } = source
+    const entry = source.liveEntry
     const sleepingRecord = sleepingRecordEntry?.record
-
-    const useLiveEntry = entry && entry.state !== 'done'
-    const agent = useLiveEntry ? entry.agentType : sleepingRecord?.agent
-    if (!agent || !isResumableTuiAgent(agent)) {
-      return null
-    }
-    const providerSession = normalizeAgentProviderSession(
-      useLiveEntry ? entry.providerSession : sleepingRecord?.providerSession
-    )
-    if (!providerSession) {
-      return null
-    }
+    const useLiveEntry = entry !== null
     // Why: this is the second issuer of `--resume`, and the one that handles a quit/live record
     // whose pane still exists — the sweep hands those here rather than launching them. A session id
     // names a transcript on the machine that captured it, so replaying one over a pane now attached
@@ -78,24 +89,19 @@ export function bindBuildColdRestoreAgentResumeStartup(session: ConnectPanePtySe
       executionHostId: session.executionHostId,
       worktreePath: session.worktree?.path,
       terminalWindowsShell: state.settings?.terminalWindowsShell,
-      tabShellOverride: session.shellOverride
+      tabShellOverride: session.shellOverride,
+      // Why the transport's runtime: the pane's own connection names the SSH target's owner.
+      remotePlatform: resolveSshHostReportedPlatform(
+        state,
+        session.executionHostId,
+        session.transport.getRuntimeEnvironmentId?.() ?? null
+      )
     })
     const startupPlan = buildAgentResumeStartupPlan({
       agent,
       providerSession,
       cmdOverrides: state.settings?.agentCmdOverrides ?? {},
-      agentArgs:
-        launchConfig !== undefined
-          ? launchConfig.agentArgs
-          : resolveTuiAgentLaunchArgs(agent, state.settings?.agentDefaultArgs),
-      agentEnv:
-        launchConfig !== undefined
-          ? launchConfig.agentEnv
-          : resolveTuiAgentLaunchEnv(agent, state.settings?.agentDefaultEnv),
-      ...(launchConfig?.agentCommand ? { agentCommand: launchConfig.agentCommand } : {}),
-      ...(launchConfig?.ompResumeFilePath
-        ? { ompResumeFilePath: launchConfig.ompResumeFilePath }
-        : {}),
+      ...resolveResumeLaunchRecipe(launchConfig),
       platform: resumeTarget.platform,
       shell: resumeTarget.shell
     })

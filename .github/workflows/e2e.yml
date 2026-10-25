@@ -27,6 +27,12 @@ on:
         description: JSON array of specs to run; empty runs the full suite
         required: false
         type: string
+      managed_ssh_shards:
+        description: Managed SSH shard assignments (use one for small selections)
+        required: false
+        type: choice
+        default: '["1/2","2/2"]'
+        options: ['["1/2","2/2"]', '["1/1"]']
   schedule:
     # One complete daily reference run; targeted PR coverage remains unchanged.
     - cron: '0 17 * * *'
@@ -43,22 +49,60 @@ jobs:
         with:
           ref: ${{ inputs.ref || github.ref }}
 
+      - name: Install native build tools
+        env:
+          ORCA_E2E_APT_PACKAGES: build-essential python3
+        run: &install_e2e_tools |
+          if [ "$ORCA_E2E_APT_PACKAGES" = 'build-essential python3' ] &&
+            command -v make >/dev/null && command -v g++ >/dev/null && command -v python3 >/dev/null; then
+            exit 0
+          fi
+          read -r -a packages <<< "$ORCA_E2E_APT_PACKAGES"
+          if [ -f .github/scripts/prepare-ubuntu-apt.sh ]; then
+            bash .github/scripts/prepare-ubuntu-apt.sh
+          else
+            # Dispatched refs can predate the shared preparation script.
+            for source in /etc/apt/apt-mirrors.txt /etc/apt/sources.list /etc/apt/sources.list.d/*.list /etc/apt/sources.list.d/*.sources; do
+              if [ -f "$source" ]; then
+                sudo sed -i 's|https*://azure\.archive\.ubuntu\.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' "$source"
+              fi
+            done
+            sudo tee /etc/apt/apt.conf.d/99-orca-ci >/dev/null <<'APTCONF'
+          Acquire::http::Timeout "15";
+          Acquire::https::Timeout "15";
+          Acquire::Retries "1";
+          APTCONF
+          fi
+          timeout 120 sudo apt-get update
+          timeout 300 sudo apt-get install -y "${packages[@]}" || timeout 300 sudo apt-get install -y --fix-missing "${packages[@]}"
+
       # Why: the build's plain-Node daemon smoke load resolves node-pty.
       - uses: ./.github/actions/install-node-dependencies
+        id: deps
         with:
           native-runtime: node
+          persist-native-cache: 'false'
+          cache-electron-package: 'true'
+
+      # Save Node's ABI before the Electron preparation replaces the same build paths.
+      - name: Save compiled Node native modules
+        if: steps.deps.outputs.native-cache-key != '' && steps.deps.outputs.native-cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ steps.deps.outputs.native-cache-path }}
+          key: ${{ steps.deps.outputs.native-cache-key }}
 
       # Why: building here avoids parallel builds inside Playwright globalSetup.
       - name: Build E2E outputs
         env:
           VITE_EXPOSE_STORE: 'true'
+          ORCA_CI_MAIN_SOURCEMAPS: '0'
+          LAYOUT_OWNER: ${{ inputs.layout_owner }}
         run: |
-          status=0
-          pnpm run build:relay &
-          relay_pid=$!
-          pnpm run build:electron-vite:parallel --mode e2e || status=1
-          wait "$relay_pid" || status=1
-          exit "$status"
+          if [ -n "$LAYOUT_OWNER" ]; then
+            export ORCA_LAYOUT_OWNER="$LAYOUT_OWNER"
+          fi
+          pnpm run build:electron-vite:parallel --mode e2e
 
       # The CLI emits into out/main too; start only after Electron finishes clearing that tree.
       - name: Build shared E2E CLI
@@ -73,10 +117,29 @@ jobs:
 
       - wait: e2e-cli
 
+      # The switch-on specs skip, rather than fail, when the build left no marker.
+      - name: Check layout-owner build marker
+        if: inputs.layout_owner == 'main'
+        run: test -f out/main/ORCA_LAYOUT_OWNER_MAIN
+
+      - name: Check shared native runtime action
+        id: native-runtime-action
+        run: |
+          if [ -f .github/actions/prepare-native-runtime/action.yml ]; then
+            echo 'available=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'available=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      # The orcad builds downstream refuse to run without the page; older refs predate the action.
+      - uses: ./.github/actions/build-mobile-web-bundle
+        if: hashFiles('.github/actions/build-mobile-web-bundle/action.yml') != ''
+
+      # Foreground: a background JavaScript action reads the event payload while later steps rewrite it.
       - name: Upload E2E build output
         uses: actions/upload-artifact@v7
         with:
-          name: e2e-build-out
+          name: e2e-build-out${{ inputs.artifact_suffix }}
           path: out/
           # Why: build-relay.mjs writes each relay's marker as `out/relay/<platform>/.version`,
           # and upload-artifact drops dotfiles by default — consumers then fail with
@@ -101,15 +164,17 @@ jobs:
       - name: Install native build tools
         run: sudo apt-get update && sudo apt-get install -y build-essential python3
 
-      - uses: ./.github/actions/install-node-dependencies
+      - name: Prepare Electron natives for older refs
+        if: steps.native-runtime-action.outputs.available != 'true' || steps.deps.outputs.node-version == ''
+        uses: ./.github/actions/install-node-dependencies
         with:
           native-runtime: electron
 
   e2e:
     name: e2e ${{ matrix.shard_name }}
-    needs: [build, prepare-native-cache]
+    needs: [build]
     if: inputs.test_files == ''
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -165,7 +230,7 @@ jobs:
       - name: Download E2E build output
         uses: actions/download-artifact@v8
         with:
-          name: e2e-build-out
+          name: e2e-build-out${{ inputs.artifact_suffix }}
           path: out/
 
       # Why: the Electron suite is wall-clock constrained on OSS runners, but
@@ -253,12 +318,13 @@ jobs:
       - name: Download E2E build output
         uses: actions/download-artifact@v8
         with:
-          name: e2e-build-out
+          name: e2e-build-out${{ inputs.artifact_suffix }}
           path: out/
 
       - name: Run changed E2E specs
         env:
           TEST_FILES_JSON: ${{ inputs.test_files }}
+          LAYOUT_OWNER: ${{ inputs.layout_owner }}
         run: |
           # Why the native IME spec is dropped: it test.skip()s itself without
           # ORCA_E2E_NATIVE_IBUS_HANGUL, which this lane cannot set because it has no ibus
@@ -272,17 +338,48 @@ jobs:
           fi
           E2E_ENV=(SKIP_BUILD=1 ORCA_E2E_FORWARD_APP_LOGS=1 ORCA_RELAY_PATH="$GITHUB_WORKSPACE/out/relay")
           E2E_PROJECT_ARGS=()
+          if [ -n "$LAYOUT_OWNER" ]; then
+            test -f out/main/ORCA_LAYOUT_OWNER_MAIN
+            mkdir -p layout-divergence
+            E2E_ENV+=(ORCA_LAYOUT_SAVE_DIVERGENCE_LOG="$PWD/layout-divergence/window-specs.jsonl")
+            E2E_ENV+=(PLAYWRIGHT_JSON_OUTPUT_FILE="$PWD/layout-divergence/window-specs-results.json")
+            E2E_PROJECT_ARGS+=('--reporter=list,json')
+          fi
           if grep -l '@headful' "${TEST_FILES[@]}" >/dev/null; then
             E2E_PROJECT_ARGS+=(--project=electron-headful)
           fi
           xvfb-run --auto-servernum bash .github/scripts/e2e-with-window-manager.sh env "${E2E_ENV[@]}" \
             pnpm run test:e2e "${TEST_FILES[@]}" --workers=1 "${E2E_PROJECT_ARGS[@]}"
 
+      - name: Summarize layout save divergence
+        if: always() && inputs.layout_owner == 'main'
+        continue-on-error: true
+        run: &summarize_layout_divergence |
+          # Either file names a run: a log with no report is unattributed, a report with no log is zero.
+          shopt -s nullglob
+          runs=(layout-divergence/*.jsonl layout-divergence/*-results.json)
+          for run in $(printf '%s\n' "${runs[@]%.jsonl}" | sed 's/-results\.json$//' | sort -u); do
+            node config/scripts/layout-save-divergence-summary.mjs "$run.jsonl" "$run-summary.json" "$run-results.json"
+            if [ -f "$run-results.json" ]; then
+              node config/scripts/ci-e2e-failure-summary.mjs "$run-results.json"
+            fi
+          done
+
+      - name: Upload layout save divergence report
+        if: always() && inputs.layout_owner == 'main'
+        continue-on-error: true
+        uses: actions/upload-artifact@v7
+        with:
+          name: layout-divergence-changed${{ inputs.artifact_suffix }}-attempt-${{ github.run_attempt }}
+          path: layout-divergence/
+          retention-days: 14
+          if-no-files-found: warn
+
       - name: Upload Playwright traces
         if: failure()
         uses: actions/upload-artifact@v7
         with:
-          name: playwright-traces-changed
+          name: playwright-traces-changed${{ inputs.artifact_suffix }}
           path: test-results/
           retention-days: 7
           if-no-files-found: ignore

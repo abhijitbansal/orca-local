@@ -4,11 +4,6 @@ import {
 } from './browser-network-execution-route'
 import { LocalOnlyUnsupportedError } from '../../shared/local-only-unsupported-error'
 
-/**
- * Dispatches an execution-host descriptor to its transport-specific route
- * resolver. Imports stay dynamic so the WSL route loads only when a WSL host is used; the
- * runtime bundles this module, so it must not import Electron.
- */
 export const resolveBrowserNetworkExecutionRoute: BrowserNetworkExecutionRouteResolver = async (
   context
 ) => {

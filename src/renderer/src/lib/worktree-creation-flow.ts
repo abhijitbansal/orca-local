@@ -109,6 +109,7 @@ export function continueBackgroundWorktreeCreation(
     status: 'creating',
     startedAt: Date.now(),
     error: undefined,
+    checkoutProgress: undefined,
     request
   })
   // Why: background work-item preflight can finish after the user moved on; keep
@@ -133,7 +134,8 @@ export function retryBackgroundWorktreeCreation(creationId: string): void {
     status: 'creating',
     startedAt: Date.now(),
     phase: getInitialWorktreeCreationPhase(entry.request),
-    error: undefined
+    error: undefined,
+    checkoutProgress: undefined
   })
   store.setActivePendingWorktreeCreation(creationId)
   store.setActiveView('terminal')

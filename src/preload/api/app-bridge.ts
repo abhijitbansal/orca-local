@@ -14,6 +14,8 @@ import type { PreloadApi } from '../api-types'
 
 export const appApi = {
   getVersion: (): Promise<string> => ipcRenderer.invoke('app:getVersion'),
+  getSystemLanguageDetection: (browserPreferences?: readonly string[]) =>
+    ipcRenderer.invoke('app:getSystemLanguageDetection', browserPreferences),
   isProfileStateSaveDelayed: (): Promise<boolean> =>
     ipcRenderer.invoke('app:isProfileStateSaveDelayed'),
   onProfileStateSaveDelayChanged: (callback: (delayed: boolean) => void): (() => void) => {
@@ -23,6 +25,14 @@ export const appApi = {
     return () => ipcRenderer.removeListener('app:profileStateSaveDelayChanged', listener)
   },
   getIdentity: (): Promise<AppIdentity> => ipcRenderer.invoke('app:getIdentity'),
+  getWindowsAdministratorStatus: (): Promise<boolean | null> =>
+    ipcRenderer.invoke('app:getWindowsAdministratorStatus'),
+  restartAsAdministrator: (): Promise<void> =>
+    prepareAndInvokeAppRestart(
+      window,
+      () => ipcRenderer.invoke('app:restartAsAdministrator'),
+      awaitBeforeUnloadCheckpoint
+    ),
   getFeatureWallAssetBaseUrl: (): Promise<string> =>
     ipcRenderer.invoke('app:getFeatureWallAssetBaseUrl'),
   relaunch: (): Promise<void> =>

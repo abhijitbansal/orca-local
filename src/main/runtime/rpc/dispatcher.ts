@@ -187,7 +187,6 @@ export class RpcDispatcher {
       )
       return clientHostedBrowser.result
     }
-
     const compatibility = await legacyOrchestration.tryHandle(request, params, context.signal)
     if (compatibility.handled) {
       return compatibility.result

@@ -1,4 +1,8 @@
 import type { StateCreator } from 'zustand'
+import type { ManagedBrowserProfileOwner } from '../../../../../shared/browser-profile-scope'
+
+/** What a new tab opens on; a partition only when it must not be derived from the profile. */
+export type NewBrowserTabProfile = { sessionProfileId: string | null; sessionPartition?: string }
 import type { AppState } from '../../types'
 import type {
   BrowserCertificateFailure,
@@ -29,6 +33,7 @@ import type {
 } from '@/runtime/client-hosted-browser-close-intents'
 import type { WorkspaceSessionHydrationOptions } from '@/lib/workspace-session-hydration-keys'
 import type { ExecutionHostId } from '../../../../../shared/execution-host'
+import type { TabSplitTarget } from '../tabs/tabs-slice-contract'
 import type { RuntimeBrowserPlacement } from '../../../../../shared/runtime-browser-placement'
 
 export type CreateBrowserTabOptions = {
@@ -39,6 +44,8 @@ export type CreateBrowserTabOptions = {
   sessionPartition?: string | null
   // Place the new tab in a specific group (e.g. "Open Preview to the Side"); defaults to the worktree's active group.
   targetGroupId?: string
+  /** Creates the tab in a new split group instead of targetGroupId. */
+  split?: TabSplitTarget
   /** Client-local unified tab id of the source; the new tab lands right after it when still live. */
   afterTabId?: string
   /** Verified execution host for the new wrapper; unset keeps createUnifiedTab's active-workspace fallback. */
@@ -99,6 +106,11 @@ export type RemoteBrowserPageHandle = {
   restoredClientHosted?: true
 }
 
+export type RemovedBrowserHistory = {
+  browserUrlHistory: BrowserHistoryEntry[]
+  workspaceDocHistory: WorkspaceDocHistoryEntry[]
+}
+
 export type BrowserCookieImportExecutionResult = BrowserCookieImportResult & {
   executionHostId: ExecutionHostId
   executionHostLabel: string
@@ -111,6 +123,10 @@ export type BrowserSlice = {
   browserTabsByWorktree: Record<string, BrowserWorkspace[]>
   browserPagesByWorkspace: Record<string, BrowserPage[]>
   browserCertificateFailuresByPageId: Record<string, BrowserCertificateFailure>
+  /** May precede the page record (client-hosted pages); main's false on guest teardown clears it. */
+  browserAudiblePageIds: Record<string, true>
+  /** Tab mute lives for the tab's life; each new guest of its pages is muted again. */
+  browserAudioMutedTabIds: Record<string, true>
   browserAnnotationsByPageId: Record<string, BrowserPageAnnotation[]>
   browserAnnotationMarkerIdsByPageId: Record<string, string[]>
   remoteBrowserPageHandlesByPageId: Record<string, RemoteBrowserPageHandle>
@@ -145,8 +161,14 @@ export type BrowserSlice = {
     url: string,
     profileId: string | null
   ) => Promise<boolean>
-  closeBrowserTab: (tabId: string, options?: { reason?: 'cleanup' }) => void
-  shutdownWorktreeBrowsers: (worktreeId: string) => Promise<void>
+  closeBrowserTab: (
+    tabId: string,
+    options?: { reason?: 'cleanup'; preserveWorktreeSelection?: boolean }
+  ) => void
+  shutdownWorktreeBrowsers: (
+    worktreeId: string,
+    options?: { preserveWorktreeSelection?: boolean }
+  ) => void
   reopenClosedBrowserTab: (worktreeId: string) => BrowserWorkspace | null
   /** Activation uses the tab's workspace unless a target is supplied; global selection
    *  moves only when that workspace is active. */
@@ -180,6 +202,8 @@ export type BrowserSlice = {
     pageId: string,
     failure: BrowserCertificateFailure | null
   ) => void
+  setBrowserPageAudible: (pageId: string, audible: boolean) => void
+  setBrowserTabAudioMuted: (tabId: string, muted: boolean) => void
   setBrowserTabUrl: (pageId: string, url: string) => void
   setBrowserPageUrl: (pageId: string, url: string, options?: SetBrowserPageUrlOptions) => void
   setRemoteBrowserPageHandle: (pageId: string, handle: RemoteBrowserPageHandle) => void
@@ -223,12 +247,22 @@ export type BrowserSlice = {
     summary: BrowserCookieImportSummary | null
     error: string | null
   } | null
-  fetchBrowserSessionProfiles: () => Promise<void>
+  /** Loads one host's profiles; defaults to the host Browser settings is showing. */
+  fetchBrowserSessionProfiles: (hostId?: ExecutionHostId) => Promise<void>
   createBrowserSessionProfile: (
     scope: 'isolated' | 'imported',
     label: string
   ) => Promise<BrowserSessionProfile | null>
   deleteBrowserSessionProfile: (profileId: string) => Promise<boolean>
+  /** A repo's or workspace's own local profile, at once; a placeholder until main first creates it. */
+  ensureManagedBrowserSessionProfile: (
+    owner: ManagedBrowserProfileOwner,
+    label: string
+  ) => NewBrowserTabProfile
+  /** A removed repo's or workspace's own profile goes with it, whichever host ran the removal. */
+  deleteManagedBrowserSessionProfile: (owner: ManagedBrowserProfileOwner) => Promise<void>
+  /** Managed profiles main has not finished creating; their pages must not mount on any other partition. */
+  managedBrowserProfileStatusById: Record<string, 'pending' | 'failed'>
   importCookiesToProfile: (profileId: string) => Promise<BrowserCookieImportExecutionResult>
   clearBrowserSessionImportState: () => void
   detectedBrowsers: {
@@ -250,14 +284,23 @@ export type BrowserSlice = {
   clearDefaultSessionCookies: () => Promise<boolean>
   browserUrlHistory: BrowserHistoryEntry[]
   addBrowserHistoryEntry: (url: string, title: string, faviconUrl?: string | null) => void
+  /** Returns the removed entry so an Undo can put it back with its visit count. */
+  removeBrowserHistoryEntry: (normalizedUrl: string) => BrowserHistoryEntry | null
+  /** Puts removed or cleared entries back, except ones a revisit has already re-created. */
+  restoreBrowserHistory: (removed: RemovedBrowserHistory) => void
   workspaceDocHistory: WorkspaceDocHistoryEntry[]
+  removeWorkspaceDocHistoryEntry: (docLocation: BrowserPageDocLocation) => void
   /** A visit bumps recency and count; a title-only refresh (bump: false) renames the row. */
   recordWorkspaceDocVisit: (
     docLocation: BrowserPageDocLocation,
     title: string | null,
     options?: { bump?: boolean }
   ) => void
-  clearBrowserHistory: () => void
+  /** Clears pages and documents last visited at or after `since` (everything when omitted). */
+  clearBrowserHistory: (since?: number) => RemovedBrowserHistory
+  /** The page whose history view is open; it opens what you pick in that page. */
+  browserHistoryPageId: string | null
+  setBrowserHistoryPageId: (pageId: string | null) => void
   defaultBrowserSessionProfileId: string | null
   defaultBrowserSessionProfileIdByHostId: Partial<Record<ExecutionHostId, string | null>>
   setDefaultBrowserSessionProfileId: (profileId: string | null) => void

@@ -12,9 +12,13 @@ import { BrowserUseSetup } from './BrowserUsePane'
 import { BrowserSearchEngineSetting } from './BrowserSearchEngineSetting'
 import { BrowserLinkRoutingSetting } from './BrowserLinkRoutingSetting'
 import { BrowserLinkRoutingModifierSetting } from './BrowserLinkRoutingModifierSetting'
+import { BrowserLinkRoutingBackgroundSetting } from './BrowserLinkRoutingBackgroundSetting'
 import { BrowserTerminalLinkActionsSetting } from './BrowserTerminalLinkActionsSetting'
 import { BrowserLocalhostWorktreeLabelsSetting } from './BrowserLocalhostWorktreeLabelsSetting'
+import { BrowserProfileScopeSetting } from './BrowserProfileScopeSetting'
 import { BrowserUserAgentSetting } from './BrowserUserAgentSetting'
+import { BrowserSitePermissionsSetting } from './BrowserSitePermissionsSetting'
+import { SettingsSubsectionHeader } from './SettingsFormControls'
 import { BrowserSessionCookiesSection } from './BrowserSessionCookiesSection'
 import { BrowserNewProfileDialog } from './BrowserNewProfileDialog'
 import {
@@ -109,7 +113,12 @@ export function BrowserPane({
   const showTerminalLinkActions = matchesSettingsSearch(searchQuery, [browserSearchEntries[5]])
   const showLocalhostLabels = matchesSettingsSearch(searchQuery, [browserSearchEntries[6]])
   const showCookies = matchesSettingsSearch(searchQuery, [browserSearchEntries[7]])
-  const showUserAgent = matchesSettingsSearch(searchQuery, [browserSearchEntries[8]])
+  const showClientHostedRemote = matchesSettingsSearch(searchQuery, [browserSearchEntries[8]])
+  const showSshWorkspaceRouting = matchesSettingsSearch(searchQuery, [browserSearchEntries[9]])
+  const showUserAgent = matchesSettingsSearch(searchQuery, [browserSearchEntries[10]])
+  const showSitePermissions = matchesSettingsSearch(searchQuery, [browserSearchEntries[11]])
+  const showProfileScope = matchesSettingsSearch(searchQuery, [browserSearchEntries[12]])
+  const showLinkRoutingBackground = matchesSettingsSearch(searchQuery, [browserSearchEntries[13]])
   const showBrowserUse = matchesSettingsSearch(searchQuery, getBrowserUsePaneSearchEntries())
   const isMac = isMacUserAgent()
   const linkRoutingDescription = getBrowserLinkRoutingDescription(
@@ -243,6 +252,8 @@ export function BrowserPane({
 
       {showUserAgent ? <BrowserUserAgentSetting hostId={settingsFocusedHostId} /> : null}
 
+      {showSitePermissions ? <BrowserSitePermissionsSetting /> : null}
+
       {showLinkRouting ? (
         <BrowserLinkRoutingSetting
           settings={settings}
@@ -260,6 +271,10 @@ export function BrowserPane({
         />
       ) : null}
 
+      {showLinkRoutingBackground ? (
+        <BrowserLinkRoutingBackgroundSetting settings={settings} updateSettings={updateSettings} />
+      ) : null}
+
       {showTerminalLinkActions ? (
         <BrowserTerminalLinkActionsSetting
           settings={settings}
@@ -272,6 +287,21 @@ export function BrowserPane({
         <BrowserLocalhostWorktreeLabelsSetting
           settings={settings}
           updateSettings={updateSettings}
+        />
+      ) : null}
+
+      {showProfileScope ? (
+        <BrowserProfileScopeSetting settings={settings} updateSettings={updateSettings} />
+      ) : null}
+
+      {showClientHostedRemote || showSshWorkspaceRouting ? (
+        <SettingsSubsectionHeader
+          className="pt-2"
+          title={translate('settings.browser.remoteBrowsing.heading', 'Remote browsing')}
+          description={translate(
+            'settings.browser.remoteBrowsing.headingDescription',
+            'Where remote workspace pages render, and where their network traffic leaves from.'
+          )}
         />
       ) : null}
 

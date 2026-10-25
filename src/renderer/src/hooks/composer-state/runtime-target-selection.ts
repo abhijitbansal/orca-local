@@ -1,3 +1,4 @@
+import { ipcOrRuntimeTargetForHostId } from '@/runtime/runtime-client-target'
 import type { ComposerRuntimeTargetSelectionInput } from './composer-target-input-contracts'
 
 import { useEffect, useMemo, useRef } from 'react'
@@ -11,12 +12,16 @@ import { resolveWorkspaceCreationTarget } from '@/lib/project-host-workspace-tar
 import { isGitRepoKind } from '../../../../shared/repo-kind'
 import { CLIENT_PLATFORM } from '@/lib/new-workspace'
 import { getLocalRepoProjectExecutionRuntimeContext } from '@/lib/local-preflight-context'
-import { getAgentLaunchPlatformForRepo } from '@/lib/agent-launch-platform'
+import {
+  resolveExecutionHostAgentStartupShell,
+  resolveRepoExecutionHostPlatform,
+  type ExecutionHostPlatformFact
+} from '@/lib/execution-host-facts'
+import { useAppStore } from '@/store'
 import { repoIsRemote } from '../../../../shared/agent-launch-remote'
-import { resolveLocalWindowsAgentStartupShell } from '../../../../shared/windows-terminal-shell'
 import { buildProjectHostSetupOptions } from '@/lib/project-host-setup-options'
 import { buildNewWorkspaceCreateTargetOptions } from '@/lib/new-workspace-project-options'
-import { getRepoOwnerRoutedSettings } from '@/lib/repo-runtime-owner'
+import { getRuntimeEnvironmentIdForRepo } from '@/lib/repo-runtime-owner'
 
 export function useComposerRuntimeTargetSelection(input: ComposerRuntimeTargetSelectionInput) {
   const {
@@ -24,13 +29,15 @@ export function useComposerRuntimeTargetSelection(input: ComposerRuntimeTargetSe
     activeRepoId,
     eligibleRepos,
     hostOptions,
+    pendingInitialWorkspaceTarget,
     projectGroups,
     projectHostSetups,
     projects,
-    repoId,
+    repoId: requestedRepoId,
     repos,
     selectedProjectGroup,
     selectedProjectHostSetupOverrideId,
+    selectedProjectHostSetupOverrideHostId,
     settings,
     sshConnectionStates,
     workspaceHostScope,
@@ -96,42 +103,64 @@ export function useComposerRuntimeTargetSelection(input: ComposerRuntimeTargetSe
         eligibleRepos,
         projects,
         projectHostSetups,
-        draftRepoId: repoId,
-        projectHostSetupId: selectedProjectHostSetupOverrideId,
+        draftRepoId: requestedRepoId,
+        projectId: pendingInitialWorkspaceTarget?.projectId,
+        hostId: pendingInitialWorkspaceTarget?.hostId,
+        projectHostSetupId:
+          pendingInitialWorkspaceTarget?.projectHostSetupId ?? selectedProjectHostSetupOverrideId,
+        projectHostSetupHostId:
+          pendingInitialWorkspaceTarget?.hostId ??
+          (selectedProjectHostSetupOverrideId ? selectedProjectHostSetupOverrideHostId : null),
         focusedHostScope: workspaceHostScope,
         actionableHostIds
       }),
     [
       actionableHostIds,
       eligibleRepos,
+      pendingInitialWorkspaceTarget,
       projectHostSetups,
       projects,
-      repoId,
+      requestedRepoId,
       selectedProjectHostSetupOverrideId,
+      selectedProjectHostSetupOverrideHostId,
       workspaceHostScope
     ]
   )
 
-  const selectedRepo =
-    selectedWorkspaceTarget.status === 'ready' && selectedWorkspaceTarget.target.repoId === repoId
+  const resolvedRepoId =
+    !isProjectGroupTarget &&
+    pendingInitialWorkspaceTarget &&
+    selectedWorkspaceTarget.status === 'ready'
+      ? selectedWorkspaceTarget.target.repoId
+      : requestedRepoId
+
+  const selectedRepo = isProjectGroupTarget
+    ? eligibleRepos.find((repo) => repo.id === resolvedRepoId)
+    : selectedWorkspaceTarget.status === 'ready' &&
+        selectedWorkspaceTarget.target.repoId === resolvedRepoId
       ? selectedWorkspaceTarget.target.repo
-      : eligibleRepos.find((repo) => repo.id === repoId)
+      : undefined
 
   const selectedRepoIsGit = selectedRepo ? isGitRepoKind(selectedRepo) : false
 
   const selectedRepoExecutionHostId = selectedRepo ? getRepoExecutionHostId(selectedRepo) : null
 
   const selectedRepoHookContextKey = selectedRepo
-    ? JSON.stringify([selectedRepoExecutionHostId ?? 'local', repoId])
+    ? JSON.stringify([selectedRepoExecutionHostId ?? 'local', resolvedRepoId])
     : null
 
-  const selectedRepoAgentLaunchPlatform = useMemo(() => {
+  const sshStateByEnvironment = useAppStore((s) => s.sshStateByEnvironment)
+  const runtimeStatusByEnvironmentId = useAppStore((s) => s.runtimeStatusByEnvironmentId)
+  // Why: the agent runs on the repo's execution host, so its OS decides quoting, not this client's (#22204).
+  const selectedRepoAgentLaunchFact = useMemo((): ExecutionHostPlatformFact => {
     if (!selectedRepo) {
-      return CLIENT_PLATFORM
+      return { kind: 'withheld', reason: 'Select a project first.' }
     }
-    const projectRuntime = selectedRepo.connectionId
-      ? undefined
-      : getLocalRepoProjectExecutionRuntimeContext(
+    return resolveRepoExecutionHostPlatform(
+      { sshConnectionStates, sshStateByEnvironment, runtimeStatusByEnvironmentId },
+      selectedRepo,
+      () =>
+        getLocalRepoProjectExecutionRuntimeContext(
           {
             activeRepoId,
             activeWorktreeId: null,
@@ -143,17 +172,26 @@ export function useComposerRuntimeTargetSelection(input: ComposerRuntimeTargetSe
           selectedRepo.id,
           CLIENT_PLATFORM
         )
-    return getAgentLaunchPlatformForRepo(selectedRepo, projectRuntime)
-  }, [activeRepoId, projects, repos, selectedRepo, settings, worktreesByRepo])
+    )
+  }, [
+    activeRepoId,
+    projects,
+    repos,
+    runtimeStatusByEnvironmentId,
+    selectedRepo,
+    settings,
+    sshConnectionStates,
+    sshStateByEnvironment,
+    worktreesByRepo
+  ])
 
   // Why: SSH remotes deploy the CLI shim as plain `orca`, so the Linux-only `orca-ide` rename must not apply to remote launch commands.
   const selectedRepoIsRemote = selectedRepo ? repoIsRemote(selectedRepo) : false
 
-  const selectedRepoStartupShell = resolveLocalWindowsAgentStartupShell({
-    platform: selectedRepoAgentLaunchPlatform,
-    isRemote: selectedRepoIsRemote,
-    terminalWindowsShell: settings?.terminalWindowsShell
-  })
+  const selectedRepoStartupShell = resolveExecutionHostAgentStartupShell(
+    selectedRepoAgentLaunchFact,
+    settings?.terminalWindowsShell
+  )
 
   const selectedRepoProjectId =
     selectedWorkspaceTarget.status === 'ready' ? selectedWorkspaceTarget.target.projectId : null
@@ -190,16 +228,22 @@ export function useComposerRuntimeTargetSelection(input: ComposerRuntimeTargetSe
     [eligibleRepos, hostOptions, projectGroups, projectHostSetups, projects]
   )
 
-  const selectedRepoSettings = useMemo(() => {
-    if (!settings) {
-      return settings
-    }
-    // Why: probes and attachment uploads inspect the selected repo, even though creation defaults still follow host scope.
-    return getRepoOwnerRoutedSettings(settings, selectedRepo)
-  }, [selectedRepo, settings])
+  // Why: probes and attachment uploads inspect the selected repo, even though creation defaults still follow host scope.
+  const selectedRepoRuntimeEnvironmentId = settings
+    ? getRuntimeEnvironmentIdForRepo(
+        { repos: selectedRepo ? [selectedRepo] : [], settings },
+        selectedRepo?.id ?? null
+      )
+    : null
 
-  const selectedRepoConnectionId = selectedRepo?.connectionId ?? null
+  const selectedRepoTarget = useMemo(
+    () => (selectedRepo ? ipcOrRuntimeTargetForHostId(getRepoExecutionHostId(selectedRepo)) : null),
+    [selectedRepo]
+  )
 
+  // Why the shared gate: a paired server's own SSH target is read from that server (#25887).
+  // Local-only: no SSH-backed projects exist, so there is no connection gate input.
+  const selectedRepoConnectionId: string | null = null
   const selectedRepoSshState = selectedRepoConnectionId
     ? (sshConnectionStates.get(selectedRepoConnectionId) ?? null)
     : null
@@ -207,14 +251,14 @@ export function useComposerRuntimeTargetSelection(input: ComposerRuntimeTargetSe
   const { selectedRepoSshStatus, selectedRepoRequiresConnection, selectedRepoConnectInProgress } =
     getSelectedRepoSshGate({
       connectionId: selectedRepoConnectionId,
-      status: selectedRepoSshState?.status ?? null
+      status: null
     })
 
-  const repoIdRef = useRef(repoId)
+  const repoIdRef = useRef(resolvedRepoId)
 
   useEffect(() => {
-    repoIdRef.current = repoId
-  }, [repoId])
+    repoIdRef.current = resolvedRepoId
+  }, [resolvedRepoId])
 
   return {
     isProjectGroupTarget,
@@ -233,11 +277,12 @@ export function useComposerRuntimeTargetSelection(input: ComposerRuntimeTargetSe
     folderDetectedIds,
     folderDetectedAgentIds,
     selectedWorkspaceTarget,
+    resolvedRepoId,
     selectedRepo,
     selectedRepoIsGit,
     selectedRepoExecutionHostId,
     selectedRepoHookContextKey,
-    selectedRepoAgentLaunchPlatform,
+    selectedRepoAgentLaunchFact,
     selectedRepoIsRemote,
     selectedRepoStartupShell,
     selectedRepoProjectId,
@@ -245,7 +290,8 @@ export function useComposerRuntimeTargetSelection(input: ComposerRuntimeTargetSe
     selectedProjectHostSetupId,
     projectHostSetupOptions,
     projectOptions,
-    selectedRepoSettings,
+    selectedRepoRuntimeEnvironmentId,
+    selectedRepoTarget,
     selectedRepoConnectionId,
     selectedRepoSshState,
     selectedRepoSshStatus,

@@ -69,11 +69,20 @@ vi.mock('./BrowserLinkRoutingSetting', () => ({
 vi.mock('./BrowserLinkRoutingModifierSetting', () => ({
   BrowserLinkRoutingModifierSetting: () => <span>Modifier row</span>
 }))
+vi.mock('./BrowserLinkRoutingBackgroundSetting', () => ({
+  BrowserLinkRoutingBackgroundSetting: () => <span>Background links row</span>
+}))
 vi.mock('./BrowserTerminalLinkActionsSetting', () => ({
   BrowserTerminalLinkActionsSetting: () => <span>Terminal links row</span>
 }))
 vi.mock('./BrowserLocalhostWorktreeLabelsSetting', () => ({
   BrowserLocalhostWorktreeLabelsSetting: () => <span>Localhost row</span>
+}))
+vi.mock('./BrowserSitePermissionsSetting', () => ({
+  BrowserSitePermissionsSetting: () => <span>Site permissions row</span>
+}))
+vi.mock('./BrowserProfileScopeSetting', () => ({
+  BrowserProfileScopeSetting: () => <span>Profile scope row</span>
 }))
 vi.mock('./BrowserUserAgentSetting', () => ({
   BrowserUserAgentSetting: () => <span>Identity row</span>

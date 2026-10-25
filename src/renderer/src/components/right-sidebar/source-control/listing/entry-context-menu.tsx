@@ -19,8 +19,11 @@ import {
   getWorkspaceFileRevealOwner,
   revealInFileManager
 } from '@/lib/reveal-in-file-manager'
-import { getRouteForLocalPathOpenOwner, isLocalPathOpenBlocked } from '@/lib/local-path-open-guard'
-import { getRuntimeEnvironmentIdForWorktree } from '@/lib/worktree-runtime-owner'
+import {
+  getRouteForLocalPathOpenOwner,
+  isRevealOrEditorOpenBlocked
+} from '@/lib/local-path-open-guard'
+import { runtimeEnvironmentIdOrLocalUnlessTwin } from '@/lib/worktree-runtime-owner'
 import { NO_OPEN_IN_APPLICATIONS } from '@/lib/open-in-application-selection'
 import {
   getOpenInEntryAvailability,
@@ -58,12 +61,12 @@ export function SourceControlEntryContextMenu({
   // Why: a repo can belong to a runtime other than the focused one, and the OS reveal
   // cannot tell that host's path from a local one of the same name.
   const runtimeEnvironmentId = useAppStore((s) =>
-    getRuntimeEnvironmentIdForWorktree(s, currentWorktreeId)
+    runtimeEnvironmentIdOrLocalUnlessTwin(s, currentWorktreeId)
   )
   const revealOwner = useAppStore((s) =>
     getWorkspaceFileRevealOwner(s, currentWorktreeId, { connectionId, runtimeEnvironmentId })
   )
-  const revealBlocked = isLocalPathOpenBlocked(revealOwner)
+  const revealBlocked = isRevealOrEditorOpenBlocked(revealOwner)
   const openInRoute = useMemo(() => getRouteForLocalPathOpenOwner(revealOwner), [revealOwner])
 
   const handleCopyPath = useCallback(() => {
@@ -102,10 +105,11 @@ export function SourceControlEntryContextMenu({
         target: 'external-editor',
         worktreePath: absolutePath,
         ...openInRoute,
+        workspace: { workspaceId: currentWorktreeId },
         command
       })
     },
-    [absolutePath, openInRoute]
+    [absolutePath, currentWorktreeId, openInRoute]
   )
 
   return (
@@ -152,7 +156,7 @@ export function SourceControlEntryContextMenu({
                   disabled={!absolutePath || availability.disabled}
                 >
                   {application.command ? (
-                    <OpenInApplicationIcon size={14} />
+                    <OpenInApplicationIcon application={application} size={14} />
                   ) : (
                     <ExternalLink className="size-3.5" />
                   )}

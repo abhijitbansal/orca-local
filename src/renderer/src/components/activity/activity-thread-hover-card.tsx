@@ -1,10 +1,6 @@
 import React, { useCallback } from 'react'
-import { ExternalLink, Pencil, StickyNote } from 'lucide-react'
-import { toast } from 'sonner'
-import { Badge } from '@/components/ui/badge'
+import { Pencil, StickyNote } from 'lucide-react'
 import { HoverCard, HoverCardContent } from '@/components/ui/hover-card'
-import { LinearIcon } from '@/components/icons/LinearIcon'
-import { JiraIcon } from '@/components/icons/JiraIcon'
 import { SelectedTextCopyMenu } from '@/components/SelectedTextCopyMenu'
 import { translate } from '@/i18n/i18n'
 import CommentMarkdown from '../sidebar/CommentMarkdown'
@@ -13,17 +9,17 @@ import {
   WorktreeCardDetailSection,
   WorktreeCardDetailSectionContent
 } from '../sidebar/WorktreeCardDetailSection'
-import { LinearStateBadge } from '../sidebar/WorktreeCardMetadataStatusBadges'
-import { WorktreeCardIssueDetailSection } from '../sidebar/WorktreeCardIssueDetailSection'
 import { WorktreeCardAutomationDetailSection } from '../sidebar/WorktreeCardAutomationDetailSection'
 import { WorktreeCardCliDetailSection } from '../sidebar/WorktreeCardCliDetailSection'
 import { WorktreeCardPortsDetails } from '../sidebar/WorktreeCardPorts'
 import { WORKTREE_NATIVE_CONTEXT_MENU_ATTR } from '../sidebar/WorktreeContextMenu'
 import { useWorktreeCardDetailsHoverControl } from '../sidebar/worktree-card-details-hover-state'
 import { useWorktreeCardFoundation } from '../sidebar/use-worktree-card-foundation'
-import { useWorktreeCardIdentity } from '../sidebar/use-worktree-card-identity'
+import { useWorktreeCardReviewDetails } from '../sidebar/use-worktree-card-review-details'
 import { useWorktreeCardLinkedDetails } from '../sidebar/use-worktree-card-linked-details'
 import { useWorktreeCardSecondaryDetails } from '../sidebar/use-worktree-card-secondary-details'
+import { useWorkspaceReferenceLinkActions } from '../sidebar/use-workspace-reference-link-actions'
+import { LinkActionPopover } from '@/components/link-actions/LinkActionPopover'
 import { ActivityThreadHoverCardSummary } from './activity-thread-hover-card-summary'
 import { ActivityThreadHoverCardTrigger } from './activity-thread-hover-card-trigger'
 import type { AgentPaneThread } from './activity-thread-types'
@@ -51,6 +47,10 @@ export function ActivityThreadHoverCard({
 }: ActivityThreadHoverCardProps): React.JSX.Element {
   const detailsHoverControl = useWorktreeCardDetailsHoverControl()
   const open = detailsHoverControl.hoverOpen && !suppressed
+  const { linkActionRequest, closeLinkActions } = useWorkspaceReferenceLinkActions(
+    thread.worktree.id,
+    detailsHoverControl.closeHover
+  )
 
   return (
     <HoverCard
@@ -59,6 +59,9 @@ export function ActivityThreadHoverCard({
       openDelay={openDelay}
       closeDelay={closeDelay}
     >
+      <span className="contents" onClick={(event) => event.stopPropagation()}>
+        <LinkActionPopover request={linkActionRequest} onClose={closeLinkActions} />
+      </span>
       <ActivityThreadHoverCardTrigger
         open={open}
         onOpenChange={detailsHoverControl.handleHoverOpenChange}
@@ -90,9 +93,10 @@ function ActivityThreadHoverCardContent({
 }): React.JSX.Element {
   const { worktree, repo } = thread
   const foundation = useWorktreeCardFoundation({ worktree, repo: repo ?? undefined })
-  const identity = useWorktreeCardIdentity({
+  const review = useWorktreeCardReviewDetails({
     worktree,
     repo: repo ?? undefined,
+    settings: foundation.settings,
     projectGroups: foundation.projectGroups,
     cardProps: foundation.cardProps,
     newCardStyle: foundation.newCardStyle
@@ -101,7 +105,11 @@ function ActivityThreadHoverCardContent({
     worktree,
     newCardStyle: foundation.newCardStyle,
     deleteState: foundation.deleteState,
-    branch: identity.branch
+    branch: review.branch,
+    issueEntry: review.issueEntry,
+    linearIssueEntry: review.linearIssueEntry,
+    linearIssueFallbackEntry: review.linearIssueFallbackEntry,
+    prDisplay: review.prDisplay
   })
 
   const secondary = useWorktreeCardSecondaryDetails({
@@ -118,39 +126,13 @@ function ActivityThreadHoverCardContent({
     issueDisplay: linked.issueDisplay,
     linearIssueDisplay: linked.linearIssueDisplay,
     jiraIssueDisplay: linked.jiraIssueDisplay,
-    cardProps: foundation.cardProps,
     newCardStyle: foundation.newCardStyle,
     compactCards: foundation.compactCards,
+    cardDetails: foundation.cardDetails,
     agentActivityDisplayMode: foundation.agentActivityDisplayMode,
     workspacePorts: foundation.workspacePorts,
     settings: foundation.settings
   })
-
-  const copyLinkedWorkItemLink = useCallback(async (url: string, label: string) => {
-    try {
-      await window.api.ui.writeClipboardText(url)
-      toast.success(
-        translate('auto.components.sidebar.WorktreeCardMeta.copyLinkSuccess', '{{value0}} copied', {
-          value0: label
-        })
-      )
-    } catch {
-      toast.error(
-        translate('auto.components.sidebar.WorktreeCardMeta.copyLinkFailure', 'Failed to copy link')
-      )
-    }
-  }, [])
-
-  const handleCopyIssueLink = useCallback(() => {
-    if (!secondary.hoverIssue?.url) {
-      return
-    }
-    detailsHoverControl.closeHover()
-    void copyLinkedWorkItemLink(
-      secondary.hoverIssue.url,
-      translate('auto.components.sidebar.WorktreeCardMeta.issueLinkLabel', 'Issue link')
-    )
-  }, [copyLinkedWorkItemLink, detailsHoverControl, secondary.hoverIssue?.url])
 
   const dismissAndRun = useCallback(
     (handler: ((event: React.MouseEvent) => void) | undefined) => (event: React.MouseEvent) => {
@@ -179,101 +161,6 @@ function ActivityThreadHoverCardContent({
           }
           canJumpToWorkspace={canJumpToWorkspace}
         />
-
-        {/* GitHub / GitLab Issue */}
-        <WorktreeCardIssueDetailSection
-          issue={secondary.hoverIssue}
-          issueMenuOpen={detailsHoverControl.issueMenuOpen}
-          onIssueMenuOpenChange={detailsHoverControl.handleIssueMenuOpenChange}
-          onCopyIssueLink={secondary.hoverIssue?.url ? handleCopyIssueLink : undefined}
-          onEditIssue={foundation.handleEditIssue}
-          onOpenIssueInBrowser={
-            secondary.hoverIssue?.url
-              ? (url: string) => {
-                  detailsHoverControl.closeHover()
-                  secondary.handleOpenIssueInBrowser(url)
-                }
-              : undefined
-          }
-        />
-
-        {/* Linear Issue */}
-        {secondary.hoverLinearIssue && (
-          <WorktreeCardDetailSection>
-            <DetailHeader
-              icon={<LinearIcon className="size-3 text-muted-foreground" />}
-              label={translate(
-                'auto.components.sidebar.WorktreeCardMeta.5e982e6128',
-                'Linear {{value0}}',
-                { value0: secondary.hoverLinearIssue.identifier }
-              )}
-              actions={
-                <>
-                  {secondary.hoverLinearIssue.url && (
-                    <MetadataActionIcon
-                      label={translate(
-                        'auto.components.sidebar.WorktreeCardMeta.e42941631a',
-                        'View on Linear'
-                      )}
-                      href={secondary.hoverLinearIssue.url}
-                    >
-                      <ExternalLink className="size-3" />
-                    </MetadataActionIcon>
-                  )}
-                </>
-              }
-            />
-            <WorktreeCardDetailSectionContent className="space-y-1.5">
-              <div className="text-[13px] font-semibold leading-snug text-foreground break-words">
-                {secondary.hoverLinearIssue.title}
-              </div>
-              {((secondary.hoverLinearIssue.labels &&
-                secondary.hoverLinearIssue.labels.length > 0) ||
-                secondary.hoverLinearIssue.stateName) && (
-                <div className="flex flex-wrap gap-1">
-                  {secondary.hoverLinearIssue.stateName && (
-                    <LinearStateBadge stateName={secondary.hoverLinearIssue.stateName} />
-                  )}
-                  {(secondary.hoverLinearIssue.labels ?? []).map((label) => (
-                    <Badge key={label} variant="outline" className="h-4 px-1.5 text-[9px]">
-                      {label}
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </WorktreeCardDetailSectionContent>
-          </WorktreeCardDetailSection>
-        )}
-
-        {/* Jira Issue */}
-        {secondary.hoverJiraIssue && (
-          <WorktreeCardDetailSection>
-            <DetailHeader
-              icon={<JiraIcon className="size-3 text-muted-foreground" />}
-              label={translate(
-                'auto.components.sidebar.WorktreeCardMeta.jiraIssue',
-                'Jira {{value0}}',
-                { value0: secondary.hoverJiraIssue.identifier }
-              )}
-              actions={
-                <MetadataActionIcon
-                  label={translate(
-                    'auto.components.sidebar.WorktreeCardMeta.viewOnJira',
-                    'View on Jira'
-                  )}
-                  href={secondary.hoverJiraIssue.url}
-                >
-                  <ExternalLink className="size-3" />
-                </MetadataActionIcon>
-              }
-            />
-            <WorktreeCardDetailSectionContent>
-              <div className="text-[13px] font-semibold leading-snug text-foreground break-words">
-                {secondary.hoverJiraIssue.title}
-              </div>
-            </WorktreeCardDetailSectionContent>
-          </WorktreeCardDetailSection>
-        )}
 
         {/* Automation Provenance */}
         {secondary.metaAutomationProvenance && (

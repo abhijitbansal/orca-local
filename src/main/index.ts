@@ -21,10 +21,14 @@ import {
 import { recordDurableCrashBreadcrumb } from './crash-reporting/durable-crash-breadcrumb'
 import {
   chooseProfileStateCopy,
+  chooseProfileStateRepair,
   presentProfileStateStartupRecoveryDialog,
   readProfileStateCopySavedTimes
 } from './persistence/profile-state/profile-state-startup-recovery-dialog'
 import { profileStateDesktopRecoveryArgs } from './startup/profile-state-recovery-preflight'
+import { ProfileStateRecoveryRequiredError } from './persistence/profile-state/profile-state-recovery-required'
+import { getProfileUserDataPath } from './orca-profiles/profile-storage-paths'
+import { leaseAppImageGenerationForCurrentProcess } from './cli/appimage-generation-lease'
 
 function openMainWindow(options: { revealOnDidFinishLoad?: boolean } = {}): BrowserWindow {
   return openMainWindowController(options)
@@ -88,8 +92,9 @@ const preflightReady = runMainProcessPreflight({
   requestDesktopActivation
 })
 
-// Why: when another process holds the lock we've already exited; skip file-writing side effects so this transient process never touches userData.
+// Skip userData writes after losing the single-instance lock.
 if (preflightReady) {
+  void leaseAppImageGenerationForCurrentProcess()
   // Why: macOS delivers "Open With" as open-file, often before `ready`, and only to a handler
   // that claims the event. Unsupported paths stay unclaimed.
   app.on('open-file', (event, filePath) => {
@@ -126,8 +131,8 @@ if (preflightReady) {
       console.error(`[profile-state] ${message}`)
       if (!state.isServeMode && !isBackgroundLaunch()) {
         try {
+          const userDataPath = getProfileUserDataPath()
           if (isDivergedProfileStateFailure(error)) {
-            const userDataPath = app.getPath('userData')
             const choice = await chooseProfileStateCopy({
               ...readProfileStateCopySavedTimes(userDataPath),
               showMessageBox: (options) => dialog.showMessageBox(options)
@@ -138,6 +143,31 @@ if (preflightReady) {
                 args: profileStateDesktopRecoveryArgs(process.argv, {
                   userDataPath,
                   selector: { kind: choice }
+                })
+              })
+            }
+            app.exit(1)
+            return
+          }
+          if (
+            error instanceof ProfileStateRecoveryRequiredError &&
+            error.repairableSections !== undefined
+          ) {
+            const sections = error.repairableSections
+            if (
+              await chooseProfileStateRepair({
+                sections,
+                showMessageBox: (options) => dialog.showMessageBox(options)
+              })
+            ) {
+              app.relaunch({
+                args: profileStateDesktopRecoveryArgs(process.argv, {
+                  userDataPath,
+                  profileId: error.profileId,
+                  selector: {
+                    kind: 'repair',
+                    sections: sections.map(({ domain, backupId }) => ({ domain, backupId }))
+                  }
                 })
               })
             }

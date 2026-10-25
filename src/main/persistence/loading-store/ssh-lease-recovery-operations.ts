@@ -1,8 +1,11 @@
+import type { SshPendingPtyKill } from '../../../shared/ssh-pending-pty-kill'
 import type { SshRemotePtyLease } from '../../../shared/ssh-types'
+import type { PtyRetirementEvidence } from '../../pty-exit-proof'
 import {
   getSshRemotePtyLeases as getSshRemotePtyLeasesOperation,
   markSshRemotePtyLease as markSshRemotePtyLeaseOperation,
   removeSshRemotePtyLeases as removeSshRemotePtyLeasesOperation,
+  setSshRemotePtyLeasePendingKill as setSshRemotePtyLeasePendingKillOperation,
   type SshPtyLeaseOperations
 } from '../leasing-ssh-ptys/ssh-pty-lease-operations'
 import {
@@ -19,7 +22,7 @@ import { scheduleSave } from './write-scheduling'
 
 type SshLeaseRecoveryOperationsRuntime = Pick<
   StoreRuntimeState,
-  'dirtyProfileStateDomains' | 'state' | 'runDurableMutation'
+  'dirtyProfileStateDomains' | 'state'
 >
 
 const sshLeaseRecoveryOperationsContext = Symbol('SshLeaseRecoveryOperations')
@@ -54,8 +57,21 @@ export class SshLeaseRecoveryOperations {
     )
   }
 
-  markSshRemotePtyLease(targetId: string, ptyId: string, state: 'terminated'): void {
-    markSshRemotePtyLeaseOperation(getSshPtyLeaseOperations(this), targetId, ptyId, state)
+  markSshRemotePtyLease(targetId: string, ptyId: string, evidence: PtyRetirementEvidence): void {
+    markSshRemotePtyLeaseOperation(getSshPtyLeaseOperations(this), targetId, ptyId, evidence)
+  }
+
+  setSshRemotePtyLeasePendingKill(
+    targetId: string,
+    ptyId: string,
+    pendingKill: SshPendingPtyKill | null
+  ): void {
+    setSshRemotePtyLeasePendingKillOperation(
+      getSshPtyLeaseOperations(this),
+      targetId,
+      ptyId,
+      pendingKill
+    )
   }
 
   removeSshRemotePtyLeases(targetId: string): void {
@@ -80,8 +96,6 @@ function getSshPtyBindingCleanupOperations(
 function getSshPtyLeaseOperations(owner: SshLeaseRecoveryOperations): SshPtyLeaseOperations {
   return {
     state: owner[sshLeaseRecoveryOperationsContext].runtime.state,
-    runDurableMutation: (mutate) =>
-      owner[sshLeaseRecoveryOperationsContext].runtime.runDurableMutation(mutate),
     toStoredPtyId: (targetId, ptyId) =>
       owner[sshLeaseRecoveryOperationsContext].bindingRecovery.getRelayPtyIdForSshLeaseStorage(
         targetId,

@@ -2,6 +2,7 @@ import { defineMethod } from '../../../core'
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
 import { clampOrchestrationAskTimeoutMs } from '../../../../../../shared/orchestration-ask-timeout'
 import { isGroupAddress } from '../../../../orchestration/groups'
+import { dispatchReportMailbox } from '../../../../orchestration/dispatch-report-mailbox'
 import { AskParams } from '../schemas'
 import {
   mailboxAddressOf,
@@ -45,13 +46,6 @@ export const ORCHESTRATION_ASK_METHODS = [
           fromPaneKey: paneKey,
           evidence: orchestrationCompatibilityEvidence
         })
-      }
-      const remoteAttachment = paneKey ? db.findActiveRemoteAttachmentForPane(paneKey) : undefined
-      if (remoteAttachment) {
-        throw new OrchestrationError(
-          'server_required',
-          'Connected-server orchestration is unavailable in this build.'
-        )
       }
       const activeDispatch = db.getActiveDispatchForIdentity(from, paneKey)
       if (!activeDispatch) {
@@ -99,9 +93,11 @@ export const ORCHESTRATION_ASK_METHODS = [
             `Dispatch ${activeDispatch.id} belongs to Run ${run.id}, not ${params.run}.`
           )
         }
+        const reportTo = dispatchReportMailbox(db, activeDispatch)
         if (
           params.to &&
           params.to !== `run:${run.id}` &&
+          params.to !== reportTo &&
           resolveOrchestrationParty(params.to, db).address !==
             mailboxAddressOf(runCoordinatorKey(run))
         ) {
@@ -110,15 +106,18 @@ export const ORCHESTRATION_ASK_METHODS = [
             `ask from Dispatch ${activeDispatch.id} must target its owning Run ${run.id}.`
           )
         }
+        // An explicit Run or coordinator target still reaches the Run; otherwise the asker's creator.
+        const to = params.to && params.to !== reportTo ? `run:${run.id}` : reportTo
         const created = db.createQuestion({
           runId: run.id,
           dispatchId: activeDispatch.id,
           askerHandle: from,
           question: params.question as string,
-          options
+          options,
+          to
         })
         question = created.question
-        runtime.notifyMessageArrived(`run:${run.id}`, created.message.type)
+        runtime.notifyMessageArrived(to, created.message.type)
       }
 
       const questionId = question.message_id

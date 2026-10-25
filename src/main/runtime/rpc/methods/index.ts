@@ -1,4 +1,5 @@
 import { STATUS_METHODS } from './status'
+import { SIDEBAR_INPUT_METHODS } from './sidebar-inputs'
 import { AI_VAULT_METHODS } from './ai-vault'
 import { AUTOMATION_METHODS } from './automations'
 import { REPO_METHODS } from './repo'
@@ -16,6 +17,7 @@ import { ORCHESTRATION_METHODS } from './orchestration'
 import { NOTIFICATION_METHODS } from './notifications'
 import { STATS_METHODS } from './stats'
 import { DIAGNOSTICS_METHODS } from './diagnostics'
+import { TERMINAL_DAEMON_METHODS } from './terminal-daemon'
 import { ACCOUNT_METHODS } from './accounts'
 import { ANTIGRAVITY_ACCOUNT_METHODS } from './antigravity-accounts'
 import { PREFLIGHT_METHODS } from './preflight'
@@ -40,6 +42,10 @@ import { STRUCTURED_AGENT_SESSION_VISUAL_METHODS } from './structured-agent-sess
 import { STRUCTURED_AGENT_SESSION_AGENTS_METHODS } from './structured-agent-session-agents'
 import { AGENT_HOOK_METHODS } from './agent-hooks'
 import { AGENT_LAUNCH_METHODS } from './agent-launch'
+import { LAYOUT_APPLY_METHODS, LAYOUT_VIEW_REPORT_METHODS } from './workspace-layout'
+import { AUTOMATIC_WORK_METHODS } from './automatic-work'
+import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../shared/layout-owner-switch'
+import { ORCA_SIDEBAR_INPUTS_IS_MAIN } from '../../../../shared/sidebar-inputs-switch'
 
 // Why: a flat manifest keeps registration order explicit and provides one
 // grep-point for "what methods does the RPC server expose?" — useful when
@@ -70,11 +76,14 @@ export const ALL_RPC_METHODS = [
   ...NOTIFICATION_METHODS,
   ...STATS_METHODS,
   ...DIAGNOSTICS_METHODS,
+  ...TERMINAL_DAEMON_METHODS,
   ...ACCOUNT_METHODS,
   ...ANTIGRAVITY_ACCOUNT_METHODS,
   ...PREFLIGHT_METHODS,
   ...COMPUTER_METHODS,
   ...SESSION_TAB_METHODS,
+  // Switch point: a window-owned build registers no layout command.
+  ...(ORCA_LAYOUT_OWNER_IS_MAIN ? [...LAYOUT_APPLY_METHODS, ...LAYOUT_VIEW_REPORT_METHODS] : []),
   ...NATIVE_CHAT_METHODS,
   ...FILE_METHODS,
   ...GIT_METHODS,
@@ -86,5 +95,8 @@ export const ALL_RPC_METHODS = [
   ...HOST_CAPABILITY_METHODS,
   ...CLIENT_EVENT_METHODS,
   ...CLIENT_UI_METHODS,
-  ...EMULATOR_METHODS
+  ...EMULATOR_METHODS,
+  // Switch point: a window-fed build publishes no sidebar input.
+  ...(ORCA_SIDEBAR_INPUTS_IS_MAIN ? SIDEBAR_INPUT_METHODS : []),
+  ...AUTOMATIC_WORK_METHODS
 ]

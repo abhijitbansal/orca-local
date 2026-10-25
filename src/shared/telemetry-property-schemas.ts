@@ -197,6 +197,7 @@ export const SETTINGS_CHANGED_WHITELIST = [
   'editorAutoSave',
   'openLinksInApp',
   'openLinksInAppModifierInverts',
+  'openLinksInAppInBackground',
   'terminalLinkActionPopoverEnabled',
   'experimentalMobile',
   'experimentalPet',
@@ -206,6 +207,7 @@ export const SETTINGS_CHANGED_WHITELIST = [
   'experimentalTerminalAttention',
   'experimentalAgentHibernation',
   'experimentalEphemeralVms',
+  'experimentalConnectors',
   'geminiCliOAuthEnabled'
 ] as const satisfies readonly BooleanGlobalSettingsKey[]
 export const settingsChangedKeySchema = z.enum(SETTINGS_CHANGED_WHITELIST)

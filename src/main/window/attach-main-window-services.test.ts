@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Store } from '../persistence'
 import { cancelHistoryGc } from '../terminal-history-gc'
-import type { registerSshHandlers } from '../ipc/ssh'
 import type { registerDaemonManagementHandlers } from '../ipc/pty-management'
 import type { registerWorkspaceCleanupHandlers } from '../ipc/workspace-cleanup'
 import type { startFolderRepoGitUpgradeWatch } from '../ipc/folder-repo-git-upgrade'
@@ -27,7 +26,6 @@ const {
   setWorktreeCatalogRemoteClientNotifierMock,
   registerWorktreeHandlersMock,
   registerPtyHandlersMock,
-  registerSshHandlersMock,
   registerDaemonManagementHandlersMock,
   registerWorkspaceCleanupHandlersMock,
   startFolderRepoGitUpgradeWatchMock,
@@ -55,7 +53,6 @@ const {
   setWorktreeCatalogRemoteClientNotifierMock: vi.fn(),
   registerWorktreeHandlersMock: vi.fn(),
   registerPtyHandlersMock: vi.fn(),
-  registerSshHandlersMock: vi.fn<(...args: Parameters<typeof registerSshHandlers>) => void>(),
   registerDaemonManagementHandlersMock: vi.fn<typeof registerDaemonManagementHandlers>(),
   registerWorkspaceCleanupHandlersMock: vi.fn<typeof registerWorkspaceCleanupHandlers>(),
   startFolderRepoGitUpgradeWatchMock: vi.fn<typeof startFolderRepoGitUpgradeWatch>(),
@@ -115,7 +112,6 @@ vi.mock('../ipc/pty', () => ({
   registerPtyHandlers: registerPtyHandlersMock
 }))
 
-vi.mock('../ipc/ssh', () => ({ registerSshHandlers: registerSshHandlersMock }))
 vi.mock('../ipc/pty-management', () => ({
   registerDaemonManagementHandlers: registerDaemonManagementHandlersMock
 }))
@@ -198,12 +194,6 @@ describe('attachMainWindowServices', () => {
 
     expect(setRepoRemoteClientNotifierMock).toHaveBeenCalledWith(runtime)
     expect(setWorktreeCatalogRemoteClientNotifierMock).toHaveBeenCalledWith(runtime)
-    expect(registerSshHandlersMock).toHaveBeenCalledExactlyOnceWith(
-      store,
-      expect.any(Function),
-      runtime
-    )
-    expect(registerSshHandlersMock.mock.calls[0]?.[1]()).toBe(mainWindow)
     expect(registerDaemonManagementHandlersMock).toHaveBeenCalledExactlyOnceWith()
     expect(registerDaemonManagementHandlersMock).toHaveBeenCalledAfter(registerPtyHandlersMock)
     expect(registerWorkspaceCleanupHandlersMock).toHaveBeenCalledExactlyOnceWith(store)

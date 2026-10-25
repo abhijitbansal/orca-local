@@ -1,10 +1,9 @@
 import React from 'react'
-import { Badge } from '@/components/ui/badge'
+import { useWorkspaceReferenceLinkActions } from './use-workspace-reference-link-actions'
+import { LinkActionPopover } from '@/components/link-actions/LinkActionPopover'
+import { getWorkspaceAttachments } from '../../../../shared/workspace-attachments'
 import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/components/ui/hover-card'
-import { ExternalLink, Pencil, StickyNote } from 'lucide-react'
-import { toast } from 'sonner'
-import { LinearIcon } from '@/components/icons/LinearIcon'
-import { JiraIcon } from '@/components/icons/JiraIcon'
+import { Pencil, StickyNote } from 'lucide-react'
 import { SelectedTextCopyMenu } from '@/components/SelectedTextCopyMenu'
 import { WORKTREE_NATIVE_CONTEXT_MENU_ATTR } from './WorktreeContextMenu'
 import {
@@ -13,7 +12,6 @@ import {
 } from './WorktreeCardDetailSection'
 import { DetailHeader, MetadataActionIcon } from './WorktreeCardMetadataControls'
 import { hasWorktreeCardDetails, WorktreeCardMetaBadges } from './WorktreeCardMetaBadges'
-import { LinearStateBadge } from './WorktreeCardMetadataStatusBadges'
 import { useWorktreeCardDetailsHoverControl } from './worktree-card-details-hover-state'
 import type {
   WorktreeCardIssueDisplay,
@@ -26,7 +24,6 @@ import type {
 import { translate } from '@/i18n/i18n'
 import { WorktreeCardAutomationDetailSection } from './WorktreeCardAutomationDetailSection'
 import { WorktreeCardCliDetailSection } from './WorktreeCardCliDetailSection'
-import { WorktreeCardIssueDetailSection } from './WorktreeCardIssueDetailSection'
 import { WorktreeCardHoverIdentityHeader } from './WorktreeCardHoverIdentityHeader'
 import { CommentMarkdownAsync, preloadCommentMarkdown } from './comment-markdown-lazy'
 
@@ -51,6 +48,8 @@ function hasComment(comment: string | null): boolean {
 }
 
 export function WorktreeCardDetailsHover({
+  workspace,
+  onManageLinks,
   issue,
   linearIssue,
   jiraIssue,
@@ -68,16 +67,17 @@ export function WorktreeCardDetailsHover({
   closeDelay = 120,
   onRenameWorkspaceTitle,
   onWorkspaceTitleEditingChange,
-  onEditIssue,
   onEditComment,
-  onOpenIssueInBrowser,
   onOpenAutomation,
   onOpenAutomationRun,
   hoverControl
 }: WorktreeCardDetailsHoverProps): React.JSX.Element {
   const internalHoverControl = useWorktreeCardDetailsHoverControl()
-  const { hoverOpen, issueMenuOpen, handleHoverOpenChange, handleIssueMenuOpenChange, closeHover } =
-    hoverControl ?? internalHoverControl
+  const { hoverOpen, handleHoverOpenChange, closeHover } = hoverControl ?? internalHoverControl
+  const { linkActionRequest, closeLinkActions } = useWorkspaceReferenceLinkActions(
+    workspace?.id,
+    closeHover
+  )
   const [workspaceTitleEditing, setWorkspaceTitleEditing] = React.useState(false)
   const pendingWorkspaceTitleCloseRef = React.useRef(false)
   const handleWorkspaceTitleEditingChange = React.useCallback(
@@ -109,36 +109,13 @@ export function WorktreeCardDetailsHover({
     },
     [closeHover]
   )
-  const copyLinkedWorkItemLink = React.useCallback(async (url: string, label: string) => {
-    try {
-      // Why: Electron clipboard IPC remains reliable from nested hover/dropdown
-      // overlays where browser clipboard activation can be lost.
-      await window.api.ui.writeClipboardText(url)
-      toast.success(
-        translate('auto.components.sidebar.WorktreeCardMeta.copyLinkSuccess', '{{value0}} copied', {
-          value0: label
-        })
-      )
-    } catch {
-      toast.error(
-        translate('auto.components.sidebar.WorktreeCardMeta.copyLinkFailure', 'Failed to copy link')
-      )
-    }
-  }, [])
-  const handleCopyIssueLink = React.useCallback((): void => {
-    if (!issue?.url) {
-      return
-    }
-    closeHover()
-    void copyLinkedWorkItemLink(
-      issue.url,
-      translate('auto.components.sidebar.WorktreeCardMeta.issueLinkLabel', 'Issue link')
-    )
-  }, [closeHover, copyLinkedWorkItemLink, issue?.url])
   const showIdentityHeader = Boolean(branchName || workspaceTitle)
+  const attachments = getWorkspaceAttachments(workspace ?? {})
 
   if (
     !showIdentityHeader &&
+    attachments.length === 0 &&
+    !onManageLinks &&
     !hasWorktreeCardDetails({
       issue,
       linearIssue,
@@ -160,6 +137,9 @@ export function WorktreeCardDetailsHover({
       openDelay={openDelay}
       closeDelay={closeDelay}
     >
+      <span className="contents" onClick={(event) => event.stopPropagation()}>
+        <LinkActionPopover request={linkActionRequest} onClose={closeLinkActions} />
+      </span>
       <HoverCardTrigger
         asChild
         onPointerEnter={hasComment(comment) ? preloadCommentMarkdown : undefined}
@@ -170,7 +150,7 @@ export function WorktreeCardDetailsHover({
         side="right"
         align="start"
         sideOffset={8}
-        className="w-80 max-h-[28rem] overflow-y-auto p-3 text-xs scrollbar-sleek"
+        variant="workspace-details"
         {...{ [WORKTREE_NATIVE_CONTEXT_MENU_ATTR]: '' }}
         onClick={(event) => event.stopPropagation()}
         onDoubleClick={(event) => event.stopPropagation()}
@@ -185,97 +165,6 @@ export function WorktreeCardDetailsHover({
               onRenameWorkspaceTitle={onRenameWorkspaceTitle}
               onWorkspaceTitleEditingChange={handleWorkspaceTitleEditingChange}
             />
-          )}
-
-          <WorktreeCardIssueDetailSection
-            issue={issue}
-            issueMenuOpen={issueMenuOpen}
-            onIssueMenuOpenChange={handleIssueMenuOpenChange}
-            onCopyIssueLink={issue?.url ? handleCopyIssueLink : undefined}
-            onEditIssue={onEditIssue}
-            onOpenIssueInBrowser={
-              onOpenIssueInBrowser && issue?.url
-                ? (url: string) => {
-                    closeHover()
-                    onOpenIssueInBrowser(url)
-                  }
-                : undefined
-            }
-          />
-
-          {linearIssue && (
-            <WorktreeCardDetailSection>
-              <DetailHeader
-                icon={<LinearIcon className="size-3 text-muted-foreground" />}
-                label={translate(
-                  'auto.components.sidebar.WorktreeCardMeta.5e982e6128',
-                  'Linear {{value0}}',
-                  { value0: linearIssue.identifier }
-                )}
-                actions={
-                  <>
-                    {linearIssue.url && (
-                      <MetadataActionIcon
-                        label={translate(
-                          'auto.components.sidebar.WorktreeCardMeta.e42941631a',
-                          'View on Linear'
-                        )}
-                        href={linearIssue.url}
-                      >
-                        <ExternalLink className="size-3" />
-                      </MetadataActionIcon>
-                    )}
-                  </>
-                }
-              />
-              <WorktreeCardDetailSectionContent className="space-y-1.5">
-                <div className="text-[13px] font-semibold leading-snug text-foreground break-words">
-                  {linearIssue.title}
-                </div>
-                {((linearIssue.labels && linearIssue.labels.length > 0) ||
-                  linearIssue.stateName) && (
-                  <div className="flex flex-wrap gap-1">
-                    {linearIssue.stateName && (
-                      <LinearStateBadge stateName={linearIssue.stateName} />
-                    )}
-                    {(linearIssue.labels ?? []).map((label) => (
-                      <Badge key={label} variant="outline" className="h-4 px-1.5 text-[9px]">
-                        {label}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </WorktreeCardDetailSectionContent>
-            </WorktreeCardDetailSection>
-          )}
-
-          {jiraIssue && (
-            <WorktreeCardDetailSection>
-              <DetailHeader
-                icon={<JiraIcon className="size-3 text-muted-foreground" />}
-                label={translate(
-                  'auto.components.sidebar.WorktreeCardMeta.jiraIssue',
-                  'Jira {{value0}}',
-                  { value0: jiraIssue.identifier }
-                )}
-                actions={
-                  <MetadataActionIcon
-                    label={translate(
-                      'auto.components.sidebar.WorktreeCardMeta.viewOnJira',
-                      'View on Jira'
-                    )}
-                    href={jiraIssue.url}
-                  >
-                    <ExternalLink className="size-3" />
-                  </MetadataActionIcon>
-                }
-              />
-              <WorktreeCardDetailSectionContent>
-                <div className="text-[13px] font-semibold leading-snug text-foreground break-words">
-                  {jiraIssue.title}
-                </div>
-              </WorktreeCardDetailSectionContent>
-            </WorktreeCardDetailSection>
           )}
 
           {automationProvenance && (

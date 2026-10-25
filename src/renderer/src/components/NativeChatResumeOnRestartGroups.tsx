@@ -1,13 +1,11 @@
-import { useMemo } from 'react'
+import { useContext, useMemo } from 'react'
 import { Folder, FolderTree, GitBranch, Monitor } from 'lucide-react'
 import { RepoIconGlyph } from '@/components/repo/repo-icon'
+import { ProjectOptionDetail } from '@/components/new-workspace/ProjectComboboxRow'
 import { WorktreeHostContextBadge } from '@/components/sidebar/WorktreeHostContextBadge'
 import { useSidebarHostScopeOptions } from '@/components/sidebar/use-sidebar-host-scope-options'
 import { translate } from '@/i18n/i18n'
-import {
-  resolveWorktreeBranchLabel,
-  resolveWorktreeDisplayName
-} from '@/lib/worktree-default-display-name'
+import { resolveWorktreeBranchLabel } from '@/lib/worktree-default-display-name'
 import { getHostContextLabel } from '../../../shared/worktree/host-context-labels'
 import {
   LOCAL_EXECUTION_HOST_ID,
@@ -15,6 +13,7 @@ import {
   type ExecutionHostId
 } from '../../../shared/execution-host'
 import { useAppStore } from '../store'
+import * as workspaceDisplay from './native-chat-resume-workspace-display'
 import {
   useLineageAncestors,
   useRepoIdByWorkspace,
@@ -26,6 +25,7 @@ import {
   chatState,
   coveredKeys,
   ResumeTreeDepthContext,
+  ResumeTreeSelectingContext,
   useResumeTreeExpansion,
   type FailureProps,
   type TreeProps
@@ -56,7 +56,8 @@ export type { ResumeCandidate } from './native-chat-resume-on-restart-grouping'
  * level shows only when the machine is not obvious (a remote host, or chats on more than one), and
  * then it is what names the host, so no workspace repeats it.
  *
- * A workspace the store does not know yet (host connecting, or deleted) is named by its id.
+ * A workspace the store does not know yet (host connecting, or deleted) is named by its folder, the
+ * name its id carries.
  */
 
 /** A group node: its row, then (while open) what is under it. */
@@ -82,6 +83,7 @@ function GroupNode({
 }): React.JSX.Element {
   const selection = resumeSelectionState(covered, tree.selected)
   const expanded = tree.isExpanded(nodeKey)
+  const selecting = useContext(ResumeTreeSelectingContext)
   return (
     <>
       <ResumeTreeRow
@@ -95,7 +97,9 @@ function GroupNode({
         checkboxLabel={checkboxLabel}
       >
         {label}
-        <ResumeTreeCount selectedCount={selection.selectedCount} total={selection.total} />
+        {selecting && (
+          <ResumeTreeCount selectedCount={selection.selectedCount} total={selection.total} />
+        )}
       </ResumeTreeRow>
       {/* Collapsing unmounts the rows only; their selection lives with the dialog. */}
       {expanded && children}
@@ -107,12 +111,14 @@ function WorkspaceNode({
   node,
   hostId,
   depth,
-  tree
+  tree,
+  fallbackDisplays
 }: {
   node: ResumeWorkspaceNode
   hostId: ExecutionHostId
   depth: number
   tree: TreeProps
+  fallbackDisplays?: workspaceDisplay.WorkspaceFallbacks
 }): React.JSX.Element {
   const { group } = node
   const first = group.candidates[0]
@@ -120,17 +126,18 @@ function WorkspaceNode({
   const kind = first ? resumeWorkspaceKind(first) : 'git-worktree'
   // Kind comes from the host's record, never from a name.
   const KindGlyph = kind === 'folder' ? Folder : GitBranch
-  const name = (worktree && resolveWorktreeDisplayName(worktree)) || group.workspaceId
+  const fallback = fallbackDisplays?.get(group)
+  const { name, controlName } = workspaceDisplay.resolveNames(worktree, fallback, group.workspaceId)
   const branch = worktree && kind === 'git-worktree' ? resolveWorktreeBranchLabel(worktree) : ''
   return (
     <GroupNode
       nodeKey={`workspace:${hostId}:${group.workspaceId}`}
       depth={depth}
-      name={name}
+      name={controlName}
       checkboxLabel={translate(
         'auto.components.NativeChatResumeOnRestartModal.selectWorkspace',
         'Select all chats in {{value0}}',
-        { value0: name }
+        { value0: controlName }
       )}
       covered={coveredKeys(resumeWorkspaceCandidates(node), tree)}
       tree={tree}
@@ -143,6 +150,12 @@ function WorkspaceNode({
               {branch}
             </span>
           )}
+          {!worktree && fallback?.parentPath && (
+            <ProjectOptionDetail
+              detail={fallback.parentPath}
+              className="shrink-2 text-[11px] text-muted-foreground"
+            />
+          )}
         </>
       }
     >
@@ -153,7 +166,7 @@ function WorkspaceNode({
             <ResumeCandidateRow
               key={chat.key}
               candidate={candidate}
-              workspaceName={name}
+              workspaceName={controlName}
               listedAt={tree.listedAt}
               checked={chat.checked}
               disabled={tree.busy}
@@ -172,6 +185,7 @@ function WorkspaceNode({
           hostId={hostId}
           depth={depth + 1}
           tree={tree}
+          fallbackDisplays={fallbackDisplays}
         />
       ))}
     </GroupNode>
@@ -268,6 +282,7 @@ function MachineContents({
     <>
       {groupResumeWorkspacesByRepo(workspaces, lookup(tree.repoIdOf, null)).map((repoGroup) => {
         const nodes = nestResumeWorkspaces(repoGroup.workspaces, ancestorsOf)
+        const fallbackDisplays = workspaceDisplay.deriveFallbacks(repoGroup)
         // A group the store cannot place has no project to name or select; Select all covers it.
         return repoGroup.repoId === null ? (
           nodes.map((node) => (
@@ -277,6 +292,7 @@ function MachineContents({
               hostId={hostId}
               depth={depth}
               tree={tree}
+              fallbackDisplays={fallbackDisplays}
             />
           ))
         ) : (
@@ -346,13 +362,16 @@ export function ResumeOnRestartGroups({
   failureFor,
   onFailureAction,
   renderStatus,
-  selectableIds
+  selectableIds,
+  selecting = true
 }: {
   candidates: readonly ResumeCandidate[]
   listedAt: number
   busy: boolean
   selected: ReadonlySet<string>
   onToggle: (sessionId: string, checked: boolean) => void
+  /** False once every chat shows a run status, so no checkbox is left to act on. */
+  selecting?: boolean
 } & FailureProps): React.JSX.Element {
   const machines = useMemo(
     () =>
@@ -388,27 +407,29 @@ export function ResumeOnRestartGroups({
   const showMachines =
     machines.length > 1 || machines.some((machine) => machine.hostId !== LOCAL_EXECUTION_HOST_ID)
   return (
-    <div className="flex flex-col">
-      {machines.map((machine) =>
-        showMachines ? (
-          <MachineNode
-            key={machine.hostId}
-            hostId={machine.hostId}
-            candidates={machine.candidates}
-            workspaces={machine.workspaces}
-            hostLabelById={hostLabelById}
-            tree={tree}
-          />
-        ) : (
-          <MachineContents
-            key={machine.hostId}
-            hostId={machine.hostId}
-            workspaces={machine.workspaces}
-            depth={0}
-            tree={tree}
-          />
-        )
-      )}
-    </div>
+    <ResumeTreeSelectingContext.Provider value={selecting}>
+      <div className="flex flex-col">
+        {machines.map((machine) =>
+          showMachines ? (
+            <MachineNode
+              key={machine.hostId}
+              hostId={machine.hostId}
+              candidates={machine.candidates}
+              workspaces={machine.workspaces}
+              hostLabelById={hostLabelById}
+              tree={tree}
+            />
+          ) : (
+            <MachineContents
+              key={machine.hostId}
+              hostId={machine.hostId}
+              workspaces={machine.workspaces}
+              depth={0}
+              tree={tree}
+            />
+          )
+        )}
+      </div>
+    </ResumeTreeSelectingContext.Provider>
   )
 }

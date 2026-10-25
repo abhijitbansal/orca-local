@@ -43,6 +43,7 @@ function createInput(
     promptDelivery: 'auto-submit',
     quickTelemetry: null,
     suppressTerminalFocusOnCompletion: false,
+    setupOnly: false,
     ...overrides
   }
 }
@@ -58,6 +59,7 @@ describe('quick composer creation request', () => {
       linkedTaskSourceContext: null,
       name: 'characterize-request',
       setupDecision: 'inherit',
+      setupOnly: false,
       agent: null,
       pendingFirstAgentMessageRename: false,
       note: '',
@@ -136,5 +138,16 @@ describe('quick composer creation request', () => {
     expect(request).not.toHaveProperty('sparseCheckout')
     expect(request).not.toHaveProperty('linkedGitLabMR')
     expect(request).not.toHaveProperty('linkedGitLabIssue')
+  })
+
+  it('keeps setupOnly only for agentless creates', () => {
+    expect(buildQuickCreationRequest(createInput({ setupOnly: true }))).toHaveProperty(
+      'setupOnly',
+      true
+    )
+    expect(
+      buildQuickCreationRequest(createInput({ setupOnly: true, agent: 'claude' }))
+    ).not.toHaveProperty('setupOnly')
+    expect(buildQuickCreationRequest(createInput())).toHaveProperty('setupOnly', false)
   })
 })

@@ -15,7 +15,7 @@ import { chatAssigneeSessionId } from '../../../../orchestration/chat-assignee'
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
 import { sendChatTask, type ChatTaskDelivery } from '../chat-task-delivery'
 import { dispatchTaskSource } from '../../../../orchestration/dispatch-task-source'
-import type { AgentMessageSource } from '../../../../../../shared/agent-session-message-source'
+import type { AgentMessageSource } from '../../../../../../shared/agent-session/agent-session-message-source'
 import type { WorkerTurnStartObservation } from './worker-start-turn-observation'
 import type { createStructuredWorkerSessionForWorktree } from './worker-topology'
 
@@ -46,6 +46,8 @@ export async function deliverWorkerDispatchPreamble(args: {
   requestId: string
   /** The agent this worker start launched into `terminalHandle`; absent for a caller's terminal. */
   launchedAgent?: string | null
+  /** The caller's readiness budget; a structured worker's start counts against it. */
+  readinessTimeoutMs?: number
 }): Promise<{
   prompt?: RuntimeTerminalSend['prompt']
   structuredTurnStart?: WorkerTurnStartObservation
@@ -86,7 +88,8 @@ export async function deliverWorkerDispatchPreamble(args: {
       sessionId: structuredSession.identity.sessionId,
       dispatchId: args.dispatchId,
       preamble,
-      from: workerTaskSource(args)
+      from: workerTaskSource(args),
+      ...(args.readinessTimeoutMs === undefined ? {} : { budgetMs: args.readinessTimeoutMs })
     })
     return {
       structuredTurnStart:

@@ -139,6 +139,7 @@ describe('useIpcEvents browser tab close routing', () => {
           onCreateTerminal: () => () => {},
           onRequestTerminalCreate: () => () => {},
           onPublishAgentLaunchTab: () => () => {},
+          onRevealTerminalPane: () => () => {},
           onAgentLaunchPaneVerdict: () => () => {},
           onRequestTerminalTabMount: () => () => {},
           replyTerminalCreate: () => {},
@@ -153,11 +154,12 @@ describe('useIpcEvents browser tab close routing', () => {
           onOpenFileFromMobile: () => () => {},
           onOpenDiffFromMobile: () => () => {},
           onCloseTerminal: () => () => {},
-          onSleepWorktree: () => () => {},
+          onWorkspaceSleep: () => () => {},
           onResumeSleepingAgents: () => () => {},
           onNewBrowserTab: () => () => {},
           onNewMarkdownTab: () => () => {},
           onRequestTabCreate: () => () => {},
+          onRequestRemoteCliBrowserScope: () => () => {},
           replyTabCreate: () => {},
           onRequestTabClose: (
             listener: (data: {
@@ -192,6 +194,7 @@ describe('useIpcEvents browser tab close routing', () => {
         browser: {
           onGuestLoadFailed: () => () => {},
           onOpenLinkInOrcaTab: () => () => {},
+          onSessionProfilesChanged: () => () => {},
           onNavigationUpdate: () => () => {},
           onActivateView: () => () => {},
           onPaneFocus: () => () => {}
@@ -350,6 +353,7 @@ describe('useIpcEvents browser tab close routing', () => {
           onCreateTerminal: () => () => {},
           onRequestTerminalCreate: () => () => {},
           onPublishAgentLaunchTab: () => () => {},
+          onRevealTerminalPane: () => () => {},
           onAgentLaunchPaneVerdict: () => () => {},
           onRequestTerminalTabMount: () => () => {},
           replyTerminalCreate: () => {},
@@ -364,11 +368,12 @@ describe('useIpcEvents browser tab close routing', () => {
           onOpenFileFromMobile: () => () => {},
           onOpenDiffFromMobile: () => () => {},
           onCloseTerminal: () => () => {},
-          onSleepWorktree: () => () => {},
+          onWorkspaceSleep: () => () => {},
           onResumeSleepingAgents: () => () => {},
           onNewBrowserTab: () => () => {},
           onNewMarkdownTab: () => () => {},
           onRequestTabCreate: () => () => {},
+          onRequestRemoteCliBrowserScope: () => () => {},
           replyTabCreate: () => {},
           onRequestTabClose: (
             listener: (data: {
@@ -403,6 +408,7 @@ describe('useIpcEvents browser tab close routing', () => {
         browser: {
           onGuestLoadFailed: () => () => {},
           onOpenLinkInOrcaTab: () => () => {},
+          onSessionProfilesChanged: () => () => {},
           onNavigationUpdate: () => () => {},
           onActivateView: () => () => {},
           onPaneFocus: () => () => {}
@@ -556,6 +562,7 @@ describe('useIpcEvents browser tab close routing', () => {
           onCreateTerminal: () => () => {},
           onRequestTerminalCreate: () => () => {},
           onPublishAgentLaunchTab: () => () => {},
+          onRevealTerminalPane: () => () => {},
           onAgentLaunchPaneVerdict: () => () => {},
           onRequestTerminalTabMount: () => () => {},
           replyTerminalCreate: () => {},
@@ -570,11 +577,12 @@ describe('useIpcEvents browser tab close routing', () => {
           onOpenFileFromMobile: () => () => {},
           onOpenDiffFromMobile: () => () => {},
           onCloseTerminal: () => () => {},
-          onSleepWorktree: () => () => {},
+          onWorkspaceSleep: () => () => {},
           onResumeSleepingAgents: () => () => {},
           onNewBrowserTab: () => () => {},
           onNewMarkdownTab: () => () => {},
           onRequestTabCreate: () => () => {},
+          onRequestRemoteCliBrowserScope: () => () => {},
           replyTabCreate: () => {},
           onRequestTabClose: (
             listener: (data: {
@@ -609,6 +617,7 @@ describe('useIpcEvents browser tab close routing', () => {
         browser: {
           onGuestLoadFailed: () => () => {},
           onOpenLinkInOrcaTab: () => () => {},
+          onSessionProfilesChanged: () => () => {},
           onNavigationUpdate: () => () => {},
           onActivateView: () => () => {},
           onPaneFocus: () => () => {}
