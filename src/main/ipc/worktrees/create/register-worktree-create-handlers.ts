@@ -1,4 +1,3 @@
-import { SshHostNotServedError } from '../../../providers/ssh-host-not-served-error'
 import { ipcMain } from 'electron'
 import { getLocalWorktreeCatalogVersion } from '../../../local-worktree-scan-generation'
 import type {
@@ -9,8 +8,6 @@ import {
   addWorktreeCreatePhaseAttributes,
   withWorktreeSpan
 } from '../../../observability/instrumentation'
-import { workspaceSourceSchema } from '../../../../shared/telemetry-events'
-import type { WorkspaceSource } from '../../../../shared/telemetry-events'
 import {
   resolveAutomationWorkspaceProvenance,
   releaseAutomationWorkspaceProvenanceRequest,
@@ -18,14 +15,15 @@ import {
 } from '../../../automations/workspace-provenance'
 import { isFolderRepo } from '../../../../shared/repo-kind'
 import { createLocalWorktree, notifyWorktreesChanged } from '../../worktree-remote'
-import { track } from '../../../telemetry/client'
-import { classifyWorkspaceCreateError } from '../../workspace-create-error-classifier'
-import { getCohortAtEmit } from '../../../telemetry/cohort-classifier'
+import { SshHostNotServedError } from '../../../providers/ssh-host-not-served-error'
 import { normalizeLinkedWorkItemFields } from '../ipc-context-schemas'
 import type { CreateWorktreeArgsWithSystemProvenance } from '../ipc-context-schemas'
 import { createFolderWorkspace } from './folder-workspace-creation'
 import { requireWorktreeCreateRoute } from '../../../worktree-create-execution-host-route'
+import { getRepoExecutionHostId } from '../../../../shared/execution-host'
+import { workspaceLifecycleKey } from '../../../runtime/workspaces/workspace-lifecycle-commands'
 import type { WorktreeIpcContext } from '../worktree-ipc-context'
+import { beginWorkspaceCreateTelemetry } from '../../../workspace-create-telemetry'
 import { assertWslMoveRepoWritable } from '../../../persistence/moving-wsl-projects/wsl-move-scope-guard'
 
 export function registerWorktreeCreateHandlers(context: WorktreeIpcContext): void {
@@ -43,9 +41,6 @@ export function registerWorktreeCreateHandlers(context: WorktreeIpcContext): voi
         }
         assertWslMoveRepoWritable(store, repo)
 
-        const sourceParse = workspaceSourceSchema.safeParse(args.telemetrySource)
-        const source: WorkspaceSource = sourceParse.success ? sourceParse.data : 'unknown'
-
         const automationProvenance = resolveAutomationWorkspaceProvenance({
           authority: runtime,
           repoSelector: args.repoId,
@@ -58,46 +53,55 @@ export function registerWorktreeCreateHandlers(context: WorktreeIpcContext): voi
         }
 
         let result: CreateWorktreeResult
+        // Keep failure telemetry in the handler so rejected creates retain their stage.
+        const telemetry = beginWorkspaceCreateTelemetry({
+          source: args.telemetrySource,
+          entryPoint: 'app',
+          repoPath: repo.path,
+          fromExistingBranch: typeof args.baseBranch === 'string' && args.baseBranch.length > 0,
+          isFolder: isFolderRepo(repo)
+        })
+        const creation = runtime.workspaceLifecycle?.openCreate({
+          creationId: args.creationId,
+          repoId: repo.id,
+          keyOf: (worktreeId) => workspaceLifecycleKey(getRepoExecutionHostId(repo), worktreeId)
+        })
         try {
-          // Why: wrap only the helpers; the pre-validation throws above are IPC-shape bugs, not the git/filesystem failures the funnel tracks.
+          // Track operational failures; malformed IPC rejected above is outside the creation funnel.
           if (isFolderRepo(repo)) {
-            // A folder workspace is a registration, not a filesystem create, so it is host-agnostic.
+            // Folder creation only registers metadata, so it needs no filesystem host route.
             result = createFolderWorkspace(createArgs, repo, store)
           } else {
-            // Resolve the host rather than reading the raw field: an `executionHostId: 'ssh:*'`-only
-            // row read as local here and ran `git worktree add` on the client against a remote path,
-            // while the runtime sibling on the same repo already resolved.
+            // Resolve executionHostId-only SSH ownership before any local Git operation.
             const createRoute = requireWorktreeCreateRoute(repo)
-            result =
-              createRoute.kind === 'ssh'
-                ? (() => {
-                    throw new SshHostNotServedError(createRoute.connectionId)
-                  })()
-                : await createLocalWorktree(createArgs, repo, store, mainWindow, runtime)
+            if (createRoute.kind === 'ssh') {
+              // Record ownership before refusal so failure telemetry retains its host.
+              telemetry.timing.recordExecutionHost('ssh')
+              throw new SshHostNotServedError(createRoute.connectionId)
+            }
+            result = await createLocalWorktree(
+              createArgs,
+              repo,
+              store,
+              mainWindow,
+              runtime,
+              telemetry.timing,
+              creation?.named
+            )
           }
         } catch (error) {
           releaseAutomationWorkspaceProvenanceRequest(args.automationProvenanceRequest)
-          track('workspace_create_failed', {
-            source,
-            error_class: classifyWorkspaceCreateError(error),
-            ...getCohortAtEmit()
-          })
+          telemetry.failed(error)
           throw error
+        } finally {
+          creation?.close()
         }
         finishAutomationWorkspaceProvenanceRequest(args.automationProvenanceRequest)
         if (result.timing) {
           addWorktreeCreatePhaseAttributes(span, result.timing)
         }
 
-        // Why: reaching here means create succeeded (helpers throw); skip a separate workspace_initialized (telemetry-plan.md§Deferred); never send the branch name.
-        track('workspace_created', {
-          source,
-          from_existing_branch:
-            !isFolderRepo(repo) &&
-            typeof args.baseBranch === 'string' &&
-            args.baseBranch.length > 0,
-          ...getCohortAtEmit()
-        })
+        telemetry.succeeded(result.timing)
 
         if (isFolderRepo(repo)) {
           notifyWorktreesChanged(mainWindow, repo.id)
