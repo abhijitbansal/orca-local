@@ -5,7 +5,6 @@ import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import NewWorkspaceComposerCard from './NewWorkspaceComposerCard'
 import type { NewWorkspaceProjectOption } from '@/lib/new-workspace-project-options'
-import type { ProjectHostSetupOption } from '@/lib/project-host-setup-options'
 
 const storeMocks = vi.hoisted(() => ({
   closeModal: vi.fn(),
@@ -146,72 +145,10 @@ const sourceRepos = [
   }
 ]
 
-const localReadyHostOption: ProjectHostSetupOption = {
-  kind: 'ready',
-  id: 'setup-local',
-  projectId: 'project-group:platform',
-  hostId: 'local',
-  repoId: 'repo-a',
-  label: 'Local Mac',
-  detail: 'Orca',
-  path: '/Users/alice/orca'
-}
-
-const devboxNeedsSetupHostOption: ProjectHostSetupOption = {
-  kind: 'needs-setup',
-  id: 'needs-setup:ssh:devbox',
-  projectId: 'project-group:platform',
-  hostId: 'ssh:devbox',
-  label: 'Devbox',
-  detail: 'Project location not set',
-  isAvailable: true,
-  attention: false,
-  canSetLocation: true
-}
-
-function makeDisconnectedHostOption(targetId: string, label: string): ProjectHostSetupOption {
-  return {
-    kind: 'needs-setup',
-    id: `needs-setup:ssh:${targetId}`,
-    projectId: 'project-group:platform',
-    hostId: `ssh:${targetId}`,
-    label,
-    detail: 'Connect this host to set up projects',
-    isAvailable: false,
-    attention: false,
-    canSetLocation: false,
-    connectAction: { kind: 'ssh', targetId }
-  }
-}
-
-const disconnectedDevboxNeedsSetupHostOption = makeDisconnectedHostOption('devbox', 'Devbox')
-const disconnectedBastionNeedsSetupHostOption = makeDisconnectedHostOption('bastion', 'Bastion')
-
 const pnpmInstallSetupConfig = {
   source: 'yaml' as const,
   command: 'pnpm install',
   kind: 'setup' as const
-}
-
-const vmRecipeHostOptions: ProjectHostSetupOption[] = [
-  localReadyHostOption,
-  {
-    kind: 'ready',
-    id: 'setup-builder',
-    projectId: 'project-group:platform',
-    hostId: 'ssh:builder',
-    repoId: 'repo-a',
-    label: 'Builder',
-    detail: 'Orca',
-    path: '/workspace/orca'
-  }
-]
-
-function findConnectButton(label: string): HTMLButtonElement | undefined {
-  const item = findRunTargetItem(label)
-  return [...(item?.querySelectorAll('button') ?? [])].find((button) =>
-    button.textContent?.includes('Connect')
-  )
 }
 
 function renderCard(
@@ -304,22 +241,6 @@ function changeInputValue(input: HTMLInputElement, value: string): void {
     valueSetter?.call(input, value)
     input.dispatchEvent(new Event('input', { bubbles: true }))
   })
-}
-
-function openRunTargetPicker(container: HTMLElement): void {
-  // The field is the search box; clicking its shell focuses it and opens the list.
-  const runTargetShell = container.querySelector<HTMLElement>(
-    'div[data-run-target-combobox-root="true"]'
-  )
-  expect(runTargetShell).toBeTruthy()
-  act(() => runTargetShell?.click())
-}
-
-function findRunTargetItem(label: string): HTMLElement | undefined {
-  // Rows are listbox options; "Add host" is the pinned footer row (also an option).
-  return [
-    ...document.body.querySelectorAll<HTMLElement>('[role="option"], [data-run-target-add-host]')
-  ].find((item) => item.textContent?.includes(label))
 }
 
 let current: { container: HTMLDivElement; root: Root } | null = null
@@ -418,26 +339,6 @@ describe('NewWorkspaceComposerCard folder task source mode', () => {
     expect(nameInput?.getAttribute('data-repo-backed-search-names')).toBe('Repo A,Repo B')
     expect(current.container.querySelector('[data-testid="repo-backed-source-trigger"]')).toBeNull()
     expect(current.container.querySelectorAll('[data-testid="project-combobox"]')).toHaveLength(1)
-  })
-
-  it('scopes the workspace-creation-project tour target to the project picker rather than the run target picker', () => {
-    current = renderCard({ projectHostSetupOptions: [localReadyHostOption] })
-
-    const projectTourTarget = current.container.querySelector(
-      '[data-contextual-tour-target="workspace-creation-project"]'
-    )
-    expect(projectTourTarget).toBeTruthy()
-    expect(projectTourTarget?.querySelector('[data-project-combobox-root="true"]')).toBeTruthy()
-    expect(projectTourTarget?.querySelector('[data-run-target-combobox-root="true"]')).toBeNull()
-    expect(projectTourTarget?.textContent).not.toContain('Run on')
-    expect(projectTourTarget?.querySelector('label')).toBeNull()
-    expect(projectTourTarget?.querySelector('[aria-label="Add project"]')).toBeNull()
-    expect(current.container.querySelector('[aria-label="Add project"]')).toBeTruthy()
-
-    const runTargetPicker = current.container.querySelector(
-      'div[data-run-target-combobox-root="true"]'
-    )
-    expect(runTargetPicker).toBeTruthy()
   })
 
   it('keeps the reuse-branch row collapsed until a local branch is reusable', () => {
@@ -646,241 +547,6 @@ describe('NewWorkspaceComposerCard folder task source mode', () => {
         .querySelector('[aria-label="workspace name"]')
         ?.getAttribute('data-repo-backed-sources-disabled')
     ).toBe('false')
-  })
-
-  it('shows setup-needed hosts in the run target picker when one setup is ready', () => {
-    current = renderCard({
-      projectHostSetupOptions: [localReadyHostOption, devboxNeedsSetupHostOption],
-      selectedProjectHostSetupId: 'setup-local'
-    })
-
-    expect(current.container.textContent).toContain('Run on')
-    openRunTargetPicker(current.container)
-
-    const devboxItem = findRunTargetItem('Devbox')
-    expect(devboxItem?.textContent).not.toContain('Project location not set')
-    expect(devboxItem?.textContent).toContain('Set project location')
-    // Not-connected rows stay highlightable (never `disabled`) so they hover like
-    // the other rows; they're quieted visually instead.
-    expect(devboxItem?.hasAttribute('data-disabled')).toBe(false)
-    expect(devboxItem?.getAttribute('role')).toBe('option')
-  })
-
-  it('shows the run target picker for one ready setup so hosts can be added', () => {
-    current = renderCard({
-      projectHostSetupOptions: [localReadyHostOption],
-      selectedProjectHostSetupId: 'setup-local'
-    })
-
-    expect(current.container.textContent).toContain('Run on')
-    openRunTargetPicker(current.container)
-    expect(findRunTargetItem('Add host')).toBeTruthy()
-  })
-
-  it('does not select setup-needed run target rows', () => {
-    const hostChanges: string[] = []
-    current = renderCard({
-      projectHostSetupOptions: [localReadyHostOption, devboxNeedsSetupHostOption],
-      selectedProjectHostSetupId: 'setup-local',
-      onProjectHostSetupChange: (setupId) => hostChanges.push(setupId)
-    })
-
-    openRunTargetPicker(current.container)
-    const devboxItem = findRunTargetItem('Devbox')
-    expect(devboxItem).toBeTruthy()
-    act(() => devboxItem?.click())
-
-    expect(hostChanges).toEqual([])
-  })
-
-  it('connects disconnected setup-needed SSH hosts without selecting them', async () => {
-    const hostChanges: string[] = []
-    current = renderCard({
-      projectHostSetupOptions: [localReadyHostOption, disconnectedDevboxNeedsSetupHostOption],
-      selectedProjectHostSetupId: 'setup-local',
-      onProjectHostSetupChange: (setupId) => hostChanges.push(setupId)
-    })
-
-    openRunTargetPicker(current.container)
-    const devboxItem = findRunTargetItem('Devbox')
-    expect(devboxItem).toBeTruthy()
-    const connectButton = [...(devboxItem?.querySelectorAll('button') ?? [])].find((button) =>
-      button.textContent?.includes('Connect')
-    )
-    expect(connectButton).toBeTruthy()
-
-    await act(async () => {
-      connectButton?.click()
-    })
-
-    expect(apiMocks.sshConnect).toHaveBeenCalledWith({ targetId: 'devbox' })
-    expect(hostChanges).toEqual([])
-    // The picker stays open so the connecting state is visible; the row is not auto-selected.
-    expect(findRunTargetItem('Devbox')).toBeTruthy()
-  })
-
-  it('keeps other hosts connectable while one connect is still in flight', async () => {
-    // First host's connect never resolves — a stalled connect must not disable the others.
-    apiMocks.sshConnect.mockImplementation(({ targetId }: { targetId: string }) =>
-      targetId === 'devbox' ? new Promise(() => {}) : Promise.resolve(undefined)
-    )
-    current = renderCard({
-      projectHostSetupOptions: [
-        localReadyHostOption,
-        disconnectedDevboxNeedsSetupHostOption,
-        disconnectedBastionNeedsSetupHostOption
-      ],
-      selectedProjectHostSetupId: 'setup-local'
-    })
-
-    openRunTargetPicker(current.container)
-    await act(async () => {
-      findConnectButton('Devbox')?.click()
-    })
-
-    // The picker stays open through the connect, so the state is inspectable in place.
-    // Devbox is mid-connect: disabled, showing the connecting indicator; Bastion stays clickable.
-    const devboxButton = findConnectButton('Devbox')
-    expect(devboxButton?.disabled).toBe(true)
-    expect(devboxButton?.textContent).toContain('Connecting')
-    const bastionButton = findConnectButton('Bastion')
-    expect(bastionButton?.disabled).toBe(false)
-    expect(bastionButton?.textContent).toContain('Connect')
-
-    await act(async () => {
-      bastionButton?.click()
-    })
-    expect(apiMocks.sshConnect).toHaveBeenCalledWith({ targetId: 'bastion' })
-  })
-
-  it('stops the connecting indicator when the connect fails', async () => {
-    // A failed connect must clear the spinner and restore the Connect button so the user
-    // can retry — the row can't stay stuck on "Connecting" after the error.
-    apiMocks.sshConnect.mockRejectedValue(new Error('connection refused'))
-    current = renderCard({
-      projectHostSetupOptions: [localReadyHostOption, disconnectedDevboxNeedsSetupHostOption],
-      selectedProjectHostSetupId: 'setup-local'
-    })
-
-    openRunTargetPicker(current.container)
-    await act(async () => {
-      findConnectButton('Devbox')?.click()
-    })
-
-    const devboxButton = findConnectButton('Devbox')
-    expect(devboxButton?.disabled).toBe(false)
-    expect(devboxButton?.textContent).toContain('Connect')
-    expect(devboxButton?.textContent).not.toContain('Connecting')
-  })
-
-  it('opens the SSH host add dialog over the composer without leaving for Settings', () => {
-    current = renderCard({
-      projectHostSetupOptions: [localReadyHostOption, devboxNeedsSetupHostOption],
-      selectedProjectHostSetupId: 'setup-local'
-    })
-
-    openRunTargetPicker(current.container)
-    act(() => findRunTargetItem('Add host')?.click())
-    act(() => findRunTargetItem('Add SSH host')?.click())
-
-    const dialog = document.body.querySelector('[data-testid="add-remote-host-dialog"]')
-    expect(dialog?.getAttribute('data-mode')).toBe('ssh')
-    // The composer stays put — no navigation that would discard the in-progress form.
-    expect(storeMocks.closeModal).not.toHaveBeenCalled()
-    expect(storeMocks.openSettingsPage).not.toHaveBeenCalled()
-    expect(storeMocks.openSettingsTarget).not.toHaveBeenCalled()
-  })
-
-  it('opens the add-host submenu on hover without a click', () => {
-    current = renderCard({
-      projectHostSetupOptions: [localReadyHostOption, devboxNeedsSetupHostOption],
-      selectedProjectHostSetupId: 'setup-local'
-    })
-
-    openRunTargetPicker(current.container)
-    const addHost = findRunTargetItem('Add host')
-    expect(addHost).toBeTruthy()
-    // Hovering the row (no click) opens its submenu so it feels like a menu.
-    // Hover arms rows via mousemove, matching the project picker.
-    act(() => {
-      addHost?.dispatchEvent(new MouseEvent('mousemove', { bubbles: true }))
-    })
-
-    expect(findRunTargetItem('Add SSH host')).toBeTruthy()
-    expect(findRunTargetItem('Add Remote Orca Server')).toBeTruthy()
-  })
-
-  it('opens the remote Orca server add dialog over the composer without leaving for Settings', () => {
-    current = renderCard({
-      projectHostSetupOptions: [localReadyHostOption, devboxNeedsSetupHostOption],
-      selectedProjectHostSetupId: 'setup-local'
-    })
-
-    openRunTargetPicker(current.container)
-    act(() => findRunTargetItem('Add host')?.click())
-    act(() => findRunTargetItem('Add Remote Orca Server')?.click())
-
-    const dialog = document.body.querySelector('[data-testid="add-remote-host-dialog"]')
-    expect(dialog?.getAttribute('data-mode')).toBe('server')
-    expect(storeMocks.closeModal).not.toHaveBeenCalled()
-    expect(storeMocks.openSettingsPage).not.toHaveBeenCalled()
-    expect(storeMocks.openSettingsTarget).not.toHaveBeenCalled()
-  })
-
-  it('shows VM recipes inside the run target picker', () => {
-    const hostChanges: string[] = []
-    const recipeChanges: (string | null)[] = []
-    current = renderCard({
-      projectHostSetupOptions: vmRecipeHostOptions,
-      selectedProjectHostSetupId: 'setup-local',
-      onProjectHostSetupChange: (setupId) => hostChanges.push(setupId)
-    })
-
-    expect(current.container.textContent).toContain('Run on')
-    expect(current.container.textContent).not.toContain('VM recipe')
-
-    openRunTargetPicker(current.container)
-
-    expect(document.body.textContent).toContain('Per-Workspace Environment')
-    const ephemeralVmItem = [
-      ...document.body.querySelectorAll<HTMLElement>('[role="option"]')
-    ].find((item) => item.textContent?.includes('Per-Workspace Environment'))
-    expect(ephemeralVmItem).toBeTruthy()
-    act(() => ephemeralVmItem?.click())
-
-    const recipeItem = [...document.body.querySelectorAll<HTMLElement>('[role="option"]')].find(
-      (item) => item.textContent?.includes('Vercel Sandbox')
-    )
-    expect(recipeItem).toBeTruthy()
-    act(() => recipeItem?.click())
-
-    expect(recipeChanges).toEqual(['vercel'])
-    expect(hostChanges).toEqual([])
-  })
-
-  it('clears the selected VM recipe when an existing host is selected', () => {
-    const hostChanges: string[] = []
-    const recipeChanges: (string | null)[] = []
-    current = renderCard({
-      projectHostSetupOptions: vmRecipeHostOptions,
-      selectedProjectHostSetupId: 'setup-local',
-      onProjectHostSetupChange: (setupId) => hostChanges.push(setupId)
-    })
-
-    const runTargetShell = current.container.querySelector<HTMLElement>(
-      'div[data-run-target-combobox-root="true"]'
-    )
-    expect(runTargetShell?.textContent).toContain('Per-Workspace Environment')
-    openRunTargetPicker(current.container)
-
-    const builderItem = [...document.body.querySelectorAll<HTMLElement>('[role="option"]')].find(
-      (item) => item.textContent?.includes('Builder')
-    )
-    expect(builderItem).toBeTruthy()
-    act(() => builderItem?.click())
-
-    expect(hostChanges).toEqual(['["setup-builder","ssh:builder"]'])
-    expect(recipeChanges).toEqual([null])
   })
 })
 

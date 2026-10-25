@@ -6,7 +6,6 @@ import type {
 import {
   COMPUTER_USE_SKILL_NAME,
   ORCA_CLI_SKILL_NAME,
-  ORCA_LINEAR_SKILL_NAME,
   ORCHESTRATION_SKILL_NAME
 } from '@/lib/agent-feature-skill-names'
 import { BROWSER_USE_ENABLED_STORAGE_KEY } from '@/lib/browser-use-setup-state'
@@ -23,12 +22,7 @@ import {
   type OnboardingFeatureSetupSelection
 } from './onboarding-feature-setup'
 
-const ALL_SKILL_NAMES = [
-  ORCA_CLI_SKILL_NAME,
-  COMPUTER_USE_SKILL_NAME,
-  ORCHESTRATION_SKILL_NAME,
-  ORCA_LINEAR_SKILL_NAME
-]
+const ALL_SKILL_NAMES = [ORCA_CLI_SKILL_NAME, COMPUTER_USE_SKILL_NAME, ORCHESTRATION_SKILL_NAME]
 
 const GRANTED_COMPUTER_USE_STATUS: ComputerUsePermissionStatusResult = {
   platform: 'darwin',
@@ -77,8 +71,7 @@ describe('onboarding feature setup runner', () => {
     expect(DEFAULT_ONBOARDING_FEATURE_SETUP_SELECTION).toEqual({
       browserUse: true,
       computerUse: true,
-      orchestration: true,
-      linearTickets: false
+      orchestration: true
     })
   })
 
@@ -124,7 +117,7 @@ describe('onboarding feature setup runner', () => {
     )
 
     expect(result).toEqual({
-      selectedIds: ['browserUse', 'computerUse', 'orchestration', 'linearTickets'],
+      selectedIds: ['browserUse', 'computerUse', 'orchestration'],
       skillNames: ALL_SKILL_NAMES,
       computerUsePermissionsOpened: true,
       warnings: []
@@ -200,7 +193,7 @@ describe('onboarding feature setup runner', () => {
       deps
     )
 
-    expect(result.skillNames).toEqual(['orca-cli', 'computer-use', 'orchestration', 'orca-linear'])
+    expect(result.skillNames).toEqual(['orca-cli', 'computer-use', 'orchestration'])
     expect(result.computerUsePermissionsOpened).toBe(false)
     expect(openComputerUsePermissionSetup).not.toHaveBeenCalled()
     expect(result.warnings).toContainEqual({
