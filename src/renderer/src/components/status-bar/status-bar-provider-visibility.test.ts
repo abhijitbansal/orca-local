@@ -84,6 +84,13 @@ function usageSettings(overrides: Partial<UsageProviderSettings> = {}): UsagePro
 }
 
 describe('hasUsageProviderSettings', () => {
+  it('keeps a linked GLM plan visible without CLI detection or a first quota result', () => {
+    const settings = usageSettings({ zcodePlanApiKeyConfigured: true })
+    expect(hasUsageProviderSettings(settings)).toBe(true)
+    expect(getVisibleUsageProvider('zcode', null, settings)?.status).toBe('fetching')
+    expect(getVisibleUsageProvider('zcode', null, usageSettings())).toBeNull()
+  })
+
   it('treats persisted managed accounts as configured usage providers', () => {
     expect(
       hasUsageProviderSettings(
@@ -232,63 +239,30 @@ describe('hasUsageProviderSettingsForProvider', () => {
 })
 
 describe('getVisibleUsageProvider', () => {
-  it('shows Claude as no data, not fetching, when accounts exist but no statusline post has arrived', () => {
-    const claudeAccount = {
-      id: 'claude-account-1',
-      email: 'dev@example.com',
-      managedAuthPath: '/tmp/claude-account-1',
-      authMethod: 'subscription-oauth' as const,
-      createdAt: 1,
-      updatedAt: 1,
-      lastAuthenticatedAt: 1
-    }
-    expect(
-      getVisibleUsageProvider(
-        'claude',
-        null,
-        usageSettings({ claudeManagedAccounts: [claudeAccount] })
-      )
-    ).toMatchObject({ provider: 'claude', status: 'unavailable', session: null, weekly: null })
-  })
-
-  it('never shows a permanent loading skeleton for providers that are no longer fetched', () => {
-    const everySetting = usageSettings({
-      codexManagedAccounts: [
-        {
-          id: 'codex-account-1',
-          email: 'dev@example.com',
-          managedHomePath: '/tmp/codex-account-1',
-          createdAt: 1,
-          updatedAt: 1,
-          lastAuthenticatedAt: 1
-        }
-      ],
-      opencodeSessionCookie: 'session=abc',
-      geminiCliOAuthEnabled: true,
-      antigravityUsageConfigured: true,
-      minimaxCookieConfigured: true,
-      minimaxApiKeyConfigured: true,
-      opencodeGoApiKeyConfigured: true,
-      grokAuthConfigured: true,
-      cursorAuthConfigured: true
-    })
-    for (const id of [
+  it('keeps configured managed-account providers visible while snapshots are pending', () => {
+    const visible = getVisibleUsageProvider(
       'codex',
-      'gemini',
-      'opencode-go',
-      'kimi',
-      'antigravity',
-      'minimax',
-      'grok',
-      'cursor',
-      'zcode'
-    ] as const) {
-      expect(getVisibleUsageProvider(id, null, everySetting)).toBeNull()
-      expect(getVisibleUsageProvider(id, undefined, everySetting)).toBeNull()
-      expect(
-        getVisibleUsageProvider(id, provider('unavailable', { provider: id }), everySetting)
-      ).toBeNull()
-    }
+      null,
+      usageSettings({
+        codexManagedAccounts: [
+          {
+            id: 'codex-account-1',
+            email: 'dev@example.com',
+            managedHomePath: '/tmp/codex-account-1',
+            createdAt: 1,
+            updatedAt: 1,
+            lastAuthenticatedAt: 1
+          }
+        ]
+      })
+    )
+
+    expect(visible).toMatchObject({
+      provider: 'codex',
+      status: 'fetching',
+      session: null,
+      weekly: null
+    })
   })
 
   it('keeps configured providers visible when a fetch returns unavailable', () => {
@@ -324,6 +298,54 @@ describe('getVisibleUsageProvider', () => {
     expect(getVisibleUsageProvider('gemini', provider('fetching'), usageSettings())).toBe(null)
   })
 
+  it('creates a pending snapshot when an older main process omits a configured provider', () => {
+    expect(
+      getVisibleUsageProvider('grok', undefined, usageSettings({ grokAuthConfigured: true }))
+    ).toMatchObject({ provider: 'grok', status: 'fetching' })
+  })
+
+  it('keeps MiniMax visible while the snapshot is pending when a cookie is configured', () => {
+    const visible = getVisibleUsageProvider(
+      'minimax',
+      null,
+      usageSettings({ minimaxCookieConfigured: true })
+    )
+    expect(visible).toMatchObject({
+      provider: 'minimax',
+      status: 'fetching',
+      session: null,
+      weekly: null
+    })
+  })
+
+  it('keeps Grok visible while the snapshot is pending when CLI auth is configured', () => {
+    const visible = getVisibleUsageProvider(
+      'grok',
+      null,
+      usageSettings({ grokAuthConfigured: true })
+    )
+    expect(visible).toMatchObject({
+      provider: 'grok',
+      status: 'fetching',
+      session: null,
+      weekly: null
+    })
+  })
+
+  it('keeps MiniMax visible when the fetch returns unavailable for a configured cookie', () => {
+    const unavailable = provider('unavailable', {
+      provider: 'minimax',
+      error: 'MiniMax session expired. Replace the MiniMax cookie in Settings.'
+    })
+    expect(
+      getVisibleUsageProvider(
+        'minimax',
+        unavailable,
+        usageSettings({ minimaxCookieConfigured: true })
+      )
+    ).toBe(unavailable)
+  })
+
   it('hides MiniMax when no cookie is configured and the snapshot is empty', () => {
     expect(getVisibleUsageProvider('minimax', null, usageSettings())).toBe(null)
     expect(
@@ -335,9 +357,24 @@ describe('getVisibleUsageProvider', () => {
     ).toBe(null)
   })
 
-  it('hides Antigravity while Gemini OAuth is off even when its status item is checked', () => {
-    // Why: without the OAuth opt-in the mirrored snapshot is permanently
-    // 'unavailable'; the default-on item must not pin a dead bar.
+  it('keeps Antigravity visible from the checked item alone while the snapshot is pending', () => {
+    const visible = getVisibleUsageProvider(
+      'antigravity',
+      null,
+      usageSettings({ antigravityUsageConfigured: true })
+    )
+    expect(visible).toMatchObject({
+      provider: 'antigravity',
+      status: 'fetching',
+      session: null,
+      weekly: null
+    })
+  })
+
+  it('hides Antigravity when its status item is unchecked', () => {
+    // Why: without the checked item there is no durable signal, so an unavailable
+    // snapshot (e.g. a signed-out agy) must not pin a bar the user never asked for.
+    expect(getVisibleUsageProvider('antigravity', null, usageSettings())).toBe(null)
     expect(
       getVisibleUsageProvider(
         'antigravity',
@@ -349,43 +386,40 @@ describe('getVisibleUsageProvider', () => {
 })
 
 describe('isUsageEmptyState', () => {
+  it('keeps the Cursor bar visible on a local session before the first snapshot', () => {
+    // Why: the credential lives on disk, not in settings, so main's flag is the
+    // only durable signal that the bar has an account behind it.
+    const pending = getVisibleUsageProvider(
+      'cursor',
+      null,
+      usageSettings({ cursorAuthConfigured: true })
+    )
+    expect(pending).toMatchObject({ provider: 'cursor', status: 'fetching' })
+    expect(getVisibleUsageProvider('cursor', null, usageSettings())).toBeNull()
+  })
+
+  it('hides the Cursor bar when no local session exists, even on an unavailable snapshot', () => {
+    // Why: 'unavailable' is how a signed-out host reports Cursor; without the
+    // durable flag there is no account to show a bar for.
+    const unavailable = provider('unavailable', { provider: 'cursor' })
+    expect(getVisibleUsageProvider('cursor', unavailable, usageSettings())).toBeNull()
+    // With a session on disk the row stays, so "no allowance" is explained
+    // rather than silently vanishing.
+    expect(
+      getVisibleUsageProvider('cursor', unavailable, usageSettings({ cursorAuthConfigured: true }))
+    ).toBe(unavailable)
+  })
+
   it('keeps a failing Cursor refresh visible so the error is not silently hidden', () => {
     const failing = provider('error', { provider: 'cursor' })
     expect(getVisibleUsageProvider('cursor', failing, usageSettings())).toBe(failing)
   })
 
-  it('shows the setup CTA when main reports every provider as null', () => {
-    expect(isUsageEmptyState(createEmptyRateLimitState(), usageSettings())).toBe(true)
+  it('waits for provider snapshots before showing the setup CTA', () => {
+    expect(isUsageEmptyState(createEmptyRateLimitState(), usageSettings())).toBe(false)
   })
 
-  it('does not show the setup CTA for null snapshots when Claude accounts exist but no post arrived', () => {
-    expect(
-      isUsageEmptyState(
-        createEmptyRateLimitState(),
-        usageSettings({
-          claudeManagedAccounts: [
-            {
-              id: 'claude-account-1',
-              email: 'dev@example.com',
-              managedAuthPath: '/tmp/claude-account-1',
-              authMethod: 'subscription-oauth',
-              createdAt: 1,
-              updatedAt: 1,
-              lastAuthenticatedAt: 1
-            }
-          ]
-        })
-      )
-    ).toBe(false)
-  })
-
-  it('waits while the Claude payload is missing', () => {
-    expect(
-      isUsageEmptyState({ ...createEmptyRateLimitState(), claude: undefined }, usageSettings())
-    ).toBe(false)
-  })
-
-  it('treats other providers omitted by an older main process as settled', () => {
+  it('treats provider keys omitted by an older main process as pending', () => {
     expect(
       isUsageEmptyState(
         {
@@ -401,7 +435,7 @@ describe('isUsageEmptyState', () => {
         },
         usageSettings()
       )
-    ).toBe(true)
+    ).toBe(false)
   })
 
   it('does not show the setup CTA while system-default usage snapshots are fetching', () => {
@@ -474,7 +508,7 @@ describe('isUsageEmptyState', () => {
     }
     expect(isUsageEmptyState(settledProviders, usageSettings())).toBe(true)
     expect(isUsageEmptyState({ ...settledProviders, zcode: undefined }, usageSettings())).toBe(true)
-    expect(isUsageEmptyState({ ...settledProviders, zcode: null }, usageSettings())).toBe(true)
+    expect(isUsageEmptyState({ ...settledProviders, zcode: null }, usageSettings())).toBe(false)
   })
 
   it('does not show the setup CTA while checked Antigravity usage is awaiting a snapshot', () => {

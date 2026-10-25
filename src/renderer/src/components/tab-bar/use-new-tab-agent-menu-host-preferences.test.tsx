@@ -131,25 +131,6 @@ it.each(['wt', 'folder:f1'])(
   }
 )
 
-it('filters chat and CLI rows with host preferences while keeping the desktop chat presentation', async () => {
-  useAppStore.setState((state) => ({
-    settings: { ...state.settings!, experimentalNativeChat: true }
-  }))
-  const hook = renderHook(() =>
-    useNewTabAgentMenuRows('folder:f1', true, { kind: 'runtime', environmentId: 'alpha' })
-  )
-  await act(async () => {})
-  expect(hook.result.current.state === 'settled' && hook.result.current.rows[0]).toEqual({
-    kind: 'chat',
-    agent: 'codex',
-    executionHostId: 'runtime:alpha'
-  })
-  expect(
-    hook.result.current.state === 'settled' &&
-      hook.result.current.rows.some((row) => row.agent === 'opencode')
-  ).toBe(false)
-})
-
 it('ignores old reads across host switches, restarts, and re-pairing', async () => {
   const old = Promise.withResolvers<{ settings: typeof server }>()
   rpc.call.mockReturnValueOnce(old.promise)

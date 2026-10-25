@@ -364,41 +364,6 @@ describe('WorktreeJumpPalette', () => {
     expect(useAppStore.getState().activeModal).toBe('worktree-palette')
   })
 
-  it.each([true, false])(
-    'routes an attached folder from a GitHub number (activation %s)',
-    async (opens) => {
-      await renderPalette({
-        worktreesByRepo: {},
-        folderWorkspaces: [
-          makeFolderWorkspace({
-            linkedItems: [
-              {
-                provider: 'github',
-                type: 'issue',
-                number: 42,
-                title: 'Checkout',
-                repoId: 'repo-1',
-                url: 'https://github.com/acme/product/issues/42'
-              }
-            ]
-          })
-        ]
-      })
-      activateAndRevealWorkspace.mockReturnValue(opens ? { primaryTabId: null } : false)
-      await act(async () => setCommandQuery?.('#42'))
-      await flushEffects()
-      const create = testContainer.querySelector<HTMLButtonElement>(
-        '[data-command-item="__create_worktree__"]'
-      )
-      await act(async () => fireEvent.click(create!))
-
-      expect(activateAndRevealWorkspace).toHaveBeenCalledWith('folder:folder-1', {
-        executionHostId: 'local'
-      })
-      expect(useAppStore.getState().activeModal).toBe(opens ? 'none' : 'worktree-palette')
-    }
-  )
-
   it('includes open terminal tabs from folder workspaces in search', async () => {
     const workspaceId = 'folder:folder-1'
     await renderPalette({

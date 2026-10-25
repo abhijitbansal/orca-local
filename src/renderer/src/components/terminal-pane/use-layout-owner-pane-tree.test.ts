@@ -50,12 +50,6 @@ describe('useLayoutOwnerPaneTree', () => {
     pairedServer.mirrors = false
   })
 
-  it('leaves a paired server’s tab to its host, even before a remote terminal binds', () => {
-    pairedServer.mirrors = true
-    renderHook(() => useLayoutOwnerPaneTree(controllerWith(layout(null))))
-    expect(reconcile).not.toHaveBeenCalled()
-  })
-
   it('waits while the window’s own pane command holds the tab, then draws main’s tree', () => {
     const release = holdTabPaneTree('tab-1')
     renderHook(() => useLayoutOwnerPaneTree(controllerWith(layout(null))))

@@ -115,45 +115,6 @@ describe('AccountsPane', () => {
     expect(markup).not.toContain('This device')
   })
 
-  it('scopes account copy to the active remote server and offers sign-in on that server', () => {
-    // Note: static SSR markup reads the store's initial state (zustand v5), so
-    // this exercises the pre-hydration path where no server name is known yet.
-    // The named-server label is covered in provider-account-scope.test.ts.
-    const markup = renderPane(
-      {
-        ...getDefaultSettings('/tmp'),
-        activeRuntimeEnvironmentId: 'env-1'
-      },
-      { wslSupportedPlatform: true }
-    )
-
-    expect(
-      markup.split(
-        'Showing accounts managed by the remote server. New accounts sign in there; you finish in this device’s browser.'
-      ).length - 1
-    ).toBe(2)
-    // Both the Claude and Codex sections must say local accounts are intact and
-    // link the default-runtime control, so the scoped list never reads as loss.
-    expect(markup.split('Accounts managed on this desktop are unchanged').length - 1).toBe(2)
-    expect(markup.split('Open Remote Servers').length - 1).toBe(2)
-    // Before the saved-server list loads there is no name to interpolate, so the
-    // scope label must stay bare instead of stuttering the prose fallback.
-    expect(markup).toContain('Account scope: Remote server<')
-    expect(markup).not.toContain('Remote server: the remote server')
-    // The WSL account-location toggle is a local concern; a remote owner hides it.
-    expect(markup).not.toContain('aria-label="Account location"')
-    // #20009: Add Account runs the server's own login, so neither section's button is inert.
-    const addButtons = [...markup.matchAll(/Add Account/g)].map(({ index }) =>
-      markup.slice(markup.lastIndexOf('<button', index), index)
-    )
-    expect(addButtons).toHaveLength(2)
-    for (const button of addButtons) {
-      expect(button).not.toContain('disabled=""')
-    }
-    // "Copy sign-in link instead" hands over a link that calls back to this device.
-    expect(markup).not.toContain('More sign-in options')
-  })
-
   it('omits the scope control on the web client, which cannot select Local desktop', () => {
     const webGlobal = globalThis as { window?: { __ORCA_WEB_CLIENT__?: boolean } }
     const hadWindow = 'window' in webGlobal

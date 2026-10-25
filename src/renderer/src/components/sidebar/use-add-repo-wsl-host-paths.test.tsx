@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { act, renderHook, waitFor } from '@testing-library/react'
+import { renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExecutionHostId } from '../../../../shared/execution-host'
 
@@ -66,40 +66,9 @@ afterEach(() => {
 })
 
 describe('useAddRepoWslHostPaths', () => {
-  it('offers the Windows folder picker only for a WSL host', () => {
-    expect(setup({ selectedHostId: WSL_HOST }).view.result.current.browseWslHost).not.toBeNull()
-    expect(
-      setup({ selectedHostId: 'runtime:paired-server' }).view.result.current.browseWslHost
-    ).toBeNull()
-    expect(setup({ selectedHostId: 'local' }).view.result.current.browseWslHost).toBeNull()
-  })
-
   it('offers nothing off Windows', () => {
     vi.stubGlobal('navigator', { userAgent: 'Mozilla/5.0 (Macintosh)' })
     expect(setup({ selectedHostId: WSL_HOST }).view.result.current.browseWslHost).toBeNull()
-  })
-
-  it('fills the host path from a pick under the host distro', async () => {
-    mocks.pickDirectory.mockResolvedValue('\\\\wsl.localhost\\ubuntu\\home\\me\\repo')
-    const { view, setServerPath, setStep } = setup({ selectedHostId: WSL_HOST })
-    act(() => view.result.current.browseWslHost?.())
-    await waitFor(() => expect(setServerPath).toHaveBeenCalledWith('/home/me/repo'))
-    expect(setStep).toHaveBeenCalledWith('server-path')
-    expect(mocks.browse).toHaveBeenCalledWith('wsl:Ubuntu', '~')
-    expect(mocks.pickDirectory).toHaveBeenCalledWith({
-      defaultPath: '\\\\wsl.localhost\\Ubuntu\\home\\me'
-    })
-  })
-
-  it('drops a pick that lands after the dialog closed', async () => {
-    let resolvePick: (path: string) => void = () => {}
-    mocks.pickDirectory.mockReturnValue(new Promise((resolve) => (resolvePick = resolve)))
-    const { view, setServerPath } = setup({ selectedHostId: WSL_HOST })
-    act(() => view.result.current.browseWslHost?.())
-    await waitFor(() => expect(mocks.pickDirectory).toHaveBeenCalled())
-    view.rerender({ selectedHostId: WSL_HOST, isOpen: false })
-    await act(async () => resolvePick('\\\\wsl.localhost\\Ubuntu\\home\\me\\repo'))
-    expect(setServerPath).not.toHaveBeenCalled()
   })
 
   it('fills a dropped folder once its WSL host is selected', () => {

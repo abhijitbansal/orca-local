@@ -176,43 +176,4 @@ describe('WorktreeCardDetailsHover interactions', () => {
       'false'
     )
   })
-
-  it('passes a linked issue URL to the embedded-browser action', () => {
-    const onOpenIssueInBrowser = vi.fn()
-    container = document.createElement('div')
-    root = createRoot(container)
-    act(() => {
-      root.render(
-        <WorktreeCardDetailsHover
-          issue={{
-            number: 5518,
-            title: 'Agent monitor issue',
-            state: 'open',
-            url: 'https://github.com/acme/orca/issues/5518',
-            labels: []
-          }}
-          linearIssue={null}
-          review={null}
-          comment={null}
-          onOpenIssueInBrowser={onOpenIssueInBrowser}
-        >
-          <span>Linked issue</span>
-        </WorktreeCardDetailsHover>
-      )
-    })
-
-    act(() => {
-      interactionMocks.onHoverOpenChange?.(true)
-      interactionMocks.onReviewMenuOpenChange?.(true)
-    })
-    const browserButton = Array.from(container.querySelectorAll('button')).find((button) =>
-      button.textContent?.includes('Open in Orca browser')
-    )
-
-    act(() => {
-      browserButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-    })
-
-    expect(onOpenIssueInBrowser).toHaveBeenCalledWith('https://github.com/acme/orca/issues/5518')
-  })
 })

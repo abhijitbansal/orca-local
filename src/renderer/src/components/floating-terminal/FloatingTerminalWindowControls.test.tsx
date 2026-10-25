@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type * as ReactModule from 'react'
 import { toast } from 'sonner'
 import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../../shared/constants'
+import { resolveStructuredNativeChatSupport } from '../../../../shared/structured-native-chat-launch-route'
 import { FloatingTerminalWindowControls } from './FloatingTerminalWindowControls'
 
 type ReactElementLike = {
@@ -14,7 +15,9 @@ const storeBox = vi.hoisted(() => ({
 }))
 
 const mocks = vi.hoisted(() => ({
+  activateTab: vi.fn(),
   createTab: vi.fn(),
+  setActiveTabForWorktree: vi.fn(),
   setTabBarOrder: vi.fn(),
   queueTabStartupCommand: vi.fn(),
   focusTerminalTabSurface: vi.fn(),
@@ -148,6 +151,8 @@ beforeEach(() => {
       agentDefaultEnv: {}
     },
     createTab: mocks.createTab,
+    activateTab: mocks.activateTab,
+    setActiveTabForWorktree: mocks.setActiveTabForWorktree,
     setTabBarOrder: mocks.setTabBarOrder,
     queueTabStartupCommand: mocks.queueTabStartupCommand,
     tabsByWorktree: { [FLOATING_TERMINAL_WORKTREE_ID]: [{ id: EXISTING_TAB_ID }] },
@@ -173,9 +178,11 @@ describe('FloatingTerminalWindowControls default-agent launch', () => {
     clickLaunch()
 
     expect(mocks.launchAgentInNewTab).toHaveBeenCalledExactlyOnceWith({
+      requestId: expect.any(String),
       agent: 'claude',
       worktreeId: FLOATING_TERMINAL_WORKTREE_ID,
-      launchSource: 'shortcut'
+      launchSource: 'shortcut',
+      activate: false
     })
     // Why: the whole point of the migration. The shared launcher owns the startup plan and the
     // tab it lands in, so this button must not reach past it into the tab store.
@@ -184,9 +191,18 @@ describe('FloatingTerminalWindowControls default-agent launch', () => {
     expect(mocks.setTabBarOrder).not.toHaveBeenCalled()
   })
 
-  it('focuses the launched terminal tab', () => {
+  it('activates the launched terminal tab so the floating panel selects and focuses it', () => {
     clickLaunch()
 
+    // Why: the floating panel renders its visible tab from the unified group's
+    // activeTabId, which only activateTab writes. setActiveTabForWorktree updates
+    // the complementary legacy per-worktree map. Without activateTab the new agent
+    // tab would be appended but never selected/focused.
+    expect(mocks.setActiveTabForWorktree).toHaveBeenCalledWith(
+      FLOATING_TERMINAL_WORKTREE_ID,
+      NEW_AGENT_TAB_ID
+    )
+    expect(mocks.activateTab).toHaveBeenCalledWith(NEW_AGENT_TAB_ID)
     expect(mocks.focusTerminalTabSurface).toHaveBeenCalledWith(NEW_AGENT_TAB_ID)
   })
 
@@ -196,6 +212,19 @@ describe('FloatingTerminalWindowControls default-agent launch', () => {
     clickLaunch()
 
     expect(toast.error).toHaveBeenCalledWith('Could not build launch command for Claude.')
-    expect(mocks.focusTerminalTabSurface).not.toHaveBeenCalled()
+    expect(mocks.activateTab).not.toHaveBeenCalled()
+  })
+
+  // Why: workspace kind no longer refuses the structured route — the floating session files under
+  // its resolved directory like any workspace. Only capability negotiation can still say no here.
+  it('routes the floating workspace by capability, not by workspace kind', () => {
+    expect(
+      resolveStructuredNativeChatSupport({
+        agent: 'claude',
+        executionHostId: 'local',
+        hostCapabilities: null,
+        workspaceKind: 'floating'
+      })
+    ).toEqual({ supported: false, blocker: 'runtime-capability-unknown' })
   })
 })

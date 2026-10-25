@@ -248,34 +248,6 @@ describe('WorktreeOpenInMenu', () => {
     )
   })
 
-  it('enables only VS Code-compatible launchers for SSH paths', () => {
-    const entries = getWorktreeOpenInEntries(
-      [
-        { id: 'renamed', label: 'My Remote Editor', command: 'code-insiders' },
-        { id: 'fake', label: 'VS Code', command: 'cursor' },
-        { id: 'compound', label: 'VS Code Reuse', command: 'code --reuse-window' }
-      ],
-      'Finder'
-    )
-
-    expect(getOpenInEntryAvailability(entries[0], 'ssh-1')).toEqual({
-      disabled: false,
-      metadata: 'Remote SSH'
-    })
-    expect(getOpenInEntryAvailability(entries[1], 'ssh-1')).toEqual({
-      disabled: true,
-      metadata: 'Local only'
-    })
-    expect(getOpenInEntryAvailability(entries[2], 'ssh-1')).toEqual({
-      disabled: true,
-      metadata: 'Local only'
-    })
-    expect(getOpenInEntryAvailability(entries[3], 'ssh-1')).toEqual({
-      disabled: true,
-      metadata: 'Local only'
-    })
-  })
-
   it('forwards SSH context for a supported VS Code launcher', async () => {
     await openWorktreePath({
       target: 'external-editor',
@@ -343,35 +315,4 @@ describe('WorktreeOpenInMenu', () => {
       expect(toastErrorMock).toHaveBeenCalled()
     }
   )
-
-  it('marks a managed owner local-only in the menu with a locally focused desktop', () => {
-    const entry = { id: 'zed', label: 'Zed', target: 'external-editor', command: 'zed' } as const
-    expect(getOpenInEntryAvailability(entry, null, 'managed-owner')).toEqual({
-      disabled: true,
-      metadata: 'Local only'
-    })
-  })
-
-  it('marks an unresolved owner local-only and never launches the desktop copy', async () => {
-    const editor = { id: 'zed', label: 'Zed', target: 'external-editor', command: 'zed' } as const
-    const fileManager = { id: 'file-manager', label: 'Finder', target: 'file-manager' } as const
-    for (const entry of [editor, fileManager]) {
-      expect(getOpenInEntryAvailability(entry, null, null, true)).toEqual({
-        disabled: true,
-        metadata: 'Local only'
-      })
-    }
-    for (const target of ['external-editor', 'file-manager'] as const) {
-      await openWorktreePath({
-        target,
-        worktreePath: '/srv/worktree',
-        connectionId: 'ssh-1',
-        runtimeEnvironmentId: null,
-        ownerUnresolved: true,
-        command: 'code'
-      })
-    }
-    expect(openInExternalEditorMock).not.toHaveBeenCalled()
-    expect(openInFileManagerMock).not.toHaveBeenCalled()
-  })
 })

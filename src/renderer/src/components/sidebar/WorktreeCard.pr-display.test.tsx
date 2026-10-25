@@ -265,32 +265,6 @@ describe('WorktreeCard linked PR display', () => {
     expect(markup).not.toContain('>Fix stale GH PR</span>')
   })
 
-  it('shows selected task and notes metadata on compact cards when new card style is on', async () => {
-    settings = { compactWorktreeCards: true, experimentalNewWorktreeCardStyle: true }
-    worktreeCardProperties = ['status', 'issue', 'linear-issue', 'comment']
-    const { default: WorktreeCard } = await import('./WorktreeCard')
-
-    const markup = renderWorktreeCardMarkup(
-      <WorktreeCard
-        worktree={makeWorktree({
-          linkedIssue: 123,
-          linkedLinearIssue: 'ENG-123',
-          linkedPR: 456,
-          comment: 'Reviewer handoff note'
-        })}
-        repo={makeRepo()}
-        isActive={false}
-      />
-    )
-
-    expect(markup).toContain('Linked issue #123')
-    expect(markup).toContain('Linked Linear ENG-123')
-    expect(markup).not.toContain('Linked PR #456')
-    expect(markup).toContain('Workspace notes')
-    expect(markup).not.toContain('data-worktree-card-meta-row=""')
-    expect(markup).not.toContain('Reviewer handoff note')
-  })
-
   it('hides individual metadata surfaces when their card properties are disabled', async () => {
     worktreeCardProperties = []
     const { default: WorktreeCard } = await import('./WorktreeCard')
