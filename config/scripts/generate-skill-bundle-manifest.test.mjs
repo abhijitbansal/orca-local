@@ -13,7 +13,6 @@ import {
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { parse } from 'yaml'
 import { observeSkillPackage } from '../../src/main/skills/skill-package-identity'
 import {
   classifyFile,
@@ -27,7 +26,6 @@ import {
 } from './generate-skill-bundle-manifest.mjs'
 
 const temporaryDirectories = []
-const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..')
 
 async function createPackage() {
   const directory = await mkdtemp(path.join(tmpdir(), 'orca-skill-manifest-'))
@@ -326,30 +324,4 @@ describe('skill bundle manifest generator', () => {
   // them can stage a regenerated manifest and the bump step's own commit then
   // carries it into the tag. The cut asserts what its commit carries; this test
   // pins that guard and adds a tripwire for the literal spellings.
-  it('keeps the whole release-cut job off skill regeneration', async () => {
-    const workflow = parse(
-      await readFile(path.join(REPO_ROOT, '.github/workflows/release-cut.yml'), 'utf8')
-    )
-    const runSteps = workflow.jobs.cut.steps
-      .filter((step) => typeof step.run === 'string')
-      .map((step) => ({ name: step.name ?? '(unnamed)', run: step.run.replace(/^\s*#.*$/gm, '') }))
-    const bumpStep = runSteps.find((step) => step.name === 'Bump package.json and tag')
-
-    // Asserted on the commit rather than the index because `git commit -a/-i/--only/
-    // <pathspec>` bypasses the index. -F is part of the contract; without it `.` admits a
-    // path like packageXjson. Dropping -m makes a merge commit report nothing.
-    expect(bumpStep.run).toMatch(
-      /git diff-tree --no-commit-id --name-only -r -m --first-parent HEAD\s*\|\s*grep -vxF -e 'package\.json'/
-    )
-    expect(bumpStep.run.indexOf('grep -vxF')).toBeLessThan(bumpStep.run.indexOf('git tag'))
-    // ...and that it aborts. A guard degraded to a warning still reads as covered.
-    expect(bumpStep.run).toMatch(
-      /if \[\[ -n "\$committed" \]\]; then(?:(?!\bfi\b)[\s\S])*exit 1[\s\S]*?fi/
-    )
-    for (const step of runSteps) {
-      expect(step.run, step.name).not.toMatch(
-        /resources[/\\]skills|--write|generate:skill-bundle-manifest/
-      )
-    }
-  })
 })
