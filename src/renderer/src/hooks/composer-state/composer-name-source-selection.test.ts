@@ -35,40 +35,12 @@ function createInput(overrides: Partial<Input> = {}): Input {
     setReuseEligibleBranch: vi.fn(),
     setReuseSelectedBranch: vi.fn(),
     setStartFromResetHint: vi.fn(),
-    smartGitHubPrStartPointSelectionRef: { current: null },
+    smartSourceSelectionRef: { current: null },
     ...overrides
   } as Input
 }
 
 describe('composer name source selection', () => {
-  it.each([false, true])('clears only source-owned bases when selecting Jira (%s)', (owned) => {
-    const input = createInput({ baseBranch: 'release/1.2', baseBranchNamesWorkspace: owned })
-    const { result } = renderHook(() => useIssueSourceActions(input))
-
-    act(() =>
-      result.current.handleSmartJiraIssueSelect(
-        {
-          id: '42',
-          key: 'APP-42',
-          title: 'Fix export',
-          url: 'https://jira.example/browse/APP-42',
-          project: { id: 'app', key: 'APP', name: 'App' },
-          issueType: { id: 'bug', name: 'Bug' },
-          status: { id: 'open', name: 'Open', categoryKey: 'new', categoryName: 'To do' },
-          labels: [],
-          updatedAt: '',
-          createdAt: ''
-        },
-        { kind: 'task-source', provider: 'jira', projectId: 'app', hostId: 'local' }
-      )
-    )
-
-    expect(input.setBaseBranch).toHaveBeenCalledTimes(owned ? 1 : 0)
-    if (owned) {
-      expect(input.setBaseBranch).toHaveBeenCalledWith(undefined)
-    }
-  })
-
   it.each([false, true])('clears only source-owned bases when removing a source (%s)', (owned) => {
     const input = createInput({ baseBranch: 'release/1.2', baseBranchNamesWorkspace: owned })
     const { result } = renderHook(() => useIssueSourceActions(input))

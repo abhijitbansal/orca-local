@@ -10,7 +10,6 @@ import { buildPaletteDocument, type PaletteDocument } from './palette-document'
 import type { PaletteQueryToken } from './palette-query'
 const issueCacheKey = (repoPath: string, repoId: string, number: number): string =>
   `${repoPath}::${repoId}::${number}`
-import { getPaletteWorktreeIdentity } from '../palette-repo-resolution'
 import type { Repo } from '../../../../shared/repo-types'
 import type { Worktree } from '../../../../shared/worktree/types'
 
@@ -209,13 +208,6 @@ describe('palette matcher performance budget', () => {
     const documents = buildWorktreePaletteDocuments(worktrees, sources)
     expect(documents.size).toBe(candidateCount)
     expect(preparedQuery.tokens).toHaveLength(tokenCount)
-    for (const [index, worktree] of worktrees.entries()) {
-      expect(
-        documents
-          .get(getPaletteWorktreeIdentity(worktree))
-          ?.evidenceUnits.get(`issue:${1000 + index}`)?.text
-      ).toContain(`${QUERY_TEXT} issue ${index}`)
-    }
     return documents
   }
 

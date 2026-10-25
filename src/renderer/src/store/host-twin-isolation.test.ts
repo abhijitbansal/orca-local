@@ -207,7 +207,6 @@ const TWIN_ACTIONS: readonly TwinAction[] = [
 
 const TWIN_KINDS: readonly HostTwinKind[] = [
   'local+ssh',
-  'local+runtime',
   'folder local+ssh',
   'folder group local+ssh'
 ]

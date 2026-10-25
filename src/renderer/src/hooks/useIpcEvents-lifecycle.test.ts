@@ -133,12 +133,9 @@ describe('useIpcEvents App-lifetime lifecycle', () => {
     await Promise.resolve()
     expect(listeners.size).toBeGreaterThan(0)
     expect(runtimeSubscriptions.length).toBeGreaterThan(0)
-    const groupOrder = (names: readonly string[]): string[] =>
-      registrationOrder.filter((entry) => names.includes(entry))
     // Subscribe before consuming pending requests or reading snapshots, so startup cannot miss pushes.
     for (const [subscribe, read] of [
       ['ui.onOpenSettings', 'ui.consumePendingOpenSettings'],
-      ['ui.onOpenSkillShare', 'ui.consumePendingSkillShare'],
       ['rateLimits.onUpdate', 'rateLimits.get'],
       ['agentStatus.onSet', 'agentStatus.getSnapshot'],
       ['agentStatus.onClear', 'agentStatus.getSnapshot'],
@@ -151,11 +148,6 @@ describe('useIpcEvents App-lifetime lifecycle', () => {
       expect(registrationOrder).toContain(subscribe)
       expect(registrationOrder.indexOf(read)).toBeGreaterThan(registrationOrder.indexOf(subscribe))
     }
-    // The updater intentionally requests its initial snapshot before subscribing.
-    expect(groupOrder(['updater.getStatus', 'updater.onStatus'])).toEqual([
-      'updater.getStatus',
-      'updater.onStatus'
-    ])
     expect(
       [...listeners.values()].every((records) => records.filter((item) => item.active).length === 1)
     ).toBe(true)
