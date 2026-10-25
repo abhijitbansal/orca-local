@@ -18,7 +18,6 @@ const NODE_RUNTIME_INCLUDE = [
   'src/main/ai-vault/session-scanner-scope-walk.test.ts',
   // Electron main bridges streams with Node's implementation.
   'src/main/daemon/daemon-init-provider-installation.test.ts',
-  'src/main/orcad/orcad-daemon-teardown-linux.test.ts',
   'src/renderer/src/components/terminal-pane/pty-input-write-queue.test.ts',
   'src/renderer/src/lib/react-commit-cascade-observer.test.ts',
   'src/renderer/src/lib/react-commit-cascade-telemetry.test.ts',
@@ -69,7 +68,6 @@ const NODE_RUNTIME_INCLUDE = [
   'src/main/native-chat/agent-session-wire/structured-agent-session-message-choices.test.ts',
   'src/main/native-chat/agent-session-wire/structured-agent-session-queued-messages.test.ts',
   'src/main/native-chat/agent-session-wire/structured-agent-session-send.test.ts',
-  'src/main/orcad/serve-profile-ssh-targets.test.ts',
   'src/main/runtime/orca-runtime.test.ts',
   'src/main/runtime/worktree-agent-first-surface.test.ts',
   'src/main/runtime/runtime-client-agent-launch-settings-durability.test.ts',
@@ -111,7 +109,6 @@ const NODE_RUNTIME_INCLUDE = [
   'src/main/runtime/runtime-failed-local-worktree-removal.test.ts',
   'src/main/runtime/runtime-interrupted-local-worktree-removal.test.ts',
   'src/main/local-worktree-removal-recovery-live.test.ts',
-  'src/main/rate-limits/codex-rpc-worker-backpressure.test.ts',
   'src/main/computer/macos-native-provider-client.test.ts',
   'src/main/ai-vault-search/session-search-schema.test.ts',
   'src/main/ai-vault-search/session-search-fts5-contract.test.ts',

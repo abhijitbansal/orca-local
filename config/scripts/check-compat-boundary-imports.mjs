@@ -24,11 +24,7 @@ export const COMPAT_FOLDERS = [
   {
     folder: 'src/main/remote-layout-snapshot',
     entries: ['remote-layout-snapshot-persistence', 'remote-layout-snapshot-recorder'],
-    importers: [
-      'src/main/ipc/runtime-environments/runtime-environments.ts',
-      'src/main/ipc/runtime-environments/runtime-environment-removal-cleanup.ts',
-      'src/main/persistence/loading-store/store-domain-composition.ts'
-    ]
+    importers: ['src/main/persistence/loading-store/store-domain-composition.ts']
   }
 ]
 

@@ -37,8 +37,6 @@ export const UNIT_EXCLUDE = [
   'src/shared/pty-reply-echo-shapes.node-pty.test.ts',
   'src/shared/startup-shell-portability.live-shell.test.ts',
   'src/shared/posix-command-path-lookup.test.ts',
-  'tests/e2e/relay-region-compatibility.unit.test.ts',
-  'tests/e2e/relay-region-correction.unit.test.ts',
   // Electron probes with in-process deadlines; the package job runs them serially.
   'src/main/browser/popup-origin-chrome.electron.test.ts',
   'src/main/browser/browser-link-materialization.electron.test.ts',
@@ -51,8 +49,7 @@ export const UNIT_EXCLUDE = [
   'src/main/browser/browser-popup-compatibility.electron.test.ts',
   'src/main/browser/browser-popup-adapter-compatibility.electron.test.ts',
   'src/main/browser/browser-popup-native-compatibility.electron.test.ts',
-  'src/main/browser/browser-popup-background-compatibility.electron.test.ts',
-  `${CROSS_VERSION_WIRE_DIR}**`
+  'src/main/browser/browser-popup-background-compatibility.electron.test.ts'
 ]
 
 export function discoverUnitFiles(root = process.cwd()) {

@@ -7,9 +7,7 @@
 3 src/main/ipc/pty/pane/stable-owner.ts
 2 src/main/ipc/pty/spawn-commit-binding.ts
 1 src/main/ipc/renderer-shutdown-checkpoint.ts
-1 src/main/ipc/runtime-environments/runtime-environment-removal-cleanup.ts
-1 src/main/ipc/runtime-environments/runtime-environment-session-reconcile.ts
-2 src/main/ipc/session.ts
+3 src/main/ipc/session.ts
 6 src/main/orca-profiles/profile-project-session-state.ts
 4 src/main/orca-profiles/profile-project-source-removal.ts
 2 src/main/orca-profiles/profile-project-state-file.ts
@@ -21,8 +19,9 @@
 1 src/main/persistence/loading-store/metadata-lineage-operations.ts
 1 src/main/persistence/loading-store/mobile-tab-selection-persistence.ts
 1 src/main/persistence/loading-store/normalize-loaded-profile-state.ts
-10 src/main/persistence/loading-store/pty-binding-persistence.ts
+8 src/main/persistence/loading-store/pty-binding-persistence.ts
 10 src/main/persistence/loading-store/pty-binding-session-update.ts
+1 src/main/persistence/loading-store/remote-execution-host-strip.ts
 10 src/main/persistence/loading-store/repo-lifecycle-operations.ts
 10 src/main/persistence/loading-store/session-host-partitions.ts
 9 src/main/persistence/loading-store/session-snapshot-operations.ts
@@ -60,8 +59,5 @@
 4 src/main/runtime/workspace-session-worktree-id.ts
 1 src/main/runtime/workspaces/session-hosts/get-runtime-id.ts
 2 src/main/runtime/workspaces/workspace-file-session-targets.ts
-1 src/main/ssh/orcad-migration-source-retention.ts
 1 src/main/ssh/targets/ssh-target-id-migration.ts
 2 src/main/terminal-scrollback-snapshots.ts
-1 src/main/persistence/leasing-ssh-ptys/ssh-pty-lease-operations.ts
-1 src/main/persistence/loading-store/remote-execution-host-strip.ts

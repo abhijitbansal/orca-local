@@ -153,3 +153,6 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     process.stdout.write(`${JSON.stringify(specs)}\n`)
   }
 }
+
+// No manual-only e2e specs remain once the remote-host specs are removed.
+export const MANUAL_ONLY_E2E_SPECS = []
