@@ -7,7 +7,7 @@ import { getMacAppBundlePath } from './mac-app-update-bundle'
 import { superviseForegroundServe } from './serve-foreground-supervisor'
 import { preflightElectronServe, recordElectronServeStartupAbort } from './serve-electron-preflight'
 import { MacServeStartupAbortError } from './serve-signal-exit-diagnostic'
-import { resolveLaunchUserDataPath } from './launch-user-data-path'
+import { pinServeUserDataPath, resolveLaunchUserDataPath } from './launch-user-data-path'
 import { RuntimeClientError } from './types'
 
 const STARTUP_ABORT_MS = 30_000
@@ -85,7 +85,12 @@ function spawnElectronServe(
   args: { json?: boolean },
   userDataPath: string
 ): Promise<number> {
-  const childArgs = [...getExecutableAppArgs(executable)]
+  const pinned = pinServeUserDataPath(
+    getExecutableAppArgs(executable),
+    stripElectronRunAsNode(process.env),
+    userDataPath
+  )
+  const childArgs = pinned.args
   childArgs.push('--serve')
   if (args.json) {
     childArgs.push('--serve-json')
@@ -97,7 +102,7 @@ function spawnElectronServe(
     cwd: resolveAppRoot(),
     stdio: 'inherit',
     ...getExecutableSpawnOptions(executable),
-    env: stripElectronRunAsNode(process.env)
+    env: pinned.env
   }
   const child = spawnProcess(executable, childArgs, spawnOptions)
   const spawnedAt = Date.now()
