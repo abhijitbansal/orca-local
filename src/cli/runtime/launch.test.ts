@@ -15,6 +15,9 @@ vi.mock('child_process', () => ({
 }))
 
 import { launchOrcaApp, serveOrcaApp } from './launch'
+import { headlessServeOzonePlatformSwitches } from '../../shared/headless-serve-ozone-platform'
+
+const HOST_SERVE_OZONE_SWITCHES = headlessServeOzonePlatformSwitches(process.platform)
 
 class FakeChildProcess extends EventEmitter {
   stdout = new EventEmitter()
@@ -58,7 +61,7 @@ describe('serveOrcaApp', () => {
 
     expect(spawnMock).toHaveBeenCalledWith(
       '/Applications/Orca.app/Contents/MacOS/Orca',
-      [pinProfile, '--serve', '--serve-json'],
+      [pinProfile, '--serve', '--serve-json', ...HOST_SERVE_OZONE_SWITCHES],
       expect.objectContaining({
         stdio: 'inherit',
         env: expect.not.objectContaining({ ORCA_SERVE_UPDATE_HANDOFF_PATH: expect.anything() })
@@ -84,7 +87,7 @@ describe('serveOrcaApp', () => {
 
     expect(spawnMock).toHaveBeenCalledWith(
       '/Applications/Orca.app/Contents/MacOS/Orca',
-      [pinProfile, '--serve', '--serve-json'],
+      [pinProfile, '--serve', '--serve-json', ...HOST_SERVE_OZONE_SWITCHES],
       expect.objectContaining({
         cwd: resolve(__dirname, '../../..')
       })
@@ -111,7 +114,13 @@ describe('serveOrcaApp', () => {
 
     expect(spawnMock).toHaveBeenCalledWith(
       '/repo/node_modules/.bin/electron',
-      [resolve(__dirname, '../../..'), pinProfile, '--serve', '--serve-json'],
+      [
+        resolve(__dirname, '../../..'),
+        pinProfile,
+        '--serve',
+        '--serve-json',
+        ...HOST_SERVE_OZONE_SWITCHES
+      ],
       expect.objectContaining({
         cwd: resolve(__dirname, '../../..')
       })
