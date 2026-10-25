@@ -69,15 +69,12 @@ describe('orca cli project and host names', () => {
   it('filters project setups by the display name and host name the list commands print', async () => {
     queueFixtures(
       callMock,
-      okFixture('req_ssh_targets', {
-        targets: [{ id: 'ssh-1789189705224-tq82n1', label: 'simnode-local' }]
-      }),
       okFixture('req_project_setups', {
         setups: [
           {
             id: 'setup-simnode',
             projectId: 'github:younghwan91/scalp-it',
-            hostId: 'ssh:ssh-1789189705224-tq82n1',
+            hostId: 'local',
             repoId: 'repo-simnode',
             path: '/home/young/git/scalp-it',
             displayName: 'scalp-it',
@@ -89,7 +86,7 @@ describe('orca cli project and host names', () => {
           {
             id: 'setup-other',
             projectId: 'github:stablyai/orca',
-            hostId: 'ssh:ssh-1789189705224-tq82n1',
+            hostId: 'local',
             repoId: 'repo-other',
             path: '/home/young/git/orca',
             displayName: 'orca',
@@ -109,10 +106,7 @@ describe('orca cli project and host names', () => {
     )
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-    await main(
-      ['project', 'setups', '--project', 'scalp it', '--host', 'simnode-local'],
-      '/tmp/repo'
-    )
+    await main(['project', 'setups', '--project', 'scalp it', '--host', 'local'], '/tmp/repo')
 
     const printed = String(logSpy.mock.calls[0]?.[0])
     expect(printed).toContain('setup-simnode')
@@ -149,14 +143,13 @@ describe('orca cli project and host names', () => {
   it('sends the project id when a setup command names the project by display name', async () => {
     queueFixtures(
       callMock,
-      okFixture('req_ssh_targets', { targets: [] }),
       PROJECT_LIST_FIXTURE,
       okFixture('req_project_setup_create', { result: {} })
     )
     vi.spyOn(console, 'log').mockImplementation(() => {})
 
     await main(
-      ['project', 'setup-create', '--project', 'Orca', '--host', 'this machine', '--json'],
+      ['project', 'setup-create', '--project', 'Orca', '--host', 'local', '--json'],
       '/tmp/repo'
     )
 

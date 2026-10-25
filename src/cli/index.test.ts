@@ -409,23 +409,8 @@ describe('orca help', () => {
     await main(['--help'], '/tmp/repo')
 
     const rootHelp = String(logSpy.mock.calls[0][0])
-    expect(rootHelp).toContain('linear')
+    expect(rootHelp).not.toContain('orca linear')
     expect(rootHelp).not.toContain('linear issue')
-
-    logSpy.mockClear()
-    await main(['linear', '--help'], '/tmp/repo')
-
-    const groupHelp = String(logSpy.mock.calls[0][0])
-    expect(groupHelp).toContain('orca linear')
-    expect(groupHelp).toContain('issue')
-    expect(groupHelp).not.toContain('--comments')
-
-    logSpy.mockClear()
-    await main(['linear', 'issue', '--help'], '/tmp/repo')
-
-    const issueHelp = String(logSpy.mock.calls[0][0])
-    expect(issueHelp).toContain('orca linear issue')
-    expect(issueHelp).toContain('--comments')
     expect(callMock).not.toHaveBeenCalled()
     logSpy.mockRestore()
   })

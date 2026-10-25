@@ -125,6 +125,19 @@ describe('orca cli worktree awareness', () => {
   it('sets up an existing project folder with a path resolved against the local cli cwd', async () => {
     queueFixtures(
       callMock,
+      okFixture('req_project_list', {
+        projects: [
+          {
+            id: 'github:stablyai/orca',
+            displayName: 'Orca',
+            badgeColor: '#7c3aed',
+            providerIdentity: { provider: 'github', owner: 'stablyai', repo: 'orca' },
+            sourceRepoIds: ['repo-1'],
+            createdAt: 1,
+            updatedAt: 1
+          }
+        ]
+      }),
       okFixture('req_project_setup', {
         result: {
           project: {
@@ -284,6 +297,19 @@ describe('orca cli worktree awareness', () => {
   it('creates independent project host setup metadata through the project-first runtime API', async () => {
     queueFixtures(
       callMock,
+      okFixture('req_project_list', {
+        projects: [
+          {
+            id: 'github:stablyai/orca',
+            displayName: 'Orca',
+            badgeColor: '#7c3aed',
+            providerIdentity: { provider: 'github', owner: 'stablyai', repo: 'orca' },
+            sourceRepoIds: ['repo-1'],
+            createdAt: 1,
+            updatedAt: 1
+          }
+        ]
+      }),
       okFixture('req_project_setup_create', {
         result: {
           project: {

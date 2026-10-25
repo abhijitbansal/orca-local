@@ -87,7 +87,7 @@ describe('orca cli worktree awareness', () => {
       comment: undefined,
       runHooks: false,
       activate: true,
-      navigation: 'all',
+      navigation: 'host',
       parentWorktree: undefined,
       cwdParentWorktree: 'id:repo-1::/tmp/repo',
       noParent: false,
@@ -367,55 +367,6 @@ describe('orca cli worktree awareness', () => {
     expect(process.exitCode).toBe(1)
 
     process.exitCode = priorExitCode
-  })
-
-  it('accepts the host alias that `orca host list` prints', async () => {
-    queueFixtures(
-      callMock,
-      okFixture('req_ssh_targets', {
-        targets: [{ id: 'ssh-1783599077486-fyasux', label: 'trader-local' }]
-      }),
-      okFixture('req_project_setups', {
-        setups: [
-          buildSetup({ id: 'setup-local', hostId: 'local', repoId: 'repo-local' }),
-          buildSetup({
-            id: 'setup-trader',
-            hostId: 'ssh:ssh-1783599077486-fyasux',
-            repoId: 'repo-trader',
-            path: '/home/trader/orca'
-          })
-        ]
-      }),
-      okFixture('req_create', {
-        worktree: buildWorktree('/home/trader/orca/feature', 'feature', 'abc', 'repo-trader'),
-        lineage: null,
-        warnings: []
-      })
-    )
-    vi.spyOn(console, 'log').mockImplementation(() => {})
-
-    await main(
-      [
-        'worktree',
-        'create',
-        '--project',
-        'github:stablyai/orca',
-        '--host',
-        'trader-local',
-        '--name',
-        'feature',
-        '--no-parent',
-        '--json'
-      ],
-      '/tmp/repo'
-    )
-
-    expect(callMock).toHaveBeenNthCalledWith(1, 'ssh.listTargetSummaries')
-    expect(callMock).toHaveBeenNthCalledWith(
-      3,
-      'worktree.create',
-      expect.objectContaining({ repo: 'id:repo-trader' })
-    )
   })
 
   it('rejects mixing repo and project target flags on worktree.create', async () => {

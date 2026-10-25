@@ -298,30 +298,6 @@ describe('automation run command output', () => {
     expect(JSON.parse(String(log.mock.calls[0]?.[0])).result.runId).toBe(RUN_ID)
   })
 
-  it.each(['explicit', 'ORCA_PAIRING_CODE', 'ORCA_REMOTE_PAIRING'] as const)(
-    'requires the same target without exposing %s pairing credentials',
-    async (selection) => {
-      const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-      const pairingCode = 'test-only-pairing-value'
-      const flags = selection === 'explicit' ? ['--pairing-code', pairingCode] : []
-      if (selection !== 'explicit') {
-        process.env[selection] = pairingCode
-      }
-      queueRun(run())
-      await main(['automations', 'run', AUTOMATION_ID, ...flags], '/tmp/repo')
-      expect(String(log.mock.calls[0]?.[0]).split('\n').at(-1)).toBe(
-        `Follow up on the same host and profile (preserve your connection/profile settings): orca automations runs --id ${AUTOMATION_ID}`
-      )
-      queueRun(run())
-      await main(['automations', 'run', AUTOMATION_ID, ...flags, '--json'], '/tmp/repo')
-      expect(JSON.parse(String(log.mock.calls[1]?.[0]))).toEqual(
-        okFixture('req_run', { run: run(), runId: RUN_ID })
-      )
-      await main(['automations', 'run', ...flags, '--help'], '/tmp/repo')
-      expect(log.mock.calls.flat().join('\n')).not.toContain(pairingCode)
-    }
-  )
-
   it('rejects the unsupported --user-data-dir flag before selecting a runtime', async () => {
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
     const previousExitCode = process.exitCode

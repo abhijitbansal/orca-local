@@ -24,6 +24,7 @@ import {
 } from '../format'
 import { hostFilterMatchesHostId, parseHostFlag } from '../execution-host-flag'
 import { getOptionalStringFlag, getRequiredStringFlag } from '../flags'
+import { findProjectSetups, resolveProjectIdSelector } from '../project-selector'
 import { resolveRepoPathArgument } from '../repo-path-arguments'
 import { RuntimeClientError, type RuntimeRpcSuccess } from '../runtime-client'
 
@@ -84,10 +85,12 @@ export const PROJECT_HANDLERS: Record<string, CommandHandler> = {
       client,
       'projectHostSetup.list'
     )
-    const setups = result.result.setups.filter(
-      (setup) =>
-        (projectFilter === undefined || setup.projectId === projectFilter) &&
-        (hostFilter === undefined || hostFilterMatchesHostId(hostFilter, setup.hostId))
+    const projectSetups =
+      projectFilter === undefined
+        ? result.result.setups
+        : await findProjectSetups(client, result.result.setups, projectFilter)
+    const setups = projectSetups.filter(
+      (setup) => hostFilter === undefined || hostFilterMatchesHostId(hostFilter, setup.hostId)
     )
     printResult({ ...result, result: { setups } }, json, formatProjectHostSetupList)
   },
@@ -95,7 +98,7 @@ export const PROJECT_HANDLERS: Record<string, CommandHandler> = {
     const rawPath = getRequiredStringFlag(flags, 'path')
     const hostId = getRequiredHostId(flags)
     const args: ProjectHostSetupExistingFolderArgs = {
-      projectId: getRequiredStringFlag(flags, 'project'),
+      projectId: await resolveProjectIdSelector(client, getRequiredStringFlag(flags, 'project')),
       hostId,
       path: resolveRepoPathArgument(rawPath, cwd, false, 'Project setup existing folder'),
       kind: getOptionalRepoKind(flags),
@@ -111,7 +114,7 @@ export const PROJECT_HANDLERS: Record<string, CommandHandler> = {
   'project setup-clone': async ({ flags, client, cwd, json }) => {
     const rawDestination = getRequiredStringFlag(flags, 'destination')
     const args: ProjectHostSetupCloneArgs = {
-      projectId: getRequiredStringFlag(flags, 'project'),
+      projectId: await resolveProjectIdSelector(client, getRequiredStringFlag(flags, 'project')),
       hostId: getRequiredHostId(flags),
       url: getRequiredStringFlag(flags, 'url'),
       destination: resolveRepoPathArgument(rawDestination, cwd, false, 'Project setup clone'),
@@ -127,7 +130,7 @@ export const PROJECT_HANDLERS: Record<string, CommandHandler> = {
   'project setup-create': async ({ flags, client, cwd, json }) => {
     const path = getOptionalStringFlag(flags, 'path')
     const args: ProjectHostSetupCreateArgs = {
-      projectId: getRequiredStringFlag(flags, 'project'),
+      projectId: await resolveProjectIdSelector(client, getRequiredStringFlag(flags, 'project')),
       hostId: getRequiredHostId(flags),
       setupId: getOptionalStringFlag(flags, 'setup-id'),
       path:

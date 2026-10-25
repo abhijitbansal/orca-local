@@ -26,10 +26,14 @@ class FakeChildProcess extends EventEmitter {
 describe('serveOrcaApp', () => {
   const temporaryDirectories: string[] = []
 
-  beforeEach(() => {
+  beforeEach(async () => {
     spawnMock.mockReset()
     spawnSyncMock.mockReset()
     process.env.ORCA_APP_EXECUTABLE = '/Applications/Orca.app/Contents/MacOS/Orca'
+    // Keep the serve preflight off the real profile, which may be served by a running app.
+    const isolatedProfile = await mkdtemp(join(tmpdir(), 'orca-launch-profile-'))
+    temporaryDirectories.push(isolatedProfile)
+    process.env.ORCA_USER_DATA_PATH = isolatedProfile
   })
 
   afterEach(() => {

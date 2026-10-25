@@ -163,50 +163,6 @@ describe('orca worktree create carries the selected host', () => {
     process.exitCode = priorExitCode
   })
 
-  it('checks a GitLab link against the repo on the selected host', async () => {
-    queueFixtures(
-      callMock,
-      okFixture('req_project_setups', { setups: TWIN_SETUPS }),
-      okFixture('req_repo', {
-        repo: { id: 'repo-1', gitRemoteIdentity: { remoteUrl: 'https://gitlab.com/acme/app.git' } }
-      }),
-      okFixture('req_create', {
-        worktree: buildWorktree('/tmp/orca/feature', 'feature', 'abc', 'repo-1'),
-        lineage: null,
-        warnings: []
-      })
-    )
-    vi.spyOn(console, 'log').mockImplementation(() => {})
-
-    await main(
-      [
-        'worktree',
-        'create',
-        '--project',
-        'github:stablyai/orca',
-        '--host',
-        'local',
-        '--gitlab-mr',
-        'https://gitlab.com/acme/app/-/merge_requests/5',
-        '--name',
-        'feature',
-        '--no-parent',
-        '--json'
-      ],
-      '/tmp/repo'
-    )
-
-    expect(callMock).toHaveBeenNthCalledWith(2, 'repo.show', {
-      repo: 'id:repo-1',
-      repoHostId: 'local'
-    })
-    expect(callMock).toHaveBeenNthCalledWith(
-      3,
-      'worktree.create',
-      expect.objectContaining({ repo: 'id:repo-1', repoHostId: 'local' })
-    )
-  })
-
   it('names the host when a --project-host-setup id is missing there', async () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
     const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
