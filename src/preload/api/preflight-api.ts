@@ -13,10 +13,8 @@ export type RefreshAgentsResult = {
   agents: string[]
   addedPathSegments: string[]
   shellHydrationOk: boolean
-  /** Drives agent_picks `on_path:false` triage (dashboard 1562016). `'shell_hydrate'` = detection saw the user's
-   *  full shell PATH; `'sync_seed_only'` = hydration failed and detection ran against the `patchPackagedProcessPath` seed list. */
+  /** shell_hydrate uses the full shell PATH; sync_seed_only uses the packaged PATH seed. */
   pathSource: PathSource
-  /** Classified hydration outcome: `'none'` on success, else a failure mode when `shellHydrationOk` is false. */
   pathFailureReason: ShellHydrationFailureReason
 }
 
@@ -29,7 +27,7 @@ export type PreflightRuntimeContext = {
 export type PreflightApi = {
   check: (args?: PreflightRuntimeContext & { force?: boolean }) => Promise<PreflightStatus>
   detectAgents: (args?: PreflightRuntimeContext) => Promise<string[]>
-  /** Whether the installed `zcode` can open a session; cached in main per run. */
+  /** Cached in main for the process lifetime. */
   zcodeInteractiveCapability: () => Promise<ZCodeInteractiveCapability>
   refreshAgents: (args?: PreflightRuntimeContext) => Promise<RefreshAgentsResult>
   detectRemoteAgents: (args: { connectionId: string }) => Promise<string[]>

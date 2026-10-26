@@ -22,7 +22,7 @@ export function useAddRepoNestedReviewController({
   reviewRuntimeEnvironmentId: string | null | undefined
   cancelNestedRepoScan: (
     scanId: string,
-    options?: { runtimeEnvironmentId?: string | null }
+    options: { runtimeEnvironmentId: string | null }
   ) => Promise<unknown>
   closeModal: () => void
   fetchWorktrees: (repoId: string, options?: WorktreeFetchOptions) => Promise<unknown>
@@ -32,7 +32,7 @@ export function useAddRepoNestedReviewController({
     projectPaths: string[]
     connectionId?: string
     scanId?: string
-    runtimeEnvironmentId?: string | null
+    runtimeEnvironmentId: string | null
     mode: 'group' | 'separate'
   }) => Promise<ProjectGroupImportResult | null>
   onGitRepoReady: (

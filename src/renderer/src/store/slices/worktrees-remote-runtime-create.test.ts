@@ -1,6 +1,7 @@
+import type { ExecutionHostId } from '../../../../shared/execution-host'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AppState } from '../types'
-import { makeWorktree } from './worktrees-slice-test-fixtures'
+import { TEST_REPO, makeWorktree } from './worktrees-slice-test-fixtures'
 import {
   createTestStore,
   mockApi,
@@ -34,7 +35,7 @@ describe('worktree remote runtime mutations', () => {
   })
 
   it('passes startup commands through local worktree creation IPC', async () => {
-    const store = createTestStore()
+    const store = createRepoTestStore()
     const wt = makeWorktree({
       id: 'repo1::/path/local-agent-startup',
       repoId: 'repo1',
@@ -100,3 +101,14 @@ describe('worktree remote runtime mutations', () => {
     expect(runtimeEnvironmentCall).not.toHaveBeenCalled()
   })
 })
+
+// Creation routes by the project row's own host, so every test seeds that row.
+function seedRepoHost(store: ReturnType<typeof createTestStore>, hostId: ExecutionHostId): void {
+  store.setState({ repos: [{ ...TEST_REPO, executionHostId: hostId }] })
+}
+
+function createRepoTestStore(): ReturnType<typeof createTestStore> {
+  const store = createTestStore()
+  seedRepoHost(store, 'local')
+  return store
+}

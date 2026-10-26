@@ -12,7 +12,7 @@ import { registerMainProcessIpcHandlers } from './startup/main-process-ipc-boots
 import { initializeMainProcessReady } from './startup/main-process-ready'
 import { installMainProcessQuitHandlers } from './startup/main-process-quit'
 import { shouldActivateDesktopForSecondInstance } from './startup/single-instance-lock'
-import { resolveOpenedMarkdownDocuments } from './startup/os-opened-markdown-files'
+import { resolveOsOpenedDocuments } from './startup/os-opened-documents'
 import {
   formatProfileStateStartupFailure,
   isDivergedProfileStateFailure,
@@ -21,10 +21,14 @@ import {
 import { recordDurableCrashBreadcrumb } from './crash-reporting/durable-crash-breadcrumb'
 import {
   chooseProfileStateCopy,
+  chooseProfileStateRepair,
   presentProfileStateStartupRecoveryDialog,
   readProfileStateCopySavedTimes
 } from './persistence/profile-state/profile-state-startup-recovery-dialog'
 import { profileStateDesktopRecoveryArgs } from './startup/profile-state-recovery-preflight'
+import { ProfileStateRecoveryRequiredError } from './persistence/profile-state/profile-state-recovery-required'
+import { getProfileUserDataPath } from './orca-profiles/profile-storage-paths'
+import { leaseAppImageGenerationForCurrentProcess } from './cli/appimage-generation-lease'
 
 function openMainWindow(options: { revealOnDidFinishLoad?: boolean } = {}): BrowserWindow {
   return openMainWindowController(options)
@@ -37,7 +41,7 @@ function focusExistingWindow(): void {
 }
 
 function requestDesktopActivation(argv: readonly string[] = []): void {
-  state.osOpenedMarkdownFiles.capture(argv, publishOsOpenedMarkdownFiles)
+  state.osOpenedDocuments.capture(argv, publishOsOpenedDocuments)
   // Why: a duplicate `orca serve` must not drag a headless server into opening a desktop window (#11935).
   if (!shouldActivateDesktopForSecondInstance(argv)) {
     return
@@ -46,26 +50,26 @@ function requestDesktopActivation(argv: readonly string[] = []): void {
 }
 
 /**
- * Hands buffered OS-opened markdown paths to a renderer that has proven it is listening.
+ * Hands buffered OS-opened document paths to a renderer that has proven it is listening.
  *
  * Until that proof arrives the paths stay buffered, because `webContents.send` to a renderer
  * with no listener attached is dropped silently and the queue would be gone.
  */
-function publishOsOpenedMarkdownFiles(): void {
+function publishOsOpenedDocuments(): void {
   const targetWindow = state.mainWindow
-  if (!state.markdownFileOpenListenerReady || !targetWindow || targetWindow.isDestroyed()) {
+  if (!state.osDocumentOpenListenerReady || !targetWindow || targetWindow.isDestroyed()) {
     return
   }
   // Why consumed before the await: a renderer pull racing this resolve must not take the same
   // batch again. The restore() calls hand it back if delivery turns out to be impossible.
-  const filePaths = state.osOpenedMarkdownFiles.consume()
+  const filePaths = state.osOpenedDocuments.consume()
   if (filePaths.length === 0) {
     return
   }
-  void resolveOpenedMarkdownDocuments(filePaths)
+  void resolveOsOpenedDocuments(filePaths)
     .then((documents) => {
       if (targetWindow.isDestroyed() || targetWindow.webContents.isDestroyed()) {
-        state.osOpenedMarkdownFiles.restore(filePaths)
+        state.osOpenedDocuments.restore(filePaths)
         return
       }
       if (documents.length > 0) {
@@ -73,8 +77,8 @@ function publishOsOpenedMarkdownFiles(): void {
       }
     })
     .catch((error) => {
-      state.osOpenedMarkdownFiles.restore(filePaths)
-      console.warn('[os-open] Failed to resolve OS-opened markdown files:', error)
+      state.osOpenedDocuments.restore(filePaths)
+      console.warn('[os-open] Failed to resolve OS-opened documents:', error)
     })
 }
 
@@ -88,12 +92,13 @@ const preflightReady = runMainProcessPreflight({
   requestDesktopActivation
 })
 
-// Why: when another process holds the lock we've already exited; skip file-writing side effects so this transient process never touches userData.
+// Skip userData writes after losing the single-instance lock.
 if (preflightReady) {
+  void leaseAppImageGenerationForCurrentProcess()
   // Why: macOS delivers "Open With" as open-file, often before `ready`, and only to a handler
-  // that claims the event. Non-markdown paths stay unclaimed so the OS default handler wins.
+  // that claims the event. Unsupported paths stay unclaimed.
   app.on('open-file', (event, filePath) => {
-    if (!state.osOpenedMarkdownFiles.captureFilePaths([filePath], publishOsOpenedMarkdownFiles)) {
+    if (!state.osOpenedDocuments.captureFilePaths([filePath], publishOsOpenedDocuments)) {
       return
     }
     event.preventDefault()
@@ -104,7 +109,7 @@ if (preflightReady) {
     }
   })
   // Why no publish: nothing is listening this early, so the first renderer pulls these on mount.
-  state.osOpenedMarkdownFiles.capture(process.argv)
+  state.osOpenedDocuments.capture(process.argv)
   registerMainProcessIpcHandlers()
   installMainProcessQuitHandlers()
   void app.whenReady().then(async () => {
@@ -126,8 +131,8 @@ if (preflightReady) {
       console.error(`[profile-state] ${message}`)
       if (!state.isServeMode && !isBackgroundLaunch()) {
         try {
+          const userDataPath = getProfileUserDataPath()
           if (isDivergedProfileStateFailure(error)) {
-            const userDataPath = app.getPath('userData')
             const choice = await chooseProfileStateCopy({
               ...readProfileStateCopySavedTimes(userDataPath),
               showMessageBox: (options) => dialog.showMessageBox(options)
@@ -138,6 +143,31 @@ if (preflightReady) {
                 args: profileStateDesktopRecoveryArgs(process.argv, {
                   userDataPath,
                   selector: { kind: choice }
+                })
+              })
+            }
+            app.exit(1)
+            return
+          }
+          if (
+            error instanceof ProfileStateRecoveryRequiredError &&
+            error.repairableSections !== undefined
+          ) {
+            const sections = error.repairableSections
+            if (
+              await chooseProfileStateRepair({
+                sections,
+                showMessageBox: (options) => dialog.showMessageBox(options)
+              })
+            ) {
+              app.relaunch({
+                args: profileStateDesktopRecoveryArgs(process.argv, {
+                  userDataPath,
+                  profileId: error.profileId,
+                  selector: {
+                    kind: 'repair',
+                    sections: sections.map(({ domain, backupId }) => ({ domain, backupId }))
+                  }
                 })
               })
             }

@@ -19,7 +19,7 @@ import { SearchableSetting } from './SearchableSetting'
 import { SettingsSubsectionHeader, SettingsSwitchRow } from './SettingsFormControls'
 import { translate } from '@/i18n/i18n'
 import { DefaultWindowsProjectRuntimeSetting } from './DefaultWindowsProjectRuntimeSetting'
-import { getActiveRuntimeTarget } from '@/runtime/runtime-rpc-client'
+import { defaultScopeHost } from '@/lib/default-creation-host'
 
 export {
   createAutoSaveDelayDraftState,
@@ -103,7 +103,8 @@ export function GeneralPane({
   const defaultsSupportedRuntimeEnvironmentId = useAppStore(
     (s) => s.worktreeVisibilityDefaultsSupportedRuntimeEnvironmentId
   )
-  const activeRuntimeTarget = getActiveRuntimeTarget(settings)
+  // Why: the store mirrors the default scope host's visibility defaults until Settings picks a host.
+  const activeRuntimeTarget = defaultScopeHost(settings)
   const defaultsSupported =
     activeRuntimeTarget.kind === 'local' ||
     activeRuntimeTarget.environmentId === defaultsSupportedRuntimeEnvironmentId

@@ -9,13 +9,15 @@ import { createTrackedJournalOpener } from '../agent-session-journal/journal-hos
 import { StructuredAgentSessionConversations } from './structured-agent-session-conversations'
 import type { StructuredAgentSessionHostSession } from './structured-agent-session-host-types'
 import { hostTestAttachParams } from './structured-agent-session-host-test-data'
+import { recordingStructuredAgentSessionLogger } from './structured-agent-session-logger-test-support'
+import { codexProviderHandle } from '../../../shared/agent-session-provider-handle-encoding'
 
 const IDENTITY: AgentSessionJournalIdentity = {
   sessionId: 'session-1',
   workspaceId: 'workspace-1',
   hostId: 'host-1',
   agent: 'codex',
-  providerHandle: { kind: 'codex', threadId: 'thread-1' }
+  providerHandle: codexProviderHandle('thread-1')
 }
 
 const journals = createTrackedJournalOpener()
@@ -55,7 +57,7 @@ describe('a conversation delivers what its journal commits', () => {
     const deliver = vi.fn()
     const conversations = new StructuredAgentSessionConversations({
       deliver,
-      onDeliveryError: vi.fn(),
+      logger: recordingStructuredAgentSessionLogger().logger,
       now: () => 0
     })
     const journal = await openJournal('a')
@@ -63,18 +65,17 @@ describe('a conversation delivers what its journal commits', () => {
 
     await appendStatus(journal, 'written')
 
-    // Already delivered when the writer's await returns, as an explicit publish would have been.
     expect(deliver).toHaveBeenCalledOnce()
     expect(deliver).toHaveBeenCalledWith('session-1', journal)
   })
 
   it('binds a handle set through a plain map reference', async () => {
     const deliver = vi.fn()
-    // Collaborators hold the host's map as a plain `Map`; `set` still reaches the binding.
+    // Plain Map references must still invoke commit binding through overridden set.
     const sessions: Map<string, StructuredAgentSessionHostSession> =
       new StructuredAgentSessionConversations({
         deliver,
-        onDeliveryError: vi.fn(),
+        logger: recordingStructuredAgentSessionLogger().logger,
         now: () => 0
       })
     const journal = await openJournal('a')
@@ -89,7 +90,7 @@ describe('a conversation delivers what its journal commits', () => {
     const deliver = vi.fn()
     const conversations = new StructuredAgentSessionConversations({
       deliver,
-      onDeliveryError: vi.fn(),
+      logger: recordingStructuredAgentSessionLogger().logger,
       now: () => 0
     })
     const journal = await openJournal('a')
@@ -104,7 +105,7 @@ describe('a conversation delivers what its journal commits', () => {
     const deliver = vi.fn()
     const conversations = new StructuredAgentSessionConversations({
       deliver,
-      onDeliveryError: vi.fn(),
+      logger: recordingStructuredAgentSessionLogger().logger,
       now: () => 0
     })
     const replaced = await openJournal('a')
@@ -123,7 +124,7 @@ describe('a conversation delivers what its journal commits', () => {
     const deliver = vi.fn()
     const conversations = new StructuredAgentSessionConversations({
       deliver,
-      onDeliveryError: vi.fn(),
+      logger: recordingStructuredAgentSessionLogger().logger,
       now: () => 0
     })
     const journal = await openJournal('a')
@@ -137,12 +138,12 @@ describe('a conversation delivers what its journal commits', () => {
 
   it('reports a reader failure without failing the durable write', async () => {
     const failure = new Error('reader failed')
-    const onDeliveryError = vi.fn()
+    const log = recordingStructuredAgentSessionLogger()
     const conversations = new StructuredAgentSessionConversations({
       deliver: () => {
         throw failure
       },
-      onDeliveryError,
+      logger: log.logger,
       now: () => 0
     })
     const journal = await openJournal('a')
@@ -152,7 +153,9 @@ describe('a conversation delivers what its journal commits', () => {
       itemId: expect.any(String)
     })
 
-    expect(onDeliveryError).toHaveBeenCalledExactlyOnceWith('session-1', failure)
+    expect(log.entries.map((entry) => entry.fields)).toEqual([
+      { scope: 'journal-delivery', sessionId: 'session-1', error: failure }
+    ])
     expect(journal.snapshot().items.map((item) => item.body)).toContainEqual({
       kind: 'status',
       text: 'durable'

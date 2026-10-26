@@ -7,7 +7,6 @@ import {
 } from './worktree-create-execution-host-route'
 
 const HOST_A = 'target-a'
-const HOST_B = 'target-b'
 
 function repoRow(fields: Partial<Repo>): Repo {
   return {
@@ -22,36 +21,22 @@ function repoRow(fields: Partial<Repo>): Repo {
 
 describe('resolveWorktreeCreateRoute', () => {
   it('routes a row that names its host only as executionHostId to that SSH target', () => {
-    expect(resolveWorktreeCreateRoute(repoRow({ executionHostId: 'ssh:target-a' }))).toMatchObject({
+    expect(resolveWorktreeCreateRoute(repoRow({ executionHostId: 'ssh:target-a' }))).toEqual({
       kind: 'ssh',
       hostId: 'ssh:target-a',
-      connectionId: HOST_A,
-      repo: { connectionId: HOST_A }
+      connectionId: HOST_A
     })
   })
 
-  it('normalizes the row for a legacy connectionId-only repo without changing its answer', () => {
-    expect(resolveWorktreeCreateRoute(repoRow({ connectionId: HOST_A }))).toMatchObject({
+  it('routes a legacy connectionId-only repo to the same SSH target', () => {
+    expect(resolveWorktreeCreateRoute(repoRow({ connectionId: HOST_A }))).toEqual({
       kind: 'ssh',
-      connectionId: HOST_A,
-      repo: { connectionId: HOST_A }
-    })
-  })
-
-  it('keeps two simultaneously registered SSH hosts on their own connections', () => {
-    expect(resolveWorktreeCreateRoute(repoRow({ executionHostId: 'ssh:target-a' }))).toMatchObject({
-      connectionId: HOST_A,
-      repo: { connectionId: HOST_A }
-    })
-    expect(resolveWorktreeCreateRoute(repoRow({ executionHostId: 'ssh:target-b' }))).toMatchObject({
-      connectionId: HOST_B,
-      repo: { connectionId: HOST_B }
+      hostId: 'ssh:target-a',
+      connectionId: HOST_A
     })
   })
 
   it('lets an explicit local host win over a surviving connectionId', () => {
-    // A contradictory row. `getRepoExecutionHostId` answers `local`, which is what the runtime
-    // create sibling has always done; the raw read sent it remote.
     expect(
       resolveWorktreeCreateRoute(repoRow({ executionHostId: 'local', connectionId: HOST_A }))
     ).toEqual({ kind: 'local', hostId: 'local' })
@@ -65,7 +50,7 @@ describe('resolveWorktreeCreateRoute', () => {
     })
   })
 
-  it('answers runtime for a runtime row whose nested target is dialable here', () => {
+  it('answers runtime for a runtime row that also names a nested target', () => {
     expect(
       resolveWorktreeCreateRoute(
         repoRow({ executionHostId: 'runtime:env-1', connectionId: HOST_A })

@@ -66,8 +66,22 @@ vi.mock('@/components/ui/dropdown-menu', () => ({
     <>{children}</>
   ),
   DropdownMenuContent: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-  DropdownMenuItem: ({ children, onSelect }: { children: ReactNode; onSelect?: () => void }) => (
-    <button type="button" onClick={() => onSelect?.()}>
+  DropdownMenuItem: ({
+    children,
+    onSelect,
+    onClick
+  }: {
+    children: ReactNode
+    onSelect?: () => void
+    onClick?: React.MouseEventHandler<HTMLButtonElement>
+  }) => (
+    <button
+      type="button"
+      onClick={(event) => {
+        onSelect?.()
+        onClick?.(event)
+      }}
+    >
       {children}
     </button>
   )
@@ -161,44 +175,5 @@ describe('WorktreeCardDetailsHover interactions', () => {
     expect(container.querySelector('[data-hover-open]')?.getAttribute('data-hover-open')).toBe(
       'false'
     )
-  })
-
-  it('passes a linked issue URL to the embedded-browser action', () => {
-    const onOpenIssueInBrowser = vi.fn()
-    container = document.createElement('div')
-    root = createRoot(container)
-    act(() => {
-      root.render(
-        <WorktreeCardDetailsHover
-          issue={{
-            number: 5518,
-            title: 'Agent monitor issue',
-            state: 'open',
-            url: 'https://github.com/acme/orca/issues/5518',
-            labels: []
-          }}
-          linearIssue={null}
-          review={null}
-          comment={null}
-          onOpenIssueInBrowser={onOpenIssueInBrowser}
-        >
-          <span>Linked issue</span>
-        </WorktreeCardDetailsHover>
-      )
-    })
-
-    act(() => {
-      interactionMocks.onHoverOpenChange?.(true)
-      interactionMocks.onReviewMenuOpenChange?.(true)
-    })
-    const browserButton = Array.from(container.querySelectorAll('button')).find((button) =>
-      button.textContent?.includes('Open in Orca browser')
-    )
-
-    act(() => {
-      browserButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-    })
-
-    expect(onOpenIssueInBrowser).toHaveBeenCalledWith('https://github.com/acme/orca/issues/5518')
   })
 })

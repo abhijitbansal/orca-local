@@ -35,7 +35,20 @@ describe('createWorktree composer parent pick', () => {
 
   function createParentPickStore(parent?: Worktree) {
     const store = createTestStore()
-    store.setState({ worktreesByRepo: { repo1: parent ? [parent] : [] } } as Partial<AppState>)
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the slice reads only the repo fields seeded here.
+    store.setState({
+      repos: [
+        {
+          id: 'repo1',
+          path: '/path',
+          displayName: 'repo1',
+          badgeColor: '#000',
+          addedAt: 0,
+          kind: 'git'
+        }
+      ],
+      worktreesByRepo: { repo1: parent ? [parent] : [] }
+    } as Partial<AppState>)
     return store
   }
 

@@ -13,6 +13,7 @@ import type {
   BrowserClientHostPlacementPreparationRequest,
   BrowserPageCreationPlacement
 } from '../../shared/browser-client-host-placement'
+import type { SidebarInputsChangedEvent } from '../../shared/sidebar-list/sidebar-inputs-feed-contract'
 
 export type RuntimeEnvironmentSubscriptionHandle = {
   unsubscribe: () => void
@@ -66,14 +67,14 @@ export type RuntimeApi = {
     onBrowserDriverChanged: (
       callback: (event: { browserPageId: string; driver: RuntimeBrowserDriverState }) => void
     ) => () => void
-    // Why optional: matches onNativeChatLaunchDraftResolved — a renderer running against an older
-    // preload keeps working without the retention signal instead of throwing on every mount.
+    // Older preloads lack this signal.
     onBrowserRemoteViewersChanged?: (
       callback: (event: { browserPageId: string; hasRemoteViewers: boolean }) => void
     ) => () => void
     onClientHostedBrowserRowsChanged: (
       callback: (event: ClientHostedBrowserRowsEvent) => void
     ) => () => void
+    onSidebarInputsChanged: (callback: (event: SidebarInputsChangedEvent) => void) => () => void
   }
   runtimeEnvironments: {
     getStatusSnapshots: () => Promise<RuntimeHostStatusSnapshot[]>
@@ -94,7 +95,7 @@ export type RuntimeApi = {
     prepareBrowserClientHostPlacement: (
       args: BrowserClientHostPlacementPreparationRequest
     ) => Promise<BrowserPageCreationPlacement>
-    // Why: system resume / browser online advance pending shared-control reconnect timers only.
+    // Resume/online events advance only pending shared-control reconnect timers.
     retryConnectionsNow?: () => Promise<void>
     call: (args: {
       selector: string

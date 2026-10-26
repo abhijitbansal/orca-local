@@ -5,7 +5,6 @@ import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import NewWorkspaceComposerCard from './NewWorkspaceComposerCard'
 import type { NewWorkspaceProjectOption } from '@/lib/new-workspace-project-options'
-import type { ProjectHostSetupOption } from '@/lib/project-host-setup-options'
 
 const storeMocks = vi.hoisted(() => ({
   closeModal: vi.fn(),
@@ -16,7 +15,8 @@ const storeMocks = vi.hoisted(() => ({
 }))
 
 const apiMocks = vi.hoisted(() => ({
-  runtimeGetStatus: vi.fn()
+  runtimeGetStatus: vi.fn(),
+  sshConnect: vi.fn()
 }))
 
 vi.mock('@/store', () => ({
@@ -54,6 +54,13 @@ vi.mock('@/components/ui/tooltip', () => ({
 
 vi.mock('@/components/agent/AgentCombobox', () => ({
   default: () => <button type="button">Agent picker</button>
+}))
+
+// Stub the host-add dialog to its `mode` — the composer's job is to open it with the right
+// mode; the dialog's own SSH/runtime IPC has separate coverage.
+vi.mock('@/components/sidebar/AddRemoteHostDialog', () => ({
+  AddRemoteHostDialog: ({ mode }: { mode: 'ssh' | 'server' | null }) =>
+    mode ? <div data-testid="add-remote-host-dialog" data-mode={mode} /> : null
 }))
 
 vi.mock('@/components/new-workspace/SetProjectLocationDialog', () => ({
@@ -138,48 +145,11 @@ const sourceRepos = [
   }
 ]
 
-const localReadyHostOption: ProjectHostSetupOption = {
-  kind: 'ready',
-  id: 'setup-local',
-  projectId: 'project-group:platform',
-  hostId: 'local',
-  repoId: 'repo-a',
-  label: 'Local Mac',
-  detail: 'Orca',
-  path: '/Users/alice/orca'
-}
-
-const devboxNeedsSetupHostOption: ProjectHostSetupOption = {
-  kind: 'needs-setup',
-  id: 'needs-setup:ssh:devbox',
-  projectId: 'project-group:platform',
-  hostId: 'ssh:devbox',
-  label: 'Devbox',
-  detail: 'Project location not set',
-  isAvailable: true,
-  attention: false,
-  canSetLocation: true
-}
-
 const pnpmInstallSetupConfig = {
   source: 'yaml' as const,
   command: 'pnpm install',
   kind: 'setup' as const
 }
-
-const hostOptions: ProjectHostSetupOption[] = [
-  localReadyHostOption,
-  {
-    kind: 'ready',
-    id: 'setup-builder',
-    projectId: 'project-group:platform',
-    hostId: 'ssh:builder',
-    repoId: 'repo-a',
-    label: 'Builder',
-    detail: 'Orca',
-    path: '/workspace/orca'
-  }
-]
 
 function renderCard(
   overrides: Partial<React.ComponentProps<typeof NewWorkspaceComposerCard>> = {}
@@ -239,6 +209,7 @@ function renderCard(
         selectedRepoSshStatus={null}
         selectedRepoRequiresConnection={false}
         selectedRepoConnectInProgress={false}
+        onConnectSelectedRepo={async () => {}}
         canUseSparseCheckout={false}
         sparsePresets={[]}
         sparseSelectedPresetId={null}
@@ -272,22 +243,6 @@ function changeInputValue(input: HTMLInputElement, value: string): void {
   })
 }
 
-function openRunTargetPicker(container: HTMLElement): void {
-  // The field is the search box; clicking its shell focuses it and opens the list.
-  const runTargetShell = container.querySelector<HTMLElement>(
-    'div[data-run-target-combobox-root="true"]'
-  )
-  expect(runTargetShell).toBeTruthy()
-  act(() => runTargetShell?.click())
-}
-
-function findRunTargetItem(label: string): HTMLElement | undefined {
-  // Rows are listbox options; "Add host" is the pinned footer row (also an option).
-  return [
-    ...document.body.querySelectorAll<HTMLElement>('[role="option"], [data-run-target-add-host]')
-  ].find((item) => item.textContent?.includes(label))
-}
-
 let current: { container: HTMLDivElement; root: Root } | null = null
 
 function unmountCurrent(): void {
@@ -306,6 +261,9 @@ describe('NewWorkspaceComposerCard folder task source mode', () => {
     ;(window as unknown as { api: unknown }).api = {
       runtimeEnvironments: {
         getStatus: apiMocks.runtimeGetStatus
+      },
+      ssh: {
+        connect: apiMocks.sshConnect
       }
     }
     apiMocks.runtimeGetStatus.mockResolvedValue({
@@ -321,6 +279,7 @@ describe('NewWorkspaceComposerCard folder task source mode', () => {
       },
       _meta: { runtimeId: 'runtime-devbox' }
     })
+    apiMocks.sshConnect.mockResolvedValue(undefined)
   })
 
   afterEach(() => {
@@ -380,26 +339,6 @@ describe('NewWorkspaceComposerCard folder task source mode', () => {
     expect(nameInput?.getAttribute('data-repo-backed-search-names')).toBe('Repo A,Repo B')
     expect(current.container.querySelector('[data-testid="repo-backed-source-trigger"]')).toBeNull()
     expect(current.container.querySelectorAll('[data-testid="project-combobox"]')).toHaveLength(1)
-  })
-
-  it('scopes the workspace-creation-project tour target to the project picker rather than the run target picker', () => {
-    current = renderCard({ projectHostSetupOptions: [localReadyHostOption] })
-
-    const projectTourTarget = current.container.querySelector(
-      '[data-contextual-tour-target="workspace-creation-project"]'
-    )
-    expect(projectTourTarget).toBeTruthy()
-    expect(projectTourTarget?.querySelector('[data-project-combobox-root="true"]')).toBeTruthy()
-    expect(projectTourTarget?.querySelector('[data-run-target-combobox-root="true"]')).toBeNull()
-    expect(projectTourTarget?.textContent).not.toContain('Run on')
-    expect(projectTourTarget?.querySelector('label')).toBeNull()
-    expect(projectTourTarget?.querySelector('[aria-label="Add project"]')).toBeNull()
-    expect(current.container.querySelector('[aria-label="Add project"]')).toBeTruthy()
-
-    const runTargetPicker = current.container.querySelector(
-      'div[data-run-target-combobox-root="true"]'
-    )
-    expect(runTargetPicker).toBeTruthy()
   })
 
   it('keeps the reuse-branch row collapsed until a local branch is reusable', () => {
@@ -609,71 +548,6 @@ describe('NewWorkspaceComposerCard folder task source mode', () => {
         ?.getAttribute('data-repo-backed-sources-disabled')
     ).toBe('false')
   })
-
-  it('shows setup-needed hosts in the run target picker when one setup is ready', () => {
-    current = renderCard({
-      projectHostSetupOptions: [localReadyHostOption, devboxNeedsSetupHostOption],
-      selectedProjectHostSetupId: 'setup-local'
-    })
-
-    expect(current.container.textContent).toContain('Run on')
-    openRunTargetPicker(current.container)
-
-    const devboxItem = findRunTargetItem('Devbox')
-    expect(devboxItem?.textContent).not.toContain('Project location not set')
-    expect(devboxItem?.textContent).toContain('Set project location')
-    // Not-connected rows stay highlightable (never `disabled`) so they hover like
-    // the other rows; they're quieted visually instead.
-    expect(devboxItem?.hasAttribute('data-disabled')).toBe(false)
-    expect(devboxItem?.getAttribute('role')).toBe('option')
-  })
-
-  it('shows the run target picker for one ready setup', () => {
-    current = renderCard({
-      projectHostSetupOptions: [localReadyHostOption],
-      selectedProjectHostSetupId: 'setup-local'
-    })
-
-    expect(current.container.textContent).toContain('Run on')
-    openRunTargetPicker(current.container)
-    expect(findRunTargetItem('Add host')).toBeUndefined()
-  })
-
-  it('does not select setup-needed run target rows', () => {
-    const hostChanges: string[] = []
-    current = renderCard({
-      projectHostSetupOptions: [localReadyHostOption, devboxNeedsSetupHostOption],
-      selectedProjectHostSetupId: 'setup-local',
-      onProjectHostSetupChange: (setupId) => hostChanges.push(setupId)
-    })
-
-    openRunTargetPicker(current.container)
-    const devboxItem = findRunTargetItem('Devbox')
-    expect(devboxItem).toBeTruthy()
-    act(() => devboxItem?.click())
-
-    expect(hostChanges).toEqual([])
-  })
-
-  it('selects an existing host from the run target picker', () => {
-    const hostChanges: string[] = []
-    current = renderCard({
-      projectHostSetupOptions: hostOptions,
-      selectedProjectHostSetupId: 'setup-local',
-      onProjectHostSetupChange: (setupId) => hostChanges.push(setupId)
-    })
-
-    expect(current.container.textContent).toContain('Run on')
-    openRunTargetPicker(current.container)
-
-    const builderItem = [...document.body.querySelectorAll<HTMLElement>('[role="option"]')].find(
-      (item) => item.textContent?.includes('Builder')
-    )
-    expect(builderItem).toBeTruthy()
-    act(() => builderItem?.click())
-
-    expect(hostChanges).toEqual(['setup-builder'])
-  })
 })
 
 describe('NewWorkspaceComposerCard note sizing', () => {
@@ -693,7 +567,7 @@ describe('NewWorkspaceComposerCard note sizing', () => {
     return textarea as HTMLTextAreaElement
   }
 
-  it('sizes from the note value, so a PR prefill written straight to state still shows in full', () => {
+  it('applies content sizing to a note prefilled through props', () => {
     // #10575: the prefill never fires an input event, so nothing but the value can drive height.
     current = renderCard({
       advancedOpen: true,
@@ -703,7 +577,7 @@ describe('NewWorkspaceComposerCard note sizing', () => {
     expect(findNoteTextarea(current.container).className).toContain('[field-sizing:content]')
   })
 
-  it('keeps a note past the height cap readable instead of clipping it', () => {
+  it('applies a height cap and scrolling classes to long notes', () => {
     current = renderCard({ advancedOpen: true, note: 'a'.repeat(4000) })
 
     const { className } = findNoteTextarea(current.container)

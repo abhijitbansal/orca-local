@@ -2,12 +2,12 @@ import os from 'node:os'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { normalizeMachineName } from '../../../../shared/machine-name'
 import { OrcaRuntimeService } from '../../orca-runtime'
-import type { RuntimeStore } from '../../runtime-store-contract'
 import { STATUS_METHODS } from './status'
+import { partialRuntimeStore } from '../../runtime-store-partial-fixture'
 
 // Why mocked: the friendly-name lookup is the one path that spawns `scutil`; the test decides when it lands.
 const runProcessMock = vi.hoisted(() => vi.fn())
-vi.mock('../../../../shared/child-process/run-process', () => ({ runProcess: runProcessMock }))
+vi.mock('@orca/process-host', () => ({ runProcess: runProcessMock }))
 
 vi.mock('electron', () => ({
   BrowserWindow: { fromId: vi.fn(() => null) },
@@ -33,8 +33,7 @@ describe('status.get', () => {
           finishLookup = resolve
         })
     )
-    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the runtime reads only `getSettings` off the store during construction and status.
-    const runtime = new OrcaRuntimeService({ getSettings: () => ({}) } as RuntimeStore)
+    const runtime = new OrcaRuntimeService(partialRuntimeStore({ getSettings: () => ({}) }))
     expect(finishLookup).toBeTypeOf('function')
     expect(runtime.readMachineName()).toBe(normalizeMachineName(os.hostname()))
 

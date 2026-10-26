@@ -1,4 +1,4 @@
-import { launchWorktreeBackgroundTerminals } from '@/lib/launch-worktree-background-terminals'
+import { LocalOnlyUnsupportedError } from '../../../shared/local-only-unsupported-error'
 import { useAppStore } from '@/store'
 import { translate } from '@/i18n/i18n'
 import { createBrowserUuid } from '@/lib/browser-uuid'
@@ -22,7 +22,6 @@ import {
 import { resolveFolderWorkspaceHost } from '../../../shared/folder-workspace-execution-host'
 import type { Worktree } from '../../../shared/worktree/types'
 import { parseWorkspaceKey } from '../../../shared/workspace-scope'
-import { LocalOnlyUnsupportedError } from '../../../shared/local-only-unsupported-error'
 
 type AutomationDispatchStoreState = ReturnType<typeof useAppStore.getState>
 type MarkDispatchResult = (result: AutomationDispatchResult) => Promise<void>
@@ -81,7 +80,7 @@ export async function prepareAutomationDispatchWorkspace(args: {
     folderWorkspaceHost && automationWorktree
       ? folderWorkspaceConnectionId
         ? toSshExecutionHostId(folderWorkspaceConnectionId)
-        : folderWorkspaceHost.kind === 'local'
+        : folderWorkspaceHost.kind === 'local' || folderWorkspaceHost.kind === 'runtime'
           ? getResolvedExecutionHostIdForWorktree(state, automationWorktree.id)
           : null
       : null
@@ -190,6 +189,8 @@ export async function prepareAutomationDispatchWorkspace(args: {
           undefined,
           undefined,
           {
+            // Why: only a captured host; with none, a project two hosts publish refuses, never guesses.
+            executionHostId: parseExecutionHostId(automation.runContext?.hostId)?.id,
             automationProvenanceRequest: {
               automationId: automation.id,
               automationRunId: run.id,
@@ -220,17 +221,6 @@ export async function prepareAutomationDispatchWorkspace(args: {
   }
   context.workspaceId = worktree.id
   context.workspaceDisplayName = worktree.displayName
-  if (createResult?.setup || createResult?.defaultTabs) {
-    void launchWorktreeBackgroundTerminals({
-      worktreeId: worktree.id,
-      setup: createResult.setup,
-      defaultTabs: createResult.defaultTabs
-    }).catch((error) => {
-      // Why: setup/defaultTabs match normal worktree creation: they are
-      // best-effort terminal work and must not block the automation agent.
-      console.warn('[automations] Failed to launch workspace setup/default tabs:', error)
-    })
-  }
   return worktree
 }
 

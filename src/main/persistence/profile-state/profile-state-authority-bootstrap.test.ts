@@ -121,12 +121,14 @@ describe('profile state authority bootstrap', () => {
 
     expect(result.classification).toBe('json-only')
     expect(result.migrated).toBe(true)
-    expect(result.authority?.readSerializedState()).toContain('futureExtension')
+    expect(JSON.parse(result.authority?.readSerializedState() ?? '{}')).toMatchObject({
+      futureExtension: { keep: true }
+    })
     expect(existsSync(options.dataFile)).toBe(true)
     expect(existsSync(profileStateJsonExportPath(options.dataFile, 1))).toBe(true)
-    expect(readFileSync(profileStateJsonExportPath(options.dataFile, 1), 'utf8')).toContain(
-      'futureExtension'
-    )
+    expect(
+      JSON.parse(readFileSync(profileStateJsonExportPath(options.dataFile, 1), 'utf8'))
+    ).toMatchObject({ futureExtension: { keep: true } })
     expect(classifyProfileStateStorage(options.dataFile, options.databaseFile)).toBe('both')
 
     if (result.authority === undefined) {
@@ -139,7 +141,9 @@ describe('profile state authority bootstrap', () => {
     expect(store.getSettings().theme).toBe('dark')
 
     const repeated = bootstrapProfileStateAuthority(options)
-    expect(repeated.authority?.readSerializedState()).toContain('futureExtension')
+    expect(JSON.parse(repeated.authority?.readSerializedState() ?? '{}')).toMatchObject({
+      futureExtension: { keep: true }
+    })
   })
 
   it('fails closed when both files are present without a matching acceptance marker', () => {
@@ -192,7 +196,7 @@ describe('profile state authority bootstrap', () => {
         expect(() => bootstrapProfileStateAuthority(options)).toThrow(
           ProfileStateRecoveryRequiredError
         )
-        expect(readFileSync(options.databaseFile)).toEqual(before)
+        expect(readFileSync(options.databaseFile).equals(before)).toBe(true)
       }
       const exportPath = profileStateJsonExportPath(options.dataFile, 1)
       writeFileSync(exportPath, raw)
@@ -497,7 +501,7 @@ describe('profile state authority bootstrap', () => {
       expect.arrayContaining([options.databaseFile, `${options.databaseFile}-wal`])
     )
     expect(existsSync(options.databaseFile)).toBe(false)
-    expect(readFileSync(options.dataFile)).toEqual(restoredJson)
+    expect(readFileSync(options.dataFile).equals(restoredJson)).toBe(true)
     expect(existsSync(exportPath)).toBe(false)
     expect(readFileSync(join(result.quarantine.directory, 'profile-state.db'), 'utf8')).toBe(
       'corrupt sqlite primary'
@@ -533,7 +537,7 @@ describe('profile state authority bootstrap', () => {
         exportPath
       })
     ).toThrow('Profile state JSON is invalid')
-    expect(readFileSync(options.databaseFile)).toEqual(databaseBytes)
-    expect(readFileSync(options.dataFile)).toEqual(dataBytes)
+    expect(readFileSync(options.databaseFile).equals(databaseBytes)).toBe(true)
+    expect(readFileSync(options.dataFile).equals(dataBytes)).toBe(true)
   })
 })

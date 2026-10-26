@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { NativeChatMessage } from '../../../../shared/native-chat-types'
-import { RuntimeRpcCallError } from '@/runtime/runtime-rpc-client'
+import {
+  clearRuntimeCompatibilityCacheForTests,
+  markRuntimeEnvironmentCompatible
+} from '@/runtime/runtime-rpc-client'
+import { RuntimeRpcCallError } from '@/runtime/runtime-rpc-result'
 import { RUNTIME_COMPAT_BLOCK_CODE } from '@/runtime/runtime-protocol-compat'
 import {
   getNativeChatSessionTransport,
@@ -33,6 +37,7 @@ function flush(): Promise<void> {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  clearRuntimeCompatibilityCacheForTests()
   delete (globalThis as { __ORCA_WEB_CLIENT__?: boolean }).__ORCA_WEB_CLIENT__
   vi.stubGlobal('window', {
     location: { pathname: '/index.html' },
@@ -95,6 +100,7 @@ describe('runtime subscribe', () => {
   }
 
   it('normalizes the first frame to a snapshot and reconnect replays to appends', async () => {
+    markRuntimeEnvironmentCompatible(ENV)
     const { deliver } = stubSubscribe()
     const onFrame = vi.fn()
     const transport = getNativeChatSessionTransport(ENV)
@@ -135,6 +141,7 @@ describe('runtime subscribe', () => {
   })
 
   it('validates lifecycle metadata on runtime stream frames', async () => {
+    markRuntimeEnvironmentCompatible(ENV)
     const { deliver } = stubSubscribe()
     const onFrame = vi.fn()
     const transport = getNativeChatSessionTransport(ENV)
@@ -166,6 +173,7 @@ describe('runtime subscribe', () => {
   })
 
   it('omits an invalid lifecycle payload from a stream frame', async () => {
+    markRuntimeEnvironmentCompatible(ENV)
     const { deliver } = stubSubscribe()
     const onFrame = vi.fn()
     const transport = getNativeChatSessionTransport(ENV)
@@ -191,6 +199,7 @@ describe('runtime subscribe', () => {
   })
 
   it('settles with an empty snapshot when the first ok frame is an unrecognized shape', async () => {
+    markRuntimeEnvironmentCompatible(ENV)
     const { deliver } = stubSubscribe()
     const onFrame = vi.fn()
     const transport = getNativeChatSessionTransport(ENV)
@@ -213,6 +222,7 @@ describe('runtime subscribe', () => {
   })
 
   it('forwards the pending flag and still treats the real snapshot as the initial frame', async () => {
+    markRuntimeEnvironmentCompatible(ENV)
     const { deliver } = stubSubscribe()
     const onFrame = vi.fn()
     const transport = getNativeChatSessionTransport(ENV)
@@ -245,6 +255,7 @@ describe('runtime subscribe', () => {
   })
 
   it('carries an error on a post-initial reconnect snapshot', async () => {
+    markRuntimeEnvironmentCompatible(ENV)
     const { deliver } = stubSubscribe()
     const onFrame = vi.fn()
     const transport = getNativeChatSessionTransport(ENV)
@@ -264,6 +275,7 @@ describe('runtime subscribe', () => {
   })
 
   it('sync unsubscribe closes the dedicated stream and issues no unsubscribe RPC (KTD-6)', async () => {
+    markRuntimeEnvironmentCompatible(ENV)
     const { unsubscribe } = stubSubscribe()
     const transport = getNativeChatSessionTransport(ENV)
 
@@ -287,6 +299,7 @@ describe('runtime subscribe', () => {
   it('re-subscribes after a mid-stream drop and stops reconnecting on teardown', async () => {
     vi.useFakeTimers()
     try {
+      markRuntimeEnvironmentCompatible(ENV)
       const { drop, subscribeCount } = stubSubscribe()
       const transport = getNativeChatSessionTransport(ENV)
 
@@ -313,6 +326,7 @@ describe('runtime subscribe', () => {
   it('keeps retrying when a reconnect subscribe rejects', async () => {
     vi.useFakeTimers()
     try {
+      markRuntimeEnvironmentCompatible(ENV)
       const attempts: {
         callbacks: {
           onResponse: (response: { ok: boolean; result?: unknown }) => void
@@ -348,6 +362,7 @@ describe('runtime subscribe', () => {
   it('closes and retries when an established reconnect returns an error envelope', async () => {
     vi.useFakeTimers()
     try {
+      markRuntimeEnvironmentCompatible(ENV)
       const attempts: {
         callbacks: {
           onResponse: (response: { ok: boolean; result?: unknown }) => void
@@ -386,6 +401,7 @@ describe('runtime subscribe', () => {
   it('closes an out-of-order stale handle without replacing the active reconnect', async () => {
     vi.useFakeTimers()
     try {
+      markRuntimeEnvironmentCompatible(ENV)
       const attempts: {
         callbacks: { onClose?: () => void }
         resolve: (handle: { unsubscribe: () => void; sendBinary: () => void }) => void
@@ -417,6 +433,7 @@ describe('runtime subscribe', () => {
   })
 
   it('closes a stream that resolves after unsubscribe (cancel race)', async () => {
+    markRuntimeEnvironmentCompatible(ENV)
     const unsubscribe = vi.fn()
     let resolveHandle: (h: unknown) => void = () => {}
     runtimeEnvironmentsSubscribe.mockImplementation(

@@ -92,7 +92,7 @@ async function seedProjectHeaderSortScenario(
     let repos = findSeededRepos()
     const deadline = Date.now() + 10_000
     while (repos.some((repo) => !repo) && Date.now() < deadline) {
-      await state.fetchRepos()
+      await state.fetchRepos({ runtimeEnvironmentId: null, throwOnError: true })
       repos = findSeededRepos()
       if (repos.every((repo) => repo)) {
         break
@@ -134,23 +134,23 @@ async function seedDuplicateTabOrderProjectGroups(
     state.setGroupBy('repo')
     state.setProjectOrderBy('manual')
 
-    const groups = []
+    const groupIds: string[] = []
     for (const name of groupNames) {
-      const created = await state.createProjectGroup(name)
+      const created = await state.createProjectGroup(name, 'local')
       if (!created) {
         throw new Error(`Failed to create Project Group: ${name}`)
       }
       // Why: existing profiles can have several groups with the same legacy rank;
       // the drag must still be able to insert one between its siblings.
       await state.updateProjectGroup(created.id, { tabOrder: 0 })
-      groups.push(created)
+      groupIds.push(created.id)
     }
 
     return {
-      alphaId: groups[0]!.id,
-      bravoId: groups[1]!.id,
-      charlieId: groups[2]!.id,
-      deltaId: groups[3]!.id
+      alphaId: groupIds[0]!,
+      bravoId: groupIds[1]!,
+      charlieId: groupIds[2]!,
+      deltaId: groupIds[3]!
     }
   }, GROUP_NAMES)
 }

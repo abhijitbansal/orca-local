@@ -7,7 +7,10 @@ import {
 } from '@/lib/pending-worktree-creation'
 import { createBrowserUuid } from '@/lib/browser-uuid'
 import { executeWorktreeCreation } from '@/lib/worktree-creation-flow-execute'
-import { getWorktreeCreationIndeterminate } from '@/lib/worktree-creation-flow-startup'
+import {
+  getInitialWorktreeCreationPhase,
+  getWorktreeCreationIndeterminate
+} from '@/lib/worktree-creation-flow-startup'
 import {
   formatWorkspaceCreateError,
   getWorkspaceCreateErrorToastMessage
@@ -60,12 +63,7 @@ function revealPendingCreation(
   store.setSidebarOpen(true)
 }
 
-/**
- * Kick off a worktree create in the background. The caller (the composer) has
- * already resolved every interactive decision into `request`, so this returns
- * immediately and the work outlives the now-closed modal. Progress and errors
- * surface on the pending creation's sidebar row and content panel.
- */
+/** Start creation without blocking the composer; the pending panel owns preparation and errors. */
 export function runBackgroundWorktreeCreation(request: WorktreeCreationRequest): string {
   const store = useAppStore.getState()
   const existingCreationId = findPendingLinkedWorkItemCreationId(
@@ -81,7 +79,7 @@ export function runBackgroundWorktreeCreation(request: WorktreeCreationRequest):
   // Why: crypto.randomUUID is undefined in non-secure browser contexts (LAN web
   // client over plain HTTP). createBrowserUuid falls back to getRandomValues.
   const creationId = createBrowserUuid()
-  revealPendingCreation(creationId, request, 'fetching')
+  revealPendingCreation(creationId, request, getInitialWorktreeCreationPhase(request))
   startWorktreeCreation(creationId, request)
   return creationId
 }
@@ -107,10 +105,11 @@ export function continueBackgroundWorktreeCreation(
   // checklist would freeze on step 1. Use the request's captured repo owner so
   // Retry does not change shape when focus moves to another runtime.
   store.updatePendingWorktreeCreation(creationId, {
-    phase: 'fetching',
+    phase: getInitialWorktreeCreationPhase(request),
     status: 'creating',
     startedAt: Date.now(),
     error: undefined,
+    checkoutProgress: undefined,
     request
   })
   // Why: background work-item preflight can finish after the user moved on; keep
@@ -134,8 +133,9 @@ export function retryBackgroundWorktreeCreation(creationId: string): void {
   store.updatePendingWorktreeCreation(creationId, {
     status: 'creating',
     startedAt: Date.now(),
-    phase: 'fetching',
-    error: undefined
+    phase: getInitialWorktreeCreationPhase(entry.request),
+    error: undefined,
+    checkoutProgress: undefined
   })
   store.setActivePendingWorktreeCreation(creationId)
   store.setActiveView('terminal')

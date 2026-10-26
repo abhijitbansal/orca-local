@@ -11,7 +11,8 @@ import EditorViewToggle, {
 import type { EditorToggleValue } from './EditorViewToggle'
 import type { EditorHeaderOpenFileState } from './editor-header'
 import { DiffNotesSendMenu } from './DiffNotesSendMenu'
-import { EditorPanelMarkdownActionsMenu } from './EditorPanelMarkdownActionsMenu'
+import { EditorPanelActionsMenu } from './EditorPanelActionsMenu'
+import { EditorFileLocationMenuItems } from './EditorFileLocationMenuItems'
 import { translate } from '@/i18n/i18n'
 import { EditorPanelHeaderPath } from './EditorPanelHeaderPath'
 import { useDiffNavigation } from './diff-navigation-context'
@@ -44,7 +45,6 @@ type EditorPanelHeaderProps = {
   onOpenDiffTargetFile: (preferredMarkdownViewMode?: 'rich') => void
   onOpenPreviewToSide: () => void
   onOpenMarkdownPreview: () => void
-  onOpenContainingFolder: () => void
   onToggleSideBySide: () => void
   onEditorToggleChange: (next: EditorToggleValue) => void
   onToggleMarkdownTableOfContents: () => void
@@ -78,7 +78,6 @@ export function EditorPanelHeader({
   onOpenDiffTargetFile,
   onOpenPreviewToSide,
   onOpenMarkdownPreview,
-  onOpenContainingFolder,
   onToggleSideBySide,
   onEditorToggleChange,
   onToggleMarkdownTableOfContents,
@@ -108,7 +107,6 @@ export function EditorPanelHeader({
         canShowMarkdownPreview={canShowMarkdownPreview}
         onCopyPath={onCopyPath}
         onOpenMarkdownPreview={onOpenMarkdownPreview}
-        onOpenContainingFolder={onOpenContainingFolder}
       />
       {canOpenPreviewToSide && (
         <TooltipProvider delayDuration={300}>
@@ -264,7 +262,7 @@ export function EditorPanelHeader({
           </Tooltip>
         </TooltipProvider>
       )}
-      {hasEditorToggle && (
+      {hasEditorToggle && !activeFile.csvPreviewOnly && (
         <EditorViewToggle
           value={effectiveToggleValue}
           modes={availableEditorToggleModes}
@@ -310,8 +308,14 @@ export function EditorPanelHeader({
           </Tooltip>
         </TooltipProvider>
       )}
-      <EditorPanelMarkdownActionsMenu
-        isMarkdown={isMarkdown}
+      <EditorPanelActionsMenu
+        fileLocationActions={
+          activeFile.mode === 'edit' ||
+          activeFile.mode === 'markdown-preview' ||
+          (isSingleDiff && openFileState.canOpen) ? (
+            <EditorFileLocationMenuItems file={activeFile} onCopyPath={onCopyPath} />
+          ) : undefined
+        }
         isDiffSurface={isDiffSurface}
         diffWordWrap={diffWordWrap}
         diffShowWhitespace={diffShowWhitespace}

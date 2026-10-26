@@ -1,45 +1,24 @@
-import { afterEach, describe, expect, it } from 'vitest'
-import { SSH_GIT_PROVIDER_UNAVAILABLE_MESSAGE } from './providers/ssh-git-dispatch'
+import { describe, expect, it } from 'vitest'
 import { ExecutionHostNotDispatchableError } from './providers/execution-host-provider-dispatch'
+import { SshHostNotServedError } from './providers/ssh-host-not-served-error'
 import type { ExecutionHostId } from '../shared/execution-host'
 import {
-  getWorktreeRemovalConnectionId,
   resolveWorktreeRemovalHome,
   resolveWorktreeRemovalHomeForHost,
-  resolveWorktreeRemovalRoute,
-  setWorktreeRemovalSshHostHomeResolver
+  resolveWorktreeRemovalRoute
 } from './worktree-removal-execution-host-route'
 
-const HOST_A = 'target-a'
-
-afterEach(() => {
-  setWorktreeRemovalSshHostHomeResolver(() => null)
-})
-
 describe('resolveWorktreeRemovalRoute', () => {
-  it('routes a local host to this machine with no connection', () => {
-    const route = resolveWorktreeRemovalRoute('local')
-
-    expect(route).toEqual({ kind: 'local', hostId: 'local' })
-    expect(getWorktreeRemovalConnectionId(route)).toBeUndefined()
+  it('routes a local host to this machine', () => {
+    expect(resolveWorktreeRemovalRoute('local')).toEqual({ kind: 'local', hostId: 'local' })
   })
 
-  it('refuses an unreachable SSH host instead of answering local', () => {
-    expect(() => resolveWorktreeRemovalRoute('ssh:target-a')).toThrow(
-      SSH_GIT_PROVIDER_UNAVAILABLE_MESSAGE
-    )
+  it('refuses an SSH host with the typed not-served error instead of answering local', () => {
+    expect(() => resolveWorktreeRemovalRoute('ssh:target-a')).toThrow(SshHostNotServedError)
   })
 
   it('refuses a runtime host with no nested SSH target', () => {
     expect(() => resolveWorktreeRemovalRoute('runtime:env-1')).toThrow(
-      ExecutionHostNotDispatchableError
-    )
-  })
-
-  it('refuses a runtime host even when a same-named target is dialable here', () => {
-    // The nested target lives in the environment's namespace; a same-named local one is a
-    // different machine, and removing a worktree through it deletes the wrong checkout.
-    expect(() => resolveWorktreeRemovalRoute('runtime:target-a')).toThrow(
       ExecutionHostNotDispatchableError
     )
   })
@@ -54,16 +33,8 @@ describe('resolveWorktreeRemovalHome', () => {
 })
 
 describe('resolveWorktreeRemovalHomeForHost', () => {
-  it('answers an ssh host id without needing a registered provider', () => {
-    // The IPC entry point resolves the home before it has a route, and a row naming its owner only
-    // as `executionHostId: 'ssh:<target>'` has no `connectionId` to key on at all.
-    setWorktreeRemovalSshHostHomeResolver((id) => (id === HOST_A ? '/srv/homes/alice' : null))
-
+  it('never answers an ssh host id with this client s home', () => {
     expect(resolveWorktreeRemovalHomeForHost('ssh:target-a')).toEqual({
-      kind: 'executionHost',
-      homePath: '/srv/homes/alice'
-    })
-    expect(resolveWorktreeRemovalHomeForHost('ssh:target-b')).toEqual({
       kind: 'executionHost',
       homePath: null
     })
@@ -74,8 +45,6 @@ describe('resolveWorktreeRemovalHomeForHost', () => {
   })
 
   it('refuses to answer a runtime host with this client s home', () => {
-    // `runtime:<env>` deletes on that environment's own server; this client's home vouches for
-    // nothing there, so the authority stays unknown and the guard refuses.
     expect(resolveWorktreeRemovalHomeForHost('runtime:env-1')).toEqual({
       kind: 'executionHost',
       homePath: null

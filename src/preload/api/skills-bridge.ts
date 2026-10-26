@@ -1,3 +1,9 @@
+import type {
+  BundledSkillExecuteRequest,
+  BundledSkillInstallResult,
+  BundledSkillPlan,
+  BundledSkillPlanRequest
+} from '../../shared/bundled-skill-plan'
 import { ipcRenderer } from 'electron'
 import type {
   SkillDeletePlan,
@@ -14,14 +20,15 @@ import type {
   SkillRemoveInput,
   SkillRemoveOperation
 } from '../../shared/skill-sharing-contract'
-import type { SkillFreshnessInventory } from '../../shared/skill-freshness'
 import type { PreloadApi } from '../api-types'
 
 export const skillsApi = {
   discover: (target?: SkillDiscoveryTarget): Promise<SkillDiscoveryResult> =>
     ipcRenderer.invoke('skills:discover', target),
-  freshnessInventory: (): Promise<SkillFreshnessInventory> =>
-    ipcRenderer.invoke('skills:freshnessInventory'),
+  bundledPlan: (request?: BundledSkillPlanRequest): Promise<BundledSkillPlan> =>
+    ipcRenderer.invoke('skills:bundledPlan', request ?? {}),
+  bundledExecute: (request: BundledSkillExecuteRequest): Promise<BundledSkillInstallResult> =>
+    ipcRenderer.invoke('skills:bundledExecute', request),
   previewInstall: (input: SkillInstallPreviewInput): Promise<SkillInstallPreviewOperation> =>
     ipcRenderer.invoke('skills:previewInstall', input),
   previewBundleInstall: (

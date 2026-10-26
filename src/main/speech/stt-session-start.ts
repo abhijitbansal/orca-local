@@ -9,7 +9,11 @@ import {
   stopSttDictation,
   teardownSttWorker
 } from './stt-session-stop'
-import { getSherpaModulePath, getSttWorkerPath } from './stt-worker-paths'
+import {
+  getSherpaModulePath,
+  getSttWorkerPath,
+  LOCAL_SPEECH_UNAVAILABLE_ERROR
+} from './stt-worker-paths'
 import {
   attachSttWorkerLifecycle,
   initializeSttWorker,
@@ -101,9 +105,11 @@ async function startSttSession(
     throw new Error(`Model not ready: ${modelState.status}`)
   }
 
-  const worker = new Worker(getSttWorkerPath(), {
-    workerData: { sherpaModulePath: getSherpaModulePath() }
-  })
+  const sherpaModulePath = getSherpaModulePath()
+  if (!sherpaModulePath) {
+    throw new Error(LOCAL_SPEECH_UNAVAILABLE_ERROR)
+  }
+  const worker = new Worker(getSttWorkerPath(), { workerData: { sherpaModulePath } })
   state.worker = worker
   state.activeModelId = modelId
   state.activeHotwordsFilePath = hotwordsFilePath

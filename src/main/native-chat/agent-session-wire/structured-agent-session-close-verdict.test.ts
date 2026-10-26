@@ -1,7 +1,5 @@
-// A turn the host cuts short by closing its provider is the user's cancellation only when the user
-// closed this chat. A quit, an idle eviction or a teardown aimed elsewhere leaves it news: the user
-// needs to learn it did not finish. The adapter settles its own open turn with the cause the host
-// hands its close, and the host's fallback settles any turn no adapter did, through one mapping.
+// Only user-close supplies personal cancellation; host eviction/quit leaves interrupted work reportable.
+// Provider and fallback turn-end writers both derive verdict from the journal Stop event.
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
@@ -11,11 +9,11 @@ import {
 import type { AgentSessionStatusEvent } from '../../../shared/agent-session-wire'
 import { readAgentJournalTurn } from '../../../shared/agent-session-turn-record'
 import { describeNativeChatTurnStatus } from '../../../shared/native-chat-turn-status'
+import { withNativeChatCutTurnNotices } from '../../../shared/native-chat-cut-turn-notice'
 import { selectStructuredAgentSettledTurns } from '../../../shared/structured-agent-session-turn-timing'
 import { AgentSessionRecoveryCapsule } from '../../runtime/agent-session-recovery-capsule'
 import { openTestJournalHostDatabase } from '../agent-session-journal/journal-host-database-test-support'
 import { StructuredAgentSessionHost } from './structured-agent-session-host'
-import type { stopStructuredAgentSessionAgentUnderSerialize } from './structured-agent-session-host-lifetime'
 import {
   adapter,
   attach,
@@ -27,21 +25,17 @@ import {
   HOST_TEST_SESSION as SESSION,
   HOST_TEST_THREAD as THREAD
 } from './structured-agent-session-host-test-data'
-import {
-  childEndCauseOfEndedEvent,
-  turnVerdictForChildEnd
-} from './structured-agent-session-stale-turn-verdict'
+import { createStructuredAgentSessionLogger } from './structured-agent-session-logger'
+import { NO_STRUCTURED_AGENTS } from './structured-agent-session-adapter-router-test-support'
 
 const CUT_TURN = { provider: 'codex' as const, threadId: THREAD, turnId: 'cut-turn', ordinal: 1 }
 
 let host: StructuredAgentSessionHost
-/** What the provider writes on the open turn as it exits: settled through the mapping with the
- *  cause its close was handed, as both adapters do, or its own verdict; null writes nothing. */
+/** Simulate adapter turn-end mapping, explicit verdicts, or no provider row. */
 let providerEnd:
   | 'mapped'
   | Pick<AgentJournalTurnLifecycle, 'state' | 'outcome' | 'completedAt'>
   | null
-/** The provider already saw its own exit when the close arrived. */
 let exitObservedFirst: boolean
 let closeCalls = 0
 
@@ -51,25 +45,21 @@ beforeEach(() => {
   exitObservedFirst = false
   closeCalls = 0
   host = new StructuredAgentSessionHost({
+    agents: NO_STRUCTURED_AGENTS,
+    logger: createStructuredAgentSessionLogger(),
     store: state.store,
     adapter: {
       ...adapter(),
-      closeSession: async (_sessionId, cause) => {
+      closeSession: async () => {
         closeCalls += 1
         const events = state.acquire.mock.calls.at(-1)?.[0].events
         if (providerEnd === null) {
           return true
         }
+        // Compare provider-observed exit against the close’s Stop timestamp.
         const end =
           providerEnd === 'mapped'
-            ? turnVerdictForChildEnd(
-                childEndCauseOfEndedEvent({
-                  type: 'ended',
-                  cause: exitObservedFirst ? 'unexpected-exit' : 'requested-close',
-                  ...(cause ? { stopCause: cause } : {})
-                }),
-                1_500
-              )
+            ? { state: 'interrupted' as const, completedAt: exitObservedFirst ? 1_500 : Date.now() }
             : providerEnd
         events?.appendItem(
           CUT_TURN,
@@ -94,7 +84,6 @@ beforeEach(() => {
   replaceHostTestState({ store: state.store, host })
 })
 
-/** A running turn, anchored to its user row, with a status list watching the session. */
 async function runningTurn(): Promise<AgentSessionStatusEvent[]> {
   await attach()
   const events = hostTestState().acquire.mock.calls[0]?.[0].events
@@ -123,14 +112,21 @@ async function runningTurn(): Promise<AgentSessionStatusEvent[]> {
   return statuses
 }
 
-/** What the settle wrote, read back from the journal the next reader opens. */
 async function settledTurn() {
   await host.restoreReadableSessions([SESSION])
   const { items } = await host.journalSnapshot(SESSION)
   const turn = items.map((item) => readAgentJournalTurn(item.body)).find(Boolean)
   const [settled] = [...selectStructuredAgentSettledTurns(items).values()]
-  return { turn, settled }
+  const label = settled && describeNativeChatTurnStatus({ elapsedSeconds: 0, ...settled }).key
+  const notices = withNativeChatCutTurnNotices(items, { agentName: 'Codex' }).flatMap((item) =>
+    item.body.kind === 'status' && item.body.tone === 'error' ? [item.body.text] : []
+  )
+  return { turn, settled, label, notices }
 }
+
+const ONE_NOTICE = [
+  'Codex stopped while this response was in progress. You can continue in this conversation.'
+]
 
 function lastSummary(statuses: AgentSessionStatusEvent[]) {
   const last = statuses.at(-1)
@@ -144,26 +140,23 @@ describe('a turn cut short by closing its provider', () => {
     await host.close(SESSION, 'user-close')
 
     expect(lastSummary(statuses)).toMatchObject({ status: 'idle', turnOutcome: 'cancellation' })
-    const { turn, settled } = await settledTurn()
+    const { turn, label, notices } = await settledTurn()
     expect(turn).toMatchObject({ state: 'interrupted', outcome: 'cancellation' })
-    expect(
-      settled && describeNativeChatTurnStatus({ elapsedSeconds: 0, ...settled })
-    ).toMatchObject({ key: 'interruptedAfter' })
+    expect(label).toBe('interruptedAfter')
+    expect(notices).toEqual([])
   })
 
   it('leaves a close the user did not aim at this chat as news', async () => {
     const statuses = await runningTurn()
 
-    // What an idle eviction, a worktree teardown or an orchestration stop issues.
     await host.close(SESSION, 'evict')
 
     expect(lastSummary(statuses)).toMatchObject({ status: 'idle', turnOutcome: 'interruption' })
-    const { turn, settled } = await settledTurn()
+    const { turn, label, notices } = await settledTurn()
     expect(turn).toMatchObject({ state: 'interrupted' })
     expect(turn).not.toHaveProperty('outcome')
-    expect(
-      settled && describeNativeChatTurnStatus({ elapsedSeconds: 0, ...settled })
-    ).toMatchObject({ key: 'failedAfter' })
+    expect(label).toBe('workedFor')
+    expect(notices).toEqual(ONE_NOTICE)
   })
 
   it("records the user's close on a turn no adapter settled, through the host's fallback", async () => {
@@ -178,9 +171,20 @@ describe('a turn cut short by closing its provider', () => {
   })
 
   it("records the user's close on a turn whose start landed only as the provider stopped", async () => {
-    // A send echo still in flight when the close arrives: the journal has no turn yet.
+    // Buffer turn-open in the sink so close starts before the journal sees it.
     await attach()
     await host.flushStreamedEvents(SESSION)
+    const events = hostTestState().acquire.mock.calls[0]?.[0].events
+    events?.appendItem(
+      { provider: 'codex', threadId: THREAD, turnId: 'cut-turn', ordinal: 0 },
+      { kind: 'message', role: 'user', blocks: [{ type: 'text', text: 'long job' }] },
+      { turnScope: AGENT_JOURNAL_THREAD_SCOPE }
+    )
+    events?.appendItem(
+      CUT_TURN,
+      { kind: 'turn', turnId: 'cut-turn', state: 'running', startedAt: 1_000, requestedAt: 1_000 },
+      { turnScope: AGENT_JOURNAL_THREAD_SCOPE }
+    )
 
     await host.close(SESSION, 'user-close')
 
@@ -192,7 +196,6 @@ describe('a turn cut short by closing its provider', () => {
     providerEnd = null
     await attach()
     const events = hostTestState().acquire.mock.calls[0]?.[0].events
-    // An earlier death the user already saw as Interrupted, then closed.
     events?.appendItem(
       CUT_TURN,
       {
@@ -225,7 +228,6 @@ describe('a turn cut short by closing its provider', () => {
   })
 
   it('keeps a verdict the provider gave on its way out', async () => {
-    // How Codex records a turn it reports failed.
     providerEnd = { state: 'interrupted', outcome: 'failure', completedAt: 1_500 }
     await runningTurn()
 
@@ -243,13 +245,12 @@ describe('a turn cut short by closing its provider', () => {
     expect(statuses.findLast((event) => event.type === 'status')).toMatchObject({
       session: { status: 'idle', turnOutcome: 'interruption' }
     })
-    const { settled } = await settledTurn()
-    expect(
-      settled && describeNativeChatTurnStatus({ elapsedSeconds: 0, ...settled })
-    ).toMatchObject({ key: 'failedAfter' })
+    const { label, notices } = await settledTurn()
+    expect(label).toBe('workedFor')
+    expect(notices).toEqual(ONE_NOTICE)
   })
 
-  it("keeps the user's cancellation when a close aborts after the provider settled, then retries", async () => {
+  it("keeps the user's cancellation when a close's drain fails after the provider settled", async () => {
     await runningTurn()
     const sink = host['runtimeState'].eventSinkFor(SESSION)
     const drained = sink.drained.bind(sink)
@@ -261,10 +262,8 @@ describe('a turn cut short by closing its provider', () => {
       }
       return drained()
     })
-    // The adapter settled the turn, then the close aborted at the drain after it.
-    await expect(host.close(SESSION, 'user-close')).rejects.toThrow()
+    await expect(host.close(SESSION, 'user-close')).resolves.toBeUndefined()
     expect(closeCalls).toBe(1)
-    await host.close(SESSION, 'user-close')
     const { turn } = await settledTurn()
     expect(turn).toMatchObject({ state: 'interrupted', outcome: 'cancellation' })
   })
@@ -273,7 +272,7 @@ describe('a turn cut short by closing its provider', () => {
     ['user-close', { outcome: 'cancellation' }],
     ['evict', { outcome: undefined }]
   ] as const)(
-    "keeps a %s's cause when the idle sweep finishes a wind-down it could not",
+    "keeps a %s's cause when the close's drain fails before the host settles its turn",
     async (cause, verdict) => {
       providerEnd = null
       await runningTurn()
@@ -287,15 +286,13 @@ describe('a turn cut short by closing its provider', () => {
         }
         return drained()
       })
-      // The provider is proven gone, then the close aborts before the host settles its turn.
-      await expect(host.close(SESSION, cause)).rejects.toThrow()
-
-      await host.collaboratorsForTests().lifetime.idleSweep.tick()
+      await expect(host.close(SESSION, cause)).resolves.toBeUndefined()
 
       expect(closeCalls).toBe(1)
-      const { turn } = await settledTurn()
+      const { turn, notices } = await settledTurn()
       expect(turn).toMatchObject({ state: 'interrupted' })
       expect(turn?.outcome).toBe(verdict.outcome)
+      expect(notices).toEqual(cause === 'evict' ? ONE_NOTICE : [])
     }
   )
 
@@ -305,19 +302,20 @@ describe('a turn cut short by closing its provider', () => {
 
     await host.flushAllStreamedEvents({ trigger: 'quit' })
 
-    const { turn } = await settledTurn()
+    const { turn, notices } = await settledTurn()
     expect(turn).toMatchObject({ state: 'interrupted' })
     expect(turn).not.toHaveProperty('outcome')
+    expect(notices).toEqual(ONE_NOTICE)
   })
 
   it('leaves a crash the provider saw before the user closed the chat as news', async () => {
     exitObservedFirst = true
     await runningTurn()
-    // The provider reports its own exit, which it saw first, as it closes: no verdict.
     await host.close(SESSION, 'user-close')
-    const { turn } = await settledTurn()
+    const { turn, notices } = await settledTurn()
     expect(turn).toMatchObject({ state: 'interrupted' })
     expect(turn).not.toHaveProperty('outcome')
+    expect(notices).toEqual(ONE_NOTICE)
   })
 
   it.each(['user-close', 'evict'] as const)(
@@ -330,11 +328,4 @@ describe('a turn cut short by closing its provider', () => {
       expect(host.hasSession(SESSION)).toBe(false)
     }
   )
-})
-
-it('requires every stop to name its cause', () => {
-  type StopArgs = Parameters<typeof stopStructuredAgentSessionAgentUnderSerialize>
-  // @ts-expect-error a stop that names no cause must not compile, or it would default to one
-  const omitted: StopArgs = [host['lifetimeContext'](), SESSION]
-  expect(omitted).toHaveLength(2)
 })

@@ -12,7 +12,6 @@ function authPreparation(configDir: string): ClaudeRuntimeAuthPreparation {
   return {
     configDir,
     provenance: 'managed',
-    stripAuthEnv: false,
     envPatch: { CLAUDE_CONFIG_DIR: configDir }
   }
 }

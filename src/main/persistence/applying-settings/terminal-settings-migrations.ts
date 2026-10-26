@@ -57,27 +57,49 @@ export function readLegacyTerminalScrollbackSettings(
 }
 
 type RetiredGlobalSettings = {
+  setupScriptLaunchMode?: unknown
   terminalScrollbackBytes?: unknown
   enableGitHubAttribution?: unknown
   showAgentsSidebar?: unknown
   activeRuntimeEnvironmentId?: unknown
+  // Managed servers are the default SSH path now; an older build reads a missing key as off.
+  experimentalManagedServers?: unknown
 }
 
 export function stripRetiredGlobalSettings(
   settings: Partial<GlobalSettings> | undefined
 ): Partial<GlobalSettings> {
   const {
+    setupScriptLaunchMode: _legacySetupScriptLaunchMode,
     terminalScrollbackBytes: _legacyScrollbackBytes,
     enableGitHubAttribution: _legacyGitHubAttribution,
     showAgentsSidebar: _legacyShowAgentsSidebar,
     activeRuntimeEnvironmentId: _legacyActiveRuntimeEnvironmentId,
+    experimentalManagedServers: _retiredManagedServersExperiment,
     ...rest
   } = (settings ?? {}) as Partial<GlobalSettings> & RetiredGlobalSettings
+  void _legacySetupScriptLaunchMode
   void _legacyScrollbackBytes
   void _legacyGitHubAttribution
   void _legacyShowAgentsSidebar
   void _legacyActiveRuntimeEnvironmentId
+  void _retiredManagedServersExperiment
   return rest
+}
+
+/**
+ * Chat UI was on but the retired Default view left new agent tabs in the terminal. Every build
+ * before the retirement saved that key, so a profile without it was already upgraded.
+ */
+export function savedChatUiWithTerminalDefaultView(settings: unknown): boolean {
+  return (
+    typeof settings === 'object' &&
+    settings !== null &&
+    'experimentalNativeChat' in settings &&
+    settings.experimentalNativeChat === true &&
+    'openAgentTabsInChatByDefault' in settings &&
+    settings.openAgentTabsInChatByDefault !== true
+  )
 }
 
 export function migrateTerminalScrollbackRows(settings: unknown): {

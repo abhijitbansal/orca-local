@@ -1,4 +1,14 @@
+import {
+  onboardingLanguagePickerOpenedSchema,
+  onboardingLanguageChangedSchema,
+  onboardingLanguageRequestedSchema
+} from './telemetry-onboarding-language-schemas'
 import { agentTokenUsageSchema } from './telemetry-agent-token-usage-schema'
+import {
+  agentDashboardActiveSchema,
+  agentDashboardEnabledSchema,
+  agentDashboardOpenedSchema
+} from './telemetry-agent-dashboard-event-schemas'
 import {
   agentErrorSchema,
   agentPromptSentSchema,
@@ -30,7 +40,6 @@ import {
 import {
   contextualTourOutcomeSchema,
   contextualTourShownSchema,
-  directSshReconnectOperationSchema,
   editorExternalChangeConflictActionSchema,
   editorExternalChangeConflictShownSchema,
   setupGuideClosedSchema,
@@ -80,10 +89,7 @@ import {
   onboardingStepViewedSchema,
   onboardingTaskSourcesSnapshotSchema,
   onboardingTourOutcomeEventSchema,
-  onboardingWindowsTerminalSnapshotSchema,
-  smartSortClass1PromotionSchema,
-  smartSortClassDistributionSchema,
-  smartToRecentSwitchSchema
+  onboardingWindowsTerminalSnapshotSchema
 } from './telemetry-onboarding-event-schemas'
 import {
   addRepoDefaultCheckoutHandoffSchema,
@@ -165,6 +171,9 @@ export const eventSchemas = {
   feature_wall_feature_selected: featureWallFeatureSelectedSchema,
   feature_wall_docs_clicked: featureWallDocsClickedSchema,
 
+  onboarding_language_picker_opened: onboardingLanguagePickerOpenedSchema,
+  onboarding_language_changed: onboardingLanguageChangedSchema,
+  onboarding_language_requested: onboardingLanguageRequestedSchema,
   onboarding_started: onboardingStartedSchema,
   onboarding_step_viewed: onboardingStepViewedSchema,
   onboarding_step_completed: onboardingStepCompletedSchema,
@@ -193,12 +202,9 @@ export const eventSchemas = {
   setup_guide_step_completed: setupGuideStepCompletedSchema,
   terminal_pane_split: terminalPaneSplitSchema,
 
+  agent_dashboard_active: agentDashboardActiveSchema,
+  agent_dashboard_enabled: agentDashboardEnabledSchema,
+  agent_dashboard_opened: agentDashboardOpenedSchema,
   editor_external_change_conflict_shown: editorExternalChangeConflictShownSchema,
-  editor_external_change_conflict_action: editorExternalChangeConflictActionSchema,
-
-  direct_ssh_reconnect_operation: directSshReconnectOperationSchema,
-
-  smart_sort_class_distribution: smartSortClassDistributionSchema,
-  smart_sort_class_1_promotion: smartSortClass1PromotionSchema,
-  smart_to_recent_switch: smartToRecentSwitchSchema
+  editor_external_change_conflict_action: editorExternalChangeConflictActionSchema
 } as const

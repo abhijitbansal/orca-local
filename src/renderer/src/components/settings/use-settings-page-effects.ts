@@ -36,6 +36,7 @@ export function useSettingsPageEffects(
     setHighlightedSettingsTargetId,
     setMountedSectionIds,
     setQuickCommandAddIntentSignal,
+    setSettingsHostChoice,
     setSettingsProjectHostSelection,
     setPendingNavRequestTick,
     setVoiceModelStatesLoading,
@@ -179,13 +180,16 @@ export function useSettingsPageEffects(
         : repoIdToHostSelection.get(targetRepoId)
       if (hostSelection) {
         setSettingsProjectHostSelection(
-          hostSelection.projectId,
+          hostSelection.selectionKey,
           hostSelection.hostId,
           'setupId' in hostSelection && typeof hostSelection.setupId === 'string'
             ? hostSelection.setupId
             : undefined
         )
       }
+    }
+    if (settingsNavigationTarget.hostScope) {
+      setSettingsHostChoice(settingsNavigationTarget.hostScope)
     }
     pendingNavSectionRef.current = paneSectionId
     pendingScrollTargetRef.current = settingsNavigationTarget.sectionId ?? paneSectionId
@@ -223,6 +227,7 @@ export function useSettingsPageEffects(
     setMountedSectionIds,
     setPendingNavRequestTick,
     setQuickCommandAddIntentSignal,
+    setSettingsHostChoice,
     setSettingsProjectHostSelection,
     settings,
     settingsProjectList,

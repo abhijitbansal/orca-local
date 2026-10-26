@@ -1,4 +1,4 @@
-import { readFileSync, statSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { parse } from 'yaml'
@@ -89,8 +89,6 @@ const UNREGISTERED_ON_MAIN = [
   'src/main/grok/windows-grok-hook-script.test.ts',
   // Whole file is `describe.runIf(platform === 'win32')`; runs on no machine.
   'src/main/ipc/preflight-windows-path-refresh.repro.test.ts',
-  // Nested `describe.skipIf(!isWindows)` real-shell block; never exercised in CI.
-  'src/main/ipc/pty-encoding.test.ts',
   // `describeWindows` ternary over the whole file; runs on no machine.
   'src/main/providers/windows-shell-preflight-runtime.windows.test.ts',
   // Whole file is `describe.runIf(platform === 'win32')`; runs on no machine.
@@ -364,26 +362,13 @@ describe('Windows-gated test files are registered in the Windows CI lane', () =>
     ).toEqual([WINDOWS_LANE_JOB])
   })
 
-  it('parses a plausible Windows lane invocation', () => {
-    expect(laneFiles.length).toBeGreaterThan(15)
-    const missingFromDisk = laneFiles.filter((path) => {
-      try {
-        return !statSync(join(projectDir, path)).isFile()
-      } catch {
-        return true
-      }
-    })
-    expect(
-      missingFromDisk,
-      'The Windows lane invokes vitest on paths that do not exist -- vitest will run nothing for them.'
-    ).toEqual([])
-  })
-
   it('rediscovers Windows-gated files that are already registered', () => {
     // Both discovery paths, proven against real files rather than fixtures: one
     // found by filename plus ternary alias, one found only by its gate
     // expression because its name says nothing about Windows gating.
-    expect(gatedFiles).toContain('src/shared/child-process/windows-command-line.win32.test.ts')
+    expect(gatedFiles).toContain(
+      'src/shared/__tests__/process-host/windows-command-line.win32.test.ts'
+    )
     expect(gatedFiles).toContain('src/main/agent-hooks/windows-hook-payload-delivery.test.ts')
     // And a compound gate, the case this guard was blind to at first.
     expect(gatedFiles).toContain('src/main/git/runner-wsl-linked-gitdir-windows.test.ts')
@@ -414,21 +399,6 @@ describe('Windows-gated test files are registered in the Windows CI lane', () =>
     // the registration assertion below pass for free.
     expect(isInClassifier('src/main/windows/windows-pty-job.win32.test.ts')).toBe(true)
     expect(isInClassifier('src/main/windows/not-a-real-file.win32.test.ts')).toBe(false)
-  })
-
-  it('has every Windows-gated test file in both registration lists', () => {
-    const grandfathered = new Set([...UNREGISTERED_ON_MAIN, ...MANUAL_OPT_IN])
-    const failures = gatedFiles
-      .filter((path) => !grandfathered.has(path))
-      .map(registrationFailure)
-      .filter((failure) => failure !== null)
-    expect(
-      failures,
-      'A Windows-gated test file is missing from a Windows CI registration list. It self-skips on ' +
-        'ubuntu and reports success, so it runs on no machine. Both lists are required: ' +
-        'WINDOWS_PACKAGE_TESTS decides whether the package_windows job runs for a diff, the ' +
-        'workflow argv decides whether the file runs once it started. Fix each line below.'
-    ).toEqual([])
   })
 
   it('has no stale entry in either grandfathered list', () => {

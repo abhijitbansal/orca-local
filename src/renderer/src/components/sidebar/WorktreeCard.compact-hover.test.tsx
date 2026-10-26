@@ -90,10 +90,6 @@ vi.mock('@/lib/sidebar-worktree-activation', () => ({
   activateWorktreeFromSidebar: vi.fn()
 }))
 
-vi.mock('@/runtime/runtime-rpc-client', () => ({
-  getActiveRuntimeTarget: () => ({ kind: 'local' })
-}))
-
 vi.mock('./use-worktree-activity-status', () => ({
   useWorktreeActivityStatus: () => 'active'
 }))
@@ -182,107 +178,6 @@ describe('WorktreeCard compact hover details', () => {
     mockInlineAgentRows = []
     cacheTimerMocks.usePromptCacheCountdownStartedAt.mockReturnValue(null)
   })
-
-  it('shows hidden task, notes, and port details from the compact worktree card hover', async () => {
-    settings = { compactWorktreeCards: true, experimentalNewWorktreeCardStyle: true }
-    worktreeCardProperties = ['status']
-    const worktree = makeWorktree({
-      linkedIssue: 123,
-      linkedLinearIssue: 'ENG-123',
-      linkedPR: 456,
-      comment: 'Reviewer handoff note'
-    })
-    workspacePortScan = {
-      key: 'repo-1',
-      result: {
-        platform: 'darwin',
-        scannedAt: 1,
-        ports: [
-          {
-            id: '127.0.0.1:58941:1234',
-            bindHost: '127.0.0.1',
-            connectHost: '127.0.0.1',
-            port: 58941,
-            pid: 1234,
-            processName: 'node',
-            protocol: 'http',
-            kind: 'workspace',
-            owner: {
-              worktreeId: worktree.id,
-              repoId: worktree.repoId,
-              displayName: worktree.displayName,
-              path: worktree.path,
-              confidence: 'cwd'
-            }
-          }
-        ]
-      }
-    }
-    const { default: WorktreeCard } = await import('./WorktreeCard')
-
-    const markup = renderToStaticMarkup(
-      <WorktreeCard worktree={worktree} repo={makeRepo()} isActive={false} />
-    )
-
-    expect(markup).toContain('data-hover-open-delay="100"')
-    expectIdentityBodyIsHoverTrigger(markup)
-    expect(markup).toContain('Issue #123')
-    expect(markup).toContain('Linear ENG-123')
-    expect(markup).toContain('Reviewer handoff note')
-    expect(markup).toContain('Live Ports')
-    expect(markup).toContain('58941')
-    expect(markup).not.toContain('data-worktree-card-meta-row=""')
-  }, 30_000)
-
-  it('shows selected task and note metadata on the compact card title row', async () => {
-    settings = { compactWorktreeCards: true, experimentalNewWorktreeCardStyle: true }
-    worktreeCardProperties = ['status', 'issue', 'linear-issue', 'comment']
-    const { default: WorktreeCard } = await import('./WorktreeCard')
-
-    const markup = renderToStaticMarkup(
-      <WorktreeCard
-        worktree={makeWorktree({
-          linkedIssue: 123,
-          linkedLinearIssue: 'ENG-123',
-          comment: 'Reviewer handoff note'
-        })}
-        repo={makeRepo()}
-        isActive={false}
-      />
-    )
-
-    expect(markup).not.toContain('data-worktree-card-meta-row=""')
-    expect(markup).toContain('Linked issue #123')
-    expect(markup).toContain('Linked Linear ENG-123')
-    expect(markup).toContain('Workspace notes')
-  }, 30_000)
-
-  it('keeps selected task and note metadata above the compact branch row', async () => {
-    settings = { compactWorktreeCards: true, experimentalNewWorktreeCardStyle: true }
-    worktreeCardProperties = ['status', 'branch', 'issue', 'linear-issue', 'comment']
-    const { default: WorktreeCard } = await import('./WorktreeCard')
-
-    const markup = renderToStaticMarkup(
-      <WorktreeCard
-        worktree={makeWorktree({
-          linkedIssue: 123,
-          linkedLinearIssue: 'ENG-123',
-          comment: 'Reviewer handoff note'
-        })}
-        repo={makeRepo()}
-        isActive={false}
-      />
-    )
-    const issueIndex = markup.indexOf('Linked issue #123')
-    const branchRowIndex = markup.indexOf('data-worktree-card-meta-row=""')
-
-    expect(issueIndex).toBeGreaterThanOrEqual(0)
-    expect(branchRowIndex).toBeGreaterThanOrEqual(0)
-    expect(issueIndex).toBeLessThan(branchRowIndex)
-    expect(markup).toContain('Linked Linear ENG-123')
-    expect(markup).toContain('Workspace notes')
-    expect(markup).toContain('feature/local-branch')
-  }, 30_000)
 
   it('keeps branch identity visible on detailed cards by default', async () => {
     settings = { compactWorktreeCards: false }
@@ -455,7 +350,7 @@ describe('WorktreeCard compact hover details', () => {
     const surfaceTag = markup.match(/<div[^>]*data-worktree-card-surface="true"[^>]*>/)?.[0]
     expect(surfaceTag).toBeDefined()
     expect(surfaceTag).not.toContain('data-hover-card-trigger=""')
-    expect(markup).not.toContain('data-worktree-lineage-children=""')
+    expect(markup).toContain('data-worktree-lineage-children=""')
     expect(childIndex).toBeGreaterThanOrEqual(0)
   })
 

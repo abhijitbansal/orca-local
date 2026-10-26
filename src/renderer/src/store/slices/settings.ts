@@ -1,17 +1,16 @@
+import { normalizeNativeChatAppearanceSettings } from '../../../../shared/native-chat-appearance-settings'
 import type { StateCreator } from 'zustand'
 import type { AppState } from '../types'
 import type { GlobalSettings } from '../../../../shared/global-settings-types'
 import { normalizeTerminalQuickCommands } from '../../../../shared/terminal-quick-commands'
+import { assertTerminalQuickCommandsStorable } from '../../../../shared/terminal-quick-command-prompt-limit'
 import { normalizeTerminalCustomThemes } from '../../../../shared/terminal-custom-themes'
 import { normalizeTaskProviderSettings } from '../../../../shared/task-providers'
 import { normalizeOpenInApplications } from '../../../../shared/open-in-applications'
 import { createSettingsSearchState, type SettingsSearchState } from './settings-search-state'
 import { isRuntimeCatalogListingStale } from './runtime-status-hydration'
 import { normalizeDisabledTuiAgents } from '../../../../shared/tui-agent-selection'
-import {
-  normalizeTuiAgentArgsRecord,
-  normalizeTuiAgentEnvRecord
-} from '../../../../shared/tui-agent-launch-defaults'
+import { sanitizeAgentLaunchProfileUpdates } from '../../../../shared/tui-agent-launch-defaults'
 import { normalizeUiLanguage } from '../../../../shared/ui-language'
 import { normalizeDesktopTerminalScrollbackRows } from '../../../../shared/terminal-scrollback-policy'
 import {
@@ -33,10 +32,16 @@ export type SettingsSlice = SettingsSearchState & {
   awaitOwnerWorktreeVisibilityDefaultsHydration: () => Promise<void>
   updateSettings: (updates: Partial<GlobalSettings>) => Promise<void>
   updateSettingsOrThrow: (updates: Partial<GlobalSettings>) => Promise<void>
+  setActiveRuntimeEnvironmentPreference: (environmentId: string | null) => Promise<boolean>
 }
 
 type LegacyTerminalScrollbackSettingsUpdate = Partial<GlobalSettings> & {
   terminalScrollbackBytes?: unknown
+}
+
+function normalizeRuntimeEnvironmentId(value: string | null | undefined): string | null {
+  const trimmed = value?.trim()
+  return trimmed ? trimmed : null
 }
 
 function normalizeSettingsUpdates(
@@ -50,6 +55,8 @@ function normalizeSettingsUpdates(
     sanitizedUpdates.terminalQuickCommands = normalizeTerminalQuickCommands(
       updates.terminalQuickCommands
     )
+    // The web client stores its own list without main's check, so refuse here too, before any write.
+    assertTerminalQuickCommandsStorable(sanitizedUpdates.terminalQuickCommands)
   }
   if ('terminalCustomThemes' in updates) {
     sanitizedUpdates.terminalCustomThemes = normalizeTerminalCustomThemes(
@@ -75,17 +82,15 @@ function normalizeSettingsUpdates(
       createId: createBrowserUuid
     })
   }
+  if ('nativeChatAppearance' in updates) {
+    sanitizedUpdates.nativeChatAppearance = normalizeNativeChatAppearanceSettings(
+      updates.nativeChatAppearance
+    )
+  }
   if ('disabledTuiAgents' in updates) {
     sanitizedUpdates.disabledTuiAgents = normalizeDisabledTuiAgents(updates.disabledTuiAgents)
   }
-  if ('agentDefaultArgs' in updates) {
-    sanitizedUpdates.agentDefaultArgs = normalizeTuiAgentArgsRecord(updates.agentDefaultArgs)
-    sanitizedUpdates.agentYoloDefaultsMigrated = true
-  }
-  if ('agentDefaultEnv' in updates) {
-    sanitizedUpdates.agentDefaultEnv = normalizeTuiAgentEnvRecord(updates.agentDefaultEnv)
-    sanitizedUpdates.agentYoloDefaultsMigrated = true
-  }
+  sanitizeAgentLaunchProfileUpdates(sanitizedUpdates, updates)
   if ('uiLanguage' in updates) {
     sanitizedUpdates.uiLanguage = normalizeUiLanguage(updates.uiLanguage)
   }
@@ -201,5 +206,9 @@ export const createSettingsSlice: StateCreator<AppState, [], [], SettingsSlice> 
     if ('worktreeVisibilityDefaults' in updates) {
       await get().fetchAllWorktrees({ visibilityOwnerHostId })
     }
-  }
+  },
+
+  // Local-only: remote runtimes are removed, so focus can only stay on this app.
+  setActiveRuntimeEnvironmentPreference: async (environmentId) =>
+    normalizeRuntimeEnvironmentId(environmentId) === null
 })

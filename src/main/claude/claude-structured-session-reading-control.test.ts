@@ -20,6 +20,8 @@ import {
   identityFor,
   PROVIDER_SESSION_ID
 } from './claude-structured-session-test-support'
+import { withJournalQueueMembers } from '../native-chat/agent-session-wire/structured-agent-session-journal-double-test-support'
+import { testEventSinkLogging } from '../native-chat/agent-session-wire/structured-agent-session-logger-test-support'
 
 function controlledSink(): {
   sink: StructuredAgentSessionEventSink
@@ -48,7 +50,7 @@ function persistedTarget(
 ): StructuredAgentSessionEventTarget {
   const journal =
     // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: This test double implements the journal methods exercised by the deferred sink.
-    {
+    withJournalQueueMembers({
       appendItem: async (identity: AgentJournalItemIdentity, body: AgentJournalItemBody) => {
         persisted.set(agentJournalItemKey(identity), body)
         return { cursor: { epoch: 'test', sequence: persisted.size }, itemId: '', revision: 1 }
@@ -66,8 +68,11 @@ function persistedTarget(
         persisted.forEach((body, itemId) => visit(itemId, 0, body, {}))
       }) satisfies StructuredAgentSessionLinkageJournal['visitItemsWithLinkage'],
       itemBody: (itemId: string) => persisted.get(itemId) ?? null,
+      threadGoal: () => null,
+      submissions: () => [],
+      threadGoalSource: () => ({ goal: null, row: null }),
       epoch: 'test'
-    } as unknown as AgentSessionJournal
+    }) as unknown as AgentSessionJournal
   return { journal, fence: 1, publish: vi.fn() }
 }
 
@@ -96,7 +101,6 @@ describe('Claude structured reading control', () => {
   })
 
   it('unbinds when acquisition fails after the connection opens', async () => {
-    // The child exits before publish, so only the failed acquisition can release the binding.
     const claude = fakeClaude()
     const open = claude.openConnection
     claude.openConnection = async (launch, handlers = {}) => {
@@ -212,6 +216,7 @@ describe('Claude structured reading control', () => {
     const persisted = new Map<string, AgentJournalItemBody>()
     const target = persistedTarget(persisted)
     const deferred = createDeferredStructuredAgentSessionEventSink({
+      ...testEventSinkLogging(),
       watermarks: {
         pauseQueuedOperations: 1,
         maxQueuedOperations: 4,

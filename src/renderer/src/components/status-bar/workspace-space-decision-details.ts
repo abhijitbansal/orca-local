@@ -3,6 +3,8 @@ import type {
   MigrationUnsupportedPtyEntry
 } from '../../../../shared/agent-status-types'
 import type { ExecutionHostId } from '../../../../shared/execution-host'
+import type { GlobalSettings } from '../../../../shared/global-settings-types'
+import type { Repo } from '../../../../shared/repo-types'
 import type { TerminalTab } from '../../../../shared/terminal-tab-types'
 import type { Worktree } from '../../../../shared/worktree/types'
 import type { WorkspaceSpaceWorktree } from '../../../../shared/workspace-space-types'
@@ -27,7 +29,10 @@ export type WorkspaceDecisionDetails = {
 }
 
 export type WorkspaceDecisionInputs = {
+  repoMap: ReadonlyMap<string, Repo>
   worktreeMap: ReadonlyMap<string, Worktree>
+  worktreeRecord?: Worktree
+  repos?: readonly Repo[]
   tabsByWorktree: Record<string, readonly TerminalTab[]>
   ptyIdsByTabId: Record<string, string[]>
   agentStatusByPaneKey: Record<string, AgentStatusEntry>
@@ -40,6 +45,7 @@ export type WorkspaceDecisionInputs = {
   gitStatusByWorktree: Record<string, readonly unknown[]>
   gitStatusByWorktreeIdentity?: ReadonlyMap<string, readonly { path: string }[]>
   remoteStatusesByWorktree: Record<string, { hasUpstream: boolean; ahead: number; behind: number }>
+  settings: GlobalSettings | null
   activeWorktreeId: string | null
   activeWorkspaceExecutionHostId: ExecutionHostId | null
   now: number
@@ -79,7 +85,13 @@ export function getWorkspaceDecisionDetails(
   worktree: WorkspaceSpaceWorktree,
   inputs: WorkspaceDecisionInputs
 ): WorkspaceDecisionDetails {
-  const workspaceRecord = inputs.worktreeMap.get(worktree.worktreeId)
+  const candidateWorkspaceRecord =
+    inputs.worktreeRecord ?? inputs.worktreeMap.get(worktree.worktreeId)
+  const workspaceRecord =
+    candidateWorkspaceRecord &&
+    (!worktree.executionHostId || candidateWorkspaceRecord.hostId === worktree.executionHostId)
+      ? candidateWorkspaceRecord
+      : undefined
   const tabs = inputs.tabsByWorktree[worktree.worktreeId] ?? []
   const openFiles = inputs.openFiles.filter((file) => file.worktreeId === worktree.worktreeId)
   const dirtyEditorBufferCount = openFiles.filter(
@@ -88,12 +100,9 @@ export function getWorkspaceDecisionDetails(
   const gitEntries = inputs.gitStatusByWorktreeIdentity
     ? inputs.gitStatusByWorktreeIdentity.get(getWorkspaceSpaceWorktreeIdentity(worktree))
     : inputs.gitStatusByWorktree[worktree.worktreeId]
-  // Why: no forge data is cached any more, so review and issue labels show only the stored link numbers.
-  const linkedPR = workspaceRecord?.linkedPR ?? null
-  const reviewLabel = linkedPR ? `PR #${linkedPR}` : null
-  const linkedIssue = workspaceRecord?.linkedIssue ?? null
-  const issueLabel = linkedIssue ? `#${linkedIssue}` : null
-  const linearIssueLabel = workspaceRecord?.linkedLinearIssue ?? null
+  const reviewLabel: string | null = null
+  const issueLabel: string | null = null
+  const linearIssueLabel: string | null = null
 
   return {
     isActive:

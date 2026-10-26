@@ -35,6 +35,7 @@ describe('OpenCode status plugin module contract', () => {
   // env. Pin every input here so the run does not depend on the developer's Orca session
   // (an inherited ORCA_AGENT_HOOK_ENDPOINT would otherwise redirect the post to a live app).
   const ENV_KEYS = [
+    'ORCA_OPENCODE_PLUGIN_API',
     'ORCA_PANE_KEY',
     'ORCA_AGENT_HOOK_ENDPOINT',
     'ORCA_AGENT_HOOK_PORT',
@@ -55,6 +56,7 @@ describe('OpenCode status plugin module contract', () => {
     // Why: the generated plugin self-disables when this names a different major,
     // so an inherited value from the developer's own Orca pane would leave
     // `hooks.event` undefined and fail the contract for the wrong reason.
+    delete process.env.ORCA_OPENCODE_PLUGIN_API
     delete process.env.ORCA_OPENCODE_AGENT
     delete process.env.ORCA_AGENT_HOOK_ENDPOINT
     process.env.ORCA_AGENT_HOOK_PORT = '59999'
@@ -73,6 +75,23 @@ describe('OpenCode status plugin module contract', () => {
     rmSync(tempDir, { recursive: true, force: true })
   })
 
+  type HookPost = { url: string; body: Record<string, unknown> }
+
+  function captureHookPosts(): HookPost[] {
+    const posts: HookPost[] = []
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+      posts.push({ url: String(input), body: JSON.parse(String(init?.body ?? '{}')) })
+      return new Response(null)
+    })
+    return posts
+  }
+
+  function hookEventName(payload: unknown): unknown {
+    return typeof payload === 'object' && payload !== null && 'hook_event_name' in payload
+      ? payload.hook_event_name
+      : undefined
+  }
+
   async function loadPluginModule(
     source = _internals.getOpenCodePluginSource()
   ): Promise<PluginModule> {
@@ -86,6 +105,13 @@ describe('OpenCode status plugin module contract', () => {
     return (await import(pathToFileURL(pluginPath).href)) as PluginModule
   }
 
+  it('selects the same factory for a v1 execution host', async () => {
+    process.env.ORCA_OPENCODE_PLUGIN_API = 'v1'
+    const module = await loadPluginModule()
+    expect(module.default).toBeTypeOf('function')
+    expect(module.default).toBe(module.OrcaOpenCodeStatusPlugin)
+  })
+
   it('exposes a default export carrying a string id and a callable server()', async () => {
     const module = await loadPluginModule()
 
@@ -93,15 +119,6 @@ describe('OpenCode status plugin module contract', () => {
     expect(typeof module.default?.id).toBe('string')
     expect(module.default?.id).toBe('orca-opencode-status')
     expect(module.default?.server).toBeTypeOf('function')
-  })
-
-  it('rejects the shape OpenCode refuses: a default export without server()', async () => {
-    const module = await loadPluginModule()
-
-    // Why: pins the specific reason the loader fails a module — `setup` alone is not
-    // accepted, so a default export must never regress to it.
-    expect(module.default).not.toBeUndefined()
-    expect(Object.hasOwn(module.default ?? {}, 'server')).toBe(true)
   })
 
   it('keeps the named factory export so the factory-based loader still resolves', async () => {
@@ -122,14 +139,7 @@ describe('OpenCode status plugin module contract', () => {
 
   it('reports a session lifecycle event through the hook endpoint when driven via the default export', async () => {
     process.env.ORCA_PANE_KEY = 'tab-1:leaf-1'
-    const posts: { url: string; body: unknown }[] = []
-    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: The mocked fetch is assigned to the standard Fetch API shape.
-    globalThis.fetch = vi.fn(async (input: unknown, init?: { body?: unknown }) => {
-      posts.push({ url: String(input), body: JSON.parse(String(init?.body ?? '{}')) })
-      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: Runtime validation or the local test fixture establishes the asserted shape.
-      return { ok: true } as Response
-      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: Runtime validation or the local test fixture establishes the asserted shape.
-    }) as unknown as typeof globalThis.fetch
+    const posts = captureHookPosts()
 
     const module = await loadPluginModule()
     const hooks = await module.default?.server?.({
@@ -161,14 +171,7 @@ describe('OpenCode status plugin module contract', () => {
 
   it('keeps OpenCode 2 busy across steps until the session becomes idle', async () => {
     process.env.ORCA_PANE_KEY = 'tab-1:leaf-1'
-    const posts: { body: Record<string, unknown> }[] = []
-    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: The mocked fetch is assigned to the standard Fetch API shape.
-    globalThis.fetch = vi.fn(async (_input: unknown, init?: { body?: unknown }) => {
-      posts.push({ body: JSON.parse(String(init?.body ?? '{}')) })
-      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: The mocked fetch returns the Response shape the plugin checks.
-      return { ok: true } as Response
-      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: The mocked fetch is assigned to the standard Fetch API shape.
-    }) as unknown as typeof globalThis.fetch
+    const posts = captureHookPosts()
 
     const module = await loadPluginModule(_internals.getOpenCode2PluginSource())
     const hooks = await module.default?.server?.({
@@ -195,27 +198,14 @@ describe('OpenCode status plugin module contract', () => {
     )
     await hooks?.event({ event: { type: 'session.idle', properties: { sessionID: 'ses_root' } } })
     await new Promise((resolve) => setTimeout(resolve, 50))
-    const hookEvents = posts.map((post) => {
-      const payload = post.body.payload
-      return typeof payload === 'object' && payload !== null
-        ? // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: The generated plugin payload is an object with a hook_event_name field.
-          (payload as { hook_event_name?: unknown }).hook_event_name
-        : undefined
-    })
+    const hookEvents = posts.map((post) => hookEventName(post.body.payload))
     expect(hookEvents).toContain('SessionBusy')
     expect(hookEvents).toContain('SessionIdle')
   })
 
   it('maps OpenCode 2 permission.v2 events to the existing permission card contract', async () => {
     process.env.ORCA_PANE_KEY = 'tab-1:leaf-1'
-    const posts: { body: Record<string, unknown> }[] = []
-    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: The mocked fetch is assigned to the standard Fetch API shape.
-    globalThis.fetch = vi.fn(async (_input: unknown, init?: { body?: unknown }) => {
-      posts.push({ body: JSON.parse(String(init?.body ?? '{}')) })
-      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: Runtime validation or the local test fixture establishes the asserted shape.
-      return { ok: true } as Response
-      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: Runtime validation or the local test fixture establishes the asserted shape.
-    }) as unknown as typeof globalThis.fetch
+    const posts = captureHookPosts()
 
     const module = await loadPluginModule(_internals.getOpenCode2PluginSource())
     const hooks = await module.default?.server?.({
@@ -234,23 +224,10 @@ describe('OpenCode status plugin module contract', () => {
     })
     await new Promise((resolve) => setTimeout(resolve, 50))
 
-    const hookEvents = posts.map((post) =>
-      typeof post.body.payload === 'object' && post.body.payload !== null
-        ? // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: Runtime validation or the local test fixture establishes the asserted shape.
-          (post.body.payload as { hook_event_name?: unknown }).hook_event_name
-        : undefined
-    )
+    const hookEvents = posts.map((post) => hookEventName(post.body.payload))
     expect(hookEvents).toContain('PermissionRequest')
     expect(
-      posts.find((post) => {
-        const payload = post.body.payload
-        return (
-          typeof payload === 'object' &&
-          payload !== null &&
-          // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: Runtime validation or the local test fixture establishes the asserted shape.
-          (payload as { hook_event_name?: unknown }).hook_event_name === 'PermissionRequest'
-        )
-      })?.body
+      posts.find((post) => hookEventName(post.body.payload) === 'PermissionRequest')?.body
     ).toMatchObject({
       payload: {
         permission: 'bash',
@@ -261,14 +238,7 @@ describe('OpenCode status plugin module contract', () => {
 
   it('forwards admitted prompts and completed streamed text once', async () => {
     process.env.ORCA_PANE_KEY = 'tab-1:leaf-1'
-    const posts: { body: Record<string, unknown> }[] = []
-    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: The mocked fetch is assigned to the standard Fetch API shape.
-    globalThis.fetch = vi.fn(async (_input: unknown, init?: { body?: unknown }) => {
-      posts.push({ body: JSON.parse(String(init?.body ?? '{}')) })
-      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: Runtime validation or the local test fixture establishes the asserted shape.
-      return { ok: true } as Response
-      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: Runtime validation or the local test fixture establishes the asserted shape.
-    }) as unknown as typeof globalThis.fetch
+    const posts = captureHookPosts()
 
     const module = await loadPluginModule(_internals.getOpenCode2PluginSource())
     const hooks = await module.default?.server?.({
@@ -311,14 +281,7 @@ describe('OpenCode status plugin module contract', () => {
 
   it('maps question.v2 blockers and replies through the waiting lifecycle', async () => {
     process.env.ORCA_PANE_KEY = 'tab-1:leaf-1'
-    const posts: { body: Record<string, unknown> }[] = []
-    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: The mocked fetch is assigned to the standard Fetch API shape.
-    globalThis.fetch = vi.fn(async (_input: unknown, init?: { body?: unknown }) => {
-      posts.push({ body: JSON.parse(String(init?.body ?? '{}')) })
-      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: Runtime validation or the local test fixture establishes the asserted shape.
-      return { ok: true } as Response
-      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: Runtime validation or the local test fixture establishes the asserted shape.
-    }) as unknown as typeof globalThis.fetch
+    const posts = captureHookPosts()
 
     const module = await loadPluginModule(_internals.getOpenCode2PluginSource())
     const hooks = await module.default?.server?.({

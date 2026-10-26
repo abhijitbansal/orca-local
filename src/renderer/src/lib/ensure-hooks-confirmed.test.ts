@@ -189,7 +189,7 @@ describe('ensureHooksConfirmed', () => {
     const decision = await ensureHooksConfirmed(state, 'repo-1', 'archive')
 
     expect(decision).toBe('run')
-    expect(hooksCheckMock).toHaveBeenCalledWith({ repoId: 'repo-1' })
+    expect(hooksCheckMock).toHaveBeenCalledWith({ repoId: 'repo-1', hostId: 'ssh:ssh-1' })
     expect(pending).toHaveLength(0)
   })
 

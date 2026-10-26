@@ -38,7 +38,7 @@ export type RunRemoteActionResult =
  * surface actionable toasts.
  */
 export function useSourceControlRemoteActionRunner({
-  activeRepoSettings,
+  activeRepoTarget,
   activeWorktree,
   activeWorktreeId,
   branchName,
@@ -59,7 +59,7 @@ export function useSourceControlRemoteActionRunner({
   syncBranch,
   worktreePath
 }: {
-  activeRepoSettings: SourceControlWorktreeContext['activeRepoSettings']
+  activeRepoTarget: SourceControlWorktreeContext['activeRepoTarget']
   activeWorktree: SourceControlWorktreeContext['activeWorktree']
   activeWorktreeId: string | null
   branchName: string
@@ -92,7 +92,7 @@ export function useSourceControlRemoteActionRunner({
         options?.target ??
         (activeWorktreeId && worktreePath
           ? {
-              settings: activeRepoSettings,
+              target: activeRepoTarget,
               worktreeId: activeWorktreeId,
               worktreePath,
               connectionId: getConnectionId(activeWorktreeId) ?? undefined,
@@ -124,7 +124,7 @@ export function useSourceControlRemoteActionRunner({
             true,
             target.connectionId,
             target.pushTarget,
-            { runtimeTargetSettings: target.settings }
+            { runtimeTarget: target.target }
           )
           return { status: 'ok' }
         }
@@ -136,7 +136,7 @@ export function useSourceControlRemoteActionRunner({
             false,
             target.connectionId,
             target.pushTarget,
-            { runtimeTargetSettings: target.settings }
+            { runtimeTarget: target.target }
           )
           return { status: 'ok' }
         }
@@ -147,7 +147,7 @@ export function useSourceControlRemoteActionRunner({
             false,
             target.connectionId,
             target.pushTarget,
-            { forceWithLease: true, runtimeTargetSettings: target.settings }
+            { forceWithLease: true, runtimeTarget: target.target }
           )
           return { status: 'ok' }
         }
@@ -158,7 +158,7 @@ export function useSourceControlRemoteActionRunner({
             target.connectionId,
             target.pushTarget,
             {
-              runtimeTargetSettings: target.settings
+              runtimeTarget: target.target
             }
           )
           return { status: 'ok' }
@@ -169,7 +169,7 @@ export function useSourceControlRemoteActionRunner({
             target.worktreePath,
             target.connectionId,
             target.pushTarget,
-            { runtimeTargetSettings: target.settings }
+            { runtimeTarget: target.target }
           )
           return { status: 'ok' }
         }
@@ -180,7 +180,7 @@ export function useSourceControlRemoteActionRunner({
             target.connectionId,
             target.pushTarget,
             {
-              runtimeTargetSettings: target.settings
+              runtimeTarget: target.target
             }
           )
           return { status: 'ok' }
@@ -196,7 +196,7 @@ export function useSourceControlRemoteActionRunner({
             baseRef,
             target.connectionId,
             target.pushTarget,
-            { runtimeTargetSettings: target.settings }
+            { runtimeTarget: target.target }
           )
           return { status: 'ok' }
         }
@@ -206,7 +206,7 @@ export function useSourceControlRemoteActionRunner({
           target.connectionId,
           target.pushTarget,
           {
-            runtimeTargetSettings: target.settings
+            runtimeTarget: target.target
           }
         )
         if (remoteActionErrorSequenceByWorktreeRef.current[target.worktreeId] === sequence) {
@@ -242,7 +242,7 @@ export function useSourceControlRemoteActionRunner({
       }
     },
     [
-      activeRepoSettings,
+      activeRepoTarget,
       activeWorktree?.pushTarget,
       activeWorktreeId,
       branchName,

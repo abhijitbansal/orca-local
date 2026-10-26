@@ -11,6 +11,7 @@ import type { EditorToggleValue } from './EditorViewToggle'
 import { shouldShowEditorPanelHeader } from './editor-header'
 import { getUntitledFileRoot } from './untitled-file-rename-path'
 import { translate } from '@/i18n/i18n'
+import { selectWorktreesByRepo } from '@/store/workspace-record-selectors'
 
 type EditorPanelRenderModel = ReturnType<typeof getEditorPanelRenderModel>
 
@@ -36,7 +37,6 @@ type EditorPanelShellProps = {
   onOpenDiffTargetFile: (preferredMarkdownViewMode?: 'rich') => void
   onOpenPreviewToSide: () => void
   onOpenMarkdownPreview: () => void
-  onOpenContainingFolder: () => void
   onToggleSideBySide: () => void
   onEditorToggleChange: (next: EditorToggleValue) => void
   onToggleMarkdownTableOfContents: () => void
@@ -76,7 +76,6 @@ export function EditorPanelShell({
   onOpenDiffTargetFile,
   onOpenPreviewToSide,
   onOpenMarkdownPreview,
-  onOpenContainingFolder,
   onToggleSideBySide,
   onEditorToggleChange,
   onToggleMarkdownTableOfContents,
@@ -122,7 +121,6 @@ export function EditorPanelShell({
           onOpenDiffTargetFile={onOpenDiffTargetFile}
           onOpenPreviewToSide={onOpenPreviewToSide}
           onOpenMarkdownPreview={onOpenMarkdownPreview}
-          onOpenContainingFolder={onOpenContainingFolder}
           onToggleSideBySide={onToggleSideBySide}
           onEditorToggleChange={onEditorToggleChange}
           onToggleMarkdownTableOfContents={onToggleMarkdownTableOfContents}
@@ -169,7 +167,7 @@ export function EditorPanelShell({
             ? getUntitledFileRoot(
                 renameDialogFile,
                 findWorktreeById(
-                  useAppStore.getState().worktreesByRepo,
+                  selectWorktreesByRepo(useAppStore.getState()),
                   renameDialogFile.worktreeId
                 )?.path
               )

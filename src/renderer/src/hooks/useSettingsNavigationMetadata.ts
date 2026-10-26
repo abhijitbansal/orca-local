@@ -13,8 +13,14 @@ import {
   isWindowsTerminalCapabilityHost,
   useWindowsTerminalCapabilities
 } from '@/lib/windows-terminal-capabilities'
-import { getActiveRuntimeTarget } from '@/runtime/runtime-rpc-client'
+import { defaultScopeHost } from '@/lib/default-creation-host'
 import { useAppStore } from '@/store'
+import { useProjectHostSetupProjection } from '@/store/selectors'
+import {
+  useChatSettingsTypedPermissions,
+  useStructuredAgentSessionHostQueuesMessages
+} from '@/runtime/structured-agent-session-host-capability'
+import type { ProjectGroupingModel } from '../../../shared/project-section-grouping'
 import type { Repo } from '../../../shared/repo-types'
 import {
   buildCapabilitySettingsSections,
@@ -34,20 +40,28 @@ export function buildSettingsNavigationMetadata({
   isLocalWindowsHost = isWindows,
   isWindowsTerminalHost = isWindows,
   isWebClient,
+  nativeChatEnabled = false,
+  hostQueuesMessages = false,
+  typedChatPermissions = false,
   managedBrowserCreationEnabled = !isWebClient,
   mobileEmulatorCreationEnabled = !isWebClient,
   isDev = import.meta.env.DEV,
-  repos
+  repos,
+  projectGrouping
 }: {
   isMac: boolean
   isWindows: boolean
   isLocalWindowsHost?: boolean
   isWindowsTerminalHost?: boolean
   isWebClient: boolean
+  nativeChatEnabled?: boolean
+  hostQueuesMessages?: boolean
+  typedChatPermissions?: boolean
   managedBrowserCreationEnabled?: boolean
   mobileEmulatorCreationEnabled?: boolean
   isDev?: boolean
   repos: readonly Repo[]
+  projectGrouping?: ProjectGroupingModel
 }): SettingsNavSection[] {
   const terminalPaneSearchEntries = getTerminalPaneSearchEntries({
     isWindows,
@@ -66,10 +80,14 @@ export function buildSettingsNavigationMetadata({
     isLocalWindowsHost,
     isWindowsTerminalHost,
     isWebClient,
+    nativeChatEnabled,
+    hostQueuesMessages,
+    typedChatPermissions,
     managedBrowserCreationEnabled,
     mobileEmulatorCreationEnabled,
     isDev,
-    repos
+    repos,
+    projectGrouping
   }
 
   // Why: this array's order must mirror SETTINGS_NAV_GROUPS so the Settings
@@ -92,6 +110,7 @@ export function useSettingsNavigationMetadata(): SettingsNavSection[] {
   const { i18n } = useTranslation()
   const activeLocale = i18n.language
   const repos = useAppStore((state) => state.repos)
+  const projectHostSetupProjection = useProjectHostSetupProjection()
   const settings = useAppStore((state) => state.settings)
   const [managedBrowserCreationEnabled, mobileEmulatorCreationEnabled] = useAppStore(
     useShallow((state) => {
@@ -102,13 +121,17 @@ export function useSettingsNavigationMetadata(): SettingsNavSection[] {
       ] as const
     })
   )
+  const nativeChatEnabled = settings?.experimentalNativeChat === true
+  const typedChatPermissions = useChatSettingsTypedPermissions()
+  const hostQueuesMessages = useStructuredAgentSessionHostQueuesMessages({ kind: 'local' })
   const isMac = isMacUserAgent()
   const isWindows = isWindowsUserAgent()
   const isWebClient = isWebClientLocation()
   const windowsTerminalCapabilityOwnerKey = useWindowsTerminalCapabilityOwnerKey(
     settings?.activeRuntimeEnvironmentId
   )
-  const runtimeTarget = getActiveRuntimeTarget(settings)
+  // Why: navigation is shared with the palette, which has no host picker.
+  const runtimeTarget = defaultScopeHost(settings)
   const capabilityLoadTarget = isWebClient ? { kind: 'local' as const } : runtimeTarget
   const windowsTerminalCapabilities = useWindowsTerminalCapabilities(
     isWindows || isWebClient || runtimeTarget.kind === 'environment',
@@ -143,10 +166,17 @@ export function useSettingsNavigationMetadata(): SettingsNavSection[] {
         isLocalWindowsHost,
         isWindowsTerminalHost,
         isWebClient,
+        nativeChatEnabled,
+        hostQueuesMessages,
+        typedChatPermissions,
         managedBrowserCreationEnabled,
         mobileEmulatorCreationEnabled,
         isDev: import.meta.env.DEV,
-        repos
+        repos,
+        projectGrouping: {
+          projects: projectHostSetupProjection.projects,
+          projectHostSetups: projectHostSetupProjection.setups
+        }
       }),
     // oxlint-disable-next-line react-hooks/exhaustive-deps -- activeLocale is read implicitly by the translate() calls inside buildSettingsNavigationMetadata; without it the memo keeps the previous language's sections.
     [
@@ -155,9 +185,13 @@ export function useSettingsNavigationMetadata(): SettingsNavSection[] {
       isLocalWindowsHost,
       isWindowsTerminalHost,
       isWebClient,
+      nativeChatEnabled,
+      hostQueuesMessages,
+      typedChatPermissions,
       managedBrowserCreationEnabled,
       mobileEmulatorCreationEnabled,
       repos,
+      projectHostSetupProjection,
       activeLocale
     ]
   )

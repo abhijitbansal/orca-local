@@ -2,7 +2,7 @@ import type { BranchPrefixStrategy } from '../../shared/ui-chrome-types'
 import type { GitAdmissionTier } from '../../shared/rpc-contract/git-admission-tier-params'
 import { gitExecFileAsync } from '../git/runner'
 import { listWorktrees } from '../git/worktree'
-import { computeValidatedBranchName } from '../ipc/worktree-logic'
+import { computeValidatedBranchName } from '../ipc/worktree-branch-name'
 import { normalizeLocalBranchName } from './runtime-worktree-selection'
 
 export async function resolveCreateBranchName(

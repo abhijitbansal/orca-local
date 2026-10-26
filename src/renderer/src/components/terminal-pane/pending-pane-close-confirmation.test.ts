@@ -1,15 +1,13 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { preparePendingSplitClose } from './pending-split-close-test-fixture'
-import { preparePendingRuntimeClose } from './pending-runtime-pane-close-test-fixture'
 import { flushPtySideEffects } from './pty-transport-test-harness'
-import type { PtyRunningWorkProbe } from '../terminal/pty-running-work-probe'
+import type { PtyRunningWorkProbe } from '../../../../shared/pty-running-work-probe'
 
 beforeEach(() => vi.clearAllMocks())
 afterEach(() => vi.useRealTimers())
 
-async function prepare(remote = false, requestedPtyId?: string) {
-  const paired = remote ? await preparePendingRuntimeClose() : undefined
-  const p = paired ?? (await preparePendingSplitClose(requestedPtyId))
+async function prepare(_remote = false, requestedPtyId?: string) {
+  const p = await preparePendingSplitClose(requestedPtyId)
   Object.assign(p.state, { settings: { skipCloseTerminalWithRunningProcessConfirm: false } })
   const { probePtyRunningWork } = await import('../terminal/pty-running-work-probe')
   const { useTerminalPaneCloseActions } = await import('./use-terminal-pane-close-actions')
@@ -22,29 +20,20 @@ async function prepare(remote = false, requestedPtyId?: string) {
   const reply = Promise.withResolvers<PtyRunningWorkProbe[]>()
   vi.mocked(probePtyRunningWork).mockReturnValueOnce(reply.promise)
   const verdict = (value: PtyRunningWorkProbe['verdict']) =>
-    reply.resolve([{ ptyId: 'captured', verdict: value, timedOut: false, remote }])
-  const closed = () =>
-    paired
-      ? paired.runtimeCall.mock.calls.some(([request]) => request.method === 'terminal.close')
-      : vi.mocked(window.api.pty.kill).mock.calls.length > 0
+    reply.resolve([{ ptyId: 'captured', verdict: value, timedOut: false, remote: false }])
+  const closed = () => vi.mocked(window.api.pty.kill).mock.calls.length > 0
   const settle = async () => {
-    if (paired) {
-      paired.acceptCompatibility()
-      await paired.settle()
-    } else {
-      p.spawn.resolve({ id: requestedPtyId ?? 'pty-restored', isReattach: true })
-      await p.connecting
-    }
+    p.spawn.resolve({ id: requestedPtyId ?? 'pty-restored', isReattach: true })
+    await p.connecting
     await flushPtySideEffects()
   }
-  return { ...p, paired, actions, probePtyRunningWork, verdict, reply, closed, settle }
+  return { ...p, actions, probePtyRunningWork, verdict, reply, closed, settle }
 }
 
 it.each([false])('requires confirmation for pending live work, paired=%s', async (remote) => {
   const p = await prepare(remote)
   p.actions.handleRequestClosePane(1)
   expect(p.probePtyRunningWork).toHaveBeenCalledWith(
-    expect.any(Object),
     [remote ? 'remote:env-1@@term_original' : 'pty-restored'],
     expect.any(Object)
   )
@@ -103,7 +92,7 @@ it('uses the direct SSH identity in the running-work probe', async () => {
   p.actions.handleRequestClosePane(1)
   p.verdict('live')
   await flushPtySideEffects()
-  expect(p.probePtyRunningWork).toHaveBeenCalledWith(expect.any(Object), [id], expect.any(Object))
+  expect(p.probePtyRunningWork).toHaveBeenCalledWith([id], expect.any(Object))
   expect(p.closed()).toBe(false)
   p.actions.handleConfirmClose(false)
   await p.settle()
@@ -198,28 +187,5 @@ it.each(['tab', 'generation', 'leaf', 'transport', 'manager', 'whole-tab', 'bind
     expect(p.closed()).toBe(false)
     expect(p.controller.onCloseTab).not.toHaveBeenCalled()
     p.transport.detach?.({ preserveExitObserver: false })
-  }
-)
-
-it.each(['probe', 'dialog'] as const)(
-  'does not close a re-paired host after %s starts',
-  async (phase) => {
-    const p = await prepare(true)
-    if (!p.paired) {
-      throw new Error('paired fixture required')
-    }
-    p.actions.handleRequestClosePane(1)
-    if (phase === 'dialog') {
-      p.verdict('live')
-      await flushPtySideEffects()
-    }
-    p.paired.replaceRuntimeEnvironmentRevisions([{ id: 'env-1', createdAt: 2, pairingRevision: 2 }])
-    p.verdict('live')
-    await flushPtySideEffects()
-    if (phase === 'dialog') {
-      p.actions.handleConfirmClose(false)
-    }
-    await p.settle()
-    expect(p.closed()).toBe(false)
   }
 )

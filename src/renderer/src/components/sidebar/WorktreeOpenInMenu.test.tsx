@@ -138,12 +138,10 @@ describe('WorktreeOpenInMenu', () => {
   })
 
   it('uses the blocked-path toast without calling main IPC', async () => {
-    mockState.settings = { activeRuntimeEnvironmentId: 'runtime-1', openInApplications: [] }
-
     await openWorktreePath({
       target: 'file-manager',
       worktreePath: '/tmp/workspace',
-      connectionId: null
+      connectionId: 'ssh-1'
     })
 
     expect(toastErrorMock).toHaveBeenCalledWith(
@@ -165,11 +163,34 @@ describe('WorktreeOpenInMenu', () => {
     expect(openInExternalEditorMock).toHaveBeenCalledWith({
       path: '/tmp/workspace',
       command: undefined,
-      connectionId: null
+      connectionId: null,
+      ownerHostId: 'local'
     })
     expect(toastErrorMock).toHaveBeenCalledWith('Could not open workspace folder.', {
       description: 'Check the editor command or file manager configuration on this machine.'
     })
+  })
+
+  it('opens a local workspace while a server is focused', async () => {
+    mockState.settings = { activeRuntimeEnvironmentId: 'runtime-1', openInApplications: [] }
+    const fileManager = { id: 'file-manager', label: 'Finder', target: 'file-manager' } as const
+    expect(getOpenInEntryAvailability(fileManager, null, null)).toEqual({ disabled: false })
+
+    await openWorktreePath({ target: 'file-manager', worktreePath: '/tmp/workspace' })
+    await openWorktreePath({
+      target: 'external-editor',
+      worktreePath: '/tmp/workspace',
+      command: 'cursor'
+    })
+
+    expect(openInFileManagerMock).toHaveBeenCalledWith('/tmp/workspace', 'local')
+    expect(openInExternalEditorMock).toHaveBeenCalledWith({
+      path: '/tmp/workspace',
+      command: 'cursor',
+      connectionId: undefined,
+      ownerHostId: 'local'
+    })
+    expect(toastErrorMock).not.toHaveBeenCalled()
   })
 
   it('builds menu entries from configured launchers with file manager last', () => {
@@ -206,17 +227,17 @@ describe('WorktreeOpenInMenu', () => {
     expect(openInExternalEditorMock).toHaveBeenCalledWith({
       path: '/tmp/workspace',
       command: 'cursor',
-      connectionId: null
+      connectionId: null,
+      ownerHostId: 'local'
     })
   })
 
   it('blocks configured launchers in remote context before calling main IPC', async () => {
-    mockState.settings = { activeRuntimeEnvironmentId: 'runtime-1', openInApplications: [] }
-
     await openWorktreePath({
       target: 'external-editor',
       worktreePath: '/tmp/workspace',
       connectionId: null,
+      runtimeEnvironmentId: 'runtime-1',
       command: 'cursor'
     })
 
@@ -225,34 +246,6 @@ describe('WorktreeOpenInMenu', () => {
       'Opening this path in a local app is not available.',
       { description: 'Switch to a local or SSH workspace, then try again.' }
     )
-  })
-
-  it('enables only VS Code-compatible launchers for SSH paths', () => {
-    const entries = getWorktreeOpenInEntries(
-      [
-        { id: 'renamed', label: 'My Remote Editor', command: 'code-insiders' },
-        { id: 'fake', label: 'VS Code', command: 'cursor' },
-        { id: 'compound', label: 'VS Code Reuse', command: 'code --reuse-window' }
-      ],
-      'Finder'
-    )
-
-    expect(getOpenInEntryAvailability(entries[0], mockState.settings, 'ssh-1')).toEqual({
-      disabled: false,
-      metadata: 'Remote SSH'
-    })
-    expect(getOpenInEntryAvailability(entries[1], mockState.settings, 'ssh-1')).toEqual({
-      disabled: true,
-      metadata: 'Local only'
-    })
-    expect(getOpenInEntryAvailability(entries[2], mockState.settings, 'ssh-1')).toEqual({
-      disabled: true,
-      metadata: 'Local only'
-    })
-    expect(getOpenInEntryAvailability(entries[3], mockState.settings, 'ssh-1')).toEqual({
-      disabled: true,
-      metadata: 'Local only'
-    })
   })
 
   it('forwards SSH context for a supported VS Code launcher', async () => {
@@ -266,7 +259,8 @@ describe('WorktreeOpenInMenu', () => {
     expect(openInExternalEditorMock).toHaveBeenCalledWith({
       path: '/home/ada/project',
       command: 'code',
-      connectionId: 'ssh-1'
+      connectionId: 'ssh-1',
+      ownerHostId: 'ssh:ssh-1'
     })
   })
 
@@ -307,4 +301,18 @@ describe('WorktreeOpenInMenu', () => {
       }
     )
   })
+  it.each(['file-manager', 'external-editor'] as const)(
+    'blocks a %s click for an owner other than the focused desktop',
+    async (target) => {
+      await openWorktreePath({
+        target,
+        worktreePath: '/same/path',
+        command: 'zed',
+        runtimeEnvironmentId: 'managed-owner'
+      })
+      expect(openInFileManagerMock).not.toHaveBeenCalled()
+      expect(openInExternalEditorMock).not.toHaveBeenCalled()
+      expect(toastErrorMock).toHaveBeenCalled()
+    }
+  )
 })

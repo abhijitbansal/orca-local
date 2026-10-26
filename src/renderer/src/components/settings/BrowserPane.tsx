@@ -12,9 +12,12 @@ import { BrowserUseSetup } from './BrowserUsePane'
 import { BrowserSearchEngineSetting } from './BrowserSearchEngineSetting'
 import { BrowserLinkRoutingSetting } from './BrowserLinkRoutingSetting'
 import { BrowserLinkRoutingModifierSetting } from './BrowserLinkRoutingModifierSetting'
+import { BrowserLinkRoutingBackgroundSetting } from './BrowserLinkRoutingBackgroundSetting'
 import { BrowserTerminalLinkActionsSetting } from './BrowserTerminalLinkActionsSetting'
 import { BrowserLocalhostWorktreeLabelsSetting } from './BrowserLocalhostWorktreeLabelsSetting'
+import { BrowserProfileScopeSetting } from './BrowserProfileScopeSetting'
 import { BrowserUserAgentSetting } from './BrowserUserAgentSetting'
+import { BrowserSitePermissionsSetting } from './BrowserSitePermissionsSetting'
 import { BrowserSessionCookiesSection } from './BrowserSessionCookiesSection'
 import { BrowserNewProfileDialog } from './BrowserNewProfileDialog'
 import {
@@ -30,6 +33,7 @@ import {
 import { isMacUserAgent } from '@/components/terminal-pane/pane-helpers'
 import { translate } from '@/i18n/i18n'
 import { resolveAvailableBrowserSessionHostId } from './browser-session-host-selection'
+import { motionSafeScrollBehavior } from '@/hooks/usePrefersReducedMotion'
 export { getBrowserPaneCombinedSearchEntries }
 
 type BrowserPaneProps = {
@@ -109,6 +113,9 @@ export function BrowserPane({
   const showLocalhostLabels = matchesSettingsSearch(searchQuery, [browserSearchEntries[6]])
   const showCookies = matchesSettingsSearch(searchQuery, [browserSearchEntries[7]])
   const showUserAgent = matchesSettingsSearch(searchQuery, [browserSearchEntries[8]])
+  const showSitePermissions = matchesSettingsSearch(searchQuery, [browserSearchEntries[9]])
+  const showProfileScope = matchesSettingsSearch(searchQuery, [browserSearchEntries[10]])
+  const showLinkRoutingBackground = matchesSettingsSearch(searchQuery, [browserSearchEntries[11]])
   const showBrowserUse = matchesSettingsSearch(searchQuery, getBrowserUsePaneSearchEntries())
   const isMac = isMacUserAgent()
   const linkRoutingDescription = getBrowserLinkRoutingDescription(
@@ -199,7 +206,7 @@ export function BrowserPane({
         if (!el) {
           return
         }
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        el.scrollIntoView({ behavior: motionSafeScrollBehavior(), block: 'start' })
       })
     })
   }
@@ -242,6 +249,8 @@ export function BrowserPane({
 
       {showUserAgent ? <BrowserUserAgentSetting hostId={settingsFocusedHostId} /> : null}
 
+      {showSitePermissions ? <BrowserSitePermissionsSetting /> : null}
+
       {showLinkRouting ? (
         <BrowserLinkRoutingSetting
           settings={settings}
@@ -259,6 +268,10 @@ export function BrowserPane({
         />
       ) : null}
 
+      {showLinkRoutingBackground ? (
+        <BrowserLinkRoutingBackgroundSetting settings={settings} updateSettings={updateSettings} />
+      ) : null}
+
       {showTerminalLinkActions ? (
         <BrowserTerminalLinkActionsSetting
           settings={settings}
@@ -272,6 +285,10 @@ export function BrowserPane({
           settings={settings}
           updateSettings={updateSettings}
         />
+      ) : null}
+
+      {showProfileScope ? (
+        <BrowserProfileScopeSetting settings={settings} updateSettings={updateSettings} />
       ) : null}
 
       {showCookies ? (

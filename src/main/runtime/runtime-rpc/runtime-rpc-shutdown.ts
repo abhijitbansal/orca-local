@@ -12,6 +12,8 @@ export class RuntimeRpcShutdown extends RuntimeRpcLifecycle {
     this.transports = []
     this.metadataOwnershipWatch?.stop()
     this.metadataOwnershipWatch = null
+    this.detachPairedServerRows?.()
+    this.detachPairedServerRows = null
     const stopResults = await Promise.allSettled(
       transports.map(async (transport) => transport.stop())
     )

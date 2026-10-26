@@ -11,12 +11,10 @@ import type {
 } from '../../shared/shell-path-hydration-types'
 import { hydrateShellPath, mergePathSegments } from '../startup/hydrate-shell-path'
 import { mergePersistedWindowsPathAsync } from '../pty/windows-environment-path'
-import { getActiveMultiplexer } from '../ssh/ssh-target-registry'
 import {
   detectWslCommandsOnPath,
   type WslPreflightTarget
 } from '../ipc/preflight-wsl-agent-detection'
-import { detectCommandsInInstallDirs } from '../ipc/local-agent-install-dir-detection'
 import {
   getPreflightWslTarget,
   type PreflightRuntimeContext
@@ -29,13 +27,14 @@ import {
   detectRemoteWindowsTerminalCapabilities,
   type RemoteWindowsTerminalCapabilities
 } from '../ipc/preflight-remote-windows-terminal-capabilities'
-import {
-  getTuiAgentDetectionProbeCommands,
-  KNOWN_TUI_AGENT_DETECTION_COMMANDS,
-  resolveDetectedTuiAgentIds
-} from '../ipc/tui-agent-detection-commands'
 import { invalidateWslGuestEnvironment } from '../wsl/wsl-guest-environment'
 import { prunePreflightWslCache } from '../preflight-wsl-cache'
+import {
+  KNOWN_TUI_AGENT_DETECTION_COMMANDS,
+  getTuiAgentDetectionProbeCommands,
+  resolveDetectedTuiAgentIds
+} from '../../shared/tui-agent-detection-commands'
+import { detectCommandsInInstallDirs } from '../../shared/local-agent-install-dir-detection'
 
 export type PreflightStatus = { git: { installed: boolean } }
 
@@ -87,10 +86,6 @@ export function _resetPreflightCache(): void {
   // Why bump rather than just clear: a probe already in flight would otherwise
   // settle after this and repopulate the cache an integration just invalidated.
   preflightCacheEpoch += 1
-}
-
-function uniqueAgentIds(ids: Iterable<string>): string[] {
-  return [...new Set(ids)]
 }
 
 async function detectCommandRuntime(
@@ -207,17 +202,9 @@ export async function refreshShellPathAndDetectAgents(
   }
 }
 
-export async function detectRemoteAgents(args: { connectionId: string }): Promise<string[]> {
-  const mux = getActiveMultiplexer(args.connectionId)
-  if (!mux || mux.isDisposed()) {
-    // Why: remote agent detection is passive UI polling. A disconnected host has
-    // no detectable agents until reconnect, but should not spam IPC errors.
-    return []
-  }
-  const result = (await mux.request('preflight.detectAgents', {
-    commands: KNOWN_TUI_AGENT_DETECTION_COMMANDS
-  })) as { agents: string[] }
-  return uniqueAgentIds(result.agents)
+// Local-only: no remote hosts exist, so there are never remote agents to detect.
+export async function detectRemoteAgents(_args: { connectionId: string }): Promise<string[]> {
+  return []
 }
 
 export async function runPreflightCheck(

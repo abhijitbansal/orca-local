@@ -1,4 +1,3 @@
-import { app } from 'electron'
 import type { Store } from '../persistence'
 import type { OrcaRuntimeService } from '../runtime/orca-runtime'
 import {
@@ -6,8 +5,12 @@ import {
   type SkillDiscoveryResult,
   type SkillDiscoveryTarget
 } from '../../shared/skills'
-import type { SkillFreshnessInventory } from '../../shared/skill-freshness'
-import { inventorySkillFreshness } from '../skills/skill-freshness-inventory'
+import {
+  BundledSkillExecuteRequestSchema,
+  BundledSkillPlanRequestSchema,
+  type BundledSkillInstallResult,
+  type BundledSkillPlan
+} from '../../shared/bundled-skill-plan'
 import {
   discoverSkillsOnTarget,
   resolveSkillDiscoveryTarget
@@ -18,33 +21,32 @@ import { handleMainWindowSkillIpc } from './skill-ipc-main-window'
 export function registerSkillsHandlers(store: Store, runtime?: OrcaRuntimeService): void {
   const discover = async (target?: SkillDiscoveryTarget): Promise<SkillDiscoveryResult> => {
     const parsedTarget = target ? SkillDiscoveryTargetSchema.parse(target) : undefined
-    const resolvedTarget = resolveSkillDiscoveryTarget(parsedTarget)
+    const resolvedTarget = await resolveSkillDiscoveryTarget(parsedTarget)
     return discoverSkillsOnTarget(resolvedTarget, store.getRepos(), {
       providerRootOverrides: await runtime?.resolveSkillDiscoveryProviderRoots(resolvedTarget),
       refresh: parsedTarget?.refresh === true
     })
   }
-  const scanInventory = (): Promise<SkillFreshnessInventory> =>
-    // Why: the update command targets this machine's global homes. WSL and SSH
-    // inventories stay out until their installer rail has an equivalent proof.
-    inventorySkillFreshness({
-      currentAppVersion: app.getVersion(),
-      repos: store.getRepos()
-    })
 
   handleMainWindowSkillIpc(
     'skills:discover',
     async (_event, target?: SkillDiscoveryTarget): Promise<SkillDiscoveryResult> => discover(target)
   )
 
-  if (runtime) {
-    registerSkillInstallManagementIpcHandlers(runtime)
+  if (!runtime) {
+    return
   }
+  registerSkillInstallManagementIpcHandlers(runtime)
 
+  // Local host only; paired hosts plan Orca's skills over RPC.
   handleMainWindowSkillIpc(
-    'skills:freshnessInventory',
-    async (): Promise<SkillFreshnessInventory> => {
-      return scanInventory()
-    }
+    'skills:bundledPlan',
+    async (_event, value: unknown): Promise<BundledSkillPlan> =>
+      runtime.planLocalBundledSkills(BundledSkillPlanRequestSchema.parse(value ?? {}))
+  )
+  handleMainWindowSkillIpc(
+    'skills:bundledExecute',
+    async (_event, value: unknown): Promise<BundledSkillInstallResult> =>
+      runtime.executeLocalBundledSkills(BundledSkillExecuteRequestSchema.parse(value))
   )
 }

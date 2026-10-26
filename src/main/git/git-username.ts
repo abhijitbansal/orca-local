@@ -1,4 +1,6 @@
-import type { SshGitProvider } from '../providers/ssh-git-provider'
+type SshGitProvider = {
+  exec(args: string[], cwd: string): Promise<{ stdout: string; stderr: string }>
+}
 import { gitExecFileAsync } from './runner'
 
 const EXPLICIT_USERNAME_CONFIG_KEYS = ['github.user', 'user.username'] as const
@@ -15,11 +17,7 @@ export function normalizeGitUsername(value: string): string {
   return localPart.replace(/^\d+\+/, '')
 }
 
-/**
- * Hosted account logins used as branch-prefix segments must be single-path
- * tokens. Reject multi-line / JSON error bodies from a failed `gh api user`
- * (rate-limit 403 still prints JSON on stdout) so they never become branch names.
- */
+/** Reject failed API JSON/multiline output before it can become a branch prefix. */
 export function isPlausibleHostedLogin(value: string): boolean {
   // Preserve GitHub's length/separator limits while allowing the EMU _shortcode suffix.
   return (
@@ -28,16 +26,10 @@ export function isPlausibleHostedLogin(value: string): boolean {
   )
 }
 
-// Not a check-ref-format rule: a login becomes one slash-free branch component,
-// which a loose ref stores as a single filename (255-byte cap on ext4/APFS/NTFS).
-// The ASCII-only charset below makes character count equal byte count.
+// A login occupies one loose-ref filename; ASCII length equals the 255-byte filesystem limit.
 const MAX_BRANCH_SAFE_LOGIN_LENGTH = 255
 
-/**
- * Provider-agnostic branch-safe token: GitLab/Bitbucket/self-hosted logins may
- * carry `_`/`.` and run longer than GitHub's 39-char limit, so the strict
- * GitHub rule must not gate explicitly configured usernames.
- */
+/** Configured logins accept provider-specific characters and lengths beyond GitHub's rules. */
 export function isBranchSafeHostedLogin(value: string): boolean {
   if (value.length > MAX_BRANCH_SAFE_LOGIN_LENGTH) {
     return false
@@ -96,14 +88,11 @@ export async function resolveLocalGitUsernameDetailed(
         cwd: repoPath,
         timeout: LOCAL_GIT_READ_TIMEOUT_MS
       })
-      // Why: config can hold free-form strings; only branch-safe logins become prefixes.
       const username = normalizeConfiguredLogin(stdout)
       if (username) {
         return { username, authoritative: true }
       }
-    } catch {
-      // Missing config keys are expected; try the next explicit username key.
-    }
+    } catch {}
   }
   return { username: '', authoritative: true }
 }

@@ -44,13 +44,17 @@ export function getDefaultUserDataPath(
   platform: NodeJS.Platform = process.platform,
   homeDir = homedir()
 ): string {
-  // Why: in dev mode (and for parallel Orca instances), the Electron app writes
-  // runtime metadata to a separate userData directory (e.g. `orca-dev`) to avoid
-  // clobbering the production app's metadata. The CLI needs to find the same
-  // metadata file, so this env var lets the CLI target a specific instance.
   if (process.env.ORCA_USER_DATA_PATH) {
     return process.env.ORCA_USER_DATA_PATH
   }
+  return getPlatformUserDataPath(platform, homeDir)
+}
+
+/** The packaged app's own default profile, ignoring any CLI override. */
+export function getPlatformUserDataPath(
+  platform: NodeJS.Platform = process.platform,
+  homeDir = homedir()
+): string {
   if (platform === 'darwin') {
     return join(homeDir, 'Library', 'Application Support', PACKAGED_USER_DATA_DIR_NAME)
   }
@@ -64,8 +68,6 @@ export function getDefaultUserDataPath(
     }
     return join(appData, PACKAGED_USER_DATA_DIR_NAME)
   }
-  // Why: the CLI must find the same metadata file Electron writes in packaged
-  // runs, so this mirrors Electron's default userData base instead of inventing
-  // a CLI-specific config path.
-  return join(process.env.XDG_CONFIG_HOME || join(homeDir, '.config'), PACKAGED_USER_DATA_DIR_NAME)
+  // Match Electron’s packaged userData path.
+  return join(process.env.XDG_CONFIG_HOME || join(homeDir, '.config'), 'orca')
 }

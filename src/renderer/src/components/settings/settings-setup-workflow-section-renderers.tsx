@@ -2,7 +2,6 @@ import { SessionHistorySettingsPane } from './SessionHistorySettingsPane'
 import { AutomationsSettingsPane } from './AutomationsSettingsPane'
 import { GeneralPane } from './GeneralPane'
 import { SettingsSetupGuidePane } from './SettingsSetupGuidePane'
-import { ShareSkillsSettingsPane } from './ShareSkillsSettingsPane'
 import { SettingsSection } from './SettingsSection'
 import { translate } from '@/i18n/i18n'
 import type { SettingsRenderContext } from './settings-render-context'
@@ -71,25 +70,6 @@ export function renderAutomationsSettingsSection(
       {view.isSectionMounted('automations') ? (
         <AutomationsSettingsPane settings={model.settings} updateSettings={model.updateSettings} />
       ) : null}
-    </SettingsSection>
-  )
-}
-
-export function renderShareSkillsSettingsSection(
-  context: SettingsRenderContext
-): React.JSX.Element {
-  const { navigation, view } = context
-  return (
-    <SettingsSection
-      id="share-skills"
-      title={translate('auto.components.settings.shareSkills.skillsTitle', 'Skills')}
-      description={translate(
-        'auto.components.settings.shareSkills.skillsDescription',
-        'Choose whether the Skills shortcut appears in the sidebar.'
-      )}
-      searchEntries={navigation.getSectionSearchEntries('share-skills')}
-    >
-      {view.isSectionMounted('share-skills') ? <ShareSkillsSettingsPane /> : null}
     </SettingsSection>
   )
 }

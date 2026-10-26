@@ -23,6 +23,8 @@ import {
   isDevBundleInUse,
   selectStaleDevBundleDirs
 } from './dev-electron-bundle-cache.mjs'
+import { startDevStorageReclaim } from './dev-storage-reclaim.mjs'
+import { captureDevWebClientInputs, recordDevWebClientInputs } from './dev-web-client-freshness.mjs'
 import { copyPrivateTree } from './space-sharing-copy.mjs'
 import {
   DEV_BUNDLE_ID,
@@ -485,6 +487,8 @@ function getMtimeMs(filePath) {
   }
 }
 
+const inputs = captureDevWebClientInputs(repoRoot)
+recordDevWebClientInputs(repoRoot, inputs)
 // Why: every `pn dev` should be attachable from agent-browser/playwright-cli
 // without manual port juggling. Pick a best-effort deterministic port per
 // worktree; falls back to a probe sweep if the deterministic pick or its
@@ -580,6 +584,12 @@ const child = spawn(process.execPath, [electronViteCli, ...forwardedArgs], {
   // dev runner its own process group lets Ctrl+C kill the whole tree on macOS
   // instead of leaving the Electron app alive after the terminal exits.
   detached: process.platform !== 'win32'
+})
+
+child.once('spawn', () => {
+  if (!isHelpOrVersion) {
+    startDevStorageReclaim({ repoRoot })
+  }
 })
 
 let isShuttingDown = false

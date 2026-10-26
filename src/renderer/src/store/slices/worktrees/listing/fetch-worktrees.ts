@@ -1,3 +1,4 @@
+import { ipcOrRuntimeTargetForHostId } from '@/runtime/runtime-client-target'
 import type {
   DirectSshWorktreeFetchOptions,
   WorktreeFetchOptions,
@@ -20,11 +21,10 @@ import {
   getProjectHostSetupForRepoHost,
   repoHostId
 } from './worktree-host-ownership'
-import { fetchKnownSshWorktreesForRepo } from './known-ssh-worktree-fetch'
 import { mergeFetchedWorktrees } from './fetched-worktree-merge'
 import { notifyRuntimeScopeForbiddenIfNeeded } from './runtime-scope-forbidden-toast'
 import { refreshRemoteWorktreeLineageBestEffort } from '../metadata/worktree-lineage-refresh'
-import { settingsForRepoOwner } from './worktree-owner-settings'
+import { selectWorktreesByRepo } from '../../../workspace-record-selectors'
 
 export function createFetchWorktrees(
   set: WorktreeSliceSet,
@@ -52,7 +52,7 @@ export function createFetchWorktrees(
       options && 'directSshAuthority' in options ? options.directSshAuthority : undefined
     try {
       const ownerState = get()
-      const requestStartedWorktrees = ownerState.worktreesByRepo[repoId]
+      const requestStartedWorktrees = selectWorktreesByRepo(ownerState)[repoId]
       const repoOwners = ownerState.repos.filter((repo) => repo.id === repoId)
       const ownerWasMissingAtStart = repoOwners.length === 0
       const hasLocalOwner = repoOwners.some(
@@ -70,16 +70,6 @@ export function createFetchWorktrees(
         hostId,
         settings: ownerState.settings
       })
-      const ownerSettings = settingsForRepoOwner(
-        ownerState,
-        repoId,
-        hostId,
-        ownerWasMissingAtStart && (useLocalOwner || options?.executionHostId !== undefined)
-      )
-      const settings =
-        useLocalOwner && ownerSettings?.activeRuntimeEnvironmentId
-          ? { ...ownerSettings, activeRuntimeEnvironmentId: null }
-          : ownerSettings
       const parsedHost = parseExecutionHostId(hostId)
       const directSshAuthority =
         parsedHost?.kind === 'ssh'
@@ -88,12 +78,9 @@ export function createFetchWorktrees(
       if (parsedHost?.kind === 'ssh' && !directSshAuthority) {
         // Why: requireAuthoritative callers asked for authoritative-or-nothing, so writing non-authoritative
         // rows as a side effect before returning false would silently weaken that contract.
-        if (!options?.requireAuthoritative) {
-          await fetchKnownSshWorktreesForRepo(set, repoId, parsedHost.id)
-        }
         return false
       }
-      const refresh = await listDetectedWorktreesForRepoCoalesced(settings, repoId, {
+      const refresh = await listDetectedWorktreesForRepoCoalesced(repoId, {
         executionHostId: hostId,
         requireAuthoritative: options?.requireAuthoritative,
         directSshAuthority,
@@ -108,7 +95,7 @@ export function createFetchWorktrees(
       if (options?.requireAuthoritative && !refresh.result.authoritative) {
         return directCallerAuthority ? (refresh.providerResult ?? false) : false
       }
-      const outcome = mergeFetchedWorktrees(set, {
+      const outcome = mergeFetchedWorktrees(set, get, {
         repoId,
         hostId,
         ownerWasMissingAtStart,
@@ -140,7 +127,7 @@ export function createFetchWorktrees(
       // Direct SSH lineage requires its own qualified authority result.
       // Bulk runtime callers apply one final host-wide snapshot after all repo merges.
       if (!directSshAuthority && !options?.suppressRemoteLineageRefresh) {
-        await refreshRemoteWorktreeLineageBestEffort(settings, set, get)
+        await refreshRemoteWorktreeLineageBestEffort(ipcOrRuntimeTargetForHostId(hostId), set, get)
       }
       return directCallerAuthority ? refresh.providerResult! : refresh.result.authoritative
     } catch (err) {

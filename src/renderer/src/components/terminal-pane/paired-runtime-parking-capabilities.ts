@@ -13,3 +13,9 @@ export function selectPairedRuntimeParkingEnvironmentIdsFromState(_state: {
 }): ReadonlySet<string> {
   return NO_PARKING_ENVIRONMENT_IDS
 }
+
+export function createPairedRuntimeParkingEnvironmentIdsSelector(): (
+  statuses?: ReadonlyMap<string, unknown>
+) => ReadonlySet<string> {
+  return selectPairedRuntimeParkingEnvironmentIds
+}

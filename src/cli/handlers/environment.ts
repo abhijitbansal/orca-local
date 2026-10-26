@@ -10,8 +10,7 @@ export const ENVIRONMENT_HANDLERS: Record<string, CommandHandler> = {
       throw new RuntimeClientError('invalid_argument', 'Missing value for --name')
     }
     if (typeof requestedName === 'string') {
-      // Why: an older runtime rejects the unknown settings field with a bare `invalid_params`;
-      // a runtime that does not publish a name cannot store one either, so say so plainly.
+      // Check name support before an older settings schema can reject the write as invalid_params.
       const current = await client.call<RuntimeStatus>('status.get')
       if (current.result.machineName === undefined) {
         throw new RuntimeClientError(
@@ -21,8 +20,7 @@ export const ENVIRONMENT_HANDLERS: Record<string, CommandHandler> = {
       }
       await client.call('settings.update', { machineName: requestedName })
     }
-    // Why: print what the runtime publishes after the write (a blank `--name` means the detected
-    // name), inside the runtime's own envelope so a routed answer is stamped with that runtime.
+    // A blank override restores the detected name; read it from the runtime after writing.
     const status = await client.call<RuntimeStatus>('status.get')
     printResult({ ...status, result: describeRuntimeHost(status.result) }, json, formatHostName)
   }

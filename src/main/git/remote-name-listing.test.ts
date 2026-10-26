@@ -180,17 +180,6 @@ describe('cached git remote name listing', () => {
     })
   })
 
-  it('lists remotes through the SSH git provider', async () => {
-    const exec = vi.fn(async () => ({ stdout: 'origin\n', stderr: '' }))
-    getSshGitProviderMock.mockReturnValue({ exec })
-
-    await expect(shouldProbeGitRemote('/remote/repo', 'upstream', 'ssh-1')).resolves.toBe(false)
-    expect(gitExecFileAsyncMock).not.toHaveBeenCalled()
-    expect(exec).toHaveBeenCalledWith(['remote'], '/remote/repo', {
-      signal: expect.any(AbortSignal)
-    })
-  })
-
   it('fails open when the SSH git provider is missing instead of listing locally', async () => {
     getSshGitProviderMock.mockReturnValue(undefined)
 

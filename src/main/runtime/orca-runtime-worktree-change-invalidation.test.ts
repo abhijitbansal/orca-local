@@ -20,13 +20,6 @@ const electronMocks = vi.hoisted(() => {
 })
 vi.mock('electron', () => electronMocks)
 
-vi.mock('../providers/ssh-git-dispatch', () => ({
-  getSshGitProvider: vi.fn(),
-  getSshGitProviderGeneration: vi.fn(() => 0),
-  SSH_GIT_PROVIDER_UNAVAILABLE_MESSAGE: 'unavailable',
-  requireSshGitProvider: vi.fn()
-}))
-
 const listWorktreesStrictMock = vi.hoisted(() => vi.fn())
 vi.mock('../git/worktree', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
@@ -40,6 +33,7 @@ vi.mock('./repo-worktree-admin-fingerprint', () => ({
 import { OrcaRuntimeService } from './orca-runtime'
 import { runWorktreeChangeInvalidators } from '../ipc/worktree-change-invalidators'
 import { getLocalWorktreeScanGeneration } from '../local-worktree-scan-generation'
+import { partialRuntimeStore } from './runtime-store-partial-fixture'
 
 const REPO_ID = 'repo-local'
 const REPO_PATH = '/Users/me/dev/app'
@@ -81,8 +75,7 @@ function makeStore() {
 }
 
 function makeRuntimeService(): OrcaRuntimeService {
-  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: every store member the local listing reaches is supplied above.
-  return new OrcaRuntimeService(makeStore() as never)
+  return new OrcaRuntimeService(partialRuntimeStore(makeStore()))
 }
 
 function makeRuntime(): () => Promise<DetectedWorktreeListResult> {

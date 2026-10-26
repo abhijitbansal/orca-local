@@ -16,12 +16,13 @@ type QuickCreationExecutionInput = Pick<
   | 'prepareQuickSubmit'
   | 'resetForNextCreate'
   | 'resolvedInitialWorkspaceStatus'
-  | 'selectedRepoAgentLaunchPlatform'
+  | 'selectedRepoAgentLaunchFact'
   | 'selectedRepoExecutionHostId'
   | 'selectedRepoIsGit'
   | 'selectedRepoIsRemote'
-  | 'selectedRepoSettings'
+  | 'selectedRepoTarget'
   | 'selectedRepoStartupShell'
+  | 'selectedWorkspaceTarget'
   | 'settings'
   | 'sparseEnabled'
   | 'taskSourceContext'
@@ -29,19 +30,17 @@ type QuickCreationExecutionInput = Pick<
 >
 
 import { useCallback } from 'react'
-import type { Repo } from '../../../../shared/repo-types'
 import type { TuiAgent } from '../../../../shared/tui-agent'
 import type { WorktreeCreationRequest } from '@/lib/pending-worktree-creation'
 import { useAppStore } from '@/store'
 import { settleComposerSubmit } from '@/lib/composer-submit-cancellation'
-import { getActiveRuntimeTarget } from '@/runtime/runtime-rpc-client'
 import { runBackgroundWorktreeCreation } from '@/lib/worktree-creation-flow'
 import { translate } from '@/i18n/i18n'
 import { resolveQuickCreateLinkedWorkItemPrompt } from '@/lib/linked-work-item-context'
 import { buildQuickComposerStartup } from './quick-startup-plan'
-import { buildQuickCreationRequest } from './quick-creation-request'
+import { buildQuickCreationRequest, type QuickSubmitOptions } from './quick-creation-request'
 import type { PendingSmartGitHubSubmitResolution } from './source-selection-decisions'
-import { planAgentSessionLaunch } from '@/lib/agent-session-launch-plan'
+import { resolveAgentSessionLaunchRoute } from '@/lib/agent-session-launch-plan'
 
 export function useQuickCreationExecution(input: QuickCreationExecutionInput) {
   const {
@@ -59,11 +58,11 @@ export function useQuickCreationExecution(input: QuickCreationExecutionInput) {
     prepareQuickSubmit,
     resetForNextCreate,
     resolvedInitialWorkspaceStatus,
-    selectedRepoAgentLaunchPlatform,
+    selectedRepoAgentLaunchFact,
     selectedRepoExecutionHostId,
     selectedRepoIsGit,
     selectedRepoIsRemote,
-    selectedRepoSettings,
+    selectedRepoTarget,
     selectedRepoStartupShell,
     settings,
     sparseEnabled,
@@ -78,7 +77,7 @@ export function useQuickCreationExecution(input: QuickCreationExecutionInput) {
       workspaceNameSeed: string,
       workspaceRunContext: WorktreeCreationRequest['workspaceRunContext'],
       repoId: string,
-      selectedRepo: Repo
+      options?: QuickSubmitOptions
     ): Promise<void> => {
       const prepared = await prepareQuickSubmit(
         smartGitHubResolution,
@@ -101,7 +100,7 @@ export function useQuickCreationExecution(input: QuickCreationExecutionInput) {
         submitCompareBaseRef,
         submitPushTarget,
         effectiveSetupDecision,
-        issueCommand,
+        hookPreparation,
         linkedLinearIssue,
         linkedLinearIssueWorkspaceId,
         linkedLinearIssueOrganizationUrlKey,
@@ -126,8 +125,7 @@ export function useQuickCreationExecution(input: QuickCreationExecutionInput) {
         prompt: quickPrompt,
         draftPrompt: quickDraftPrompt,
         settings,
-        repoConnectionId: selectedRepo.connectionId,
-        platform: selectedRepoAgentLaunchPlatform,
+        launchHost: selectedRepoAgentLaunchFact,
         shell: selectedRepoStartupShell,
         isRemote: selectedRepoIsRemote,
         telemetrySource
@@ -153,8 +151,10 @@ export function useQuickCreationExecution(input: QuickCreationExecutionInput) {
 
       const promptDelivery = quickDraftPrompt ? 'draft' : 'auto-submit'
       // Why: the verdict is persisted on the request as data and re-entered once the worktree exists.
-      const agentLaunchRoute = agent
-        ? planAgentSessionLaunch(useAppStore.getState(), {
+      const agentLaunchRoute = !agent
+        ? 'terminal-tui'
+        : (options?.launchChoice?.route ??
+          resolveAgentSessionLaunchRoute(useAppStore.getState(), {
             agent,
             workspace: {
               kind: selectedRepoIsGit ? 'git-worktree' : 'folder',
@@ -163,15 +163,13 @@ export function useQuickCreationExecution(input: QuickCreationExecutionInput) {
                 workspaceRunContext?.hostId ?? selectedRepoExecutionHostId ?? undefined
             },
             prompt: quickDraftPrompt ?? quickPrompt,
-            promptDelivery,
-            initialSessionOptions: startupPlan?.sessionOptions
-          }).route
-        : 'terminal-tui'
+            promptDelivery
+          }))
       const structuredLaunch = agentLaunchRoute === 'structured-native-chat'
 
       const request = buildQuickCreationRequest({
         repoId,
-        indeterminateProgress: getActiveRuntimeTarget(selectedRepoSettings).kind !== 'local',
+        indeterminateProgress: selectedRepoTarget?.kind === 'environment',
         taskSourceContext,
         linkedWorkItem: submitLinkedWorkItem,
         workspaceRunContext,
@@ -201,7 +199,7 @@ export function useQuickCreationExecution(input: QuickCreationExecutionInput) {
         linkedGitLabIssue,
         includeGitLabLinks: smartGitHubResolution.kind === 'none',
         startup: structuredLaunch ? undefined : backendStartup,
-        issueCommand,
+        hookPreparation,
         pendingFirstAgentMessageRename,
         note: trimmedNote,
         startupPlan,
@@ -209,7 +207,8 @@ export function useQuickCreationExecution(input: QuickCreationExecutionInput) {
         launchDraftPrompt: quickDraftPrompt,
         promptDelivery,
         quickTelemetry,
-        suppressTerminalFocusOnCompletion: createMultiple
+        suppressTerminalFocusOnCompletion: createMultiple,
+        setupOnly: options?.setupOnly === true
       })
 
       if (isSubmissionCancelled()) {
@@ -243,11 +242,11 @@ export function useQuickCreationExecution(input: QuickCreationExecutionInput) {
       prepareQuickSubmit,
       resetForNextCreate,
       resolvedInitialWorkspaceStatus,
-      selectedRepoAgentLaunchPlatform,
+      selectedRepoAgentLaunchFact,
       selectedRepoExecutionHostId,
       selectedRepoIsGit,
       selectedRepoIsRemote,
-      selectedRepoSettings,
+      selectedRepoTarget,
       selectedRepoStartupShell,
       settings,
       sparseEnabled,

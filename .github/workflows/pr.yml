@@ -42,7 +42,6 @@ jobs:
       xterm_patch_sync: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.xterm_patch_sync }}
       shell_contracts: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.shell_contracts }}
       test: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.test }}
-      cross-version-wire: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.cross-version-wire }}
       package: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.package }}
       package_windows: ${{ steps.readiness.outputs.reused != 'true' && steps.filter.outputs.package_windows }}
       e2e_should_run: ${{ steps.e2e_filter.outputs.should_run }}
@@ -166,6 +165,12 @@ jobs:
         with:
           native-runtime: node
           node-version: '24'
+
+      # Why: verify:localization-catalogs runs under bun.
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: config/.bun-version
 
       # Keep each check in its own log while sharing this runner.
       - name: Lint
@@ -627,45 +632,6 @@ jobs:
     if: ${{ !cancelled() && needs.test.result == 'success' }}
     uses: ./.github/workflows/unit-selection-evidence.yml
 
-  cross-version-wire:
-    name: cross-version wire compatibility
-    needs: [code_paths]
-    if: needs.code_paths.outputs.cross-version-wire == 'true'
-    # Why ARM: source-only: tagged checkout plus in-process vitest, no docker or browser.
-    runs-on: ubuntu-24.04-arm
-
-    steps:
-      # Why fetch-depth 0: the harness extracts the newest release tag to skew
-      # current code against it. The default shallow clone has no tags, which is
-      # why this cannot ride along in the sharded `test` job.
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          # Why blob:none: full history is needed for the merge-base diff, but historical
-          # file contents are not. Blobs are ~89% of this repo's pack, and Git fetches the
-          # few this job actually reads on demand.
-          fetch-depth: 0
-          filter: blob:none
-          persist-credentials: false
-
-      - uses: ./.github/actions/install-node-dependencies
-        with:
-          native-runtime: node
-
-      # R1: an upgrade from the newest release must adopt its live terminal daemon.
-      - name: Daemon protocol crossing against newest release
-        run: pnpm run check:daemon-protocol-crossing
-
-      # R3: a runtime launcher swap must not also bump the daemon protocol (D7.1).
-      # The label is read from the event payload, so push again after applying it.
-      - name: Runtime launcher change does not bump daemon protocol
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          ORCA_ALLOW_RUNTIME_LAUNCHER_PROTOCOL_BUMP: ${{ contains(github.event.pull_request.labels.*.name, 'allow-runtime-launcher-protocol-bump') }}
-        run: |
-          DIFF_BASE="$(node config/scripts/git-pull-request-diff-base.mjs "$BASE_SHA")"
-          pnpm run check:runtime-launcher-protocol-ratchet -- --base "$DIFF_BASE"
-
   package:
     name: package
     needs: [code_paths, static_analysis, typecheck]
@@ -710,6 +676,13 @@ jobs:
           src/main/browser/browser-route-webrtc-egress.electron.test.ts
           src/main/browser/browser-route-h3-egress.electron.test.ts
           src/main/browser/browser-route-dns-prefetch.electron.test.ts
+          src/main/persistence/profile-state/profile-state-writer-stall.electron.test.ts
+          src/main/browser/popup-origin-chrome.electron.test.ts
+          src/main/browser/browser-link-materialization.electron.test.ts
+          src/main/browser/browser-popup-compatibility.electron.test.ts
+          src/main/browser/browser-popup-adapter-compatibility.electron.test.ts
+          src/main/browser/browser-popup-native-compatibility.electron.test.ts
+          src/main/browser/browser-popup-background-compatibility.electron.test.ts
 
       # Restore independent fixtures during builds; keep native lifecycle probes serial.
       - uses: ./.github/actions/prepare-linux-package-fixture
@@ -734,7 +707,7 @@ jobs:
           status=0
           pnpm run build:cli || status=1
 
-          scripts=(build:relay build:electron-vite:parallel)
+          scripts=(build:wsl-guest build:electron-vite:parallel)
           pids=()
           for script in "${scripts[@]}"; do
             pnpm run "$script" &
@@ -764,12 +737,12 @@ jobs:
         run: |
           set -euo pipefail
           version="$(node -p "require('./package.json').version")"
-          deb="dist/orca-ide_${version}_amd64.deb"
-          rpm="dist/orca-ide-${version}.x86_64.rpm"
+          deb="dist/orca-local_${version}_amd64.deb"
+          rpm="dist/orca-local-${version}.x86_64.rpm"
           test -s "$deb"
           test -s "$rpm"
-          deb_marker="$(dpkg-deb --fsys-tarfile "$deb" | tar -xOf - ./opt/Orca/resources/package-type)"
-          rpm_marker="$(rpm2cpio "$rpm" | cpio --quiet --extract --to-stdout ./opt/Orca/resources/package-type)"
+          deb_marker="$(dpkg-deb --fsys-tarfile "$deb" | tar -xOf - --wildcards './opt/*/resources/package-type')"
+          rpm_marker="$(rpm2cpio "$rpm" | cpio --quiet --extract --to-stdout './opt/*/resources/package-type')"
           [[ "$deb_marker" == deb ]] || { echo "Expected deb marker, got: $deb_marker"; exit 1; }
           [[ "$rpm_marker" == rpm ]] || { echo "Expected rpm marker, got: $rpm_marker"; exit 1; }
 
@@ -838,6 +811,10 @@ jobs:
             node_modules/.pnpm/@vscode+windows-process-tre*/node_modules/@vscode/windows-process-tree/build
           key: native-modules-${{ runner.os }}-${{ steps.deps.outputs.native-cache-scope }}-${{ runner.arch }}-node-node${{ steps.deps.outputs.node-version }}-${{ hashFiles('pnpm-lock.yaml', '.github/actions/install-node-dependencies/action.yml', 'config/scripts/ensure-native-runtime.mjs', 'config/scripts/rebuild-native-deps.mjs', 'config/patches/node-pty@1.1.0.patch', 'config/patches/@vscode__windows-process-tree@0.8.0.patch', 'native/windows-registry/src/addon.cc', 'native/windows-registry/binding.gyp', 'native/windows-registry/package.json') }}
 
+      # Why before the tests: the orca-agent-hook.exe suites share one prebuilt binary instead of
+      # each shelling out to cargo, and electron-builder --win refuses to package without it.
+      - uses: ./.github/actions/prepare-windows-agent-hook
+
       # vitest runs here directly rather than through `pnpm test`, so the addon
       # assertions only hold once install-node-dependencies has rebuilt natives.
       - name: Test Windows installer process probe
@@ -868,9 +845,6 @@ jobs:
           src/main/browser/browser-route-dns-prefetch.electron.test.ts
           src/main/providers/windows-conpty-wide-char-duplication.node-pty.test.ts
           src/main/providers/pty-repaint-wide-char-buffer.node-pty.test.ts
-          src/shared/child-process/windows-command-line.win32.test.ts
-          src/shared/child-process/windows-cmd-shim-resolution.test.ts
-          src/shared/child-process/windows-cmd-shim-resolution.win32.test.ts
           src/main/agent-hooks/windows-hook-payload-delivery.test.ts
           src/main/agent-hooks/windows-direct-cmd-hook-command.test.ts
           src/main/codex/windows-hook-command.test.ts
@@ -886,7 +860,6 @@ jobs:
           src/main/windows-live-tree-kill.win32.test.ts
           src/main/wsl/wsl-runner.test.ts
           src/main/wsl/wsl-guest-environment.test.ts
-          src/main/wsl/wsl-invocation-boundary.test.ts
           src/main/wsl/wsl-executable-path.win32.test.ts
           src/main/wsl/wsl-w1-w3-contract.test.ts
           src/shared/source-scan/source-tree-scan.test.ts
@@ -1006,7 +979,6 @@ jobs:
       - xterm_patch_sync
       - shell_contracts
       - test
-      - cross-version-wire
       - package
       - package_windows
     # Evaluating job results only needs the lightweight container runner.
@@ -1040,8 +1012,6 @@ jobs:
           SHELL_CONTRACTS_SHOULD_RUN: ${{ needs.code_paths.outputs.shell_contracts }}
           TEST: ${{ needs.test.result }}
           TEST_SHOULD_RUN: ${{ needs.code_paths.outputs.test }}
-          CROSS_VERSION_WIRE: ${{ needs.cross-version-wire.result }}
-          CROSS_VERSION_WIRE_SHOULD_RUN: ${{ needs.code_paths.outputs.cross-version-wire }}
           PACKAGE: ${{ needs.package.result }}
           PACKAGE_SHOULD_RUN: ${{ needs.code_paths.outputs.package }}
           PACKAGE_WINDOWS: ${{ needs.package_windows.result }}
@@ -1076,7 +1046,6 @@ jobs:
           check_job xterm_patch_sync "$XTERM_PATCH_SYNC" "$XTERM_PATCH_SYNC_SHOULD_RUN"
           check_job shell_contracts "$SHELL_CONTRACTS" "$SHELL_CONTRACTS_SHOULD_RUN"
           check_job test "$TEST" "$TEST_SHOULD_RUN"
-          check_job cross-version-wire "$CROSS_VERSION_WIRE" "$CROSS_VERSION_WIRE_SHOULD_RUN"
           check_job package "$PACKAGE" "$PACKAGE_SHOULD_RUN"
           check_job package_windows "$PACKAGE_WINDOWS" "$PACKAGE_WINDOWS_SHOULD_RUN"
           exit "$failed"

@@ -31,17 +31,18 @@ export function useWorktreeJumpPaletteLocalState({
   // Keyboard handlers must see the current query before effects flush.
   // react-doctor-disable-next-line react-doctor/no-ref-current-in-render
   liveQueryRef.current = query
-  const paletteSearchQuery = deferredQuery.trim()
+  const taskSourceUrl: string | null = null
+  const paletteSearchQuery = taskSourceUrl ? query.trim() : deferredQuery.trim()
   const deferredCreateAction = useMemo(
     () => getWorktreePaletteCreateActionState({ query: deferredQuery }),
     [deferredQuery]
   )
-  const createWorktreeName = deferredCreateAction.createWorktreeName
-  const showCreateAction = deferredCreateAction.showCreateAction
+  const createWorktreeName = taskSourceUrl ? query.trim() : deferredCreateAction.createWorktreeName
+  const showCreateAction = deferredCreateAction.showCreateAction || taskSourceUrl !== null
   const [selectedItemId, setSelectedItemId] = useState('')
   const latestQueryRef = useRef('')
   const autoSelectedItemIdRef = useRef<string | null>(null)
-  // Create is armed by an explicit keyboard/pointer move.
+  // Create is armed by an explicit keyboard/pointer move, except for task URLs.
   const selectionMovedByUserRef = useRef(false)
   const digitShortcutItemsRef = useRef<readonly PaletteItem[]>([])
   const [filter, setFilter] = useState<PaletteFilterState>(() =>
@@ -80,6 +81,7 @@ export function useWorktreeJumpPaletteLocalState({
     setQuery,
     deferredQuery,
     liveQueryRef,
+    taskSourceUrl,
     paletteSearchQuery,
     createWorktreeName,
     showCreateAction,

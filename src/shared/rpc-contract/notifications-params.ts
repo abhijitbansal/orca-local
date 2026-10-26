@@ -37,3 +37,5 @@ export const NotificationGetMissedSinceParams = z.object({
 export const NotificationsSubscribeParams = z
   .object({ includeDesktopSuppressed: z.boolean().optional() })
   .optional()
+
+export const NotificationReportDesktopPresenceParams = z.object({ away: z.boolean() })

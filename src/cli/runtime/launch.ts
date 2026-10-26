@@ -1,10 +1,16 @@
 import { spawn as spawnProcess, type SpawnOptions } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
-import { runProcessSync } from '../../shared/child-process/run-process'
+import { runProcessSync } from '@orca/process-host'
+import { headlessServeOzonePlatformSwitches } from '../../shared/headless-serve-ozone-platform'
 import { getMacAppBundlePath } from './mac-app-update-bundle'
 import { superviseForegroundServe } from './serve-foreground-supervisor'
+import { preflightElectronServe, recordElectronServeStartupAbort } from './serve-electron-preflight'
+import { MacServeStartupAbortError } from './serve-signal-exit-diagnostic'
+import { pinServeUserDataPath, resolveLaunchUserDataPath } from './launch-user-data-path'
 import { RuntimeClientError } from './types'
+
+const STARTUP_ABORT_MS = 30_000
 
 const USER_NAMESPACE_PROBE_TIMEOUT_MS = 2_000
 
@@ -64,20 +70,49 @@ function spawnDetached(command: string, args: string[], options: SpawnOptions): 
 
 export function serveOrcaApp(args: { json?: boolean } = {}): Promise<number> {
   const executable = resolveForegroundOrcaExecutable()
-  const childArgs = [...getExecutableAppArgs(executable)]
+  const userDataPath = resolveLaunchUserDataPath()
+  const preflight = preflightElectronServe(args, userDataPath)
+  if (preflight === null) {
+    return spawnElectronServe(executable, args, userDataPath)
+  }
+  return Promise.resolve(preflight).then(
+    (refusal) => refusal ?? spawnElectronServe(executable, args, userDataPath)
+  )
+}
+
+function spawnElectronServe(
+  executable: string,
+  args: { json?: boolean },
+  userDataPath: string
+): Promise<number> {
+  const pinned = pinServeUserDataPath(
+    getExecutableAppArgs(executable),
+    stripElectronRunAsNode(process.env),
+    userDataPath
+  )
+  const childArgs = pinned.args
   childArgs.push('--serve')
   if (args.json) {
     childArgs.push('--serve-json')
   }
+  childArgs.push(...headlessServeOzonePlatformSwitches(process.platform))
 
   const spawnOptions: SpawnOptions = {
     detached: false,
     cwd: resolveAppRoot(),
     stdio: 'inherit',
     ...getExecutableSpawnOptions(executable),
-    env: stripElectronRunAsNode(process.env)
+    env: pinned.env
   }
-  return superviseForegroundServe(spawnProcess(executable, childArgs, spawnOptions))
+  const child = spawnProcess(executable, childArgs, spawnOptions)
+  const spawnedAt = Date.now()
+  return superviseForegroundServe(child).catch((error: unknown) => {
+    // Why only a prompt abort: the registration abort kills the child before any JS runs.
+    if (error instanceof MacServeStartupAbortError && Date.now() - spawnedAt < STARTUP_ABORT_MS) {
+      recordElectronServeStartupAbort(userDataPath, error.message)
+    }
+    throw error
+  })
 }
 
 export function getExecutableAppArgs(executable: string): string[] {

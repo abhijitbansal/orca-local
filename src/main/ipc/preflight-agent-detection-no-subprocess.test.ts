@@ -1,9 +1,4 @@
-/* Regression pin for #9297: local agent detection must resolve executables
- * against PATH with fs and spawn ZERO where/which subprocesses. On unfixed
- * code this fails because detectInstalledAgents spawns one `where`/`which`
- * process per probe command (>=20). See the read-only repro in comment-scan:
- * repro-9297-where-per-agent-probe.test.ts (which pins the OLD, buggy count).
- */
+/* PATH detection must use filesystem lookup: per-agent where/which spawns can each be stalled by privilege-management software (#9297). */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const {
@@ -12,7 +7,6 @@ const {
   execFileAsyncMock,
   hydrateShellPathMock,
   mergePathSegmentsMock,
-  getActiveMultiplexerMock,
   detectCommandsInInstallDirsMock,
   mergePersistedWindowsPathAsyncMock,
   mergePersistedWindowsPathMock
@@ -22,7 +16,6 @@ const {
   execFileAsyncMock: vi.fn(),
   hydrateShellPathMock: vi.fn(),
   mergePathSegmentsMock: vi.fn(),
-  getActiveMultiplexerMock: vi.fn(),
   detectCommandsInInstallDirsMock: vi.fn(),
   mergePersistedWindowsPathAsyncMock: vi.fn(),
   mergePersistedWindowsPathMock: vi.fn()
@@ -42,10 +35,8 @@ vi.mock('../startup/hydrate-shell-path', () => ({
   mergePathSegments: mergePathSegmentsMock
 }))
 
-vi.mock('./ssh', () => ({ getActiveMultiplexer: getActiveMultiplexerMock }))
-
 // Isolate the subprocess-spawn assertion from the fs-based install-dir fallback.
-vi.mock('./local-agent-install-dir-detection', () => ({
+vi.mock('../../shared/local-agent-install-dir-detection', () => ({
   detectCommandsInInstallDirs: detectCommandsInInstallDirsMock
 }))
 
@@ -55,11 +46,11 @@ vi.mock('../pty/windows-environment-path', () => ({
   mergePersistedWindowsPath: mergePersistedWindowsPathMock
 }))
 
-import { _resetPreflightCache, detectInstalledAgents } from './preflight'
+import { _resetPreflightCache, detectInstalledAgents } from '../preflight/agent-detection'
 import {
   getTuiAgentDetectionProbeCommands,
   KNOWN_TUI_AGENT_DETECTION_COMMANDS
-} from './tui-agent-detection-commands'
+} from '../../shared/tui-agent-detection-commands'
 
 describe('#9297: local agent detection spawns zero where/which subprocesses', () => {
   const originalPlatform = process.platform
@@ -68,14 +59,12 @@ describe('#9297: local agent detection spawns zero where/which subprocesses', ()
   beforeEach(() => {
     execFileAsyncMock.mockReset()
     execFileMock.mockReset()
-    // Any spawn attempt is the bug; make it explode so a regression is loud.
     execFileAsyncMock.mockImplementation(async (command: string) => {
       throw new Error(`unexpected subprocess spawn: ${command}`)
     })
     detectCommandsInInstallDirsMock.mockReset()
     detectCommandsInInstallDirsMock.mockReturnValue(new Set<string>())
-    // Empty PATH -> deterministic "no agents found" regardless of the host's
-    // real installed CLIs, so the assertion is stable on any dev machine.
+    // Empty PATH makes results independent of installed host CLIs.
     process.env.PATH = ''
     _resetPreflightCache()
   })
@@ -93,16 +82,11 @@ describe('#9297: local agent detection spawns zero where/which subprocesses', ()
         KNOWN_TUI_AGENT_DETECTION_COMMANDS,
         platform
       )
-      // Guardrail: the candidate list is large, so the old one-spawn-per-probe
-      // path multiplied a gated where.exe across dozens of startups.
       expect(probeCommands.length).toBeGreaterThanOrEqual(20)
 
       const agents = await detectInstalledAgents()
 
-      // Perf-win lock: before the fix this was probeCommands.length (>=20);
-      // after the fix it is exactly 0.
       expect(execFileAsyncMock).toHaveBeenCalledTimes(0)
-      // Behavior preserved: empty PATH resolves nothing.
       expect(agents).toEqual([])
     })
   }

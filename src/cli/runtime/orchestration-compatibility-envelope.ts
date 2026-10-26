@@ -7,7 +7,7 @@ export function createOrchestrationCompatibilityEnvelope(
   env: NodeJS.ProcessEnv
 ): RuntimeOrchestrationEnvelope {
   const evidence = readOrchestrationCompatibilityEvidence(env)
-  // Read here, from this CLI's own environment only.
+  // Only local environment session ids can identify a session on this host.
   const agentSessionId = readInjectedAgentSessionId(env)
   return {
     compatibilityInvocationId: randomUUID(),

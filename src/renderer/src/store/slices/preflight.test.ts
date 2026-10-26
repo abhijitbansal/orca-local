@@ -3,6 +3,7 @@ import { create } from 'zustand'
 import type { PreflightStatus } from '../../../../preload/api-types'
 import type { Repo } from '../../../../shared/repo-types'
 import type { Worktree } from '../../../../shared/worktree/types'
+import { getDefaultSettings } from '../../../../shared/constants'
 import type { AppState } from '../types'
 import { createPreflightSlice } from './preflight'
 import { createRuntimeStatusSlice } from './runtime-status'
@@ -18,13 +19,8 @@ vi.mock('sonner', () => ({
 
 vi.mock('@/runtime/runtime-rpc-client', () => ({
   callRuntimeRpc: (...args: unknown[]) => callRuntimeRpc(...args),
-  unwrapRuntimeRpcResult: <T>(response: { result?: T }) => response.result as T,
-  getActiveRuntimeTarget: (
-    settings?: { activeRuntimeEnvironmentId?: string | null } | null
-  ): { kind: 'local' } | { kind: 'environment'; environmentId: string } => {
-    const environmentId = settings?.activeRuntimeEnvironmentId?.trim()
-    return environmentId ? { kind: 'environment', environmentId } : { kind: 'local' }
-  }
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: test responses always carry the typed result.
+  unwrapRuntimeRpcResult: <T>(response: { result?: T }) => response.result as T
 }))
 
 globalThis.window = {
@@ -358,67 +354,56 @@ describe('createPreflightSlice', () => {
     expect(store.getState().preflightStatus?.git.installed).toBe(true)
   })
 
-  it('keeps a paired preflight result bound to the active runtime session', async () => {
+  it('checks integrations on the focused worktree host, not the default host', async () => {
     resetPreflightMocks()
-    const runtimeA = deferred<PreflightStatus>()
-    const runtimeB = deferred<PreflightStatus>()
-    const reconnectedB = deferred<PreflightStatus>()
-    callRuntimeRpc
-      .mockReturnValueOnce(runtimeA.promise)
-      .mockReturnValueOnce(runtimeB.promise)
-      .mockReturnValueOnce(reconnectedB.promise)
+    callRuntimeRpc.mockResolvedValue(makeStatus(true))
+    preflightCheck.mockResolvedValue(makeStatus(false))
     const store = createTestStore()
-    store.setState({ settings: { activeRuntimeEnvironmentId: 'runtime-a' } } as Partial<AppState>)
-    store.getState().setRuntimeEnvironmentStatus('runtime-a', {
-      status: { runtimeId: 'server-a' } as never,
-      checkedAt: 1
+    const remoteRepo = makeRepo({
+      id: 'repo-r',
+      path: '/srv/repo',
+      executionHostId: 'runtime:runtime-9'
+    })
+    const remoteWorktree = makeWorktree({
+      id: 'repo-r::/srv/repo',
+      repoId: 'repo-r',
+      path: '/srv/repo'
+    })
+    store.setState({
+      repos: [remoteRepo],
+      worktreesByRepo: { 'repo-r': [remoteWorktree] },
+      activeRepoId: 'repo-r',
+      activeWorktreeId: remoteWorktree.id
     })
 
-    const requestA = store.getState().refreshPreflightStatus()
-    store.setState({ settings: { activeRuntimeEnvironmentId: 'runtime-b' } } as Partial<AppState>)
-    store.getState().setRuntimeEnvironmentStatus('runtime-b', {
-      status: { runtimeId: 'server-b' } as never,
-      checkedAt: 2
-    })
-    const requestB = store.getState().refreshPreflightStatus()
+    await store.getState().refreshPreflightStatus()
 
-    expect(callRuntimeRpc).toHaveBeenCalledTimes(2)
-    expect(callRuntimeRpc).toHaveBeenNthCalledWith(
-      1,
-      { kind: 'environment', environmentId: 'runtime-a' },
+    expect(preflightCheck).not.toHaveBeenCalled()
+    expect(callRuntimeRpc).toHaveBeenCalledWith(
+      { kind: 'environment', environmentId: 'runtime-9' },
       'preflight.check',
       {}
     )
-    expect(callRuntimeRpc).toHaveBeenNthCalledWith(
-      2,
-      { kind: 'environment', environmentId: 'runtime-b' },
-      'preflight.check',
-      {}
-    )
+    expect(store.getState().preflightStatusContextKey).toMatch(/^runtime:runtime-9#\d+$/)
 
-    runtimeA.resolve(makeStatus(false))
-    await requestA
-    expect(store.getState().preflightStatus).toBeNull()
-    expect(store.getState().preflightStatusChecked).toBe(false)
-
-    runtimeB.resolve(makeStatus(true))
-    await requestB
-    expect(store.getState().preflightStatus?.git.installed).toBe(true)
-
-    store.getState().setRuntimeEnvironmentStatus('runtime-b', { status: null, checkedAt: 3 })
-    store.getState().invalidatePreflightStatus()
-    expect(store.getState().preflightStatus).toBeNull()
-    expect(store.getState().preflightStatusChecked).toBe(false)
-
-    store.getState().setRuntimeEnvironmentStatus('runtime-b', {
-      status: { runtimeId: 'server-b-reconnected' } as never,
-      checkedAt: 4
+    const localRepo = makeRepo({ id: 'repo-l', path: '/Users/a/repo', executionHostId: 'local' })
+    const localWorktree = makeWorktree({
+      id: 'repo-l::/Users/a/repo',
+      repoId: 'repo-l',
+      path: '/Users/a/repo'
     })
-    const reconnect = store.getState().refreshPreflightStatus()
-    expect(callRuntimeRpc).toHaveBeenCalledTimes(3)
-    reconnectedB.resolve(makeStatus(true))
-    await reconnect
-    expect(store.getState().preflightStatus?.git.installed).toBe(true)
+    store.setState({
+      settings: { ...getDefaultSettings('/tmp'), activeRuntimeEnvironmentId: 'runtime-9' },
+      repos: [remoteRepo, localRepo],
+      worktreesByRepo: { 'repo-r': [remoteWorktree], 'repo-l': [localWorktree] },
+      activeRepoId: 'repo-l',
+      activeWorktreeId: localWorktree.id
+    })
+
+    await store.getState().refreshPreflightStatus()
+
+    expect(preflightCheck).toHaveBeenCalledTimes(1)
+    expect(store.getState().preflightStatusContextKey).toBe('host')
   })
 
   it('clears checked status immediately when refreshing a different local context', async () => {

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useEffectEvent } from 'react'
 import { AlertTriangle, ExternalLink, FolderPlus, GitBranchPlus, X } from 'lucide-react'
 import { useAppStore } from '../store'
 import { isGitRepoKind } from '../../../shared/repo-kind'
@@ -21,6 +21,14 @@ type ShortcutItem = {
   action: string
 }
 
+function dismissedPreflightIssueIds(issues: PreflightIssue[], repos: readonly Repo[]): Set<string> {
+  return new Set(
+    issues
+      .filter((issue) => issue.dismissible && isPreflightIssueDismissed(issue.id, repos))
+      .map((issue) => issue.id)
+  )
+}
+
 function PreflightBanner({
   issues,
   repos
@@ -32,26 +40,17 @@ function PreflightBanner({
   // GitHub project (which changes the key) re-evaluates dismissals, so a lapsed
   // dismissal re-surfaces the nudge without a manual reset.
   const githubKey = githubProjectKeys(repos).join('|')
-  const [dismissed, setDismissed] = useState<Set<string>>(
-    () =>
-      new Set(
-        issues
-          .filter((issue) => issue.dismissible && isPreflightIssueDismissed(issue.id, repos))
-          .map((issue) => issue.id)
-      )
+  const [dismissed, setDismissed] = useState<Set<string>>(() =>
+    dismissedPreflightIssueIds(issues, repos)
   )
 
+  // Why an event: re-seed only when the GitHub project set changes; issues identity is
+  // stable per render and would otherwise reset transient dismiss state.
+  const reseedDismissed = useEffectEvent(() =>
+    setDismissed(dismissedPreflightIssueIds(issues, repos))
+  )
   useEffect(() => {
-    setDismissed(
-      new Set(
-        issues
-          .filter((issue) => issue.dismissible && isPreflightIssueDismissed(issue.id, repos))
-          .map((issue) => issue.id)
-      )
-    )
-    // Why: re-seed only when the GitHub project set changes; issues identity is
-    // stable per render and would otherwise reset transient dismiss state.
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
+    reseedDismissed()
   }, [githubKey])
 
   const visibleIssues = issues.filter((issue) => !dismissed.has(issue.id))

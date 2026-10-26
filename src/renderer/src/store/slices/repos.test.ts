@@ -14,7 +14,6 @@ import {
   reposClone,
   reposCloneRemote,
   reposList,
-  reposRemove,
   reposUpdate,
   runtimeEnvironmentCall,
   sshRepo
@@ -36,7 +35,7 @@ describe('repo slice runtime routing', () => {
     reposList.mockResolvedValue([localRepo])
     const store = createTestStore()
 
-    await store.getState().fetchRepos()
+    await store.getState().fetchRepos({ runtimeEnvironmentId: null })
 
     expect(store.getState().repos).toEqual([{ ...localRepo, executionHostId: 'local' }])
     expect(store.getState().projects).toEqual([
@@ -66,10 +65,10 @@ describe('repo slice runtime routing', () => {
     })
     reposList.mockImplementation(async () => [hydrated()])
     const store = createTestStore()
-    await store.getState().fetchRepos()
+    await store.getState().fetchRepos({ runtimeEnvironmentId: null })
     const reposRef = store.getState().repos
 
-    await store.getState().fetchRepos()
+    await store.getState().fetchRepos({ runtimeEnvironmentId: null })
 
     // Why: identity-keyed renderer memos (repo lookup index, selectors) rebuild on a new array.
     expect(store.getState().repos).toBe(reposRef)
@@ -79,11 +78,11 @@ describe('repo slice runtime routing', () => {
   it('replaces the repos array identity when a refetch adds a repo', async () => {
     reposList.mockResolvedValue([localRepo])
     const store = createTestStore()
-    await store.getState().fetchRepos()
+    await store.getState().fetchRepos({ runtimeEnvironmentId: null })
     const reposRef = store.getState().repos
     reposList.mockResolvedValue([localRepo, { ...localRepo, id: 'second', path: '/second' }])
 
-    await store.getState().fetchRepos()
+    await store.getState().fetchRepos({ runtimeEnvironmentId: null })
 
     expect(store.getState().repos).not.toBe(reposRef)
     expect(store.getState().repos).toHaveLength(2)
@@ -315,46 +314,6 @@ describe('repo slice runtime routing', () => {
     expect(projectsSetupExistingFolder).not.toHaveBeenCalled()
   })
 
-  it('removes SSH-owned repos through local IPC even when a runtime is focused', async () => {
-    const store = createTestStore()
-    const worktreeId = `${sshRepo.id}::/home/orca/wt`
-    store.setState({
-      settings: { activeRuntimeEnvironmentId: 'env-1' } as never,
-      repos: [sshRepo],
-      activeRepoId: sshRepo.id,
-      worktreesByRepo: {
-        [sshRepo.id]: [makeWorktree({ id: worktreeId, repoId: sshRepo.id })]
-      }
-    })
-
-    await store.getState().removeProject(sshRepo.id)
-
-    expect(store.getState().repos).toEqual([])
-    expect(store.getState().activeRepoId).toBeNull()
-    expect(reposRemove).toHaveBeenCalledWith({ repoId: sshRepo.id })
-    expect(runtimeEnvironmentCall).not.toHaveBeenCalled()
-  })
-
-  it('drops persisted visit timestamps for removed unhydrated SSH repos', async () => {
-    const store = createTestStore()
-    const sshWorktreeId = `${sshRepo.id}::/home/orca/wt`
-    const localWorktreeId = `${localRepo.id}::/local/wt`
-    store.setState({
-      repos: [sshRepo, localRepo],
-      activeRepoId: sshRepo.id,
-      lastVisitedAtByWorktreeId: {
-        [sshWorktreeId]: 100,
-        [localWorktreeId]: 200
-      }
-    })
-
-    await store.getState().removeProject(sshRepo.id)
-
-    expect(store.getState().repos).toEqual([localRepo])
-    expect(store.getState().lastVisitedAtByWorktreeId).toEqual({ [localWorktreeId]: 200 })
-    expect(reposRemove).toHaveBeenCalledWith({ repoId: sshRepo.id })
-  })
-
   it('cleans up hidden detected worktree state when removing a repo', async () => {
     const store = createTestStore()
     const hiddenWorktree = makeWorktree({
@@ -389,7 +348,7 @@ describe('repo slice runtime routing', () => {
       activeWorktreeId: hiddenWorktree.id
     })
 
-    await store.getState().removeProject(localRepo.id)
+    await store.getState().removeProject(localRepo.id, { hostId: 'local' })
 
     expect(store.getState().detectedWorktreesByRepo[localRepo.id]).toBeUndefined()
     expect(store.getState().tabsByWorktree[hiddenWorktree.id]).toBeUndefined()

@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { IPty } from 'node-pty'
-import { runProcess } from '../../shared/child-process/run-process'
+import { runProcess } from '@orca/process-host'
 import {
   isPtyJobOwnershipAvailable,
   listPtyJobProcessIds,
@@ -71,8 +71,11 @@ describeOnWindows('ConPTY job ownership', () => {
     spawned.push(proc)
 
     let grandchildPid: number | null = null
+    let output = ''
     proc.onData((chunk) => {
-      const match = /ORCA_GC=(\d+)/.exec(chunk)
+      // ConPTY may split the marker across chunks; a trailing non-digit proves the pid is whole.
+      output += chunk
+      const match = /ORCA_GC=(\d+)\D/.exec(output)
       if (match && grandchildPid === null) {
         grandchildPid = Number(match[1])
       }
@@ -86,11 +89,12 @@ describeOnWindows('ConPTY job ownership', () => {
     ].join('')
     proc.write(`node -e "${script}"\r`)
 
-    for (let attempt = 0; attempt < 80 && grandchildPid === null; attempt += 1) {
+    // The marker usually lands within 3s, but can trail the preceding table stress test; this only bounds a hang.
+    for (let attempt = 0; attempt < 160 && grandchildPid === null; attempt += 1) {
       await sleep(250)
     }
     if (grandchildPid === null) {
-      throw new Error('grandchild never reported its pid')
+      throw new Error(`grandchild never reported its pid: ${JSON.stringify(output.slice(-600))}`)
     }
     // Let the shell settle so the pid list is not read mid-spawn.
     await sleep(1_000)
@@ -111,6 +115,9 @@ describeOnWindows('ConPTY job ownership', () => {
       timeoutMs: 90_000
     })
     const status = result.code === null ? 'null' : `0x${(result.code >>> 0).toString(16)}`
+    if (result.code === 0 && !result.timedOut) {
+      console.log(result.stdout)
+    }
     expect(
       result,
       `Native host exited ${status} (${result.signal}); timedOut=${result.timedOut}\n${result.stdout}\n${result.stderr}`

@@ -108,12 +108,4 @@ describe('NewWorkspaceComposerCard set-location chunk warm', () => {
 
     expect(chunk.loads).toBe(0)
   })
-
-  it('warms the chunk on mount for a needs-setup host, before Set project location is clicked', async () => {
-    container = await renderCard()
-
-    expect(chunk.loads).toBe(1)
-    // Warming must not mount the dialog; it still waits on an explicit click.
-    expect(document.body.querySelector('[data-testid="set-project-location-dialog"]')).toBeNull()
-  })
 })

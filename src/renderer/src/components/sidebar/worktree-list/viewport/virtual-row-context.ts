@@ -17,6 +17,7 @@ import type { VirtualizedWorktreeViewportProps } from './viewport-props'
 import type { WorktreeVirtualRowContext } from '../rows/virtual-row-dispatch'
 import { getRepoOwnerWorktreeVisibilityDefaults } from '../../../../store/worktree-visibility-defaults-by-host'
 
+import type { ProjectHeaderHostContext } from '../rows/project-header-host-context'
 type BuildArgs = {
   props: VirtualizedWorktreeViewportProps
   projectGroups: readonly ProjectGroup[]
@@ -26,7 +27,6 @@ type BuildArgs = {
   measureVirtualRowElement: (element: HTMLDivElement | null) => void
   settings: AppState['settings']
   worktreeVisibilityDefaultsByHost: AppState['worktreeVisibilityDefaultsByHost']
-  sshConnectionStates: AppState['sshConnectionStates']
   newCardStyle: boolean
   folderBackedProjectGroupIds: ReadonlySet<string>
   session: WorktreeDragSession
@@ -35,6 +35,7 @@ type BuildArgs = {
   reveal: SidebarRevealHighlight
   statusDrag: ReturnType<typeof useWorkspaceStatusRowDrag>
   nativeDrag: ReturnType<typeof useWorktreeNativeDrag>
+  projectHeaderHostContexts: ReadonlyMap<string, ProjectHeaderHostContext>
   headerDrag: WorktreeSidebarHeaderDrag
   getCachedFolderWorkspacePathStatus: ReturnType<typeof useFolderWorkspacePathStatusRows>
   getLineageToggleHandler: (groupKey: string) => LineageToggleHandler
@@ -78,11 +79,11 @@ export function buildWorktreeVirtualRowContext(args: BuildArgs): WorktreeVirtual
       collapsedGroups: props.collapsedGroups,
       workspaceStatuses: props.workspaceStatuses,
       projectGroups: args.projectGroups,
-      sshConnectionStates: args.sshConnectionStates,
       highlightedRevealRowKey: reveal.highlightedRevealRowKey,
       dragOverStatus: runtime.dragOverStatus,
       pinDragOver: runtime.pinDragOver,
       headerDrag,
+      projectHeaderHostContexts: args.projectHeaderHostContexts,
       getCachedFolderWorkspacePathStatus: args.getCachedFolderWorkspacePathStatus,
       toggleGroupWithScrollAnchor: args.toggleGroupWithScrollAnchor,
       projectActions: {
@@ -139,6 +140,7 @@ export function buildWorktreeVirtualRowContext(args: BuildArgs): WorktreeVirtual
       groupBy: props.groupBy,
       newCardStyle: args.newCardStyle,
       settings: args.settings,
+      activeWorkspaceExecutionHostId: props.activeWorkspaceExecutionHostId,
       activeWorktreeId: props.activeWorktreeId,
       currentWorktreeId: props.currentWorktreeId,
       selectedWorktreeIds: props.selectedWorktreeIds,

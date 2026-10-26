@@ -1,6 +1,7 @@
 import React from 'react'
 
 import { cn } from '@/lib/utils'
+import { getWorkspaceAttachments } from '../../../../shared/workspace-attachments'
 import { WorktreeCardHeader } from './worktree-card-header'
 import { WorktreeCardMetaRow } from './worktree-card-meta-row'
 import { WorktreeCardDetailsHover } from './WorktreeCardMeta'
@@ -21,7 +22,6 @@ export function WorktreeCardParentContent({
     worktree,
     affiliateListMode,
     newCardStyle,
-    lineageChildren,
     showStatus,
     unreadTooltip,
     stopQuickActionPointerPropagation,
@@ -40,9 +40,8 @@ export function WorktreeCardParentContent({
     workspacePorts,
     detailsHoverControl,
     handleRenameTitle,
-    handleEditIssue,
+    handleManageLinks,
     handleEditComment,
-    handleOpenIssueInBrowser,
     handleOpenAutomation,
     handleOpenAutomationRun
   } = card
@@ -69,6 +68,8 @@ export function WorktreeCardParentContent({
   const identityContentWithHover =
     hasHoverDetails && !titleRenaming ? (
       <WorktreeCardDetailsHover
+        workspace={worktree}
+        onManageLinks={affiliateListMode ? undefined : handleManageLinks}
         issue={hoverIssue}
         linearIssue={hoverLinearIssue}
         jiraIssue={hoverJiraIssue}
@@ -85,11 +86,7 @@ export function WorktreeCardParentContent({
         openDelay={100}
         hoverControl={detailsHoverControl}
         onRenameWorkspaceTitle={affiliateListMode ? undefined : handleRenameTitle}
-        onEditIssue={affiliateListMode ? undefined : handleEditIssue}
         onEditComment={affiliateListMode ? undefined : handleEditComment}
-        onOpenIssueInBrowser={
-          hoverIssue && 'url' in hoverIssue && hoverIssue.url ? handleOpenIssueInBrowser : undefined
-        }
         onOpenAutomation={affiliateListMode ? undefined : handleOpenAutomation}
         onOpenAutomationRun={affiliateListMode ? undefined : handleOpenAutomationRun}
       >
@@ -138,7 +135,7 @@ export function WorktreeCardParentContent({
         className={cn(
           'flex min-w-0 flex-1 flex-col gap-1.5',
           // Why: inline agent rows intentionally outdent into the card gutter; inner elements handle truncation.
-          showInlineAgentList || (!newCardStyle && lineageChildren)
+          showInlineAgentList || getWorkspaceAttachments(worktree).length > 1
             ? 'overflow-visible'
             : 'overflow-hidden'
         )}

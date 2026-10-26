@@ -17,7 +17,6 @@ import type {
 import type { NotificationDispatchRequest } from '../../../../shared/notification-settings-types'
 import { structuredAgentSessionPaneKey } from '../../../../shared/structured-agent-session-projection'
 import type { Tab } from '../../../../shared/tab-types'
-import type { GlobalSettings } from '../../../../shared/global-settings-types'
 import type { AppState } from '@/store/types'
 import type * as RuntimeRpcClientModule from '@/runtime/runtime-rpc-client'
 
@@ -52,7 +51,8 @@ vi.mock('@/store', async () => {
   return { useAppStore }
 })
 
-vi.mock('@/lib/worktree-runtime-owner', () => ({
+vi.mock('@/lib/worktree-runtime-owner', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getRuntimeEnvironmentIdForWorktree: (state: { testRuntimeOwner?: string | null }) =>
     state.testRuntimeOwner ?? null
 }))
@@ -73,12 +73,9 @@ import {
   getStructuredAgentSessionStatusFeed,
   resetStructuredAgentSessionStatusFeedsForTests
 } from '@/runtime/structured-agent-session-status-feed'
-import {
-  makeTabGroup,
-  makeUnifiedTab,
-  makeWorktree,
-  TEST_REPO
-} from '@/store/slices/store-test-helpers'
+import { makeTabGroup, makeUnifiedTab } from '../../store/slices/store-session-test-harness'
+import { makeWorktree, TEST_REPO } from '../../store/slices/worktrees-slice-test-fixtures'
+import { getDefaultSettings } from '../../../../shared/constants'
 
 // Worktree ids encode their repo (`repoId::path`); the unread reducer buckets by that prefix.
 const WORKSPACE = 'repo1::/tmp/wt'
@@ -223,9 +220,7 @@ describe('StructuredAgentSessionAttentionBridge', () => {
       unreadTerminalPanes: {},
       unreadAgentCompletionPanes: {},
       testRuntimeOwner: null,
-      // The attention dispatch reads exactly one field; GlobalSettings has no test factory.
-      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: only field read.
-      settings: { experimentalTerminalAttention: true } as GlobalSettings
+      settings: { ...getDefaultSettings('/tmp'), experimentalTerminalAttention: true }
     })
   })
 

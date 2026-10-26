@@ -1,14 +1,17 @@
+import { pollCodexTranscriptStatus } from '../../../shared/agent-hook-listener/providers/codex-transcript-poll'
 import { normalizeHookPayload } from '../../../shared/agent-hook-listener'
 import {
   hasPendingAgentResultText,
   preparePendingGrokResultDiscovery
 } from '../../../shared/agent-hook-listener/grok-result-discovery'
 import type { AgentHookSource } from '../../../shared/agent-hook-relay'
+import { pickHostTurnEnd } from '../../../shared/agent-status-types'
 import {
   shouldPollHookTranscript,
+  hookTranscriptWatchPath,
   transcriptPollUpdate
 } from '../../../shared/agent-hook-listener/transcript-poll-policy'
-import { CodexSubagentPollScheduler } from '../../../shared/codex-subagent-poll-scheduler'
+import { AgentTranscriptPollScheduler } from '../../../shared/agent-transcript-poll-scheduler'
 import type { EnrichedAgentHookEventPayload } from './server-types'
 import {
   ASSISTANT_MESSAGE_RETRY_ATTEMPTS,
@@ -24,7 +27,7 @@ type TranscriptPoll = {
 }
 
 export abstract class AgentHookServerStatusRetries extends AgentHookServerStatusUpdate {
-  private readonly transcriptPollScheduler = new CodexSubagentPollScheduler<TranscriptPoll>(
+  private readonly transcriptPollScheduler = new AgentTranscriptPollScheduler<TranscriptPoll>(
     CODEX_SUBAGENT_POLL_MS,
     (paneKey, poll) => this.runTranscriptPoll(paneKey, poll)
   )
@@ -51,21 +54,24 @@ export abstract class AgentHookServerStatusRetries extends AgentHookServerStatus
     body: unknown,
     original: EnrichedAgentHookEventPayload
   ): void {
-    // Why: a nested CLI of another kind inherits ORCA_PANE_KEY, so clearing here would silently end a live poll.
+    // Nested CLIs inherit pane keys; another provider must not clear this transcript poll.
     if (source !== 'codex' && source !== 'muse') {
       return
     }
-    this.transcriptPollScheduler.clear(original.paneKey)
     if (!shouldPollHookTranscript(this.state, source, original)) {
+      this.transcriptPollScheduler.clear(original.paneKey)
       return
     }
-    this.transcriptPollScheduler.schedule(original.paneKey, { source, body, original })
+    this.transcriptPollScheduler.schedule(
+      original.paneKey,
+      { source, body, original },
+      hookTranscriptWatchPath(this.state, source, original.paneKey)
+    )
   }
 
   private runTranscriptPoll(paneKey: string, poll: TranscriptPoll): void {
     const { source, body, original } = poll
-    // Keep the identity check at callback time: a newer event supersedes this
-    // payload even when its pane still has transcript children.
+    // Recheck ownership at callback time; newer events supersede this payload even if children remain.
     if (
       paneKey !== original.paneKey ||
       !this.server ||
@@ -73,7 +79,10 @@ export abstract class AgentHookServerStatusRetries extends AgentHookServerStatus
     ) {
       return
     }
-    const normalized = normalizeHookPayload(this.state, source, body, this.env)
+    const normalized =
+      source === 'codex'
+        ? pollCodexTranscriptStatus(this.state, original, body, this.env)
+        : normalizeHookPayload(this.state, source, body, this.env)
     if (!normalized) {
       return
     }
@@ -102,7 +111,7 @@ export abstract class AgentHookServerStatusRetries extends AgentHookServerStatus
     if (!discoveryReady) {
       const discovery = preparePendingGrokResultDiscovery(source, body)
       if (discovery) {
-        // Why: slug-group discovery can outlive the bounded flush timers; its completion must drive the first retry deterministically.
+        // Discovery may outlast flush timers; retry as soon as it completes.
         void discovery
           .then(() => {
             if (this.server) {
@@ -153,7 +162,10 @@ export abstract class AgentHookServerStatusRetries extends AgentHookServerStatus
       this.scheduleAssistantMessageRetry(source, body, original, nextAttempt, requireExactOriginal)
       return
     }
-    // Why: some agents POST Stop before their transcript line is flushed; discovery is event-driven, later content retries stay timed.
-    this.applyNormalizedStatus(normalized.event, normalized.onAccepted)
+    // Stop can precede transcript flush; retries add text while preserving the same turn end.
+    this.applyNormalizedStatus(
+      { ...normalized.event, ...pickHostTurnEnd(current) },
+      normalized.onAccepted
+    )
   }
 }

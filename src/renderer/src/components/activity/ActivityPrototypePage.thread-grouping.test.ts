@@ -4,13 +4,10 @@ import { describe, expect, it } from 'vitest'
 import type { AgentStatusEntry } from '../../../../shared/agent-status-types'
 import { formatAgentTypeLabel } from '@/lib/agent-status'
 import { TooltipProvider } from '@/components/ui/tooltip'
-import {
-  buildActivityThreadGroups,
-  buildActivityEvents,
-  buildAgentPaneThreads,
-  getActivityThreadGroup,
-  ThreadAgentStateIndicator
-} from './ActivityPrototypePage'
+import { buildActivityThreadGroups, getActivityThreadGroup } from './activity-thread-grouping'
+import { buildActivityEvents } from './activity-event-builder'
+import { buildAgentPaneThreads } from './activity-thread-builder'
+import { ThreadAgentStateIndicator } from './activity-thread-controls'
 import {
   makeActivityResult,
   makeRepo,
@@ -245,11 +242,13 @@ describe('activity thread grouping', () => {
       makeActivityResult({
         entries: {
           [PANE_KEY]: makeWorkingEntryWithoutHistory(),
-          [PANE_KEY_2]: makeWorkingEntryWithoutHistory()
-        }
+          [PANE_KEY_2]: { ...makeWorkingEntryWithoutHistory(), paneKey: PANE_KEY_2 }
+        },
+        tabs: [makeTabWithIds('tab-1', 'wt-1'), makeTabWithIds('tab-2', 'wt-1')]
       })
     )
 
+    expect(threads.map((thread) => thread.paneKey)).toEqual([PANE_KEY, PANE_KEY_2])
     expect(buildActivityThreadGroups(threads, 'none')).toEqual([{ key: 'all', label: '', threads }])
   })
 })

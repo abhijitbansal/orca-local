@@ -216,7 +216,9 @@ export function AdvancedNetworkSettingsSection({
         'no_proxy',
         'network',
         'bypass',
-        'localhost'
+        'localhost',
+        'mirror',
+        'nodejs'
       ]}
       className="space-y-3"
     >

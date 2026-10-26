@@ -11,34 +11,18 @@ describe('smart-workspace-localized-options', () => {
   it('refreshes create-workspace source tabs when the UI language changes', async () => {
     expect(getSmartWorkspaceNameModes().map((mode) => mode.label)).toEqual([
       'Smart',
-      'GitHub',
-      'Linear',
-      'Jira',
-      'GitLab',
       'Branch',
       'Name'
     ])
 
     await i18n.changeLanguage('zh')
 
-    expect(getSmartWorkspaceNameModes().map((mode) => mode.label)).toEqual([
-      '智能',
-      'GitHub',
-      'Linear',
-      'Jira',
-      'GitLab',
-      '分支',
-      '名称'
-    ])
+    expect(getSmartWorkspaceNameModes().map((mode) => mode.label)).toEqual(['智能', '分支', '名称'])
 
     await i18n.changeLanguage('en')
 
     expect(getSmartWorkspaceNameModes().map((mode) => mode.label)).toEqual([
       'Smart',
-      'GitHub',
-      'Linear',
-      'Jira',
-      'GitLab',
       'Branch',
       'Name'
     ])

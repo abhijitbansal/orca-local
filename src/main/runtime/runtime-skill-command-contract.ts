@@ -3,16 +3,24 @@ import type {
   SkillBundleInstallPreview,
   SkillBundleInstallPreviewRequest
 } from '../../shared/skill-bundle-install-contract'
+import type {
+  BundledSkillExecuteRequest,
+  BundledSkillInstallResult,
+  BundledSkillPlan,
+  BundledSkillPlanRequest
+} from '../../shared/bundled-skill-plan'
 import type { RuntimeSkillCommands } from './runtime-skill-command-surface'
 import type {
   ManagedSkillInstall,
   SkillInstallPreview,
   SkillInstallPreviewRequest,
   SkillInstallResult,
-  SkillProviderRootOverrides,
   SkillRemoveRequest
-} from './runtime-skill-types'
+} from '../../shared/skill-install-contract'
+import type { SkillProviderRootOverrides } from '../skills/skill-provider-destinations'
 export type RuntimeSkillCommandSurface = {
+  planLocalBundledSkills(request: BundledSkillPlanRequest): Promise<BundledSkillPlan>
+  executeLocalBundledSkills(request: BundledSkillExecuteRequest): Promise<BundledSkillInstallResult>
   previewSharedSkillInstallRequest(
     request: SkillInstallPreviewRequest
   ): Promise<SkillInstallPreview>

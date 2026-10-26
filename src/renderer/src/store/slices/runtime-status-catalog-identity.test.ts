@@ -3,12 +3,8 @@ import {
   redactRuntimeEnvironment,
   type KnownRuntimeEnvironment
 } from '../../../../shared/runtime-environments'
-import type { RuntimeStatus } from '../../../../shared/runtime-types'
-import {
-  clearRuntimeEnvironmentConnectionGenerationsForTests,
-  getRuntimeEnvironmentConnectionGeneration
-} from './runtime-status'
-import { createTestStore } from './store-test-helpers'
+import { clearRuntimeEnvironmentConnectionGenerationsForTests } from './runtime-status'
+import { createRuntimeStatusTestStore as createTestStore } from './runtime-status.test-fixture'
 
 vi.mock('sonner', () => ({
   toast: { warning: vi.fn(), dismiss: vi.fn() }
@@ -42,19 +38,6 @@ function cloneRedactedCatalog(
   environment: KnownRuntimeEnvironment = knownEnvironment
 ): ReturnType<typeof redactRuntimeEnvironment>[] {
   return structuredClone([redactRuntimeEnvironment(environment)])
-}
-
-function makeStatus(): RuntimeStatus {
-  return {
-    runtimeId: 'rt',
-    rendererGraphEpoch: 0,
-    graphStatus: 'ready',
-    authoritativeWindowId: null,
-    liveTabCount: 0,
-    liveLeafCount: 0,
-    runtimeProtocolVersion: 3,
-    minCompatibleRuntimeClientVersion: 3
-  }
 }
 
 beforeEach(() => {
@@ -158,22 +141,5 @@ describe('setRuntimeEnvironments catalog identity', () => {
     expect(next[0]).not.toBe(previous[0])
     expect(next[0]?.lastUsedAt).toBe(1_700_000_200_000)
     expect(next[0]?.updatedAt).toBe(1_700_000_200_000)
-  })
-
-  it('still drops status and advances generation on a pairingRevision change', () => {
-    const store = createTestStore()
-    store.getState().setRuntimeEnvironments(cloneRedactedCatalog())
-    store.getState().setRuntimeEnvironmentStatus('env-a', { status: makeStatus(), checkedAt: 1 })
-    const before = getRuntimeEnvironmentConnectionGeneration('env-a')
-
-    store
-      .getState()
-      .setRuntimeEnvironments(
-        cloneRedactedCatalog({ ...knownEnvironment, pairingRevision: pairingRevision + 1 })
-      )
-
-    expect(store.getState().runtimeStatusByEnvironmentId.has('env-a')).toBe(false)
-    expect(getRuntimeEnvironmentConnectionGeneration('env-a')).toBe(before + 1)
-    expect(store.getState().runtimeEnvironments[0]?.pairingRevision).toBe(pairingRevision + 1)
   })
 })

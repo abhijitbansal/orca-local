@@ -28,18 +28,18 @@ export function useWorktreeCardSecondaryDetails({
   issueDisplay,
   linearIssueDisplay,
   jiraIssueDisplay,
-  cardProps,
   newCardStyle,
   compactCards,
+  cardDetails,
   agentActivityDisplayMode,
   workspacePorts,
   settings
 }: Pick<WorktreeCardProps, 'worktree'> &
   Pick<
     Foundation,
-    | 'cardProps'
     | 'newCardStyle'
     | 'compactCards'
+    | 'cardDetails'
     | 'agentActivityDisplayMode'
     | 'workspacePorts'
     | 'settings'
@@ -71,7 +71,7 @@ export function useWorktreeCardSecondaryDetails({
   const metaAutomationProvenance = showAutomation ? worktree.automationProvenance : null
   const metaCliProvenance = showCli ? worktree.cliProvenance : null
   const metaComment = showComment ? hoverComment : null
-  const showInlineAgentList = cardProps.includes('inline-agents') && (newCardStyle || !compactCards)
+  const showInlineAgentList = cardDetails.inlineAgents
   const compactInlineAgentRows = useWorktreeAgentRows(
     worktree.id,
     showInlineAgentList && agentActivityDisplayMode === 'compact'

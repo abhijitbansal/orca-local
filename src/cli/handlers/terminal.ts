@@ -4,6 +4,7 @@ import type {
   RuntimeTerminalListResult,
   RuntimeTerminalRead,
   RuntimeTerminalRename,
+  RuntimeTerminalSetPaneTitle,
   RuntimeTerminalShow,
   RuntimeTerminalSplit,
   RuntimeTerminalWait
@@ -16,6 +17,7 @@ import {
   formatTerminalList,
   formatTerminalRead,
   formatTerminalRename,
+  formatTerminalSetPaneTitle,
   formatTerminalShow,
   formatTerminalSplit,
   formatTerminalWait,
@@ -24,7 +26,8 @@ import {
 import {
   getOptionalPositiveIntegerFlag,
   getOptionalStringFlag,
-  getRequiredStringFlag
+  getRequiredStringFlag,
+  getRequiredStringFlagAllowingEmpty
 } from '../flags'
 import {
   annotateOmittedHostScope,
@@ -35,7 +38,10 @@ import {
   isSupportedWindowsShellOverride,
   listSupportedWindowsShellOverrides
 } from '../../shared/windows-terminal-shell'
-import { TERMINAL_CREATE_SHELL_SELECTION_RUNTIME_CAPABILITY } from '../../shared/protocol-version'
+import {
+  TERMINAL_CREATE_SHELL_SELECTION_RUNTIME_CAPABILITY,
+  TERMINAL_SPLIT_RETRY_RUNTIME_CAPABILITY
+} from '../../shared/protocol-version'
 import {
   getBrowserWorktreeSelector,
   getOptionalWorktreeSelector,
@@ -45,14 +51,13 @@ import {
 import { terminalCloseHandler } from './terminal-close'
 import { terminalSendHandler } from './terminal-send'
 
-// Why: terminal wait legitimately needs to outlive the CLI's default RPC
-// timeout. Even without an explicit server timeout, the client must allow
-// long waits instead of failing at the generic 15s transport cap.
+// Long terminal waits must outlive the ordinary transport timeout.
 const DEFAULT_TERMINAL_WAIT_RPC_TIMEOUT_MS = 5 * 60 * 1000
 
 const terminalFocusHandler: CommandHandler = async ({ flags, client, cwd, json }) => {
+  const terminal = await getTerminalHandle(flags, cwd, client)
   const result = await client.call<{ focus: RuntimeTerminalFocus }>('terminal.focus', {
-    terminal: await getTerminalHandle(flags, cwd, client),
+    terminal,
     navigation: 'host'
   })
   printResult(result, json, formatTerminalFocus)
@@ -88,8 +93,7 @@ export const TERMINAL_HANDLERS: Record<string, CommandHandler> = {
       throw new RuntimeClientError('invalid_argument', '--cursor must be a non-negative integer')
     }
     const screen = flags.get('screen') === true
-    // Why: a cursor pages through accumulated output. A screen read is the current frame and has
-    // nothing behind it to page, so accepting both would imply history that is not there.
+    // A screen is one current frame; a cursor would falsely imply pageable history.
     if (screen && cursorFlag !== undefined) {
       throw new RuntimeClientError(
         'invalid_argument',
@@ -102,9 +106,7 @@ export const TERMINAL_HANDLERS: Record<string, CommandHandler> = {
       ...(screen ? { screen: true } : {}),
       limit: getOptionalPositiveIntegerFlag(flags, 'limit')
     })
-    // Why: an older host drops the unknown `screen` param and answers with its ordinary stream
-    // read, which carries no source. Returning that silently is the exact failure this flag
-    // exists to prevent, so refuse rather than hand back the other question's answer.
+    // Older hosts ignore screen and return a stream without source; never present that as a screen.
     if (screen && result.result.terminal.source === undefined) {
       throw new RuntimeClientError(
         'incompatible_runtime',
@@ -129,8 +131,7 @@ export const TERMINAL_HANDLERS: Record<string, CommandHandler> = {
     )
     printResult(result, json, formatTerminalWait)
     if (result.result.wait.satisfied === false) {
-      // Why: callers commonly chain `terminal wait && terminal send`; a
-      // structured blocked result is still an unsatisfied wait condition.
+      // Chained commands such as wait && send need a failing exit for an unsatisfied condition.
       process.exitCode = 1
     }
   },
@@ -147,6 +148,14 @@ export const TERMINAL_HANDLERS: Record<string, CommandHandler> = {
     })
     printResult(result, json, formatTerminalRename)
   },
+  'terminal set-pane-title': async ({ flags, client, cwd, json }) => {
+    const title = getRequiredStringFlagAllowingEmpty(flags, 'title')
+    const result = await client.call<{ paneTitle: RuntimeTerminalSetPaneTitle }>(
+      'terminal.setPaneTitle',
+      { terminal: await getTerminalHandle(flags, cwd, client), title }
+    )
+    printResult(result, json, formatTerminalSetPaneTitle)
+  },
   'terminal create': async ({ flags, client, cwd, json }) => {
     const command = getOptionalStringFlag(flags, 'command')
     const useRendererBackedInteractiveTerminal = shouldUseRendererBackedInteractiveTerminal(command)
@@ -159,9 +168,7 @@ export const TERMINAL_HANDLERS: Record<string, CommandHandler> = {
           `--shell must be one of: ${listSupportedWindowsShellOverrides().join(', ')}`
         )
       }
-      // Why refused rather than sent hopefully: an older host strips the unknown param and hands
-      // back a healthy terminal running its DEFAULT shell. Nothing in that reply says the shell
-      // was ignored, so a caller that wanted cmd would drive a PowerShell session believing it won.
+      // Older hosts ignore shell and successfully create the wrong default shell; check support first.
       const status = await client.getCliStatus()
       // An unreachable host reports no capabilities at all; that is not evidence it lacks --shell.
       if (!status.result.runtime.reachable) {
@@ -186,16 +193,13 @@ export const TERMINAL_HANDLERS: Record<string, CommandHandler> = {
       command,
       ...(shell !== undefined ? { shell } : {}),
       title: getOptionalStringFlag(flags, 'title'),
-      // Why: interactive local agent TUIs need the renderer-backed terminal
-      // path for browser-side features, but CLI creates must stay backgrounded
-      // unless the caller explicitly asks for focus.
       focus,
       ...(focus ? { presentation: 'focused' } : {}),
+      // Compat: hosts before v1.4.211 (#22384) need renderer startup replies; remove once unsupported.
       ...(useRendererBackedInteractiveTerminal ? { rendererBacked: true, activate: focus } : {})
     })
     printResult(result, json, formatTerminalCreate)
   },
-  // `focus` resolves to this canonical path via CommandSpec.aliases before dispatch.
   'terminal switch': terminalFocusHandler,
   'terminal close': terminalCloseHandler,
   'terminal split': async ({ flags, client, cwd, json }) => {
@@ -207,10 +211,35 @@ export const TERMINAL_HANDLERS: Record<string, CommandHandler> = {
     ) {
       throw new RuntimeClientError('invalid_argument', '--direction must be horizontal or vertical')
     }
+    // A blank id (an unset variable) must not fall through to a fresh split of the same command.
+    const retrySplit = flags.has('retry-split')
+      ? getRequiredStringFlag(flags, 'retry-split')
+      : undefined
+    // Why refused rather than sent: an older host strips the unknown param and splits again,
+    // starting a second copy of the command the retry exists to avoid.
+    if (retrySplit !== undefined) {
+      const status = await client.getCliStatus()
+      if (!status.result.runtime.reachable) {
+        throw new RuntimeClientError(
+          'runtime_unavailable',
+          'Orca could not verify --retry-split support on the execution host, so nothing was split. Wait for the execution host to become reachable and retry.'
+        )
+      }
+      if (
+        status.result.runtime.capabilities?.includes(TERMINAL_SPLIT_RETRY_RUNTIME_CAPABILITY) !==
+        true
+      ) {
+        throw new RuntimeClientError(
+          'incompatible_runtime',
+          'This Orca host does not support --retry-split and would split again. Nothing was split; check `orca terminal list --json` for the pane instead.'
+        )
+      }
+    }
     const result = await client.call<{ split: RuntimeTerminalSplit }>('terminal.split', {
       terminal: await getTerminalHandle(flags, cwd, client),
       direction: directionFlag,
-      command: getOptionalStringFlag(flags, 'command')
+      command: getOptionalStringFlag(flags, 'command'),
+      ...(retrySplit !== undefined ? { retrySplit } : {})
     })
     printResult(result, json, formatTerminalSplit)
   }

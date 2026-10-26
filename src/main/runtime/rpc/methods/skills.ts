@@ -3,6 +3,10 @@ import type { z } from 'zod'
 import { getAppEnvironment } from '../../../../shared/app-environment'
 import { SkillDeleteRequestSchema } from '../../../../shared/skill-delete-contract'
 import {
+  BundledSkillExecuteRequestSchema,
+  BundledSkillPlanRequestSchema
+} from '../../../../shared/bundled-skill-plan'
+import {
   previewSkillDeleteRequest,
   runSkillDeleteRequest,
   type SkillDeleteRequestDependencies
@@ -47,12 +51,13 @@ function skillDeleteDependencies(
 export const SKILL_METHODS = [
   defineMethod({
     name: 'skills.discover',
+    permission: 'workspace',
     params: SkillsDiscoverParams,
     handler: async (params, { runtime }) => {
       // Why: the executing runtime owns WSL project preferences. Remote callers
       // send worktree identity only; trusting their projectRuntime absence
       // would scan this host's native filesystem for a WSL-configured project.
-      const resolvedTarget = resolveDiscoveryTarget(params, runtime)
+      const resolvedTarget = await resolveDiscoveryTarget(params, runtime)
       return discoverSkillsOnTarget(resolvedTarget, runtime.listRepos(), {
         providerRootOverrides: await runtime.resolveSkillDiscoveryProviderRoots(resolvedTarget),
         refresh: params.refresh === true
@@ -61,36 +66,54 @@ export const SKILL_METHODS = [
   }),
   defineMethod({
     name: 'skills.previewDelete',
+    permission: 'workspace',
     params: SkillDeleteRequestSchema,
     handler: async (params, { runtime }) =>
       previewSkillDeleteRequest(
         params,
-        resolveDiscoveryTarget(params.target ?? {}, runtime),
+        await resolveDiscoveryTarget(params.target ?? {}, runtime),
         skillDeleteDependencies(runtime)
       )
   }),
   defineMethod({
     name: 'skills.delete',
+    permission: 'skills-admin',
     params: SkillDeleteRequestSchema,
     handler: async (params, { runtime }) =>
       runSkillDeleteRequest(
         params,
-        resolveDiscoveryTarget(params.target ?? {}, runtime),
+        await resolveDiscoveryTarget(params.target ?? {}, runtime),
         skillDeleteDependencies(runtime)
       )
   }),
+  // The host plans Orca's skills on its own disk; a paired client never sends a WSL target.
+  defineMethod({
+    name: 'skills.planBundledOrca',
+    permission: 'workspace',
+    params: BundledSkillPlanRequestSchema,
+    handler: (params, { runtime }) => runtime.planLocalBundledSkills(params)
+  }),
+  defineMethod({
+    name: 'skills.executeBundledOrca',
+    permission: 'skills-admin',
+    params: BundledSkillExecuteRequestSchema,
+    handler: (params, { runtime }) => runtime.executeLocalBundledSkills(params)
+  }),
   defineMethod({
     name: 'skills.previewInstall',
+    permission: 'workspace',
     params: SkillInstallPreviewRequestSchema,
     handler: (params, { runtime }) => runtime.previewSharedSkillInstallRequest(params)
   }),
   defineMethod({
     name: 'skills.removeInstall',
+    permission: 'skills-admin',
     params: SkillRemoveRequestSchema,
     handler: (params, { runtime }) => runtime.removeSharedSkillInstallRequest(params)
   }),
   defineMethod({
     name: 'skills.listManagedInstalls',
+    permission: 'workspace',
     params: null,
     handler: (_params, { runtime }) => runtime.listManagedSkillInstalls()
   })

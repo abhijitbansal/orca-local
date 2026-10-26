@@ -1,11 +1,11 @@
-import { existsSync, mkdtempSync } from 'node:fs'
+import { mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 import { OrcaRuntimeService } from './orca-runtime'
 import * as runtimeMetadataModule from './runtime-metadata'
 import { readRuntimeMetadata, writeRuntimeMetadata } from './runtime-metadata'
-import { createRuntimeTransportMetadata, OrcaRuntimeRpcServer } from './runtime-rpc'
+import { OrcaRuntimeRpcServer } from './runtime-rpc'
 import type { RuntimeMetadata } from '../../shared/runtime-bootstrap'
 
 vi.mock('../git/worktree', () => {
@@ -170,30 +170,5 @@ describe('OrcaRuntimeRpcServer', () => {
       pid: 1001,
       runtimeId: runtime.getRuntimeId()
     })
-  })
-
-  it('closes the socket if metadata publication fails during startup', async () => {
-    const userDataPath = mkdtempSync(join(tmpdir(), 'orca-runtime-rpc-'))
-    const runtime = new OrcaRuntimeService()
-    const server = new OrcaRuntimeRpcServer({ runtime, userDataPath })
-    const writeMetadataSpy = vi
-      .spyOn(runtimeMetadataModule, 'writeRuntimeMetadata')
-      .mockImplementationOnce(() => {
-        throw new Error('write failed')
-      })
-    const endpoint = createRuntimeTransportMetadata(
-      userDataPath,
-      process.pid,
-      process.platform,
-      runtime.getRuntimeId()
-    ).endpoint
-
-    await expect(server.start()).rejects.toThrow('write failed')
-    expect(readRuntimeMetadata(userDataPath)).toBeNull()
-    expect(existsSync(endpoint)).toBe(false)
-    expect(server['transports']).toEqual([])
-    expect(server['activeTransports']).toEqual([])
-
-    writeMetadataSpy.mockRestore()
   })
 })

@@ -21,6 +21,7 @@ export type TerminalCreateListenerPayload = {
   activate?: boolean
   focus?: boolean
   presentation?: 'background' | 'focused'
+  surfaceOwner?: false
   tabId?: string
   leafId?: string
   splitFromLeafId?: string
@@ -77,8 +78,12 @@ export type TerminalCreateSurfacingStore = {
   clearAgentLaunchConfig: SpyMock
   updateTabPtyId: Mock<(tabId: string, ptyId: string) => void>
   setTabLayout: Mock<(tabId: string, layout: unknown) => void>
-  tabsByWorktree: Record<string, { id: string; ptyId?: string | null; title?: string }[]>
+  tabsByWorktree: Record<
+    string,
+    { id: string; ptyId?: string | null; title?: string; agentLaunchPane?: { leafId: string } }[]
+  >
   folderWorkspaces: unknown[]
+  sleepingAgentSessionsByPaneKey: Record<string, unknown>
   projectGroups: unknown[]
   repos: { id: string; connectionId: string | null; executionHostId: string }[]
   worktreesByRepo: Record<string, { id: string; repoId: string }[]>
@@ -113,7 +118,6 @@ export type TerminalCreateSurfacingStore = {
   settings: {
     terminalFontSize: number
     experimentalNativeChat: boolean
-    openAgentTabsInChatByDefault: boolean
     activeRuntimeEnvironmentId: string | undefined
   }
 }

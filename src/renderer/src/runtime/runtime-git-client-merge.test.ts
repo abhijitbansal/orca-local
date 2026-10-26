@@ -3,7 +3,7 @@ import {
   createCompatibleRuntimeStatusResponseIfNeeded,
   type RuntimeEnvironmentCallRequest
 } from './runtime-compatibility-test-fixture'
-import { abortRuntimeGitMerge, abortRuntimeGitRebase } from './runtime-git-client'
+import { abortRuntimeGitMerge, abortRuntimeGitRebase } from './runtime-git-sync-client'
 
 const gitAbortMerge = vi.fn()
 const gitAbortRebase = vi.fn()
@@ -34,7 +34,7 @@ describe('runtime git client merge operations', () => {
     gitAbortMerge.mockResolvedValue(undefined)
 
     await abortRuntimeGitMerge({
-      settings: { activeRuntimeEnvironmentId: null },
+      target: { kind: 'local' },
       worktreeId: 'wt-1',
       worktreePath: '/repo'
     })
@@ -47,7 +47,7 @@ describe('runtime git client merge operations', () => {
     gitAbortRebase.mockResolvedValue(undefined)
 
     await abortRuntimeGitRebase({
-      settings: { activeRuntimeEnvironmentId: null },
+      target: { kind: 'local' },
       worktreeId: 'wt-1',
       worktreePath: '/repo',
       connectionId: 'ssh-1'

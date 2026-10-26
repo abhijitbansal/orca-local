@@ -1,15 +1,4 @@
-// IPC surface for the error-tracking lane (telemetry-error-tracking.md
-// §User controls). Four renderer-facing channels:
-//
-//   diagnostics:getStatus            — read-only snapshot for the Privacy pane.
-//   diagnostics:collectBundle        — assemble and retain a redacted payload.
-//   diagnostics:openBundlePreview    — open the retained payload in the OS.
-//   diagnostics:discardBundlePreview — delete a retained payload.
-//
-// Same threat model as the product-telemetry IPC (`ipc/telemetry.ts`):
-// renderer can pass anything over the wire, type-narrow here. Everything
-// that touches the filesystem stays in main — the renderer only sees the
-// resulting status / preview.
+// Main owns redacted payloads and upload endpoints; validate renderer requests and enforce consent here (telemetry-error-tracking.md).
 
 import { app, ipcMain, shell } from 'electron'
 import { existsSync, mkdirSync, unlinkSync, writeFileSync } from 'node:fs'
@@ -59,8 +48,7 @@ function rememberBundle(bundle: CollectedBundle): void {
     bundle,
     createdAtMs: Date.now(),
     previewFilePath,
-    // Why: diagnostics previews retain redacted payload bytes in main; the
-    // documented TTL must expire even if the renderer never makes another call.
+    // Expire retained payloads even if no further renderer call arrives.
     ttlTimer: schedulePendingBundleExpiry(bundle.bundleSubmissionId),
     previewOpened: false
   })
@@ -155,17 +143,12 @@ export function registerDiagnosticsHandlers(): void {
   ipcMain.handle(
     'diagnostics:collectBundle',
     (_event, lookbackMinutesIn: unknown): DiagnosticsBundlePreview => {
-      // Consent gate: main is the consent enforcement boundary; the
-      // renderer-side button-hide is UX, not security. A compromised or
-      // malicious renderer must not be able to assemble a bundle when the
-      // user has disabled diagnostic-bundle collection in Settings → Privacy.
+      // Enforce consent in main; hiding renderer controls is insufficient.
       const status = getDiagnosticsStatus()
       if (!status.bundleEnabled) {
         throw new Error('creating review files is disabled')
       }
-      // Renderer-controlled input → narrow at the boundary. The default
-      // (DEFAULT_LOOKBACK_MINUTES in bundle.ts) is fine for the common
-      // "last 30 minutes" case the Privacy pane button triggers.
+      // Validate untyped IPC input before applying the default lookback.
       const lookbackMinutes =
         typeof lookbackMinutesIn === 'number' && Number.isFinite(lookbackMinutesIn)
           ? Math.max(1, Math.min(30 * 24 * 60, Math.floor(lookbackMinutesIn)))

@@ -4,7 +4,7 @@ import { OpenInApplicationIcon } from './open-in-app-catalog'
 
 describe('OpenInApplicationIcon', () => {
   it('never renders an image from a remote host', () => {
-    const markup = renderToStaticMarkup(<OpenInApplicationIcon />)
+    const markup = renderToStaticMarkup(<OpenInApplicationIcon application={{ command: 'code' }} />)
     expect(markup).not.toMatch(/src="https?:/)
   })
 })

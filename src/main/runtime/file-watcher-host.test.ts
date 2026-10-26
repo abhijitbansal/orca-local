@@ -4,7 +4,7 @@ import type {
   WatcherProcessCallback,
   WatcherProcessHooks,
   WatcherProcessSubscription
-} from '../ipc/parcel-watcher-process'
+} from '../ipc/parcel-watcher-process-subscription'
 import { WatcherProcessFailure } from '../ipc/parcel-watcher-process-failure'
 import {
   WATCHER_IGNORE_DIRS,
@@ -166,7 +166,7 @@ describe('watchFileExplorerInWatcherProcess', () => {
     expect(onEvents).toHaveBeenNthCalledWith(2, [{ kind: 'overflow', absolutePath: '/repo' }])
   })
 
-  it('refreshes only after the child has resubscribed', async () => {
+  it("refreshes on the child's resubscription notification", async () => {
     const watch = installSuccessfulWatch()
     const onEvents = vi.fn<(events: FsChangeEvent[]) => void>()
     await watchFileExplorerInWatcherProcess('/repo', onEvents)
@@ -176,7 +176,13 @@ describe('watchFileExplorerInWatcherProcess', () => {
     expect(onEvents).toHaveBeenCalledWith([{ kind: 'overflow', absolutePath: '/repo' }])
   })
 
-  it('keeps same-root subscribers alive while a failed shard is replaced', async () => {
+  it.each([
+    ['native watcher failure', new Error('native subscription stopped')],
+    [
+      'watcher process failure',
+      new WatcherProcessFailure('crashed repeatedly', 'supervisor', 'supervisor_crash_fuse')
+    ]
+  ])('keeps same-root subscribers alive after a %s', async (_kind, error) => {
     const watch = installSuccessfulWatch()
     const replacement = installSuccessfulWatch()
     const firstEvents = vi.fn<(events: FsChangeEvent[]) => void>()
@@ -186,9 +192,7 @@ describe('watchFileExplorerInWatcherProcess', () => {
     await watchFileExplorerInWatcherProcess('/repo', firstEvents, firstError)
     await watchFileExplorerInWatcherProcess('/repo', secondEvents, secondError)
 
-    watch.hooks.onTerminalError?.(
-      new WatcherProcessFailure('crashed repeatedly', 'supervisor', 'supervisor_crash_fuse')
-    )
+    watch.hooks.onTerminalError?.(error)
     await vi.waitFor(() => expect(subscribeViaRuntimeWatcherProcessMock).toHaveBeenCalledTimes(2))
     watch.callback(null, [{ type: 'update', path: '/repo/late.txt' }])
     replacement.callback(null, [{ type: 'update', path: '/repo/recovered.txt' }])

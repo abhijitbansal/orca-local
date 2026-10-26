@@ -1,8 +1,9 @@
+import type * as ReactModule from 'react'
 import { vi } from 'vitest'
 
 // Headless React: hooks are stubbed so TabBar can be invoked as a plain function.
 export async function stubHeadlessReact(): Promise<Record<string, unknown>> {
-  const actual = await vi.importActual<typeof import('react')>('react') // eslint-disable-line @typescript-eslint/consistent-type-imports -- vi.importActual requires inline import()
+  const actual = await vi.importActual<typeof ReactModule>('react')
   return {
     ...actual,
     memo: <T>(component: T) => component,
@@ -43,6 +44,21 @@ export function stubTabStripDragScroll(): Record<string, unknown> {
       onDragScrollEndEnter: vi.fn(),
       onDragScrollLeave: vi.fn()
     })
+  }
+}
+
+// Tooltip primitives render to inert descriptors so the probe never invokes a
+// hook-using provider/trigger under the headless React stub.
+export function stubTooltip(): Record<string, unknown> {
+  const passthrough = (type: string) =>
+    function TooltipPrimitiveStub(props: { children?: unknown }) {
+      return { type, props }
+    }
+  return {
+    TooltipProvider: passthrough('TooltipProvider'),
+    Tooltip: passthrough('Tooltip'),
+    TooltipTrigger: passthrough('TooltipTrigger'),
+    TooltipContent: passthrough('TooltipContent')
   }
 }
 
@@ -87,7 +103,11 @@ export function stubQuickLaunchButton(): Record<string, unknown> {
   return {
     QuickLaunchAgentMenuItems: function QuickLaunchAgentMenuItems() {
       return null
-    }
+    },
+    ProjectedAgentMenuItems: function ProjectedAgentMenuItems() {
+      return null
+    },
+    useTabAgentMenuLaunch: () => () => undefined
   }
 }
 

@@ -1,4 +1,4 @@
-import { closeTestStores, createSqliteTestStore } from '../persistence-test-harness'
+import { closeTestStores, createSqliteTestStore } from '../persistence/persistence-test-harness'
 /**
  * The desktop authority's end of the scoped-list and owner-fenced contracts:
  * a parameterless read still answers with everything it stores, a scoped read is

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { createWorktreeCreateTimingRecorder } from '../worktree-create-timing'
 import { resolve } from 'node:path'
 import type { Store } from '../persistence'
 import type { WorktreeMeta } from '../../shared/worktree/meta-types'
@@ -99,14 +100,15 @@ function createWorktree(
     request: { repoSelector: 'repo-1', name: 'app', baseBranch: 'main', ...request },
     repo: { id: 'repo-1', path: '/repo', displayName: 'Repo', badgeColor: '#000000', addedAt: 0 },
     // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: All store methods reached by this isolated create path are supplied above.
-    store: store as Store,
+    store: store as unknown as Store,
     createdWithAgent: undefined,
     resolveRemoteTrackingBase: mocks.remoteBase,
     hasRemoteTrackingRef: mocks.hasRemoteRef,
     refreshRemoteTrackingBase: mocks.refresh,
     fetchRemote: mocks.fetch,
     onWorktreeMetadataPersisted: () => undefined,
-    rearm
+    rearm,
+    timing: createWorktreeCreateTimingRecorder()
   })
 }
 

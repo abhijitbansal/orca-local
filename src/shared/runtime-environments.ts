@@ -38,6 +38,8 @@ export type KnownRuntimeEnvironment = z.infer<typeof KnownRuntimeEnvironmentSche
 
 export type PublicKnownRuntimeEnvironment = Omit<KnownRuntimeEnvironment, 'endpoints'> & {
   endpoints: PublicRuntimeAccessEndpoint[]
+  // Local-only: orcad deployments are removed, so this is never set; kept for structural callers.
+  orcadDeployment?: undefined
 }
 
 export function redactRuntimeEnvironment(

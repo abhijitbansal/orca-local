@@ -1,18 +1,11 @@
-/**
- * Where a CLI create — or an edit that moves the record's project/workspace —
- * wants the automation to land.
- *
- * The CLI cannot project a host itself, so it asks the same authority that will
- * perform the write to resolve the selector it was given. In this build every
- * reachable repo lives on this machine, so the destination is always `self`.
- */
+// Capture the authority's SSH generation so it can reject removed or re-registered targets at write time.
 
 import type { AutomationDestination } from '../shared/automation-owner-precondition'
 import type { RuntimeWorktreeRecord } from '../shared/runtime-types'
 import type { Repo } from '../shared/repo-types'
 import type { RuntimeClient } from './runtime-client'
 
-/** The project/workspace selectors the same request carries; both empty means the host cannot change. */
+/** Empty selectors mean the execution host cannot change. */
 export type AutomationDestinationTarget = { repo?: string; workspace?: string }
 
 async function resolveTargetRepo(

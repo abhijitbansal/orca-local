@@ -18,6 +18,8 @@ export function useAddRepoHostSelection({
 }: {
   isOpen: boolean
   setStep: (step: AddRepoDialogStep) => void
+  /** The host the dialog was opened for (a dropped folder's owner); wins over the focused host. */
+  preferredHostId?: ExecutionHostId | null
 }): {
   hostOptions: ReturnType<typeof useSidebarHostScopeOptions>['hostOptions']
   selectedHostId: ExecutionHostId | null

@@ -3,12 +3,17 @@ import { constants } from 'node:fs'
 import { copyFile, mkdir, writeFile } from 'node:fs/promises'
 import { basename, dirname } from 'node:path'
 import type { Store } from '../persistence'
-import { resolveAuthorizedPath } from './filesystem-auth'
-import { requireSshFilesystemProvider } from '../providers/ssh-filesystem-dispatch'
-import { resolveLocalDroppedPathsForAgent } from './dropped-path-resolution'
+import {
+  resolveDesktopAuthorizedPath,
+  resolveLocalRenamePaths,
+  resolveLocalRequestPath
+} from './local-file-access-resolution'
+import type { LocalFileAccess } from '../../shared/local-file-access'
+import { SshHostNotServedError } from '../providers/ssh-host-not-served-error'
 import { LocalOnlyUnsupportedError } from '../../shared/local-only-unsupported-error'
+import { resolveLocalDroppedPathsForAgent } from './dropped-path-resolution'
 import type { SshMutationExpectation } from '../../shared/ssh-types'
-import { assertSshMutationExpectation } from '../ssh/ssh-connection-generation'
+import { assertSshMutationExpectation } from '../ssh/connection/ssh-connection-generation'
 import { renameLocalPathSerializedByDestination } from '../destination-serialized-local-rename'
 import { assertNotExists, rethrowWithUserMessage } from './filesystem-create-path-guards'
 import type {
@@ -17,10 +22,6 @@ import type {
 } from '../../shared/filesystem-import-result-types'
 import { importOneSource } from './filesystem-import-local'
 
-/**
- * IPC handlers for file/folder creation and renaming.
- * Deletion is handled separately via `fs:deletePath` (shell.trashItem).
- */
 export function registerFilesystemMutationHandlers(store: Store): void {
   ipcMain.handle(
     'fs:createFile',
@@ -35,13 +36,12 @@ export function registerFilesystemMutationHandlers(store: Store): void {
         args.expectedExecutionHostId
       )
       if (args.connectionId) {
-        const provider = requireSshFilesystemProvider(args.connectionId)
-        return provider.createFile(args.filePath)
+        throw new SshHostNotServedError(args.connectionId)
       }
-      const filePath = await resolveAuthorizedPath(args.filePath, store)
+      const filePath = await resolveDesktopAuthorizedPath(args.filePath, store)
       await mkdir(dirname(filePath), { recursive: true })
       try {
-        // Use the 'wx' flag for atomic create-if-not-exists, avoiding TOCTOU races
+        // Exclusive creation closes the existence-check race.
         await writeFile(filePath, '', { encoding: 'utf-8', flag: 'wx' })
       } catch (error) {
         rethrowWithUserMessage(error, filePath)
@@ -62,23 +62,25 @@ export function registerFilesystemMutationHandlers(store: Store): void {
         args.expectedExecutionHostId
       )
       if (args.connectionId) {
-        const provider = requireSshFilesystemProvider(args.connectionId)
-        return provider.createDir(args.dirPath)
+        throw new SshHostNotServedError(args.connectionId)
       }
-      const dirPath = await resolveAuthorizedPath(args.dirPath, store)
+      const dirPath = await resolveDesktopAuthorizedPath(args.dirPath, store)
       await assertNotExists(dirPath)
       await mkdir(dirPath, { recursive: true })
     }
   )
 
-  // Note: fs.rename throws EXDEV if old and new paths are on different
-  // filesystems/volumes. This is unlikely since both paths are under the same
-  // workspace root, but a cross-drive rename would surface as an IPC error.
+  // Cross-volume rename propagates EXDEV through IPC.
   ipcMain.handle(
     'fs:rename',
     async (
       _event,
-      args: { oldPath: string; newPath: string; connectionId?: string } & SshMutationExpectation
+      args: {
+        oldPath: string
+        newPath: string
+        connectionId?: string
+        access?: LocalFileAccess
+      } & SshMutationExpectation
     ): Promise<void> => {
       assertSshMutationExpectation(
         args.connectionId,
@@ -87,18 +89,16 @@ export function registerFilesystemMutationHandlers(store: Store): void {
         args.expectedExecutionHostId
       )
       if (args.connectionId) {
-        const provider = requireSshFilesystemProvider(args.connectionId)
-        return provider.renameNoClobber(args.oldPath, args.newPath)
+        throw new SshHostNotServedError(args.connectionId)
       }
-      // Why: rename() operates on directory entries, not file contents. If
-      // oldPath is a symlink, we must rename the link itself rather than
-      // resolving it to its target — following the link would rename the
-      // target file (potentially elsewhere in the worktree) and leave the
-      // symlink dangling. newPath must also preserve its leaf so we don't
-      // accidentally write into a symlinked destination name.
-      const oldPath = await resolveAuthorizedPath(args.oldPath, store, { preserveSymlink: true })
-      const newPath = await resolveAuthorizedPath(args.newPath, store, { preserveSymlink: true })
-      await renameLocalPathSerializedByDestination(oldPath, newPath)
+      // Preserve both leaves: rename acts on directory entries, including links; opened documents can move outside project roots.
+      const { from, to } = await resolveLocalRenamePaths(
+        args.oldPath,
+        args.newPath,
+        args.access,
+        store
+      )
+      await renameLocalPathSerializedByDestination(from, to)
     }
   )
 
@@ -119,18 +119,16 @@ export function registerFilesystemMutationHandlers(store: Store): void {
         args.expectedExecutionHostId
       )
       if (args.connectionId) {
-        const provider = requireSshFilesystemProvider(args.connectionId)
-        return provider.copy(args.sourcePath, args.destinationPath)
+        throw new SshHostNotServedError(args.connectionId)
       }
-      const sourcePath = await resolveAuthorizedPath(args.sourcePath, store, {
+      const sourcePath = await resolveDesktopAuthorizedPath(args.sourcePath, store, {
         preserveSymlink: true
       })
-      const destinationPath = await resolveAuthorizedPath(args.destinationPath, store, {
+      const destinationPath = await resolveDesktopAuthorizedPath(args.destinationPath, store, {
         preserveSymlink: true
       })
       await mkdir(dirname(destinationPath), { recursive: true })
-      // Why: duplicate/copy callers deconflict before copying. COPYFILE_EXCL
-      // keeps a late race from silently overwriting an existing file.
+      // Keep deconflicted copy destinations exclusive against late collisions.
       await copyFile(sourcePath, destinationPath, constants.COPYFILE_EXCL)
     }
   )
@@ -144,6 +142,7 @@ export function registerFilesystemMutationHandlers(store: Store): void {
         destDir: string
         connectionId?: string
         ensureDir?: boolean
+        access?: LocalFileAccess
       } & SshMutationExpectation
     ): Promise<{ results: ImportItemResult[] }> => {
       assertSshMutationExpectation(
@@ -156,9 +155,13 @@ export function registerFilesystemMutationHandlers(store: Store): void {
         throw new LocalOnlyUnsupportedError('ssh', 'fs:importExternalPaths')
       }
 
-      // Why: destDir must be authorized before any copy work begins. If the
-      // destination is outside allowed roots, the entire import fails.
-      const resolvedDest = await resolveAuthorizedPath(args.destDir, store)
+      // Authorize before copying; opened-document images may target that document's own folder.
+      const resolvedDest = await resolveLocalRequestPath(
+        args.destDir,
+        args.access,
+        store,
+        'import-into'
+      )
 
       const results: ImportItemResult[] = []
       const reservedNames = new Set<string>()
@@ -175,10 +178,7 @@ export function registerFilesystemMutationHandlers(store: Store): void {
     }
   )
 
-  // Why: terminal drag-and-drop resolver. Local worktrees pass paths through
-  // unchanged (reference-in-place; preserves zero-latency drop). Kept as a separate IPC from
-  // fs:importExternalPaths because terminal semantics differ from the
-  // explorer's "copy into user-picked destDir".
+  // Terminal drops reference local paths in place; explorer imports copy into a picked destination.
   ipcMain.handle(
     'fs:resolveDroppedPathsForAgent',
     async (
@@ -195,8 +195,7 @@ export function registerFilesystemMutationHandlers(store: Store): void {
         args.expectedSshConnectionGeneration,
         args.expectedExecutionHostId
       )
-      // Why: `== null` (not `!args.connectionId`) so an empty string is
-      // treated as a renderer error, not silently routed to the local branch.
+      // Empty connection IDs are errors; only null/undefined selects local routing.
       if (args.connectionId == null) {
         return {
           resolvedPaths: resolveLocalDroppedPathsForAgent(args.paths, args.worktreePath),

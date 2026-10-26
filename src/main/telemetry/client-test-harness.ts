@@ -9,6 +9,7 @@ import {
   _setCommonPropsForTests,
   _setShuttingDownForTests,
   _setSinkForTests,
+  initTelemetry,
   _setStoreForTests
 } from './client'
 
@@ -115,6 +116,7 @@ export function setupTelemetryClientTest(
   const mock = makeMockSink()
   const settings = makeFakeSettings(telemetry)
   const store = makeFakeStore(settings)
+  initTelemetry(store)
   _setSinkForTests(mock)
   _setCommonPropsForTests(BASE_COMMON)
   _setStoreForTests(store)

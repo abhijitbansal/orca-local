@@ -7,7 +7,9 @@ export type ComposerProviderRuntimeSyncInput = Pick<
   | 'selectedRepo'
   | 'selectedRepoExecutionHostId'
   | 'selectedRepoHookContextKey'
-  | 'selectedRepoSettingsRef'
+  | 'selectedRepoIsGit'
+  | 'selectedRepoPath'
+  | 'selectedRepoTarget'
   | 'setCheckedHooksContextKey'
   | 'setSelectedRepoSlug'
   | 'setSetupAgentStartupPolicy'
@@ -37,7 +39,9 @@ export function useComposerProviderRuntimeSync(input: ComposerProviderRuntimeSyn
     selectedRepo,
     selectedRepoExecutionHostId,
     selectedRepoHookContextKey,
-    selectedRepoSettingsRef,
+    selectedRepoIsGit,
+    selectedRepoPath,
+    selectedRepoTarget,
     setCheckedHooksContextKey,
     setSelectedRepoSlug,
     setSetupAgentStartupPolicy,
@@ -189,10 +193,11 @@ export function useComposerProviderRuntimeSync(input: ComposerProviderRuntimeSyn
       }
       // Why: drop the cache entry on failure so a transient IPC error doesn't pin every later
       // check for this repo/host to the same rejection.
-      const promise: Promise<HookCheckResult> = checkRuntimeHooks(
-        selectedRepoSettingsRef.current,
-        targetRepoId,
-        selectedRepoExecutionHostId ?? undefined
+      // Why: the repo row names its host; an unknown one is inspected nowhere.
+      const promise: Promise<HookCheckResult> = (
+        selectedRepoExecutionHostId
+          ? checkRuntimeHooks(selectedRepoExecutionHostId, targetRepoId)
+          : Promise.reject(new Error('The project host is unknown.'))
       ).catch((error: unknown) => {
         if (hookCheckRef.current?.promise === promise) {
           hookCheckRef.current = null
@@ -202,7 +207,7 @@ export function useComposerProviderRuntimeSync(input: ComposerProviderRuntimeSyn
       hookCheckRef.current = { key, promise }
       return promise
     },
-    [selectedRepoExecutionHostId, selectedRepoSettingsRef]
+    [selectedRepoExecutionHostId]
   )
 
   const commitHookCheckIfCurrent = useCallback(
@@ -217,10 +222,41 @@ export function useComposerProviderRuntimeSync(input: ComposerProviderRuntimeSyn
     [selectedRepoHookContextKey, setCheckedHooksContextKey, setYamlHooks]
   )
 
-  // Why: no forge lookup remains, so no GitHub repo identity is ever resolved for the selected repo.
   useEffect(() => {
-    setSelectedRepoSlug(null)
-  }, [repoId, setSelectedRepoSlug])
+    if (!selectedRepo || !selectedRepoPath || !selectedRepoIsGit) {
+      setSelectedRepoSlug(null)
+      return
+    }
+    let cancelled = false
+    const target = selectedRepoTarget
+    if (!target) {
+      setSelectedRepoSlug(null)
+      return
+    }
+    const slugRequest = Promise.resolve<{ owner: string; repo: string } | null>(null)
+    void slugRequest
+      .then((result) => {
+        if (cancelled) {
+          return
+        }
+        setSelectedRepoSlug(result)
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setSelectedRepoSlug(null)
+        }
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [
+    repoId,
+    selectedRepo,
+    selectedRepoIsGit,
+    selectedRepoPath,
+    selectedRepoTarget,
+    setSelectedRepoSlug
+  ])
 
   return {
     persistedSetupAgentStartupPolicy,

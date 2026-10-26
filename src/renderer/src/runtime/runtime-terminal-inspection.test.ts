@@ -1,10 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import {
-  inspectRuntimeTerminalProcess,
-  recordRuntimeTerminalInputForPtyId,
-  sendRuntimePtyInput,
-  sendRuntimePtyInputVerified
-} from './runtime-terminal-inspection'
+import { inspectRuntimeTerminalProcess, sendRuntimePtyInput } from './runtime-terminal-inspection'
+import { recordRuntimeTerminalInputForPtyId } from './runtime-terminal-input-recording'
+import { sendRuntimePtyInputVerified } from './runtime-terminal-verified-input'
 import { CLIPBOARD_TEXT_MEASURE_YIELD_CODE_UNITS } from '../../../shared/clipboard-text'
 import {
   createCompatibleRuntimeStatusResponseIfNeeded,
@@ -117,7 +114,7 @@ describe('runtime terminal owner routing', () => {
       foregroundProcessEvidence: liveEvidence('pty-1', 'codex')
     })
 
-    await expect(inspectRuntimeTerminalProcess(null, 'ssh:host@@pty-1')).resolves.toMatchObject({
+    await expect(inspectRuntimeTerminalProcess('ssh:host@@pty-1')).resolves.toMatchObject({
       foregroundProcess: 'codex',
       hasChildProcesses: true
     })
@@ -132,7 +129,7 @@ describe('runtime terminal owner routing', () => {
       hasChildProcesses: true
     })
 
-    await expect(inspectRuntimeTerminalProcess(null, 'ssh:host@@pty-1')).resolves.toEqual({
+    await expect(inspectRuntimeTerminalProcess('ssh:host@@pty-1')).resolves.toEqual({
       foregroundProcess: null,
       hasChildProcesses: false,
       verdict: 'unverifiable',
@@ -160,9 +157,7 @@ describe('runtime terminal owner routing', () => {
   it('uses accepted local writes for verified input', async () => {
     localWriteAccepted.mockResolvedValue(true)
 
-    await expect(
-      sendRuntimePtyInputVerified({ activeRuntimeEnvironmentId: null }, 'local-pty', 'x', 'driving')
-    ).resolves.toBe(true)
+    await expect(sendRuntimePtyInputVerified('local-pty', 'x', 'driving')).resolves.toBe(true)
 
     expect(localWriteAccepted).toHaveBeenCalledWith('local-pty', 'x', 'driving')
     expect(localWrite).not.toHaveBeenCalled()
@@ -171,9 +166,7 @@ describe('runtime terminal owner routing', () => {
   it('rejects oversized fire-and-forget local input before IPC writes', () => {
     const text = 'x'.repeat(TERMINAL_INPUT_MAX_BYTES + 1)
 
-    expect(
-      sendRuntimePtyInput({ activeRuntimeEnvironmentId: null }, 'local-pty', text, 'driving')
-    ).toBe(false)
+    expect(sendRuntimePtyInput('local-pty', text, 'driving')).toBe(false)
 
     expect(localWrite).not.toHaveBeenCalled()
     expect(localWriteAccepted).not.toHaveBeenCalled()
@@ -182,14 +175,7 @@ describe('runtime terminal owner routing', () => {
   it('rejects oversized fire-and-forget remote input before runtime RPC', () => {
     const text = 'x'.repeat(TERMINAL_INPUT_MAX_BYTES + 1)
 
-    expect(
-      sendRuntimePtyInput(
-        { activeRuntimeEnvironmentId: 'env-2' },
-        'remote:env-1@@terminal-1',
-        text,
-        'driving'
-      )
-    ).toBe(false)
+    expect(sendRuntimePtyInput('remote:env-1@@terminal-1', text, 'driving')).toBe(false)
 
     expect(runtimeTransportCall).not.toHaveBeenCalled()
     expect(localWrite).not.toHaveBeenCalled()
@@ -200,9 +186,7 @@ describe('runtime terminal owner routing', () => {
     try {
       const text = 'x'.repeat(CLIPBOARD_TEXT_MEASURE_YIELD_CODE_UNITS + 1)
 
-      expect(
-        sendRuntimePtyInput({ activeRuntimeEnvironmentId: null }, 'local-pty', text, 'driving')
-      ).toBe(true)
+      expect(sendRuntimePtyInput('local-pty', text, 'driving')).toBe(true)
       expect(localWrite).not.toHaveBeenCalled()
 
       await vi.advanceTimersByTimeAsync(0)
@@ -219,9 +203,7 @@ describe('runtime terminal owner routing', () => {
     try {
       const text = makeByteOversizedTerminalInput()
 
-      expect(
-        sendRuntimePtyInput({ activeRuntimeEnvironmentId: null }, 'local-pty', text, 'driving')
-      ).toBe(true)
+      expect(sendRuntimePtyInput('local-pty', text, 'driving')).toBe(true)
 
       await vi.runAllTimersAsync()
 
@@ -235,14 +217,7 @@ describe('runtime terminal owner routing', () => {
   it('rejects oversized verified input before fallback fire-and-forget writes', async () => {
     const text = 'x'.repeat(TERMINAL_INPUT_MAX_BYTES + 1)
 
-    await expect(
-      sendRuntimePtyInputVerified(
-        { activeRuntimeEnvironmentId: null },
-        'local-pty',
-        text,
-        'driving'
-      )
-    ).resolves.toBe(false)
+    await expect(sendRuntimePtyInputVerified('local-pty', text, 'driving')).resolves.toBe(false)
 
     expect(localWriteAccepted).not.toHaveBeenCalled()
     expect(localWrite).not.toHaveBeenCalled()
@@ -253,12 +228,7 @@ describe('runtime terminal owner routing', () => {
     localWriteAccepted.mockResolvedValue(true)
     try {
       const text = 'x'.repeat(CLIPBOARD_TEXT_MEASURE_YIELD_CODE_UNITS + 1)
-      const accepted = sendRuntimePtyInputVerified(
-        { activeRuntimeEnvironmentId: null },
-        'local-pty',
-        text,
-        'driving'
-      )
+      const accepted = sendRuntimePtyInputVerified('local-pty', text, 'driving')
 
       expect(localWriteAccepted).not.toHaveBeenCalled()
 
@@ -276,12 +246,7 @@ describe('runtime terminal owner routing', () => {
     vi.useFakeTimers()
     try {
       const text = makeByteOversizedTerminalInput()
-      const accepted = sendRuntimePtyInputVerified(
-        { activeRuntimeEnvironmentId: null },
-        'local-pty',
-        text,
-        'driving'
-      )
+      const accepted = sendRuntimePtyInputVerified('local-pty', text, 'driving')
 
       await vi.runAllTimersAsync()
 
@@ -453,9 +418,7 @@ describe('runtime terminal owner routing', () => {
   it('reports success after fallback fire-and-forget writes when local acceptance cannot be verified', async () => {
     localWriteAccepted.mockResolvedValue(false)
 
-    await expect(
-      sendRuntimePtyInputVerified({ activeRuntimeEnvironmentId: null }, 'local-pty', 'x', 'driving')
-    ).resolves.toBe(true)
+    await expect(sendRuntimePtyInputVerified('local-pty', 'x', 'driving')).resolves.toBe(true)
 
     expect(localWriteAccepted).toHaveBeenCalledWith('local-pty', 'x', 'driving')
     expect(localWrite).toHaveBeenCalledWith('local-pty', 'x', 'driving')

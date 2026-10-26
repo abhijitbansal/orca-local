@@ -1,8 +1,10 @@
+import type { XtermWithRenderDimensions } from './helpers/xterm-render-dimensions'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import type { Page } from '@stablyai/playwright-test'
 import { test, expect } from './helpers/orca-app'
+import { startHiddenRendererFrameCapture } from './helpers/hidden-renderer-frame-capture'
 import { ensureTerminalVisible, waitForActiveWorktree, waitForSessionReady } from './helpers/store'
 import {
   execInTerminal,
@@ -95,8 +97,9 @@ async function terminalWheelTarget(
       x: rect.left + rect.width / 2,
       y: rect.top + Math.min(rect.height - 1, 40),
       cellHeight:
-        pane.terminal._core?._renderService?.dimensions?.css?.cell?.height ??
-        rect.height / pane.terminal.rows
+        // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: xterm has no public cell-size API; the private render service is read through all-optional fields.
+        (pane.terminal as XtermWithRenderDimensions)._core?._renderService?.dimensions?.css?.cell
+          ?.height ?? rect.height / pane.terminal.rows
     }
   })
 }
@@ -159,25 +162,32 @@ test.describe('terminal TUI wheel report drain', () => {
     // Why: the dense CDP wheel stream is throughput-bound on loaded CI runners.
     test.slow()
     const logPath = path.join(os.tmpdir(), `tui-wheel-drain-${Date.now()}.log`)
-    await startHeavyTuiFixture(orcaPage, logPath)
+    const stopFrameCapture = await startHiddenRendererFrameCapture(orcaPage)
+    try {
+      await startHeavyTuiFixture(orcaPage, logPath)
 
-    const target = await terminalWheelTarget(orcaPage)
-    const input = await dispatchTrackpadWheelStream(orcaPage, {
-      alternate: false,
-      events: WHEEL_EVENTS,
-      deltaY: Math.min(49, target.cellHeight)
-    })
-    // Give a laggy drain ample time to expose itself before reading the log.
-    await orcaPage.waitForTimeout(8000)
+      const target = await terminalWheelTarget(orcaPage)
+      const input = await dispatchTrackpadWheelStream(orcaPage, {
+        alternate: false,
+        events: WHEEL_EVENTS,
+        deltaY: Math.min(49, target.cellHeight)
+      })
+      // Give a laggy drain ample time to expose itself before reading the log.
+      await orcaPage.waitForTimeout(8000)
 
-    const summary = summarizeArrivals(readReportArrivalLog(logPath), input)
-    fs.rmSync(logPath, { force: true })
-    console.log(`[tui-wheel-drain] dense: ${JSON.stringify(summary)}`)
+      const summary = summarizeArrivals(readReportArrivalLog(logPath), input)
+      console.log(`[tui-wheel-drain] dense: ${JSON.stringify(summary)}`)
 
-    // The full gesture distance must reach the TUI (no dead/eaten scrolls)...
-    expect(summary.totalReports, JSON.stringify(summary)).toBeGreaterThanOrEqual(WHEEL_EVENTS - 10)
-    // ...while the gesture happens, not replayed 1-by-1 afterwards.
-    expect(summary.arrivalLagMs, JSON.stringify(summary)).toBeLessThanOrEqual(MAX_ARRIVAL_LAG_MS)
+      // The full gesture distance must reach the TUI (no dead/eaten scrolls)...
+      expect(summary.totalReports, JSON.stringify(summary)).toBeGreaterThanOrEqual(
+        WHEEL_EVENTS - 10
+      )
+      // ...while the gesture happens, not replayed 1-by-1 afterwards.
+      expect(summary.arrivalLagMs, JSON.stringify(summary)).toBeLessThanOrEqual(MAX_ARRIVAL_LAG_MS)
+    } finally {
+      await stopFrameCapture()
+      fs.rmSync(logPath, { force: true })
+    }
   })
 
   test('aggressive alternating trackpad-like gesture does not replay after input ends', async ({
@@ -186,20 +196,25 @@ test.describe('terminal TUI wheel report drain', () => {
     // Why: the dense CDP wheel stream is throughput-bound on loaded CI runners.
     test.slow()
     const logPath = path.join(os.tmpdir(), `tui-wheel-drain-alt-${Date.now()}.log`)
-    await startHeavyTuiFixture(orcaPage, logPath)
+    const stopFrameCapture = await startHiddenRendererFrameCapture(orcaPage)
+    try {
+      await startHeavyTuiFixture(orcaPage, logPath)
 
-    const target = await terminalWheelTarget(orcaPage)
-    const input = await dispatchTrackpadWheelStream(orcaPage, {
-      alternate: true,
-      events: WHEEL_EVENTS,
-      deltaY: Math.min(49, target.cellHeight)
-    })
-    await orcaPage.waitForTimeout(8000)
+      const target = await terminalWheelTarget(orcaPage)
+      const input = await dispatchTrackpadWheelStream(orcaPage, {
+        alternate: true,
+        events: WHEEL_EVENTS,
+        deltaY: Math.min(49, target.cellHeight)
+      })
+      await orcaPage.waitForTimeout(8000)
 
-    const summary = summarizeArrivals(readReportArrivalLog(logPath), input)
-    fs.rmSync(logPath, { force: true })
-    console.log(`[tui-wheel-drain] alternate: ${JSON.stringify(summary)}`)
+      const summary = summarizeArrivals(readReportArrivalLog(logPath), input)
+      console.log(`[tui-wheel-drain] alternate: ${JSON.stringify(summary)}`)
 
-    expect(summary.arrivalLagMs, JSON.stringify(summary)).toBeLessThanOrEqual(MAX_ARRIVAL_LAG_MS)
+      expect(summary.arrivalLagMs, JSON.stringify(summary)).toBeLessThanOrEqual(MAX_ARRIVAL_LAG_MS)
+    } finally {
+      await stopFrameCapture()
+      fs.rmSync(logPath, { force: true })
+    }
   })
 })

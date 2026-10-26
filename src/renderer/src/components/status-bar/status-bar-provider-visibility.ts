@@ -10,13 +10,15 @@ export type UsageProviderSettings = Pick<
 > & {
   // Why: Antigravity has no separate persisted usage credential in Orca. The
   // checked status-bar item is the durable user signal; StatusBar only sets
-  // this after PATH detection says the agent is available. Durability further
-  // requires geminiCliOAuthEnabled — the snapshot mirrors the Gemini fetch,
-  // which never yields data while that opt-in is off.
+  // this after PATH detection says the agent is available. No Gemini OAuth
+  // gate — the snapshot comes from the `agy` CLI probe, not the Gemini fetch.
   antigravityUsageConfigured: boolean
   // Why: MiniMax/Grok sign-in live on disk, not in settings; main sets these each poll.
   minimaxCookieConfigured: boolean
   minimaxApiKeyConfigured: boolean
+  // Why: the GLM Coding Plan key lives in its own safeStorage file; main
+  // reports presence so the ZCode bar survives reloads before the first poll.
+  zcodePlanApiKeyConfigured: boolean
   // Why: the OpenCode Go key can live in OPENCODE_API_KEY or in OpenCode's own
   // store, neither of which the renderer can see; main reports presence.
   opencodeGoApiKeyConfigured: boolean
@@ -39,7 +41,7 @@ type UsageProviderSnapshots = {
 
 type UsageProviderId = ProviderRateLimits['provider']
 
-function hasUsageData(provider: ProviderRateLimits): boolean {
+export function hasUsageData(provider: ProviderRateLimits): boolean {
   return Boolean(
     provider.session ||
     provider.weekly ||
@@ -49,10 +51,8 @@ function hasUsageData(provider: ProviderRateLimits): boolean {
   )
 }
 
-// Why: only Claude is fed locally; main reports `null` for it (and every other provider) until a statusline post
-// lands, so `null` is a settled "no data". Pending means the renderer has no payload yet or an optimistic refresh.
-function isClaudeSnapshotPending(provider: ProviderRateLimits | null | undefined): boolean {
-  return provider === undefined || (provider?.status === 'fetching' && !hasUsageData(provider))
+function isProviderSnapshotPending(provider: ProviderRateLimits | null | undefined): boolean {
+  return provider == null || (provider.status === 'fetching' && !hasUsageData(provider))
 }
 
 // Why: a provider that returns `unavailable` is explicitly not configured
@@ -84,12 +84,12 @@ export function hasUsageProviderSettings(
     settings?.geminiCliOAuthEnabled === true ||
     Boolean(settings?.opencodeSessionCookie?.trim()) ||
     settings?.opencodeGoApiKeyConfigured === true ||
-    // Antigravity's durable signal requires geminiCliOAuthEnabled, so it is
-    // already covered by the gemini term above.
+    settings?.antigravityUsageConfigured === true ||
     settings?.minimaxCookieConfigured === true ||
     settings?.minimaxApiKeyConfigured === true ||
     settings?.grokAuthConfigured === true ||
-    settings?.cursorAuthConfigured === true
+    settings?.cursorAuthConfigured === true ||
+    settings?.zcodePlanApiKeyConfigured === true
   )
 }
 
@@ -116,10 +116,9 @@ export function hasUsageProviderSettingsForProvider(
     )
   }
   if (providerId === 'antigravity') {
-    // Why: the Antigravity snapshot mirrors the Gemini fetch, which stays
-    // 'unavailable' until the user opts into Gemini CLI OAuth. Without that
-    // gate the default-on checked item would pin a permanently dead bar.
-    return settings.antigravityUsageConfigured === true && settings.geminiCliOAuthEnabled === true
+    // Why no Gemini OAuth gate: the snapshot comes from the `agy` CLI probe, so
+    // the checked item (PATH-gated above) is the whole durable signal.
+    return settings.antigravityUsageConfigured === true
   }
   if (providerId === 'minimax') {
     return settings.minimaxCookieConfigured === true || settings.minimaxApiKeyConfigured === true
@@ -130,18 +129,26 @@ export function hasUsageProviderSettingsForProvider(
   if (providerId === 'cursor') {
     return settings.cursorAuthConfigured === true
   }
+  if (providerId === 'zcode') {
+    return settings.zcodePlanApiKeyConfigured === true
+  }
   return false
 }
 
-// Why: a skeleton would never resolve until a statusline post arrives, so a configured-but-silent Claude reads "no data".
-function createNoDataClaudeSnapshot(): ProviderRateLimits {
+export function createPendingProviderSnapshot(providerId: UsageProviderId): ProviderRateLimits {
   return {
-    provider: 'claude',
+    provider: providerId,
     session: null,
     weekly: null,
+    ...(providerId === 'opencode-go' ? { monthly: null } : {}),
+    // Why antigravity joins these: it reports one pool per model group, so its pending skeleton
+    // has to be bucket-shaped too or the segment changes shape once the first reading lands.
+    ...(providerId === 'gemini' || providerId === 'cursor' || providerId === 'antigravity'
+      ? { buckets: [] }
+      : {}),
     updatedAt: 0,
     error: null,
-    status: 'unavailable'
+    status: 'fetching'
   }
 }
 
@@ -153,12 +160,10 @@ export function getVisibleUsageProvider(
   if (isProviderConfigured(provider)) {
     return provider
   }
-  // Why: only Claude is fed locally (statusline hook); every other provider is never fetched, so a pending
-  // skeleton for it would never resolve.
-  if (providerId !== 'claude' || !hasUsageProviderSettingsForProvider(providerId, settings)) {
+  if (!hasUsageProviderSettingsForProvider(providerId, settings)) {
     return null
   }
-  return provider ?? createNoDataClaudeSnapshot()
+  return provider ?? createPendingProviderSnapshot(providerId)
 }
 
 export function isUsageEmptyState(
@@ -170,9 +175,24 @@ export function isUsageEmptyState(
   if (!settings) {
     return false
   }
-  // Why: a system-default Claude has no persisted account row; wait for its first snapshot before teaching the
-  // user to connect one. Every other provider is never fetched, so its null snapshot is already settled.
-  if (isClaudeSnapshotPending(providers.claude)) {
+  // Why: system-default Claude/Codex accounts have no persisted account row;
+  // their first durable signal is the usage snapshot, so wait for snapshots to
+  // settle before teaching the user to connect an account.
+  const antigravitySnapshotPending =
+    hasUsageProviderSettingsForProvider('antigravity', settings) &&
+    isProviderSnapshotPending(providers.antigravity)
+  if (
+    isProviderSnapshotPending(providers.claude) ||
+    isProviderSnapshotPending(providers.codex) ||
+    isProviderSnapshotPending(providers.gemini) ||
+    isProviderSnapshotPending(providers.opencodeGo) ||
+    isProviderSnapshotPending(providers.kimi) ||
+    antigravitySnapshotPending ||
+    isProviderSnapshotPending(providers.minimax) ||
+    isProviderSnapshotPending(providers.grok) ||
+    isProviderSnapshotPending(providers.cursor) ||
+    (providers.zcode !== undefined && isProviderSnapshotPending(providers.zcode))
+  ) {
     return false
   }
   return (

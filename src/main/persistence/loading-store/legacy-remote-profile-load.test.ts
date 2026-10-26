@@ -16,7 +16,7 @@ import {
   closeTestStores,
   createSqliteTestStore,
   readPersistedStateJson
-} from '../../persistence-test-harness'
+} from '../persistence-test-harness'
 
 vi.mock('node:fs', async (importOriginal) => {
   const actual = await importOriginal<typeof NodeFs>()

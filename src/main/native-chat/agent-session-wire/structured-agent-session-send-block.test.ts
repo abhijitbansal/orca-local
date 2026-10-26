@@ -1,10 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { AgentSessionConversationCommandRecord } from '../../../shared/agent-session-conversation-command'
+import type { AgentSessionConversationCommandRecord } from '../../../shared/agent-session/agent-session-conversation-command'
 import { agentSessionRecordFixture } from '../../../shared/agent-session-record.test-fixture'
 import {
   openConversationForWrite,
   structuredAgentSessionSendBlock
 } from './structured-agent-session-send-preparation'
+import { createStructuredAgentSessionLogger } from './structured-agent-session-logger'
 
 function withCommand(command: AgentSessionConversationCommandRecord) {
   return { ...agentSessionRecordFixture(), conversationCommand: command }
@@ -13,7 +14,6 @@ function withCommand(command: AgentSessionConversationCommandRecord) {
 const COMMAND = { operationId: 'operation-1', callerKey: 'client-1', runtimeFence: 7 }
 
 describe('a send refused by the conversation command it follows', () => {
-  // A clear's commit is its only durable write, so a record short of it never changed the chat.
   it("lets a send follow a /clear that never committed, as an older build's record leaves one", () => {
     expect(
       structuredAgentSessionSendBlock(
@@ -28,7 +28,7 @@ describe('a send refused by the conversation command it follows', () => {
     ).toBeNull()
   })
 
-  it('says a committed /clear cleared the conversation', () => {
+  it('allows a send to an independently retained old-build clear source', () => {
     const blocked = structuredAgentSessionSendBlock(
       withCommand({
         ...COMMAND,
@@ -39,10 +39,7 @@ describe('a send refused by the conversation command it follows', () => {
       })
     )
 
-    expect(blocked?.refusal).toMatchObject({
-      code: 'agent_session_operation_invalid',
-      details: { reason: 'conversationCleared' }
-    })
+    expect(blocked).toBeNull()
   })
 
   it("lets a send follow an older build's unconfirmed /compact, whose child this host no longer runs", () => {
@@ -76,9 +73,13 @@ describe('a write whose conversation the host could not open', () => {
 
   function refusedBy(error: unknown) {
     vi.spyOn(console, 'warn').mockImplementation(() => {})
-    return openConversationForWrite(async () => {
-      throw error
-    }, ENVELOPE)
+    return openConversationForWrite(
+      async () => {
+        throw error
+      },
+      ENVELOPE,
+      createStructuredAgentSessionLogger()
+    )
   }
 
   it('says a corrupt history is final, in words and not the error', async () => {

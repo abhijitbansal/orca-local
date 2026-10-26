@@ -30,6 +30,24 @@ describe('buildAgentStartupPlan', () => {
     })
   })
 
+  // Native chat ignores a custom launch command; a terminal launch must still run it.
+  it('starts a terminal Claude with its custom launch command', () => {
+    expect(
+      buildAgentStartupPlan({
+        agent: 'claude',
+        prompt: 'Fix the bug',
+        cmdOverrides: { claude: 'claude-wrapper' },
+        platform: 'darwin'
+      })
+    ).toEqual({
+      agent: 'claude',
+      launchCommand: "claude-wrapper 'Fix the bug'",
+      expectedProcess: 'claude',
+      followupPrompt: null,
+      launchConfig: emptyLaunchConfig('claude-wrapper')
+    })
+  })
+
   it('uses Gemini interactive prompt mode instead of dropping the prompt', () => {
     expect(
       buildAgentStartupPlan({
@@ -261,7 +279,7 @@ describe('buildAgentStartupPlan', () => {
     })
   })
 
-  it('launches Devin first and injects the prompt after startup', () => {
+  it('launches Devin with the prompt on argv behind a -- separator', () => {
     expect(
       buildAgentStartupPlan({
         agent: 'devin',
@@ -272,9 +290,10 @@ describe('buildAgentStartupPlan', () => {
       })
     ).toEqual({
       agent: 'devin',
-      launchCommand: "devin '--permission-mode' 'bypass' '--respect-workspace-trust' 'false'",
+      launchCommand:
+        "devin '--permission-mode' 'bypass' '--respect-workspace-trust' 'false' -- 'Trace the failing test'",
       expectedProcess: 'devin',
-      followupPrompt: 'Trace the failing test',
+      followupPrompt: null,
       launchConfig: {
         agentCommand: "devin '--permission-mode' 'bypass' '--respect-workspace-trust' 'false'",
         agentArgs: '--permission-mode bypass --respect-workspace-trust false',

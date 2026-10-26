@@ -112,24 +112,15 @@ export function FeatureWallBody(props: {
               ? 'max-w-[340px]'
               : 'max-w-[400px]'
             : 'max-w-[480px]'
-  const setupTerminalHeightPx = source === 'onboarding' ? 140 : 240
   const settingContent =
     isAgentsStatuses && props.settings ? (
       <KeepAwakeCard settings={props.settings} updateSettings={props.updateSettings} />
     ) : isAgentsUsage ? (
       <UsageAccountsCard onAccountStateChange={onUsageAccountStateChange} />
     ) : isAgentsOrchestration ? (
-      <OrchestrationSetupCard
-        compact
-        terminalHeightPx={setupTerminalHeightPx}
-        skill={orchestrationSkill}
-      />
+      <OrchestrationSetupCard compact skill={orchestrationSkill} />
     ) : isWorkbenchBrowser ? (
-      <BrowserUseSkillSetupCard
-        compact
-        terminalHeightPx={setupTerminalHeightPx}
-        skill={browserUseSkill}
-      />
+      <BrowserUseSkillSetupCard compact skill={browserUseSkill} />
     ) : isReviewShip ? (
       <AiCommitPrSettingsCard />
     ) : null

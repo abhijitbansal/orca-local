@@ -1,7 +1,8 @@
 import { app, type BrowserWindow } from 'electron'
 import { getCanonicalUserDataPath } from '../persistence'
 import { OrcaRuntimeRpcServer } from '../runtime/runtime-rpc'
-import { getLocalPtyProvider, registerHeadlessPtyRuntime } from '../ipc/pty'
+import { getLocalPtyProvider } from '../ipc/pty/provider/registry'
+import { registerHeadlessPtyRuntime } from '../ipc/pty/register-headless-runtime'
 import { LocalPtyProvider } from '../providers/local-pty-provider'
 import { HEADLESS_RUNTIME_WINDOW_ID } from '../../shared/runtime-types'
 import { OffscreenBrowserBackend } from '../browser/offscreen-browser-backend'
@@ -23,14 +24,16 @@ import {
   recordRuntimeRpcStartFailure,
   showRuntimeRpcStartupFailureDialog
 } from '../runtime/runtime-rpc-startup-failure'
-import { CliInstaller } from '../cli/cli-installer'
-import { installLinuxBareOrcaDispatcher } from '../cli/linux-bare-orca-dispatcher'
 import { scheduleAllPendingHistoryTreeRemovals } from '../terminal-history-deletion'
 import { triggerStartupNotificationRegistration } from '../ipc/startup-notification-registration'
 import { mainProcessState as state } from './main-process-state'
 import { logStartupMilestone } from './startup-diagnostics'
 import { emitServeBrowserIdentityActionLine } from '../server/serve-stdout-boundary'
 import { getBrowserIdentityModeStatus } from '../browser/browser-identity-mode-store'
+import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../shared/layout-owner-switch'
+import { placeUnshownLiveTerminalsBestEffort } from '../runtime/terminal/adoption/unshown-live-terminal-placement'
+import { registerCliForHeadlessServe } from './serve-cli-registration'
+import { startAppImageCopyPreExtraction } from '../cli/appimage-copy-pre-extraction'
 
 type RuntimeService = NonNullable<typeof state.runtime>
 
@@ -87,11 +90,16 @@ async function launchServeMode(
   )
   await runtime.refreshRestoredOrchestrationAuthority()
   await runtime.reconcileLegacyWorkerTerminals()
+  // Switch point: main shows live terminals no pane shows, before any client attaches.
+  if (ORCA_LAYOUT_OWNER_IS_MAIN) {
+    await placeUnshownLiveTerminalsBestEffort(runtime)
+  }
   // Why: headless servers can't mount <webview> panes; use offscreen WebContents, gated on a real display so browser.headless.v1 stays honest.
   if (state.headlessBrowserDisplayAvailable) {
     runtime.setOffscreenBrowserBackend(
       new OffscreenBrowserBackend(browserManager, {
-        getAgentBrowserBridge: () => state.agentBrowserBridge
+        getAgentBrowserBridge: () => state.agentBrowserBridge,
+        onPageNavigated: (page) => runtime.serveBrowserPageNavigated(page)
       })
     )
   }
@@ -104,42 +112,7 @@ async function launchServeMode(
   settleDesktopActivation()
   // Why: every attempt must reach app.quit(); a page beforeunload can veto an earlier signal.
   registerServeSignalHandlers(process, () => app.quit())
-  // Why: headless serve has no renderer to run the normal cli:install flow; do it here for macOS/Linux only (Windows-excluded: install() only mutates registry PATH, not child terminals).
-  if (process.platform === 'darwin' || process.platform === 'linux') {
-    try {
-      // Why: serve is headless — a fallback osascript admin prompt would hang it; skip elevation since ~/.local/bin needs none.
-      const cliStatus = await new CliInstaller({
-        privilegedRunner: async () => {
-          throw new Error('serve CLI auto-install must not request administrator privileges')
-        }
-      }).install()
-      console.log(
-        `[serve] orca CLI install: ${cliStatus.state}${cliStatus.commandPath ? ` (${cliStatus.commandPath})` : ''}`
-      )
-    } catch (error) {
-      console.warn(
-        '[serve] orca CLI install skipped:',
-        error instanceof Error ? error.message : String(error)
-      )
-    }
-  }
-  // Why: Linux CLI installs as `orca-ide`, but the Claude Team launcher invokes bare `orca`; drop a ~/.local/bin dispatcher (ahead of /usr/bin) so it resolves. Best-effort.
-  if (process.platform === 'linux' && app.isPackaged && process.resourcesPath) {
-    try {
-      const dispatcher = await installLinuxBareOrcaDispatcher({
-        resourcesPath: process.resourcesPath
-      })
-      console.log(
-        `[serve] bare orca dispatcher ${dispatcher.state}: ${dispatcher.dispatcherPath}` +
-          `${dispatcher.target ? ` -> ${dispatcher.target}` : ''}`
-      )
-    } catch (error) {
-      console.warn(
-        '[serve] bare orca dispatcher install skipped:',
-        error instanceof Error ? error.message : String(error)
-      )
-    }
-  }
+  await registerCliForHeadlessServe()
   // Why: headless serve never opens a renderer, so arm scheduled automation dispatch here.
   state.automations?.start()
   // Why: serve deletes worktrees too, and the history GC that normally drains delete tombstones is
@@ -238,6 +211,11 @@ export async function initializeMainProcessRuntimeLaunch(
     })
     desktopWindow = desktopStartup.window
   } else {
+    // Why before the daemon starts: its host choice waits briefly for a copy unpacking here.
+    // Serve unpacks for itself, with a deadline and progress on its own output.
+    if (!serveOptions) {
+      void startAppImageCopyPreExtraction()
+    }
     await shellPathReady
     bindTerminalRuntimeStartupServices(Promise.resolve(startTerminalRuntimeStartupServices()))
   }

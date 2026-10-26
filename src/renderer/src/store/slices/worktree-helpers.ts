@@ -1,4 +1,9 @@
-import type { CreateWorktreeCallOptions } from './worktrees/create/worktree-create-payload'
+import type { WorkspaceAttachmentMutation } from '../../../../shared/workspace-attachment-mutation'
+import type { WorkspaceReferenceObservationContext } from '@/lib/workspace-attachment-observed-origin'
+import type {
+  CreateWorktreeCallOptions,
+  CreatedWorktreeResult
+} from './worktrees/create/worktree-create-payload'
 import type { WorktreeCatalogVersion } from '../../../../shared/worktree/catalog-version'
 import type { WorkspaceKey } from '../../../../shared/folder-workspace-types'
 import type { TuiAgent } from '../../../../shared/tui-agent'
@@ -9,7 +14,6 @@ import type {
 } from '../../../../shared/worktree/base-ref-drift-types'
 import type {
   CreateSparseCheckoutRequest,
-  CreateWorktreeResult,
   ForceDeleteWorktreeBranchResult,
   SetupDecision
 } from '../../../../shared/worktree/create-types'
@@ -132,6 +136,10 @@ export type WorktreeSlice = {
    * — NOT by selection-triggered side-effects like clearing `isUnread`.
    */
   sortEpoch: number
+  /** sortEpoch after the settle window; the sidebar sort reads this (see store/settled-sort-epoch.ts). */
+  settledSortEpoch: number
+  /** Bumped by sortOrder-only changes, which skip sortEpoch so live Smart can't loop on its own saves. */
+  sortOrderEpoch: number
   /**
    * Worktree IDs that have been activated at least once during this app
    * session. The first activation of a worktree is special: its
@@ -156,7 +164,7 @@ export type WorktreeSlice = {
   lastVisitedAtByWorktreeId: Record<string, number>
   /**
    * Guards the one-shot hydration-time purge in `fetchAllWorktrees`. Set to
-   * `true` only after the first launch where every repo's `worktrees.list` IPC
+   * `true` only after the first launch where every repo's `worktrees.listDetected` IPC
    * call succeeded AND at least one repo returned a non-empty result — at that
    * moment the renderer has enough signal to treat the union of fetched ids as
    * authoritative and purge stale `tabsByWorktree` keys left behind by pre-fix
@@ -215,7 +223,7 @@ export type WorktreeSlice = {
     linkedGiteaPR?: number | null,
     compareBaseRef?: string,
     options?: CreateWorktreeCallOptions
-  ) => Promise<CreateWorktreeResult>
+  ) => Promise<CreatedWorktreeResult>
   /** Register an in-flight background creation and make it the active surface. */
   beginPendingWorktreeCreation: (entry: PendingWorktreeCreation) => void
   /** Merge a status patch into an existing pending entry. */
@@ -228,6 +236,7 @@ export type WorktreeSlice = {
       error?: string
       loaderVisible?: boolean
       request?: PendingWorktreeCreation['request']
+      checkoutProgress?: PendingWorktreeCreation['checkoutProgress']
     }
   ) => void
   /** Drop a pending entry, clearing the active surface if it pointed at this creation. */
@@ -261,7 +270,7 @@ export type WorktreeSlice = {
    *  the user is waiting on should read the result and say what went wrong. */
   updateWorktreeMeta: (
     worktreeId: string,
-    updates: Partial<WorktreeMeta>,
+    updates: Partial<WorktreeMeta> & WorkspaceAttachmentMutation,
     options?: WorktreeMetaUpdateOptions
   ) => Promise<{ ok: true } | { ok: false; error: string }>
   updateWorktreesMeta: (updatesByWorktreeId: readonly WorktreeMetaBatchUpdate[]) => Promise<void>
@@ -270,13 +279,16 @@ export type WorktreeSlice = {
    * the shortcut action visible even though pinned worktrees also remain in
    * their normal sidebar groups.
    */
-  setWorktreesPinnedAndReveal: (worktreeIds: readonly string[], isPinned: boolean) => void
-  markWorktreeUnread: (worktreeId: string) => void
-  observeTerminalGitHubPullRequestLink: (worktreeId: string, link: TerminalGitHubPRLink) => void
-  /** Clear the worktree's unread dot. Called on user interaction with any
-   *  terminal pane inside the worktree (keystroke, click) — matches
-   *  ghostty's "show until interact" model. Persists isUnread=false. */
-  clearWorktreeUnread: (worktreeId: string) => void
+  /** Each target names its copy; a host-less id two hosts publish is skipped, not guessed. */
+  setWorktreesPinnedAndReveal: (
+    targets: readonly Pick<Worktree, 'id' | 'hostId'>[],
+    isPinned: boolean
+  ) => void
+  observeTerminalGitHubPullRequestLink: (
+    worktreeId: string,
+    link: TerminalGitHubPRLink,
+    context?: WorkspaceReferenceObservationContext
+  ) => void
   bumpWorktreeActivity: (worktreeId: string) => void
   /**
    * Monotonic stamp of the focus-recency timestamp for a worktree. No-op if
@@ -307,7 +319,11 @@ export type WorktreeSlice = {
   setActiveWorktree: (
     worktreeId: string | null,
     executionHostId?: ExecutionHostId,
-    options?: { stateTransition?: ActiveWorktreeStateTransition }
+    options?: {
+      stateTransition?: ActiveWorktreeStateTransition
+      /** Tabs the caller just created there: their first spawn is new work, not a wake. */
+      createdTabIds?: readonly string[]
+    }
   ) => boolean
   /**
    * Health-driven remount of one terminal tab: bumps the tab's generation so

@@ -44,6 +44,12 @@ export function isOpenInAppPresetAdded(
   )
 }
 
-export function OpenInApplicationIcon({ size = 14 }: { size?: number }): React.JSX.Element {
+// Local glyph only: a favicon lookup would send the editor name to a third-party host.
+export function OpenInApplicationIcon({
+  size = 14
+}: {
+  application?: Pick<OpenInApplication, 'command'>
+  size?: number
+}): React.JSX.Element {
   return <AppWindow width={size} height={size} />
 }

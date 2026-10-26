@@ -9,6 +9,7 @@ import type {
   GitPushTarget,
   GitWorktreeInfo,
   WorkspaceLinkedItem,
+  WorkspaceAttachment,
   WorkspaceStatus,
   Worktree
 } from './types'
@@ -19,10 +20,23 @@ import type {
   WorktreeStartupLaunch
 } from './launch-types'
 import type {
+  PreparedCheckoutMissReason,
+  PreparedCheckoutOrigin,
+  PreparedCheckoutReset,
+  WorktreeCreateExecutionHost
+} from './create-timing-vocabulary'
+import type {
   LocalBaseRefRefreshResult,
   LocalBaseRefUpdateSuggestion,
   WorktreeBaseStatusEvent
 } from './base-ref-drift-types'
+
+export type {
+  PreparedCheckoutMissReason,
+  PreparedCheckoutOrigin,
+  PreparedCheckoutReset,
+  WorktreeCreateExecutionHost
+}
 
 export type SetupDecision = 'inherit' | 'run' | 'skip'
 
@@ -32,40 +46,26 @@ export type WorktreeCreateTimingPhase = {
   durationMs: number
 }
 
-/** Closed vocabulary: these values reach span attributes, so none of them may ever
- *  be derived from a branch name, a ref, or a path. */
-export type PreparedCheckoutMissReason =
-  | 'none_armed'
-  /** Preparations exist, but none for this repo — it was never warmed, or the pool's size cap
-   *  evicted it for another repo. Distinguished from `none_armed` because it is the signal that
-   *  the cap is thrashing for a multi-project user. */
-  | 'repo_mismatch'
-  | 'base_mismatch'
-  | 'retarget_too_divergent'
-  /** The drift check returned no answer. Distinct from `retarget_too_divergent` because that one
-   *  is the bound working as intended, while this one means a possibly cheap retarget was skipped
-   *  anyway. Deliberately a mixed bucket — a blown deadline, a cancelled create, and an ordinary
-   *  Git failure such as a missing ref all land here — so treat a rise as "look at why", not as a
-   *  direct readout of the budget being too small. */
-  | 'retarget_unverifiable'
-  | 'workspace_root_mismatch'
-  | 'wsl_distro_mismatch'
-  | 'prepare_failed'
-  | 'finalize_failed'
-  | 'checkout_existing_branch'
-  | 'sparse_checkout'
-
 /** Whether a create reused a prewarmed checkout, and when it did not, which part of
- *  the claim key disagreed. `retargeted` marks a hit that had to reset the prepared
- *  checkout onto a different ref in the same base family. */
+ *  the claim key disagreed. A hit says what reset it needed, who armed it, how long it took
+ *  to build and how long it then sat ready before this create claimed it. */
 export type PreparedCheckoutOutcome =
-  | { status: 'hit'; retargeted: boolean }
+  | {
+      status: 'hit'
+      reset: PreparedCheckoutReset
+      origin: PreparedCheckoutOrigin
+      buildMs: number
+      idleMs: number
+    }
   | { status: 'miss'; reason: PreparedCheckoutMissReason }
 
 export type WorktreeCreateTiming = {
   totalDurationMs: number
   phases: WorktreeCreateTimingPhase[]
   preparedCheckout?: PreparedCheckoutOutcome
+  executionHost?: WorktreeCreateExecutionHost
+  /** Worktrees Git listed after the create, main checkout included; absent when the listing failed. */
+  worktreeCount?: number
 }
 
 export type CreateSparseCheckoutRequest = {
@@ -110,6 +110,8 @@ export type CreateWorktreeArgs = {
    *  legitimately contains `/` while the worktree directory must not. */
   branchNameOverride?: string
   setupDecision?: SetupDecision
+  /** Per-create choice; omitted callers use the execution host's saved default. */
+  setupOnly?: boolean
   sparseCheckout?: CreateSparseCheckoutRequest
   linkedIssue?: number
   linkedPR?: number
@@ -122,6 +124,7 @@ export type CreateWorktreeArgs = {
   linkedAzureDevOpsPR?: number | null
   linkedGiteaPR?: number | null
   linkedWorkItem?: WorkspaceLinkedItem | null
+  linkedItems?: WorkspaceAttachment[]
   linkedTaskSourceContext?: TaskSourceContext | null
   pushTarget?: GitPushTarget
   workspaceStatus?: WorkspaceStatus
@@ -151,6 +154,21 @@ export type CreateWorktreeArgs = {
   creationId?: string
   /** Authorizes the host to mint system-owned automation provenance. */
   automationProvenanceRequest?: AutomationWorkspaceProvenanceRequest
+}
+
+/** Git's checkout meter during a local create: files written out of the total. */
+export type WorktreeCheckoutProgress = {
+  percent: number
+  completed: number
+  total: number
+}
+
+/** `createWorktree:progress` payload. `checkout` rides the 'creating' phase;
+ *  null means git finished writing files. */
+export type CreateWorktreeProgressEvent = {
+  creationId?: string
+  phase: 'fetching' | 'creating'
+  checkout?: WorktreeCheckoutProgress | null
 }
 
 export type CreateWorktreeResult = {
@@ -205,6 +223,7 @@ export type RemoveWorktreeResult = {
   /** The catalog this removal produced; additive, older hosts omit it. */
   catalogVersion?: WorktreeCatalogVersion
   preservedBranch?: PreservedWorktreeBranch
+  nestedPreservedBranches?: (PreservedWorktreeBranch & { worktreeId: string })[]
   /** Present only when a FAILED archive hook was explicitly waived for this removal (#19334). */
   archiveHookOverride?: ArchiveHookOverride
   /** The host accepted the removal and is still deleting the checkout. Sent only to clients that

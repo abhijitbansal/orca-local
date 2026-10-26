@@ -1,8 +1,11 @@
 import type { WorktreeSlice } from '../../worktree-helpers'
+import { ipcOrRuntimeTargetForHostId } from '@/runtime/runtime-client-target'
 import type { WorktreeSliceGet, WorktreeSliceSet } from '../listing/worktree-slice-types'
+import { LOCAL_EXECUTION_HOST_ID } from '../../../../../../shared/execution-host'
 import { translate } from '@/i18n/i18n'
 import { displayNameUpdatePinsLabel } from '../../../../../../shared/worktree/display-name-provenance'
 import { parseWorkspaceKey } from '../../../../../../shared/workspace-scope'
+import { ORCA_SIDEBAR_INPUTS_IS_MAIN } from '../../../../../../shared/sidebar-inputs-switch'
 import { applyWorktreeUpdates, getRepoIdFromWorktreeId } from '../../worktree-helpers'
 import {
   applyDetectedWorktreeUpdates,
@@ -13,17 +16,16 @@ import {
   bumpHostedReviewLinkMutationGeneration,
   hasHostedReviewLinkUpdates
 } from './hosted-review-link-mutation'
-import { normalizeHostedReviewLinkReplacementUpdates } from './hosted-review-link-update-normalization'
 import { getHostedReviewPushTargetLookup } from './hosted-review-push-target'
 import { persistWorktreeMeta } from './worktree-meta-persist'
+import { withPendingSidebarRowWrites } from '@/lib/sidebar-pending-layer'
 import { isRuntimeSelectorNotFoundError } from '../listing/runtime-worktree-rpc-errors'
-import { settingsForWorktreeOwner } from '../listing/worktree-owner-settings'
 
 export function createUpdateWorktreeMeta(
   set: WorktreeSliceSet,
   get: WorktreeSliceGet
 ): WorktreeSlice['updateWorktreeMeta'] {
-  return async (worktreeId, updates, options) => {
+  const update: WorktreeSlice['updateWorktreeMeta'] = async (worktreeId, updates, options) => {
     const shouldApplyUpdate = options?.shouldApply
     const requestedHostId = options?.executionHostId
     const existingWorktree = findKnownWorktreeById(get(), worktreeId, requestedHostId)
@@ -61,7 +63,7 @@ export function createUpdateWorktreeMeta(
         return { ok: false, error: err instanceof Error ? err.message : String(err) }
       }
     }
-    const normalizedUpdates = normalizeHostedReviewLinkReplacementUpdates(updates, existingWorktree)
+    const normalizedUpdates = updates
     const existingHostedReviewPushTargetLookup = existingWorktree
       ? getHostedReviewPushTargetLookup(existingWorktree)
       : null
@@ -95,8 +97,11 @@ export function createUpdateWorktreeMeta(
             firstAgentMessageRenameError: null
           }
         : targetEnriched
+    // Switch point: a comment edit is not a Recent event once the host owns the stamps.
     const enriched =
-      'comment' in renameCleared ? { ...renameCleared, lastActivityAt: Date.now() } : renameCleared
+      'comment' in renameCleared && !ORCA_SIDEBAR_INPUTS_IS_MAIN
+        ? { ...renameCleared, lastActivityAt: Date.now() }
+        : renameCleared
 
     let didApply = false
     set((s) => {
@@ -142,8 +147,14 @@ export function createUpdateWorktreeMeta(
     }
 
     try {
+      const ownerTarget = ipcOrRuntimeTargetForHostId(
+        executionHostId ?? existingWorktree?.hostId ?? LOCAL_EXECUTION_HOST_ID
+      )
+      if (!ownerTarget) {
+        throw new Error('The workspace host is unresolved. Refresh and retry.')
+      }
       await persistWorktreeMeta(
-        settingsForWorktreeOwner(get(), worktreeId, executionHostId),
+        ownerTarget,
         worktreeId,
         enriched,
         executionHostId ?? existingWorktree?.hostId,
@@ -168,4 +179,19 @@ export function createUpdateWorktreeMeta(
     }
     return { ok: true }
   }
+  // A conditional write may not apply, so only an unconditional one shows ahead of main.
+  return (worktreeId, updates, options) =>
+    options?.shouldApply
+      ? update(worktreeId, updates, options)
+      : withPendingSidebarRowWrites(
+          () => [
+            {
+              worktreeId,
+              updates,
+              executionHostId:
+                options?.executionHostId ?? findKnownWorktreeById(get(), worktreeId)?.hostId
+            }
+          ],
+          () => update(worktreeId, updates, options)
+        )
 }

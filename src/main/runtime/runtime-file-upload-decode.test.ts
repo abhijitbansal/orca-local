@@ -1,6 +1,6 @@
 import { dirname, join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { RuntimeFileCommandHost } from './runtime-file-command-host'
+import type { RuntimeFileCommandHost } from './files/file-command-host'
 
 const mocks = vi.hoisted(() => ({
   resolvePath: vi.fn(),
@@ -13,16 +13,13 @@ const mocks = vi.hoisted(() => ({
   writeBuffer: vi.fn()
 }))
 
-vi.mock('./runtime-file-commands-read-file-explorer-preview', () => ({
-  RuntimeFileCommandsWithReadFileExplorerPreview: class {
-    resolveFileExplorerPath = mocks.resolvePath
-    host = { requireStore: mocks.requireStore }
-  }
-}))
-vi.mock('./runtime-file-commands-mobile-file-list-limit', () => ({
+vi.mock('./files/file-mutation-expectation', () => ({
   assertRuntimeFileMutationExpectation: mocks.expectation
 }))
-vi.mock('./runtime-file-command-target', () => ({ requireRuntimeFileProvider: mocks.provider }))
+vi.mock('./files/file-target', () => ({
+  resolveFileExplorerPath: mocks.resolvePath,
+  requireRuntimeFileProvider: mocks.provider
+}))
 vi.mock('../ipc/filesystem-auth', () => ({ resolveAuthorizedPath: mocks.authorize }))
 vi.mock('node:fs/promises', async (importOriginal) => ({
   ...(await importOriginal()),
@@ -30,29 +27,32 @@ vi.mock('node:fs/promises', async (importOriginal) => ({
   writeFile: mocks.writeFile
 }))
 
-import { RuntimeFileCommandsWithWriteFileExplorerFile } from './runtime-file-commands-write-file-explorer-file'
+import { RuntimeFileMutations } from './files/file-mutations'
+import { createLocalFilesystemProvider } from '../providers/local-filesystem-provider'
 
 function unexpectedHostCall(): never {
   throw new Error('Unexpected access beyond the isolated file command')
 }
 
-const host: RuntimeFileCommandHost = {
-  getRuntimeId: unexpectedHostCall,
-  requireStore: unexpectedHostCall,
-  resolveWorktreeSelector: unexpectedHostCall,
-  resolveRuntimeFileTarget: unexpectedHostCall,
-  resolveRuntimeGitTarget: unexpectedHostCall,
-  openFile: unexpectedHostCall,
-  openDiff: unexpectedHostCall
+const host: Pick<RuntimeFileCommandHost, 'requireStore' | 'resolveRuntimeFileTarget'> = {
+  requireStore: mocks.requireStore,
+  resolveRuntimeFileTarget: unexpectedHostCall
 }
-const commands = new RuntimeFileCommandsWithWriteFileExplorerFile(host)
+const commands = new RuntimeFileMutations(host)
 const destination = join('workspace', 'uploads', 'binary.dat')
 const target = { executionHostId: 'local', path: destination }
+let remote = false
 
 beforeEach(() => {
   vi.resetAllMocks()
+  remote = false
   mocks.resolvePath.mockResolvedValue(target)
-  mocks.provider.mockReturnValue(null)
+  mocks.provider.mockImplementation((_target, host) =>
+    createLocalFilesystemProvider({
+      requireStore: () => host.requireStore(),
+      resolveAuthorizedPath: mocks.authorize
+    })
+  )
   mocks.authorize.mockResolvedValue(destination)
   mocks.requireStore.mockReturnValue({})
   mocks.mkdir.mockResolvedValue(undefined)
@@ -63,6 +63,26 @@ afterEach(() => vi.restoreAllMocks())
 
 describe.each(['whole', 'first', 'append'] as const)('runtime %s base64 write', (mode) => {
   const write = (base64: string) => {
+    if (remote) {
+      return mode === 'whole'
+        ? commands.writeFileExplorerFileBase64(
+            'folder:workspace',
+            'uploads/binary.dat',
+            base64,
+            7,
+            'target',
+            'ssh:target'
+          )
+        : commands.writeFileExplorerFileBase64Chunk(
+            'folder:workspace',
+            'uploads/binary.dat',
+            base64,
+            mode === 'append',
+            7,
+            'target',
+            'ssh:target'
+          )
+    }
     return mode === 'whole'
       ? commands.writeFileExplorerFileBase64(
           'folder:workspace',
@@ -93,7 +113,7 @@ describe.each(['whole', 'first', 'append'] as const)('runtime %s base64 write', 
         decode.mock.calls.filter((args) => args.at(0) === base64 && args.at(1) === 'base64')
       ).toHaveLength(1)
       expect(mocks.expectation).toHaveBeenCalledWith('local', 'local', undefined, undefined)
-      expect(mocks.provider).toHaveBeenCalledWith(target)
+      expect(mocks.provider).toHaveBeenCalledWith(target, expect.anything())
       expect(mocks.authorize).toHaveBeenCalledWith(
         destination,
         mocks.requireStore.mock.results[0].value

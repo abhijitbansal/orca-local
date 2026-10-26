@@ -1,9 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import type { PreloadApi } from './api-types'
-import {
-  installBrowserFindListener,
-  installNativeFileDropHandlers
-} from './preload-runtime-support'
+import { installBrowserFindListener } from './preload-runtime-support'
 import { appApi } from './api/app-bridge'
 import { orcaProfilesApi } from './api/orca-profiles-bridge'
 import { platformApi } from './api/platform-bridge'
@@ -72,10 +69,8 @@ import { e2eApi } from './api/e2e-bridge'
 import { agentStatusApi } from './api/agent-status-bridge'
 import { speechApi } from './api/speech-bridge'
 
-installNativeFileDropHandlers()
 installBrowserFindListener()
 
-// Custom APIs for renderer. Each domain bridge owns its IPC contract.
 const telemetryTrackApi: PreloadApi['telemetryTrack'] = (name, props) =>
   ipcRenderer.invoke('telemetry:track', name, props)
 const telemetrySetOptInApi: PreloadApi['telemetrySetOptIn'] = (optedIn) =>

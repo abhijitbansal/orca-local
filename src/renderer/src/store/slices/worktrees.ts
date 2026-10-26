@@ -1,3 +1,4 @@
+import { createUnsupportedInLocalBuildError } from '@/runtime/runtime-environment-unsupported'
 import type { StateCreator } from 'zustand'
 import type { AppState } from '../types'
 import type { WorktreeSlice } from './worktree-helpers'
@@ -33,12 +34,7 @@ import { createForceDeletePreservedBranch } from './worktrees/teardown/force-del
 import { createUpdateWorktreeMeta } from './worktrees/metadata/update-worktree-meta'
 import { createUpdateWorktreesMeta } from './worktrees/metadata/update-worktrees-meta'
 import { createSetWorktreesPinnedAndReveal } from './worktrees/session/worktree-pin-reveal'
-import {
-  createBumpWorktreeActivity,
-  createClearWorktreeUnread,
-  createMarkWorktreeUnread,
-  createObserveTerminalGitHubPullRequestLink
-} from './worktrees/session/worktree-unread-activity'
+import { createBumpWorktreeActivity } from './worktrees/session/worktree-activity-bump'
 import {
   createMarkWorktreeVisited,
   createPruneLastVisitedTimestamps,
@@ -70,8 +66,6 @@ export {
   setDetachedHeadAutoDerivedDisplayNameForTests
 } from './worktrees/metadata/detached-head-display-name'
 export { resetAuthoritativelyRemovedWorktreeMemoryForTests } from './worktrees/listing/authoritative-worktree-removal-memory'
-export type { DirectSshDetectedWorktreeRefresh } from './worktrees/listing/known-ssh-worktree-fetch'
-export { acquireDirectSshDetectedWorktreeRefresh } from './worktrees/listing/known-ssh-worktree-fetch'
 
 export const createWorktreeSlice: StateCreator<AppState, [], [], WorktreeSlice> = (set, get) => ({
   ...worktreeSliceInitialState,
@@ -96,11 +90,11 @@ export const createWorktreeSlice: StateCreator<AppState, [], [], WorktreeSlice> 
   forceDeletePreservedBranch: createForceDeletePreservedBranch(set, get),
   clearWorktreeDeleteState: createClearWorktreeDeleteState(set, get),
   updateWorktreeMeta: createUpdateWorktreeMeta(set, get),
+  // Local-only: hosted reviews are removed, so there is no push target to ensure.
+  ensureHostedReviewPushTarget: () => Promise.reject(createUnsupportedInLocalBuildError()),
   updateWorktreesMeta: createUpdateWorktreesMeta(set, get),
   setWorktreesPinnedAndReveal: createSetWorktreesPinnedAndReveal(set, get),
-  markWorktreeUnread: createMarkWorktreeUnread(set, get),
-  observeTerminalGitHubPullRequestLink: createObserveTerminalGitHubPullRequestLink(set, get),
-  clearWorktreeUnread: createClearWorktreeUnread(set, get),
+  observeTerminalGitHubPullRequestLink: () => {},
   bumpWorktreeActivity: createBumpWorktreeActivity(set, get),
   markWorktreeVisited: createMarkWorktreeVisited(set, get),
   pruneLastVisitedTimestamps: createPruneLastVisitedTimestamps(set, get),

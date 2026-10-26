@@ -1,3 +1,4 @@
+import '../runtime/rpc/unused-default-rpc-methods.test-fixture'
 import { afterEach, describe, expect, it } from 'vitest'
 import { createSessionSearchClient } from '../../shared/ai-vault-search-client'
 import { fakeSearchService } from '../../shared/ai-vault-search-test-fixture'

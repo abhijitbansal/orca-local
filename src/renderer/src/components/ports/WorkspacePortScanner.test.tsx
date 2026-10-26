@@ -265,6 +265,23 @@ describe('advertised URL refresh bursts', () => {
     expect(localScan).toHaveBeenCalledTimes(1)
   })
 
+  it('rescans this computer on a local URL change while a server is the default host', async () => {
+    // Why: the event comes from this app's processes; the default host setting used to mute it.
+    seedRemoteWorkspace('env-1')
+    await act(async () => {
+      root?.render(<WorkspacePortScanner />)
+      await flushPromises()
+    })
+    localScan.mockClear()
+    const changed = vi.mocked(window.api.workspacePorts.onAdvertisedUrlChanged).mock
+      .calls[0][0] as () => void
+    await act(async () => {
+      changed()
+      await flushPromises()
+    })
+    expect(localScan).toHaveBeenCalledTimes(1)
+  })
+
   it('skips the settled scan while hidden and accepts the next visible URL change', async () => {
     let visibility: DocumentVisibilityState = 'visible'
     const restore = overrideDocumentVisibilityState(() => visibility)

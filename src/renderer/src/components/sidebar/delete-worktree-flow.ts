@@ -8,7 +8,7 @@ import {
 } from './stale-workspace-list-toast'
 import { getWorkspaceDeleteLineage } from './workspace-delete-lineage'
 import { parseWorkspaceKey } from '../../../../shared/workspace-scope'
-import { getRepoExecutionHostId } from '../../../../shared/execution-host'
+import { getWorktreeExecutionHostId } from '../../../../shared/execution-host'
 import {
   resolveWorktreeBatchDeleteTargets,
   toWorktreeDeleteIdentities,
@@ -20,6 +20,7 @@ import {
   runWorktreeDeletesInParallel,
   runWorktreeDeleteWithToast
 } from './worktree-delete-execution'
+import { collectRemovalUnsavedFiles } from '@/components/editor/removal-unsaved-editor-files'
 
 export { runWorktreeDeletesInParallel, runWorktreeDeleteWithToast }
 
@@ -52,12 +53,11 @@ export function runWorktreeDelete(worktreeId: string, options: WorktreeDeleteOpt
       hostId: target.hostId,
       settings: state.settings
     })
-    const hostId = repo ? getRepoExecutionHostId(repo) : target.hostId
     // Why: git refuses to delete the primary checkout; users can still remove the owning project from Orca (disk contents kept).
     state.openModal('confirm-remove-folder', {
       repoId: target.repoId,
       displayName: repo?.displayName ?? target.displayName,
-      ...(hostId ? { hostId } : {})
+      hostId: getWorktreeExecutionHostId(target, repo ?? undefined)
     })
     return
   }
@@ -73,7 +73,10 @@ export function runWorktreeDelete(worktreeId: string, options: WorktreeDeleteOpt
     state.worktreeLineageById
   )
   const hasLineageChildren = deleteLineage.descendants.length > 0
-  const skipConfirm = state.settings?.skipDeleteWorktreeConfirm ?? false
+  // Why: "Don't ask again" never covers discarding unsaved editor text.
+  const skipConfirm =
+    (state.settings?.skipDeleteWorktreeConfirm ?? false) &&
+    collectRemovalUnsavedFiles(useAppStore.getState, [target]).length === 0
   if (skipConfirm && !hasLineageChildren) {
     void runWorktreeDeleteWithToast(toWorktreeRemovalTarget(target), target.displayName)
     return
@@ -130,7 +133,8 @@ export function runWorktreeBatchDelete(
     !options.forceConfirm &&
     targets.length === 1 &&
     !singleTargetHasLineageChildren &&
-    (state.settings?.skipDeleteWorktreeConfirm ?? false)
+    (state.settings?.skipDeleteWorktreeConfirm ?? false) &&
+    collectRemovalUnsavedFiles(useAppStore.getState, targets).length === 0
   if (skipConfirm) {
     void runWorktreeDeletesInParallel(targets, {
       onForceDeleted: (deletedTarget) => options.onDeleted?.([deletedTarget])

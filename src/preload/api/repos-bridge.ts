@@ -1,17 +1,10 @@
 import { ipcRenderer } from 'electron'
-import type {
-  HostRepoCatalogSnapshot,
-  ListReposForExecutionHostArgs
-} from '../../shared/host-repo-catalog-contract'
 import type { BaseRefDefaultResult, BaseRefSearchResult } from '../../shared/repo-types'
 import type { ExecutionHostId } from '../../shared/execution-host'
 import type { PreloadApi } from '../api-types'
 
 export const reposApi = {
   list: () => ipcRenderer.invoke('repos:list'),
-
-  listForExecutionHost: (args: ListReposForExecutionHostArgs): Promise<HostRepoCatalogSnapshot> =>
-    ipcRenderer.invoke('repos:listForExecutionHost', args),
 
   add: (args) => ipcRenderer.invoke('repos:add', args),
 
@@ -21,8 +14,6 @@ export const reposApi = {
 
   getDefaultCreateProjectParent: (): Promise<string> =>
     ipcRenderer.invoke('repos:getDefaultCreateProjectParent'),
-
-  remove: (args) => ipcRenderer.invoke('repos:remove', args),
 
   removeForHost: (args) => ipcRenderer.invoke('repos:removeForHost', args),
 
@@ -50,9 +41,6 @@ export const reposApi = {
     ipcRenderer.on('repos:clone-progress', listener)
     return () => ipcRenderer.removeListener('repos:clone-progress', listener)
   },
-
-  getGitUsername: (args: { repoId: string }): Promise<string> =>
-    ipcRenderer.invoke('repos:getGitUsername', args),
 
   getBaseRefDefault: (args: {
     repoId: string

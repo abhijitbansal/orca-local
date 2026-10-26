@@ -6,7 +6,6 @@ import {
   hasDismissedHugeRepoWarning,
   markHugeRepoWarningDismissed
 } from '@/lib/source-control-huge-repo-warning-dismissals'
-import { getHostedReviewLinkMutationGenerationForTests } from './worktrees'
 import { makeLineage, makeTerminalTab, makeWorktree } from './worktrees-slice-test-fixtures'
 import {
   createTestStore,
@@ -78,31 +77,6 @@ describe('removeWorktree state cleanup', () => {
 
     expect(result).toEqual({ ok: false, error: 'delete failed' })
     expect(hasDismissedHugeRepoWarning(retainedProbe)).toBe(true)
-  })
-
-  it('cleans up hosted review link mutation bookkeeping for the removed worktree', async () => {
-    const store = createTestStore()
-    const removed = makeWorktree({
-      id: 'repo1::/path/wt1',
-      repoId: 'repo1',
-      path: '/path/wt1'
-    })
-    const surviving = makeWorktree({
-      id: 'repo1::/path/wt2',
-      repoId: 'repo1',
-      path: '/path/wt2'
-    })
-    store.setState({ worktreesByRepo: { repo1: [removed, surviving] } } as Partial<AppState>)
-    await store.getState().updateWorktreeMeta(removed.id, { linkedBitbucketPR: 101 })
-    await store.getState().updateWorktreeMeta(surviving.id, { linkedAzureDevOpsPR: 202 })
-
-    expect(getHostedReviewLinkMutationGenerationForTests(removed.id)).toBeGreaterThan(0)
-    expect(getHostedReviewLinkMutationGenerationForTests(surviving.id)).toBeGreaterThan(0)
-
-    await store.getState().removeWorktree({ id: removed.id, executionHostId: null })
-
-    expect(getHostedReviewLinkMutationGenerationForTests(removed.id)).toBe(0)
-    expect(getHostedReviewLinkMutationGenerationForTests(surviving.id)).toBeGreaterThan(0)
   })
 
   it('cleans up expandedPaneByTabId/canExpandPaneByTabId for removed worktree tabs', async () => {

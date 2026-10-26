@@ -14,6 +14,7 @@ const { handleMock, copyFileMock, lstatMock, mkdirMock, renameMock, writeFileMoc
   }))
 
 vi.mock('electron', () => ({
+  app: { getPath: () => '/orca-test-user-data' },
   ipcMain: { handle: handleMock }
 }))
 
@@ -31,10 +32,9 @@ import { registerFilesystemMutationHandlers } from './filesystem-mutations'
 import {
   resetSshConnectionGenerations,
   setSshConnectionGeneration
-} from '../ssh/ssh-connection-generation'
+} from '../ssh/connection/ssh-connection-generation'
 
-// Why: paths are resolved via path.resolve() in production code, so test
-// data must use resolved paths to avoid Unix-vs-Windows mismatches.
+// Resolve fixture paths like production to preserve cross-platform comparisons.
 const REPO_PATH = path.resolve('/workspace/repo')
 const WORKSPACE_DIR = path.resolve('/workspace')
 
@@ -78,7 +78,6 @@ describe('registerFilesystemMutationHandlers', () => {
       handlers.set(channel, handler)
     })
 
-    // By default, paths resolve to themselves and targets don't exist yet
     realpathMock.mockImplementation(async (p: string) => p)
     lstatMock.mockRejectedValue(enoent())
     mkdirMock.mockResolvedValue(undefined)
@@ -88,8 +87,6 @@ describe('registerFilesystemMutationHandlers', () => {
 
     registerFilesystemMutationHandlers(store as never)
   })
-
-  // ── fs:createFile ──────────────────────────────────────────────
 
   it('creates an empty file and its parent directories', async () => {
     const filePath = path.resolve('/workspace/repo/src/new.ts')
@@ -103,8 +100,7 @@ describe('registerFilesystemMutationHandlers', () => {
   })
 
   it('rejects file creation when path already exists (wx flag)', async () => {
-    // The wx flag causes writeFile to throw EEXIST atomically, without a
-    // separate lstat check — no TOCTOU race.
+    // wx rejects collisions atomically without an existence-check race.
     writeFileMock.mockRejectedValue(Object.assign(new Error('EEXIST'), { code: 'EEXIST' }))
 
     await expect(
@@ -125,8 +121,6 @@ describe('registerFilesystemMutationHandlers', () => {
 
     expect(writeFileMock).not.toHaveBeenCalled()
   })
-
-  // ── fs:createDir ───────────────────────────────────────────────
 
   it('creates a directory recursively', async () => {
     const dirPath = path.resolve('/workspace/repo/src/components')
@@ -156,8 +150,6 @@ describe('registerFilesystemMutationHandlers', () => {
 
     expect(mkdirMock).not.toHaveBeenCalled()
   })
-
-  // ── fs:rename ──────────────────────────────────────────────────
 
   it('renames a file within the same directory', async () => {
     const oldPath = path.resolve('/workspace/repo/old.ts')
@@ -307,9 +299,7 @@ describe('registerFilesystemMutationHandlers', () => {
   })
 
   it('rejects rename when parent directory escapes allowed roots', async () => {
-    // Why: the parent is still canonicalized (preserveSymlink only preserves
-    // the leaf). A symlinked ancestor that points outside allowed roots must
-    // still be rejected so callers cannot redirect rename through it.
+    // Preserve only the leaf; symlinked ancestors must still be contained.
     mockRealpath({
       [path.resolve('/workspace/repo/escape-dir')]: path.resolve('/private/escape-dir')
     })
@@ -325,11 +315,7 @@ describe('registerFilesystemMutationHandlers', () => {
   })
 
   it('renames a symlink without following its target', async () => {
-    // Why: rename must operate on the symlink entry, not its target —
-    // following the link would rename the target file (possibly elsewhere in
-    // the worktree, or outside allowed roots entirely). Even though the
-    // symlink points at /private/secret.ts, renaming the link entry inside
-    // the allowed root is a safe directory-entry mutation.
+    // Rename the allowed link entry, even when its target is outside every root.
     mockRealpath({
       [path.resolve('/workspace/repo/symlink.ts')]: path.resolve('/private/secret.ts')
     })
@@ -341,19 +327,6 @@ describe('registerFilesystemMutationHandlers', () => {
     expect(renameMock).toHaveBeenCalledWith(oldPath, newPath)
   })
 
-  it('fails closed on rename when a connection is present, never falling back to local', async () => {
-    await expect(
-      handlers.get('fs:rename')!(null, {
-        oldPath: '/home/me/repo/old.ts',
-        newPath: '/home/me/repo/new.ts',
-        connectionId: 'ssh-1',
-        expectedSshTargetId: 'ssh-1',
-        expectedSshConnectionGeneration: 0
-      })
-    ).rejects.toMatchObject({ code: 'unsupported_in_local_only_build' })
-    expect(renameMock).not.toHaveBeenCalled()
-  })
-
   it('rejects direct SSH rename without target-bound generation provenance', async () => {
     await expect(
       handlers.get('fs:rename')!(null, {
@@ -362,8 +335,6 @@ describe('registerFilesystemMutationHandlers', () => {
         connectionId: 'ssh-1'
       })
     ).rejects.toThrow('SSH connection changed')
-
-    expect(renameMock).not.toHaveBeenCalled()
   })
 
   it('rejects equal-generation provenance for another direct SSH target', async () => {
@@ -376,8 +347,6 @@ describe('registerFilesystemMutationHandlers', () => {
         expectedSshConnectionGeneration: 0
       })
     ).rejects.toThrow('SSH connection changed')
-
-    expect(renameMock).not.toHaveBeenCalled()
   })
 
   it('rejects stale generation provenance for a direct SSH target', async () => {
@@ -392,8 +361,6 @@ describe('registerFilesystemMutationHandlers', () => {
         expectedSshConnectionGeneration: 7
       })
     ).rejects.toThrow('SSH connection changed')
-
-    expect(renameMock).not.toHaveBeenCalled()
   })
 
   it('rejects stale SSH provenance when a direct mutation resolves local', async () => {
@@ -448,8 +415,6 @@ describe('registerFilesystemMutationHandlers', () => {
     }
   )
 
-  // ── fs:copy ────────────────────────────────────────────────────
-
   it('copies a file without overwriting an existing destination', async () => {
     const sourcePath = path.resolve('/workspace/repo/source.ts')
     const destinationPath = path.resolve('/workspace/repo/source copy.ts')
@@ -459,8 +424,6 @@ describe('registerFilesystemMutationHandlers', () => {
     expect(mkdirMock).toHaveBeenCalledWith(path.resolve('/workspace/repo'), { recursive: true })
     expect(copyFileMock).toHaveBeenCalledWith(sourcePath, destinationPath, expect.any(Number))
   })
-
-  // ── Edge cases ─────────────────────────────────────────────────
 
   it('propagates non-ENOENT lstat errors in assertNotExists', async () => {
     lstatMock.mockRejectedValue(new Error('EPERM: operation not permitted'))

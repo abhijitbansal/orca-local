@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import type { CommandHandler } from '../dispatch'
 import { printResult } from '../format'
 import {
@@ -54,9 +55,23 @@ function formatRollback(result: ProfileStateRollbackResult): string {
       : []),
     `storage: ${result.storage}`,
     `restored: ${result.restoredPath}`,
+    ...(result.repairedSections ?? []).map(formatRepairedSection),
     `quarantine: ${result.quarantineDirectory}`,
     `removedDatabaseFiles: ${result.removedDatabaseFiles.length}`
   ].join('\n')
+}
+
+function formatRepairedSection({
+  domain,
+  backupId,
+  backupCreatedAtMs
+}: NonNullable<ProfileStateRollbackResult['repairedSections']>[number]): string {
+  if (backupId === null) {
+    return `repaired ${domain}: no readable backup, starts empty`
+  }
+  const savedAt =
+    backupCreatedAtMs === undefined ? '' : ` saved ${new Date(backupCreatedAtMs).toLocaleString()}`
+  return `repaired ${domain}: from backup ${backupId}${savedAt}`
 }
 
 async function requireStoppedRuntime(client: RuntimeClient): Promise<void> {
@@ -85,23 +100,30 @@ function parseRevision(flags: Map<string, string | boolean>): number {
 }
 
 export const PROFILE_STATE_HANDLERS: Record<string, CommandHandler> = {
-  'profile state exports': async ({ json }) => {
-    const result = translateRecoveryError(() => getProfileStateExports(getDefaultUserDataPath()))
+  'profile state exports': async ({ flags, json }) => {
+    const result = translateRecoveryError(() =>
+      getProfileStateExports(getDefaultUserDataPath(), parseProfileId(flags))
+    )
     printResult(localSuccess(result), json, formatExports)
   },
   'profile state rollback': async ({ client, flags, json }) => {
     const selector = parseSelector(flags)
+    const profileId = parseProfileId(flags)
     const userDataPath = getDefaultUserDataPath()
     let result: ProfileStateRollbackResult
     if (canLaunchProfileStateRecovery()) {
       await requireStoppedRuntime(client)
-      result = await launchProfileStateRecovery({ userDataPath, selector })
+      result = await launchProfileStateRecovery({
+        userDataPath,
+        selector,
+        ...(profileId ? { profileId } : {})
+      })
     } else {
       const maintenance = acquireProfileStateMaintenance(userDataPath)
       try {
         await requireStoppedRuntime(client)
         result = translateRecoveryError(() =>
-          rollbackProfileState(userDataPath, selector, maintenance)
+          rollbackProfileState(userDataPath, selector, maintenance, profileId)
         )
       } finally {
         maintenance.release()
@@ -112,14 +134,21 @@ export const PROFILE_STATE_HANDLERS: Record<string, CommandHandler> = {
 }
 
 function parseSelector(flags: Map<string, string | boolean>): ProfileStateRecoverySelector {
-  const selectors = ['revision', 'backup', 'current-json', 'current-sqlite'] as const
+  const selectors = [
+    'repair',
+    'revision',
+    'backup',
+    'current-json',
+    'current-sqlite',
+    'latest-json'
+  ] as const
   if (selectors.filter((flag) => flags.has(flag)).length !== 1) {
     throw new RuntimeClientError(
       'invalid_argument',
-      'Select exactly one of --revision, --backup, --current-json, or --current-sqlite.'
+      'Select exactly one of --repair, --revision, --backup, --current-json, --current-sqlite, or --latest-json.'
     )
   }
-  for (const kind of ['current-json', 'current-sqlite'] as const) {
+  for (const kind of ['repair', 'current-json', 'current-sqlite', 'latest-json'] as const) {
     if (flags.has(kind)) {
       if (flags.get(kind) !== true) {
         throw new RuntimeClientError('invalid_argument', `--${kind} does not take a value.`)
@@ -146,4 +175,21 @@ function translateRecoveryError<T>(operation: () => T): T {
     }
     throw error
   }
+}
+
+function parseProfileId(flags: ReadonlyMap<string, string | boolean>): string | undefined {
+  if (!flags.has('profile-id')) {
+    return undefined
+  }
+  const parsed = z
+    .string()
+    .regex(/^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/)
+    .safeParse(flags.get('profile-id'))
+  if (!parsed.success) {
+    throw new RuntimeClientError(
+      'invalid_argument',
+      'Select a valid profile with --profile-id <id>.'
+    )
+  }
+  return parsed.data
 }

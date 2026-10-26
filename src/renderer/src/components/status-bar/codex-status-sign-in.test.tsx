@@ -20,6 +20,7 @@ import type { ProviderRateLimits } from '../../../../shared/rate-limit-types'
 const markLiveCodexSessionsForRestart = vi.fn(async () => {})
 const toastSuccess = vi.fn()
 const toastError = vi.fn()
+const fetchInactiveCodexAccountUsage = vi.fn(async () => {})
 const fetchSettings = vi.fn(async () => {})
 const reauthenticate = vi.fn(async (_args: unknown) => codexSnapshot(null))
 
@@ -93,10 +94,6 @@ vi.mock('@/runtime/runtime-provider-accounts-client', () => ({
   selectClaudeProviderAccount: vi.fn(async () => ({ accounts: [], activeAccountId: null }))
 }))
 
-vi.mock('@/runtime/runtime-rpc-client', () => ({
-  getActiveRuntimeTarget: () => null
-}))
-
 vi.mock('@/lib/windows-terminal-capabilities', () => ({
   useWindowsTerminalCapabilities: () => ({ wslDistros: [], isLoading: false }),
   getWindowsTerminalCapabilityOwnerKey: () => 'local'
@@ -153,6 +150,8 @@ vi.mock('../../store', () => {
     updateSettings: vi.fn(),
     recordFeatureInteraction: vi.fn(),
     refreshCodexRateLimitsForTarget: vi.fn(),
+    consumeCodexRateLimitResetCredit: vi.fn(),
+    fetchInactiveCodexAccountUsage,
     rateLimits: {
       inactiveCodexAccounts: [
         { accountId: 'account-2', isFetching: false, rateLimits: unavailableUsage }
@@ -226,11 +225,14 @@ describe('status bar Codex sign-in action', () => {
       fireEvent.click(screen.getByText(`same@example.com (${detail}account-2)`))
 
       await waitFor(() =>
-        expect(selectCodexProviderAccount).toHaveBeenCalledWith(storeSettings, {
-          accountId: 'account-2',
-          runtime: 'host',
-          wslDistro: null
-        })
+        expect(selectCodexProviderAccount).toHaveBeenCalledWith(
+          { kind: 'local' },
+          {
+            accountId: 'account-2',
+            runtime: 'host',
+            wslDistro: null
+          }
+        )
       )
       expect(markLiveCodexSessionsForRestart).toHaveBeenCalledWith(
         expect.objectContaining({

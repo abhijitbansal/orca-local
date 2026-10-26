@@ -9,10 +9,12 @@ import type {
 
 function makeSettings(overrides: Partial<NotificationSettings> = {}): NotificationSettings {
   return {
+    mutedNotificationSourceIds: [],
     enabled: true,
     agentTaskComplete: true,
     terminalBell: true,
     suppressWhenFocused: false,
+    notifyHiddenWorkspaces: false,
     customSoundId: 'system',
     customSoundPath: null,
     customSoundVolume: 1,

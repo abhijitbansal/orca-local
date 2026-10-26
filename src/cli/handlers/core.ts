@@ -3,12 +3,10 @@ import type { CommandHandler } from '../dispatch'
 import { formatCliStatus, formatStatus, printResult } from '../format'
 import { RuntimeClientError, serveOrcaApp } from '../runtime-client'
 import { stripElectronRunAsNode } from '../runtime/launch'
+import { resolveCliStatusCaller } from '../runtime/status-caller'
 
 function envRecord(): Record<string, string> {
-  // Why: the `orca` launcher runs Orca's Electron binary as Node, so this CLI
-  // process carries ELECTRON_RUN_AS_NODE=1. Strip it before it reaches the
-  // spawned `claude` (and any nested Electron it launches), which would
-  // otherwise be forced into headless plain-Node mode.
+  // Inherited ELECTRON_RUN_AS_NODE would force nested Electron children into plain Node mode.
   const env = stripElectronRunAsNode(process.env)
   return Object.fromEntries(
     Object.entries(env).filter((entry): entry is [string, string] => entry[1] !== undefined)
@@ -88,6 +86,13 @@ export const CORE_HANDLERS: Record<string, CommandHandler> = {
     if (!json && !result.result.runtime.reachable) {
       process.exitCode = 1
     }
-    printResult(result, json, formatStatus)
+    const caller = result.result.runtime.reachable
+      ? await resolveCliStatusCaller(client)
+      : undefined
+    printResult(
+      caller === undefined ? result : { ...result, result: { ...result.result, caller } },
+      json,
+      formatStatus
+    )
   }
 }

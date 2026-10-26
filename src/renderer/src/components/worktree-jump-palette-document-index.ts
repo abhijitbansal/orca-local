@@ -1,13 +1,10 @@
 import { getPaletteHostBadge } from '@/components/cmd-j/palette-host-badge'
 import type { SidebarHostOption } from '@/components/sidebar/sidebar-host-options'
 import { getWorkspacePortsByWorktreeId } from '@/lib/workspace-port-groups'
-import {
-  buildWorktreePaletteDocuments,
-  type IssueCacheEntry,
-  type PRCacheEntry
-} from '@/lib/worktree-palette-document'
+import { buildWorktreePaletteDocuments } from '@/lib/worktree-palette-document'
 import {
   getPaletteWorktreeIdentity,
+  getPaletteWorktreeExecutionHostId,
   resolvePaletteRepoForWorktree
 } from '@/lib/palette-repo-resolution'
 import type { PaletteDocument } from '@/lib/palette-match/palette-document'
@@ -15,6 +12,7 @@ import type { Repo } from '../../../shared/repo-types'
 import type { Worktree } from '../../../shared/worktree/types'
 import type { WorkspacePortScanResult } from '../../../shared/workspace-ports'
 import type { HostedReviewInfo } from '../../../shared/hosted-review'
+import { getRepoExecutionHostId } from '../../../shared/execution-host'
 
 export function buildWorktreeJumpPaletteDocumentIndex({
   worktrees,
@@ -22,8 +20,6 @@ export function buildWorktreeJumpPaletteDocumentIndex({
   repoByHostIdentity,
   hostOptions,
   hostFilterActive,
-  prCache,
-  issueCache,
   workspacePortScan,
   checksReviewByWorktree
 }: {
@@ -32,15 +28,17 @@ export function buildWorktreeJumpPaletteDocumentIndex({
   repoByHostIdentity: ReadonlyMap<string, Repo>
   hostOptions: readonly SidebarHostOption[]
   hostFilterActive: boolean
-  prCache: Record<string, PRCacheEntry> | null
-  issueCache: Record<string, IssueCacheEntry> | null
   workspacePortScan: WorkspacePortScanResult | null
   checksReviewByWorktree: ReadonlyMap<Worktree, HostedReviewInfo | null>
 }): Map<string, PaletteDocument> {
   const hostLabelByWorktreeId = new Map<string, string>()
   for (const worktree of worktrees) {
     const repo = resolvePaletteRepoForWorktree(worktree, repoMap, repoByHostIdentity)
-    const badge = getPaletteHostBadge(repo, hostOptions, hostFilterActive)
+    const badge = getPaletteHostBadge(
+      getPaletteWorktreeExecutionHostId(worktree) ?? (repo && getRepoExecutionHostId(repo)),
+      hostOptions,
+      hostFilterActive
+    )
     if (badge) {
       hostLabelByWorktreeId.set(getPaletteWorktreeIdentity(worktree), badge.label)
     }
@@ -50,8 +48,6 @@ export function buildWorktreeJumpPaletteDocumentIndex({
     {
       repoMap,
       repoMapByHostIdentity: repoByHostIdentity,
-      prCache,
-      issueCache,
       workspacePortsByWorktreeId: getWorkspacePortsByWorktreeId(workspacePortScan),
       checksReviewByWorktree,
       hostLabelByWorktreeId

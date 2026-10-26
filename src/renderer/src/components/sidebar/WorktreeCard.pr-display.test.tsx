@@ -23,29 +23,33 @@ let prCache: Record<string, unknown> = {}
 let workspacePortScan: WorkspacePortScanResult | null = null
 let settings: Partial<GlobalSettings> | null = null
 
-vi.mock('@/store', () => ({
-  useAppStore: (selector: (state: unknown) => unknown) =>
-    selector({
-      deleteStateByWorktreeId: {},
-      fetchHostedReviewForBranch,
-      fetchIssue,
-      fetchLinearIssue,
-      gitConflictOperationByWorktree: {},
-      hostedReviewCache,
-      issueCache,
-      linearIssueCache: {},
-      openModal,
-      prCache,
-      projectGroups: [],
-      remoteBranchConflictByWorktreeId: {},
-      settings,
-      sshConnectionStates: new Map(),
-      sshTargetLabels: new Map(),
-      updateWorktreeMeta,
-      workspacePortScan,
-      worktreeCardProperties
+vi.mock('@/store', () => {
+  const getState = () => ({
+    deleteStateByWorktreeId: {},
+    fetchHostedReviewForBranch,
+    fetchIssue,
+    fetchLinearIssue,
+    gitConflictOperationByWorktree: {},
+    hostedReviewCache,
+    issueCache,
+    linearIssueCache: {},
+    openModal,
+    prCache,
+    projectGroups: [],
+    remoteBranchConflictByWorktreeId: {},
+    settings,
+    sshConnectionStates: new Map(),
+    sshTargetLabels: new Map(),
+    updateWorktreeMeta,
+    workspacePortScan,
+    worktreeCardProperties
+  })
+  return {
+    useAppStore: Object.assign((selector: (state: unknown) => unknown) => selector(getState()), {
+      getState
     })
-}))
+  }
+})
 
 vi.mock('@/lib/worktree-activation', () => ({
   activateAndRevealWorktree: vi.fn()
@@ -76,7 +80,6 @@ vi.mock('./WorktreeCardAgents', () => ({
 
 vi.mock('./WorktreeContextMenu', () => ({
   default: ({ children }: { children: ReactNode }) => <>{children}</>,
-  CLOSE_ALL_CONTEXT_MENUS_EVENT: 'orca:test-close-context-menus',
   WORKTREE_NATIVE_CONTEXT_MENU_ATTR: 'data-worktree-native-context-menu',
   WORKTREE_CONTEXT_MENU_SCOPE_ATTR: 'data-orca-context-menu-scope'
 }))
@@ -260,32 +263,6 @@ describe('WorktreeCard linked PR display', () => {
     expect(markup).toContain('data-worktree-title-inline-rename=""')
     expect(markup).toContain('>feature/local-branch</span>')
     expect(markup).not.toContain('>Fix stale GH PR</span>')
-  })
-
-  it('shows selected task and notes metadata on compact cards when new card style is on', async () => {
-    settings = { compactWorktreeCards: true, experimentalNewWorktreeCardStyle: true }
-    worktreeCardProperties = ['status', 'issue', 'linear-issue', 'comment']
-    const { default: WorktreeCard } = await import('./WorktreeCard')
-
-    const markup = renderWorktreeCardMarkup(
-      <WorktreeCard
-        worktree={makeWorktree({
-          linkedIssue: 123,
-          linkedLinearIssue: 'ENG-123',
-          linkedPR: 456,
-          comment: 'Reviewer handoff note'
-        })}
-        repo={makeRepo()}
-        isActive={false}
-      />
-    )
-
-    expect(markup).toContain('Linked issue #123')
-    expect(markup).toContain('Linked Linear ENG-123')
-    expect(markup).not.toContain('Linked PR #456')
-    expect(markup).toContain('Workspace notes')
-    expect(markup).not.toContain('data-worktree-card-meta-row=""')
-    expect(markup).not.toContain('Reviewer handoff note')
   })
 
   it('hides individual metadata surfaces when their card properties are disabled', async () => {

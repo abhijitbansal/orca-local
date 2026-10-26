@@ -6,7 +6,8 @@ import type { AgentSessionProviderHandleLink } from '../../shared/agent-session-
 import { codexProviderHandleLink } from '../codex/codex-structured-owner-identity'
 import type { AgentSessionRecordStore } from './agent-session-record-store'
 import { openTestAgentSessionRecordStore } from './agent-session-record-store-test-harness'
-import type { AgentSessionReserveRequest } from './agent-session-reservation-admission'
+import type { AgentSessionReserveRequest } from './agent-session/ownership/agent-session-reservation-admission'
+import { codexProviderHandle } from '../../shared/agent-session-provider-handle-encoding'
 
 const NOW = 1_800_000_000_000
 const SESSION = 'session-codex'
@@ -116,7 +117,7 @@ describe('a Codex thread started in place of one Codex never saved', () => {
     expect(proved.lease.claimStatus).toBe('live')
     expect(proved.providerHandleChain).toEqual([
       expect.objectContaining({
-        handle: { provider: 'codex', threadId: 'thread-new' },
+        handle: codexProviderHandle('thread-new'),
         origin: 'created',
         supersedesKey: 'codex:"thread-unsaved"'
       })

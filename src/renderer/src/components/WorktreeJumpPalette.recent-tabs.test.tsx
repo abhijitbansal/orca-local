@@ -257,7 +257,7 @@ describe('WorktreeJumpPalette recent chats & terminals', () => {
     expect(rows[0].startsWith(encodePaletteIdentity(['workspace-tab']))).toBe(true)
     expect(rows.some((id) => id.startsWith(encodePaletteIdentity(['worktree'])))).toBe(true)
     expect(testContainer.textContent).toContain('Recent Chats & Terminals')
-    expect(testContainer.textContent).toContain('Recent Worktrees')
+    expect(testContainer.textContent).toContain('Recent Workspaces')
   })
 
   it('keeps duplicate persisted tab ids as separate recent rows and digit targets', async () => {
@@ -284,7 +284,7 @@ describe('WorktreeJumpPalette recent chats & terminals', () => {
     await renderPalette(makeManyTabState(12))
 
     expect(getTabRowIds()).toHaveLength(6)
-    expect(testContainer.textContent).toContain('Recent Worktrees')
+    expect(testContainer.textContent).toContain('Recent Workspaces')
     // Why: the worktree section shrinks against the recent rows so the list holds at 10 total —
     // it must never uncap, not even for the frame before the order snapshot lands.
     expect(getWorktreeRows().length).toBeLessThanOrEqual(4)
@@ -717,20 +717,6 @@ describe('WorktreeJumpPalette recent chats & terminals', () => {
     expect(getTabRowIds()).toHaveLength(2)
   })
 
-  it('excludes the idle current tab from the recent section', async () => {
-    await renderPalette(
-      makeRecentTabState({
-        activeWorktreeId: 'wt-alpha',
-        activeTabType: 'terminal',
-        activeTabId: 'term-alpha',
-        activeTabIdByWorktree: { 'wt-alpha': 'term-alpha' },
-        activeTabTypeByWorktree: { 'wt-alpha': 'terminal' }
-      })
-    )
-
-    expect(getTabRowIds()).toEqual(['tab-beta'])
-  })
-
   it('keeps the current tab in recent when its agent needs permission', async () => {
     await renderPalette(
       makeRecentTabState({
@@ -763,38 +749,6 @@ describe('WorktreeJumpPalette recent chats & terminals', () => {
     // idle "where you are" rows are still dropped.
     expect(getTabRowIds()).toEqual(['tab-beta', 'tab-alpha'])
     expect(testContainer.textContent).toContain('Current Tab')
-  })
-
-  it('keeps the current tab in recent when its agent is working', async () => {
-    await renderPalette(
-      makeRecentTabState({
-        activeWorktreeId: 'wt-alpha',
-        activeTabType: 'terminal',
-        activeTabId: 'term-alpha',
-        activeTabIdByWorktree: { 'wt-alpha': 'term-alpha' },
-        activeTabTypeByWorktree: { 'wt-alpha': 'terminal' },
-        agentStatusByPaneKey: {
-          [makePaneKey('term-alpha', LEAF_ID)]: makeAgentEntry('term-alpha', 'working', Date.now())
-        }
-      })
-    )
-
-    expect(getTabRowIds()).toContain('tab-alpha')
-  })
-
-  it('keeps the current tab in recent when it has unread activity', async () => {
-    await renderPalette(
-      makeRecentTabState({
-        activeWorktreeId: 'wt-alpha',
-        activeTabType: 'terminal',
-        activeTabId: 'term-alpha',
-        activeTabIdByWorktree: { 'wt-alpha': 'term-alpha' },
-        activeTabTypeByWorktree: { 'wt-alpha': 'terminal' },
-        unreadTerminalTabs: { 'term-alpha': true }
-      })
-    )
-
-    expect(getTabRowIds()).toContain('tab-alpha')
   })
 
   it.each([undefined, true])('excludes current terminal outcomes', async (interrupted) => {

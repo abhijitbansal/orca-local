@@ -6,6 +6,8 @@ export type OrcaRuntimeRpcServerOptions = {
   userDataPath: string
   pid?: number
   platform?: NodeJS.Platform
+  // Why: an explicit `--port` must fail startup when taken instead of serving elsewhere (#26603).
+  requirePinnedWsPort?: boolean
   // Why: test-only overrides for the two constants below; production must not pass these (defaults set by §3.1).
   keepaliveIntervalMs?: number
   longPollCap?: number

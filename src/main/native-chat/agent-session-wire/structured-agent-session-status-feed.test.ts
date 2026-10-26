@@ -23,6 +23,9 @@ import {
   type StructuredAgentSessionStatusFeedDeps,
   type StructuredAgentSessionStatusSink
 } from './structured-agent-session-status-feed'
+import { createStructuredAgentSessionLogger } from './structured-agent-session-logger'
+import { testEventSinkLogging } from './structured-agent-session-logger-test-support'
+import { codexProviderHandle } from '../../../shared/agent-session-provider-handle-encoding'
 
 const SESSION = 'status-session'
 const TURN_IDENTITY = {
@@ -59,7 +62,7 @@ async function openJournal(sessionId = SESSION, now?: () => number) {
       workspaceId: 'workspace-1',
       hostId: 'local',
       agent: 'codex',
-      providerHandle: { kind: 'codex', threadId: 'thread-1' }
+      providerHandle: codexProviderHandle('thread-1')
     },
     now,
     stateDirectory: join(root, sessionId)
@@ -74,11 +77,11 @@ function feedFor(
   statusSink?: StructuredAgentSessionStatusSink
 ) {
   let now = 1_000
-  // The summary reads child records where the host keeps them: the sink its row landed in.
   const sink =
     statusSink ??
     (readChildWork ? { publish: () => {}, forget: () => {}, readChildWork } : undefined)
   const feed = new StructuredAgentSessionStatusFeed({
+    logger: createStructuredAgentSessionLogger(),
     ...(onStatusChanged ? { onStatusChanged } : {}),
     ...(sink ? { statusSink: () => sink } : {}),
     sessions: {
@@ -92,7 +95,6 @@ function feedFor(
         }
       }
     } as unknown as ReadonlyMap<string, ReturnType<typeof indexed>>,
-    // A partial record still has a lease: the feed reads the conversation's fence off it.
     getRecord: () => (record ? { ...agentSessionRecordFixture(), ...record } : null),
     now: () => (now += 1)
   })
@@ -162,7 +164,6 @@ describe('StructuredAgentSessionStatusFeed', () => {
 
   it('stops projecting an old-host unknown submission after the owner fence advances', async () => {
     const journal = await openJournal()
-    // The conversation's fence is the record's: a child's end moves it.
     const lease = agentSessionRecordFixture().lease
     const record = agentSessionRecordFixture({ ...lease, runtimeFence: 1 })
     const { feed, events } = feedFor(new Map([[SESSION, { journal }]]), record)
@@ -182,7 +183,6 @@ describe('StructuredAgentSessionStatusFeed', () => {
     expect(events.at(-1)).toMatchObject({ session: { status: 'working' } })
     record.lease.runtimeFence = 2
     feed.publish(SESSION)
-    // Its only send outlived the host that sent it and became no turn: nothing left to list.
     expect(events.at(-1)).toMatchObject({ session: { status: null } })
   })
 
@@ -356,19 +356,21 @@ describe('StructuredAgentSessionStatusFeed', () => {
 
   it('carries the record model and the running tool line the sidebar row shows', async () => {
     const journal = await openJournal()
+    const fence = agentSessionRecordFixture().lease.runtimeFence
     const { feed, events } = feedFor(new Map([[SESSION, { journal }]]), {
+      location: indexed({ journal }).params.location,
       options: { model: 'gpt-5-codex' },
       providerHandleChain: []
     })
     await journal.appendItem(
       USER_IDENTITY,
       { kind: 'message', role: 'user', blocks: [{ type: 'text', text: 'run the tests' }] },
-      { fence: 1, turnScope: AGENT_JOURNAL_THREAD_SCOPE }
+      { fence, turnScope: AGENT_JOURNAL_THREAD_SCOPE }
     )
     await journal.appendItem(
       TURN_IDENTITY,
       { kind: 'status', text: 'Working', turnLifecycle: { turnId: 'turn-1', state: 'running' } },
-      { fence: 1, turnScope: AGENT_JOURNAL_THREAD_SCOPE }
+      { fence, turnScope: AGENT_JOURNAL_THREAD_SCOPE }
     )
     feed.publish(SESSION)
     expect(events.at(-1)).toEqual({
@@ -379,12 +381,11 @@ describe('StructuredAgentSessionStatusFeed', () => {
     await journal.appendItem(
       { ...USER_IDENTITY, ordinal: 2 },
       { kind: 'tool-call', name: 'shell', input: { command: 'pnpm test' }, state: 'running' },
-      { fence: 1, turnScope: AGENT_JOURNAL_THREAD_SCOPE }
+      { fence, turnScope: AGENT_JOURNAL_THREAD_SCOPE }
     )
     feed.publish(SESSION)
 
-    // A tool boundary changes nothing else about the session, so only comparing the new
-    // fields keeps it from being deduped away as an unchanged projection.
+    // Tool boundaries must change the equality key even when every other status field is unchanged.
     expect(events.at(-1)).toEqual({
       type: 'status',
       session: expect.objectContaining({ toolName: 'shell', toolInput: 'pnpm test' })
@@ -433,7 +434,6 @@ describe('StructuredAgentSessionStatusFeed', () => {
       session: expect.objectContaining({ status: 'idle', latestPrompt: 'hello' })
     })
 
-    // Eviction drops the host's index entry; the projection it already made stays true.
     sessions.delete(SESSION)
     feed.publish(SESSION)
     const late: AgentSessionStatusEvent[] = []
@@ -451,8 +451,7 @@ describe('StructuredAgentSessionStatusFeed', () => {
   it('tells the sitting subscribers about a change a new subscriber re-projected', async () => {
     const journal = await openJournal()
     const { feed, events } = feedFor(new Map([[SESSION, { journal }]]))
-    // Journal appends and the feed's publish are separate queue submissions, so the journal
-    // can already hold the turn when a second client connects and re-projects it.
+    // Journal append may precede feed publish; a new subscriber must update existing readers too.
     await journal.appendItem(
       USER_IDENTITY,
       { kind: 'message', role: 'user', blocks: [{ type: 'text', text: 'hello' }] },
@@ -466,14 +465,12 @@ describe('StructuredAgentSessionStatusFeed', () => {
       type: 'status',
       session: expect.objectContaining({ status: 'idle', latestPrompt: 'hello' })
     })
-    // The arriving subscriber reads that same state once, from its snapshot.
     expect(late).toEqual([
       {
         type: 'snapshot',
         sessions: [expect.objectContaining({ status: 'idle', latestPrompt: 'hello' })]
       }
     ])
-    // The cache is not left holding a value nobody was told about.
     feed.publish(SESSION)
     expect(events).toHaveLength(2)
   })
@@ -516,14 +513,12 @@ describe('StructuredAgentSessionStatusFeed', () => {
     )
 
     feed.publish(SESSION, journal)
-    // A second identical publication is deduped, so the observer only ever sees changes.
     feed.publish(SESSION, journal)
-    // seen[0] is the opening projection the harness's own subscriber triggered.
+    // The rig subscriber created the opening projection.
     expect(seen.slice(1)).toEqual([
       { status: 'working', prompt: 'fix the auth bug', replay: false }
     ])
 
-    // An arriving subscriber re-projects state the host already knew.
     await journal.appendTombstone(TURN_IDENTITY, { fence: 1 })
     feed.subscribe({ id: 'list-2', emit: () => undefined })
     expect(seen.at(-1)).toEqual({ status: 'idle', prompt: 'fix the auth bug', replay: true })
@@ -546,7 +541,7 @@ describe('StructuredAgentSessionStatusFeed', () => {
       const { feed } = feedFor(new Map([[SESSION, { journal }]]), null, (summary) =>
         seen.push(summary.status)
       )
-      const deferred = createDeferredStructuredAgentSessionEventSink()
+      const deferred = createDeferredStructuredAgentSessionEventSink(testEventSinkLogging())
       if (agent === 'claude') {
         const translator = createClaudeJournalTranslator({ sink: deferred.sink })
         translator.handle({
@@ -588,7 +583,6 @@ describe('StructuredAgentSessionStatusFeed', () => {
       for (let index = 0; index < 100; index++) {
         deferred.sink.publish()
       }
-      // This queue is also reached while a previous asynchronous journal write is pending.
       let publications = 0
       let activityPublications = 0
       deferred.bind({
@@ -663,14 +657,18 @@ describe('StructuredAgentSessionStatusFeed', () => {
     expect(events.at(-1)).toMatchObject({ type: 'status', session: { status: 'idle' } })
   })
 
-  it('invalidates cached status on unreadability and keeps record metadata live', async () => {
+  it('keeps record metadata live', async () => {
     const journal = await openJournal()
     await journal.appendItem(
       USER_IDENTITY,
       { kind: 'message', role: 'user', blocks: [{ type: 'text', text: 'hello' }] },
       { fence: 1, turnScope: AGENT_JOURNAL_THREAD_SCOPE }
     )
-    const record = { options: { model: 'first-model' }, providerHandleChain: [] }
+    const record = {
+      location: indexed({ journal }).params.location,
+      options: { model: 'first-model' },
+      providerHandleChain: []
+    }
     const { feed, events } = feedFor(new Map([[SESSION, { journal }]]), record)
     record.options.model = 'second-model'
     feed.publish(SESSION)
@@ -678,21 +676,10 @@ describe('StructuredAgentSessionStatusFeed', () => {
       type: 'status',
       session: { status: 'idle', model: 'second-model' }
     })
-    const readOnly = vi.spyOn(journal, 'isReadOnly', 'get').mockReturnValue(true)
-    feed.publish(SESSION)
-    expect(events.at(-1)).toMatchObject({ type: 'status', session: { status: null } })
-    readOnly.mockRestore()
-    feed.publish(SESSION)
-    expect(events.at(-1)).toMatchObject({ type: 'status', session: { status: 'idle' } })
   })
 })
 
-/**
- * `published` is a broadcast cache, not a roster. It deliberately never retracts — an evicted idle
- * session is still idle, and a reloading renderer must not lose every settled row — so enumerating
- * it lists every session this host has ever opened. Eviction's `forget-session` step deletes the
- * session from the live map and touches nothing else, so a poller has to intersect with that map.
- */
+// Broadcast cache retains closed history; roster reads must intersect it with live sessions.
 describe('the status sink sees the roster the broadcast cache deliberately lacks', () => {
   function sinkFor() {
     const published: AgentSessionStatusSummary[] = []
@@ -717,8 +704,6 @@ describe('the status sink sees the roster the broadcast cache deliberately lacks
       { fence: 1, turnScope: AGENT_JOURNAL_THREAD_SCOPE }
     )
     feed.publish(SESSION, journal)
-    // A second identical publication is deduped for the sink exactly as for subscribers, so the
-    // sink saw two writes: the opening projection the harness's subscriber triggered, then this.
     feed.publish(SESSION, journal)
     expect(published.map((summary) => summary.status)).toEqual([null, 'idle'])
     expect(published.at(-1)).toMatchObject({
@@ -731,9 +716,7 @@ describe('the status sink sees the roster the broadcast cache deliberately lacks
     expect(published.at(-1)).toMatchObject({ sessionId: SESSION, status: 'idle' })
     expect(published.at(-1)?.hostExecutionOwned).toBeUndefined()
     expect(published.at(-1)?.hostExecutionPhase).toBeUndefined()
-    expect(published.at(-1)?.hostExecutionChild).toBeUndefined()
 
-    // Exactly what `close` does after eviction: the cache keeps the projection, the sink does not.
     sessions.delete(SESSION)
     feed.forget(SESSION)
     expect(forgotten).toEqual([

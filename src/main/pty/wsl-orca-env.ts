@@ -1,4 +1,8 @@
 import {
+  ORCA_SCRUB_SAFE_PANE_ENV,
+  ORCA_SCRUB_SAFE_LAUNCH_ENV
+} from '../../shared/agent-hook-scrub-safe-env'
+import {
   ORCHESTRATION_COMPATIBILITY_ATTACHMENT_ENV,
   ORCHESTRATION_COMPATIBILITY_HOST_ID_ENV,
   ORCHESTRATION_COMPATIBILITY_HOST_INCARNATION_ENV,
@@ -10,6 +14,12 @@ import {
 } from '../../shared/setup-agent-sequencing'
 import { getShellReadyWrapperRoot } from '../providers/local-pty-shell-ready-wrapper-root'
 import { ORCA_IMAGE_PROTOCOL_ENV } from '../../shared/terminal-image-protocol'
+import {
+  RUNTIME_SOURCE_ID_ENV,
+  RUNTIME_SOURCE_INCARNATION_ENV,
+  RUNTIME_SOURCE_PROFILE_PATH_ENV
+} from '../../shared/runtime-source-env'
+import { CODEX_REMOTE_VIEWER_SSH_CONNECTION } from '../ipc/pty/host-env/codex-terminal-clipboard'
 
 const WSLENV_ENTRY_SEPARATOR = ':'
 
@@ -84,9 +94,13 @@ export function addOrcaWslInteropEnv(env: Record<string, string>): void {
     'ORCA_CODEX_LAUNCH_PREFLIGHT/p',
     'ORCA_CODEX_ISOLATE/u',
     'ORCA_PANE_KEY/u',
+    `${ORCA_SCRUB_SAFE_PANE_ENV}/u`,
     'ORCA_TAB_ID/u',
     'ORCA_WORKTREE_ID/u',
+    // An id, never a path; agent wrappers and the guest CLI read it like ORCA_WORKTREE_ID.
+    'ORCA_WORKSPACE_ID/u',
     'ORCA_AGENT_LAUNCH_TOKEN/u',
+    `${ORCA_SCRUB_SAFE_LAUNCH_ENV}/u`,
     // The guest plugin uses this marker to select the OpenCode variant that
     // owns the pane when both native and WSL installations are present.
     'ORCA_OPENCODE_AGENT/u',
@@ -95,6 +109,10 @@ export function addOrcaWslInteropEnv(env: Record<string, string>): void {
     'ORCA_ORCHESTRATION_COMPATIBILITY_HOST_KIND/u',
     'ORCA_ORCHESTRATION_COMPATIBILITY_HOST_ID/u',
     'ORCA_ORCHESTRATION_COMPATIBILITY_HOST_INCARNATION/u',
+    `${RUNTIME_SOURCE_ID_ENV}/u`,
+    `${RUNTIME_SOURCE_INCARNATION_ENV}/u`,
+    // Why /u: compared with the Windows CLI's own userData path, never read as a guest path.
+    `${RUNTIME_SOURCE_PROFILE_PATH_ENV}/u`,
     'ORCA_AGENT_HOOK_PORT/u',
     'ORCA_AGENT_HOOK_TOKEN/u',
     'ORCA_AGENT_HOOK_ENV/u',
@@ -108,6 +126,9 @@ export function addOrcaWslInteropEnv(env: Record<string, string>): void {
     `ORCA_OMP_STATUS_EXTENSION/${env.ORCA_OMP_STATUS_EXTENSION?.startsWith('/') ? 'u' : 'p'}`,
     ...(env.ORCA_PI_SOURCE_AGENT_DIR?.startsWith('/') ? ['ORCA_PI_SOURCE_AGENT_DIR/u'] : []),
     `${ORCA_IMAGE_PROTOCOL_ENV}/u`,
+    'CLAUDE_CODE_FORCE_TERMINAL_IMAGES/u',
+    // Why only Orca's marker: a real Windows-side SSH session must not leak into bare guest shells.
+    ...(env.SSH_CONNECTION === CODEX_REMOTE_VIEWER_SSH_CONNECTION ? ['SSH_CONNECTION/u'] : []),
     'ORCA_OMP_FRESH_CONFIG/p',
     ...worktreeSetupWslenvEntries(env)
   ]

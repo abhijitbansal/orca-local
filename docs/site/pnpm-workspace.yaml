@@ -1,0 +1,9 @@
+minimumReleaseAge: 4320
+
+allowBuilds:
+  esbuild: true
+  sharp: true
+
+overrides:
+  zod@>=4 <4.6.6: 4.6.7
+  path-to-regexp@>=4.0.0 <6.3.0: 6.3.0

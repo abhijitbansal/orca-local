@@ -64,10 +64,7 @@ vi.mock('@/store', () => {
   return { useAppStore }
 })
 
-vi.mock('@/runtime/runtime-rpc-client', () => ({
-  getActiveRuntimeTarget: () => ({ kind: 'local' }),
-  callRuntimeRpc: mocks.callRuntimeRpc
-}))
+vi.mock('@/runtime/runtime-rpc-client', () => ({ callRuntimeRpc: mocks.callRuntimeRpc }))
 
 vi.mock('sonner', () => ({
   toast: {
@@ -171,5 +168,21 @@ describe('useAddRepoCloneFlow', () => {
     })
     expect(mocks.storeState.repos).toContainEqual(localRepo)
     expect(mocks.onGitRepoReady).toHaveBeenCalledWith(repo.id, 'clone_url', 'runtime:env-1')
+  })
+
+  it('never clones onto this computer while the chosen host is unresolved', async () => {
+    const { useAddRepoCloneFlow } = await import('./useAddRepoCloneFlow')
+
+    const result = useAddRepoCloneFlow({
+      step: 'clone',
+      hostId: null,
+      activeRuntimeEnvironmentId: null,
+      workspaceDir: '/local/workspace',
+      fetchWorktrees: mocks.fetchWorktrees,
+      onGitRepoReady: mocks.onGitRepoReady
+    })
+    await result.handleClone()
+
+    expect(mocks.cloneLocal).not.toHaveBeenCalled()
   })
 })

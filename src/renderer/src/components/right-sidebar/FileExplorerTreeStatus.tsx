@@ -8,6 +8,7 @@ type FileExplorerTreeStatusProps = {
   isEmpty: boolean
   scopedToFolder?: boolean
   emptyMessage?: string
+  /** The workspace's WSL host is turned off: offer the switch instead of a read error. */
 }
 
 /** Treats even an empty error message as a failed read, keeping unreadable directories distinct from empty ones. */

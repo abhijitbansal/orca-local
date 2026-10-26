@@ -1,7 +1,11 @@
-import { closeTestStores, createSqliteTestStore } from './persistence-test-harness'
-// Why this file exists: removing a workspace's session rows must take its close records with it,
-// or they hold cap slots until the TTL and read as "emptied on purpose" for a new workspace at the
-// same path.
+import {
+  closeTestStores,
+  createSqliteTestStore,
+  testState
+} from './persistence/persistence-test-harness'
+import { Store as CanonicalStore } from './persistence/loading-store/store'
+import { initDataPath as initCanonicalDataPath } from './persistence/loading-store/user-data-path'
+import { resetRetirementCollisionKeyCacheForTests } from './worktree-name-retirement'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { rmSync, mkdtempSync } from 'node:fs'
 import { join } from 'node:path'
@@ -14,8 +18,10 @@ import {
   recordClosedTerminalTabTombstone,
   type ClosedTerminalTabTombstonesByTabId
 } from '../shared/closed-terminal-tab-tombstones'
+import { hostWorktreeTarget } from '../shared/worktree/host-qualified-identity'
+import { removeWorktreeMetaRow } from './persistence/host-qualified-worktree-meta'
 
-const testState = { dir: '' }
+let hasCreatedStoreInCase = false
 
 vi.mock('electron', () => ({
   app: {
@@ -32,6 +38,13 @@ vi.mock('./telemetry/client', () => ({ track: vi.fn() }))
 vi.mock('./telemetry/cohort-classifier', () => ({ getCohortAtEmit: vi.fn().mockReturnValue({}) }))
 
 async function createStore() {
+  if (!hasCreatedStoreInCase) {
+    hasCreatedStoreInCase = true
+    initCanonicalDataPath()
+    return createSqliteTestStore(CanonicalStore, {
+      dataFile: join(testState.dir, 'orca-data.json')
+    })
+  }
   vi.resetModules()
   const { Store, initDataPath } = await import('./persistence')
   initDataPath()
@@ -65,6 +78,8 @@ function sessionWithRecords(map: ClosedTerminalTabTombstonesByTabId) {
 
 describe('close records on workspace removal', () => {
   beforeEach(() => {
+    hasCreatedStoreInCase = false
+    resetRetirementCollisionKeyCacheForTests()
     testState.dir = mkdtempSync(join(tmpdir(), 'orca-test-'))
   })
 
@@ -75,7 +90,7 @@ describe('close records on workspace removal', () => {
 
   it('drops only the removed worktree’s records', async () => {
     const store = await createStore()
-    store.setWorktreeMeta(REMOVED, {})
+    store.setWorktreeMeta(hostWorktreeTarget({ id: REMOVED, hostId: 'local' }), {})
     store.setWorkspaceSession(
       sessionWithRecords(
         records([
@@ -85,7 +100,7 @@ describe('close records on workspace removal', () => {
       )
     )
 
-    store.removeWorktreeMeta(REMOVED)
+    removeWorktreeMetaRow(store, REMOVED, undefined)
 
     expect(
       Object.keys(store.getWorkspaceSession().closedTerminalTabTombstonesByTabId ?? {})
@@ -94,7 +109,9 @@ describe('close records on workspace removal', () => {
 
   it('drops the records in the SSH host’s partition on a remote removal', async () => {
     const store = await createStore()
-    store.setWorktreeMeta(REMOVED, { hostId: SSH_HOST })
+    store.setWorktreeMeta(hostWorktreeTarget({ id: REMOVED, hostId: SSH_HOST }), {
+      hostId: SSH_HOST
+    })
     store.setWorkspaceSession(
       sessionWithRecords(
         records([
@@ -105,14 +122,13 @@ describe('close records on workspace removal', () => {
       SSH_HOST
     )
 
-    store.removeWorktreeMeta(REMOVED, SSH_HOST)
+    store.removeWorktreeMeta(hostWorktreeTarget({ id: REMOVED, hostId: SSH_HOST }))
 
     expect(
       Object.keys(store.getWorkspaceSession(SSH_HOST).closedTerminalTabTombstonesByTabId ?? {})
     ).toEqual(['closed-kept'])
   })
 
-  // Why: repo ids and paths repeat across hosts; the local owner of the same id is still live.
   it('keeps a same-id worktree’s records on another host when one host’s copy is removed', async () => {
     const store = await createStore()
     const repo = { id: 'repo-a', displayName: 'A', badgeColor: 'gray', addedAt: 1 }
@@ -123,11 +139,13 @@ describe('close records on workspace removal', () => {
       connectionId: 'target-1',
       executionHostId: SSH_HOST
     })
-    store.setWorktreeMeta(REMOVED, { hostId: SSH_HOST })
+    store.setWorktreeMeta(hostWorktreeTarget({ id: REMOVED, hostId: SSH_HOST }), {
+      hostId: SSH_HOST
+    })
     store.setWorkspaceSession(sessionWithRecords(records([['local-tab', REMOVED]])))
     store.setWorkspaceSession(sessionWithRecords(records([['ssh-tab', REMOVED]])), SSH_HOST)
 
-    store.removeWorktreeMeta(REMOVED, SSH_HOST)
+    store.removeWorktreeMeta(hostWorktreeTarget({ id: REMOVED, hostId: SSH_HOST }))
 
     expect(
       Object.keys(store.getWorkspaceSession().closedTerminalTabTombstonesByTabId ?? {})
@@ -162,7 +180,6 @@ describe('close records on workspace removal', () => {
     expect(store.getWorkspaceSession(SSH_HOST).closedTerminalTabTombstonesByTabId).toEqual({})
   })
 
-  // Why the removed worktree has no meta here: records alone must still mark it as the repo's.
   it('drops every worktree’s records when its project is removed, and keeps other projects’', async () => {
     const store = await createStore()
     store.addRepo({
@@ -181,14 +198,13 @@ describe('close records on workspace removal', () => {
       ])
     })
 
-    store.removeProject('repo-a')
+    store.removeProjectForHost({ id: 'repo-a', executionHostId: 'local' })
 
     expect(
       Object.keys(store.getWorkspaceSession().closedTerminalTabTombstonesByTabId ?? {})
     ).toEqual(['closed-b'])
   })
 
-  // Why: dead records used to hold cap slots until their TTL, so fresh closes evicted a live one.
   it('frees the removed worktree’s cap slots, so later closes keep a live worktree’s record', async () => {
     const store = await createStore()
     const now = Date.now()
@@ -196,7 +212,7 @@ describe('close records on workspace removal', () => {
       { length: MAX_CLOSED_TERMINAL_TAB_TOMBSTONES - 1 },
       (_, index): [string, string] => [`dead-${index}`, REMOVED]
     )
-    store.setWorktreeMeta(REMOVED, {})
+    store.setWorktreeMeta(hostWorktreeTarget({ id: REMOVED, hostId: 'local' }), {})
     store.setWorkspaceSession(
       sessionWithRecords({
         ...records(dead, now),
@@ -204,7 +220,7 @@ describe('close records on workspace removal', () => {
       })
     )
 
-    store.removeWorktreeMeta(REMOVED)
+    removeWorktreeMetaRow(store, REMOVED, undefined)
     let map = store.getWorkspaceSession().closedTerminalTabTombstonesByTabId
     for (let index = 0; index < 2; index += 1) {
       map = recordClosedTerminalTabTombstone(

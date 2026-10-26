@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const {
   callMock,
@@ -41,6 +41,12 @@ import {
 import { useWorktreeAwarenessEnvironment } from './index-test-harness'
 
 describe('orca cli worktree awareness', () => {
+  const originalExitCode = process.exitCode
+
+  afterEach(() => {
+    process.exitCode = originalExitCode
+  })
+
   useWorktreeAwarenessEnvironment({
     callMock,
     serveOrcaAppMock,
@@ -174,8 +180,6 @@ describe('orca cli worktree awareness', () => {
 
   it('rejects automation create with both repo and workspace targets', async () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const priorExitCode = process.exitCode
 
     await main(
       [
@@ -199,18 +203,19 @@ describe('orca cli worktree awareness', () => {
     )
 
     expect(callMock).not.toHaveBeenCalled()
-    expect([...logSpy.mock.calls, ...errSpy.mock.calls].flat().join('\n')).toContain(
-      'Use either --repo or --workspace, not both.'
-    )
+    expect(logSpy).toHaveBeenCalledTimes(1)
+    expect(JSON.parse(String(logSpy.mock.calls[0]?.[0]))).toMatchObject({
+      ok: false,
+      error: {
+        code: 'invalid_argument',
+        message: expect.stringContaining('Use either --repo or --workspace, not both.')
+      }
+    })
     expect(process.exitCode).toBe(1)
-
-    process.exitCode = priorExitCode
   })
 
   it('rejects automation edit with both repo and workspace targets', async () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const priorExitCode = process.exitCode
 
     await main(
       [
@@ -227,12 +232,15 @@ describe('orca cli worktree awareness', () => {
     )
 
     expect(callMock).not.toHaveBeenCalled()
-    expect([...logSpy.mock.calls, ...errSpy.mock.calls].flat().join('\n')).toContain(
-      'Use either --repo or --workspace, not both.'
-    )
+    expect(logSpy).toHaveBeenCalledTimes(1)
+    expect(JSON.parse(String(logSpy.mock.calls[0]?.[0]))).toMatchObject({
+      ok: false,
+      error: {
+        code: 'invalid_argument',
+        message: expect.stringContaining('Use either --repo or --workspace, not both.')
+      }
+    })
     expect(process.exitCode).toBe(1)
-
-    process.exitCode = priorExitCode
   })
 
   it.each([
@@ -248,8 +256,6 @@ describe('orca cli worktree awareness', () => {
     }
   ])('rejects automation create --$flag with a string value', async ({ flag, value, message }) => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const priorExitCode = process.exitCode
 
     await main(
       [
@@ -273,10 +279,12 @@ describe('orca cli worktree awareness', () => {
     )
 
     expect(callMock).not.toHaveBeenCalled()
-    expect([...logSpy.mock.calls, ...errSpy.mock.calls].flat().join('\n')).toContain(message)
+    expect(logSpy).toHaveBeenCalledTimes(1)
+    expect(JSON.parse(String(logSpy.mock.calls[0]?.[0]))).toMatchObject({
+      ok: false,
+      error: { code: 'invalid_argument', message: expect.stringContaining(message) }
+    })
     expect(process.exitCode).toBe(1)
-
-    process.exitCode = priorExitCode
   })
 
   it('resolves explicit automation create workspace active from cwd', async () => {

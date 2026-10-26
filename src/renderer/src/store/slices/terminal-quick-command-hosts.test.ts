@@ -7,6 +7,7 @@ import {
   RUNTIME_PROTOCOL_VERSION,
   TERMINAL_QUICK_COMMANDS_RUNTIME_CAPABILITY
 } from '../../../../shared/protocol-version'
+import { stubRuntimeEnvironmentBridge } from '../../runtime/runtime-environment-bridge-fixture'
 
 vi.mock('sonner', () => ({ toast: { error: vi.fn() } }))
 
@@ -47,7 +48,7 @@ function installRuntime(supported = true): ReturnType<typeof vi.fn> {
     }
     throw new Error(`Unexpected method: ${method}`)
   })
-  vi.stubGlobal('window', { api: { runtimeEnvironments: { call } } })
+  stubRuntimeEnvironmentBridge({ call })
   return call
 }
 
@@ -82,5 +83,21 @@ describe('terminal quick command host collections', () => {
 
     expect(set).toHaveBeenCalledWith({ terminalQuickCommands: [savedCommand] })
     expect(store.getState().settings?.terminalQuickCommands).toEqual([savedCommand])
+  })
+
+  it('saves a new local command when forty commands already exist', async () => {
+    const commands = Array.from({ length: 40 }, (_, index) => ({
+      ...savedCommand,
+      id: `command-${index}`,
+      scope: { type: 'repo' as const, repoId: `missing-project-${index}` }
+    }))
+    const set = vi.fn(async (updates: { terminalQuickCommands: TerminalQuickCommand[] }) => updates)
+    vi.stubGlobal('window', { api: { settings: { set } } })
+    const store = createTestStore()
+    store.setState({ settings: { ...getDefaultSettings('/tmp'), terminalQuickCommands: commands } })
+
+    expect(await store.getState().upsertTerminalQuickCommand('local', savedCommand)).toBe(true)
+    expect(set).toHaveBeenCalledWith({ terminalQuickCommands: [...commands, savedCommand] })
+    expect(store.getState().settings?.terminalQuickCommands).toEqual([...commands, savedCommand])
   })
 })

@@ -149,10 +149,13 @@ test.describe('Onboarding flow', () => {
     await waitForSessionReady(orcaPage)
   })
 
-  test('renders on first launch with the agent step active', async ({ orcaPage }) => {
+  test('Continue advances steps, persists progress, and applies user-visible settings', async ({
+    orcaPage
+  }) => {
     await expect(orcaPage.getByRole('heading', { name: /Pick your default agent/i })).toBeVisible({
       timeout: 15_000
     })
+
     await expectOnboardingProgress(orcaPage, /^1 of [345]$/)
     await expect(onboardingFooterButton(orcaPage, /^Continue\b/)).toBeVisible()
     await expect(onboardingFooterButton(orcaPage, SKIP_TO_PROJECT_SETUP_BUTTON)).toBeVisible()
@@ -169,14 +172,6 @@ test.describe('Onboarding flow', () => {
         .filter({ hasText: /⌘|Ctrl/ })
         .first()
     ).toBeVisible()
-  })
-
-  test('Continue advances steps, persists progress, and applies user-visible settings', async ({
-    orcaPage
-  }) => {
-    await expect(orcaPage.getByRole('heading', { name: /Pick your default agent/i })).toBeVisible({
-      timeout: 15_000
-    })
 
     // --- Step 1: agent ---
     // Force a deterministic, non-default selection so the assertion below
@@ -185,7 +180,7 @@ test.describe('Onboarding flow', () => {
     // agents are detected, otherwise behind the "Show N more agents" details
     // expander — open it if codex isn't visible.
     const targetAgent: TuiAgent = 'codex'
-    const codexButton = orcaPage.getByRole('button', { name: /^Codex\s/ })
+    const codexButton = orcaPage.getByRole('button', { name: 'Codex', exact: true })
     // Why: isVisible() is a one-shot probe — on slow renderer paint it would
     // race the wizard mount and falsely take the "show more agents" branch.
     // waitFor with a small timeout actually retries until the button paints.
@@ -198,6 +193,7 @@ test.describe('Onboarding flow', () => {
       await orcaPage.getByText(/Show \d+ more agents/).click()
     }
     await codexButton.click()
+    await expect(codexButton).toHaveAttribute('aria-pressed', 'true')
 
     await continueOnboarding(orcaPage)
     await expect(orcaPage.getByRole('heading', { name: /Make it feel like home/i })).toBeVisible()
@@ -337,7 +333,7 @@ test.describe('Onboarding flow', () => {
     await expect(orcaPage.getByRole('heading', { name: /Pick your default agent/i })).toBeVisible({
       timeout: 15_000
     })
-    const codexButton = orcaPage.getByRole('button', { name: /^Codex\s/ })
+    const codexButton = orcaPage.getByRole('button', { name: 'Codex', exact: true })
     const codexVisible = await codexButton
       .first()
       .waitFor({ state: 'visible', timeout: 1_000 })
@@ -416,13 +412,6 @@ test.describe('Onboarding flow', () => {
     await expect(orcaPage.getByRole('heading', { name: /Make it feel like home/i })).toBeVisible()
     await continueFromThemeToNotifications(orcaPage)
 
-    await orcaPage.evaluate(() => {
-      localStorage.removeItem('orca.e2e.notificationPermissionRequested')
-      window.api.notifications.requestPermission = async () => {
-        localStorage.setItem('orca.e2e.notificationPermissionRequested', '1')
-        return { supported: true, platform: 'darwin', requested: true }
-      }
-    })
     await expectOnboardingNotificationSound(orcaPage, /System Default/i)
 
     await expect(onboardingFooterButton(orcaPage, SKIP_TO_PROJECT_SETUP_BUTTON)).toHaveCount(0)
@@ -436,26 +425,6 @@ test.describe('Onboarding flow', () => {
         { timeout: 5_000 }
       )
       .toBeNull()
-  })
-
-  test('selected agent button reports aria-pressed=true', async ({ orcaPage }) => {
-    await expect(orcaPage.getByRole('heading', { name: /Pick your default agent/i })).toBeVisible({
-      timeout: 15_000
-    })
-
-    const codexButton = orcaPage.getByRole('button', { name: /^Codex\s/ })
-    const codexVisible = await codexButton
-      .first()
-      .waitFor({ state: 'visible', timeout: 1_000 })
-      .then(() => true)
-      .catch(() => false)
-    if (!codexVisible) {
-      await orcaPage.getByText(/Show \d+ more agents/).click()
-    }
-    await codexButton.click()
-    // Why: AgentButton now sets aria-pressed so screen readers and assistive
-    // tech can announce the selection. Verify the attribute reflects state.
-    await expect(codexButton).toHaveAttribute('aria-pressed', 'true')
   })
 
   test('notification sound choice persists on Continue', async ({ orcaPage }) => {

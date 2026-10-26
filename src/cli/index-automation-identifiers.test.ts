@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const {
   callMock,
@@ -34,6 +34,12 @@ import { okFixture, queueFixtures } from './test-fixtures'
 import { useWorktreeAwarenessEnvironment } from './index-test-harness'
 
 describe('orca cli worktree awareness', () => {
+  const originalExitCode = process.exitCode
+
+  afterEach(() => {
+    process.exitCode = originalExitCode
+  })
+
   useWorktreeAwarenessEnvironment({
     callMock,
     serveOrcaAppMock,
@@ -109,7 +115,6 @@ describe('orca cli worktree awareness', () => {
 
   it('rejects ambiguous positional and flag automation ids before dispatch', async () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-    const priorExitCode = process.exitCode
 
     await main(['automations', 'show', 'auto-1', '--id', 'auto-2', '--json'], '/tmp/repo')
 
@@ -123,7 +128,5 @@ describe('orca cli worktree awareness', () => {
       }
     })
     expect(process.exitCode).toBe(1)
-
-    process.exitCode = priorExitCode
   })
 })

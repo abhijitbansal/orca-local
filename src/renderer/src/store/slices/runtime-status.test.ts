@@ -11,7 +11,8 @@ import {
   getRuntimeEnvironmentConnectionGeneration
 } from './runtime-status'
 import { getProviderRuntimeContextKey } from '@/lib/provider-runtime-context'
-import { getPairedDeviceIdsByEnvironment } from '@/components/sidebar/workspace-creator-visibility'
+import { getPairedDeviceIdsByEnvironment } from '../../../../shared/workspace-creator-visibility'
+import { stubRuntimeEnvironmentBridge } from '../../runtime/runtime-environment-bridge-fixture'
 
 vi.mock('sonner', () => ({
   toast: { warning: vi.fn(), dismiss: vi.fn() }
@@ -60,14 +61,7 @@ function stubRuntimeEnvironmentApi({
   getStatus?: ReturnType<typeof vi.fn>
   list?: ReturnType<typeof vi.fn>
 }) {
-  vi.stubGlobal('window', {
-    api: {
-      runtimeEnvironments: {
-        getStatus,
-        list
-      }
-    }
-  })
+  stubRuntimeEnvironmentBridge({ getStatus, list })
   return { getStatus, list }
 }
 
@@ -124,28 +118,6 @@ describe('runtime-status slice', () => {
     expect(store.getState().runtimeEnvironmentCatalogHydrated).toBe(true)
     expect(store.getState().runtimeStatusByEnvironmentId.has('keep')).toBe(true)
     expect(store.getState().runtimeStatusByEnvironmentId.has('drop')).toBe(false)
-  })
-
-  it('drops old status and advances generation when the same environment id is re-paired', () => {
-    const store = createSliceStore()
-    const purgeStaleRuntimeHostState = vi.fn()
-    store.setState({ purgeStaleRuntimeHostState } as never)
-    store
-      .getState()
-      .setRuntimeEnvironments([{ id: 'env-a', createdAt: 1, pairingRevision: 1 } as never])
-    store.getState().setRuntimeEnvironmentStatus('env-a', {
-      status: makeStatus({ runtimeId: 'same-runtime' }),
-      checkedAt: 1
-    })
-    const before = getRuntimeEnvironmentConnectionGeneration('env-a')
-
-    store
-      .getState()
-      .setRuntimeEnvironments([{ id: 'env-a', createdAt: 1, pairingRevision: 2 } as never])
-
-    expect(store.getState().runtimeStatusByEnvironmentId.has('env-a')).toBe(false)
-    expect(getRuntimeEnvironmentConnectionGeneration('env-a')).toBe(before + 1)
-    expect(purgeStaleRuntimeHostState).toHaveBeenCalledWith(['env-a'])
   })
 
   it('merges per environment id and produces a new map reference', () => {
@@ -603,13 +575,9 @@ describe('runtime-status slice', () => {
 
   it('preserves successful reachability when reading its snapshot fails', async () => {
     const log = vi.spyOn(console, 'error').mockImplementation(() => {})
-    vi.stubGlobal('window', {
-      api: {
-        runtimeEnvironments: {
-          getStatus: vi.fn().mockResolvedValue(createCompatibleRuntimeStatusResponse('runtime-a')),
-          getStatusSnapshots: vi.fn().mockRejectedValue(new Error('IPC read failed'))
-        }
-      }
+    stubRuntimeEnvironmentBridge({
+      getStatus: vi.fn().mockResolvedValue(createCompatibleRuntimeStatusResponse('runtime-a')),
+      getStatusSnapshots: vi.fn().mockRejectedValue(new Error('IPC read failed'))
     })
     try {
       const store = createSliceStore()

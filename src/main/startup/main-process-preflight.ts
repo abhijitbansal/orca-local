@@ -1,5 +1,6 @@
+import { antigravityHookService } from '../antigravity/hook-service'
+import { getRelocatedDaemonHost } from '../daemon/daemon-host-relocation'
 import { app, ipcMain, powerMonitor, session } from 'electron'
-import { is } from '@electron-toolkit/utils'
 import os from 'node:os'
 import { join } from 'node:path'
 import { maybeRedirectCliLaunch } from './cli-launch-redirect'
@@ -24,14 +25,16 @@ import {
 import { hydrateShellPath, mergePathSegments } from './hydrate-shell-path'
 import { getDevInstanceIdentity, shouldApplyPreReadyAppName } from './dev-instance-identity'
 import { enableRendererHeapHeadroom } from './renderer-heap-headroom'
+import { configureLinuxDevShmUsage } from './linux-dev-shm-policy'
 import { isStartupDiagnosticsEnabled, logStartupDiagnostic } from './startup-diagnostics'
 import { startEventLoopStallProbe } from './event-loop-stall-probe'
+import { startEventLoopDelayProbe } from '../diagnostics/event-loop-delay-probe'
 import {
   isMainThreadDiagnosticsEnabled,
   recordSubprocessSpawn,
   startMainThreadChurnProbe
 } from '../diagnostics/main-thread-churn-probe'
-import { setSpawnObserver } from '../../shared/child-process/spawn-observer'
+import { setSpawnObserver } from '@orca/process-host/spawn-observer'
 import { settledDiffCache } from '../git/source-control/git-read-cache-invalidation'
 import { reserveServeStdoutForReadiness } from '../server/serve-stdout-boundary'
 import { createServeDesktopActivationGate } from './serve-desktop-activation'
@@ -52,8 +55,7 @@ import { selectLinuxKeyringBackend } from './select-linux-keyring-backend'
 import { setPtyHostBindings } from '../ipc/pty-host-bindings'
 import { electronRuntimeDesktopSurface } from '../host/electron-runtime-desktop-surface'
 import { setRuntimeDesktopSurface } from '../runtime/runtime-desktop-surface'
-import { electronRuntimeBrowserCommandsFactory } from '../host/electron-browser-commands'
-import { setRuntimeBrowserCommandsFactory } from '../runtime/runtime-browser-commands-factory'
+import { installElectronBrowserCommands } from '../host/electron-browser-commands'
 import { electronSpeechServiceFactories } from '../host/electron-speech-services'
 import { setSpeechServiceFactories } from '../speech/speech-runtime-service'
 import { setWorktreeWatcherRemoval } from '../ipc/worktree-watcher-removal'
@@ -61,7 +63,7 @@ import { desktopWorktreeWatcherRemoval } from '../ipc/filesystem-watcher'
 import { setDefaultProxySessionResolver } from '../network/proxy-settings'
 import { initDataPath, getCanonicalUserDataPath } from '../persistence'
 import { applyMacPressAndHoldDefaultAtStartup } from '../macos-press-and-hold-default'
-import { initSessionParseCachePersistence } from '../ai-vault/session-parse-cache-persistence'
+import { configureSessionParseCachePersistence } from '../ai-vault/session-parse-cache-persistence'
 import { initOrcaProfilePaths } from '../orca-profiles/profile-index-store'
 import { getProfileUserDataPath } from '../orca-profiles/profile-storage-paths'
 import { recoverPendingProfileProjectMoves } from '../orca-profiles/profile-project-move-intent'
@@ -71,18 +73,21 @@ import { initCodexUsagePath } from '../codex-usage/store'
 import { initOpenCodeUsagePath } from '../opencode-usage/store'
 import { initMuseUsagePath } from '../muse-usage/store'
 import { registerDocPreviewSchemePrivileges } from '../browser/doc-preview-protocol'
+import { MEDIA_PREVIEW_CUSTOM_SCHEME } from '../media/media-preview-protocol'
 import { startCrashpadCapture } from '../crash-reporting/crashpad-capture'
 import { CrashReportStore } from '../crash-reporting/crash-report-store'
 import { recordCrashBreadcrumb } from '../crash-reporting/crash-breadcrumb-store'
-import { recordDurableCrashBreadcrumb } from '../crash-reporting/durable-crash-breadcrumb'
-import { GpuCrashDiagnosticsRecorder } from '../crash-reporting/gpu-crash-diagnostics'
 import { getMainProcessLifecycleIdentity } from '../crash-reporting/main-process-lifecycle-identity'
 import {
   ensureVirtualDisplayForHeadlessServe,
   hasUsableLinuxDisplay,
-  MISSING_LINUX_DISPLAY_MESSAGE
+  missingLinuxDisplayMessage
 } from './ensure-virtual-display'
-import { maybeApplyGpuFallbackForThisLaunch, registerGpuLifecycleHandlers } from './gpu-lifecycle'
+import {
+  createGpuCrashDiagnosticsRecorder,
+  maybeApplyGpuFallbackForThisLaunch,
+  registerGpuLifecycleHandlers
+} from './gpu-lifecycle'
 import { mainProcessState as state } from './main-process-state'
 import { initializeSyntheticTitleRuntime } from './synthetic-title-runtime'
 import { initializeBrowserProcessUserAgent } from '../browser/browser-process-user-agent'
@@ -90,6 +95,7 @@ import { initializeBrowserIdentityModeStore } from '../browser/browser-identity-
 import { acquireProfileStateRuntimeAdmission } from '../persistence/profile-state/profile-state-access'
 import { getActiveProfileStateLocation } from '../persistence/profile-state/profile-state-active-location'
 import { handleMainProcessPreflightFailure } from './main-process-preflight-failure'
+import { ensureWindowsAppDataPath } from './windows-app-data-path'
 
 export type MainProcessPreflightOptions = {
   focusExistingWindow: () => void
@@ -108,12 +114,15 @@ export function runMainProcessPreflight(options: MainProcessPreflightOptions): b
 }
 
 function initializeMainProcessPreflight(options: MainProcessPreflightOptions): boolean {
+  const isDev = !app.isPackaged
+  // Why first: every step below, recovery and the instance lock included, may resolve userData.
+  ensureWindowsAppDataPath(app)
   if (runProfileStateRecoveryPreflight()) {
     return false
   }
   // Why: on Windows a CLI launch that lost ELECTRON_RUN_AS_NODE would boot the GUI and exit silently; redirect to node mode before the lock gate below.
   // The redirect runs before the serve-argv rewrite so it still matches on the launch argv verbatim.
-  // Direct serve stays in-process so its signal handlers own all children.
+  // A direct Linux `serve` is exec'd into the CLI here (same pid); it only continues in-process if exec fails.
   const cliLaunchRedirect = maybeRedirectCliLaunch({
     isPackaged: app.isPackaged,
     resourcesPath: process.resourcesPath,
@@ -131,13 +140,13 @@ function initializeMainProcessPreflight(options: MainProcessPreflightOptions): b
   state.isServeMode = process.argv.includes('--serve')
   // Fail before Chromium's missing-display teardown can segfault (#13719).
   if (app.isPackaged && !state.isServeMode && !hasUsableLinuxDisplay()) {
-    process.stderr.write(`${MISSING_LINUX_DISPLAY_MESSAGE}\n`)
+    process.stderr.write(`${missingLinuxDisplayMessage(false)}\n`)
     app.exit(1)
   }
   if (state.isServeMode) {
     reserveServeStdoutForReadiness()
   }
-  state.devInstanceIdentity = getDevInstanceIdentity(is.dev)
+  state.devInstanceIdentity = getDevInstanceIdentity(isDev)
   state.devAgentHookEndpointNamespace = state.devInstanceIdentity.isDev
     ? state.devInstanceIdentity.appUserModelId
     : undefined
@@ -173,7 +182,6 @@ function initializeMainProcessPreflight(options: MainProcessPreflightOptions): b
   // Why before any spawn: `signalProcessTree` is shared with the CLI and relay, so
   // it can only reach the main-process guard and breadcrumb store once this is registered.
   installMainProcessTreeKillGate()
-  const isDev = is.dev
   configureDevUserDataPath(isDev)
   configureOrcaUserDataPathEnv()
   // Why these four lines are one step (#16761): the two above decide where userData lives, and
@@ -186,6 +194,11 @@ function initializeMainProcessPreflight(options: MainProcessPreflightOptions): b
   // Why captured now: after the dev/E2E override above, and before app.setName('Orca') (whenReady)
   // changes how userData resolves on a case-sensitive filesystem. See persistence.ts:20-28.
   initDataPath()
+  startEventLoopDelayProbe('main', getCanonicalUserDataPath())
+  antigravityHookService.setWindowsRuntimePathProvider(
+    () => getRelocatedDaemonHost()?.execPath ?? process.execPath
+  )
+
   // Why: Electron resolves the macOS safeStorage Keychain service name from the app name before
   // ready. Dev pins userData above, so applying its name here cannot shift the captured path.
   if (state.devInstanceIdentity && shouldApplyPreReadyAppName(state.devInstanceIdentity)) {
@@ -268,7 +281,7 @@ function initializeMainProcessPreflight(options: MainProcessPreflightOptions): b
   // Why here: constructing RuntimeBrowserCommands is what pulls the Chromium browser
   // cluster into the graph. The desktop installs it; a Node host installs none and every
   // browser RPC rejects, which capability filtering already tells clients about.
-  setRuntimeBrowserCommandsFactory(electronRuntimeBrowserCommandsFactory)
+  installElectronBrowserCommands()
   // Why here: proxy-settings only needed electron for `session.defaultSession`. The
   // desktop supplies it; a Node host has no Chromium proxy config to consult, so the
   // environment variables are the whole answer there.
@@ -286,7 +299,7 @@ function initializeMainProcessPreflight(options: MainProcessPreflightOptions): b
   // itself lands for the next launch (see macos-press-and-hold-default.ts).
   applyMacPressAndHoldDefaultAtStartup(getCanonicalUserDataPath())
   // Why: use the canonical userData path — late app.getPath('userData') can resolve differently across restarts, defeating persistence.
-  initSessionParseCachePersistence({
+  configureSessionParseCachePersistence({
     filePath: join(getCanonicalUserDataPath(), 'ai-vault', 'session-parse-cache.json'),
     appVersion: app.getVersion()
   })
@@ -306,21 +319,12 @@ function initializeMainProcessPreflight(options: MainProcessPreflightOptions): b
   initMuseUsagePath()
   // Why: Electron freezes the privileged scheme table at ready, so the doc-preview
   // scheme must be declared here or its webview loses fetch/secure-origin privileges.
-  registerDocPreviewSchemePrivileges()
+  registerDocPreviewSchemePrivileges([MEDIA_PREVIEW_CUSTOM_SCHEME])
   // Why: must precede app.whenReady() so Crashpad is installed before the
   // first renderer spawns; a CHECK before this point is still exit-code-only.
   startCrashpadCapture()
   state.crashReports = CrashReportStore.fromUserData()
-  state.gpuCrashDiagnostics =
-    process.platform === 'win32'
-      ? new GpuCrashDiagnosticsRecorder({
-          provider: {
-            getGPUInfo: (infoType) => app.getGPUInfo(infoType),
-            getGPUFeatureStatus: () => app.getGPUFeatureStatus()
-          },
-          recordBreadcrumb: (data) => recordDurableCrashBreadcrumb('gpu_crash_hardware', data)
-        })
-      : null
+  state.gpuCrashDiagnostics = createGpuCrashDiagnosticsRecorder()
   recordCrashBreadcrumb('app_started', {
     packaged: app.isPackaged,
     platform: process.platform,
@@ -331,6 +335,7 @@ function initializeMainProcessPreflight(options: MainProcessPreflightOptions): b
   optOutOfHiddenPageWakeUpThrottling()
   configureElectronNetworkCompatibility()
   enableRendererHeapHeadroom()
+  configureLinuxDevShmUsage()
   maybeApplyGpuFallbackForThisLaunch()
   if (!state.gpuFallbackActiveThisLaunch) {
     enableMainProcessGpuFeatures()
@@ -341,7 +346,7 @@ function initializeMainProcessPreflight(options: MainProcessPreflightOptions): b
   })
   // Why: continuing without Xvfb lets Ozone initialize without a display and SIGSEGV (#17615).
   if (state.isServeMode && !state.headlessBrowserDisplayAvailable) {
-    process.stderr.write(`${MISSING_LINUX_DISPLAY_MESSAGE}\n`)
+    process.stderr.write(`${missingLinuxDisplayMessage(true)}\n`)
     app.exit(1)
   }
   initializeSyntheticTitleRuntime()

@@ -88,7 +88,7 @@ describe('PR routing', () => {
       'config/scripts/check-runtime-launcher-protocol-ratchet.mjs',
       DAEMON_PROTOCOL_SOURCE_PATH
     ]) {
-      expect(classifyPrJobs([file])['cross-version-wire']).toBe(true)
+      expect(classifyPrJobs([file]).should_run).toBe(true)
     }
   })
 })

@@ -33,17 +33,14 @@ describe('probeGitRemoteIdentity', () => {
     })
   })
 
-  it('reports unavailable when the SSH host has no connected git provider', async () => {
+  it('reports unavailable for an SSH host', async () => {
     await expect(probeGitRemoteIdentity('/repos/orca', 'ssh:builder')).resolves.toEqual({
       status: 'unavailable'
     })
     expect(gitExecFileAsync).not.toHaveBeenCalled()
   })
 
-  // A runtime host's Git is executed by that environment's own server, and the SSH target on its
-  // repo row lives in that server's namespace. Dialing a same-named target here answers for
-  // another machine's repository.
-  it('refuses a runtime host even when its nested SSH target is registered on this client', async () => {
+  it('refuses a runtime host', async () => {
     await expect(probeGitRemoteIdentity('/repos/orca', 'runtime:env-a')).resolves.toEqual({
       status: 'unavailable'
     })

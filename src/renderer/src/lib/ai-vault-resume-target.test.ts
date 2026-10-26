@@ -57,58 +57,38 @@ describe('ai vault session storage compatibility', () => {
     ).toBe(false)
   })
 
-  it('allows WSL-stored sessions on local and SSH targets', () => {
+  it('allows WSL-stored sessions on local targets', () => {
     expect(
       canResumeAiVaultSessionOnTarget({ sessionFilePath: wslSessionFile, targetStatus: 'local' })
     ).toBe(true)
+  })
+
+  it('never resumes a WSL-stored session on an SSH target', () => {
     expect(
       canResumeAiVaultSessionOnTarget({ sessionFilePath: wslSessionFile, targetStatus: 'ssh' })
-    ).toBe(true)
+    ).toBe(false)
   })
 
-  it('allows host-tagged SSH sessions only on the matching SSH target', () => {
-    expect(
+  // #24408: on Windows a WSL workspace and a Windows workspace are both `local`, but the
+  // agent only exists, and only finds the session, inside one of them.
+  it('resumes a local session only in the namespace that stores it', () => {
+    const local = { sessionExecutionHostId: 'local', targetExecutionHostId: 'local' } as const
+    const resume = (sessionFilePath: string, targetWslDistro: string | null | undefined) =>
       canResumeAiVaultSessionOnTarget({
-        sessionFilePath: '/home/ada/.codex/sessions/remote.jsonl',
-        sessionExecutionHostId: 'ssh:dev-box',
-        targetStatus: 'ssh',
-        targetExecutionHostId: 'ssh:dev-box'
-      })
-    ).toBe(true)
-    expect(
-      canResumeAiVaultSessionOnTarget({
-        sessionFilePath: '/home/ada/.codex/sessions/remote.jsonl',
-        sessionExecutionHostId: 'ssh:dev-box',
-        targetStatus: 'ssh',
-        targetExecutionHostId: 'ssh:other-box'
-      })
-    ).toBe(false)
-    expect(
-      canResumeAiVaultSessionOnTarget({
-        sessionFilePath: '/home/ada/.codex/sessions/remote.jsonl',
-        sessionExecutionHostId: 'ssh:dev-box',
+        ...local,
+        sessionFilePath,
         targetStatus: 'local',
-        targetExecutionHostId: 'local'
+        targetWslDistro
       })
-    ).toBe(false)
-    expect(
-      canResumeAiVaultSessionOnTarget({
-        sessionFilePath: '/home/ada/.codex/sessions/remote.jsonl',
-        sessionExecutionHostId: 'ssh:dev-box',
-        targetStatus: 'local'
-      })
-    ).toBe(false)
-  })
 
-  it('allows WSL-stored local sessions on any SSH target even with explicit host ids', () => {
-    expect(
-      canResumeAiVaultSessionOnTarget({
-        sessionFilePath: wslSessionFile,
-        sessionExecutionHostId: 'local',
-        targetStatus: 'ssh',
-        targetExecutionHostId: 'ssh:dev-box'
-      })
-    ).toBe(true)
+    expect(resume(wslLocalhostSessionFile, null)).toBe(false)
+    expect(resume(wslLocalhostSessionFile, 'Debian')).toBe(false)
+    expect(resume(wslLocalhostSessionFile, 'ubuntu')).toBe(true)
+    expect(resume(windowsHostSessionFile, 'Ubuntu')).toBe(false)
+    expect(resume(windowsHostSessionFile, null)).toBe(true)
+    // An unknown namespace refuses only what it can prove.
+    expect(resume(wslLocalhostSessionFile, undefined)).toBe(true)
+    expect(resume(windowsHostSessionFile, undefined)).toBe(true)
   })
 
   it('allows runtime sessions only on the matching runtime target', () => {

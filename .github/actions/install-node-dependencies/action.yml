@@ -151,6 +151,19 @@ runs:
           git -C "$GITHUB_WORKSPACE" diff --exit-code -- package.json pnpm-lock.yaml pnpm-workspace.yaml
         fi
 
+    # Why: the script-free install leaves node_modules/.bin/bun as a stub that shadows setup-bun under `pnpm run`.
+    - name: Link pinned Bun
+      shell: bash
+      run: |
+        if [ -d node_modules/bun ]; then
+          pnpm rebuild bun
+        fi
+
+    # Why: --ignore-scripts skips postinstall, which builds @orca/process-host's dist.
+    - name: Build internal packages
+      shell: bash
+      run: pnpm run --if-present build:packages
+
     # pnpm checks the cached record's policy and validity; never bypass verification.
     - name: Save pnpm verification record on main
       if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && steps.verification-cache.outputs.key != '' && steps.verification-cache-restore.outputs.cache-hit != 'true'

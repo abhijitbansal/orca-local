@@ -401,18 +401,6 @@ async function dispatchCandidateSelectionKey(
   })
 }
 
-async function dispatchOrphanLetterKeyup(session: CDPSession): Promise<void> {
-  // Why: legacy Sogou/fcitx can emit only the release after committing a
-  // single-letter preedit, leaving no composition or input event to classify.
-  await session.send('Input.dispatchKeyEvent', {
-    type: 'keyUp',
-    key: 'a',
-    code: 'KeyA',
-    windowsVirtualKeyCode: 65,
-    nativeVirtualKeyCode: 65
-  })
-}
-
 async function dispatchSogouEmptyCompositionUpdate(page: Page): Promise<void> {
   // Why: Sogou/fcitx emits empty compositionupdate data while its candidate
   // popup is still open (#6765); Orca's tracker must not flip inactive on it.
@@ -660,7 +648,8 @@ test.describe('Chinese IME terminal chat input repro', () => {
       // Why: create the session/harness inside the try so a mid-setup throw
       // still hits finally and removes the harness script.
       writeFileSync(scriptPath, terminalImeHarnessScript(runId))
-      session = await orcaPage.context().newCDPSession(orcaPage)
+      const cdpSession = await orcaPage.context().newCDPSession(orcaPage)
+      session = cdpSession
       await sendToTerminal(orcaPage, ptyId, `node ${JSON.stringify(scriptPath)}\r`)
       harnessStarted = true
       await waitForTerminalOutput(orcaPage, `IME_HARNESS_READY_${runId}`, 10_000, 20_000)
@@ -676,7 +665,7 @@ test.describe('Chinese IME terminal chat input repro', () => {
       await orcaPage.waitForTimeout(80)
       await dispatchSogouEmptyCompositionUpdate(orcaPage)
       await dispatchCandidateSelectionKey(session, { key: ' ', code: 'Space', keyCode: 32 }, () =>
-        commitImeText(session, '你')
+        commitImeText(cdpSession, '你')
       )
       await waitForLivePrompt(orcaPage, '你')
       await attachImeEvidence(orcaPage, testInfo, 'sogou-after-space-commit')
@@ -694,7 +683,7 @@ test.describe('Chinese IME terminal chat input repro', () => {
       await orcaPage.waitForTimeout(80)
       await dispatchSogouEmptyCompositionUpdate(orcaPage)
       await dispatchCandidateSelectionKey(session, { key: '2', code: 'Digit2', keyCode: 50 }, () =>
-        commitImeText(session, '你好')
+        commitImeText(cdpSession, '你好')
       )
       await waitForLivePrompt(orcaPage, '你好')
       await attachImeEvidence(orcaPage, testInfo, 'sogou-after-digit-commit')
@@ -714,7 +703,7 @@ test.describe('Chinese IME terminal chat input repro', () => {
       await dispatchSogouEmptyCompositionUpdate(orcaPage)
       await dispatchSogouPostCompositionEnd(orcaPage, '再见')
       await dispatchCandidateSelectionKey(session, { key: '3', code: 'Digit3', keyCode: 51 }, () =>
-        commitImeText(session, '再见')
+        commitImeText(cdpSession, '再见')
       )
       await waitForLivePrompt(orcaPage, '再见')
       const postCompositionLog = await readImeEventLog(orcaPage)
@@ -745,24 +734,11 @@ test.describe('Chinese IME terminal chat input repro', () => {
         })
         .toBe('再见')
 
-      // Some legacy desktop Linux paths omit every composition/input event and
-      // expose only an orphaned Latin release before the candidate digit.
-      await dispatchOrphanLetterKeyup(session)
-      await dispatchCandidateSelectionKey(session, { key: '4', code: 'Digit4', keyCode: 52 })
-      await orcaPage.keyboard.press('Enter')
-      await expect
-        .poll(async () => (await readPromptState(orcaPage))?.submitted.at(-1) ?? null, {
-          timeout: 5_000,
-          message: 'orphan-keyup candidate digit leaked into the submitted terminal input'
-        })
-        .toBe('')
-      await attachImeEvidence(orcaPage, testInfo, 'sogou-after-orphan-keyup-digit-suppression')
-
       const promptState = await readPromptState(orcaPage)
       expect(
         promptState?.submitted,
         'candidate Space/digit selectors and pinyin preedit must not leak into the PTY'
-      ).toEqual(['你', '你好', '再见', ''])
+      ).toEqual(['你', '你好', '再见'])
     } finally {
       await attachImeEvidence(orcaPage, testInfo, 'sogou-final-ime-evidence').catch(() => undefined)
       await session?.detach().catch(() => undefined)
