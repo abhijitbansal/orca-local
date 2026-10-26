@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import { chmodSync, copyFileSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
+import { chmodSync, copyFileSync, mkdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 
 const repoRoot = path.resolve(import.meta.dirname, '../..')
@@ -18,7 +18,7 @@ const bundleId =
   process.env.ORCA_COMPUTER_MACOS_BUNDLE_ID ?? 'com.abhijitbansal.orca-local.computer-use'
 const displayName = 'Orca Computer Use'
 const signingIdentity = resolveSigningIdentity()
-const universalTriples = ['arm64-apple-macosx', 'x86_64-apple-macosx']
+const universalArchs = ['arm64', 'x86_64']
 
 if (process.platform !== 'darwin') {
   process.exit(0)
@@ -28,13 +28,45 @@ buildUniversalBinary()
 chmodSync(binaryPath, 0o755)
 createHelperApp()
 
+// Why one multi-arch build: Swift 6.4's default build system ignores --triple's output layout,
+// while --arch is honoured by every SwiftPM build system and --show-bin-path names its output.
 function buildUniversalBinary() {
-  const builtBinaries = universalTriples.map((triple) => {
-    run('swift', ['build', '-c', 'release', '--package-path', packagePath, '--triple', triple])
-    return path.join(packagePath, '.build', triple, 'release', 'orca-computer-use-macos')
-  })
+  const buildArgs = ['build', '-c', 'release', '--package-path', packagePath]
+  for (const arch of universalArchs) {
+    buildArgs.push('--arch', arch)
+  }
+  run('swift', buildArgs)
+  const binDir = capture('swift', [...buildArgs, '--show-bin-path']).trim()
+  const builtBinary = path.join(binDir, 'orca-computer-use-macos')
   mkdirSync(path.dirname(binaryPath), { recursive: true })
-  run('lipo', ['-create', ...builtBinaries, '-output', binaryPath])
+  if (realpathSync(builtBinary) !== safeRealpath(binaryPath)) {
+    copyFileSync(builtBinary, binaryPath)
+  }
+  const archs = capture('lipo', ['-archs', binaryPath]).trim().split(/\s+/)
+  const missing = universalArchs.filter((arch) => !archs.includes(arch))
+  if (missing.length > 0) {
+    console.error(`[build-computer-macos] universal binary is missing ${missing.join(', ')}`)
+    process.exit(1)
+  }
+}
+
+function safeRealpath(target) {
+  try {
+    return realpathSync(target)
+  } catch {
+    return null
+  }
+}
+
+function capture(command, args) {
+  const result = spawnSync(command, args, {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'inherit']
+  })
+  if (result.status !== 0) {
+    process.exit(result.status ?? 1)
+  }
+  return result.stdout
 }
 
 function createHelperApp() {
