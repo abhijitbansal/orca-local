@@ -212,8 +212,8 @@ const macUsageDescriptions = {
   NSBonjourServices: ['_http._tcp', '_https._tcp'],
   ...MACOS_FOLDER_USAGE_DESCRIPTIONS
 }
-// Developer ID team that signs every release-channel mac build.
-const ORCA_MAC_TEAM_ID = '6CX3WHS9HZ'
+// Developer ID team that signs every release-channel mac build (the fork's, not upstream's).
+const ORCA_MAC_TEAM_ID = 'XDTAU7RN57'
 
 /** @type {import('electron-builder').Configuration} */
 module.exports = {
